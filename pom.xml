@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?><project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.sf.jpasecurity</groupId>
+  <artifactId>jpasecurity</artifactId>
+  <name>JPA Security</name>
+  <version>0.1.0</version>
+  <description>
+    JPA Security secures the Data Access Layer. Integrating smooth with current authentication solutions
+    like J2EE Security and Spring Security (formerly known as Acegi-Security), it enables applications
+    to control access to JPA Entity Beans based on the currently authenticated user and/or its roles.
+  </description>
+  <url>http://jpa-security.sf.net</url>
+
+  <prerequisites>
+    <maven>2.0.8</maven>
+  </prerequisites>
+  <issueManagement>
+    <system>Sourceforge Tracker</system>
+    <url>http://sourceforge.net/tracker/?group_id=200190</url>
+  </issueManagement>
+  <inceptionYear>2008</inceptionYear>
+  <developers>
+    <developer>
+      <id>arne</id>
+      <name>Arne Limburg</name>
+      <email>arne.limburg@sourceforge.net</email>
+      <roles>
+        <role>Project Lead</role>
+        <role>Java Developer</role>
+        <timezone>+1</timezone>
+      </roles>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:svn:https://jpa-security.svn.sourceforge.net/svnroot/jpa-security/trunk/jpa-security/</connection>
+    <developerConnection>scm:svn:https://jpa-security.svn.sourceforge.net/svnroot/jpa-security/trunk/jpa-security/</developerConnection>
+    <url>http://jpa-security.svn.sourceforge.net/viewvc/jpa-security/trunk/jpa-security/</url>
+  </scm>
+  <organization>
+    <name>JPA Security</name>
+  </organization>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.0</version>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+          <excludes>
+            <exclude>net/sf/jpasecurity/jpql/parser/*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <configuration>
+              <tasks>
+                <copy todir="target/generated-sources/jjtree/net/sf/jpasecurity/jpql/parser">
+                  <fileset dir="src/main/java/net/sf/jpasecurity/jpql/parser"/>
+                </copy>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>javacc-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>jjtree</id>
+            <goals>
+              <goal>jjtree</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>javacc</id>
+            <configuration>
+              <sourceDirectory>target/generated-sources/jjtree</sourceDirectory>
+            </configuration>
+            <goals>
+              <goal>javacc</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <configuration>
+          <downloadSources>true</downloadSources>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <configLocation>src/checkstyle/configuration.xml</configLocation>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+  
+  <dependencies>
+    <dependency>
+      <groupId>javax.persistence</groupId>
+      <artifactId>persistence-api</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.14</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib</artifactId>
+      <version>2.1_3</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
