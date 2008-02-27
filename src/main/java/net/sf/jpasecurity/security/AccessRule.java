@@ -20,17 +20,17 @@ import java.util.Collections;
 import java.util.Map;
 
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiledStatement;
-import net.sf.jpasecurity.jpql.parser.JpqlStatement;
+import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 
 /**
  * @author Arne Limburg
  */
 public class AccessRule extends JpqlCompiledStatement {
 
-    public AccessRule(JpqlStatement statement,
+    public AccessRule(JpqlAccessRule rule,
                       String selectedPath,
                       Map<String, Class<?>> aliasTypes) {
-        super(statement, Collections.singletonList(selectedPath), aliasTypes);
+        super(rule, Collections.singletonList(selectedPath), aliasTypes);
     }
     
     public String getSelectedPath() {

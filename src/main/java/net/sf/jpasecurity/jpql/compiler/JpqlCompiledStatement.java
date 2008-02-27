@@ -25,19 +25,21 @@ import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
+import net.sf.jpasecurity.jpql.parser.Node;
+import net.sf.jpasecurity.jpql.parser.SimpleNode;
 
 /**
  * @author Arne Limburg
  */
 public class JpqlCompiledStatement implements Cloneable {
 
-    private JpqlStatement statement;
+    private SimpleNode statement;
     private List<String> selectedPathes;
     private Map<String, Class<?>> aliasTypes;
     private JpqlFrom fromClause;
     private JpqlWhere whereClause;
 
-    public JpqlCompiledStatement(JpqlStatement statement,
+    public JpqlCompiledStatement(SimpleNode statement,
                                  List<String> selectedPathes,
                                  Map<String, Class<?>> aliasTypes) {
         this.statement = statement;
@@ -45,7 +47,7 @@ public class JpqlCompiledStatement implements Cloneable {
         this.aliasTypes = aliasTypes;
     }
     
-    public JpqlStatement getStatement() {
+    public Node getStatement() {
         return statement;
     }
 

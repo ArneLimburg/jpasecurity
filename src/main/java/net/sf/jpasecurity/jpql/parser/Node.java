@@ -35,4 +35,6 @@ public interface Node extends Cloneable {
   public int jjtGetNumChildren();
   
   public Node clone();
+
+  public void visit(JpqlParserVisitor visitor);
 }
