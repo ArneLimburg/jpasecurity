@@ -25,7 +25,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.Node;
-import net.sf.jpasecurity.security.AccessRule;
+import net.sf.jpasecurity.rules.AccessRule;
 
 /**
  * @author Arne Limburg
