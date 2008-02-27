@@ -24,7 +24,7 @@ import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
-import net.sf.jpasecurity.rules.AccessRulesProvider;
+import net.sf.jpasecurity.security.rules.AccessRulesProvider;
 
 /**
  * @author Arne Limburg

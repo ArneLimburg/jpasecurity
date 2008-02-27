@@ -14,18 +14,26 @@
  * and limitations under the License.
  */
 
-package net.sf.jpasecurity.rules;
+package net.sf.jpasecurity.security.rules;
 
-import java.util.List;
+import java.util.Collections;
+import java.util.Map;
+
+import net.sf.jpasecurity.jpql.compiler.JpqlCompiledStatement;
+import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 
 /**
- * This interface may be implemented to access <tt>AccessRule</tt>s.
- * Implementations don't need to cache rules as {@link #getAccessRules()}
- * may be called only once per <tt>EntityManager</tt>.
- * 	
  * @author Arne Limburg
  */
-public interface AccessRulesProvider {
+public class AccessRule extends JpqlCompiledStatement {
 
-	List<AccessRule> getAccessRules();
+    public AccessRule(JpqlAccessRule rule,
+                      String selectedPath,
+                      Map<String, Class<?>> aliasTypes) {
+        super(rule, Collections.singletonList(selectedPath), aliasTypes);
+    }
+    
+    public String getSelectedPath() {
+    	return getSelectedPathes().get(0);
+    }
 }
