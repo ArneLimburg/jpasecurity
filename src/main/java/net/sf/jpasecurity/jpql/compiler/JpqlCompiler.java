@@ -21,28 +21,33 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
+import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
+import net.sf.jpasecurity.jpql.parser.Node;
+import net.sf.jpasecurity.security.AccessRule;
 
 /**
  * @author Arne Limburg
  */
 public class JpqlCompiler {
 
-    private final AliasVisitor aliasVisitor = new AliasVisitor();
-
-    private JpqlStatement statement;
-    
-    public JpqlCompiler(JpqlStatement statement) {
-        this.statement = statement;
+    public JpqlCompiledStatement compile(JpqlStatement statement) {
+        List<String> selectedPathes = null;
+        Map<String, Class<?>> aliasTypes = getAliasTypes(statement);
+        return new JpqlCompiledStatement(statement, selectedPathes, aliasTypes);
     }
     
-    public JpqlCompiledStatement compileStatement() {
-        aliasVisitor.reset();
-        statement.visit(aliasVisitor);
-        List<String> selectedPathes = null;
-        Map<String, Class<?>> aliasTypes = aliasVisitor.getAliasTypes();
-        return new JpqlCompiledStatement(statement, selectedPathes, aliasTypes);
+    public AccessRule compile(JpqlAccessRule rule) {
+        String selectedPath = null;
+        Map<String, Class<?>> aliasTypes = getAliasTypes(rule);
+        return new AccessRule(rule, selectedPath, aliasTypes);    	
+    }
+    
+    private Map<String, Class<?>> getAliasTypes(Node node) {
+    	AliasVisitor aliasVisitor = new AliasVisitor();
+    	node.visit(aliasVisitor);
+    	return aliasVisitor.getAliasTypes();
     }
     
     private class AliasVisitor extends JpqlVisitorAdapter {

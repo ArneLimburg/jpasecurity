@@ -29,15 +29,15 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * @author Arne Limburg
  */
-public abstract class AbstractXmlParser {
+public abstract class AbstractXmlParser<H extends DefaultHandler> {
 
-    private DefaultHandler handler;
+    private H handler;
 
-    public AbstractXmlParser(DefaultHandler xmlHandler) {
+    public AbstractXmlParser(H xmlHandler) {
         handler = xmlHandler;
     }
 
-    protected DefaultHandler getHandler() {
+    protected H getHandler() {
         return handler;
     }
 

@@ -20,6 +20,7 @@ public class ToStringVisitorTest extends TestCase {
 
 	private static final Log LOG = LogFactory.getLog(ToStringVisitor.class);
 	
+	private JpqlParser parser;
 	private ToStringVisitor toStringVisitor;
 	private Set<String> expectedMethodNames;
 	private Set<String> calledMethodNames;
@@ -74,7 +75,7 @@ public class ToStringVisitorTest extends TestCase {
 	
 	public void assertJpql(String query) throws ParseException {
 		toStringVisitor.reset();
-		JpqlStatement statement = new JpqlParser(query).parseQuery();
+		JpqlStatement statement = parser.parseQuery(query);
 		statement.visit(toStringVisitor);
 		query = stripWhiteSpaces(query);
 		String result = stripWhiteSpaces(toStringVisitor.toString());
@@ -95,6 +96,7 @@ public class ToStringVisitorTest extends TestCase {
 	}
 	
 	public void setUp() {
+		parser = new JpqlParser();
 		toStringVisitor = (ToStringVisitor)Enhancer.create(ToStringVisitor.class, new VisitorHandler());
 		expectedMethodNames = new HashSet<String>();
 		for (Method method: JpqlParserVisitor.class.getMethods()) {

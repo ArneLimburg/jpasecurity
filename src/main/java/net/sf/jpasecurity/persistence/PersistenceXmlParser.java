@@ -23,7 +23,6 @@ import java.util.Map;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 
-
 import net.sf.jpasecurity.xml.AbstractXmlParser;
 
 import org.xml.sax.Attributes;
@@ -34,7 +33,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * Simple SAX-Handler to parse persistence.xml.
  * @author Arne Limburg
  */
-public class PersistenceXmlParser extends AbstractXmlParser {
+public class PersistenceXmlParser extends AbstractXmlParser<PersistenceXmlParser.PersistenceXmlHandler> {
 
     public PersistenceXmlParser() {
         super(new PersistenceXmlHandler());
@@ -48,11 +47,7 @@ public class PersistenceXmlParser extends AbstractXmlParser {
         return getHandler().getPersistenceUnitInfo(persistenceUnitName);
     }
 
-    protected PersistenceXmlHandler getHandler() {
-        return (PersistenceXmlHandler)super.getHandler();
-    }
-
-    private static class PersistenceXmlHandler extends DefaultHandler {
+    protected static class PersistenceXmlHandler extends DefaultHandler {
 
         private static final String PERSISTENCE_UNIT_TAG = "persistence-unit";
         private static final String PROVIDER_TAG = "provider";

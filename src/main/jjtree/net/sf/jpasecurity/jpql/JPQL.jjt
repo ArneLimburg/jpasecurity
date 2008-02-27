@@ -48,31 +48,44 @@ import java.io.*;
 
 public class JpqlParser {
     
-    String jpql;
-    
-    public JpqlParser(String jpql) {
-        this(new StringReader(jpql));
-        this.jpql = jpql;
+    public JpqlParser() {
+        this(new StringReader(""));
     }
     
-    public JpqlStatement parseQuery() throws ParseException {
+    public JpqlStatement parseQuery(String query) throws ParseException {
+        ReInit(new StringReader(query));
         return (JpqlStatement)jpqlStatement();
+    }
+    
+    public JpqlStatement parseQuery(InputStream query) throws ParseException {
+        ReInit(query);
+        return (JpqlStatement)jpqlStatement();
+    }
+    
+    public JpqlAccessRule parseRule(String rule) throws ParseException {
+        ReInit(new StringReader(rule));
+        return (JpqlAccessRule)jpqlAccessRule();
+    }
+    
+    public JpqlAccessRule parseRule(InputStream rule) throws ParseException {
+        ReInit(rule);
+        return (JpqlAccessRule)jpqlAccessRule();
     }
     
     public static void main(String[] args) throws Exception    {
         if (args.length > 0) {
             for (int i = 0; i < args.length; i++) {
-                JpqlParser parser = new JpqlParser(args[i]);
-                JpqlStatement statement = parser.parseQuery();
+                JpqlParser parser = new JpqlParser();
+                JpqlStatement statement = parser.parseQuery(args[i]);
                 statement.dump("");
             }
         } else {
-            JpqlParser parser = new JpqlParser(System.in);
+            JpqlParser parser = new JpqlParser();
             while (true) {
                 System.out.print("Enter Statement: ");
                 System.out.flush();
                 try {
-                    JpqlStatement statement = parser.parseQuery();
+                    JpqlStatement statement = parser.parseQuery(System.in);
                     if (statement == null) {
                         return;
                     } else {
@@ -176,6 +189,10 @@ TOKEN[IGNORE_CASE]: {
   | <FROM: "FROM">
   | <UPDATE: "UPDATE">
   | <DELETE: "DELETE">
+  | <GRANT: "GRANT">
+  | <READ: "READ">
+  | <ACCESS: "ACCESS">
+  | <TO: "TO">
   | <WHERE: "WHERE">
   | <GROUP: "GROUP">
   | <HAVING: "HAVING">
@@ -282,6 +299,13 @@ Node jpqlStatement() #Statement: {} {
     }
 }
 
+Node jpqlAccessRule() #AccessRule: {} {
+    <GRANT> <READ> <ACCESS> toClause() whereClause()
+    {
+        return jjtree.rootNode();
+    }
+}
+
 void selectStatement() #Select: {} {
     selectClause() fromClause() [whereClause()] [groupByClause()] [havingClause()] [orderByClause()]
 }
@@ -297,6 +321,14 @@ void deleteStatement() #Delete: {} {
 void fromClause() #From: {} {
     <FROM> identificationVariableDeclaration()
     (LOOKAHEAD(1) <COMMA> (LOOKAHEAD(collectionMemberDeclaration()) collectionMemberDeclaration() | LOOKAHEAD(identificationVariableDeclaration()) identificationVariableDeclaration()))*
+}
+
+void toClause() #From: {} {
+    <TO> simpleIdentificationVariableDeclaration()
+}
+
+void simpleIdentificationVariableDeclaration() #IdentificationVariableDeclaration: {} {
+    fromItem()
 }
 
 void identificationVariableDeclaration() #IdentificationVariableDeclaration: {} {

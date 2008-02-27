@@ -41,6 +41,8 @@ public class QueryFilter {
     
     private MappingInformation mappingInformation;
     
+    private final JpqlParser parser = new JpqlParser();
+    private final JpqlCompiler compiler = new JpqlCompiler();
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final ToStringVisitor toStringVisitor = new ToStringVisitor();
     private final RuleAppender ruleAppender = new RuleAppender();
@@ -69,8 +71,8 @@ public class QueryFilter {
         JpqlCompiledStatement compiledStatement = statementCache.get(query);
         if (compiledStatement == null) {
             try {
-                JpqlStatement statement = new JpqlParser(query).parseQuery();
-                compiledStatement = new JpqlCompiler(statement).compileStatement();
+                JpqlStatement statement = parser.parseQuery(query);
+                compiledStatement = compiler.compile(statement);
                 statementCache.put(query, compiledStatement);
             } catch (ParseException e) {
                 throw new PersistenceException(e);
