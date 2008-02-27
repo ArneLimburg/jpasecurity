@@ -14,7 +14,7 @@
  * and limitations under the License.
  */
 
-package net.sf.jpasecurity.security;
+package net.sf.jpasecurity.rules;
 
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;

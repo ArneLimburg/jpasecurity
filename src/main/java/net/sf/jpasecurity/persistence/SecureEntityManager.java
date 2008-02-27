@@ -24,8 +24,8 @@ import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
-import net.sf.jpasecurity.security.AccessRule;
-import net.sf.jpasecurity.security.QueryFilter;
+import net.sf.jpasecurity.rules.AccessRule;
+import net.sf.jpasecurity.rules.QueryFilter;
 
 /**
  * @author Arne Limburg

@@ -14,7 +14,7 @@
  * and limitations under the License.
  */
 
-package net.sf.jpasecurity.security;
+package net.sf.jpasecurity.rules;
 
 import java.io.IOException;
 import java.net.URL;

@@ -14,7 +14,7 @@
  * and limitations under the License.
  */
 
-package net.sf.jpasecurity.security;
+package net.sf.jpasecurity.rules;
 
 import java.util.Collections;
 import java.util.Map;
