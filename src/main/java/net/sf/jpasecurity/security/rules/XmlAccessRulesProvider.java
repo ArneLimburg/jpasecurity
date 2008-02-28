@@ -33,7 +33,7 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * @author Arne Limburg
  */
-public class XmlAccessRulesProvider extends AbstractRulesProvider {
+public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
 
 	public XmlAccessRulesProvider() {
 		RulesParser parser = new RulesParser();
