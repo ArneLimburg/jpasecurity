@@ -24,6 +24,7 @@ import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
 import net.sf.jpasecurity.security.rules.AccessRule;
 import net.sf.jpasecurity.security.rules.QueryFilter;
 
@@ -33,10 +34,15 @@ import net.sf.jpasecurity.security.rules.QueryFilter;
 public class SecureEntityManager implements EntityManager {
 
     private EntityManager entityManager;
+    private AuthenticationProvider authenticationProvider;
     private QueryFilter queryFilter;
 
-    SecureEntityManager(EntityManager entityManager, MappingInformation mappingInformation, List<AccessRule> accessRules) {
+    SecureEntityManager(EntityManager entityManager,
+    		            MappingInformation mappingInformation,
+    		            AuthenticationProvider authenticationProvider,
+    		            List<AccessRule> accessRules) {
         this.entityManager = entityManager;
+        this.authenticationProvider = authenticationProvider;
         this.queryFilter = new QueryFilter(mappingInformation, accessRules);
     }
 
@@ -69,7 +75,9 @@ public class SecureEntityManager implements EntityManager {
     }
 
     public Query createQuery(String qlString) {
-        return entityManager.createQuery(queryFilter.filterQuery(qlString));
+        return entityManager.createQuery(queryFilter.filterQuery(qlString))
+                            .setParameter("user", authenticationProvider.getUser())
+                            .setParameter("roles", authenticationProvider.getRoles());
     }
 
     public <T> T find(Class<T> entityClass, Object primaryKey) {
