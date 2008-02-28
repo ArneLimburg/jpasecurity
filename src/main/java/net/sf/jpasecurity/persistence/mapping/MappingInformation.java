@@ -18,6 +18,8 @@ package net.sf.jpasecurity.persistence.mapping;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -48,6 +50,10 @@ public class MappingInformation {
 
     public MappingInformation(PersistenceUnitInfo persistenceUnitInfo) {
         persistenceUnit = persistenceUnitInfo;
+    }
+    
+    public Collection<Class<?>> getPersistentClasses() {
+    	return Collections.unmodifiableSet(entityTypeMappings.keySet());
     }
 
     public ClassMappingInformation getClassMapping(String entityName) {
