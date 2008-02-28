@@ -17,6 +17,7 @@
 package net.sf.jpasecurity.security.rules;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.PersistenceException;
@@ -33,7 +34,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
 
 	private List<AccessRule> accessRules;
 	
-	protected void compileRules(List<String> rules) {
+	protected void compileRules(Collection<String> rules) {
 		JpqlParser jpqlParser = new JpqlParser();
 		JpqlCompiler compiler = new JpqlCompiler();
 		accessRules = new ArrayList<AccessRule>();
