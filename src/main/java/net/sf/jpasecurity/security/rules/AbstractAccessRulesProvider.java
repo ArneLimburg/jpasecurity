@@ -29,7 +29,7 @@ import net.sf.jpasecurity.jpql.parser.ParseException;
 /**
  * @author Arne Limburg
  */
-public abstract class AbstractRulesProvider implements AccessRulesProvider {
+public abstract class AbstractAccessRulesProvider implements AccessRulesProvider {
 
 	private List<AccessRule> accessRules;
 	
