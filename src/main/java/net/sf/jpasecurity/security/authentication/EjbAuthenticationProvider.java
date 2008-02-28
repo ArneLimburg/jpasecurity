@@ -17,7 +17,6 @@ package net.sf.jpasecurity.security.authentication;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +28,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
+import net.sf.jpasecurity.util.AnnotationParser;
 
 /**
  * @author Arne Limburg
@@ -38,26 +38,7 @@ public class EjbAuthenticationProvider implements AuthenticationProvider, Persis
 	private Set<String> roles;
 
 	public void setPersistentClasses(Collection<Class<?>> classes) {
-		roles = new HashSet<String>();
-		for (Class<?> persistentClass: classes) {
-			parse(persistentClass);
-		}
-	}
-	
-	private void parse(Class<?> persistentClass) {
-		if (persistentClass == null) {
-			return;
-		}
-		DeclareRoles declareRoles = persistentClass.getAnnotation(DeclareRoles.class);
-		if (declareRoles != null) {
-			for (String role: declareRoles.value()) {
-				roles.add(role);
-			}
-		}
-		for (Class<?> persistentInterface: persistentClass.getInterfaces()) {
-			parse(persistentInterface);
-		}
-		parse(persistentClass.getSuperclass());
+		roles = new AnnotationParser<String>(DeclareRoles.class).parse(classes);
 	}
 	
 	public Object getUser() {
