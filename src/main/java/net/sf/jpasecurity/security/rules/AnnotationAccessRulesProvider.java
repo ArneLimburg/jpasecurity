@@ -27,6 +27,8 @@ import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
 import net.sf.jpasecurity.util.AnnotationParser;
 
 /**
+ * This class parses the persistent classes for the annotation {@link RolesAllowed}
+ * and provides access rules based on the allowed roles.
  * @author Arne Limburg
  */
 public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider implements PersistenceInformationReceiver {
