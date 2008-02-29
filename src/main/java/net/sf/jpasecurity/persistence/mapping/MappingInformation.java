@@ -50,12 +50,17 @@ public class MappingInformation {
 
     public MappingInformation(PersistenceUnitInfo persistenceUnitInfo) {
         persistenceUnit = persistenceUnitInfo;
+        parse();
     }
     
     public Collection<Class<?>> getPersistentClasses() {
     	return Collections.unmodifiableSet(entityTypeMappings.keySet());
     }
 
+    public ClassMappingInformation getClassMapping(Class<?> entityType) {
+        return entityTypeMappings.get(entityType);
+    }
+    
     public ClassMappingInformation getClassMapping(String entityName) {
         if (entityNameMappings == null) {
             initializeEntityNameMappings();
@@ -69,13 +74,7 @@ public class MappingInformation {
         }
     }
     
-    public ClassMappingInformation getClassMapping(Class<?> entityType) {
-        return entityTypeMappings.get(entityType);
-    }
-    
-    public void parse() {
-        entityTypeMappings.clear();
-        entityNameMappings = null;
+    private void parse() {
         classLoader = findClassLoader();
         if (persistenceUnit.getPersistenceUnitRootUrl() != null) {
             parse(persistenceUnit.getPersistenceUnitRootUrl());

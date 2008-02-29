@@ -28,6 +28,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
+import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.util.AnnotationParser;
 
 /**
@@ -37,8 +38,8 @@ public class EjbAuthenticationProvider implements AuthenticationProvider, Persis
 
 	private Set<String> roles;
 
-	public void setPersistentClasses(Collection<Class<?>> classes) {
-		roles = new AnnotationParser<String>(DeclareRoles.class).parse(classes);
+	public void setPersistenceMapping(MappingInformation persistenceMapping) {
+		roles = new AnnotationParser<String>(DeclareRoles.class).parse(persistenceMapping.getPersistentClasses());
 	}
 	
 	public Object getUser() {

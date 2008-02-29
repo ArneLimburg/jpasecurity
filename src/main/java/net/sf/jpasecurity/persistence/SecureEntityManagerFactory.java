@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,24 +77,24 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
     	this.authenticationProvider = authenticationProvider;
     	this.accessRulesProvider = accessRulesProvider;
     	this.mappingInformation = new MappingInformation(persistenceUnitInfo);
-        mappingInformation.parse();
         Map<String, String> persistenceProperties = new HashMap<String, String>((Map)persistenceUnitInfo.getProperties());
         persistenceProperties.putAll(properties);
         injectPersistenceInformation(persistenceProperties);
     }
     
     private void injectPersistenceInformation(Map<String, String> persistenceProperties) {
+    	persistenceProperties = Collections.unmodifiableMap(persistenceProperties);
     	if (authenticationProvider instanceof PersistenceInformationReceiver) {
     		PersistenceInformationReceiver persistenceInformationReceiver
     			= (PersistenceInformationReceiver)authenticationProvider;
     		persistenceInformationReceiver.setPersistenceProperties(persistenceProperties);
-    		persistenceInformationReceiver.setPersistentClasses(mappingInformation.getPersistentClasses());
+    		persistenceInformationReceiver.setPersistenceMapping(mappingInformation);
     	}
     	if (accessRulesProvider instanceof PersistenceInformationReceiver) {
     		PersistenceInformationReceiver persistenceInformationReceiver
     			= (PersistenceInformationReceiver)accessRulesProvider;
     		persistenceInformationReceiver.setPersistenceProperties(persistenceProperties);
-    		persistenceInformationReceiver.setPersistentClasses(mappingInformation.getPersistentClasses());
+    		persistenceInformationReceiver.setPersistenceMapping(mappingInformation);
     	}
     }
     

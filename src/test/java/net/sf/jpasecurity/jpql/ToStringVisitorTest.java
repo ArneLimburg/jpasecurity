@@ -27,6 +27,17 @@ public class ToStringVisitorTest extends TestCase {
 	
 	public void testToStringVisitor() throws ParseException {
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.id = :id");
+		assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN bean.name name WHERE bean.id = :id");
+		assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN bean.name AS name WHERE bean.id = :id");
+		assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN FETCH bean.name name WHERE bean.id = :id");
+		assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN FETCH bean.name AS name WHERE bean.id = :id");
+		assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN FETCH bean.name WHERE bean.id = :id");
+		assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.name WHERE bean.id = :id");
+		assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.name name WHERE bean.id = :id");
+		assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.name AS name WHERE bean.id = :id");
+		assertJpql("SELECT bean FROM TestBean bean INNER JOIN FETCH bean.name WHERE bean.id = :id");
+		assertJpql("SELECT bean FROM TestBean bean INNER JOIN FETCH bean.name name WHERE bean.id = :id");
+		assertJpql("SELECT bean FROM TestBean bean INNER JOIN FETCH bean.name AS name WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id NOT BETWEEN 5 AND 7)");
 		assertJpql("SELECT DISTINCT bean, bean.id FROM TestBean bean WHERE :id = bean.id");
 		assertJpql("SELECT bean1 FROM TestBean bean1, TestBean bean2 WHERE bean1.id < bean2.id");

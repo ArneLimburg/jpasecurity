@@ -15,15 +15,13 @@
  */
 package net.sf.jpasecurity.security.rules;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 
-import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
 import net.sf.jpasecurity.util.AnnotationParser;
 
 /**
@@ -31,17 +29,25 @@ import net.sf.jpasecurity.util.AnnotationParser;
  * and provides access rules based on the allowed roles.
  * @author Arne Limburg
  */
-public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider implements PersistenceInformationReceiver {
+public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
 
-	private AnnotationParser<String> parser = new AnnotationParser<String>(RolesAllowed.class);
+	private AnnotationParser<String> parser;
+
+	public List<AccessRule> getAccessRules() {
+		initializeAccessRules();
+		return super.getAccessRules();
+	}
 	
-	public void setPersistentClasses(Collection<Class<?>> classes) {
-		Set<String> rules = new HashSet<String>();
-		for (Class<?> annotatedClass: classes) {
-			rules.add(parse(annotatedClass));
+	private void initializeAccessRules() {
+		if (parser == null) {
+			 parser = new AnnotationParser<String>(RolesAllowed.class);
+			 Set<String> rules = new HashSet<String>();
+			 for (Class<?> annotatedClass: getPersistenceMapping().getPersistentClasses()) {
+				 rules.add(parse(annotatedClass));
+			 }
+			 rules.remove(null);
+			 compileRules(rules);
 		}
-		rules.remove(null);
-		compileRules(rules);
 	}
 	
 	private String parse(Class<?> annotatedClass) {
@@ -60,9 +66,5 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider i
 		} else {
 			return null;
 		}
-	}
-
-	public void setPersistenceProperties(Map<String, String> properties) {
-		//not needed
 	}
 }
