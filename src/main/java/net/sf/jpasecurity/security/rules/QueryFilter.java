@@ -39,17 +39,16 @@ import net.sf.jpasecurity.persistence.mapping.MappingInformation;
  */
 public class QueryFilter {
     
-    private MappingInformation mappingInformation;
-    
-    private final JpqlParser parser = new JpqlParser();
-    private final JpqlCompiler compiler = new JpqlCompiler();
+    private final JpqlParser parser;
+    private final JpqlCompiler compiler;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final ToStringVisitor toStringVisitor = new ToStringVisitor();
     private final RuleAppender ruleAppender = new RuleAppender();
     private List<AccessRule> accessRules;
     
     public QueryFilter(MappingInformation mappingInformation, List<AccessRule> accessRules) {
-        this.mappingInformation = mappingInformation;
+    	this.parser = new JpqlParser();
+    	this.compiler = new JpqlCompiler(mappingInformation);
         this.accessRules = accessRules;
     }
     
@@ -84,20 +83,11 @@ public class QueryFilter {
     private Map<String, Class<?>> getSelectedTypes(JpqlCompiledStatement statement) {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: statement.getSelectedPathes()) {
-            selectedTypes.put(selectedPath, getSelectedType(selectedPath, statement));
+            selectedTypes.put(selectedPath, compiler.getType(selectedPath, statement.getAliasTypes()));
         }
         return selectedTypes;
     }
     
-    private Class<?> getSelectedType(String selectedPath, JpqlCompiledStatement statement) {
-        String[] entries = selectedPath.split("\\.");
-        Class<?> type = statement.getAliasTypes().get(entries[0]);
-        for (int i = 1; i < entries.length; i++) {
-            type = mappingInformation.getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
-        }
-        return type;
-    }
-
     private Class<?> getSelectedType(AccessRule entry) {
         Map<String, Class<?>> selectedTypes = getSelectedTypes(entry);
         if (selectedTypes.size() > 1) {
