@@ -19,6 +19,7 @@ package net.sf.jpasecurity.security.rules;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.PersistenceException;
 
@@ -26,17 +27,44 @@ import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
+import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
+import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 
 /**
  * @author Arne Limburg
  */
-public abstract class AbstractAccessRulesProvider implements AccessRulesProvider {
+public abstract class AbstractAccessRulesProvider implements AccessRulesProvider, PersistenceInformationReceiver {
 
+	private MappingInformation persistenceMapping;
+	private Map<String, String> persistenceProperties;
 	private List<AccessRule> accessRules;
+
+	public MappingInformation getPersistenceMapping() {
+		return persistenceMapping;
+	}
 	
+	public final void setPersistenceMapping(MappingInformation persistenceMapping) {
+		this.persistenceMapping = persistenceMapping;
+	}
+
+	public Map<String, String> getPersistenceProperties() {
+		return persistenceProperties;
+	}
+	
+	public final void setPersistenceProperties(Map<String, String> properties) {
+		this.persistenceProperties = properties;
+	}
+
+	public List<AccessRule> getAccessRules() {
+		return accessRules;
+	}
+
 	protected void compileRules(Collection<String> rules) {
+		if (persistenceMapping == null) {
+			throw new IllegalStateException("persistenceMapping not initialized");
+		}
 		JpqlParser jpqlParser = new JpqlParser();
-		JpqlCompiler compiler = new JpqlCompiler();
+		JpqlCompiler compiler = new JpqlCompiler(persistenceMapping);
 		accessRules = new ArrayList<AccessRule>();
 		try {
 			for (String accessRule: rules) {
@@ -47,9 +75,5 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
 		} catch (ParseException e) {
 			throw new PersistenceException(e);
 		}		
-	}
-	
-	public List<AccessRule> getAccessRules() {
-		return accessRules;
 	}
 }
