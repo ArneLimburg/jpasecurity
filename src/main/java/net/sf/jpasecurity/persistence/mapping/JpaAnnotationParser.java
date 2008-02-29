@@ -45,9 +45,9 @@ import javax.persistence.Version;
  * in the provided map.
  * @author Arne Limburg
  */
-public class AnnotationParser extends AbstractMappingParser {
+public class JpaAnnotationParser extends AbstractMappingParser {
 
-    public AnnotationParser(Map<Class<?>, ClassMappingInformation> classMappings) {
+    public JpaAnnotationParser(Map<Class<?>, ClassMappingInformation> classMappings) {
         super(classMappings);
     }
 

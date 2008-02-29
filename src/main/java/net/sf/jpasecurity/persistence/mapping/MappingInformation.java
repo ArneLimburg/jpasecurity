@@ -46,7 +46,7 @@ public class MappingInformation {
     private Map<Class<?>, ClassMappingInformation> entityTypeMappings = new HashMap<Class<?>, ClassMappingInformation>();
     private Map<String, ClassMappingInformation> entityNameMappings;
     private ClassLoader classLoader;
-    private AnnotationParser annotationParser = new AnnotationParser(entityTypeMappings);
+    private JpaAnnotationParser annotationParser = new JpaAnnotationParser(entityTypeMappings);
 
     public MappingInformation(PersistenceUnitInfo persistenceUnitInfo) {
         persistenceUnit = persistenceUnitInfo;
