@@ -14,7 +14,7 @@
  * and limitations under the License.
  */
 
-package net.sf.jpasecurity.security.rules;
+package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -27,12 +27,12 @@ import java.util.NoSuchElementException;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.jpql.ToStringVisitor;
-import net.sf.jpasecurity.jpql.compiler.JpqlCompiledStatement;
-import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.security.rules.AccessRule;
+import net.sf.jpasecurity.security.rules.RuleAppender;
 
 /**
  * @author Arne Limburg
