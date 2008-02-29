@@ -23,10 +23,10 @@ import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
+import net.sf.jpasecurity.jpql.compiler.QueryFilter;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
 import net.sf.jpasecurity.security.rules.AccessRule;
-import net.sf.jpasecurity.security.rules.QueryFilter;
 
 /**
  * @author Arne Limburg
