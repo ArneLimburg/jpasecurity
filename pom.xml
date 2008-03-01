@@ -9,14 +9,14 @@
     like J2EE Security and Spring Security (formerly known as Acegi-Security), it enables applications
     to control access to JPA Entity Beans based on the currently authenticated user and/or its roles.
   </description>
-  <url>http://jpa-security.sf.net</url>
+  <url>http://jpasecurity.sf.net</url>
 
   <prerequisites>
     <maven>2.0.8</maven>
   </prerequisites>
   <issueManagement>
     <system>Sourceforge Tracker</system>
-    <url>http://sourceforge.net/tracker/?group_id=200190</url>
+    <url>http://sourceforge.net/tracker/?group_id=219346</url>
   </issueManagement>
   <inceptionYear>2008</inceptionYear>
   <developers>
@@ -39,9 +39,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:https://jpa-security.svn.sourceforge.net/svnroot/jpa-security/trunk/jpa-security/</connection>
-    <developerConnection>scm:svn:https://jpa-security.svn.sourceforge.net/svnroot/jpa-security/trunk/jpa-security/</developerConnection>
-    <url>http://jpa-security.svn.sourceforge.net/viewvc/jpa-security/trunk/jpa-security/</url>
+    <connection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/jpasecurity/</connection>
+    <developerConnection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/jpasecurity/</developerConnection>
+    <url>http://jpasecurity.svn.sourceforge.net/viewvc/jpasecurity/trunk/jpasecurity/</url>
   </scm>
   <organization>
     <name>JPA Security</name>
