@@ -121,6 +121,14 @@ public interface JpqlParserVisitor {
     boolean visit(JpqlPath node, int nextChildIndex);
 
     /**
+     * Called when visiting a <tt>JpqlSetClause</tt> node.
+     * @param node the current node
+     * @param nextChildIndex the index of the next child to process
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlSetClause node, int nextChildIndex);
+
+    /**
      * Called when visiting a <tt>JpqlUpdateItem</tt> node.
      * @param node the current node
      * @param nextChildIndex the index of the next child to process
@@ -537,6 +545,14 @@ public interface JpqlParserVisitor {
     boolean visit(JpqlLength node, int nextChildIndex);
 
     /**
+     * Called when visiting a <tt>JpqlLocate</tt> node.
+     * @param node the current node
+     * @param nextChildIndex the index of the next child to process
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlLocate node, int nextChildIndex);
+
+    /**
      * Called when visiting a <tt>JpqlAbs</tt> node.
      * @param node the current node
      * @param nextChildIndex the index of the next child to process
@@ -719,4 +735,12 @@ public interface JpqlParserVisitor {
      * @return <tt>true</tt>, if the node should go on processing the children
      */
     boolean visit(JpqlTrimCharacter node, int nextChildIndex);
+
+    /**
+     * Called when visiting a <tt>JpqlAggregatePath</tt> node.
+     * @param node the current node
+     * @param nextChildIndex the index of the next child to process
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlAggregatePath node, int nextChildIndex);
 }

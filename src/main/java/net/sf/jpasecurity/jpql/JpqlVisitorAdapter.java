@@ -18,6 +18,7 @@ package net.sf.jpasecurity.jpql;
 import net.sf.jpasecurity.jpql.parser.JpqlAbs;
 import net.sf.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
 import net.sf.jpasecurity.jpql.parser.JpqlAdd;
+import net.sf.jpasecurity.jpql.parser.JpqlAggregatePath;
 import net.sf.jpasecurity.jpql.parser.JpqlAll;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlAny;
@@ -62,6 +63,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlLength;
 import net.sf.jpasecurity.jpql.parser.JpqlLessOrEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlLessThan;
 import net.sf.jpasecurity.jpql.parser.JpqlLike;
+import net.sf.jpasecurity.jpql.parser.JpqlLocate;
 import net.sf.jpasecurity.jpql.parser.JpqlLower;
 import net.sf.jpasecurity.jpql.parser.JpqlMaximum;
 import net.sf.jpasecurity.jpql.parser.JpqlMemberOf;
@@ -84,6 +86,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlSelect;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpressions;
+import net.sf.jpasecurity.jpql.parser.JpqlSetClause;
 import net.sf.jpasecurity.jpql.parser.JpqlSize;
 import net.sf.jpasecurity.jpql.parser.JpqlSqrt;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
@@ -198,6 +201,13 @@ public class JpqlVisitorAdapter implements JpqlParserVisitor {
         return true;
     }
 
+    /**
+     * {@inheritDocs}
+     */
+    public boolean visit(JpqlSetClause node, int nextChildIndex) {
+    	return true;
+    }
+    
     /**
      * {@inheritDocs}
      */
@@ -565,6 +575,13 @@ public class JpqlVisitorAdapter implements JpqlParserVisitor {
     /**
      * {@inheritDocs}
      */
+    public boolean visit(JpqlLocate node, int nextChildIndex) {
+    	return true;
+    }
+
+    /**
+     * {@inheritDocs}
+     */
     public boolean visit(JpqlAbs node, int nextChildIndex) {
         return true;
     }
@@ -721,5 +738,12 @@ public class JpqlVisitorAdapter implements JpqlParserVisitor {
      */
     public boolean visit(JpqlTrimCharacter node, int nextChildIndex) {
         return true;
+    }
+
+    /**
+     * {@inheritDocs}
+     */
+    public boolean visit(JpqlAggregatePath node, int nextChildIndex) {
+    	return true;
     }
 }
