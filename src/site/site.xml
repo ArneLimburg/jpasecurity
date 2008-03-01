@@ -3,7 +3,7 @@
   <bannerLeft>
     <name>Hosted on SourceForge.net</name>
     <href>http://sourceforge.net</href>
-    <src>http://sflogo.sourceforge.net/sflogo.php?group_id=113660&amp;type=2</src>
+    <src>http://sflogo.sourceforge.net/sflogo.php?group_id=219346&amp;type=2</src>
   </bannerLeft>
   <bannerRight>
     <name>${project.name}</name>
@@ -18,7 +18,7 @@
   <body>
     <menu name="JPA Security">
       <item name="Introduction" href="index.html" />
-      <item name="Download" href="https://sourceforge.net/project/showfiles.php?group_id=173143" />
+      <item name="Download" href="https://sourceforge.net/project/showfiles.php?group_id=219346" />
       <!--item name="Release Notes" href="release-notes.html" /-->
       <item name="General Information" href="project-info.html" />
       <!--item name="Road Map" href="roadmap.html" /-->
