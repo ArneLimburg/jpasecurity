@@ -1,15 +1,22 @@
+/*
+ * Copyright 2008 Arne Limburg
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
 package net.sf.jpasecurity.jpql;
 
-import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
-
 import junit.framework.TestCase;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
-import net.sf.jpasecurity.jpql.parser.JpqlParserVisitor;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 
@@ -22,8 +29,6 @@ public class ToStringVisitorTest extends TestCase {
 	
 	private JpqlParser parser;
 	private ToStringVisitor toStringVisitor;
-	private Set<String> expectedMethodNames;
-	private Set<String> calledMethodNames;
 	
 	public void testToStringVisitor() throws ParseException {
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.id = :id");
@@ -74,7 +79,6 @@ public class ToStringVisitorTest extends TestCase {
 		assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0");
 		assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0 WHERE bean.id = 0");
 		assertJpql("DELETE FROM TestBean bean");
-		assertMethods();
 	}
 	
 	public void assertJpql(String query) throws ParseException {
@@ -88,33 +92,12 @@ public class ToStringVisitorTest extends TestCase {
 		assertEquals("JPQL", query, result);
 	}
 	
-	public void assertMethods() {
-//		assertEquals(expectedMethods.size(), calledMethods.size());
-		for (String expectedMethodName: expectedMethodNames) {
-			assertTrue("expected call of " + expectedMethodName, calledMethodNames.contains(expectedMethodName));
-		}
-	}
-	
 	protected String stripWhiteSpaces(String query) {
 		return query.replaceAll("\\s+", " ").trim();
 	}
 	
 	public void setUp() {
 		parser = new JpqlParser();
-		toStringVisitor = (ToStringVisitor)Enhancer.create(ToStringVisitor.class, new VisitorHandler());
-		expectedMethodNames = new HashSet<String>();
-		for (Method method: JpqlParserVisitor.class.getMethods()) {
-			expectedMethodNames.add(method.getName());
-		}
-		expectedMethodNames.remove("visitTok");
-		calledMethodNames = new HashSet<String>();
-	}
-
-	class VisitorHandler implements MethodInterceptor {
-
-		public Object intercept(Object object, Method method, Object[] arguments, MethodProxy proxy) throws Throwable {
-			calledMethodNames.add(method.getName());
-			return proxy.invokeSuper(object, arguments);
-		}
+		toStringVisitor = new ToStringVisitor();
 	}
 }
