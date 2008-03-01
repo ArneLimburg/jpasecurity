@@ -18,6 +18,7 @@ package net.sf.jpasecurity.jpql;
 import net.sf.jpasecurity.jpql.parser.JpqlAbs;
 import net.sf.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
 import net.sf.jpasecurity.jpql.parser.JpqlAdd;
+import net.sf.jpasecurity.jpql.parser.JpqlAggregatePath;
 import net.sf.jpasecurity.jpql.parser.JpqlAll;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlAny;
@@ -62,6 +63,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlLength;
 import net.sf.jpasecurity.jpql.parser.JpqlLessOrEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlLessThan;
 import net.sf.jpasecurity.jpql.parser.JpqlLike;
+import net.sf.jpasecurity.jpql.parser.JpqlLocate;
 import net.sf.jpasecurity.jpql.parser.JpqlLower;
 import net.sf.jpasecurity.jpql.parser.JpqlMaximum;
 import net.sf.jpasecurity.jpql.parser.JpqlMemberOf;
@@ -84,6 +86,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlSelect;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpressions;
+import net.sf.jpasecurity.jpql.parser.JpqlSetClause;
 import net.sf.jpasecurity.jpql.parser.JpqlSize;
 import net.sf.jpasecurity.jpql.parser.JpqlSqrt;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
@@ -185,6 +188,8 @@ public class ToStringVisitor implements JpqlParserVisitor {
     public boolean visit(JpqlInnerJoin node, int nextChildIndex) {
         if (nextChildIndex == 0) {
             query.append(" INNER JOIN ");
+        } else if (nextChildIndex == 1) {
+        	query.append(' ');
         }
         return true;
     }
@@ -195,6 +200,8 @@ public class ToStringVisitor implements JpqlParserVisitor {
     public boolean visit(JpqlOuterJoin node, int nextChildIndex) {
         if (nextChildIndex == 0) {
             query.append(" LEFT OUTER JOIN ");
+        } else if (nextChildIndex == 1) {
+        	query.append(' ');
         }
         return true;
     }
@@ -229,6 +236,18 @@ public class ToStringVisitor implements JpqlParserVisitor {
         return true;
     }
 
+    /**
+     * {@inheritDocs}
+     */
+    public boolean visit(JpqlSetClause node, int nextChildIndex) {
+    	if (nextChildIndex == 0) {
+    		query.append(" SET ");
+    	} else if (nextChildIndex < node.jjtGetNumChildren()) {
+    		query.append(", ");
+    	}
+    	return true;
+    }
+    
     /**
      * {@inheritDocs}
      */
@@ -324,6 +343,9 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlDistinctPath node, int nextChildIndex) {
+    	if (nextChildIndex == 0) {
+    		query.append(" DISTINCT ");
+    	}
         return true;
     }
 
@@ -345,6 +367,11 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlMaximum node, int nextChildIndex) {
+        if (nextChildIndex == 0) {
+            query.append(" MAX(");
+        } else if (nextChildIndex == node.jjtGetNumChildren()) {
+            query.append(") ");
+        }
         return true;
     }
 
@@ -352,6 +379,11 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlMinimum node, int nextChildIndex) {
+        if (nextChildIndex == 0) {
+            query.append(" MIN(");
+        } else if (nextChildIndex == node.jjtGetNumChildren()) {
+            query.append(") ");
+        }
         return true;
     }
 
@@ -403,6 +435,9 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlOr node, int nextChildIndex) {
+    	if (nextChildIndex > 0 && nextChildIndex < node.jjtGetNumChildren()) {
+    		query.append(" OR ");
+    	}
         return true;
     }
 
@@ -410,6 +445,9 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlAnd node, int nextChildIndex) {
+    	if (nextChildIndex > 0 && nextChildIndex < node.jjtGetNumChildren()) {
+    		query.append(" AND ");
+    	}
         return true;
     }
 
@@ -417,7 +455,9 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlNot node, int nextChildIndex) {
-        query.append(" NOT ");
+    	if (nextChildIndex == 0) {
+    		query.append(" NOT ");
+    	}
         return true;
     }
 
@@ -454,13 +494,22 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlIsNull node, int nextChildIndex) {
-        return true;
+    	if (nextChildIndex == 1) {
+    		query.append(" IS ");
+    	}
+    	if (nextChildIndex == node.jjtGetNumChildren()) {
+    		query.append(" NULL ");
+    	}
+    	return true;
     }
 
     /**
      * {@inheritDocs}
      */
     public boolean visit(JpqlIsEmpty node, int nextChildIndex) {
+    	if (nextChildIndex == node.jjtGetNumChildren()) {
+    		query.append(" IS EMPTY ");
+    	}
         return true;
     }
 
@@ -468,6 +517,9 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlMemberOf node, int nextChildIndex) {
+    	if (nextChildIndex == node.jjtGetNumChildren() - 1) {
+    		query.append(" MEMBER OF ");
+    	}
         return true;
     }
 
@@ -623,6 +675,13 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlSubstring node, int nextChildIndex) {
+    	if (nextChildIndex == 0) {
+    		query.append(" SUBSTRING(");
+    	} else if (nextChildIndex < node.jjtGetNumChildren()) {
+    		query.append(", ");
+    	} else {
+    		query.append(") ");
+    	}
         return true;
     }
 
@@ -644,6 +703,11 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlLower node, int nextChildIndex) {
+    	if (nextChildIndex == 0) {
+    		query.append(" LOWER(");
+    	} else if (nextChildIndex == node.jjtGetNumChildren()) {
+    		query.append(") ");
+    	}
         return true;
     }
 
@@ -651,6 +715,11 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlUpper node, int nextChildIndex) {
+    	if (nextChildIndex == 0) {
+    		query.append(" UPPER(");
+    	} else if (nextChildIndex == node.jjtGetNumChildren()) {
+    		query.append(") ");
+    	}
         return true;
     }
 
@@ -694,6 +763,20 @@ public class ToStringVisitor implements JpqlParserVisitor {
     /**
      * {@inheritDocs}
      */
+    public boolean visit(JpqlLocate node, int nextChildIndex) {
+        if (nextChildIndex == 0) {
+            query.append("LOCATE(");
+        } else if (nextChildIndex < node.jjtGetNumChildren()) {
+        	query.append(", ");
+        } else {
+            query.append(") "); 
+        }
+        return true;
+    }
+
+    /**
+     * {@inheritDocs}
+     */
     public boolean visit(JpqlAbs node, int nextChildIndex) {
         if (nextChildIndex == 0) {
             query.append("ABS(");
@@ -707,6 +790,11 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlSqrt node, int nextChildIndex) {
+    	if (nextChildIndex == 0) {
+    		query.append(" SQRT(");
+    	} else if (nextChildIndex == node.jjtGetNumChildren()) {
+    		query.append(") ");
+    	}
         return true;
     }
 
@@ -714,6 +802,13 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlMod node, int nextChildIndex) {
+    	if (nextChildIndex == 0) {
+    		query.append(" MOD(");
+    	} else if (nextChildIndex < node.jjtGetNumChildren()) {
+    		query.append(", ");
+    	} else {
+    		query.append(") ");
+    	}
         return true;
     }
 
@@ -763,6 +858,11 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlOrderBy node, int nextChildIndex) {
+    	if (nextChildIndex == 0) {
+    		query.append(" ORDER BY ");
+    	} else if (nextChildIndex < node.jjtGetNumChildren()) {
+    		query.append(", ");
+    	}
         return true;
     }
 
@@ -777,6 +877,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlAscending node, int nextChildIndex) {
+    	query.append(" ASC");
         return true;
     }
 
@@ -784,6 +885,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDocs}
      */
     public boolean visit(JpqlDescending node, int nextChildIndex) {
+    	query.append(" DESC");
         return true;
     }
 
@@ -882,6 +984,13 @@ public class ToStringVisitor implements JpqlParserVisitor {
     public boolean visit(JpqlTrimCharacter node, int nextChildIndex) {
         query.append(node.getValue());
         return true;
+    }
+
+    /**
+     * {@inheritDocs}
+     */
+    public boolean visit(JpqlAggregatePath node, int nextChildIndex) {
+    	return true;
     }
 
     /**

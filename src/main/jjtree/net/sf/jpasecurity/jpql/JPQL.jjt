@@ -380,15 +380,19 @@ void path() #Path: {} {
 }
 
 void updateClause(): {} {
-    <UPDATE> fromItem() #From setClause()
+    <UPDATE> fromItem() setClause()
 }
 
-void setClause(): {} {
+void setClause() #SetClause: {} {
     <SET> updateItem() (<COMMA> updateItem())*
 }
 
 void updateItem() #UpdateItem: {} {
-    path() EQ() newValue()
+    updateExpression()
+}
+
+void updateExpression() #Equals: {} {
+	path() <EQ> newValue()
 }
 
 void newValue() #UpdateValue: {} {
@@ -851,7 +855,7 @@ void length() #Length: {} {
     <LENGTH> "(" stringExpression() ")"
 }
 
-void locate() #Lower: {} {
+void locate() #Locate: {} {
     <LOCATE> "(" stringExpression() <COMMA> stringExpression()
         [<COMMA> arithmeticExpression()] ")"
 }
@@ -1052,28 +1056,4 @@ void trimCharacter() #TrimCharacter :
 { Token token; }
 {
     token = <STRING_LITERAL> { jjtThis.setValue(token.image); }
-}
-
-void EQ() #Equals: {} {
-    <EQ>
-}
-
-void NE() #NotEquals: {} {
-    <NE>
-}
-
-void GT() #GreaterThan: {} {
-    <GT>
-}
-
-void GE() #GreaterOrEquals: {} {
-    <GE>
-}
-
-void LT() #LessThan: {} {
-    <LT>
-}
-
-void LE() #LessOrEquals: {} {
-    <LE>
 }
