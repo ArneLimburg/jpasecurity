@@ -142,7 +142,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>acegisecurity</groupId>
+      <groupId>org.acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
       <version>1.0.0</version>
       <optional/>
