@@ -36,33 +36,33 @@ public class SimpleNode implements Node {
     }
 
     /**
-     * {@inheritDocs}
+     * {@inheritDoc}
      */
     public void jjtOpen() {
     }
 
     /**
-     * {@inheritDocs}
+     * {@inheritDoc}
      */
     public void jjtClose() {
     }
 
     /**
-     * {@inheritDocs}
+     * {@inheritDoc}
      */
     public void jjtSetParent(Node n) {
         parent = (SimpleNode)n;
     }
 
     /**
-     * {@inheritDocs}
+     * {@inheritDoc}
      */
     public Node jjtGetParent() {
         return parent;
     }
 
     /**
-     * {@inheritDocs}
+     * {@inheritDoc}
      */
     public void jjtAddChild(Node n, int i) {
         if (children == null) {
@@ -76,7 +76,7 @@ public class SimpleNode implements Node {
     }
 
     /**
-     * {@inheritDocs}
+     * {@inheritDoc}
      */
     public Node jjtGetChild(int i) {
         return children[i];
@@ -87,7 +87,7 @@ public class SimpleNode implements Node {
     }
 
     /**
-     * {@inheritDocs}
+     * {@inheritDoc}
      */
     public int jjtGetNumChildren() {
         return (children == null) ? 0 : children.length;
