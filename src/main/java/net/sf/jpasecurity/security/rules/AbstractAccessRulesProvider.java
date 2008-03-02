@@ -31,6 +31,9 @@ import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 
 /**
+ * A base class for implementations of the {@link AccessRulesProvider} interface
+ * that provides compilation support for access rules.
+ * @see #compileRules(Collection) 
  * @author Arne Limburg
  */
 public abstract class AbstractAccessRulesProvider implements AccessRulesProvider, PersistenceInformationReceiver {
@@ -61,6 +64,12 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
         return accessRules;
     }
 
+    /**
+     * Compiles the rules provided as <tt>String</tt>s into
+     * {@link AccessRule} objects. The compiled rules are accessible
+     * via the {@link #getAccessRules()} method afterwards.
+     * @param rules the rules as <tt>String</tt>s.
+     */
     protected void compileRules(Collection<String> rules) {
         if (persistenceMapping == null) {
             throw new IllegalStateException("persistenceMapping not initialized");
