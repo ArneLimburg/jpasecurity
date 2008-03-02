@@ -8,7 +8,7 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an "AS IS" BASIS, 
+ * software distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions
  * and limitations under the License.
@@ -35,45 +35,47 @@ import net.sf.jpasecurity.persistence.mapping.MappingInformation;
  */
 public abstract class AbstractAccessRulesProvider implements AccessRulesProvider, PersistenceInformationReceiver {
 
-	private MappingInformation persistenceMapping;
-	private Map<String, String> persistenceProperties;
-	private List<AccessRule> accessRules;
+    private MappingInformation persistenceMapping;
 
-	public MappingInformation getPersistenceMapping() {
-		return persistenceMapping;
-	}
-	
-	public final void setPersistenceMapping(MappingInformation persistenceMapping) {
-		this.persistenceMapping = persistenceMapping;
-	}
+    private Map<String, String> persistenceProperties;
 
-	public Map<String, String> getPersistenceProperties() {
-		return persistenceProperties;
-	}
-	
-	public final void setPersistenceProperties(Map<String, String> properties) {
-		this.persistenceProperties = properties;
-	}
+    private List<AccessRule> accessRules;
 
-	public List<AccessRule> getAccessRules() {
-		return accessRules;
-	}
+    public MappingInformation getPersistenceMapping() {
+        return persistenceMapping;
+    }
 
-	protected void compileRules(Collection<String> rules) {
-		if (persistenceMapping == null) {
-			throw new IllegalStateException("persistenceMapping not initialized");
-		}
-		JpqlParser jpqlParser = new JpqlParser();
-		JpqlCompiler compiler = new JpqlCompiler(persistenceMapping);
-		accessRules = new ArrayList<AccessRule>();
-		try {
-			for (String accessRule: rules) {
-				JpqlAccessRule parsedRule = jpqlParser.parseRule(accessRule);
-				AccessRule compiledRule = compiler.compile(parsedRule);
-				accessRules.add(compiledRule);
-			}
-		} catch (ParseException e) {
-			throw new PersistenceException(e);
-		}		
-	}
+    public final void setPersistenceMapping(MappingInformation persistenceMapping) {
+        this.persistenceMapping = persistenceMapping;
+    }
+
+    public Map<String, String> getPersistenceProperties() {
+        return persistenceProperties;
+    }
+
+    public final void setPersistenceProperties(Map<String, String> properties) {
+        this.persistenceProperties = properties;
+    }
+
+    public List<AccessRule> getAccessRules() {
+        return accessRules;
+    }
+
+    protected void compileRules(Collection<String> rules) {
+        if (persistenceMapping == null) {
+            throw new IllegalStateException("persistenceMapping not initialized");
+        }
+        JpqlParser jpqlParser = new JpqlParser();
+        JpqlCompiler compiler = new JpqlCompiler(persistenceMapping);
+        accessRules = new ArrayList<AccessRule>();
+        try {
+            for (String accessRule : rules) {
+                JpqlAccessRule parsedRule = jpqlParser.parseRule(accessRule);
+                AccessRule compiledRule = compiler.compile(parsedRule);
+                accessRules.add(compiledRule);
+            }
+        } catch (ParseException e) {
+            throw new PersistenceException(e);
+        }
+    }
 }
