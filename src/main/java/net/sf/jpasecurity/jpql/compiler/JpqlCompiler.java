@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
 package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.rules.AccessRule;
 
 /**
- * <strong>Note: This class is not thread-save. Instances of this class may only be used on a single thread.</strong>
+ * <strong>Note: This class is not thread-safe. Instances of this class may only be used on a single thread.</strong>
  * @author Arne Limburg
  */
 public class JpqlCompiler {
