@@ -27,7 +27,7 @@ import javax.annotation.security.RolesAllowed;
  * and provides access rules based on the allowed roles.
  * @author Arne Limburg
  */
-public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
+public class EjbAccessRulesProvider extends AbstractAccessRulesProvider {
 
 	private RolesAllowedParser parser;
 
