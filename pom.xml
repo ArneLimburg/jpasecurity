@@ -3,7 +3,7 @@
   <groupId>net.sf.jpasecurity</groupId>
   <artifactId>jpasecurity</artifactId>
   <name>JPA Security</name>
-  <version>0.1.0</version>
+  <version>${version}</version>
   <description>
     JPA Security secures the Data Access Layer. Integrating smooth with current authentication solutions
     like J2EE Security and Spring Security (formerly known as Acegi-Security), it enables applications
@@ -23,7 +23,7 @@
     <developer>
       <id>arne</id>
       <name>Arne Limburg</name>
-      <email>arne.limburg@sourceforge.net</email>
+      <email>arne.limburg@users.sourceforge.net</email>
       <roles>
         <role>Project Lead</role>
         <role>Java Developer</role>
@@ -39,9 +39,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/jpasecurity/</connection>
-    <developerConnection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/jpasecurity/</developerConnection>
-    <url>http://jpasecurity.svn.sourceforge.net/viewvc/jpasecurity/trunk/jpasecurity/</url>
+    <connection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/</connection>
+    <developerConnection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/</developerConnection>
+    <url>http://jpasecurity.svn.sourceforge.net/viewvc/jpasecurity/trunk/</url>
   </scm>
   <organization>
     <name>JPA Security</name>
@@ -106,6 +106,53 @@
           <downloadSources>true</downloadSources>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>com.agilejava.docbkx</groupId>
+        <artifactId>docbkx-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate-html</goal>
+              <goal>generate-pdf</goal>
+            </goals>
+            <phase>pre-site</phase>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.docbook</groupId>
+              <artifactId>docbook-xml</artifactId>
+              <version>4.4</version>
+              <scope>runtime</scope>
+            </dependency>
+        </dependencies>
+        <configuration>
+          <sourceDirectory>${basedir}/src/docbook/</sourceDirectory>
+          <targetDirectory>${basedir}/target/docbook/</targetDirectory>
+          <entities>
+            <entity>
+             <name>version</name>
+             <value>${version}</value>
+            </entity>
+          </entities>
+          <postProcess>
+            <copy todir="target/site/reference">
+              <fileset dir="target/docbook">
+                <include name="**/*.html"/>
+                <include name="**/*.pdf"/>
+              </fileset>
+            </copy>
+            <!--copy todir="target/site/reference/html">
+              <fileset dir="src/docbook/resources">
+                <include name="**/*.css" />
+                <include name="**/*.png" />
+                <include name="**/*.gif" />
+                <include name="**/*.jpg" />
+              </fileset>
+            </copy-->
+          </postProcess>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   
@@ -136,11 +183,16 @@
       <version>1.0</version>
     </dependency>
     <dependency>
+      <groupId>org.ow2.spec.ee</groupId>
+      <artifactId>ow2-ejb-3.0-spec</artifactId>
+      <version>1.0-M1</version>
+    </dependency>
+    <!--dependency>
       <groupId>javax.ejb</groupId>
       <artifactId>ejb</artifactId>
       <version>3.0</version>
       <scope>provided</scope>
-    </dependency>
+    </dependency-->
     <dependency>
       <groupId>org.acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
@@ -171,4 +223,8 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  
+  <properties>
+    <version>0.1.0</version>
+  </properties>
 </project>
