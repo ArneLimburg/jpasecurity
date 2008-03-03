@@ -22,8 +22,6 @@ import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 
-import net.sf.jpasecurity.util.AnnotationParser;
-
 /**
  * This class parses the persistent classes for the annotation {@link RolesAllowed}
  * and provides access rules based on the allowed roles.
@@ -31,7 +29,7 @@ import net.sf.jpasecurity.util.AnnotationParser;
  */
 public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
 
-	private AnnotationParser<String> parser;
+	private RolesAllowedParser parser;
 
 	public List<AccessRule> getAccessRules() {
 		initializeAccessRules();
@@ -40,7 +38,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
 	
 	private void initializeAccessRules() {
 		if (parser == null) {
-			 parser = new AnnotationParser<String>(RolesAllowed.class);
+			 parser = new RolesAllowedParser();
 			 Set<String> rules = new HashSet<String>();
 			 for (Class<?> annotatedClass: getPersistenceMapping().getPersistentClasses()) {
 				 rules.add(parse(annotatedClass));
@@ -51,7 +49,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
 	}
 	
 	private String parse(Class<?> annotatedClass) {
-		Set<String> roles = parser.parse(annotatedClass);
+		Set<String> roles = parser.parseAllowedRoles(annotatedClass);
 		if (roles.size() > 0) {
 			String name = annotatedClass.getSimpleName();
 			StringBuilder rule = new StringBuilder("GRANT READ ACCESS TO ");

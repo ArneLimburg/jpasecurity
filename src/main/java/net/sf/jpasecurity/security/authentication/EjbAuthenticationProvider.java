@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.security.DeclareRoles;
 import javax.ejb.EJBContext;
 import javax.ejb.EJBException;
 import javax.naming.InitialContext;
@@ -29,7 +28,6 @@ import javax.naming.NamingException;
 
 import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
-import net.sf.jpasecurity.util.AnnotationParser;
 
 /**
  * @author Arne Limburg
@@ -39,7 +37,7 @@ public class EjbAuthenticationProvider implements AuthenticationProvider, Persis
 	private Set<String> roles;
 
 	public void setPersistenceMapping(MappingInformation persistenceMapping) {
-		roles = new AnnotationParser<String>(DeclareRoles.class).parse(persistenceMapping.getPersistentClasses());
+		roles = new DeclareRolesParser().parseDeclaredRoles(persistenceMapping.getPersistentClasses());
 	}
 	
 	public Object getUser() {
