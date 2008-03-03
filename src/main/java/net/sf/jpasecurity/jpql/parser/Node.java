@@ -34,7 +34,14 @@ public interface Node extends Cloneable {
   /** Return the number of children the node has. */
   public int jjtGetNumChildren();
   
-  public Node clone();
+  /** Accept the visitor. **/
+  public Object jjtAccept(JpqlParserVisitor visitor, Object data);
 
+  /** Visits the visitor. **/
   public void visit(JpqlParserVisitor visitor);
+
+  /** Visits the visitor. **/
+  public void visit(JpqlParserVisitor visitor, Object data);
+
+  public Node clone();
 }

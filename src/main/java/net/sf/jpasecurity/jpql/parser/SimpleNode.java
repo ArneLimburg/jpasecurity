@@ -93,22 +93,20 @@ public class SimpleNode implements Node {
         return (children == null) ? 0 : children.length;
     }
 
-    public void visit(JpqlParserVisitor visitor) {
-        for (int i = 0; i < jjtGetNumChildren(); i++) {
-            if (invokeVisit(visitor, i)) {
-                children[i].visit(visitor);
-            }
-        }
-        invokeVisit(visitor, jjtGetNumChildren());
+    /** Accept the visitor. **/
+    public Object jjtAccept(JpqlParserVisitor visitor, Object data) {
+        return visitor.visit(this, data);
     }
 
-    private boolean invokeVisit(JpqlParserVisitor visitor, int i) {
-        try {
-            return (Boolean)visitor.getClass().getMethod("visit", getClass(), Integer.TYPE).invoke(visitor, this, i);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    public void visit(JpqlParserVisitor visitor) {
+        visit(visitor, null);
+    }
+    
+    public void visit(JpqlParserVisitor visitor, Object data) {
+        if ((Boolean)jjtAccept(visitor, data) && children != null) {
+            for (int i = 0; i < children.length; i++) {
+                children[i].visit(visitor, data);
+            }
         }
     }
 
