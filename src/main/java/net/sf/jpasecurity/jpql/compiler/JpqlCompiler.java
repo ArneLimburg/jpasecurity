@@ -34,6 +34,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
+import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.rules.AccessRule;
@@ -107,7 +108,11 @@ public class JpqlCompiler {
     		return false;
         }
     	
-    	public void reset() {
+        public boolean visit(JpqlSubselect node, int nextChildIndex) {
+            return false;
+        }
+
+        public void reset() {
     		selectedPaths.clear();
     	}
     }
@@ -163,6 +168,10 @@ public class JpqlCompiler {
         		aliasTypes.put(alias, type);
         	}
             return false;        	
+        }
+
+        public boolean visit(JpqlSubselect node, int nextChildIndex) {
+            return false;
         }
 
         public void reset() {
