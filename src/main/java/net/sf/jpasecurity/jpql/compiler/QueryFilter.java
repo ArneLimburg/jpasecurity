@@ -27,8 +27,10 @@ import java.util.NoSuchElementException;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.jpql.ToStringVisitor;
+import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
+import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.rules.AccessRule;
@@ -53,17 +55,34 @@ public class QueryFilter {
     }
     
     public String filterQuery(String query) {
-        JpqlCompiledStatement compiledStatement = compile(query);
-        Map<String, Class<?>> selectedTypes = getSelectedTypes(compiledStatement);
+        JpqlCompiledStatement statement = compile(query);
+        Node condition = statement.getWhereClause().jjtGetChild(0);
+        if (!(condition instanceof JpqlBrackets)) {
+            condition = ruleAppender.createBrackets(condition);
+        }
+        Node and = ruleAppender.createAnd(condition, createAccessRuleNode(statement));
+        and.jjtSetParent(statement.getWhereClause());
+        statement.getWhereClause().jjtSetChild(and, 0);
+        toStringVisitor.reset();
+        statement.getStatement().visit(toStringVisitor);
+        return toStringVisitor.toString();
+    }
+    
+    private Node createAccessRuleNode(JpqlCompiledStatement statement) {
+        Node accessRuleNode = null;
+        Map<String, Class<?>> selectedTypes = getSelectedTypes(statement);
         for (Map.Entry<String, Class<?>> selectedType: selectedTypes.entrySet()) {
             Collection<AccessRule> accessRules = new FilteredAccessRules(selectedType.getValue());
             for (AccessRule accessRule: accessRules) {
-                ruleAppender.append(compiledStatement.getWhereClause(), selectedType.getKey(), accessRule);
+                if (accessRuleNode == null) {
+                    accessRuleNode = ruleAppender.createIn(selectedType.getKey(), accessRule);
+                    accessRuleNode = ruleAppender.createBrackets(accessRuleNode);
+                } else {
+                    accessRuleNode = ruleAppender.append(accessRuleNode, selectedType.getKey(), accessRule);
+                }
             }
         }
-        toStringVisitor.reset();
-        compiledStatement.getStatement().visit(toStringVisitor);
-        return toStringVisitor.toString();
+        return accessRuleNode;
     }
     
     private JpqlCompiledStatement compile(String query) {
