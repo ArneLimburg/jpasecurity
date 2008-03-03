@@ -22,725 +22,731 @@ package net.sf.jpasecurity.jpql.parser;
  */
 public interface JpqlParserVisitor {
 
-    boolean visit(Node node, int nextChildIndex);
-    
     /**
      * Called when visiting a <tt>JpqlStatement</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlStatement node, int nextChildIndex);
+    boolean visit(JpqlStatement node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlSelect</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlSelect node, int nextChildIndex);
+    boolean visit(JpqlSelect node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlUpdate</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlUpdate node, int nextChildIndex);
+    boolean visit(JpqlUpdate node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlDelete</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlDelete node, int nextChildIndex);
+    boolean visit(JpqlDelete node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlFrom</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlFrom node, int nextChildIndex);
+    boolean visit(JpqlFrom node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlFromItem</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlFromItem node, int nextChildIndex);
+    boolean visit(JpqlFromItem node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlIdentificationVariableDeclaration</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlIdentificationVariableDeclaration node, int nextChildIndex);
+    boolean visit(JpqlIdentificationVariableDeclaration node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlInnerJoin</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlInnerJoin node, int nextChildIndex);
+    boolean visit(JpqlInnerJoin node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlOuterJoin</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlOuterJoin node, int nextChildIndex);
+    boolean visit(JpqlOuterJoin node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlOuterFetchJoin</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlOuterFetchJoin node, int nextChildIndex);
+    boolean visit(JpqlOuterFetchJoin node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlInnerFetchJoin</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlInnerFetchJoin node, int nextChildIndex);
+    boolean visit(JpqlInnerFetchJoin node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlPath</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlPath node, int nextChildIndex);
+    boolean visit(JpqlPath node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlSetClause</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlSetClause node, int nextChildIndex);
+    boolean visit(JpqlSetClause node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlUpdateItem</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlUpdateItem node, int nextChildIndex);
+    boolean visit(JpqlUpdateItem node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlUpdateValue</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlUpdateValue node, int nextChildIndex);
+    boolean visit(JpqlUpdateValue node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlSelectClause</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlSelectClause node, int nextChildIndex);
+    boolean visit(JpqlSelectClause node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlSelectExpressions</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlSelectExpressions node, int nextChildIndex);
+    boolean visit(JpqlSelectExpressions node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlSelectExpression</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlSelectExpression node, int nextChildIndex);
+    boolean visit(JpqlSelectExpression node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlConstructor</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlConstructor node, int nextChildIndex);
+    boolean visit(JpqlConstructor node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlClassName</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlClassName node, int nextChildIndex);
+    boolean visit(JpqlClassName node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlConstructorParameter</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlConstructorParameter node, int nextChildIndex);
+    boolean visit(JpqlConstructorParameter node, Object data);
 
     /**
      * Called when visiting a query-part in brackets.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlBrackets node, int nextChildIndex);
+    boolean visit(JpqlBrackets node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlDistinct</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlDistinct node, int nextChildIndex);
+    boolean visit(JpqlDistinct node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlDistinctPath</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlDistinctPath node, int nextChildIndex);
+    boolean visit(JpqlDistinctPath node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlCount</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlCount node, int nextChildIndex);
+    boolean visit(JpqlCount node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlAverage</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlAverage node, int nextChildIndex);
+    boolean visit(JpqlAverage node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlMaximum</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlMaximum node, int nextChildIndex);
+    boolean visit(JpqlMaximum node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlMinimum</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlMinimum node, int nextChildIndex);
+    boolean visit(JpqlMinimum node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlSum</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlSum node, int nextChildIndex);
+    boolean visit(JpqlSum node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlWhere</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlWhere node, int nextChildIndex);
+    boolean visit(JpqlWhere node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlGroupBy</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlGroupBy node, int nextChildIndex);
+    boolean visit(JpqlGroupBy node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlHaving</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlHaving node, int nextChildIndex);
+    boolean visit(JpqlHaving node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlSubselect</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlSubselect node, int nextChildIndex);
+    boolean visit(JpqlSubselect node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlOr</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlOr node, int nextChildIndex);
+    boolean visit(JpqlOr node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlAnd</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlAnd node, int nextChildIndex);
+    boolean visit(JpqlAnd node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlNot</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlNot node, int nextChildIndex);
+    boolean visit(JpqlNot node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlBetween</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlBetween node, int nextChildIndex);
+    boolean visit(JpqlBetween node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlIn</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlIn node, int nextChildIndex);
+    boolean visit(JpqlIn node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlLike</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlLike node, int nextChildIndex);
+    boolean visit(JpqlLike node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlIsNull</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlIsNull node, int nextChildIndex);
+    boolean visit(JpqlIsNull node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlIsEmpty</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlIsEmpty node, int nextChildIndex);
+    boolean visit(JpqlIsEmpty node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlMemberOf</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlMemberOf node, int nextChildIndex);
+    boolean visit(JpqlMemberOf node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlExists</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlExists node, int nextChildIndex);
+    boolean visit(JpqlExists node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlAny</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlAny node, int nextChildIndex);
+    boolean visit(JpqlAny node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlAll</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlAll node, int nextChildIndex);
+    boolean visit(JpqlAll node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlEquals</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlEquals node, int nextChildIndex);
+    boolean visit(JpqlEquals node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlNotEquals</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlNotEquals node, int nextChildIndex);
+    boolean visit(JpqlNotEquals node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlGreaterThan</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlGreaterThan node, int nextChildIndex);
+    boolean visit(JpqlGreaterThan node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlGreaterOrEquals</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlGreaterOrEquals node, int nextChildIndex);
+    boolean visit(JpqlGreaterOrEquals node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlLessThan</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlLessThan node, int nextChildIndex);
+    boolean visit(JpqlLessThan node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlLessOrEquals</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlLessOrEquals node, int nextChildIndex);
+    boolean visit(JpqlLessOrEquals node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlAdd</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlAdd node, int nextChildIndex);
+    boolean visit(JpqlAdd node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlSubtract</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlSubtract node, int nextChildIndex);
+    boolean visit(JpqlSubtract node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlMultiply</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlMultiply node, int nextChildIndex);
+    boolean visit(JpqlMultiply node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlDivide</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlDivide node, int nextChildIndex);
+    boolean visit(JpqlDivide node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlNegative</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlNegative node, int nextChildIndex);
+    boolean visit(JpqlNegative node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlConcat</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlConcat node, int nextChildIndex);
+    boolean visit(JpqlConcat node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlSubstring</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlSubstring node, int nextChildIndex);
+    boolean visit(JpqlSubstring node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlTrim</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlTrim node, int nextChildIndex);
+    boolean visit(JpqlTrim node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlLower</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlLower node, int nextChildIndex);
+    boolean visit(JpqlLower node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlUpper</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlUpper node, int nextChildIndex);
+    boolean visit(JpqlUpper node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlTrimLeading</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlTrimLeading node, int nextChildIndex);
+    boolean visit(JpqlTrimLeading node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlTrimTrailing</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlTrimTrailing node, int nextChildIndex);
+    boolean visit(JpqlTrimTrailing node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlTrimBoth</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlTrimBoth node, int nextChildIndex);
+    boolean visit(JpqlTrimBoth node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlLength</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlLength node, int nextChildIndex);
+    boolean visit(JpqlLength node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlLocate</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlLocate node, int nextChildIndex);
+    boolean visit(JpqlLocate node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlAbs</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlAbs node, int nextChildIndex);
+    boolean visit(JpqlAbs node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlSqrt</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlSqrt node, int nextChildIndex);
+    boolean visit(JpqlSqrt node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlMod</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlMod node, int nextChildIndex);
+    boolean visit(JpqlMod node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlSize</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlSize node, int nextChildIndex);
+    boolean visit(JpqlSize node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlCurrentDate</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlCurrentDate node, int nextChildIndex);
+    boolean visit(JpqlCurrentDate node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlCurrentTime</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlCurrentTime node, int nextChildIndex);
+    boolean visit(JpqlCurrentTime node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlCurrentTimestamp</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlCurrentTimestamp node, int nextChildIndex);
+    boolean visit(JpqlCurrentTimestamp node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlOrderBy</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlOrderBy node, int nextChildIndex);
+    boolean visit(JpqlOrderBy node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlOrderByItem</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlOrderByItem node, int nextChildIndex);
+    boolean visit(JpqlOrderByItem node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlAscending</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlAscending node, int nextChildIndex);
+    boolean visit(JpqlAscending node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlDescending</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlDescending node, int nextChildIndex);
+    boolean visit(JpqlDescending node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlAbstractSchemaName</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlAbstractSchemaName node, int nextChildIndex);
+    boolean visit(JpqlAbstractSchemaName node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlIdentifier</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlIdentifier node, int nextChildIndex);
+    boolean visit(JpqlIdentifier node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlIdentificationVariable</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlIdentificationVariable node, int nextChildIndex);
+    boolean visit(JpqlIdentificationVariable node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlIntegerLiteral</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlIntegerLiteral node, int nextChildIndex);
+    boolean visit(JpqlIntegerLiteral node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlDecimalLiteral</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlDecimalLiteral node, int nextChildIndex);
+    boolean visit(JpqlDecimalLiteral node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlBooleanLiteral</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlBooleanLiteral node, int nextChildIndex);
+    boolean visit(JpqlBooleanLiteral node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlStringLiteral</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlStringLiteral node, int nextChildIndex);
+    boolean visit(JpqlStringLiteral node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlNamedInputParameter</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlNamedInputParameter node, int nextChildIndex);
+    boolean visit(JpqlNamedInputParameter node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlPositionalInputParameter</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlPositionalInputParameter node, int nextChildIndex);
+    boolean visit(JpqlPositionalInputParameter node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlPatternValue</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlPatternValue node, int nextChildIndex);
+    boolean visit(JpqlPatternValue node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlEscapeCharacter</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlEscapeCharacter node, int nextChildIndex);
+    boolean visit(JpqlEscapeCharacter node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlTrimCharacter</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlTrimCharacter node, int nextChildIndex);
+    boolean visit(JpqlTrimCharacter node, Object data);
 
     /**
      * Called when visiting a <tt>JpqlAggregatePath</tt> node.
      * @param node the current node
-     * @param nextChildIndex the index of the next child to process
+     * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlAggregatePath node, int nextChildIndex);
+    boolean visit(JpqlAggregatePath node, Object data);
+
+    /**
+     * Called when visiting a <tt>Node</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(Node node, Object data);
 }

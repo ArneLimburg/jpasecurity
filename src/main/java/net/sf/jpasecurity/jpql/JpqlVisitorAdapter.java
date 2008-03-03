@@ -79,6 +79,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlOrderBy;
 import net.sf.jpasecurity.jpql.parser.JpqlOrderByItem;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
+import net.sf.jpasecurity.jpql.parser.JpqlParserVisitor;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlPatternValue;
 import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
@@ -105,7 +106,6 @@ import net.sf.jpasecurity.jpql.parser.JpqlUpdateItem;
 import net.sf.jpasecurity.jpql.parser.JpqlUpdateValue;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
-import net.sf.jpasecurity.jpql.parser.JpqlParserVisitor;
 import net.sf.jpasecurity.jpql.parser.Node;
 
 public class JpqlVisitorAdapter implements JpqlParserVisitor {
@@ -113,637 +113,637 @@ public class JpqlVisitorAdapter implements JpqlParserVisitor {
     /**
      * {@inheritDoc}
      */
-    public boolean visit(Node node, int nextChildIndex) {
+    public boolean visit(Node node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlStatement node, int nextChildIndex) {
+    public boolean visit(JpqlStatement node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlSelect node, int nextChildIndex) {
+    public boolean visit(JpqlSelect node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlUpdate node, int nextChildIndex) {
+    public boolean visit(JpqlUpdate node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlDelete node, int nextChildIndex) {
+    public boolean visit(JpqlDelete node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlFrom node, int nextChildIndex) {
+    public boolean visit(JpqlFrom node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlFromItem node, int nextChildIndex) {
+    public boolean visit(JpqlFromItem node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlIdentificationVariableDeclaration node, int nextChildIndex) {
+    public boolean visit(JpqlIdentificationVariableDeclaration node, Object data) {
         return true;
     }
     
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlInnerJoin node, int nextChildIndex) {
+    public boolean visit(JpqlInnerJoin node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlOuterJoin node, int nextChildIndex) {
+    public boolean visit(JpqlOuterJoin node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlOuterFetchJoin node, int nextChildIndex) {
+    public boolean visit(JpqlOuterFetchJoin node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlInnerFetchJoin node, int nextChildIndex) {
+    public boolean visit(JpqlInnerFetchJoin node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlPath node, int nextChildIndex) {
+    public boolean visit(JpqlPath node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlSetClause node, int nextChildIndex) {
+    public boolean visit(JpqlSetClause node, Object data) {
     	return true;
     }
     
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlUpdateItem node, int nextChildIndex) {
+    public boolean visit(JpqlUpdateItem node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlUpdateValue node, int nextChildIndex) {
+    public boolean visit(JpqlUpdateValue node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlSelectClause node, int nextChildIndex) {
+    public boolean visit(JpqlSelectClause node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlSelectExpressions node, int nextChildIndex) {
+    public boolean visit(JpqlSelectExpressions node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlSelectExpression node, int nextChildIndex) {
+    public boolean visit(JpqlSelectExpression node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlConstructor node, int nextChildIndex) {
+    public boolean visit(JpqlConstructor node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlClassName node, int nextChildIndex) {
+    public boolean visit(JpqlClassName node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlConstructorParameter node, int nextChildIndex) {
+    public boolean visit(JpqlConstructorParameter node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlBrackets node, int nextChildIndex) {
+    public boolean visit(JpqlBrackets node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlDistinct node, int nextChildIndex) {
+    public boolean visit(JpqlDistinct node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlDistinctPath node, int nextChildIndex) {
+    public boolean visit(JpqlDistinctPath node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlCount node, int nextChildIndex) {
+    public boolean visit(JpqlCount node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlAverage node, int nextChildIndex) {
+    public boolean visit(JpqlAverage node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlMaximum node, int nextChildIndex) {
+    public boolean visit(JpqlMaximum node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlMinimum node, int nextChildIndex) {
+    public boolean visit(JpqlMinimum node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlSum node, int nextChildIndex) {
+    public boolean visit(JpqlSum node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlWhere node, int nextChildIndex) {
+    public boolean visit(JpqlWhere node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlGroupBy node, int nextChildIndex) {
+    public boolean visit(JpqlGroupBy node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlHaving node, int nextChildIndex) {
+    public boolean visit(JpqlHaving node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlSubselect node, int nextChildIndex) {
+    public boolean visit(JpqlSubselect node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlOr node, int nextChildIndex) {
+    public boolean visit(JpqlOr node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlAnd node, int nextChildIndex) {
+    public boolean visit(JpqlAnd node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlNot node, int nextChildIndex) {
+    public boolean visit(JpqlNot node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlBetween node, int nextChildIndex) {
+    public boolean visit(JpqlBetween node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlIn node, int nextChildIndex) {
+    public boolean visit(JpqlIn node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlLike node, int nextChildIndex) {
+    public boolean visit(JpqlLike node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlIsNull node, int nextChildIndex) {
+    public boolean visit(JpqlIsNull node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlIsEmpty node, int nextChildIndex) {
+    public boolean visit(JpqlIsEmpty node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlMemberOf node, int nextChildIndex) {
+    public boolean visit(JpqlMemberOf node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlExists node, int nextChildIndex) {
+    public boolean visit(JpqlExists node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlAny node, int nextChildIndex) {
+    public boolean visit(JpqlAny node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlAll node, int nextChildIndex) {
+    public boolean visit(JpqlAll node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlEquals node, int nextChildIndex) {
+    public boolean visit(JpqlEquals node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlNotEquals node, int nextChildIndex) {
+    public boolean visit(JpqlNotEquals node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlGreaterThan node, int nextChildIndex) {
+    public boolean visit(JpqlGreaterThan node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlGreaterOrEquals node, int nextChildIndex) {
+    public boolean visit(JpqlGreaterOrEquals node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlLessThan node, int nextChildIndex) {
+    public boolean visit(JpqlLessThan node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlLessOrEquals node, int nextChildIndex) {
+    public boolean visit(JpqlLessOrEquals node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlAdd node, int nextChildIndex) {
+    public boolean visit(JpqlAdd node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlSubtract node, int nextChildIndex) {
+    public boolean visit(JpqlSubtract node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlMultiply node, int nextChildIndex) {
+    public boolean visit(JpqlMultiply node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlDivide node, int nextChildIndex) {
+    public boolean visit(JpqlDivide node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlNegative node, int nextChildIndex) {
+    public boolean visit(JpqlNegative node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlConcat node, int nextChildIndex) {
+    public boolean visit(JpqlConcat node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlSubstring node, int nextChildIndex) {
+    public boolean visit(JpqlSubstring node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlTrim node, int nextChildIndex) {
+    public boolean visit(JpqlTrim node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlLower node, int nextChildIndex) {
+    public boolean visit(JpqlLower node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlUpper node, int nextChildIndex) {
+    public boolean visit(JpqlUpper node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlTrimLeading node, int nextChildIndex) {
+    public boolean visit(JpqlTrimLeading node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlTrimTrailing node, int nextChildIndex) {
+    public boolean visit(JpqlTrimTrailing node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlTrimBoth node, int nextChildIndex) {
+    public boolean visit(JpqlTrimBoth node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlLength node, int nextChildIndex) {
+    public boolean visit(JpqlLength node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlLocate node, int nextChildIndex) {
+    public boolean visit(JpqlLocate node, Object data) {
     	return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlAbs node, int nextChildIndex) {
+    public boolean visit(JpqlAbs node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlSqrt node, int nextChildIndex) {
+    public boolean visit(JpqlSqrt node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlMod node, int nextChildIndex) {
+    public boolean visit(JpqlMod node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlSize node, int nextChildIndex) {
+    public boolean visit(JpqlSize node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlCurrentDate node, int nextChildIndex) {
+    public boolean visit(JpqlCurrentDate node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlCurrentTime node, int nextChildIndex) {
+    public boolean visit(JpqlCurrentTime node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlCurrentTimestamp node, int nextChildIndex) {
+    public boolean visit(JpqlCurrentTimestamp node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlOrderBy node, int nextChildIndex) {
+    public boolean visit(JpqlOrderBy node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlOrderByItem node, int nextChildIndex) {
+    public boolean visit(JpqlOrderByItem node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlAscending node, int nextChildIndex) {
+    public boolean visit(JpqlAscending node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlDescending node, int nextChildIndex) {
+    public boolean visit(JpqlDescending node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlAbstractSchemaName node, int nextChildIndex) {
+    public boolean visit(JpqlAbstractSchemaName node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlIdentifier node, int nextChildIndex) {
+    public boolean visit(JpqlIdentifier node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlIdentificationVariable node, int nextChildIndex) {
+    public boolean visit(JpqlIdentificationVariable node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlIntegerLiteral node, int nextChildIndex) {
+    public boolean visit(JpqlIntegerLiteral node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlDecimalLiteral node, int nextChildIndex) {
+    public boolean visit(JpqlDecimalLiteral node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlBooleanLiteral node, int nextChildIndex) {
+    public boolean visit(JpqlBooleanLiteral node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlStringLiteral node, int nextChildIndex) {
+    public boolean visit(JpqlStringLiteral node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlNamedInputParameter node, int nextChildIndex) {
+    public boolean visit(JpqlNamedInputParameter node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlPositionalInputParameter node, int nextChildIndex) {
+    public boolean visit(JpqlPositionalInputParameter node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlPatternValue node, int nextChildIndex) {
+    public boolean visit(JpqlPatternValue node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlEscapeCharacter node, int nextChildIndex) {
+    public boolean visit(JpqlEscapeCharacter node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlTrimCharacter node, int nextChildIndex) {
+    public boolean visit(JpqlTrimCharacter node, Object data) {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlAggregatePath node, int nextChildIndex) {
+    public boolean visit(JpqlAggregatePath node, Object data) {
     	return true;
     }
 }

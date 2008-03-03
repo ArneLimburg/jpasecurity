@@ -24,6 +24,7 @@
 options {
     NODE_PREFIX = "Jpql";
     NODE_PACKAGE = "net.sf.jpasecurity.jpql.parser";
+    VISITOR = true;
     MULTI = true;
     NODE_DEFAULT_VOID = true;
     JAVA_UNICODE_ESCAPE = true;
