@@ -21,6 +21,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentifier;
 import net.sf.jpasecurity.jpql.parser.JpqlIn;
+import net.sf.jpasecurity.jpql.parser.JpqlOr;
 import net.sf.jpasecurity.jpql.parser.JpqlParserTreeConstants;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSelect;
@@ -35,23 +36,54 @@ import net.sf.jpasecurity.jpql.parser.Node;
  */
 public class RuleAppender {
 
-    public void append(JpqlWhere where, String alias, AccessRule rule) {
-    	Node oldChild = where.jjtGetChild(0);
-    	if (!(oldChild instanceof JpqlBrackets)) {
-    		oldChild = createBrackets(oldChild);
-    		oldChild.jjtSetParent(where);
+    /**
+     * Appends the specified node to the specified <tt>Where</tt>-node with <tt>and</tt>.
+     * @param where the <tt>Where</tt>-node
+     * @param node the node
+     */
+    public void append(JpqlWhere where, Node node) {
+    	Node clause = where.jjtGetChild(0);
+    	if (!(clause instanceof JpqlBrackets)) {
+            clause = createBrackets(clause);
+            clause.jjtSetParent(where);
     	}
-    	Node newChild = createIn(alias, rule);
-    	JpqlAnd and = new JpqlAnd(JpqlParserTreeConstants.JJTAND);
-    	and.jjtSetParent(oldChild.jjtGetParent());
-    	and.jjtAddChild(oldChild, 0);
-    	and.jjtAddChild(newChild, 1);
-    	oldChild.jjtSetParent(and);
-    	newChild.jjtSetParent(and);
+        Node and = createAnd(clause, node);
+    	and.jjtSetParent(where);
     	where.jjtSetChild(and, 0);
     }
     
-    private Node createIn(String alias, AccessRule rule) {
+    /**
+     * Appends the specified access rule to the specified node with <tt>or</tt>.
+     * @param node the node
+     * @param alias the alias to be selected from the access rule
+     * @param rule the access rule
+     * @return the <tt>Or</tt>-node.
+     */
+    public Node append(Node node, String alias, AccessRule rule) {
+        Node in = createBrackets(createIn(alias, rule));
+        Node or = createOr(node, in);
+        return or;
+    }
+    
+    public Node createAnd(Node node1, Node node2) {
+        JpqlAnd and = new JpqlAnd(JpqlParserTreeConstants.JJTAND);
+        and.jjtAddChild(node1, 0);
+        and.jjtAddChild(node2, 1);
+        node1.jjtSetParent(and);
+        node2.jjtSetParent(and);
+        return and;
+    }
+    
+    public Node createOr(Node node1, Node node2) {
+        JpqlOr or = new JpqlOr(JpqlParserTreeConstants.JJTOR);
+        or.jjtAddChild(node1, 0);
+        or.jjtAddChild(node2, 1);
+        node1.jjtSetParent(or);
+        node2.jjtSetParent(or);
+        return or;
+    }
+    
+    public Node createIn(String alias, AccessRule rule) {
     	JpqlIn in = new JpqlIn(JpqlParserTreeConstants.JJTIN);
     	Node path = createPath(alias);
     	path.jjtSetParent(in);
@@ -62,14 +94,14 @@ public class RuleAppender {
     	return createBrackets(in);
     }
     
-    private Node createBrackets(Node node) {
+    public Node createBrackets(Node node) {
     	JpqlBrackets brackets = new JpqlBrackets(JpqlParserTreeConstants.JJTBRACKETS);
 		brackets.jjtAddChild(node, 0);
 		node.jjtSetParent(brackets);
 		return brackets;    	
     }
     
-    private Node createPath(String pathString) {
+    public Node createPath(String pathString) {
     	String[] pathComponents = pathString.split("\\.");
     	JpqlPath path = new JpqlPath(JpqlParserTreeConstants.JJTPATH);
     	JpqlIdentifier identifier = new JpqlIdentifier(JpqlParserTreeConstants.JJTIDENTIFIER);
@@ -86,7 +118,7 @@ public class RuleAppender {
     	return path;
     }
 
-    private Node createSubselect(AccessRule rule) {
+    public Node createSubselect(AccessRule rule) {
     	JpqlSubselect subselect = new JpqlSubselect(JpqlParserTreeConstants.JJTSUBSELECT);
     	Node select = createSelect(rule.getSelectedPath());
     	//TODO check selected aliases
@@ -101,7 +133,7 @@ public class RuleAppender {
     	return subselect;
     }
     
-    private Node createSelect(String selectedPath) {
+    public Node createSelect(String selectedPath) {
     	JpqlSelect select = new JpqlSelect(JpqlParserTreeConstants.JJTSELECT);
     	JpqlSelectExpressions expressions = new JpqlSelectExpressions(JpqlParserTreeConstants.JJTSELECTEXPRESSIONS);
     	expressions.jjtSetParent(select);
