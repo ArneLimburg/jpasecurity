@@ -76,7 +76,7 @@ public class PersistenceXmlParser extends AbstractXmlParser<PersistenceXmlParser
         }
 
         public void startElement(String uri, String tag, String qualified, Attributes attributes) throws SAXException {
-            if (PERSISTENCE_UNIT_TAG.equals(tag)) {
+            if (PERSISTENCE_UNIT_TAG.equals(qualified)) {
                 currentPersistenceUnitInfo = new DefaultPersistenceUnitInfo();
                 currentPersistenceUnitInfo.setPersistenceUnitName(attributes.getValue(PERSISTENCE_UNIT_NAME_ATTRIBUTE));
                 String transactionType = attributes.getValue(TRANSACTION_TYPE_ATTRIBUTE);
@@ -86,7 +86,7 @@ public class PersistenceXmlParser extends AbstractXmlParser<PersistenceXmlParser
                 }
                 String name = currentPersistenceUnitInfo.getPersistenceUnitName();
                 persistenceUnitInfos.put(name, currentPersistenceUnitInfo);
-            } else if (PROPERTY_TAG.equals(tag)) {
+            } else if (PROPERTY_TAG.equals(qualified)) {
                 String name = attributes.getValue(NAME_ATTRIBUTE);
                 String value = attributes.getValue(VALUE_ATTRIBUTE);
                 currentPersistenceUnitInfo.getProperties().setProperty(name, value);
@@ -100,23 +100,23 @@ public class PersistenceXmlParser extends AbstractXmlParser<PersistenceXmlParser
         public void endElement(String uri, String localName, String qualifiedName) throws SAXException {
             String text = currentText.toString().trim();
             currentText.setLength(0);
-            if (PROVIDER_TAG.equals(localName)) {
+            if (PROVIDER_TAG.equals(qualifiedName)) {
                 currentPersistenceUnitInfo.setPersistenceProviderClassName(text);
-            } else if (JTA_DATA_SOURCE_TAG.equals(localName)) {
+            } else if (JTA_DATA_SOURCE_TAG.equals(qualifiedName)) {
                 currentPersistenceUnitInfo.setJtaDataSourceJndiName(text);
-            } else if (NON_JTA_DATA_SOURCE_TAG.equals(localName)) {
+            } else if (NON_JTA_DATA_SOURCE_TAG.equals(qualifiedName)) {
                 currentPersistenceUnitInfo.setNonJtaDataSourceJndiName(text);
-            } else if (MAPPING_FILE_TAG.equals(localName)) {
+            } else if (MAPPING_FILE_TAG.equals(qualifiedName)) {
                 currentPersistenceUnitInfo.getMappingFileNames().add(text);
-            } else if (JAR_FILE_TAG.equals(localName)) {
+            } else if (JAR_FILE_TAG.equals(qualifiedName)) {
                 try {
                     currentPersistenceUnitInfo.getJarFileUrls().add(new URL("jar:" + text));
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
                 }
-            } else if (CLASS_TAG.equals(localName)) {
+            } else if (CLASS_TAG.equals(qualifiedName)) {
                 currentPersistenceUnitInfo.getManagedClassNames().add(text);
-            } else if (EXCLUDE_UNLISTED_CLASSES_TAG.equals(localName)) {
+            } else if (EXCLUDE_UNLISTED_CLASSES_TAG.equals(qualifiedName)) {
                 currentPersistenceUnitInfo.setExcludeUnlistedClasses(Boolean.parseBoolean(text));
             }
         }
