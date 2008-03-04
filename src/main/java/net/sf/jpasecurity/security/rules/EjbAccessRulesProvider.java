@@ -17,7 +17,6 @@ package net.sf.jpasecurity.security.rules;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
@@ -31,12 +30,7 @@ public class EjbAccessRulesProvider extends AbstractAccessRulesProvider {
 
 	private RolesAllowedParser parser;
 
-	public List<AccessRule> getAccessRules() {
-		initializeAccessRules();
-		return super.getAccessRules();
-	}
-	
-	private void initializeAccessRules() {
+	protected void initializeAccessRules() {
 		if (parser == null) {
 			 parser = new RolesAllowedParser();
 			 Set<String> rules = new HashSet<String>();
