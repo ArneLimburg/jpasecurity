@@ -350,16 +350,16 @@ void subqueryFromItem() #FromItem: {} {
 }
 
 void innerJoin() #InnerJoin: {} {
-    [<INNER>] <JOIN> path() [<AS>] identificationVariable()
+    [<INNER>] <JOIN> joinPath() [<AS>] identificationVariable()
 }
 
 void collectionMemberDeclaration() #InnerJoin: {} {
     // synonymous with "INNER JOIN path AS identifier" (InnerJoin)
-    <IN> "(" path() ")" [LOOKAHEAD(1) <AS>] identificationVariable()
+    <IN> "(" joinPath() ")" [LOOKAHEAD(1) <AS>] identificationVariable()
 }
 
 void outerJoin() #OuterJoin: {} {
-    <LEFT> [<OUTER>] <JOIN> path() [LOOKAHEAD(1) <AS>] identificationVariable()
+    <LEFT> [<OUTER>] <JOIN> joinPath() [LOOKAHEAD(1) <AS>] identificationVariable()
 }
 
 void fetchJoin(): {} {
@@ -367,17 +367,23 @@ void fetchJoin(): {} {
 }
 
 void outerFetchJoin() #OuterFetchJoin: {} {
-    <LEFT> [<OUTER>] <JOIN> <FETCH> path()
+    <LEFT> [<OUTER>] <JOIN> <FETCH> joinPath()
 }
 
 void innerFetchJoin() #InnerFetchJoin: {} {
-    [<INNER>] <JOIN> <FETCH> path()
+    [<INNER>] <JOIN> <FETCH> joinPath()
+}
+
+void joinPath() #Path: {} {
+    // a join path is any dot-separated path expression starting with a
+    // non-reserved word containing at minimum two path components
+    identificationVariable() (<DOT> pathComponent())+
 }
 
 void path() #Path: {} {
     // a path is any dot-separated path expression starting with a
     // non-reserved word
-    identificationVariable() (<DOT> pathComponent())+
+    identificationVariable() (<DOT> pathComponent())*
 }
 
 void updateClause(): {} {
