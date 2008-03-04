@@ -139,32 +139,27 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
     }
 
     private static EntityManagerFactory createEntityManagerFactory(Map<String, String> properties, PersistenceUnitInfo persistenceUnitInfo, boolean isContainerManaged) {
-        if (properties == null) {
-            properties = new HashMap<String, String>();
-        }
         PersistenceProvider persistenceProvider = createPersistenceProvider(properties, persistenceUnitInfo);
-        
+
+        Map<String, String> persistenceProperties = new HashMap<String, String>();
+        if (properties != null) {
+            persistenceProperties.putAll(properties);
+        }
+        persistenceProperties.put(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY, persistenceProvider.getClass().getName());
     	if (isContainerManaged) {
-    		return persistenceProvider.createContainerEntityManagerFactory(persistenceUnitInfo, properties);
+    		return persistenceProvider.createContainerEntityManagerFactory(persistenceUnitInfo, persistenceProperties);
     	} else {
     		String name = persistenceUnitInfo.getPersistenceUnitName();
-    		return persistenceProvider.createEntityManagerFactory(name, properties);
+    		return persistenceProvider.createEntityManagerFactory(name, persistenceProperties);
     	}    	
     }
 
-    /**
-     * As a side-effect this method sets the "javax.persistence.provider" property of the specified properties
-     * to the class name of the returned persistence provider.
-     * @param properties may not be <tt>null</tt>
-     * @param persistenceUnitInfo
-     * @return the persistence provider
-     */
     private static PersistenceProvider createPersistenceProvider(Map<String, String> properties, PersistenceUnitInfo persistenceUnitInfo) {
-        if (properties == null) {
-            throw new IllegalArgumentException("properties must not be null");
-        }
         try {
-        	String persistenceProviderClassName = properties.get(PERSISTENCE_PROVIDER_PROPERTY);
+        	String persistenceProviderClassName = null;
+            if (properties != null) {
+                persistenceProviderClassName = properties.get(PERSISTENCE_PROVIDER_PROPERTY);
+            }
         	if (persistenceProviderClassName == null && persistenceUnitInfo.getProperties() != null) {
         		persistenceProviderClassName
         		    = persistenceUnitInfo.getProperties().getProperty(PERSISTENCE_PROVIDER_PROPERTY);
