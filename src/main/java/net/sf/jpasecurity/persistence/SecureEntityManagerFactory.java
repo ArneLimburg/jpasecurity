@@ -37,7 +37,7 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
     public static final String PERSISTENCE_PROVIDER_PROPERTY = "net.sf.jpasecurity.persistence.provider";
     public static final String AUTHENTICATION_PROVIDER_PROPERTY = "net.sf.jpasecurity.security.authentication.provider";
     public static final String ACCESS_RULES_PROVIDER_PROPERTY = "net.sf.jpasecurity.security.rules.provider";
-    public static final String DEFAULT_ACCESS_RULES_PROVIDER_CLASS = "net.sf.jpasecurity.security.XmlAccessRulesProvider";
+    public static final String DEFAULT_ACCESS_RULES_PROVIDER_CLASS = "net.sf.jpasecurity.security.rules.XmlAccessRulesProvider";
 
     private EntityManagerFactory entityManagerFactory;
     private MappingInformation mappingInformation;
@@ -73,12 +73,26 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
                                AuthenticationProvider authenticationProvider,
                                AccessRulesProvider accessRulesProvider,
                                boolean isContainerManaged) {
+        if (entityManagerFactory == null) {
+            throw new IllegalArgumentException("entityManagerFactory may not be null");
+        }
+        if (authenticationProvider == null) {
+            throw new IllegalArgumentException("authenticationProvider may not be null");
+        }
+        if (accessRulesProvider == null) {
+            throw new IllegalArgumentException("accessRulesProvider may not be null");
+        }
+        if (persistenceUnitInfo == null) {
+            throw new IllegalArgumentException("persistenceUnitInfo may not be null");
+        }
     	this.entityManagerFactory = entityManagerFactory;
     	this.authenticationProvider = authenticationProvider;
     	this.accessRulesProvider = accessRulesProvider;
     	this.mappingInformation = new MappingInformation(persistenceUnitInfo);
         Map<String, String> persistenceProperties = new HashMap<String, String>((Map)persistenceUnitInfo.getProperties());
-        persistenceProperties.putAll(properties);
+        if (properties != null) {
+            persistenceProperties.putAll(properties);
+        }
         injectPersistenceInformation(persistenceProperties);
     }
     
@@ -125,7 +139,11 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
     }
 
     private static EntityManagerFactory createEntityManagerFactory(Map<String, String> properties, PersistenceUnitInfo persistenceUnitInfo, boolean isContainerManaged) {
-    	PersistenceProvider persistenceProvider = createPersistenceProvider(properties, persistenceUnitInfo);
+        if (properties == null) {
+            properties = new HashMap<String, String>();
+        }
+        PersistenceProvider persistenceProvider = createPersistenceProvider(properties, persistenceUnitInfo);
+        
     	if (isContainerManaged) {
     		return persistenceProvider.createContainerEntityManagerFactory(persistenceUnitInfo, properties);
     	} else {
@@ -133,18 +151,32 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
     		return persistenceProvider.createEntityManagerFactory(name, properties);
     	}    	
     }
-    	
+
+    /**
+     * As a side-effect this method sets the "javax.persistence.provider" property of the specified properties
+     * to the class name of the returned persistence provider.
+     * @param properties may not be <tt>null</tt>
+     * @param persistenceUnitInfo
+     * @return the persistence provider
+     */
     private static PersistenceProvider createPersistenceProvider(Map<String, String> properties, PersistenceUnitInfo persistenceUnitInfo) {
+        if (properties == null) {
+            throw new IllegalArgumentException("properties must not be null");
+        }
         try {
         	String persistenceProviderClassName = properties.get(PERSISTENCE_PROVIDER_PROPERTY);
-        	if (persistenceProviderClassName == null) {
+        	if (persistenceProviderClassName == null && persistenceUnitInfo.getProperties() != null) {
         		persistenceProviderClassName
-        		= persistenceUnitInfo.getProperties().getProperty(PERSISTENCE_PROVIDER_PROPERTY);
+        		    = persistenceUnitInfo.getProperties().getProperty(PERSISTENCE_PROVIDER_PROPERTY);
         	}
+            if (persistenceProviderClassName == null) {
+                persistenceProviderClassName = persistenceUnitInfo.getPersistenceProviderClassName();
+            }
         	if (persistenceProviderClassName == null) {
         		throw new PersistenceException("No persistence provider specified for net.sf.jpasecurity.persistence.SecureEntityManagerFactory. Specify its class name via property \"" + PERSISTENCE_PROVIDER_PROPERTY + "\"");
         	}
-        	Class<?> persistenceProviderClass = getClassLoader(persistenceUnitInfo).loadClass(persistenceProviderClassName);
+        	properties.put(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY, persistenceProviderClassName);
+            Class<?> persistenceProviderClass = getClassLoader(persistenceUnitInfo).loadClass(persistenceProviderClassName);
 			return (PersistenceProvider)persistenceProviderClass.newInstance();
 		} catch (InstantiationException e) {
 			throw new PersistenceException(e);
@@ -157,10 +189,13 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
 
     private static AuthenticationProvider createAuthenticationProvider(Map<String, String> properties, PersistenceUnitInfo persistenceUnitInfo) {
         try {
-        	String authenticationProviderClassName = properties.get(AUTHENTICATION_PROVIDER_PROPERTY);
+        	String authenticationProviderClassName = null;
+            if (properties != null) {
+                authenticationProviderClassName = properties.get(AUTHENTICATION_PROVIDER_PROPERTY);
+            }
         	if (authenticationProviderClassName == null) {
         		authenticationProviderClassName
-        		= persistenceUnitInfo.getProperties().getProperty(AUTHENTICATION_PROVIDER_PROPERTY);
+        		    = persistenceUnitInfo.getProperties().getProperty(AUTHENTICATION_PROVIDER_PROPERTY);
         	}
         	if (authenticationProviderClassName == null) {
         		throw new PersistenceException("No authentication provider specified for net.sf.jpasecurity.persistence.SecureEntityManagerFactory. Specify its class name via property \"" + AUTHENTICATION_PROVIDER_PROPERTY + "\"");
@@ -178,7 +213,10 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
 
     private static AccessRulesProvider createAccessRulesProvider(Map<String, String> properties, PersistenceUnitInfo persistenceUnitInfo) {
     	try {
-    		String accessRulesProviderClassName = properties.get(ACCESS_RULES_PROVIDER_PROPERTY);
+    		String accessRulesProviderClassName = null;
+            if (properties != null) {
+                accessRulesProviderClassName = properties.get(ACCESS_RULES_PROVIDER_PROPERTY);
+            }
     		if (accessRulesProviderClassName == null) {
     			accessRulesProviderClassName
     			= persistenceUnitInfo.getProperties().getProperty(ACCESS_RULES_PROVIDER_PROPERTY, DEFAULT_ACCESS_RULES_PROVIDER_CLASS);
