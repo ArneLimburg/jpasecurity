@@ -24,6 +24,7 @@ import java.util.Map;
 import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
+import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.SimpleNode;
@@ -95,11 +96,15 @@ public class JpqlCompiledStatement implements Cloneable {
         
         private JpqlFrom fromClause;
         
-        public boolean visit(JpqlFrom fromClause, int nextChildIndex) {
+        public boolean visit(JpqlFrom fromClause, Object data) {
             this.fromClause = fromClause;
             return false;
         }
         
+        public boolean visit(JpqlSubselect node, Object data) {
+            return false;
+        }
+
         public JpqlFrom getFromClause() {
             return fromClause;
         }
@@ -109,11 +114,15 @@ public class JpqlCompiledStatement implements Cloneable {
         
         private JpqlWhere whereClause;
         
-        public boolean visit(JpqlWhere whereClause, int nextChildIndex) {
+        public boolean visit(JpqlWhere whereClause, Object data) {
             this.whereClause = whereClause;
             return false;
         }
         
+        public boolean visit(JpqlSubselect node, Object data) {
+            return false;
+        }
+
         public JpqlWhere getWhereClause() {
             return whereClause;
         }
