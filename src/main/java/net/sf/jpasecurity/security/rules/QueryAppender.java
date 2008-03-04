@@ -34,7 +34,7 @@ import net.sf.jpasecurity.jpql.parser.Node;
 /**
  * @author Arne Limburg
  */
-public class RuleAppender {
+public class QueryAppender {
 
     /**
      * Appends the specified node to the specified <tt>Where</tt>-node with <tt>and</tt>.
@@ -64,7 +64,17 @@ public class RuleAppender {
         Node or = createOr(node, in);
         return or;
     }
-    
+
+    /**
+     * Creates a <tt>JpqlWhere</tt> node.
+     */
+    public JpqlWhere createWhere() {
+        return new JpqlWhere(JpqlParserTreeConstants.JJTWHERE);
+    }
+
+    /**
+     * Connects the specified node with <tt>JpqlAnd</tt>.
+     */
     public Node createAnd(Node node1, Node node2) {
         JpqlAnd and = new JpqlAnd(JpqlParserTreeConstants.JJTAND);
         and.jjtAddChild(node1, 0);
@@ -74,6 +84,9 @@ public class RuleAppender {
         return and;
     }
     
+    /**
+     * Connects the specified node with <tt>JpqlOr</tt>.
+     */
     public Node createOr(Node node1, Node node2) {
         JpqlOr or = new JpqlOr(JpqlParserTreeConstants.JJTOR);
         or.jjtAddChild(node1, 0);
@@ -83,6 +96,9 @@ public class RuleAppender {
         return or;
     }
     
+    /**
+     * Creates an <tt>JpqlIn</tt> subtree for the specified access rule.
+     */
     public Node createIn(String alias, AccessRule rule) {
     	JpqlIn in = new JpqlIn(JpqlParserTreeConstants.JJTIN);
     	Node path = createPath(alias);
@@ -94,6 +110,9 @@ public class RuleAppender {
     	return createBrackets(in);
     }
     
+    /**
+     * Creates brackets for the specified node.
+     */
     public Node createBrackets(Node node) {
     	JpqlBrackets brackets = new JpqlBrackets(JpqlParserTreeConstants.JJTBRACKETS);
 		brackets.jjtAddChild(node, 0);
@@ -101,6 +120,9 @@ public class RuleAppender {
 		return brackets;    	
     }
     
+    /**
+     * Creates a <tt>JpqlPath</tt> node for the specified string.
+     */
     public Node createPath(String pathString) {
     	String[] pathComponents = pathString.split("\\.");
     	JpqlPath path = new JpqlPath(JpqlParserTreeConstants.JJTPATH);
@@ -118,6 +140,9 @@ public class RuleAppender {
     	return path;
     }
 
+    /**
+     * Creates a <tt>JpqlSubselect</tt> node for the specified access rule.
+     */
     public Node createSubselect(AccessRule rule) {
     	JpqlSubselect subselect = new JpqlSubselect(JpqlParserTreeConstants.JJTSUBSELECT);
     	Node select = createSelect(rule.getSelectedPath());
@@ -133,6 +158,9 @@ public class RuleAppender {
     	return subselect;
     }
     
+    /**
+     * Creates a <tt>JpqlSelect</tt> node to select the specified path.
+     */
     public Node createSelect(String selectedPath) {
     	JpqlSelect select = new JpqlSelect(JpqlParserTreeConstants.JJTSELECT);
     	JpqlSelectExpressions expressions = new JpqlSelectExpressions(JpqlParserTreeConstants.JJTSELECTEXPRESSIONS);
