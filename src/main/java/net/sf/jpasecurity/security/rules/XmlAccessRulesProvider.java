@@ -35,19 +35,19 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
 
-	public XmlAccessRulesProvider() {
-		RulesParser parser = new RulesParser();
-		try {
-			for (Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources("META-INF/security.xml"); urls.hasMoreElements();) {
-				parser.parse(urls.nextElement().openStream());
-			}
-		} catch (IOException e) {
-			throw new PersistenceException(e);
-		}
-		compileRules(parser.getAccessRules());
-	}
-	
-	private static class RulesParser extends AbstractXmlParser<XmlAccessRulesProvider.RulesParser.RulesHandler> {
+	protected void initializeAccessRules() {
+        RulesParser parser = new RulesParser();
+        try {
+            for (Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources("META-INF/security.xml"); urls.hasMoreElements();) {
+                parser.parse(urls.nextElement().openStream());
+            }
+        } catch (IOException e) {
+            throw new PersistenceException(e);
+        }
+        compileRules(parser.getAccessRules());        
+    }
+    
+    private static class RulesParser extends AbstractXmlParser<XmlAccessRulesProvider.RulesParser.RulesHandler> {
 
 		public RulesParser() {
 			super(new RulesHandler());
