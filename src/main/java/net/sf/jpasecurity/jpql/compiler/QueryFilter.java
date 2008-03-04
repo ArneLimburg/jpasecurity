@@ -30,11 +30,12 @@ import net.sf.jpasecurity.jpql.ToStringVisitor;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
+import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.rules.AccessRule;
-import net.sf.jpasecurity.security.rules.RuleAppender;
+import net.sf.jpasecurity.security.rules.QueryAppender;
 
 /**
  * @author Arne Limburg
@@ -45,7 +46,7 @@ public class QueryFilter {
     private final JpqlCompiler compiler;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final ToStringVisitor toStringVisitor = new ToStringVisitor();
-    private final RuleAppender ruleAppender = new RuleAppender();
+    private final QueryAppender queryAppender = new QueryAppender();
     private List<AccessRule> accessRules;
     
     public QueryFilter(MappingInformation mappingInformation, List<AccessRule> accessRules) {
@@ -56,13 +57,26 @@ public class QueryFilter {
     
     public String filterQuery(String query) {
         JpqlCompiledStatement statement = compile(query);
-        Node condition = statement.getWhereClause().jjtGetChild(0);
-        if (!(condition instanceof JpqlBrackets)) {
-            condition = ruleAppender.createBrackets(condition);
+        JpqlWhere where = statement.getWhereClause();
+        if (where == null) {
+            where = queryAppender.createWhere();
+            Node accessRules = createAccessRuleNode(statement);
+            accessRules.jjtSetParent(where);
+            where.jjtAddChild(accessRules, 0);
+            Node parent = statement.getFromClause().jjtGetParent();
+            for (int i = parent.jjtGetNumChildren(); i > 3; i--) {
+                parent.jjtAddChild(parent.jjtGetChild(i - 1), i);
+            }
+            parent.jjtAddChild(where, 3);
+        } else {
+            Node condition = where.jjtGetChild(0);
+            if (!(condition instanceof JpqlBrackets)) {
+                condition = queryAppender.createBrackets(condition);
+            }
+            Node and = queryAppender.createAnd(condition, createAccessRuleNode(statement));
+            and.jjtSetParent(where);
+            where.jjtSetChild(and, 0);
         }
-        Node and = ruleAppender.createAnd(condition, createAccessRuleNode(statement));
-        and.jjtSetParent(statement.getWhereClause());
-        statement.getWhereClause().jjtSetChild(and, 0);
         toStringVisitor.reset();
         statement.getStatement().visit(toStringVisitor);
         return toStringVisitor.toString();
@@ -75,10 +89,10 @@ public class QueryFilter {
             Collection<AccessRule> accessRules = new FilteredAccessRules(selectedType.getValue());
             for (AccessRule accessRule: accessRules) {
                 if (accessRuleNode == null) {
-                    accessRuleNode = ruleAppender.createIn(selectedType.getKey(), accessRule);
-                    accessRuleNode = ruleAppender.createBrackets(accessRuleNode);
+                    accessRuleNode = queryAppender.createIn(selectedType.getKey(), accessRule);
+                    accessRuleNode = queryAppender.createBrackets(accessRuleNode);
                 } else {
-                    accessRuleNode = ruleAppender.append(accessRuleNode, selectedType.getKey(), accessRule);
+                    accessRuleNode = queryAppender.append(accessRuleNode, selectedType.getKey(), accessRule);
                 }
             }
         }
