@@ -100,14 +100,14 @@ public class JpqlCompiler {
         	return Collections.unmodifiableList(selectedPaths);
         }
         
-    	public boolean visit(JpqlSelectExpression node, int nextChildIndex) {
+    	public boolean visit(JpqlSelectExpression node, Object data) {
     		toStringVisitor.reset();
     		node.visit(toStringVisitor);
     		selectedPaths.add(toStringVisitor.toString());
     		return false;
         }
     	
-        public boolean visit(JpqlSubselect node, int nextChildIndex) {
+        public boolean visit(JpqlSubselect node, Object data) {
             return false;
         }
 
@@ -125,38 +125,36 @@ public class JpqlCompiler {
             return Collections.unmodifiableMap(aliasTypes);
         }
         
-        public boolean visit(JpqlFromItem node, int nextChildIndex) {
-        	if (nextChildIndex == 0) {
-        		toStringVisitor.reset();
-        		node.jjtGetChild(0).visit(toStringVisitor);
-        		String abstractSchemaName = toStringVisitor.toString();
-        		toStringVisitor.reset();
-        		node.jjtGetChild(1).visit(toStringVisitor);
-        		String alias = toStringVisitor.toString();
-        		Class<?> type = mappingInformation.getClassMapping(abstractSchemaName).getEntityType();
-        		aliasTypes.put(alias, type);
-        	}
+        public boolean visit(JpqlFromItem node, Object data) {
+            toStringVisitor.reset();
+            node.jjtGetChild(0).visit(toStringVisitor);
+            String abstractSchemaName = toStringVisitor.toString();
+            toStringVisitor.reset();
+            node.jjtGetChild(1).visit(toStringVisitor);
+            String alias = toStringVisitor.toString();
+            Class<?> type = mappingInformation.getClassMapping(abstractSchemaName).getEntityType();
+            aliasTypes.put(alias, type);
     		return false;
         }
 
-        public boolean visit(JpqlInnerJoin node, int nextChildIndex) {
-        	return visitFetch(node, nextChildIndex);
+        public boolean visit(JpqlInnerJoin node, Object data) {
+        	return visitFetch(node);
         }
 
-        public boolean visit(JpqlOuterJoin node, int nextChildIndex) {
-        	return visitFetch(node, nextChildIndex);
+        public boolean visit(JpqlOuterJoin node, Object data) {
+        	return visitFetch(node);
         }
 
-        public boolean visit(JpqlOuterFetchJoin node, int nextChildIndex) {
-        	return visitFetch(node, nextChildIndex);
+        public boolean visit(JpqlOuterFetchJoin node, Object data) {
+        	return visitFetch(node);
         }
 
-        public boolean visit(JpqlInnerFetchJoin node, int nextChildIndex) {
-        	return visitFetch(node, nextChildIndex);
+        public boolean visit(JpqlInnerFetchJoin node, Object data) {
+        	return visitFetch(node);
         }
         
-        private boolean visitFetch(Node node, int nextChildIndex) {
-        	if (node.jjtGetNumChildren() > 1 && nextChildIndex == 0) {
+        private boolean visitFetch(Node node) {
+        	if (node.jjtGetNumChildren() > 1) {
         		toStringVisitor.reset();
         		node.jjtGetChild(0).visit(toStringVisitor);
         		String fetchPath = toStringVisitor.toString();        	
@@ -169,7 +167,7 @@ public class JpqlCompiler {
             return false;        	
         }
 
-        public boolean visit(JpqlSubselect node, int nextChildIndex) {
+        public boolean visit(JpqlSubselect node, Object data) {
             return false;
         }
 
