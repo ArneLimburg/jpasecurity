@@ -146,11 +146,13 @@ public class SimpleNode implements Node {
         SimpleNode node;
         try {
             node = (SimpleNode)super.clone();
-            node.children = node.children.clone();
-            for (int i = 0; i < node.children.length; i++) {
-                SimpleNode child = (SimpleNode)node.children[i].clone();
-                child.parent = node;
-                node.children[i] = child;
+            if (node.children != null) {
+            	node.children = node.children.clone();
+            	for (int i = 0; i < node.children.length; i++) {
+            		SimpleNode child = (SimpleNode)node.children[i].clone();
+            		child.parent = node;
+            		node.children[i] = child;
+            	}
             }
             return node;
         } catch (CloneNotSupportedException e) {
