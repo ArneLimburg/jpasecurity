@@ -183,16 +183,11 @@
       <version>1.0</version>
     </dependency>
     <dependency>
-      <groupId>org.ow2.spec.ee</groupId>
-      <artifactId>ow2-ejb-3.0-spec</artifactId>
-      <version>1.0-M1</version>
-    </dependency>
-    <!--dependency>
       <groupId>javax.ejb</groupId>
       <artifactId>ejb</artifactId>
       <version>3.0</version>
       <scope>provided</scope>
-    </dependency-->
+    </dependency>
     <dependency>
       <groupId>org.acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
@@ -214,6 +209,12 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+      <version>3.3.1.ga</version>
       <scope>test</scope>
     </dependency>
     <dependency>
