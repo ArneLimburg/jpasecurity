@@ -132,7 +132,7 @@ public class JpqlCompiler {
             toStringVisitor.reset();
             node.jjtGetChild(1).visit(toStringVisitor);
             String alias = toStringVisitor.toString();
-            Class<?> type = mappingInformation.getClassMapping(abstractSchemaName).getEntityType();
+            Class<?> type = mappingInformation.getClassMapping(abstractSchemaName.trim()).getEntityType();
             aliasTypes.put(alias, type);
     		return false;
         }
