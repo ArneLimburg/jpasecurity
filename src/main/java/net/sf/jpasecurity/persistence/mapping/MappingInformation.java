@@ -65,10 +65,15 @@ public class MappingInformation {
         if (entityNameMappings == null) {
             initializeEntityNameMappings();
         }
-        return entityNameMappings.get(entityName);
+        ClassMappingInformation classMapping = entityNameMappings.get(entityName);
+        if (classMapping == null) {
+        	throw new PersistenceException("Could not find mapping for entity with name \"" + entityName + '"');
+        }
+        return classMapping;
     }
     
     private void initializeEntityNameMappings() {
+    	entityNameMappings = new HashMap<String, ClassMappingInformation>();
         for (ClassMappingInformation classMapping: entityTypeMappings.values()) {
             entityNameMappings.put(classMapping.getEntityName(), classMapping);
         }
