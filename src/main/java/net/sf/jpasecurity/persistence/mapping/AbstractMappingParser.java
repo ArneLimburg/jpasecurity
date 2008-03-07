@@ -63,7 +63,8 @@ public abstract class AbstractMappingParser {
                 } else {
                     usesFieldAccess = usesFieldAccess(mappedClass);
                 }
-                classMapping = new ClassMappingInformation(mappedClass.getName(), mappedClass, superclassMapping);
+                //TODO add extracting of the entity name here
+                classMapping = new ClassMappingInformation(mappedClass.getSimpleName(), mappedClass, superclassMapping);
                 classMappings.put(mappedClass, classMapping);
                 if (usesFieldAccess) {
                     for (Field field: mappedClass.getDeclaredFields()) {
@@ -96,7 +97,7 @@ public abstract class AbstractMappingParser {
             ClassMappingInformation targetMapping = parse(getTargetType(property));
             return new CollectionValuedRelationshipMappingInformation(name, type, targetMapping, classMapping);
         } else if (isSimpePropertyType(type)) {
-            return new SimplePropertyMappingInformation(name, type, parse(property.getDeclaringClass()));
+            return new SimplePropertyMappingInformation(name, type, classMapping);
         } else {
             throw new PersistenceException("could not determine mapping for property \"" + name + "\" of class " + property.getDeclaringClass().getName());
         }
