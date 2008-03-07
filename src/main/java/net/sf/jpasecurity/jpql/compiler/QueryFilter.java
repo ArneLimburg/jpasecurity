@@ -57,10 +57,13 @@ public class QueryFilter {
     
     public String filterQuery(String query) {
         JpqlCompiledStatement statement = compile(query);
+        Node accessRules = createAccessRuleNode(statement);
+        if (accessRules == null) {
+        	return query;
+        }
         JpqlWhere where = statement.getWhereClause();
         if (where == null) {
             where = queryAppender.createWhere();
-            Node accessRules = createAccessRuleNode(statement);
             accessRules.jjtSetParent(where);
             where.jjtAddChild(accessRules, 0);
             Node parent = statement.getFromClause().jjtGetParent();
@@ -73,7 +76,7 @@ public class QueryFilter {
             if (!(condition instanceof JpqlBrackets)) {
                 condition = queryAppender.createBrackets(condition);
             }
-            Node and = queryAppender.createAnd(condition, createAccessRuleNode(statement));
+            Node and = queryAppender.createAnd(condition, accessRules);
             and.jjtSetParent(where);
             where.jjtSetChild(and, 0);
         }
