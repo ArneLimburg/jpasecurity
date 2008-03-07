@@ -26,10 +26,10 @@ public abstract class PropertyMappingInformation {
     private ClassMappingInformation containingClassMapping;
 
     public PropertyMappingInformation(String propertyName, ClassMappingInformation classMapping) {
-        if (name == null) {
+        if (propertyName == null) {
             throw new IllegalArgumentException("property name not specified");
         }
-        if (containingClassMapping == null) {
+        if (classMapping == null) {
             throw new PersistenceException("class is no entity class");
         }
         name = propertyName;
