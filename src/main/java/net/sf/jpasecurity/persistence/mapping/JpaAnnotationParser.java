@@ -65,10 +65,9 @@ public class JpaAnnotationParser extends AbstractMappingParser {
     }
 
     protected boolean isMapped(Class<?> mappedClass) {
-        List<Annotation> declaredAnnotations = Arrays.asList(mappedClass.getDeclaredAnnotations());
-        return declaredAnnotations.contains(Entity.class)
-            || declaredAnnotations.contains(Embeddable.class)
-            || declaredAnnotations.contains(MappedSuperclass.class);
+        return mappedClass.getAnnotation(Entity.class) != null
+            || mappedClass.getAnnotation(Embeddable.class) != null
+            || mappedClass.getAnnotation(MappedSuperclass.class) != null;
     }
 
     protected boolean isMapped(Member member) {
