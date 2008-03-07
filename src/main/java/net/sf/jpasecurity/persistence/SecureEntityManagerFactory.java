@@ -170,7 +170,6 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
         	if (persistenceProviderClassName == null) {
         		throw new PersistenceException("No persistence provider specified for net.sf.jpasecurity.persistence.SecureEntityManagerFactory. Specify its class name via property \"" + PERSISTENCE_PROVIDER_PROPERTY + "\"");
         	}
-        	properties.put(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY, persistenceProviderClassName);
             Class<?> persistenceProviderClass = getClassLoader(persistenceUnitInfo).loadClass(persistenceProviderClassName);
 			return (PersistenceProvider)persistenceProviderClass.newInstance();
 		} catch (InstantiationException e) {
