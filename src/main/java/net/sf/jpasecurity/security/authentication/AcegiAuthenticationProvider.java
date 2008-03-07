@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.context.SecurityContextHolder;
 
@@ -28,12 +29,20 @@ import org.acegisecurity.context.SecurityContextHolder;
 public class AcegiAuthenticationProvider implements AuthenticationProvider {
 
 	public Object getUser() {
-		return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null) {
+			throw new SecurityException("Not authenticated");
+		}
+		return authentication.getPrincipal();
 	}
 
 	public Collection<Object> getRoles() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || authentication.getAuthorities() == null) {
+			throw new SecurityException("Not authenticated");
+		}
 		List<Object> roles = new ArrayList<Object>();
-		for (GrantedAuthority authority: SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
+		for (GrantedAuthority authority: authentication.getAuthorities()) {
 			roles.add(authority.getAuthority());
 		}
 		return roles;
