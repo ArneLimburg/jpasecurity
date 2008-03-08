@@ -17,7 +17,8 @@
 package net.sf.jpasecurity.security.rules;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
 
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
@@ -27,10 +28,15 @@ import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
  */
 public class AccessRule extends JpqlCompiledStatement {
 
-    public AccessRule(JpqlAccessRule rule,
-                      String selectedPath,
-                      Map<String, Class<?>> aliasTypes) {
-        super(rule, Collections.singletonList(selectedPath), aliasTypes);
+    public static final String DEFAULT_USER_PARAMETER_NAME = "user";
+    public static final String DEFAULT_ROLES_PARAMETER_NAME = "roles";
+
+    public AccessRule(JpqlAccessRule rule, String selectedAlias, Class<?> type, Set<String> namedParameters) {
+        super(rule, 
+              Collections.singletonList(selectedAlias),
+              new HashMap<String, Class<?>>(Collections.singletonMap(selectedAlias, type)),
+              namedParameters);
+        
     }
     
     public String getSelectedPath() {
