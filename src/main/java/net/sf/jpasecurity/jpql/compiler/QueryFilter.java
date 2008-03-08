@@ -23,12 +23,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
+import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.ToStringVisitor;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
+import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
@@ -38,15 +41,17 @@ import net.sf.jpasecurity.security.rules.AccessRule;
 import net.sf.jpasecurity.security.rules.QueryAppender;
 
 /**
+ * <strong>Note: This class is not thread-safe. Instances of this class may only be used on a single thread.</strong>
  * @author Arne Limburg
  */
 public class QueryFilter {
-    
+
     private final JpqlParser parser;
     private final JpqlCompiler compiler;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final ToStringVisitor toStringVisitor = new ToStringVisitor();
     private final QueryAppender queryAppender = new QueryAppender();
+    private final NamedParameterReplacer namedParameterReplacer = new NamedParameterReplacer();
     private List<AccessRule> accessRules;
     
     public QueryFilter(MappingInformation mappingInformation, List<AccessRule> accessRules) {
@@ -55,12 +60,30 @@ public class QueryFilter {
         this.accessRules = accessRules;
     }
     
-    public String filterQuery(String query) {
+    public FilterResult filterQuery(String query) {
         JpqlCompiledStatement statement = compile(query);
+        
         Node accessRules = createAccessRuleNode(statement);
         if (accessRules == null) {
-        	return query;
+            return new FilterResult(query, null, null);
         }
+        
+        Set<String> namedParameters = statement.getNamedParameters();
+        
+        String userParameterName = AccessRule.DEFAULT_USER_PARAMETER_NAME;
+        for (int i = 0; namedParameters.contains(userParameterName); i++) {
+            userParameterName = AccessRule.DEFAULT_USER_PARAMETER_NAME + i;
+        }
+        int userParameterNameCount
+            = replaceNamedParameters(accessRules, AccessRule.DEFAULT_USER_PARAMETER_NAME, userParameterName);
+
+        String rolesParameterName = AccessRule.DEFAULT_ROLES_PARAMETER_NAME;
+        for (int i = 0; namedParameters.contains(rolesParameterName); i++) {
+            rolesParameterName = AccessRule.DEFAULT_ROLES_PARAMETER_NAME + i;
+        }
+        int rolesParameterNameCount
+            = replaceNamedParameters(accessRules, AccessRule.DEFAULT_ROLES_PARAMETER_NAME, rolesParameterName);
+
         JpqlWhere where = statement.getWhereClause();
         if (where == null) {
             where = queryAppender.createWhere();
@@ -82,7 +105,9 @@ public class QueryFilter {
         }
         toStringVisitor.reset();
         statement.getStatement().visit(toStringVisitor);
-        return toStringVisitor.toString();
+        return new FilterResult(toStringVisitor.toString(),
+                                userParameterNameCount > 0? userParameterName: null,
+                                rolesParameterNameCount > 0? rolesParameterName: null);
     }
     
     private Node createAccessRuleNode(JpqlCompiledStatement statement) {
@@ -130,6 +155,12 @@ public class QueryFilter {
             throw new IllegalStateException("an acl entry may have only one selected type");
         }
         return selectedTypes.values().iterator().next();
+    }
+    
+    private int replaceNamedParameters(Node node, String oldNamedParameter, String newNamedParameter) {
+        namedParameterReplacer.replace(oldNamedParameter, newNamedParameter);
+        node.visit(namedParameterReplacer);
+        return namedParameterReplacer.getReplacements();
     }
     
     private class FilteredAccessRules extends AbstractSet<AccessRule> {
@@ -191,6 +222,31 @@ public class QueryFilter {
             public void remove() {
                 throw new UnsupportedOperationException();
             }
+        }
+    }
+    
+    private class NamedParameterReplacer extends JpqlVisitorAdapter {
+        
+        private String oldNamedParameter;
+        private String newNamedParameter;
+        private int replacements;
+        
+        public void replace(String oldNamedParameter, String newNamedParameter) {
+            this.oldNamedParameter = oldNamedParameter;
+            this.newNamedParameter = newNamedParameter;
+            this.replacements = 0;
+        }
+        
+        public int getReplacements() {
+            return replacements;
+        }
+        
+        public boolean visit(JpqlPositionalInputParameter node, Object data) {
+            if (oldNamedParameter.equals(node.getValue())) {
+                node.setValue(newNamedParameter);
+                replacements++;
+            }
+            return true;
         }
     }
 }

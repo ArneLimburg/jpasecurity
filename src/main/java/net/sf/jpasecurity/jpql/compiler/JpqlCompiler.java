@@ -18,8 +18,10 @@ package net.sf.jpasecurity.jpql.compiler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
@@ -29,8 +31,10 @@ import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
+import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
+import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
@@ -44,9 +48,19 @@ import net.sf.jpasecurity.security.rules.AccessRule;
  */
 public class JpqlCompiler {
 
+    public static final Set<String> ACCESS_RULE_PARAMETERS;
+    static {
+        Set<String> accessRuleParameters = new HashSet<String>();
+        accessRuleParameters.add(AccessRule.DEFAULT_USER_PARAMETER_NAME);
+        accessRuleParameters.add(AccessRule.DEFAULT_ROLES_PARAMETER_NAME);
+        ACCESS_RULE_PARAMETERS = Collections.unmodifiableSet(accessRuleParameters);
+    }
+    
 	private MappingInformation mappingInformation;
 	private final SelectVisitor selectVisitor = new SelectVisitor();
 	private final AliasVisitor aliasVisitor = new AliasVisitor();
+    private final NamedParameterVisitor namedParameterVisitor = new NamedParameterVisitor();
+    private final PositionalParameterVisitor positionalParameterVisitor = new PositionalParameterVisitor();
 	
 	public JpqlCompiler(MappingInformation mappingInformation) {
 		this.mappingInformation = mappingInformation;
@@ -55,7 +69,8 @@ public class JpqlCompiler {
     public JpqlCompiledStatement compile(JpqlStatement statement) {
         List<String> selectedPathes = getSelectedPaths(statement);
         Map<String, Class<?>> aliasTypes = getAliasTypes(statement);
-        return new JpqlCompiledStatement(statement, selectedPathes, aliasTypes);
+        Set<String> namedParameters = getNamedParameters(statement);
+        return new JpqlCompiledStatement(statement, selectedPathes, aliasTypes, namedParameters);
     }
     
     public AccessRule compile(JpqlAccessRule rule) {
@@ -63,7 +78,17 @@ public class JpqlCompiler {
         if (aliasTypes.size() > 1) {
         	throw new IllegalStateException("An access rule may have only on alias specified");
         }
-        return new AccessRule(rule, aliasTypes.keySet().iterator().next(), aliasTypes);    	
+        Map.Entry<String, Class<?>> aliasType = aliasTypes.entrySet().iterator().next();
+        Set<String> namedParameters = getNamedParameters(rule);
+        namedParameters.addAll(ACCESS_RULE_PARAMETERS);
+        if (namedParameters.size() > 2) {
+            namedParameters.removeAll(ACCESS_RULE_PARAMETERS);
+            throw new PersistenceException("Illegal parameter name \"" + namedParameters.iterator().next() + "\" for access rule");
+        }
+        if (getPositionalParameters(rule).size() > 0) {
+            throw new PersistenceException("Positional parameters are not allowed for access rules");
+        }
+        return new AccessRule(rule, aliasType.getKey(), aliasType.getValue(), namedParameters);    	
     }
     
     public Class<?> getType(String path, Map<String, Class<?>> aliasTypes) {
@@ -91,13 +116,25 @@ public class JpqlCompiler {
     	return aliasVisitor.getAliasTypes();
     }
     
+    private Set<String> getNamedParameters(Node node) {
+        namedParameterVisitor.reset();
+        node.visit(namedParameterVisitor);
+        return namedParameterVisitor.getNamedParameters();
+    }
+    
+    private Set<String> getPositionalParameters(Node node) {
+        positionalParameterVisitor.reset();
+        node.visit(positionalParameterVisitor);
+        return positionalParameterVisitor.getPositionalParameters();
+    }
+    
     private class SelectVisitor extends JpqlVisitorAdapter {
 
     	private List<String> selectedPaths = new ArrayList<String>();
         private final ToStringVisitor toStringVisitor = new ToStringVisitor();
 
         public List<String> getSelectedPaths() {
-        	return Collections.unmodifiableList(selectedPaths);
+        	return new ArrayList<String>(selectedPaths);
         }
         
     	public boolean visit(JpqlSelectExpression node, Object data) {
@@ -122,7 +159,7 @@ public class JpqlCompiler {
         private final ToStringVisitor toStringVisitor = new ToStringVisitor();
 
         public Map<String, Class<?>> getAliasTypes() {
-            return Collections.unmodifiableMap(aliasTypes);
+            return new HashMap<String, Class<?>>(aliasTypes);
         }
         
         public boolean visit(JpqlFromItem node, Object data) {
@@ -161,7 +198,7 @@ public class JpqlCompiler {
         		toStringVisitor.reset();
         		node.jjtGetChild(1).visit(toStringVisitor);
         		String alias = toStringVisitor.toString();        		
-        		Class<?> type = getType(fetchPath, aliasTypes);
+        		Class type = getType(fetchPath, aliasTypes);
         		aliasTypes.put(alias, type);
         	}
             return false;        	
@@ -173,6 +210,42 @@ public class JpqlCompiler {
 
         public void reset() {
             aliasTypes.clear();
+        }
+    }
+    
+    private class NamedParameterVisitor extends JpqlVisitorAdapter {
+        
+        private Set<String> namedParameters = new HashSet<String>();
+        
+        public Set<String> getNamedParameters() {
+            return new HashSet<String>(namedParameters);
+        }
+        
+        public boolean visit(JpqlNamedInputParameter node, Object data) {
+            namedParameters.add(node.getValue());
+            return true;
+        }
+
+        private void reset() {
+            namedParameters.clear();
+        }
+    }
+    
+    private class PositionalParameterVisitor extends JpqlVisitorAdapter {
+
+        private Set<String> positionalParameters = new HashSet<String>();
+        
+        public Set<String> getPositionalParameters() {
+            return new HashSet<String>(positionalParameters);
+        }
+        
+        public boolean visit(JpqlPositionalInputParameter node, Object data) {
+            positionalParameters.add(node.getValue());
+            return true;
+        }
+
+        private void reset() {
+            positionalParameters.clear();
         }
     }
 }

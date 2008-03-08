@@ -23,6 +23,7 @@ import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
+import net.sf.jpasecurity.jpql.compiler.FilterResult;
 import net.sf.jpasecurity.jpql.compiler.QueryFilter;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
@@ -75,9 +76,15 @@ public class SecureEntityManager implements EntityManager {
     }
 
     public Query createQuery(String qlString) {
-        return entityManager.createQuery(queryFilter.filterQuery(qlString))
-                            .setParameter("user", authenticationProvider.getUser())
-                            .setParameter("roles", authenticationProvider.getRoles());
+        FilterResult filterResult = queryFilter.filterQuery(qlString);
+        Query query = entityManager.createQuery(filterResult.getQuery());
+        if (filterResult.getUserParameterName() != null) {
+            query.setParameter(filterResult.getUserParameterName(), authenticationProvider.getUser());
+        }
+        if (filterResult.getRolesParameterName() != null) {
+            query.setParameter(filterResult.getRolesParameterName(), authenticationProvider.getRoles());
+        }
+        return query;
     }
 
     public <T> T find(Class<T> entityClass, Object primaryKey) {

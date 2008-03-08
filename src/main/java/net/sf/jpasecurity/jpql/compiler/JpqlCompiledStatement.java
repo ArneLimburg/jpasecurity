@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
 package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
@@ -37,15 +37,18 @@ public class JpqlCompiledStatement implements Cloneable {
     private SimpleNode statement;
     private List<String> selectedPathes;
     private Map<String, Class<?>> aliasTypes;
+    private Set<String> namedParameters;
     private JpqlFrom fromClause;
     private JpqlWhere whereClause;
 
     public JpqlCompiledStatement(SimpleNode statement,
                                  List<String> selectedPathes,
-                                 Map<String, Class<?>> aliasTypes) {
+                                 Map<String, Class<?>> name,
+                                 Set<String> namedParameters) {
         this.statement = statement;
         this.selectedPathes = selectedPathes;
-        this.aliasTypes = aliasTypes;
+        this.aliasTypes = name;
+        this.namedParameters = namedParameters;
     }
     
     public Node getStatement() {
@@ -58,6 +61,10 @@ public class JpqlCompiledStatement implements Cloneable {
 
     public Map<String, Class<?>> getAliasTypes() {
         return aliasTypes;
+    }
+    
+    public Set<String> getNamedParameters() {
+        return namedParameters;
     }
     
     public JpqlFrom getFromClause() {
