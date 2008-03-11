@@ -76,6 +76,7 @@ public class ToStringVisitorTest extends TestCase {
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.name = ?1");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.created < CURRENT_TIMESTAMP");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.created < CURRENT_TIME");
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name IN ('name 1', 'name 2')");
 		assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0");
 		assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0 WHERE bean.id = 0");
 		assertJpql("DELETE FROM TestBean bean");
