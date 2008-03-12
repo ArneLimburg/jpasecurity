@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
 package net.sf.jpasecurity.security.rules;
 
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ import net.sf.jpasecurity.persistence.mapping.MappingInformation;
  * A base class for implementations of the {@link AccessRulesProvider} interface
  * that provides compilation support for access rules.
  * Subclasses may override {@link #initializeAccessRules()} to initialize the compilation process.
- * @see #compileRules(Collection) 
+ * @see #compileRules(Collection)
  * @author Arne Limburg
  */
 public abstract class AbstractAccessRulesProvider implements AccessRulesProvider, PersistenceInformationReceiver {
@@ -61,16 +60,25 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
         this.persistenceProperties = properties;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public final List<AccessRule> getAccessRules() {
         if (accessRules == null) {
             initializeAccessRules();
         }
         return accessRules;
     }
-    
-    protected void initializeAccessRules() {        
+
+    /**
+     * Hook to initialize the access rules.
+     * It will be called on the first call of {@link #getAccessRules()}.
+     * This implementation does nothing and is intended to be overridden
+     * by subclasses.
+     */
+    protected void initializeAccessRules() {
     }
-    
+
     /**
      * Compiles the rules provided as <tt>String</tt>s into
      * {@link AccessRule} objects. The compiled rules are accessible

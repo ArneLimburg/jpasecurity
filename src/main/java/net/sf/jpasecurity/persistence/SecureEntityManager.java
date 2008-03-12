@@ -41,42 +41,68 @@ public class SecureEntityManager implements EntityManager {
     private QueryFilter queryFilter;
 
     SecureEntityManager(EntityManager entityManager,
-    		            MappingInformation mappingInformation,
-    		            AuthenticationProvider authenticationProvider,
-    		            List<AccessRule> accessRules) {
+                        MappingInformation mappingInformation,
+                        AuthenticationProvider authenticationProvider,
+                        List<AccessRule> accessRules) {
         this.entityManager = entityManager;
         this.authenticationProvider = authenticationProvider;
         this.queryFilter = new QueryFilter(mappingInformation, accessRules);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void clear() {
         entityManager.clear();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() {
         entityManager.close();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean contains(Object entity) {
         return entityManager.contains(entity);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Query createNamedQuery(String name) {
         return entityManager.createNamedQuery(name);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Query createNativeQuery(String sqlString, Class resultClass) {
         return entityManager.createNativeQuery(sqlString, resultClass);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Query createNativeQuery(String sqlString, String resultSetMapping) {
         return entityManager.createNativeQuery(sqlString, resultSetMapping);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Query createNativeQuery(String sqlString) {
         return entityManager.createNativeQuery(sqlString);
     }
 
+    /**
+     * {@inheritDoc}
+     * This implementation filters the query according to the provided access rules
+     * and the authenticated user and its roles.
+     */
     public Query createQuery(String qlString) {
         Object user = authenticationProvider.getUser();
         Collection<Object> roles = authenticationProvider.getRoles();
@@ -98,58 +124,100 @@ public class SecureEntityManager implements EntityManager {
         return query;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public <T> T find(Class<T> entityClass, Object primaryKey) {
         return entityManager.find(entityClass, primaryKey);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void flush() {
         entityManager.flush();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Object getDelegate() {
         return entityManager.getDelegate();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public FlushModeType getFlushMode() {
         return entityManager.getFlushMode();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public <T> T getReference(Class<T> entityClass, Object primaryKey) {
         return entityManager.getReference(entityClass, primaryKey);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public EntityTransaction getTransaction() {
         return entityManager.getTransaction();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isOpen() {
         return entityManager.isOpen();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void joinTransaction() {
         entityManager.joinTransaction();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void lock(Object entity, LockModeType lockMode) {
         entityManager.lock(entity, lockMode);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public <T> T merge(T entity) {
         return entityManager.merge(entity);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void persist(Object entity) {
         entityManager.persist(entity);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void refresh(Object entity) {
         entityManager.refresh(entity);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void remove(Object entity) {
         entityManager.remove(entity);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setFlushMode(FlushModeType flushMode) {
         entityManager.setFlushMode(flushMode);
     }

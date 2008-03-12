@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
 package net.sf.jpasecurity.security.authentication;
 
 import java.util.Collection;
@@ -23,6 +22,6 @@ import java.util.Collection;
  */
 public interface AuthenticationProvider {
 
-	Object getUser();	
-	Collection<Object> getRoles();
+    Object getUser();
+    Collection<Object> getRoles();
 }
