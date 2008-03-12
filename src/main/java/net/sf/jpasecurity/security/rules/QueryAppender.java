@@ -22,7 +22,6 @@ import java.util.List;
 
 import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
-import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
@@ -34,7 +33,6 @@ import net.sf.jpasecurity.jpql.parser.JpqlNotEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlOr;
 import net.sf.jpasecurity.jpql.parser.JpqlParserTreeConstants;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
-import net.sf.jpasecurity.jpql.parser.JpqlSelect;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpressions;
@@ -263,7 +261,12 @@ public class QueryAppender {
         }
         
         public boolean visit(JpqlIn node, Object data) {
-            inRoles.add(node);
+            if (node.jjtGetChild(1) instanceof JpqlNamedInputParameter) {
+                JpqlNamedInputParameter namedInputParameter = (JpqlNamedInputParameter)node.jjtGetChild(1);
+                if (AccessRule.DEFAULT_ROLES_PARAMETER_NAME.equals(namedInputParameter.getValue())) {
+                    inRoles.add(node);
+                }
+            }
             return true;
         }
         
