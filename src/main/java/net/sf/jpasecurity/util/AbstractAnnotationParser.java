@@ -23,57 +23,72 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * This parser parses a specified <tt>Set</tt> of classes for annotations of the specified type(s).
+ * This parser parses a specified <tt>Set</tt> of classes for annotations of
+ * the specified type(s).
+ * @param <A> the annotation to be parsed 
  * @author Arne Limburg
  */
 public abstract class AbstractAnnotationParser<A extends Annotation> {
 
-	private Collection<Class<A>> annotationTypes;
-	
-	protected AbstractAnnotationParser() {
-	    annotationTypes = Collections.singleton(extractAnnotationType());
+    private Collection<Class<A>> annotationTypes;
+
+    /**
+     * Creates an annotation parser that extracts the annotation to parse from
+     * the generic type argument of the class.
+     * @throws IllegalStateException if the annotation cannot be extracted
+     */
+    protected AbstractAnnotationParser() throws IllegalArgumentException {
+        annotationTypes = Collections.singleton(extractAnnotationType());
     }
-    
+
+    /**
+     * Creates an annotation parser for the specified annotations.
+     */
     protected AbstractAnnotationParser(Class<A>... annotationTypes) {
         this.annotationTypes = Arrays.asList(annotationTypes);
     }
-	
+
     /**
-     * Parses the specified classes for the annotation(s)
-     * @param classes
+     * Parses the specified classes for the annotation(s).
      */
     protected void parse(Class<?>... classes) {
-        for (Class<?> annotatedClass: classes) {
+        for (Class<?> annotatedClass : classes) {
             parse(annotatedClass);
         }
-    }  
-    
-	/**
-	 * Parses the specified classes for the annotation(s)
-	 * @param classes
-	 */
-	protected void parse(Collection<Class<?>> classes) {
-		for (Class<?> annotatedClass: classes) {
-		    parse(annotatedClass);
-		}
-	}  
-	
-	protected void parse(Class<?> annotatedClass) {
-		if (annotatedClass == null) {
-			return;
-		}
+    }
+
+    /**
+     * Parses the specified classes for the annotation(s).
+     */
+    protected void parse(Collection<Class<?>> classes) {
+        for (Class<?> annotatedClass : classes) {
+            parse(annotatedClass);
+        }
+    }
+
+    /**
+     * Parses the specified class for the annotation(s).
+     */
+    protected void parse(Class<?> annotatedClass) {
+        if (annotatedClass == null) {
+            return;
+        }
         parse(annotatedClass.getSuperclass());
-        for (Class<?> annotatedInterface: annotatedClass.getInterfaces()) {
+        for (Class<?> annotatedInterface : annotatedClass.getInterfaces()) {
             parse(annotatedInterface);
         }
-        for (Class<A> annotationType: annotationTypes) {
+        for (Class<A> annotationType : annotationTypes) {
             A annotation = annotatedClass.getAnnotation(annotationType);
             if (annotation != null) {
                 process(annotation);
             }
         }
-	}
-    
+    }
+
+    /**
+     * Called during parsing, when an annotation is found.
+     * @param annotation the found annotation
+     */
     protected abstract void process(A annotation);
 
     private Class<A> extractAnnotationType() {
@@ -89,7 +104,7 @@ public abstract class AbstractAnnotationParser<A extends Annotation> {
             throw new IllegalStateException("Could not determine annotation type. Please specifiy by constructor.");
         }
     }
-    
+
     private Type getSupertype(Type type) {
         if (type instanceof Class) {
             return ((Class<?>)type).getGenericSuperclass();

@@ -31,51 +31,114 @@ import org.w3c.dom.Node;
  */
 public class OrmXmlParser extends AbstractMappingParser {
 
+    /**
+     * The tag name for entities
+     */
     public static final String ENTITY_TAG_NAME = "entity";
+
+    /**
+     * The tag name for mapped superclasses
+     */
     public static final String MAPPED_SUPERCLASS_TAG_NAME = "mapped-superclass";
+
+    /**
+     * The tag name for embeddables
+     */
     public static final String EMBEDDABLE_TAG_NAME = "embeddable";
+
+    /**
+     * The tag name for attributes
+     */
     public static final String ATTRIBUTES_TAG_NAME = "attributes";
+
+    /**
+     * The tag name for embedded ids
+     */
     public static final String EMBEDDED_ID_TAG_NAME = "embedded-id";
+
+    /**
+     * The tag name for ids
+     */
     public static final String ID_TAG_NAME = "id";
+
+    /**
+     * The tag name for many-to-one mappings
+     */
     public static final String MANY_TO_ONE_TAG_NAME = "many-to-one";
+
+    /**
+     * The tag name for one-to-one mappings
+     */
     public static final String ONE_TO_ONE_TAG_NAME = "one-to-one";
+
+    /**
+     * The tag name for one-to-many mappings
+     */
     public static final String ONE_TO_MANY_TAG_NAME = "one-to-many";
+
+    /**
+     * The tag name for many-to-many mappings
+     */
     public static final String MANY_TO_MANY_TAG_NAME = "many-to-many";
+
+    /**
+     * The tag name for transient attributes
+     */
     public static final String TRANSIENT_TAG_NAME = "transient";
+
+    /**
+     * The tag name for classes
+     */
     public static final String CLASS_ATTRIBUTE_NAME = "class";
+
+    /**
+     * The tag name for names
+     */
     public static final String NAME_ATTRIBUTE_NAME = "name";
-    
+
     private XmlNodeList entityNodes;
     private XmlNodeList superclassNodes;
     private XmlNodeList embeddableNodes;
-    
+
+    /**
+     * Creates a parser to parse a orm.xml file.
+     */
     public OrmXmlParser(Map<Class<?>, ClassMappingInformation> classMappings, Document mappingDocument) {
         super(classMappings);
         entityNodes = new XmlNodeList(mappingDocument.getElementsByTagName(ENTITY_TAG_NAME));
         superclassNodes = new XmlNodeList(mappingDocument.getElementsByTagName(MAPPED_SUPERCLASS_TAG_NAME));
         embeddableNodes = new XmlNodeList(mappingDocument.getElementsByTagName(EMBEDDABLE_TAG_NAME));
     }
-    
+
     public List<Node> getEntityNodes() {
         return entityNodes;
     }
-    
+
     public List<Node> getSuperclassNodes() {
         return superclassNodes;
     }
-    
+
     public List<Node> getEmbeddableNodes() {
         return embeddableNodes;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     protected boolean isEmbeddable(Class<?> type) {
         return embeddableNodes.containsAttribute(CLASS_ATTRIBUTE_NAME, type.getName());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected boolean isMapped(Class<?> mappedClass) {
         return getMappedClassNode(mappedClass) != null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected boolean isMapped(Member member) {
         String name = getName(member);
         Node classNode = getMappedClassNode(member.getDeclaringClass());
@@ -92,6 +155,9 @@ public class OrmXmlParser extends AbstractMappingParser {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected boolean isSingleValuedRelationshipProperty(Member property) {
         String name = getName(property);
         Node classNode = getMappedClassNode(property.getDeclaringClass());
@@ -111,6 +177,9 @@ public class OrmXmlParser extends AbstractMappingParser {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected boolean isCollectionValuedRelationshipProperty(Member property) {
         String name = getName(property);
         Node classNode = getMappedClassNode(property.getDeclaringClass());

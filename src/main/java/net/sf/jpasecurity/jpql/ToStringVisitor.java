@@ -108,6 +108,10 @@ import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.JpqlParserVisitor;
 import net.sf.jpasecurity.jpql.parser.Node;
 
+/**
+ * This visitor creates a jpql-string of a query tree. 
+ * @author Arne Limburg
+ */
 public class ToStringVisitor implements JpqlParserVisitor {
 
     private StringBuilder query = new StringBuilder();
@@ -239,9 +243,9 @@ public class ToStringVisitor implements JpqlParserVisitor {
             query.append(", ");
             node.jjtGetChild(i).visit(this, data);
         }
-    	return false;
+        return false;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -292,7 +296,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
         node.jjtGetChild(1).visit(this, data);
         for (int i = 2; i < node.jjtGetNumChildren(); i++) {
             query.append(", ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(')');
         return false;
@@ -305,7 +309,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
         node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append('.');
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         return false;
     }
@@ -476,7 +480,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
         node.jjtGetChild(1).visit(this, data);
         for (int i = 2; i < node.jjtGetNumChildren(); i++) {
             query.append(", ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(") ");
         return false;
@@ -489,7 +493,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
         node.jjtGetChild(0).visit(this, data);
         query.append(" LIKE ");
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         return false;
     }
@@ -501,7 +505,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
         node.jjtGetChild(0).visit(this, data);
         query.append(" IS ");
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(" NULL ");
         return false;
@@ -514,7 +518,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
         node.jjtGetChild(0).visit(this, data);
         query.append(" IS ");
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(" EMPTY ");
         return false;
@@ -525,10 +529,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      */
     public boolean visit(JpqlMemberOf node, Object data) {
         for (int i = 0; i < node.jjtGetNumChildren() - 1; i++) {
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(" MEMBER OF ");
-        node.jjtGetChild(node.jjtGetNumChildren() - 1).visit(this, data);            
+        node.jjtGetChild(node.jjtGetNumChildren() - 1).visit(this, data);
         return false;
     }
 
@@ -545,7 +549,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
     public boolean visit(JpqlAny node, Object data) {
         query.append(" ANY(");
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(") ");
         return false;
@@ -557,7 +561,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
     public boolean visit(JpqlAll node, Object data) {
         query.append(" ALL(");
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(") ");
         return false;
@@ -567,10 +571,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlEquals node, Object data) {
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(" = ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         return false;
     }
@@ -579,10 +583,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlNotEquals node, Object data) {
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(" <> ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         return false;
     }
@@ -591,10 +595,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlGreaterThan node, Object data) {
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(" > ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         return false;
     }
@@ -603,10 +607,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlGreaterOrEquals node, Object data) {
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(" >= ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         return false;
     }
@@ -615,10 +619,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlLessThan node, Object data) {
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(" < ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         return false;
     }
@@ -627,10 +631,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlLessOrEquals node, Object data) {
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(" <= ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         return false;
     }
@@ -639,10 +643,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlAdd node, Object data) {
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(" + ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         return false;
     }
@@ -651,10 +655,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlSubtract node, Object data) {
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(" - ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         return false;
     }
@@ -663,10 +667,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlMultiply node, Object data) {
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(" * ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         return false;
     }
@@ -675,10 +679,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlDivide node, Object data) {
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(" / ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         return false;
     }
@@ -703,10 +707,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      */
     public boolean visit(JpqlSubstring node, Object data) {
         query.append(" SUBSTRING(");
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(", ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(") ");
         return false;
@@ -717,10 +721,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      */
     public boolean visit(JpqlTrim node, Object data) {
         query.append(" TRIM(");
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         if (node.jjtGetNumChildren() > 1) {
             for (int i = 1; i < node.jjtGetNumChildren() - 1; i++) {
-                node.jjtGetChild(i).visit(this, data);            
+                node.jjtGetChild(i).visit(this, data);
             }
             query.append(" FROM ");
             node.jjtGetChild(node.jjtGetNumChildren() - 1).visit(this, data);
@@ -735,7 +739,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
     public boolean visit(JpqlLower node, Object data) {
         query.append(" LOWER(");
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(") ");
         return false;
@@ -747,7 +751,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
     public boolean visit(JpqlUpper node, Object data) {
         query.append(" UPPER(");
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(") ");
         return false;
@@ -789,10 +793,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      */
     public boolean visit(JpqlLocate node, Object data) {
         query.append(" LOCATE(");
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(", ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(") ");
         return false;
@@ -804,7 +808,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
     public boolean visit(JpqlAbs node, Object data) {
         query.append(" ABS(");
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(") ");
         return false;
@@ -816,7 +820,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
     public boolean visit(JpqlSqrt node, Object data) {
         query.append(" SQRT(");
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(") ");
         return false;
@@ -827,10 +831,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      */
     public boolean visit(JpqlMod node, Object data) {
         query.append(" MOD(");
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(", ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(") ");
         return false;
@@ -842,7 +846,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
     public boolean visit(JpqlSize node, Object data) {
         query.append(" SIZE(");
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(") ");
         return false;
@@ -877,10 +881,10 @@ public class ToStringVisitor implements JpqlParserVisitor {
      */
     public boolean visit(JpqlOrderBy node, Object data) {
         query.append(" ORDER BY ");
-        node.jjtGetChild(0).visit(this, data);            
+        node.jjtGetChild(0).visit(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             query.append(", ");
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         return false;
     }
@@ -896,7 +900,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlAscending node, Object data) {
-    	query.append(" ASC");
+        query.append(" ASC");
         return true;
     }
 
@@ -904,7 +908,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlDescending node, Object data) {
-    	query.append(" DESC");
+        query.append(" DESC");
         return true;
     }
 
@@ -913,7 +917,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
      */
     public boolean visit(JpqlAbstractSchemaName node, Object data) {
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);            
+            node.jjtGetChild(i).visit(this, data);
         }
         query.append(' ');
         return false;
@@ -1010,7 +1014,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlAggregatePath node, Object data) {
-    	return true;
+        return true;
     }
 
     /**
