@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.security.authentication;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -27,6 +28,15 @@ public class StaticAuthenticationProvider implements AuthenticationProvider {
 
     private static Object user;
     private static Collection<Object> roles;
+    
+    /**
+     * Sets the current authenticated user to the specified user, assigning the specified roles.
+     * @param user the user
+     * @param roles the roles
+     */
+    public static void authenticate(Object user, Object... roles) {
+        authenticate(user, Arrays.asList(roles));
+    }
     
     /**
      * Sets the current authenticated user to the specified user, assigning the specified roles.

@@ -42,7 +42,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             return null;
         }
         if (getClass().getName().equals(info.getPersistenceProviderClassName())
-                || getClass().getName().equals(map.get(PERSISTENCE_PROVIDER_PROPERTY))) {
+            || (map != null && getClass().getName().equals(map.get(PERSISTENCE_PROVIDER_PROPERTY)))) {
             return new SecureEntityManagerFactory(info, map, false);
         } else {
             return null;

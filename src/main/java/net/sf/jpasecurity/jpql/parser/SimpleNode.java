@@ -18,6 +18,8 @@ package net.sf.jpasecurity.jpql.parser;
 
 import javax.persistence.PersistenceException;
 
+import net.sf.jpasecurity.jpql.ToStringVisitor;
+
 public class SimpleNode implements Node {
 
     protected SimpleNode parent;
@@ -118,30 +120,12 @@ public class SimpleNode implements Node {
         this.value = value;
     }
 
-    /* You can override these two methods in subclasses of SimpleNode to
-     customize the way the node appears when the tree is dumped.  If
-     your output uses more than one line you should override
-     toString(String), otherwise overriding toString() is probably all
-     you need to do. */
-
-    public String toString() { return JpqlParserTreeConstants.jjtNodeName[id]; }
-    public String toString(String prefix) { return prefix + toString(); }
-
-    /* Override this method if you want to customize how the node dumps
-     out its children. */
-
-    public void dump(String prefix) {
-        System.out.println(toString(prefix));
-        if (children != null) {
-            for (int i = 0; i < children.length; ++i) {
-                SimpleNode n = children[i];
-                if (n != null) {
-                    n.dump(prefix + " ");
-                }
-            }
-        }
+    public String toString() {
+        ToStringVisitor toStringVisitor = new ToStringVisitor();
+        visit(toStringVisitor);
+        return toStringVisitor.toString();
     }
-    
+
     public Node clone() {
         SimpleNode node;
         try {

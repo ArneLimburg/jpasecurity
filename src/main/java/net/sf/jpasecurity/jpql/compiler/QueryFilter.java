@@ -18,7 +18,9 @@ package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +32,7 @@ import javax.persistence.PersistenceException;
 import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.ToStringVisitor;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
+import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
@@ -60,10 +63,10 @@ public class QueryFilter {
         this.accessRules = accessRules;
     }
     
-    public FilterResult filterQuery(String query) {
+    public FilterResult filterQuery(String query, Object user, Collection<Object> roles) {
         JpqlCompiledStatement statement = compile(query);
         
-        Node accessRules = createAccessRuleNode(statement);
+        Node accessRules = createAccessRuleNode(statement, roles != null? roles.size(): 0);
         if (accessRules == null) {
             return new FilterResult(query, null, null);
         }
@@ -77,23 +80,29 @@ public class QueryFilter {
         int userParameterNameCount
             = replaceNamedParameters(accessRules, AccessRule.DEFAULT_USER_PARAMETER_NAME, userParameterName);
 
-        String rolesParameterName = AccessRule.DEFAULT_ROLES_PARAMETER_NAME;
-        for (int i = 0; namedParameters.contains(rolesParameterName); i++) {
-            rolesParameterName = AccessRule.DEFAULT_ROLES_PARAMETER_NAME + i;
+        Set<String> roleParameterNames = compiler.getNamedParameters(accessRules);
+        roleParameterNames.remove(userParameterName);
+        Set<String> duplicateParameterNames = new HashSet<String>(roleParameterNames);
+        duplicateParameterNames.retainAll(namedParameters);
+        for (String duplicateParameterName: duplicateParameterNames) {
+            String newParameterName = AccessRule.DEFAULT_ROLE_PARAMETER_NAME + 0;
+            for (int i = 1; namedParameters.contains(newParameterName) || roleParameterNames.contains(newParameterName); i++) {
+                newParameterName = AccessRule.DEFAULT_ROLE_PARAMETER_NAME + i;
+            }
+            roleParameterNames.remove(duplicateParameterName);
+            roleParameterNames.add(newParameterName);
         }
-        int rolesParameterNameCount
-            = replaceNamedParameters(accessRules, AccessRule.DEFAULT_ROLES_PARAMETER_NAME, rolesParameterName);
-
+        
         JpqlWhere where = statement.getWhereClause();
         if (where == null) {
             where = queryAppender.createWhere();
             accessRules.jjtSetParent(where);
             where.jjtAddChild(accessRules, 0);
             Node parent = statement.getFromClause().jjtGetParent();
-            for (int i = parent.jjtGetNumChildren(); i > 3; i--) {
+            for (int i = parent.jjtGetNumChildren(); i > 2; i--) {
                 parent.jjtAddChild(parent.jjtGetChild(i - 1), i);
             }
-            parent.jjtAddChild(where, 3);
+            parent.jjtAddChild(where, 2);
         } else {
             Node condition = where.jjtGetChild(0);
             if (!(condition instanceof JpqlBrackets)) {
@@ -107,15 +116,16 @@ public class QueryFilter {
         statement.getStatement().visit(toStringVisitor);
         return new FilterResult(toStringVisitor.toString(),
                                 userParameterNameCount > 0? userParameterName: null,
-                                rolesParameterNameCount > 0? rolesParameterName: null);
+                                roleParameterNames.size() > 0? roleParameterNames: null);
     }
     
-    private Node createAccessRuleNode(JpqlCompiledStatement statement) {
+    private Node createAccessRuleNode(JpqlCompiledStatement statement, int roleCount) {
         Node accessRuleNode = null;
         Map<String, Class<?>> selectedTypes = getSelectedTypes(statement);
         for (Map.Entry<String, Class<?>> selectedType: selectedTypes.entrySet()) {
             Collection<AccessRule> accessRules = new FilteredAccessRules(selectedType.getValue());
             for (AccessRule accessRule: accessRules) {
+                accessRule = queryAppender.expand(accessRule, roleCount);
                 if (accessRuleNode == null) {
                     accessRuleNode = queryAppender.createIn(selectedType.getKey(), accessRule);
                     accessRuleNode = queryAppender.createBrackets(accessRuleNode);
@@ -241,7 +251,7 @@ public class QueryFilter {
             return replacements;
         }
         
-        public boolean visit(JpqlPositionalInputParameter node, Object data) {
+        public boolean visit(JpqlNamedInputParameter node, Object data) {
             if (oldNamedParameter.equals(node.getValue())) {
                 node.setValue(newNamedParameter);
                 replacements++;

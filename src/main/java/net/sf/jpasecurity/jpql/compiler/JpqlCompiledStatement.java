@@ -88,7 +88,7 @@ public class JpqlCompiledStatement implements Cloneable {
     public JpqlCompiledStatement clone() {
         try {
             JpqlCompiledStatement statement = (JpqlCompiledStatement)super.clone();
-            statement.statement = (JpqlStatement)statement.statement.clone();
+            statement.statement = (SimpleNode)statement.statement.clone();
             statement.selectedPathes = new ArrayList<String>(statement.selectedPathes);
             statement.aliasTypes = new HashMap<String, Class<?>>(statement.aliasTypes);
             statement.whereClause = null;
@@ -97,6 +97,10 @@ public class JpqlCompiledStatement implements Cloneable {
             //this should not happen since we are cloneable
             throw new IllegalStateException(e);
         }
+    }
+    
+    public String toString() {
+        return getClass() + "[\"" + statement.toString() + "\"]";
     }
     
     private class FromVisitor extends JpqlVisitorAdapter {
