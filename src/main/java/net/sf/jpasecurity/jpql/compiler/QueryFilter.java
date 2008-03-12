@@ -18,7 +18,6 @@ package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.AbstractSet;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,7 +33,6 @@ import net.sf.jpasecurity.jpql.ToStringVisitor;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
-import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
