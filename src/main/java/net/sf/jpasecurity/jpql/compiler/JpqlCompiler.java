@@ -104,25 +104,25 @@ public class JpqlCompiler {
     	}
     }
     
-    private List<String> getSelectedPaths(Node node) {
+    public List<String> getSelectedPaths(Node node) {
     	selectVisitor.reset();
     	node.visit(selectVisitor);
     	return selectVisitor.getSelectedPaths();
     }
     
-    private Map<String, Class<?>> getAliasTypes(Node node) {
+    public Map<String, Class<?>> getAliasTypes(Node node) {
     	aliasVisitor.reset();
     	node.visit(aliasVisitor);
     	return aliasVisitor.getAliasTypes();
     }
     
-    private Set<String> getNamedParameters(Node node) {
+    public Set<String> getNamedParameters(Node node) {
         namedParameterVisitor.reset();
         node.visit(namedParameterVisitor);
         return namedParameterVisitor.getNamedParameters();
     }
     
-    private Set<String> getPositionalParameters(Node node) {
+    public Set<String> getPositionalParameters(Node node) {
         positionalParameterVisitor.reset();
         node.visit(positionalParameterVisitor);
         return positionalParameterVisitor.getPositionalParameters();

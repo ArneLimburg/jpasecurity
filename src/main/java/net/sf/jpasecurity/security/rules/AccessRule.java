@@ -29,6 +29,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 public class AccessRule extends JpqlCompiledStatement {
 
     public static final String DEFAULT_USER_PARAMETER_NAME = "user";
+    public static final String DEFAULT_ROLE_PARAMETER_NAME = "roles";
     public static final String DEFAULT_ROLES_PARAMETER_NAME = "roles";
 
     public AccessRule(JpqlAccessRule rule, String selectedAlias, Class<?> type, Set<String> namedParameters) {

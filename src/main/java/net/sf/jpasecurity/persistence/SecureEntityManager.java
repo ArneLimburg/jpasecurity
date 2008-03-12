@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -76,13 +78,22 @@ public class SecureEntityManager implements EntityManager {
     }
 
     public Query createQuery(String qlString) {
-        FilterResult filterResult = queryFilter.filterQuery(qlString);
+        Object user = authenticationProvider.getUser();
+        Collection<Object> roles = authenticationProvider.getRoles();
+        FilterResult filterResult = queryFilter.filterQuery(qlString, user, roles);
         Query query = entityManager.createQuery(filterResult.getQuery());
         if (filterResult.getUserParameterName() != null) {
-            query.setParameter(filterResult.getUserParameterName(), authenticationProvider.getUser());
+            query.setParameter(filterResult.getUserParameterName(), user);
         }
-        if (filterResult.getRolesParameterName() != null) {
-            query.setParameter(filterResult.getRolesParameterName(), authenticationProvider.getRoles());
+        if (roles != null && filterResult.getRoleParameterNames() != null) {
+            Iterator<String> roleParameterIterator = filterResult.getRoleParameterNames().iterator();
+            Iterator<Object> roleIterator = roles.iterator();
+            for (; roleParameterIterator.hasNext() && roleIterator.hasNext();) {
+                query.setParameter(roleParameterIterator.next(), roleIterator.next());
+            }
+            if (roleParameterIterator.hasNext() || roleIterator.hasNext()) {
+                throw new IllegalStateException("roleParameters don't match roles");
+            }
         }
         return query;
     }

@@ -69,7 +69,7 @@ public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
 			}
 
 			public void startElement(String uri, String tag, String qualified, Attributes attributes) throws SAXException {
-	            if (ACCESS_RULE_TAG.equals(tag)) {
+	            if (ACCESS_RULE_TAG.equals(qualified)) {
 	            	accessRule.setLength(0);
 	            }
 	        }
@@ -79,7 +79,7 @@ public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
 	        }
 
 	        public void endElement(String uri, String tag, String qualified) throws SAXException {
-	            if (ACCESS_RULE_TAG.equals(tag)) {
+	            if (ACCESS_RULE_TAG.equals(qualified)) {
 	            	accessRules.add(accessRule.toString());
 	            }
 	        }
