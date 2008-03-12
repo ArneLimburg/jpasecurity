@@ -78,7 +78,7 @@ public class JpqlParser {
             for (int i = 0; i < args.length; i++) {
                 JpqlParser parser = new JpqlParser();
                 JpqlStatement statement = parser.parseQuery(args[i]);
-                statement.dump("");
+                System.out.println(statement);
             }
         } else {
             JpqlParser parser = new JpqlParser();
@@ -90,7 +90,7 @@ public class JpqlParser {
                     if (statement == null) {
                         return;
                     } else {
-                        statement.dump("");
+                        System.out.println(statement);
                     }
                 } catch (Throwable t) {
                     t.printStackTrace();
@@ -585,7 +585,8 @@ void betweenExpression() #Between: {} {
 }
 
 void inExpression() #In: {} {
-    path() [ LOOKAHEAD(1) <NOT> #Not] <IN>
+    (path() | literalOrParam())
+    [ LOOKAHEAD(1) <NOT> #Not] <IN>
         "(" (literalOrParam()
             (<COMMA> (literalOrParam()))* | subquery())
         ")" 
