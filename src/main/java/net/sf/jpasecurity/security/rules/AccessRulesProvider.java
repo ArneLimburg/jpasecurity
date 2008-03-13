@@ -26,5 +26,8 @@ import java.util.List;
  */
 public interface AccessRulesProvider {
 
-	List<AccessRule> getAccessRules();
+    /**
+     * Returns the access rules used for security.
+     */
+    List<AccessRule> getAccessRules();
 }
