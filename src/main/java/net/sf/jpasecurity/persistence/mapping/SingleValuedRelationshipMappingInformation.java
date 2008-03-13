@@ -20,9 +20,9 @@ package net.sf.jpasecurity.persistence.mapping;
  */
 public class SingleValuedRelationshipMappingInformation extends RelationshipMappingInformation {
 
-    public SingleValuedRelationshipMappingInformation(String propertyName,
-                                                      ClassMappingInformation relatedClassMapping,
-                                                      ClassMappingInformation declaringClassMapping) {
+    SingleValuedRelationshipMappingInformation(String propertyName,
+                                               ClassMappingInformation relatedClassMapping,
+                                               ClassMappingInformation declaringClassMapping) {
         super(propertyName, relatedClassMapping, declaringClassMapping);
     }
 }

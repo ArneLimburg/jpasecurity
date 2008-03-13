@@ -32,9 +32,9 @@ public class RelationshipMappingInformation extends PropertyMappingInformation {
      * @param relatedClassMapping the class-mapping of the related class
      * @param declaringClassMapping the declaring class of the property
      */
-    public RelationshipMappingInformation(String propertyName,
-                                          ClassMappingInformation relatedClassMapping,
-                                          ClassMappingInformation declaringClassMapping) {
+    RelationshipMappingInformation(String propertyName,
+                                   ClassMappingInformation relatedClassMapping,
+                                   ClassMappingInformation declaringClassMapping) {
         super(propertyName, declaringClassMapping);
         if (relatedClassMapping == null) {
             throw new PersistenceException("could not determine target class for property \"" + propertyName + "\" of class " + declaringClassMapping.getEntityName());

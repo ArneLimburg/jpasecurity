@@ -25,7 +25,7 @@ public abstract class PropertyMappingInformation {
     private String name;
     private ClassMappingInformation containingClassMapping;
 
-    public PropertyMappingInformation(String propertyName, ClassMappingInformation classMapping) {
+    PropertyMappingInformation(String propertyName, ClassMappingInformation classMapping) {
         if (propertyName == null) {
             throw new IllegalArgumentException("property name not specified");
         }
