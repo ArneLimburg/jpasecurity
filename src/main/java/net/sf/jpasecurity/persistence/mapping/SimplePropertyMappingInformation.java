@@ -24,9 +24,9 @@ public class SimplePropertyMappingInformation extends PropertyMappingInformation
 
     private Class<?> type;
 
-    public SimplePropertyMappingInformation(String propertyName,
-                                            Class<?> simpleType,
-                                            ClassMappingInformation classMapping) {
+    SimplePropertyMappingInformation(String propertyName,
+                                     Class<?> simpleType,
+                                     ClassMappingInformation classMapping) {
         super(propertyName, classMapping);
         if (simpleType == null) {
             throw new PersistenceException("could not determine type of property \"" + propertyName + "\" of class " + classMapping.getEntityName());

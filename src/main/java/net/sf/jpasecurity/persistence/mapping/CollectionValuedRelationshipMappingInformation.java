@@ -24,10 +24,10 @@ public class CollectionValuedRelationshipMappingInformation extends Relationship
 
     private Class<?> collectionType;
 
-    public CollectionValuedRelationshipMappingInformation(String propertyName,
-                                                          Class<?> collectionType,
-                                                          ClassMappingInformation relatedClassMapping,
-                                                          ClassMappingInformation declaringClassMapping) {
+    CollectionValuedRelationshipMappingInformation(String propertyName,
+                                                   Class<?> collectionType,
+                                                   ClassMappingInformation relatedClassMapping,
+                                                   ClassMappingInformation declaringClassMapping) {
         super(propertyName, relatedClassMapping, declaringClassMapping);
         if (collectionType == null) {
             throw new PersistenceException("could not determine collection type of property \"" + propertyName + "\" of class " + declaringClassMapping.getEntityName());
