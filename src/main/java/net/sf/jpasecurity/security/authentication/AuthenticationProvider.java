@@ -22,6 +22,13 @@ import java.util.Collection;
  */
 public interface AuthenticationProvider {
 
+	/**
+	 * Returns the authenticated user.
+	 */
     Object getUser();
+    
+    /**
+     * Returns the roles of the authenticated user.
+     */
     Collection<Object> getRoles();
 }
