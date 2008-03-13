@@ -1,4 +1,7 @@
-<security>
+<security xmlns="http://jpasecurity.sf.net/xml/ns/security"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://jpasecurity.sf.net/xml/ns/security http://jpasecurity.sf.net/xml/ns/security/security_1_0.xsd"
+          version="1.0">
 
   <persistence-unit name="contacts">
     <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.user = :user</access-rule>
