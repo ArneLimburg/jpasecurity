@@ -196,20 +196,20 @@ public class OrmXmlParser extends AbstractMappingParser {
         }
         return false;
     }
-    
+
     private Node getMappedClassNode(Class<?> mappedClass) {
         List<Node> nodes = entityNodes.subList(CLASS_ATTRIBUTE_NAME, mappedClass.getName());
-        if (!nodes.isEmpty()){
+        if (!nodes.isEmpty()) {
             return nodes.get(0);
         }
         nodes = superclassNodes.subList(CLASS_ATTRIBUTE_NAME, mappedClass.getName());
-        if (!nodes.isEmpty()){
+        if (!nodes.isEmpty()) {
             return nodes.get(0);
         }
         nodes = embeddableNodes.subList(CLASS_ATTRIBUTE_NAME, mappedClass.getName());
         return nodes.isEmpty()? null: nodes.get(0);
     }
-    
+
     private Node getAttributesNode(Node classNode) {
         for (int i = 0; i < classNode.getChildNodes().getLength(); i++) {
             Node child = classNode.getChildNodes().item(i);
