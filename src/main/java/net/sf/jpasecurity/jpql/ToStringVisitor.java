@@ -109,7 +109,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlParserVisitor;
 import net.sf.jpasecurity.jpql.parser.Node;
 
 /**
- * This visitor creates a jpql-string of a query tree. 
+ * This visitor creates a jpql-string of a query tree.
  * @author Arne Limburg
  */
 public class ToStringVisitor implements JpqlParserVisitor {
