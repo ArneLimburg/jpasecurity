@@ -53,6 +53,10 @@ public class MappingInformation {
         parse();
     }
     
+    public String getPersistenceUnitName() {
+        return persistenceUnit.getPersistenceUnitName();
+    }
+    
     public Collection<Class<?>> getPersistentClasses() {
     	return Collections.unmodifiableSet(entityTypeMappings.keySet());
     }
