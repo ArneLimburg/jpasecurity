@@ -7,12 +7,12 @@
     In multi-user applications, authorization usually follows the authentication process.
     It is used to determine what the authenticated user is allowed to do in the application
     and what data he is allowed to see. There are different ways of organizing authorization.
-    Widely used approaches are role-based authorization and access control lists.
+    Widely used approaches are role-based authorization or access control lists.
   </para>
   <section>
     <title>Role-based Authorization</title>
     <para>
-      Users are assigned to roles and rights to do or get something are granted to these roles.
+      In role-based Authorization users are assigned to roles. Rights to do or get something are granted to these roles.
     </para>
     <!--example>
       <title>Example:</title>
@@ -58,7 +58,7 @@
     <para>
       The concept of <wordasword>Access Control Lists</wordasword> assignes
       an access control list to every object that has to be accessed.
-      An access control list is a list of access control entries. Ever of
+      An access control list is a list of access control entries. Every of
       this entries holds a reference to an user or a role it is valid for,
       as well as the access rights that the referenced user or role has on
       the object.
