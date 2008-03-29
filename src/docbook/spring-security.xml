@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section>
+  <title>Integration with Spring Security</title>
+  <para>
+    If you are using the Springframework with Acegi Security or Spring Security,
+    your integration is as simple as replacing the <code>LocalEntityManagerFactoryBean</code>
+    or <code>LocalContainerEntityManagerFactoryBean</code> in your Spring configuration with
+    with the appropriate counterpart in the <code>net.sf.jpasecurity.security</code> package.
+  </para>
+</section>

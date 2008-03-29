@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="introduction:access-control">
+  <title>Access Control</title>
+  <para>
+    Access Control is the process of allowing and forbidding access to resources
+    based on the <xref linkend="introduction:authorization" endterm="authorization"/>
+    of the current user. There are different levels of access control:
+    <itemizedlist>
+      <listitem>
+        Presentation left access control - Access control is implemented
+        in the presentation tier of the application. Only data that the
+        user is allowed to see is displayed and only buttons for actions
+        that the user is allowed to do are displayed and enabled. Although
+        it may be necessary to provide different views to users with
+        different roles, handling access control only at the presentation
+        layer can be a big problem, when it involves loading and 
+        transferring masses of data to the presentation layer,
+        where it gets filtered out, because the current user is not allowed
+        to see it.
+      </listitem>
+      <listitem>
+        Service level access control - Access control is implemented in
+        the service tier. Often this is realized using method-based
+        access control. For every method in the service tier it is defined
+        which users and/or roles are allowed to call it. Although this kind
+        of security is widely supported by current security solutions like
+        JavaEE Security and Spring Security it is often not the correct location
+        of handling access control because access control usually depends
+        more on the data used than on the actions executed. This leads to
+        code that checks the current user and/or its roles to decide which
+        data access tier method to invoke or this kind of checks are done
+        by the code invoking the service methods. However manual handling
+        of authorization informations leads to spreading the security all
+        over the code. This makes changes to security requirements hard to handle.
+      </listitem>
+      <listitem>
+        Class level access control - Using class level access control on
+        the entity beans of an application leads to a more fine-graded
+        access control mechanism. If you are able to define which
+        entity types may be used by which user or role (and you can do this
+        in EJB 3 with the <code>@RolesAllowed</code> annotation) you have a clean way
+        of defining which user may see and/or change which data without
+        manual handling of authorization information. However this level
+        is not detailed enough in many cases.
+      </listitem>
+      <listitem>
+        Instance level access control - With instance level access control
+        for every user and/or role you can define permissions on an entity
+        basis. <xref linkend="introduction:acl" endterm="Access control lists"/>
+        are widely used for this approach, but JPA Security provides a more
+        flexible way to accomplish this,
+        like we see <xref linkend="rule-based" endterm="later"/>.
+      </listitem>
+      <listitem>
+        Property level access control - A step further from instance level
+        access control is property level access control, where you can define
+        access restrictions on a property base. JPA Security does not support
+        this kind of access control for now, but it is planned for later releases.
+        Currently this can be achieved by method-based security. Method-based
+        security is provided by JavaEE Security and Spring Security.
+      </listitem>
+    </itemizedlist>
+  </para>
+</section>

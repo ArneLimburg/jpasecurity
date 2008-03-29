@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="introduction:authorization">
+  <title>Authorization</title>
+  <para>
+    Authorization is the process of giving someone permission to do or get something.
+    In multi-user applications, authorization usually follows the authentication process.
+    It is used to determine what the authenticated user is allowed to do in the application
+    and what data he is allowed to see. There are different ways of organizing authorization.
+    Widely used approaches are role-based authorization and access control lists.
+  </para>
+  <section>
+    <title>Role-based Authorization</title>
+    <para>
+      Users are assigned to roles and rights to do or get something are granted to these roles.
+    </para>
+    <!--example>
+      <title>Example:</title>
+      Let there be the following business requirements:
+      <itemizedlist>
+        <listitem>Administrators may get (i.e. view) TestBeans</listitem>
+        <listitem>Administrators may delete TestBeans</listitem>
+        <listitem>Users may own TestBeans</listitem>
+        <listitem>Users may get (i.e. view) their owned TestBeans</listitem>
+      </itemizedlist>
+      In this scenario we have two roles: administrator and user.
+      With JavaEE you may solve this at the session-bean level by some session bean like this:
+      <programlisting>
+        @Stateless
+        public class TestBeanDao {
+         	
+          	@PersistenceContext
+            	private EntityManager entityManager;
+              	
+               	@RolesAllowed("administrator");
+               	public List&lt;TestBean&gt; getAllTestBeans() {
+               		return entityManager.createQuery("SELECT t FROM TestBean t")
+               		                    .getResultList();
+               	}
+               	
+               	@RolesAllowed("administrator");
+               	public void deleteTestBean(TestBean testBean) {
+               		entityManager.remove(testBean);
+               	}
+                	
+               	@RolesAllowed("user");
+               	public List&lt;TestBean&gt; getTestBeansForUser(User user) {
+               		return entityManager.createQuery("SELECT t FROM TestBean t WHERE t.owner = :user")
+               		                    .setParameter("user", user)
+               		                    .getResultList();
+               	}
+              }
+      </programlisting>
+    </example-->
+  </section>
+  <section id="introduction:acl">
+    <title>Access control lists</title>
+    <para>
+      The concept of <wordasword>Access Control Lists</wordasword> assignes
+      an access control list to every object that has to be accessed.
+      An access control list is a list of access control entries. Ever of
+      this entries holds a reference to an user or a role it is valid for,
+      as well as the access rights that the referenced user or role has on
+      the object.
+    </para>          
+  </section>
+</section>
