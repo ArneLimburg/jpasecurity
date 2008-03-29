@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section>
+  <title>Integration with JavaEE Security</title>
+  <para>
+    To integrate JPA Security with JavaEE Security you may specify the
+    <code>net.sf.jpasecurity.security.authentication.EjbAuthenticationProvider</code>
+    as authentication provider in the <code>&lt;properties&gt;</code>-section of your
+    <file>persistence.xml</file> (read <xref linkend="integration" endterm="Integration"/>
+    for instructions on how to do this). You need to define all the roles your application
+    is using with the <code>@DeclareRoles</code> annotation in order to make the
+    EjbAuthenticationProvider to work correctly.
+  </para>
+  <para>
+    If you want the <code>@RolesAllowed</code> annotation to work with JPA Security, you
+    have to specify the <code>net.sf.jpasecurity.rules.EjbAccessRulesProvider</code> as
+    access rules provider. Note that the semantics of this annotation slightly differs
+    between the EJB Specification and JPA Security: If you annotate a class with the
+    <code>@RolesAllowed</code> annotation this means for EJB any access to any method
+    of an instance of that class will cause a <code>SecurityException</code>, if the
+    current user is not in one of the roles allowed. JPA Security goes a step further:
+    The current user will not retrieve this object from database if he is not in one of
+    the roles allowed. JPA Security does not support the <code>@RolesAllowed</code>
+    annotation at method-level, but if you use JPA Security within an EJB Container it
+    will handle this case for you and throw the <code>SecurityException</code> in the
+    appropriate cases.  
+  </para>
+</section>

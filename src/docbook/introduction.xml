@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="introduction" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title>Introduction</title>
+  <para>
+    Application Security usually covers three aspects:
+    Authentication, Authorisation and Access Control.
+  </para>
+  <xi:include href="introduction-authentication.xml"/>
+  <xi:include href="introduction-authorization.xml"/>
+  <xi:include href="introduction-access-control.xml"/>
+</chapter>
