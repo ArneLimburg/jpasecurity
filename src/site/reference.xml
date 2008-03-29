@@ -1,0 +1,80 @@
+<book>
+  <id>reference</id>
+  <title>JPA Security Manual</title>
+  <chapters>
+    <chapter>
+      <id>preface-1</id>
+      <title>Preamble</title>
+      <sections>
+        <section>
+          <id>preface</id>
+          <title>Preface</title>
+        </section>
+      </sections>
+    </chapter>
+    <chapter>
+      <id>introduction</id>
+      <title>Introduction</title>
+      <sections>
+        <section>
+          <id>introduction-authentication</id>
+          <title>Authentication</title>
+        </section>
+        <section>
+          <id>introduction-authorization</id>
+          <title>Authorization</title>
+        </section>
+        <section>
+          <id>introduction-access-control</id>
+          <title>Access Control</title>
+        </section>
+      </sections>
+    </chapter>
+    <chapter>
+      <id>integration</id>
+      <title>Integration of JPA Security</title>
+      <sections>
+        <section>
+          <id>classpath</id>
+          <title>JPA Security in your classpath</title>
+        </section>
+        <section>
+          <id>persistence</id>
+          <title>Modifying your persistence.xml</title>
+        </section>
+      </sections>
+    </chapter>
+    <chapter>
+      <id>authentication</id>
+      <title>Authentication and Authorization</title>
+      <sections>
+        <section>
+          <id>javaee-security</id>
+          <title>Integration with JavaEE Security</title>
+        </section>
+        <section>
+          <id>spring-security</id>
+          <title>Integration with Spring Security</title>
+        </section>
+        <section>
+          <id>build-in-authentication</id>
+          <title>Build-in Authentication</title>
+        </section>
+      </sections>
+    </chapter>
+    <chapter>
+      <id>access-control</id>
+      <title>Access Control</title>
+      <sections>
+        <section>
+          <id>rule-based</id>
+          <title>Rule-based Access Control</title>
+        </section>
+        <section>
+          <id>special-cases</id>
+          <title>Special Cases</title>
+        </section>
+      </sections>
+    </chapter>
+  </chapters>
+</book>

@@ -5,9 +5,14 @@
   <name>JPA Security</name>
   <version>${version}</version>
   <description>
-    JPA Security secures the Data Access Layer. Integrating smooth with current authentication solutions
-    like J2EE Security and Spring Security (formerly known as Acegi-Security), it enables applications
-    to control access to JPA Entity Beans based on the currently authenticated user and/or its roles.
+    JPA Security provides an interface to define security requirements of your
+    Data Access Layer at a single place in code for ease of usability and
+    maintainability.
+    It is designed to extend current security solutions like J2EE Security and
+    Spring Security (formerly known as Acegi-Security),
+    but may be used on its own, too. It enables applications to control access
+    to JPA Entity Beans based on the currently authenticated user
+    and/or its roles in the application.
   </description>
   <url>http://jpasecurity.sf.net</url>
 
@@ -23,7 +28,7 @@
     <developer>
       <id>arne</id>
       <name>Arne Limburg</name>
-      <email>arne.limburg(a)users.sourceforge.net</email>
+      <email>arnelim(a)users.sourceforge.net</email>
       <roles>
         <role>Project Lead</role>
         <role>Java Developer</role>
@@ -121,20 +126,21 @@
         <dependencies>
           <dependency>
             <groupId>org.docbook</groupId>
-              <artifactId>docbook-xml</artifactId>
-              <version>4.4</version>
-              <scope>runtime</scope>
-            </dependency>
+            <artifactId>docbook-xml</artifactId>
+            <version>4.4</version>
+            <scope>runtime</scope>
+          </dependency>
         </dependencies>
         <configuration>
-          <sourceDirectory>${basedir}/src/docbook/</sourceDirectory>
-          <targetDirectory>${basedir}/target/docbook/</targetDirectory>
           <entities>
             <entity>
              <name>version</name>
              <value>${version}</value>
             </entity>
           </entities>
+          <xincludeSupported>true</xincludeSupported>
+          <sourceDirectory>${basedir}/src/docbook/</sourceDirectory>
+          <targetDirectory>${basedir}/target/docbook/</targetDirectory>
           <postProcess>
             <copy todir="target/site/reference">
               <fileset dir="target/docbook">
@@ -153,10 +159,36 @@
           </postProcess>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.doxia</groupId>
+        <artifactId>doxia-maven-plugin</artifactId>
+        <version>1.0-alpha-10</version>
+        <executions>
+          <execution>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>render-books</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+        <books>
+          <book>
+            <directory>src/docbook</directory>
+            <descriptor>src/site/reference.xml</descriptor>
+            <formats>
+              <format>
+                <id>xdoc</id>
+              </format>
+            </formats>
+          </book>
+        </books>
+      </configuration>
+    </plugin>
     </plugins>
   </build>
   
-  <reporting>
+  <!--reporting>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -174,7 +206,7 @@
         <artifactId>cobertura-maven-plugin</artifactId>
       </plugin>
     </plugins>
-  </reporting>
+  </reporting-->
   
   <dependencies>
     <dependency>
