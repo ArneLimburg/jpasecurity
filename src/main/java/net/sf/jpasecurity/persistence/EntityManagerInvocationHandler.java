@@ -1,0 +1,97 @@
+/*
+ * Copyright 2008 Arne Limburg
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
+package net.sf.jpasecurity.persistence;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
+import net.sf.jpasecurity.jpql.compiler.FilterResult;
+import net.sf.jpasecurity.jpql.compiler.QueryFilter;
+import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
+import net.sf.jpasecurity.security.rules.AccessRule;
+
+/**
+ * @author Arne Limburg
+ */
+public class EntityManagerInvocationHandler implements InvocationHandler {
+
+    public static final String CREATE_QUERY_METHOD_NAME = "createQuery";
+    
+    private EntityManager entityManager;
+    private AuthenticationProvider authenticationProvider;
+    private QueryFilter queryFilter;
+
+    EntityManagerInvocationHandler(EntityManager entityManager,
+                        MappingInformation mappingInformation,
+                        AuthenticationProvider authenticationProvider,
+                        List<AccessRule> accessRules) {
+        this.entityManager = entityManager;
+        this.authenticationProvider = authenticationProvider;
+        this.queryFilter = new QueryFilter(mappingInformation, accessRules);
+    }
+
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        try {
+            if (isCreateQueryMethod(method)) {
+                return createQuery((String)args[0]);
+            } else {
+                return method.invoke(entityManager, args);
+            }
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+    
+    private boolean isCreateQueryMethod(Method method) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        return method.getName().equals(CREATE_QUERY_METHOD_NAME)
+            && parameterTypes.length == 1
+            && parameterTypes[0] == String.class;
+    }
+
+    /**
+     * This implementation filters the query according to the provided access rules
+     * and the authenticated user and its roles.
+     */
+    private Query createQuery(String qlString) {
+        Object user = authenticationProvider.getUser();
+        Collection<Object> roles = authenticationProvider.getRoles();
+        FilterResult filterResult = queryFilter.filterQuery(qlString, user, roles);
+        Query query = entityManager.createQuery(filterResult.getQuery());
+        if (filterResult.getUserParameterName() != null) {
+            query.setParameter(filterResult.getUserParameterName(), user);
+        }
+        if (roles != null && filterResult.getRoleParameterNames() != null) {
+            Iterator<String> roleParameterIterator = filterResult.getRoleParameterNames().iterator();
+            Iterator<Object> roleIterator = roles.iterator();
+            for (; roleParameterIterator.hasNext() && roleIterator.hasNext();) {
+                query.setParameter(roleParameterIterator.next(), roleIterator.next());
+            }
+            if (roleParameterIterator.hasNext() || roleIterator.hasNext()) {
+                throw new IllegalStateException("roleParameters don't match roles");
+            }
+        }
+        return query;
+    }
+}
