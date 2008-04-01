@@ -18,6 +18,7 @@ package net.sf.jpasecurity.persistence;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -42,6 +43,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
 
     public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map map) {
         PersistenceProvider persistenceProvider = createNativePersistenceProvider(info, map);
+        map = createPersistenceProviderProperty(map, persistenceProvider);
         EntityManagerFactory nativeEntityManagerFactory
             = persistenceProvider.createContainerEntityManagerFactory(info, map);
         return createSecureEntityManagerFactory(nativeEntityManagerFactory, info, map);
@@ -55,12 +57,23 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         if (getClass().getName().equals(info.getPersistenceProviderClassName())
             || (map != null && getClass().getName().equals(map.get(PERSISTENCE_PROVIDER_PROPERTY)))) {
             PersistenceProvider persistenceProvider = createNativePersistenceProvider(info, map);
+            map = createPersistenceProviderProperty(map, persistenceProvider);
             EntityManagerFactory nativeEntityManagerFactory
                 = persistenceProvider.createEntityManagerFactory(persistenceUnit, map);
             return createSecureEntityManagerFactory(nativeEntityManagerFactory, info, map);
         } else {
             return null;
         }
+    }
+    
+    private Map<String, String> createPersistenceProviderProperty(Map<String, String> properties,
+                                                                  PersistenceProvider persistenceProvider) {
+        if (properties == null) {
+            return Collections.singletonMap(PERSISTENCE_PROVIDER_PROPERTY, persistenceProvider.getClass().getName());
+        } else {
+            properties.put(PERSISTENCE_PROVIDER_PROPERTY, persistenceProvider.getClass().getName());
+            return properties;
+        }        
     }
 
     static PersistenceUnitInfo createPersistenceUnitInfo(String persistenceUnitName) {
@@ -82,8 +95,8 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     }
     
     static EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
-                                                                         PersistenceUnitInfo info,
-                                                                         Map<String, String> properties) {
+                                                                 PersistenceUnitInfo info,
+                                                                 Map<String, String> properties) {
         Class<?> type = nativeEntityManagerFactory.getClass();
         AuthenticationProvider authenticationProvider = createAuthenticationProvider(info, properties);
         AccessRulesProvider accessRulesProvider = createAccessRulesProvider(info, properties);
