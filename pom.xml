@@ -52,6 +52,13 @@
     <name>JPA Security</name>
   </organization>
   
+  <distributionManagement>
+    <site>
+      <id>sourceforge</id>
+      <url>scp://jpasecurity.sf.net:/home/groups/j/jp/jpasecurity/htdocs/</url>
+    </site>
+  </distributionManagement>
+  
   <build>
     <plugins>
       <plugin>
@@ -224,6 +231,12 @@
       <groupId>org.acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
       <version>1.0.0</version>
+      <optional/>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+      <version>2.5.2</version>
       <optional/>
     </dependency>
     <dependency>
