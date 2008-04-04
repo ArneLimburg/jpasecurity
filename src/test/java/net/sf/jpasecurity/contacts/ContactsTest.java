@@ -86,13 +86,10 @@ public class ContactsTest extends TestCase {
     
     public void testAuthenticatedAsJohn() {
         StaticAuthenticationProvider.authenticate(john, "user");
-        assertEquals(0, getAllUsers().size());
-        try {
-            getUser("John");
-            fail("expected NoResultException");
-        } catch (NoResultException e) {
-            //expected...
-        }
+        List<User> allUsers = getAllUsers();
+        assertEquals(1, allUsers.size());
+        assertEquals(john, allUsers.get(0));
+        assertEquals(john, getUser("John"));
         try {
             getUser("Mary");
             fail("expected NoResultException");
@@ -107,19 +104,16 @@ public class ContactsTest extends TestCase {
     
     public void testAuthenticatedAsMary() {
         StaticAuthenticationProvider.authenticate(mary, "user");
-        assertEquals(0, getAllUsers().size());
+        List<User> allUsers = getAllUsers();
+        assertEquals(1, allUsers.size());
+        assertEquals(mary, allUsers.get(0));
         try {
             getUser("John");
             fail("expected NoResultException");
         } catch (NoResultException e) {
             //expected...
         }
-        try {
-            getUser("Mary");
-            fail("expected NoResultException");
-        } catch (NoResultException e) {
-            //expected...
-        }
+        assertEquals(mary, getUser("Mary"));
         List<Contact> contacts = getAllContacts();
         assertEquals(2, contacts.size());
         assertTrue(contacts.contains(marysContact1));
