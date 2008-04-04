@@ -22,43 +22,21 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 
+import net.sf.jpasecurity.contacts.AbstractContactsTest;
 import net.sf.jpasecurity.contacts.Contact;
 import net.sf.jpasecurity.contacts.User;
 import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
 
-import junit.framework.TestCase;
-
 /**
  * @author Arne Limburg
  */
-public class ContactsTest extends TestCase {
+public class ContactsTest extends AbstractContactsTest {
 
     private EntityManagerFactory entityManagerFactory;
-    private User john;
-    private User mary;
-    private Contact johnsContact1;
-    private Contact johnsContact2;
-    private Contact marysContact1;
-    private Contact marysContact2;
 
     public void setUp() {
-        entityManagerFactory = Persistence.createEntityManagerFactory("contacts");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
-        john = new User("John");
-        entityManager.persist(john);
-        mary = new User("Mary");
-        entityManager.persist(mary);
-        johnsContact1 = new Contact(john, "john@jpasecurity.sf.net");
-        entityManager.persist(johnsContact1);
-        johnsContact2 = new Contact(john, "0 12 34 - 56 789");
-        entityManager.persist(johnsContact2);
-        marysContact1 = new Contact(mary, "mary@jpasecurity.sf.net");
-        entityManager.persist(marysContact1);
-        marysContact2 = new Contact(mary, "12 34 56 78 90");
-        entityManager.persist(marysContact2);
-        entityManager.getTransaction().commit();
-        entityManager.close();        
+        entityManagerFactory = Persistence.createEntityManagerFactory("simple-contacts");
+        super.setUp(entityManagerFactory);
     }
     
     public void testUnauthenticated() {
