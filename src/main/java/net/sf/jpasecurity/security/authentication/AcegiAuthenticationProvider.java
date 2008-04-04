@@ -17,6 +17,7 @@ package net.sf.jpasecurity.security.authentication;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.acegisecurity.Authentication;
@@ -31,16 +32,16 @@ public class AcegiAuthenticationProvider implements AuthenticationProvider {
 	public Object getUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null) {
-			throw new SecurityException("Not authenticated");
-		}
+		    return null;
+        }
 		return authentication.getPrincipal();
 	}
 
 	public Collection<Object> getRoles() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null || authentication.getAuthorities() == null) {
-			throw new SecurityException("Not authenticated");
-		}
+		    return Collections.EMPTY_LIST;
+        }
 		List<Object> roles = new ArrayList<Object>();
 		for (GrantedAuthority authority: authentication.getAuthorities()) {
 			roles.add(authority.getAuthority());
