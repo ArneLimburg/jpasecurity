@@ -15,11 +15,8 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import java.lang.reflect.Proxy;
-
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
-import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider;
 import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
