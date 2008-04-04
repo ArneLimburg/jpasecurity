@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.contacts;
+package net.sf.jpasecurity.contacts.simple;
 
 import java.util.List;
 
@@ -22,6 +22,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 
+import net.sf.jpasecurity.contacts.Contact;
+import net.sf.jpasecurity.contacts.User;
 import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
 
 import junit.framework.TestCase;
