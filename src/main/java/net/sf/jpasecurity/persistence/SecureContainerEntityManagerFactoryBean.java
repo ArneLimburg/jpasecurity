@@ -60,14 +60,11 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
 
     protected EntityManagerFactory createNativeEntityManagerFactory() throws PersistenceException {
         EntityManagerFactory entityManagerFactory = super.createNativeEntityManagerFactory();
-        Class<?> type = entityManagerFactory.getClass();
-        PersistenceUnitInfo info = SecurePersistenceProvider.createPersistenceUnitInfo(getPersistenceUnitName());
-        return (EntityManagerFactory)Proxy.newProxyInstance(type.getClassLoader(),
-                                                            EntityManagerFactoryInvocationHandler.getImplementingInterfaces(type),
-                                                            new EntityManagerFactoryInvocationHandler(entityManagerFactory,
-                                                                                                      info,
-                                                                                                      getJpaPropertyMap(),
-                                                                                                      getAuthenticationProvider(),
-                                                                                                      getAccessRulesProvider()));
+        SecurePersistenceProvider persistenceProvider = new SecurePersistenceProvider();
+        return persistenceProvider.createSecureEntityManagerFactory(entityManagerFactory,
+                                                                    getPersistenceUnitName(),
+                                                                    getJpaPropertyMap(),
+                                                                    getAuthenticationProvider(),
+                                                                    getAccessRulesProvider());
     }
 }

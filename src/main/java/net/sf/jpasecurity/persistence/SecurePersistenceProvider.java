@@ -40,7 +40,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     public static final String AUTHENTICATION_PROVIDER_PROPERTY = "net.sf.jpasecurity.security.authentication.provider";
     public static final String ACCESS_RULES_PROVIDER_PROPERTY = "net.sf.jpasecurity.security.rules.provider";
     public static final String DEFAULT_ACCESS_RULES_PROVIDER_CLASS = "net.sf.jpasecurity.security.rules.XmlAccessRulesProvider";
-
+    
     public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map map) {
         PersistenceProvider persistenceProvider = createNativePersistenceProvider(info, map);
         map = createPersistenceProviderProperty(map, persistenceProvider);
@@ -49,8 +49,8 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         return createSecureEntityManagerFactory(nativeEntityManagerFactory, info, map);
     }
 
-    public EntityManagerFactory createEntityManagerFactory(String persistenceUnit, Map map) {
-        PersistenceUnitInfo info = createPersistenceUnitInfo(persistenceUnit);
+    public EntityManagerFactory createEntityManagerFactory(String persistenceUnitName, Map map) {
+        PersistenceUnitInfo info = createPersistenceUnitInfo(persistenceUnitName);
         if (info == null) {
             return null;
         }
@@ -59,24 +59,50 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             PersistenceProvider persistenceProvider = createNativePersistenceProvider(info, map);
             map = createPersistenceProviderProperty(map, persistenceProvider);
             EntityManagerFactory nativeEntityManagerFactory
-                = persistenceProvider.createEntityManagerFactory(persistenceUnit, map);
+                = persistenceProvider.createEntityManagerFactory(persistenceUnitName, map);
             return createSecureEntityManagerFactory(nativeEntityManagerFactory, info, map);
         } else {
             return null;
         }
     }
     
-    private Map<String, String> createPersistenceProviderProperty(Map<String, String> properties,
-                                                                  PersistenceProvider persistenceProvider) {
-        if (properties == null) {
-            return Collections.singletonMap(PERSISTENCE_PROVIDER_PROPERTY, persistenceProvider.getClass().getName());
-        } else {
-            properties.put(PERSISTENCE_PROVIDER_PROPERTY, persistenceProvider.getClass().getName());
-            return properties;
-        }        
+    public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
+                                                                 PersistenceUnitInfo info,
+                                                                 Map<String, String> properties) {
+        AuthenticationProvider authenticationProvider = createAuthenticationProvider(info, properties);
+        AccessRulesProvider accessRulesProvider = createAccessRulesProvider(info, properties);
+        return createSecureEntityManagerFactory(nativeEntityManagerFactory, info, properties, authenticationProvider, accessRulesProvider);
+    }
+    
+    public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
+                                                                 String persistenceUnitName,
+                                                                 Map<String, String> properties,
+                                                                 AuthenticationProvider authenticationProvider,
+                                                                 AccessRulesProvider accessRulesProvider) {
+        PersistenceUnitInfo info = createPersistenceUnitInfo(persistenceUnitName);
+        if (info == null) {
+            return null;
+        }
+        return createSecureEntityManagerFactory(nativeEntityManagerFactory, info, properties, authenticationProvider, accessRulesProvider);
     }
 
-    static PersistenceUnitInfo createPersistenceUnitInfo(String persistenceUnitName) {
+    public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
+                                                                 PersistenceUnitInfo info,
+                                                                 Map<String, String> properties,
+                                                                 AuthenticationProvider authenticationProvider,
+                                                                 AccessRulesProvider accessRulesProvider) {
+        Class<?> type = nativeEntityManagerFactory.getClass();
+        EntityManagerFactoryInvocationHandler invocationHandler
+            = new EntityManagerFactoryInvocationHandler(nativeEntityManagerFactory,
+                                                        info,
+                                                        properties,
+                                                        authenticationProvider,
+                                                        accessRulesProvider);
+        Class<?>[] interfaces = invocationHandler.getImplementingInterfaces(type);
+        return (EntityManagerFactory)Proxy.newProxyInstance(type.getClassLoader(), interfaces, invocationHandler);
+    }
+
+    private PersistenceUnitInfo createPersistenceUnitInfo(String persistenceUnitName) {
         try {
             PersistenceXmlParser persistenceXmlParser = new PersistenceXmlParser();
             for (Enumeration<URL> persistenceFiles
@@ -94,22 +120,17 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         }
     }
     
-    static EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
-                                                                 PersistenceUnitInfo info,
-                                                                 Map<String, String> properties) {
-        Class<?> type = nativeEntityManagerFactory.getClass();
-        AuthenticationProvider authenticationProvider = createAuthenticationProvider(info, properties);
-        AccessRulesProvider accessRulesProvider = createAccessRulesProvider(info, properties);
-        return (EntityManagerFactory)Proxy.newProxyInstance(type.getClassLoader(),
-                                                            EntityManagerFactoryInvocationHandler.getImplementingInterfaces(type),
-                                                            new EntityManagerFactoryInvocationHandler(nativeEntityManagerFactory,
-                                                                                                      info,
-                                                                                                      properties,
-                                                                                                      authenticationProvider,
-                                                                                                      accessRulesProvider));
+    private Map<String, String> createPersistenceProviderProperty(Map<String, String> properties,
+                                                                  PersistenceProvider persistenceProvider) {
+        if (properties == null) {
+            return Collections.singletonMap(PERSISTENCE_PROVIDER_PROPERTY, persistenceProvider.getClass().getName());
+        } else {
+            properties.put(PERSISTENCE_PROVIDER_PROPERTY, persistenceProvider.getClass().getName());
+            return properties;
+        }
     }
-    
-    static PersistenceProvider createNativePersistenceProvider(PersistenceUnitInfo persistenceUnitInfo, Map<String, String> properties) {
+
+    private PersistenceProvider createNativePersistenceProvider(PersistenceUnitInfo persistenceUnitInfo, Map<String, String> properties) {
         try {
             String persistenceProviderClassName = null;
             if (properties != null) {
@@ -136,7 +157,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         }
     }
 
-    static AuthenticationProvider createAuthenticationProvider(PersistenceUnitInfo persistenceUnitInfo, Map<String, String> properties) {
+    private AuthenticationProvider createAuthenticationProvider(PersistenceUnitInfo persistenceUnitInfo, Map<String, String> properties) {
         try {
             String authenticationProviderClassName = null;
             if (properties != null) {
@@ -160,7 +181,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         }
     }
 
-    static AccessRulesProvider createAccessRulesProvider(PersistenceUnitInfo persistenceUnitInfo, Map<String, String> properties) {
+    private AccessRulesProvider createAccessRulesProvider(PersistenceUnitInfo persistenceUnitInfo, Map<String, String> properties) {
         try {
             String accessRulesProviderClassName = null;
             if (properties != null) {
@@ -181,7 +202,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         }
     }
     
-    static ClassLoader getClassLoader(PersistenceUnitInfo persistenceUnitInfo) {
+    private ClassLoader getClassLoader(PersistenceUnitInfo persistenceUnitInfo) {
         if (persistenceUnitInfo.getClassLoader() != null) {
             return persistenceUnitInfo.getClassLoader();
         }
