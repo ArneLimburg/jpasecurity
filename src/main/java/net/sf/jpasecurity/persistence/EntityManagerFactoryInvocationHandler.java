@@ -112,7 +112,7 @@ public class EntityManagerFactoryInvocationHandler implements InvocationHandler 
         }
     }
     
-    static Class<?>[] getImplementingInterfaces(Class<?> type) {
+    protected Class<?>[] getImplementingInterfaces(Class<?> type) {
         Set<Class<?>> interfaces = new HashSet<Class<?>>();
         while (type != null) {
             for (Class<?> iface: type.getInterfaces()) {
