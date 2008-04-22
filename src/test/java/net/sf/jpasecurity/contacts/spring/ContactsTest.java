@@ -20,8 +20,10 @@ import java.util.List;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 
-import net.sf.jpasecurity.contacts.AbstractContactsTest;
+import junit.framework.TestCase;
+
 import net.sf.jpasecurity.contacts.Contact;
+import net.sf.jpasecurity.contacts.ContactsTestData;
 import net.sf.jpasecurity.contacts.User;
 
 import org.acegisecurity.Authentication;
@@ -34,17 +36,18 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 /**
  * @author Arne Limburg
  */
-public class ContactsTest extends AbstractContactsTest {
+public class ContactsTest extends TestCase {
     
     private ApplicationContext applicationContext;
     private ContactsDao contactsDao;
     private AuthenticationManager authenticationManager;
+    private ContactsTestData testData;
     
     public void setUp() {
         applicationContext = new ClassPathXmlApplicationContext("test-context.xml");
         contactsDao = (ContactsDao)applicationContext.getBean("contactsDao");
         authenticationManager = (AuthenticationManager)applicationContext.getBean("authenticationManager");
-        super.setUp((EntityManagerFactory)applicationContext.getBean("entityManagerFactory"));
+        testData = new ContactsTestData(((EntityManagerFactory)applicationContext.getBean("entityManagerFactory")).createEntityManager());
     }
     
     public void testUnauthenticated() {
@@ -67,8 +70,8 @@ public class ContactsTest extends AbstractContactsTest {
     public void testAuthenticatedAsAdmin() {
         authenticate("admin");
         assertEquals(2, contactsDao.getAllUsers().size());
-        assertEquals(john, contactsDao.getUser("John"));
-        assertEquals(mary, contactsDao.getUser("Mary"));
+        assertEquals(testData.getJohn(), contactsDao.getUser("John"));
+        assertEquals(testData.getMary(), contactsDao.getUser("Mary"));
         assertEquals(4, contactsDao.getAllContacts().size());
     }
     
@@ -76,8 +79,8 @@ public class ContactsTest extends AbstractContactsTest {
         authenticate("John");
         List<User> allUsers = contactsDao.getAllUsers();
         assertEquals(1, allUsers.size());
-        assertEquals(john, allUsers.get(0));
-        assertEquals(john, contactsDao.getUser("John"));
+        assertEquals(testData.getJohn(), allUsers.get(0));
+        assertEquals(testData.getJohn(), contactsDao.getUser("John"));
         try {
             contactsDao.getUser("Mary");
             fail("expected NoResultException");
@@ -86,26 +89,26 @@ public class ContactsTest extends AbstractContactsTest {
         }
         List<Contact> contacts = contactsDao.getAllContacts();
         assertEquals(2, contacts.size());
-        assertTrue(contacts.contains(johnsContact1));
-        assertTrue(contacts.contains(johnsContact2));
+        assertTrue(contacts.contains(testData.getJohnsContact1()));
+        assertTrue(contacts.contains(testData.getJohnsContact2()));
     }
     
     public void testAuthenticatedAsMary() {
         authenticate("Mary");
         List<User> allUsers = contactsDao.getAllUsers();
         assertEquals(1, allUsers.size());
-        assertEquals(mary, allUsers.get(0));
+        assertEquals(testData.getMary(), allUsers.get(0));
         try {
             contactsDao.getUser("John");
             fail("expected NoResultException");
         } catch (NoResultException e) {
             //expected...
         }
-        assertEquals(mary, contactsDao.getUser("Mary"));
+        assertEquals(testData.getMary(), contactsDao.getUser("Mary"));
         List<Contact> contacts = contactsDao.getAllContacts();
         assertEquals(2, contacts.size());
-        assertTrue(contacts.contains(marysContact1));
-        assertTrue(contacts.contains(marysContact2));
+        assertTrue(contacts.contains(testData.getMarysContact1()));
+        assertTrue(contacts.contains(testData.getMarysContact2()));
     }
     
     private void authenticate(String userName) {
