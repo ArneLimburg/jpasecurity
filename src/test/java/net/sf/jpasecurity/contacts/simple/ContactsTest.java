@@ -22,21 +22,24 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 
-import net.sf.jpasecurity.contacts.AbstractContactsTest;
+import junit.framework.TestCase;
+
 import net.sf.jpasecurity.contacts.Contact;
+import net.sf.jpasecurity.contacts.ContactsTestData;
 import net.sf.jpasecurity.contacts.User;
 import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
 
 /**
  * @author Arne Limburg
  */
-public class ContactsTest extends AbstractContactsTest {
+public class ContactsTest extends TestCase {
 
     private EntityManagerFactory entityManagerFactory;
+    private ContactsTestData testData;
 
     public void setUp() {
         entityManagerFactory = Persistence.createEntityManagerFactory("simple-contacts");
-        super.setUp(entityManagerFactory);
+        testData = new ContactsTestData(entityManagerFactory.createEntityManager());
     }
     
     public void testUnauthenticated() {
@@ -59,17 +62,17 @@ public class ContactsTest extends AbstractContactsTest {
     public void testAuthenticatedAsAdmin() {
         StaticAuthenticationProvider.authenticate(null, "admin");
         assertEquals(2, getAllUsers().size());
-        assertEquals(john, getUser("John"));
-        assertEquals(mary, getUser("Mary"));
+        assertEquals(testData.getJohn(), getUser("John"));
+        assertEquals(testData.getMary(), getUser("Mary"));
         assertEquals(4, getAllContacts().size());
     }
     
     public void testAuthenticatedAsJohn() {
-        StaticAuthenticationProvider.authenticate(john, "user");
+        StaticAuthenticationProvider.authenticate(testData.getJohn(), "user");
         List<User> allUsers = getAllUsers();
         assertEquals(1, allUsers.size());
-        assertEquals(john, allUsers.get(0));
-        assertEquals(john, getUser("John"));
+        assertEquals(testData.getJohn(), allUsers.get(0));
+        assertEquals(testData.getJohn(), getUser("John"));
         try {
             getUser("Mary");
             fail("expected NoResultException");
@@ -78,26 +81,26 @@ public class ContactsTest extends AbstractContactsTest {
         }
         List<Contact> contacts = getAllContacts();
         assertEquals(2, contacts.size());
-        assertTrue(contacts.contains(johnsContact1));
-        assertTrue(contacts.contains(johnsContact2));
+        assertTrue(contacts.contains(testData.getJohnsContact1()));
+        assertTrue(contacts.contains(testData.getJohnsContact2()));
     }
     
     public void testAuthenticatedAsMary() {
-        StaticAuthenticationProvider.authenticate(mary, "user");
+        StaticAuthenticationProvider.authenticate(testData.getMary(), "user");
         List<User> allUsers = getAllUsers();
         assertEquals(1, allUsers.size());
-        assertEquals(mary, allUsers.get(0));
+        assertEquals(testData.getMary(), allUsers.get(0));
         try {
             getUser("John");
             fail("expected NoResultException");
         } catch (NoResultException e) {
             //expected...
         }
-        assertEquals(mary, getUser("Mary"));
+        assertEquals(testData.getMary(), getUser("Mary"));
         List<Contact> contacts = getAllContacts();
         assertEquals(2, contacts.size());
-        assertTrue(contacts.contains(marysContact1));
-        assertTrue(contacts.contains(marysContact2));
+        assertTrue(contacts.contains(testData.getMarysContact1()));
+        assertTrue(contacts.contains(testData.getMarysContact2()));
     }
     
     public List<User> getAllUsers() {

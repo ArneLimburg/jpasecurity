@@ -23,7 +23,7 @@ import junit.framework.TestCase;
 /**
  * @author Arne Limburg
  */
-public abstract class AbstractContactsTest extends TestCase {
+public class ContactsTestData extends TestCase {
 
     protected User john;
     protected User mary;
@@ -32,8 +32,7 @@ public abstract class AbstractContactsTest extends TestCase {
     protected Contact marysContact1;
     protected Contact marysContact2;
     
-    public void setUp(EntityManagerFactory entityManagerFactory) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
+    public ContactsTestData(EntityManager entityManager) {
         entityManager.getTransaction().begin();
         john = new User("John");
         entityManager.persist(john);
