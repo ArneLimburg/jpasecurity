@@ -20,6 +20,7 @@ import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
@@ -125,6 +126,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         if (properties == null) {
             return Collections.singletonMap(PERSISTENCE_PROVIDER_PROPERTY, persistenceProvider.getClass().getName());
         } else {
+            properties = new HashMap<String, String>(properties);
             properties.put(PERSISTENCE_PROVIDER_PROPERTY, persistenceProvider.getClass().getName());
             return properties;
         }
