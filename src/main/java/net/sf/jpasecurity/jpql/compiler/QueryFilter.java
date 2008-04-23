@@ -132,7 +132,11 @@ public class QueryFilter {
                 }
             }
         }
-        return queryAppender.createBrackets(accessRuleNode);
+        if (accessRuleNode == null) {
+            return null;
+        } else {
+            return queryAppender.createBrackets(accessRuleNode);
+        }
     }
     
     private JpqlCompiledStatement compile(String query) {
