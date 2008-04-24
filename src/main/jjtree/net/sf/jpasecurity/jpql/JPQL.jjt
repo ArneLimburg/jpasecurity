@@ -55,24 +55,35 @@ public class JpqlParser {
     
     public JpqlStatement parseQuery(String query) throws ParseException {
         ReInit(new StringReader(query));
-        return (JpqlStatement)jpqlStatement();
+        return jpqlStatement();
     }
     
     public JpqlStatement parseQuery(InputStream query) throws ParseException {
         ReInit(query);
-        return (JpqlStatement)jpqlStatement();
+        return jpqlStatement();
     }
     
     public JpqlAccessRule parseRule(String rule) throws ParseException {
         ReInit(new StringReader(rule));
-        return (JpqlAccessRule)jpqlAccessRule();
+        return jpqlAccessRule();
     }
     
     public JpqlAccessRule parseRule(InputStream rule) throws ParseException {
         ReInit(rule);
-        return (JpqlAccessRule)jpqlAccessRule();
+        return jpqlAccessRule();
     }
     
+    
+    public JpqlWhere parseWhereClause(String whereClause) throws ParseException {
+        ReInit(new StringReader(whereClause));
+        return whereClause();
+    }
+
+    public JpqlWhere parseWhereClause(InputStream whereClause) throws ParseException {
+        ReInit(whereClause);
+        return whereClause();
+    }
+
     public static void main(String[] args) throws Exception    {
         if (args.length > 0) {
             for (int i = 0; i < args.length; i++) {
@@ -293,17 +304,17 @@ TOKEN : /* IDENTIFIERS */
   >
 }
 
-Node jpqlStatement() #Statement: {} {
+JpqlStatement jpqlStatement() #Statement: {} {
     (selectStatement() | updateStatement() | deleteStatement()) <EOF>
     {
-        return jjtree.rootNode();
+        return jjtThis;
     }
 }
 
-Node jpqlAccessRule() #AccessRule: {} {
+JpqlAccessRule jpqlAccessRule() #AccessRule: {} {
     <GRANT> <READ> <ACCESS> toClause() whereClause()
     {
-        return jjtree.rootNode();
+        return jjtThis;
     }
 }
 
@@ -511,8 +522,11 @@ void sum() #Sum: {} {
     <SUM> aggregatePath()
 }
 
-void whereClause() #Where: {} {
+JpqlWhere whereClause() #Where: {} {
     <WHERE> conditionalExpression() 
+    {
+        return jjtThis;
+    }
 }
 
 void groupByClause() #GroupBy: {} {
