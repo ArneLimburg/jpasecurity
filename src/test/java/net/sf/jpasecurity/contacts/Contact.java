@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.contacts;
 
+import javax.annotation.security.RolesAllowed;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,10 +23,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import net.sf.jpasecurity.security.rules.Permit;
+
 /**
  * @author Arne Limburg
  */
 @Entity
+@RolesAllowed("admin")
+@Permit(where = "user.name = :user")
 public class Contact {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
