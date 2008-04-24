@@ -80,6 +80,7 @@ public class MappingInformation {
     	entityNameMappings = new HashMap<String, ClassMappingInformation>();
         for (ClassMappingInformation classMapping: entityTypeMappings.values()) {
             entityNameMappings.put(classMapping.getEntityName(), classMapping);
+            entityNameMappings.put(classMapping.getEntityType().getName(), classMapping);
         }
     }
     
