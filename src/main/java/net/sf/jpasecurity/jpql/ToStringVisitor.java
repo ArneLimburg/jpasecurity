@@ -916,7 +916,9 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlAbstractSchemaName node, Object data) {
-        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+        node.jjtGetChild(0).visit(this, data);
+        for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+            query.append('.');
             node.jjtGetChild(i).visit(this, data);
         }
         query.append(' ');

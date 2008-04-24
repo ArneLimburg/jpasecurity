@@ -31,7 +31,8 @@ public class ToStringVisitorTest extends TestCase {
 	private ToStringVisitor toStringVisitor;
 	
 	public void testToStringVisitor() throws ParseException {
-		assertJpql("SELECT bean FROM TestBean bean WHERE bean.id = :id");
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.id = :id");
+		assertJpql("SELECT bean FROM net.sf.jpasecurity.model.TestBean bean WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN bean.name name WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN FETCH bean.name WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.name name WHERE bean.id = :id");
