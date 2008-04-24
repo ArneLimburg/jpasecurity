@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.contacts;
 
+import javax.annotation.security.DeclareRoles;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,6 +26,7 @@ import javax.persistence.Id;
  * @author Arne Limburg
  */
 @Entity
+@DeclareRoles({"admin", "user"})
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

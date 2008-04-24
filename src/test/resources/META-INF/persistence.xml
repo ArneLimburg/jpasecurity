@@ -3,29 +3,13 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
              version="1.0">
 
-  <persistence-unit name="test" transaction-type="RESOURCE_LOCAL">
-
-    <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
-
-    <class>net.sf.jpasecurity.TestBean</class>
-
-    <properties>
-      <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-      <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider"/>
-      <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-      <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-      <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
-      <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
-      <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:contacts" />
-      <property name="hibernate.connection.username" value="sa" />
-      <property name="hibernate.connection.password" value="" />
-    </properties>
-
-  </persistence-unit>
-
   <persistence-unit name="simple-contacts" transaction-type="RESOURCE_LOCAL">
 
     <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+    <!-- This property must be specified for the ejb test with embedded jboss -->
+    <!-- We unset it for the other tests -->
+    <!--non-jta-data-source>java:/ContactsDataSource</non-jta-data-source-->
 
     <class>net.sf.jpasecurity.contacts.User</class>
     <class>net.sf.jpasecurity.contacts.Contact</class>
@@ -48,6 +32,10 @@
 
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
+    <!-- This property must be specified for the ejb test with embedded jboss -->
+    <!-- We unset it for the other tests -->
+    <!--non-jta-data-source>java:/ContactsDataSource</non-jta-data-source-->
+
     <class>net.sf.jpasecurity.contacts.User</class>
     <class>net.sf.jpasecurity.contacts.Contact</class>
 
@@ -58,6 +46,26 @@
       <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:contacts" />
       <property name="hibernate.connection.username" value="sa" />
       <property name="hibernate.connection.password" value="" />
+    </properties>
+
+  </persistence-unit>
+
+  <persistence-unit name="ejb-contacts" transaction-type="RESOURCE_LOCAL">
+
+    <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+    <non-jta-data-source>java:/ContactsDataSource</non-jta-data-source>
+
+    <class>net.sf.jpasecurity.contacts.User</class>
+    <class>net.sf.jpasecurity.contacts.Contact</class>
+
+    <properties>
+      <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+      <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.EjbAuthenticationProvider"/>
+      <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+      <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+      <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+      <property name="hibernate.transaction.factory_class" value="org.hibernate.transaction.JDBCTransactionFactory" />
     </properties>
 
   </persistence-unit>

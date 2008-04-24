@@ -23,7 +23,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 
 import junit.framework.TestCase;
-
 import net.sf.jpasecurity.contacts.Contact;
 import net.sf.jpasecurity.contacts.ContactsTestData;
 import net.sf.jpasecurity.contacts.User;
@@ -32,14 +31,15 @@ import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
 /**
  * @author Arne Limburg
  */
-public class ContactsTest extends TestCase {
+public class SimpleContactsTest extends TestCase {
 
     private EntityManagerFactory entityManagerFactory;
     private ContactsTestData testData;
 
     public void setUp() {
         entityManagerFactory = Persistence.createEntityManagerFactory("simple-contacts");
-        testData = new ContactsTestData(entityManagerFactory.createEntityManager());
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        testData = new ContactsTestData(entityManager);
     }
     
     public void testUnauthenticated() {

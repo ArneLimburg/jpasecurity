@@ -17,4 +17,11 @@
     <access-rule>GRANT READ ACCESS TO User user WHERE 'ROLE_ADMIN' IN (:roles)</access-rule>
   </persistence-unit>
 
+  <persistence-unit name="ejb-contacts">
+    <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.user.name = :user</access-rule>
+    <access-rule>GRANT READ ACCESS TO Contact contact WHERE 'admin' IN (:roles)</access-rule>
+    <access-rule>GRANT READ ACCESS TO User user WHERE user.name = :user</access-rule>
+    <access-rule>GRANT READ ACCESS TO User user WHERE 'admin' IN (:roles)</access-rule>
+  </persistence-unit>
+
 </security>
