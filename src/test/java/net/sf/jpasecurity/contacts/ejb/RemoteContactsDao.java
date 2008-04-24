@@ -13,34 +13,25 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity;
+package net.sf.jpasecurity.contacts.ejb;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import java.util.List;
+
+import javax.ejb.Remote;
+
+import net.sf.jpasecurity.contacts.Contact;
+import net.sf.jpasecurity.contacts.User;
 
 /**
  * @author Arne Limburg
  */
-@Entity
-public class TestBean {
+@Remote
+public interface RemoteContactsDao {
 
-    @Id
-    private int id;
-    private String name;
+    List<User> getAllUsers();
 
-    public int getId() {
-        return id;
-    }
+    User getUser(String name);
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    List<Contact> getAllContacts();
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }
