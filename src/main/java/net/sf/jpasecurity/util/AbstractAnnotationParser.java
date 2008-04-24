@@ -74,22 +74,34 @@ public abstract class AbstractAnnotationParser<A extends Annotation> {
             return;
         }
         parse(annotatedClass.getSuperclass());
-        for (Class<?> annotatedInterface : annotatedClass.getInterfaces()) {
+        for (Class<?> annotatedInterface: annotatedClass.getInterfaces()) {
             parse(annotatedInterface);
         }
-        for (Class<A> annotationType : annotationTypes) {
+        for (Class<A> annotationType: annotationTypes) {
             A annotation = annotatedClass.getAnnotation(annotationType);
             if (annotation != null) {
-                process(annotation);
+                process(annotatedClass, annotation);
             }
         }
     }
 
     /**
      * Called during parsing, when an annotation is found.
+     * Subclasses may override to process the annotation.
+     * @param annotatedClass the annotated class
      * @param annotation the found annotation
      */
-    protected abstract void process(A annotation);
+    protected void process(Class<?> annotatedClass, A annotation) {
+        process(annotation);
+    }
+
+    /**
+     * Called during parsing, when an annotation is found.
+     * Subclasses may override to process the annotation.
+     * @param annotation the found annotation
+     */
+    protected void process(A annotation) {
+    }
 
     private Class<A> extractAnnotationType() {
         Type type = getClass().getGenericSuperclass();

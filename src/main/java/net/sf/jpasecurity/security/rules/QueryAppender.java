@@ -77,6 +77,20 @@ public class QueryAppender {
         return or;
     }
     
+    /**
+     * Prepends the specified alias to the specified path. 
+     * @param alias the alias
+     * @param path the path
+     * @return the new path
+     */
+    public JpqlPath prepend(String alias, JpqlPath path) {
+        for (int i = path.jjtGetNumChildren(); i > 0; i--) {
+            path.jjtAddChild(path.jjtGetChild(i - 1), i);
+        }
+        path.jjtAddChild(createVariable(alias), 0);
+        return path;
+    }
+    
     public AccessRule expand(AccessRule accessRule, int roleCount) {
         accessRule = (AccessRule)accessRule.clone();
         inRolesVisitor.reset();
@@ -110,6 +124,15 @@ public class QueryAppender {
         JpqlIntegerLiteral integer = new JpqlIntegerLiteral(JpqlParserTreeConstants.JJTINTEGERLITERAL);
         integer.setValue(Integer.toString(value));
         return integer;
+    }
+
+    /**
+     * Creates a <tt>JpqlIdentificationVariable</tt> node with the specified value.
+     */
+    public JpqlIdentificationVariable createVariable(String value) {
+        JpqlIdentificationVariable variable = new JpqlIdentificationVariable(JpqlParserTreeConstants.JJTIDENTIFICATIONVARIABLE);
+        variable.setValue(value);
+        return variable;
     }
 
     /**
