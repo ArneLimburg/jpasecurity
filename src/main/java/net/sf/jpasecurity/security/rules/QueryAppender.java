@@ -84,13 +84,13 @@ public class QueryAppender {
         for (JpqlIn inRole: inRolesVisitor.getInRoles()) {
             if (roleCount == 0) {
                 replace(inRole, createNotEquals(createNumber(1), createNumber(1)));
-            } else if (roleCount == 1) {
+            } else {
                 Node parent = createEquals(inRole.jjtGetChild(0), createInputParameter("role0"));
                 for (int i = 1; i < roleCount; i++) {
                     Node node = createEquals(inRole.jjtGetChild(0), createInputParameter("role" + i));
                     parent = createOr(parent, node);
                 }
-                replace(inRole, parent);
+                replace(inRole, createBrackets(parent));
             }
         }
         return accessRule;
