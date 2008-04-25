@@ -44,7 +44,7 @@ import net.sf.jpasecurity.jpql.parser.Node;
  * <strong>Note: This class is not thread-safe. Instances of this class may only be used on a single thread.</strong>
  * @author Arne Limburg
  */
-public class QueryAppender {
+public class QueryPreparator {
 
     private final InRolesVisitor inRolesVisitor = new InRolesVisitor();
     private final PathReplacer pathReplacer = new PathReplacer();
