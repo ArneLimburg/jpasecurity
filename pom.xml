@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?><project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.sf.jpasecurity</groupId>
+  <artifactId>jpasecurity</artifactId>
+  <name>JPA Security</name>
+  <version>${version}</version>
+  <description>
+    JPA Security provides an interface to define security requirements of your
+    Data Access Layer at a single place in code for ease of usability and
+    maintainability.
+    It is designed to extend current security solutions like J2EE Security and
+    Spring Security (formerly known as Acegi-Security),
+    but may be used on its own, too. It enables applications to control access
+    to JPA Entity Beans based on the currently authenticated user
+    and/or its roles in the application.
+  </description>
+  <url>http://jpasecurity.sf.net</url>
+
+  <prerequisites>
+    <maven>2.0.8</maven>
+  </prerequisites>
+  <issueManagement>
+    <system>Sourceforge Tracker</system>
+    <url>http://sourceforge.net/tracker/?group_id=219346</url>
+  </issueManagement>
+  <inceptionYear>2008</inceptionYear>
+  <developers>
+    <developer>
+      <id>arne</id>
+      <name>Arne Limburg</name>
+      <email>arnelim(a)users.sourceforge.net</email>
+      <roles>
+        <role>Project Lead</role>
+        <role>Java Developer</role>
+        <timezone>+1</timezone>
+      </roles>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/</connection>
+    <developerConnection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/</developerConnection>
+    <url>http://jpasecurity.svn.sourceforge.net/viewvc/jpasecurity/trunk/</url>
+  </scm>
+  <organization>
+    <name>JPA Security</name>
+  </organization>
+  
+  <distributionManagement>
+    <site>
+      <id>sourceforge</id>
+      <url>scp://jpasecurity.sf.net:/home/groups/j/jp/jpasecurity/htdocs/</url>
+    </site>
+  </distributionManagement>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.0</version>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+          <excludes>
+            <exclude>net/sf/jpasecurity/jpql/parser/*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <configuration>
+              <tasks>
+                <copy todir="target/generated-sources/jjtree/net/sf/jpasecurity/jpql/parser">
+                  <fileset dir="src/main/java/net/sf/jpasecurity/jpql/parser"/>
+                </copy>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>javacc-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>jjtree</id>
+            <goals>
+              <goal>jjtree</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>javacc</id>
+            <configuration>
+              <sourceDirectory>target/generated-sources/jjtree</sourceDirectory>
+            </configuration>
+            <goals>
+              <goal>javacc</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <configuration>
+          <downloadSources>true</downloadSources>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.agilejava.docbkx</groupId>
+        <artifactId>docbkx-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate-html</goal>
+              <goal>generate-pdf</goal>
+            </goals>
+            <phase>pre-site</phase>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.docbook</groupId>
+            <artifactId>docbook-xml</artifactId>
+            <version>4.4</version>
+            <scope>runtime</scope>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <entities>
+            <entity>
+             <name>version</name>
+             <value>${version}</value>
+            </entity>
+          </entities>
+          <xincludeSupported>true</xincludeSupported>
+          <sourceDirectory>${basedir}/src/docbook/</sourceDirectory>
+          <targetDirectory>${basedir}/target/docbook/</targetDirectory>
+          <postProcess>
+            <copy todir="target/site/reference">
+              <fileset dir="target/docbook">
+                <include name="**/*.html"/>
+                <include name="**/*.pdf"/>
+              </fileset>
+            </copy>
+            <!--copy todir="target/site/reference/html">
+              <fileset dir="src/docbook/resources">
+                <include name="**/*.css" />
+                <include name="**/*.png" />
+                <include name="**/*.gif" />
+                <include name="**/*.jpg" />
+              </fileset>
+            </copy-->
+          </postProcess>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.doxia</groupId>
+        <artifactId>doxia-maven-plugin</artifactId>
+        <version>1.0-alpha-10</version>
+        <executions>
+          <execution>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>render-books</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+        <books>
+          <book>
+            <directory>src/docbook</directory>
+            <descriptor>src/site/reference.xml</descriptor>
+            <formats>
+              <format>
+                <id>xdoc</id>
+              </format>
+            </formats>
+          </book>
+        </books>
+      </configuration>
+    </plugin>
+    </plugins>
+  </build>
+  
+  <!--reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <configLocation>src/checkstyle/configuration.xml</configLocation>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting-->
+  
+  <dependencies>
+    <dependency>
+      <groupId>javax.persistence</groupId>
+      <artifactId>persistence-api</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.ejb</groupId>
+      <artifactId>ejb</artifactId>
+      <version>3.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.acegisecurity</groupId>
+      <artifactId>acegi-security</artifactId>
+      <version>1.0.0</version>
+      <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-remoting</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-dao</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-context</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-aop</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-beans</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-webmvc</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-web</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-jdbc</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-support</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+      <version>2.5.2</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.14</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+      <version>3.3.1.ga</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.7</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>aspectj</groupId>
+      <artifactId>aspectjweaver</artifactId>
+      <version>1.5.3</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  
+  <properties>
+    <version>0.1.0</version>
+  </properties>
+</project>
