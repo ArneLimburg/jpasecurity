@@ -38,7 +38,7 @@ import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.rules.AccessRule;
-import net.sf.jpasecurity.security.rules.QueryAppender;
+import net.sf.jpasecurity.security.rules.QueryPreparator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,7 +54,7 @@ public class QueryFilter {
     private final JpqlParser parser;
     private final JpqlCompiler compiler;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
-    private final QueryAppender queryAppender = new QueryAppender();
+    private final QueryPreparator queryPreparator = new QueryPreparator();
     private final NamedParameterReplacer namedParameterReplacer = new NamedParameterReplacer();
     private List<AccessRule> accessRules;
     
@@ -100,7 +100,7 @@ public class QueryFilter {
         
         JpqlWhere where = statement.getWhereClause();
         if (where == null) {
-            where = queryAppender.createWhere();
+            where = queryPreparator.createWhere();
             accessRules.jjtSetParent(where);
             where.jjtAddChild(accessRules, 0);
             Node parent = statement.getFromClause().jjtGetParent();
@@ -111,9 +111,9 @@ public class QueryFilter {
         } else {
             Node condition = where.jjtGetChild(0);
             if (!(condition instanceof JpqlBrackets)) {
-                condition = queryAppender.createBrackets(condition);
+                condition = queryPreparator.createBrackets(condition);
             }
-            Node and = queryAppender.createAnd(condition, accessRules);
+            Node and = queryPreparator.createAnd(condition, accessRules);
             and.jjtSetParent(where);
             where.jjtSetChild(and, 0);
         }
@@ -130,20 +130,20 @@ public class QueryFilter {
         for (Map.Entry<String, Class<?>> selectedType: selectedTypes.entrySet()) {
             Collection<AccessRule> accessRules = new FilteredAccessRules(selectedType.getValue());
             for (AccessRule accessRule: accessRules) {
-                accessRule = queryAppender.expand(accessRule, roleCount);
-                Node condition = queryAppender.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
-                queryAppender.replace(condition, accessRule.getSelectedPath(), selectedType.getKey());
+                accessRule = queryPreparator.expand(accessRule, roleCount);
+                Node condition = queryPreparator.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
+                queryPreparator.replace(condition, accessRule.getSelectedPath(), selectedType.getKey());
                 if (accessRuleNode == null) {
                     accessRuleNode = condition;
                 } else {
-                    accessRuleNode = queryAppender.createOr(accessRuleNode, condition);
+                    accessRuleNode = queryPreparator.createOr(accessRuleNode, condition);
                 }
             }
         }
         if (accessRuleNode == null) {
             return null;
         } else {
-            return queryAppender.createBrackets(accessRuleNode);
+            return queryPreparator.createBrackets(accessRuleNode);
         }
     }
     
