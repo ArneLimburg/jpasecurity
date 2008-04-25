@@ -29,7 +29,6 @@ import java.util.Set;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
-import net.sf.jpasecurity.jpql.ToStringVisitor;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
@@ -41,16 +40,20 @@ import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.rules.AccessRule;
 import net.sf.jpasecurity.security.rules.QueryAppender;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * <strong>Note: This class is not thread-safe. Instances of this class may only be used on a single thread.</strong>
  * @author Arne Limburg
  */
 public class QueryFilter {
 
+    private static final Log LOG = LogFactory.getLog(QueryFilter.class); 
+    
     private final JpqlParser parser;
     private final JpqlCompiler compiler;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
-    private final ToStringVisitor toStringVisitor = new ToStringVisitor();
     private final QueryAppender queryAppender = new QueryAppender();
     private final NamedParameterReplacer namedParameterReplacer = new NamedParameterReplacer();
     private List<AccessRule> accessRules;
@@ -62,10 +65,14 @@ public class QueryFilter {
     }
     
     public FilterResult filterQuery(String query, Object user, Collection<Object> roles) {
+
+        LOG.info("Filtering query " + query);
+        
         JpqlCompiledStatement statement = compile(query);
         
         Node accessRules = createAccessRuleNode(statement, roles != null? roles.size(): 0);
         if (accessRules == null) {
+            LOG.info("No access rules defined for selected type. Returning unfiltered query");
             return new FilterResult(query, null, null);
         }
         
@@ -110,9 +117,9 @@ public class QueryFilter {
             and.jjtSetParent(where);
             where.jjtSetChild(and, 0);
         }
-        toStringVisitor.reset();
-        statement.getStatement().visit(toStringVisitor);
-        return new FilterResult(toStringVisitor.toString(),
+        String filteredQuery = statement.getStatement().toString();
+        LOG.info("Returning filtered query " + filteredQuery);
+        return new FilterResult(filteredQuery,
                                 userParameterNameCount > 0? userParameterName: null,
                                 roleParameterNames.size() > 0? roleParameterNames: null);
     }
@@ -124,11 +131,12 @@ public class QueryFilter {
             Collection<AccessRule> accessRules = new FilteredAccessRules(selectedType.getValue());
             for (AccessRule accessRule: accessRules) {
                 accessRule = queryAppender.expand(accessRule, roleCount);
+                Node condition = queryAppender.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
+                queryAppender.replace(condition, accessRule.getSelectedPath(), selectedType.getKey());
                 if (accessRuleNode == null) {
-                    accessRuleNode = queryAppender.createIn(selectedType.getKey(), accessRule);
-                    accessRuleNode = queryAppender.createBrackets(accessRuleNode);
+                    accessRuleNode = condition;
                 } else {
-                    accessRuleNode = queryAppender.append(accessRuleNode, selectedType.getKey(), accessRule);
+                    accessRuleNode = queryAppender.createOr(accessRuleNode, condition);
                 }
             }
         }

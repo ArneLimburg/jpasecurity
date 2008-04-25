@@ -87,6 +87,13 @@ public class SimpleNode implements Node {
     public void jjtSetChild(Node n, int i) {
     	children[i] = (SimpleNode)n;
     }
+    
+    public void jjtRemoveChild(int i) {
+        SimpleNode[] c = new SimpleNode[i - 1];
+        System.arraycopy(children, 0, c, 0, i);
+        System.arraycopy(children, i + 1, c, i, c.length - i);
+        children = c;        
+    }
 
     /**
      * {@inheritDoc}

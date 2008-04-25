@@ -46,7 +46,8 @@ import net.sf.jpasecurity.jpql.parser.Node;
  */
 public class QueryAppender {
 
-    private final InRolesVisitor inRolesVisitor = new InRolesVisitor(); 
+    private final InRolesVisitor inRolesVisitor = new InRolesVisitor();
+    private final PathReplacer pathReplacer = new PathReplacer();
     
     /**
      * Appends the specified node to the specified <tt>Where</tt>-node with <tt>and</tt>.
@@ -230,7 +231,6 @@ public class QueryAppender {
     public Node createSubselect(AccessRule rule) {
     	JpqlSubselect subselect = new JpqlSubselect(JpqlParserTreeConstants.JJTSUBSELECT);
     	Node select = createSelectClause(rule.getSelectedPath());
-    	//TODO check selected aliases
     	select.jjtSetParent(subselect);
     	subselect.jjtAddChild(select, 0);
     	Node from = rule.getFromClause();
@@ -266,6 +266,10 @@ public class QueryAppender {
         oldNode.jjtSetParent(null);
     }
     
+    public void replace(Node node, String oldPath, String newPath) {
+        node.visit(pathReplacer, new Replacer(oldPath.split("\\."), newPath.split("\\.")));
+    }
+    
     private int getIndex(Node parent, Node child) {
         for (int i = 0; i < parent.jjtGetNumChildren(); i++) {
             if (parent.jjtGetChild(i) == child) {
@@ -295,6 +299,51 @@ public class QueryAppender {
         
         public void reset() {
             inRoles.clear();
+        }
+    }
+    
+    private class PathReplacer extends JpqlVisitorAdapter {
+        
+        public boolean visit(JpqlPath path, Object replacer) {
+            ((Replacer)replacer).replace(path);
+            return false;
+        }
+    }
+    
+    private class Replacer {
+        
+        private String[] oldPath;
+        private String[] newPath;
+        
+        public Replacer(String[] oldPath, String[] newPath) {
+            this.oldPath = oldPath;
+            this.newPath = newPath;
+        }
+        
+        public boolean canReplace(JpqlPath path) {
+            if (path.jjtGetNumChildren() < oldPath.length) {
+                return false;
+            }
+            for (int i = 0; i < oldPath.length; i++) {
+                if (!((JpqlIdentificationVariable)path.jjtGetChild(i)).getValue().equals(oldPath[i])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        public void replace(JpqlPath path) {
+            int index = oldPath.length - newPath.length;
+            while (index < 0) {
+                path.jjtRemoveChild(0);
+                index++;
+            }
+            for (int i = 0; i < index; i++) {
+                ((JpqlIdentifier)path.jjtGetChild(i)).setValue(newPath[i]);
+            }
+            for (; index < newPath.length; index++) {
+                ((JpqlIdentifier)path.jjtGetChild(index)).setValue(newPath[index]);
+            }
         }
     }
 }
