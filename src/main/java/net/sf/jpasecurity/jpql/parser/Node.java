@@ -43,6 +43,8 @@ public interface Node extends Cloneable {
   Node jjtGetChild(int i);
   
   void jjtSetChild(Node n, int i);
+  
+  void jjtRemoveChild(int i);
 
   /** Return the number of children the node has. */
   int jjtGetNumChildren();
