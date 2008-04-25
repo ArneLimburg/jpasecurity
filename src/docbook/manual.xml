@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<book xmlns:xi="http://www.w3.org/2001/XInclude">
+  <bookinfo>
+    <title>JPA Security Reference Guide</title>
+
+    <releaseinfo>0.1.0</releaseinfo>
+
+    <authorgroup>
+      <author>
+        <firstname>Arne</firstname>
+        <surname>Limburg</surname>
+      </author>
+    </authorgroup>
+
+    <legalnotice>
+      <para>
+        Copies of this document may be made for your own use and for
+        distribution to others, provided that you do not charge any fee for such
+        copies and further provided that each copy contains this Copyright
+        Notice, whether distributed in print or electronically.
+      </para>
+    </legalnotice>
+  </bookinfo>
+
+  <toc/>
+
+  <xi:include href="preface.xml"/>
+  <xi:include href="introduction.xml"/>
+  <xi:include href="integration.xml"/>
+  <xi:include href="authentication.xml"/>
+  <xi:include href="access-control.xml"/>
+
+  <!--<part id="appendixes">-->
+
+  <!--<title>Appendixes</title>-->
+
+  <!--<xi:include href="appendix/introduction.xml"/>-->
+
+  <!--<xi:include href="appendix/appendix-roadmap.xml"/>-->
+
+  <!--</part>-->
+</book>

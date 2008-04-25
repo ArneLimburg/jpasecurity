@@ -1,0 +1,1081 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *  
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.   
+ */
+/**
+ *  An JP QL grammar parser.
+ *  It is based on the parser of OpenJPA by Patrick Linskey and Marc Prud'hommeaux
+ *  @author Arne Limburg
+ */
+options {
+    NODE_PREFIX = "Jpql";
+    NODE_PACKAGE = "net.sf.jpasecurity.jpql.parser";
+    VISITOR = true;
+    MULTI = true;
+    NODE_DEFAULT_VOID = true;
+    JAVA_UNICODE_ESCAPE = true;
+    STATIC = false;
+    NODE_USES_PARSER = true;
+    LOOKAHEAD = 1;
+
+    // debugging variables
+    // DEBUG_PARSER = true;         // simple parser debug
+    // DEBUG_TOKEN_MANAGER = true;     // more verbose token manager debug
+    // DEBUG_LOOKAHEAD = true;         // more verbose lookahead debug
+    SANITY_CHECK = true; // check for left-recursion, etc (must always be true)
+
+    // FORCE_LA_CHECK = true;
+}
+
+PARSER_BEGIN(JpqlParser)
+
+package net.sf.jpasecurity.jpql.parser;
+
+import java.io.*;
+
+public class JpqlParser {
+    
+    public JpqlParser() {
+        this(new StringReader(""));
+    }
+    
+    public JpqlStatement parseQuery(String query) throws ParseException {
+        ReInit(new StringReader(query));
+        return jpqlStatement();
+    }
+    
+    public JpqlStatement parseQuery(InputStream query) throws ParseException {
+        ReInit(query);
+        return jpqlStatement();
+    }
+    
+    public JpqlAccessRule parseRule(String rule) throws ParseException {
+        ReInit(new StringReader(rule));
+        return jpqlAccessRule();
+    }
+    
+    public JpqlAccessRule parseRule(InputStream rule) throws ParseException {
+        ReInit(rule);
+        return jpqlAccessRule();
+    }
+    
+    
+    public JpqlWhere parseWhereClause(String whereClause) throws ParseException {
+        ReInit(new StringReader(whereClause));
+        return whereClause();
+    }
+
+    public JpqlWhere parseWhereClause(InputStream whereClause) throws ParseException {
+        ReInit(whereClause);
+        return whereClause();
+    }
+
+    public static void main(String[] args) throws Exception    {
+        if (args.length > 0) {
+            for (int i = 0; i < args.length; i++) {
+                JpqlParser parser = new JpqlParser();
+                JpqlStatement statement = parser.parseQuery(args[i]);
+                System.out.println(statement);
+            }
+        } else {
+            JpqlParser parser = new JpqlParser();
+            while (true) {
+                System.out.print("Enter Statement: ");
+                System.out.flush();
+                try {
+                    JpqlStatement statement = parser.parseQuery(System.in);
+                    if (statement == null) {
+                        return;
+                    } else {
+                        System.out.println(statement);
+                    }
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                    return;
+                }
+            }
+        }
+    }
+}
+PARSER_END(JpqlParser)
+
+SKIP: {
+    " "
+  | "\n"
+  | "\r"
+  | "\t"
+}
+
+TOKEN[IGNORE_CASE]: {
+    <COMMA: ",">
+  | <DOT: ".">
+  | <EQ: "=">
+  | <NE: "<>">
+  | <GT: ">">
+  | <GE: ">=">
+  | <LT: "<">
+  | <LE: "<=">
+  | <PLUS: "+">
+  | <MINUS: "-">
+  | <TIMES: "*">
+  | <DIV: "/">
+  | <NEW: "NEW">
+  | <ALL: "ALL">
+  | <ANY: "ANY">
+  | <EXISTS: "EXISTS">
+  | <SOME: "SOME">
+  | <EMPTY: "EMPTY">
+  | <ASC: "ASC">
+  | <DESC: "DESC">
+  | <ORDER: "ORDER">
+  | <BY: "BY">
+  | <IS: "IS">
+  | <MEMBER: "MEMBER">
+  | <OF: "OF">
+  | <LIKE: "LIKE">
+  | <ESCAPE: "ESCAPE">
+  | <BETWEEN: "BETWEEN">
+  | <NULL: "NULL">
+}
+
+TOKEN[IGNORE_CASE]: {
+    <AVG: "AVG">
+  | <MIN: "MIN">
+  | <MAX: "MAX">
+  | <SUM: "SUM">
+  | <COUNT: "COUNT">
+}
+
+TOKEN[IGNORE_CASE]: {
+    <OR: "OR">
+  | <AND: "AND">
+  | <NOT: "NOT">
+}
+
+TOKEN[IGNORE_CASE]: {
+    <CONCAT: "CONCAT">
+  | <SUBSTRING: "SUBSTRING">
+  | <TRIM: "TRIM">
+  | <LOWER: "LOWER">
+  | <UPPER: "UPPER">
+}
+
+TOKEN[IGNORE_CASE]: {
+    <LEADING: "LEADING">
+  | <TRAILING: "TRAILING">
+  | <BOTH: "BOTH">
+}
+
+TOKEN[IGNORE_CASE]: {
+    <LENGTH: "LENGTH">
+  | <LOCATE: "LOCATE">
+  | <ABS: "ABS">
+  | <SQRT: "SQRT">
+  | <MOD: "MOD">
+  | <SIZE: "SIZE">
+}
+
+TOKEN[IGNORE_CASE]: {
+    <CURRENT_DATE: "CURRENT_DATE">
+  | <CURRENT_TIME: "CURRENT_TIME">
+  | <CURRENT_TIMESTAMP: "CURRENT_TIMESTAMP">
+}
+
+TOKEN[IGNORE_CASE]: {
+    <SELECT: "SELECT">
+  | <DISTINCT: "DISTINCT">
+  | <FROM: "FROM">
+  | <UPDATE: "UPDATE">
+  | <DELETE: "DELETE">
+  | <GRANT: "GRANT">
+  | <READ: "READ">
+  | <ACCESS: "ACCESS">
+  | <TO: "TO">
+  | <WHERE: "WHERE">
+  | <GROUP: "GROUP">
+  | <HAVING: "HAVING">
+  | <AS: "AS">
+  | <LEFT: "LEFT">
+  | <OUTER: "OUTER">
+  | <INNER: "INNER">
+  | <JOIN: "JOIN">
+  | <FETCH: "FETCH">
+  | <IN: "IN">
+  | <SET: "SET">
+  | <OBJECT: "OBJECT">
+}
+
+/* inspired by the Java 1.0.2 specification */
+/* ### should we limit this to the length that is valid in java? */
+TOKEN: /* literals */
+{
+    < INTEGER_LITERAL: ((["0"-"9"])+) (["l","L"])? >
+    | < DECIMAL_LITERAL:
+        (((["0"-"9"])* "." (["0"-"9"])+) (<EXPONENT>)? (["f","F","d","D"])?
+        | ((["0"-"9"])+ ".") (<EXPONENT>)? (["f","F","d","D"])?
+        | ((["0"-"9"])+) (<EXPONENT>) (["f","F","d","D"])?
+        | ((["0"-"9"])+) (<EXPONENT>)? (["f","F","d","D"])?) >
+    | < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+    | < STRING_LITERAL: "'"
+      (("''" | ~["'"])
+        /*
+      (("''" | ~["'","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'"]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+        */
+      )*
+      "'"
+    >
+    | < CHARACTER_LITERAL: "'"
+      (   (~["'","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'"]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )
+      "'"
+    >
+}
+TOKEN[IGNORE_CASE]: /* boolean literals can be case-insensitive */
+{
+    < BOOLEAN_LITERAL: "TRUE" | "FALSE" >
+}
+/* From the Java 1.0.2 specification */
+TOKEN : /* IDENTIFIERS */
+{
+  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+    |
+  < #LETTER:
+      [
+       "\u0024",             // $
+       "\u0041"-"\u005a",     // A-Z
+       "\u005f",             // _
+       "\u0061"-"\u007a",     // a-z
+       "\u00c0"-"\u00d6",
+       "\u00d8"-"\u00f6",
+       "\u00f8"-"\u00ff",
+       "\u0100"-"\u1fff",
+       "\u3040"-"\u318f",
+       "\u3300"-"\u337f",
+       "\u3400"-"\u3d2d",
+       "\u4e00"-"\u9fff",
+       "\uf900"-"\ufaff"
+      ]
+  >
+    |
+  < #DIGIT:
+      [
+       "\u0030"-"\u0039",     // 0-9
+       "\u0660"-"\u0669",
+       "\u06f0"-"\u06f9",
+       "\u0966"-"\u096f",
+       "\u09e6"-"\u09ef",
+       "\u0a66"-"\u0a6f",
+       "\u0ae6"-"\u0aef",
+       "\u0b66"-"\u0b6f",
+       "\u0be7"-"\u0bef",
+       "\u0c66"-"\u0c6f",
+       "\u0ce6"-"\u0cef",
+       "\u0d66"-"\u0d6f",
+       "\u0e50"-"\u0e59",
+       "\u0ed0"-"\u0ed9",
+       "\u1040"-"\u1049"
+      ]
+  >
+}
+
+JpqlStatement jpqlStatement() #Statement: {} {
+    (selectStatement() | updateStatement() | deleteStatement()) <EOF>
+    {
+        return jjtThis;
+    }
+}
+
+JpqlAccessRule jpqlAccessRule() #AccessRule: {} {
+    <GRANT> <READ> <ACCESS> toClause() whereClause()
+    {
+        return jjtThis;
+    }
+}
+
+void selectStatement() #Select: {} {
+    selectClause() fromClause() [whereClause()] [groupByClause()] [havingClause()] [orderByClause()]
+}
+
+void updateStatement() #Update: {} {
+    updateClause() [whereClause()]
+}
+
+void deleteStatement() #Delete: {} {
+    <DELETE> <FROM> (fromItem() #From) [whereClause()]
+}
+
+void fromClause() #From: {} {
+    <FROM> identificationVariableDeclaration()
+    (LOOKAHEAD(1) <COMMA> (LOOKAHEAD(collectionMemberDeclaration()) collectionMemberDeclaration() | LOOKAHEAD(identificationVariableDeclaration()) identificationVariableDeclaration()))*
+}
+
+void toClause() #From: {} {
+    <TO> simpleIdentificationVariableDeclaration()
+}
+
+void simpleIdentificationVariableDeclaration() #IdentificationVariableDeclaration: {} {
+    fromItem()
+}
+
+void identificationVariableDeclaration() #IdentificationVariableDeclaration: {} {
+    fromItem() (LOOKAHEAD(fetchJoin()) fetchJoin() | LOOKAHEAD(innerJoin()) innerJoin() | LOOKAHEAD(outerJoin()) outerJoin())*
+}
+
+void fromItem() #FromItem: {} {
+    abstractSchemaName() [LOOKAHEAD(1) <AS>] [LOOKAHEAD(identificationVariable())identificationVariable()]
+}
+
+void subqueryFromClause() #From: {} {
+    <FROM> subqueryFromItem() (LOOKAHEAD(1) <COMMA> subqueryFromItem())*
+}
+
+void subqueryFromItem() #FromItem: {} {
+    LOOKAHEAD(collectionMemberDeclaration()) collectionMemberDeclaration()
+  | LOOKAHEAD(identificationVariableDeclaration()) identificationVariableDeclaration()
+}
+
+void innerJoin() #InnerJoin: {} {
+    [<INNER>] <JOIN> joinPath() [<AS>] identificationVariable()
+}
+
+void collectionMemberDeclaration() #InnerJoin: {} {
+    // synonymous with "INNER JOIN path AS identifier" (InnerJoin)
+    <IN> "(" joinPath() ")" [LOOKAHEAD(1) <AS>] identificationVariable()
+}
+
+void outerJoin() #OuterJoin: {} {
+    <LEFT> [<OUTER>] <JOIN> joinPath() [LOOKAHEAD(1) <AS>] identificationVariable()
+}
+
+void fetchJoin(): {} {
+    outerFetchJoin() | innerFetchJoin()
+}
+
+void outerFetchJoin() #OuterFetchJoin: {} {
+    <LEFT> [<OUTER>] <JOIN> <FETCH> joinPath()
+}
+
+void innerFetchJoin() #InnerFetchJoin: {} {
+    [<INNER>] <JOIN> <FETCH> joinPath()
+}
+
+void joinPath() #Path: {} {
+    // a join path is any dot-separated path expression starting with a
+    // non-reserved word containing at minimum two path components
+    identificationVariable() (<DOT> pathComponent())+
+}
+
+void path() #Path: {} {
+    // a path is any dot-separated path expression starting with a
+    // non-reserved word
+    identificationVariable() (<DOT> pathComponent())*
+}
+
+void updateClause(): {} {
+    <UPDATE> fromItem() setClause()
+}
+
+void setClause() #SetClause: {} {
+    <SET> updateItem() (<COMMA> updateItem())*
+}
+
+void updateItem() #UpdateItem: {} {
+    updateExpression()
+}
+
+void updateExpression() #Equals: {} {
+	path() <EQ> newValue()
+}
+
+void newValue() #UpdateValue: {} {
+    LOOKAHEAD(arithmeticExpression()) arithmeticExpression()
+  | LOOKAHEAD(stringPrimary()) stringPrimary()
+  | LOOKAHEAD(datetimePrimary()) datetimePrimary()
+  | LOOKAHEAD(booleanPrimary()) booleanPrimary()
+  | LOOKAHEAD(enumPrimary()) enumPrimary()
+  | LOOKAHEAD(simpleEntityExpression()) simpleEntityExpression()
+  | <NULL>
+}
+
+void simpleEntityExpression(): {} {
+    identificationVariable() | inputParameter()
+}
+
+void selectClause() #SelectClause: {} {
+    <SELECT> [distinct()] selectExpressions()
+}
+
+void simpleSelectClause() #SelectClause: {} {
+    <SELECT> [distinct()] subselectExpressions() 
+}
+
+void selectExpressions() #SelectExpressions: {} {
+    selectExpression() (<COMMA> selectExpression())*
+}
+
+void selectExpression() #SelectExpression: {} {
+    aggregateSelectExpression()
+        | LOOKAHEAD(path()) path()
+        | identificationVariable()
+        | (<OBJECT> "(" identificationVariable() ")")
+        | constructorExpression()
+}
+
+void subselectExpressions() #SelectExpressions: {} {
+    subselectExpression() (<COMMA> subselectExpression())*
+}
+void subselectExpression() #SelectExpression: {} {
+    LOOKAHEAD(path()) path() 
+        | aggregateSelectExpression()
+        | LOOKAHEAD(1) identificationVariable()
+}
+
+void constructorExpression() #Constructor: {} {
+    <NEW> classname() constructorParameters()
+}
+
+void classname() #ClassName: {}
+{
+    identificationVariable() (<DOT> identificationVariable())*
+}
+
+void constructorParameters(): {} {
+    "(" (constructorParameter()) (<COMMA> (constructorParameter()))* ")" 
+}
+
+void constructorParameter() #ConstructorParameter: {} {
+    (path() | aggregateSelectExpression())
+}
+
+void aggregateSelectExpression(): {} {
+    ([<PLUS>] positiveAggregateSelectExpression()) | negativeAggregateSelectExpression()
+}
+
+void positiveAggregateSelectExpression(): {} {
+    avg() | max() | min() | sum() | count()
+}
+
+void negativeAggregateSelectExpression() #Negative: {} {
+    <MINUS> positiveAggregateSelectExpression()
+}
+
+void distinct() #Distinct: {} {
+    <DISTINCT>
+}
+
+void aggregatePath() #AggregatePath: {} {
+    "(" (
+        LOOKAHEAD(arithmeticExpression()) arithmeticExpression() |
+        LOOKAHEAD(distinctPath()) distinctPath() |
+        LOOKAHEAD(path()) path() |
+        LOOKAHEAD(identificationVariable()) identificationVariable()
+    ) ")"
+}
+
+void distinctPath() #DistinctPath: {} {
+    <DISTINCT> (LOOKAHEAD(path()) path() | identificationVariable())
+}
+
+void count() #Count: {} {
+    <COUNT> aggregatePath()
+}
+
+void avg() #Average: {} {
+    <AVG> aggregatePath()
+}
+
+void max() #Maximum: {} {
+    <MAX> aggregatePath()
+}
+
+void min() #Minimum: {} {
+    <MIN> aggregatePath()
+}
+
+void sum() #Sum: {} {
+    <SUM> aggregatePath()
+}
+
+JpqlWhere whereClause() #Where: {} {
+    <WHERE> conditionalExpression() 
+    {
+        return jjtThis;
+    }
+}
+
+void groupByClause() #GroupBy: {} {
+    <GROUP> <BY> groupByItem() (LOOKAHEAD(2) <COMMA> (groupByItem()))* 
+}
+
+void groupByItem(): {} {
+    LOOKAHEAD(path()) path() | identificationVariable()
+}
+
+void havingClause() #Having: {} {
+    <HAVING> conditionalExpression() 
+}
+
+void subqueryInBrackets() #Brackets: {} {
+    "(" subquery() ")"
+}
+
+void subquery() #Subselect: {} {
+    simpleSelectClause()
+        subqueryFromClause() 
+        [LOOKAHEAD(whereClause()) whereClause()] 
+        [LOOKAHEAD(groupByClause()) groupByClause()] 
+        [LOOKAHEAD(havingClause()) havingClause()] 
+}
+
+void conditionalExpressionInBrackets() #Brackets: {} {
+    "(" conditionalExpression() ")"
+}
+
+/* changed to eliminate left recursion */
+void conditionalExpression(): {} {
+    conditionalTerm() (LOOKAHEAD(2) <OR> (conditionalExpression() #Or(2)))*
+}
+
+/* changed to eliminate left recursion */
+void conditionalTerm(): {} {
+    conditionalFactor() (LOOKAHEAD(2) <AND> (conditionalTerm() #And(2)))*
+}
+
+void conditionalFactor(): {} {
+    LOOKAHEAD(<NOT> conditionalPrimary())
+    (<NOT> conditionalPrimary() #Not) | conditionalPrimary()
+}
+
+void conditionalPrimary(): {} {
+    LOOKAHEAD(simpleConditionalExpression())
+    simpleConditionalExpression() | conditionalExpressionInBrackets() 
+}
+
+void simpleConditionalExpression(): {} {
+    LOOKAHEAD(existsExpression()) existsExpression() |
+    LOOKAHEAD(comparisonExpression()) comparisonExpression() | 
+    LOOKAHEAD(betweenExpression()) betweenExpression() | 
+    LOOKAHEAD(likeExpression()) likeExpression() | 
+    LOOKAHEAD(inExpression()) inExpression() | 
+    LOOKAHEAD(nullComparisonExpression()) nullComparisonExpression() | 
+    LOOKAHEAD(emptyCollectionComparisonExpression()) emptyCollectionComparisonExpression() | 
+    LOOKAHEAD(collectionMemberExpression()) collectionMemberExpression()
+}
+
+void betweenExpression() #Between: {} {
+    LOOKAHEAD(6) arithmeticExpression()
+        [<NOT> #Not] <BETWEEN> arithmeticExpression()
+        <AND> arithmeticExpression()
+    | LOOKAHEAD(6) stringExpression()
+        [<NOT> #Not] <BETWEEN> stringExpression() <AND> stringExpression()
+    | LOOKAHEAD(6) datetimeExpression()
+        [<NOT> #Not] <BETWEEN> datetimeExpression() <AND> datetimeExpression()
+}
+
+void inExpression() #In: {} {
+    (path() | literalOrParam())
+    [ LOOKAHEAD(1) <NOT> #Not] <IN>
+        "(" (literalOrParam()
+            (<COMMA> (literalOrParam()))* | subquery())
+        ")" 
+}
+
+void literalOrParam(): {} {
+    (numericLiteral()
+    | stringLiteral()
+    | booleanLiteral()
+    | inputParameter())
+}
+
+void likeExpression() #Like: {} {
+    stringExpression() [<NOT> #Not] <LIKE> patternValue() 
+}
+
+void nullComparisonExpression() #IsNull: {} {
+    (inputParameter() | path())
+    <IS> [<NOT> #Not] <NULL> 
+}
+
+void emptyCollectionComparisonExpression() #IsEmpty: {} {
+    path() <IS> [<NOT> #Not] <EMPTY> 
+}
+
+void collectionMemberExpression() #MemberOf: {} {
+    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent()) 
+    [<NOT> #Not] <MEMBER> [<OF>] path()
+}
+
+void existsExpression() #Exists: {} {
+    [<NOT> #Not] <EXISTS> "(" subquery() ")" 
+}
+
+void allOrAnyExpression(): {} {
+    anyExpression() | someExpression() | allExpression()
+}
+
+void anyExpression() #Any: {} {
+    <ANY> "(" subquery() ")" 
+}
+
+void someExpression() #Any: {} {
+    // SOME and ANY are synonymous
+    <SOME> "(" subquery() ")" 
+}
+
+void allExpression() #All: {} {
+    <ALL> "(" subquery() ")" 
+}
+
+void comparisonExpression(): {} {
+    LOOKAHEAD(arithmeticComp()) arithmeticComp() |
+    LOOKAHEAD(stringComp()) stringComp() |
+    LOOKAHEAD(booleanComp()) booleanComp() | 
+    LOOKAHEAD(enumComp()) enumComp() | 
+    LOOKAHEAD(datetimeComp()) datetimeComp() |
+    LOOKAHEAD(entityComp()) entityComp()
+}
+
+void stringComp(): {} {
+    stringExpression() (
+        (<EQ> (stringExpression()|allOrAnyExpression()) #Equals(2))
+        | (<NE> (stringExpression()|allOrAnyExpression()) #NotEquals(2))
+        | (<GT> (stringExpression() | allOrAnyExpression()) #GreaterThan(2))
+        | (<GE> (stringExpression() | allOrAnyExpression()) #GreaterOrEquals(2))
+        | (<LT> (stringExpression() | allOrAnyExpression()) #LessThan(2))
+        | (<LE> (stringExpression() | allOrAnyExpression()) #LessOrEquals(2))
+        )
+}
+
+void booleanComp(): {} {
+    booleanExpression() (
+    (<EQ> (booleanExpression() | allOrAnyExpression()) #Equals(2))
+    | (<NE> (booleanExpression() | allOrAnyExpression()) #NotEquals(2))
+    )
+}
+void enumComp(): {} {
+    enumExpression() (
+    (<EQ> (enumExpression() | allOrAnyExpression()) #Equals(2))
+    | (<NE> (enumExpression() | allOrAnyExpression()) #NotEquals(2))
+    )
+}
+void entityComp(): {} {
+    entityBeanExpression() (
+    (<EQ> ((LOOKAHEAD(allOrAnyExpression()) allOrAnyExpression() | entityBeanExpression()) #Equals(2)))
+    | (<NE> ((LOOKAHEAD(allOrAnyExpression()) allOrAnyExpression() | entityBeanExpression()) #NotEquals(2)))
+    )
+}
+
+void arithmeticComp(): {} {
+    // arithmeticValue() (
+    arithmeticExpression() (
+    (<EQ> (arithmeticExpression() | allOrAnyExpression()) #Equals(2))
+    | (<GT> (arithmeticExpression() | allOrAnyExpression()) #GreaterThan(2))
+    | (<GE> (arithmeticExpression() | allOrAnyExpression()) #GreaterOrEquals(2))
+    | (<LT> (arithmeticExpression() | allOrAnyExpression()) #LessThan(2))
+    | (<LE> (arithmeticExpression() | allOrAnyExpression()) #LessOrEquals(2))
+    | (<NE> (arithmeticExpression() | allOrAnyExpression()) #NotEquals(2))
+    )
+}
+
+void datetimeComp(): {} {
+    datetimeExpression() (
+    (<EQ> (datetimeExpression() | allOrAnyExpression()) #Equals(2))
+    | (<GT> (datetimeExpression() | allOrAnyExpression()) #GreaterThan(2))
+    | (<GE> (datetimeExpression() | allOrAnyExpression()) #GreaterOrEquals(2))
+    | (<LT> (datetimeExpression() | allOrAnyExpression()) #LessThan(2))
+    | (<LE> (datetimeExpression() | allOrAnyExpression()) #LessOrEquals(2))
+    | (<NE> (datetimeExpression() | allOrAnyExpression()) #NotEquals(2))
+    )
+}
+
+void arithmeticExpressionInBrackets(): {} {
+    positiveArithmeticExpressionInBrackets() | negativeArithmeticExpressionInBrackets()
+}
+
+void positiveArithmeticExpressionInBrackets(): {} {
+    [<PLUS>] simpleArithmeticExpressionInBrackets()
+}
+
+void negativeArithmeticExpressionInBrackets() #Negative: {} {
+    <MINUS> simpleArithmeticExpressionInBrackets()
+}
+
+void simpleArithmeticExpressionInBrackets() #Brackets: {} {
+    "(" arithmeticExpression() ")"
+}
+
+void arithmeticExpression(): {} {
+    arithmeticTerm() (LOOKAHEAD(2) ((<PLUS> arithmeticExpression() #Add(2)) | (<MINUS> arithmeticExpression() #Subtract(2))))*
+}
+
+/* changed to eliminate left recursion */
+void arithmeticTerm(): {} {
+    arithmeticFactor() (LOOKAHEAD(2) ((<TIMES> arithmeticTerm() #Multiply(2)) | (<DIV> arithmeticTerm() #Divide(2))))*
+}
+
+void arithmeticFactor(): {} {
+    LOOKAHEAD(2) numericPath() |
+    LOOKAHEAD(2) numericLiteral() | 
+    LOOKAHEAD(2) numericInputParameter() | 
+    LOOKAHEAD(3) arithmeticExpressionInBrackets() | 
+    LOOKAHEAD(2) functionsReturningNumerics() | 
+    LOOKAHEAD(2) aggregateSelectExpression() |    
+    LOOKAHEAD(3) numericSubqueryInBrackets()
+}
+
+void numericPath(): {} {
+    ([<PLUS>] path()) | negatedPath() 
+}
+
+void negatedPath() #Negative: {} {
+    <MINUS> path()
+}
+
+void numericInputParameter(): {} {
+    ([<PLUS>] inputParameter()) | negatedInputParameter()
+}
+
+void negatedInputParameter() #Negative: {} {
+    <MINUS> inputParameter()
+}
+
+void numericSubqueryInBrackets(): {} {
+    ([<PLUS>] subqueryInBrackets()) | negatedSubqueryInBrackets() 
+}
+
+void negatedSubqueryInBrackets() #Negative: {} {
+    <MINUS> subqueryInBrackets()
+} 
+
+void stringValue(): {} {
+    path() | functionsReturningStrings() | subqueryInBrackets()
+}
+
+void stringExpressionInBrackets() #Brackets: {} {
+    "(" stringExpression() ")"
+}
+
+void stringExpression(): {} {
+    inputParameter() | stringPrimary()
+}
+
+void stringPrimary(): {} {
+    stringLiteral() | path() | LOOKAHEAD(2) stringExpressionInBrackets() | 
+    functionsReturningStrings() | LOOKAHEAD(2) subqueryInBrackets()
+}
+
+void datetimeExpression(): {} {
+    datetimePrimary() | subqueryInBrackets()
+}
+
+void datetimePrimary(): {} {
+    path() | functionsReturningDatetime() | inputParameter()
+}
+
+void booleanValue(): {} {
+    path() | subqueryInBrackets()
+}
+
+void booleanExpression(): {} {
+    booleanPrimary() | subqueryInBrackets()
+}
+
+void booleanPrimary(): {} {
+    LOOKAHEAD(2) path() | booleanLiteral() | inputParameter()
+}
+
+void enumExpression(): {} {
+    enumPrimary() | subqueryInBrackets()
+}
+
+void enumPrimary(): {} {
+    LOOKAHEAD(2) path()
+    | LOOKAHEAD(enumLiteral()) enumLiteral()
+    | LOOKAHEAD(inputParameter()) inputParameter()
+}
+
+void enumLiteral(): {} {
+    path()
+}
+
+void entityBeanValue(): {} {
+    LOOKAHEAD(path()) path() | pathComponent()
+}
+
+void entityBeanExpression(): {} {
+    inputParameter() | entityBeanValue()
+}
+
+void functionsReturningStrings(): {} {
+    concat() | substring() | trim() | lower() | upper()
+}
+
+void concat() #Concat: {} {
+    <CONCAT> "(" stringExpression() <COMMA> stringExpression() ")"
+}
+
+void substring() #Substring: {} {
+    <SUBSTRING> "(" stringExpression() <COMMA> arithmeticExpression() <COMMA> arithmeticExpression() ")"
+}
+
+void trim() #Trim: {} {
+    <TRIM> "(" [LOOKAHEAD(2)[trimSpecification()] [trimCharacter()] <FROM>]
+        stringExpression() ")"
+}
+
+void lower() #Lower: {} {
+    <LOWER> "(" stringExpression() ")"
+}
+
+void upper() #Upper: {} {
+    <UPPER> "(" stringExpression() ")"
+}
+
+void trimSpecification(): {} {
+    LOOKAHEAD(2) (<LEADING> #TrimLeading) | (<TRAILING> #TrimTrailing) | (<BOTH> #TrimBoth)
+}
+
+void functionsReturningNumerics(): {} {
+    ([<PLUS>] positiveFunctionsReturningNumerics()) | negativeFunctionsReturningNumerics()
+}
+
+void positiveFunctionsReturningNumerics(): {} {
+    length() | locate() | abs() | sqrt() | mod() | size()
+}
+
+void negativeFunctionsReturningNumerics() #Negative: {} {
+    <MINUS> positiveFunctionsReturningNumerics()
+} 
+
+void length() #Length: {} {
+    <LENGTH> "(" stringExpression() ")"
+}
+
+void locate() #Locate: {} {
+    <LOCATE> "(" stringExpression() <COMMA> stringExpression()
+        [<COMMA> arithmeticExpression()] ")"
+}
+
+void abs() #Abs: {} {
+    <ABS> "(" arithmeticExpression() ")"
+}
+
+void sqrt() #Sqrt: {} {
+    <SQRT> "(" arithmeticExpression() ")"
+}
+
+void mod() #Mod: {} {
+    <MOD> "(" arithmeticExpression() <COMMA> arithmeticExpression() ")"
+}
+
+void size() #Size: {} {
+    <SIZE> "(" path() ")"
+}
+
+void functionsReturningDatetime(): {} {
+    (<CURRENT_DATE> #CurrentDate)
+    | (<CURRENT_TIME> #CurrentTime)
+    | (<CURRENT_TIMESTAMP> #CurrentTimestamp)
+}
+
+void orderByClause() #OrderBy: {} {
+    <ORDER> <BY> orderByItem() (<COMMA> orderByItem())* 
+}
+
+void orderByItem() #OrderByItem: {} {
+    path() [ <ASC> #Ascending | <DESC> #Descending ]
+}
+
+void abstractSchemaName() #AbstractSchemaName: {} {
+    pathComponent() (<DOT> pathComponent())*
+}
+
+void identificationVariable() #Identifier: {
+    Token token;
+}
+{
+    token = <IDENTIFIER> { jjtThis.setValue(token.image); }
+}
+
+void pathComponent() #IdentificationVariable: {
+    Token token;
+}
+{
+    // unlike the identifier(), the pathComponent() *can* be a
+    // reserved word. E.g., Order.group.length is a perfectly
+    // valid path expression
+    (
+    token = <NEW>
+    | token = <ALL>
+    | token = <ANY>
+    | token = <EXISTS>
+    | token = <SOME>
+    | token = <EMPTY>
+    | token = <ASC>
+    | token = <DESC>
+    | token = <ORDER>
+    | token = <IS>
+    | token = <MEMBER>
+    | token = <OF>
+    | token = <LIKE>
+    | token = <ESCAPE>
+    | token = <BETWEEN>
+    | token = <NULL>
+    | token = <AVG>
+    | token = <MIN>
+    | token = <MAX>
+    | token = <SUM>
+    | token = <COUNT>
+    | token = <OR>
+    | token = <AND>
+    | token = <NOT>
+    | token = <CONCAT>
+    | token = <SUBSTRING>
+    | token = <TRIM>
+    | token = <LOWER>
+    | token = <UPPER>
+    | token = <LEADING>
+    | token = <TRAILING>
+    | token = <BOTH>
+    | token = <LENGTH>
+    | token = <LOCATE>
+    | token = <ABS>
+    | token = <SQRT>
+    | token = <MOD>
+    | token = <SIZE>
+    | token = <CURRENT_DATE>
+    | token = <CURRENT_TIME>
+    | token = <CURRENT_TIMESTAMP>
+    | token = <SELECT>
+    | token = <DISTINCT>
+    | token = <FROM>
+    | token = <UPDATE>
+    | token = <DELETE>
+    | token = <WHERE>
+    | token = <GROUP>
+    | token = <BY>
+    | token = <HAVING>
+    | token = <AS>
+    | token = <LEFT>
+    | token = <OUTER>
+    | token = <INNER>
+    | token = <JOIN>
+    | token = <FETCH>
+    | token = <IN>
+    | token = <SET>
+    | token = <OBJECT>
+    | token = <IDENTIFIER>
+    ) { jjtThis.setValue(token.image); }
+}
+
+void numericLiteral(): {} {
+    LOOKAHEAD(decimalLiteral()) decimalLiteral() | integerLiteral()
+}
+
+void integerLiteral(): {} {
+    positiveIntegerLiteral() | negativeIntegerLiteral()
+}
+
+void positiveIntegerLiteral() #IntegerLiteral: {} {
+    [<PLUS>] token = <INTEGER_LITERAL> { jjtThis.setValue(token.image); }
+}
+
+void negativeIntegerLiteral() #IntegerLiteral: {
+    Token token;
+}
+{
+    <MINUS> token = <INTEGER_LITERAL> { jjtThis.setValue('-' + token.image); }
+}
+
+void decimalLiteral(): {} {
+    positiveDecimalLiteral() | negativeDecimalLiteral()
+}
+
+void positiveDecimalLiteral() #DecimalLiteral: {
+    Token token;
+}
+{
+     [<PLUS>] token = <DECIMAL_LITERAL> { jjtThis.setValue(token.image); }
+}
+
+void negativeDecimalLiteral() #DecimalLiteral: {
+    Token token;
+}
+{
+     <MINUS> token = <DECIMAL_LITERAL> { jjtThis.setValue('-' + token.image); }
+}
+
+void booleanLiteral() #BooleanLiteral: {
+    Token token;
+}
+{
+    token = <BOOLEAN_LITERAL> { jjtThis.setValue(token.image); }
+}
+
+void stringLiteral() #StringLiteral: {
+    Token token;
+}
+{
+    token = <STRING_LITERAL> { jjtThis.setValue(token.image); }
+}
+
+void inputParameter(): {} {
+    namedInputParameter() | positionalInputParameter()
+}
+
+void namedInputParameter() #NamedInputParameter: {
+    Token token;
+}
+{
+    ":" token = <IDENTIFIER> { jjtThis.setValue(token.image); }
+}
+
+void positionalInputParameter() #PositionalInputParameter: {
+    Token token;
+}
+{
+    "?" token = <INTEGER_LITERAL> { jjtThis.setValue(token.image); }
+}
+
+void patternValue() #PatternValue: {} {
+    inputParameter() | stringLiteral()
+    [(<ESCAPE> escapeCharacter() #EscapeCharacter)]
+}
+
+void escapeCharacter() #EscapeCharacter :
+{ Token token; }
+{
+    token = <STRING_LITERAL> { jjtThis.setValue(token.image); }
+}
+
+void trimCharacter() #TrimCharacter :
+{ Token token; }
+{
+    token = <STRING_LITERAL> { jjtThis.setValue(token.image); }
+}
