@@ -44,7 +44,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * <strong>Note: This class is not thread-safe. Instances of this class may only be used on a single thread.</strong>
  * @author Arne Limburg
  */
 public class QueryFilter {
@@ -178,9 +177,9 @@ public class QueryFilter {
     }
     
     private int replaceNamedParameters(Node node, String oldNamedParameter, String newNamedParameter) {
-        namedParameterReplacer.replace(oldNamedParameter, newNamedParameter);
-        node.visit(namedParameterReplacer);
-        return namedParameterReplacer.getReplacements();
+        ReplacementParameters parameters = new ReplacementParameters(oldNamedParameter, newNamedParameter);
+        node.visit(namedParameterReplacer, parameters);
+        return parameters.getReplacementCount();
     }
     
     private class FilteredAccessRules extends AbstractSet<AccessRule> {
@@ -245,28 +244,42 @@ public class QueryFilter {
         }
     }
     
-    private class NamedParameterReplacer extends JpqlVisitorAdapter {
+    private class NamedParameterReplacer extends JpqlVisitorAdapter<ReplacementParameters> {
         
-        private String oldNamedParameter;
-        private String newNamedParameter;
-        private int replacements;
-        
-        public void replace(String oldNamedParameter, String newNamedParameter) {
-            this.oldNamedParameter = oldNamedParameter;
-            this.newNamedParameter = newNamedParameter;
-            this.replacements = 0;
-        }
-        
-        public int getReplacements() {
-            return replacements;
-        }
-        
-        public boolean visit(JpqlNamedInputParameter node, Object data) {
-            if (oldNamedParameter.equals(node.getValue())) {
-                node.setValue(newNamedParameter);
-                replacements++;
+        public boolean visit(JpqlNamedInputParameter node, ReplacementParameters replacement) {
+            if (replacement.getOldNamedParameter().equals(node.getValue())) {
+                node.setValue(replacement.getNewNamedParameter());
+                replacement.incrementReplacementCount();
             }
             return true;
+        }
+    }
+    
+    private class ReplacementParameters {
+
+        private String oldNamedParameter;
+        private String newNamedParameter;
+        private int replacementCount;
+        
+        public ReplacementParameters(String oldNamedParameter, String newNamedParameter) {
+            this.oldNamedParameter = oldNamedParameter;
+            this.newNamedParameter = newNamedParameter;
+        }
+        
+        public String getOldNamedParameter() {
+            return oldNamedParameter;
+        }
+        
+        public String getNewNamedParameter() {
+            return newNamedParameter;
+        }
+        
+        public int getReplacementCount() {
+            return replacementCount;
+        }
+        
+        public void incrementReplacementCount() {
+            replacementCount++;
         }
     }
 }

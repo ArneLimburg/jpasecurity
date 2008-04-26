@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
 package net.sf.jpasecurity.security.rules;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
@@ -41,7 +39,6 @@ import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 
 /**
- * <strong>Note: This class is not thread-safe. Instances of this class may only be used on a single thread.</strong>
  * @author Arne Limburg
  */
 public class QueryPreparator {
@@ -94,9 +91,9 @@ public class QueryPreparator {
     
     public AccessRule expand(AccessRule accessRule, int roleCount) {
         accessRule = (AccessRule)accessRule.clone();
-        inRolesVisitor.reset();
-        accessRule.getStatement().visit(inRolesVisitor);
-        for (JpqlIn inRole: inRolesVisitor.getInRoles()) {
+        List<JpqlIn> inRoles = new ArrayList<JpqlIn>();
+        accessRule.getStatement().visit(inRolesVisitor, inRoles);
+        for (JpqlIn inRole: inRoles) {
             if (roleCount == 0) {
                 replace(inRole, createNotEquals(createNumber(1), createNumber(1)));
             } else {
@@ -267,7 +264,7 @@ public class QueryPreparator {
     }
     
     public void replace(Node node, String oldPath, String newPath) {
-        node.visit(pathReplacer, new Replacer(oldPath.split("\\."), newPath.split("\\.")));
+        node.visit(pathReplacer, new ReplaceParameters(oldPath.split("\\."), newPath.split("\\.")));
     }
     
     private int getIndex(Node parent, Node child) {
@@ -279,15 +276,9 @@ public class QueryPreparator {
         return -1;
     }
     
-    private class InRolesVisitor extends JpqlVisitorAdapter {
+    private class InRolesVisitor extends JpqlVisitorAdapter<List<JpqlIn>> {
 
-        private List<JpqlIn> inRoles = new ArrayList<JpqlIn>();
-        
-        public Collection<JpqlIn> getInRoles() {
-            return inRoles;
-        }
-        
-        public boolean visit(JpqlIn node, Object data) {
+        public boolean visit(JpqlIn node, List<JpqlIn> inRoles) {
             if (node.jjtGetChild(1) instanceof JpqlNamedInputParameter) {
                 JpqlNamedInputParameter namedInputParameter = (JpqlNamedInputParameter)node.jjtGetChild(1);
                 if (AccessRule.DEFAULT_ROLES_PARAMETER_NAME.equals(namedInputParameter.getValue())) {
@@ -296,54 +287,60 @@ public class QueryPreparator {
             }
             return true;
         }
-        
-        public void reset() {
-            inRoles.clear();
-        }
     }
     
-    private class PathReplacer extends JpqlVisitorAdapter {
+    private class PathReplacer extends JpqlVisitorAdapter<ReplaceParameters> {
         
-        public boolean visit(JpqlPath path, Object replacer) {
-            ((Replacer)replacer).replace(path);
+        public boolean visit(JpqlPath path, ReplaceParameters parameters) {
+            if (canReplace(path, parameters)) {
+                replace(path, parameters);
+            }
             return false;
         }
-    }
-    
-    private class Replacer {
-        
-        private String[] oldPath;
-        private String[] newPath;
-        
-        public Replacer(String[] oldPath, String[] newPath) {
-            this.oldPath = oldPath;
-            this.newPath = newPath;
-        }
-        
-        public boolean canReplace(JpqlPath path) {
-            if (path.jjtGetNumChildren() < oldPath.length) {
+
+        private boolean canReplace(JpqlPath path, ReplaceParameters parameters) {
+            if (path.jjtGetNumChildren() < parameters.getOldPath().length) {
                 return false;
             }
-            for (int i = 0; i < oldPath.length; i++) {
-                if (!((JpqlIdentificationVariable)path.jjtGetChild(i)).getValue().equals(oldPath[i])) {
+            for (int i = 0; i < parameters.getOldPath().length; i++) {
+                if (!((JpqlIdentificationVariable)path.jjtGetChild(i)).getValue().equals(parameters.getOldPath()[i])) {
                     return false;
                 }
             }
             return true;
         }
         
-        public void replace(JpqlPath path) {
-            int index = oldPath.length - newPath.length;
+        private void replace(JpqlPath path, ReplaceParameters parameters) {
+            int index = parameters.getOldPath().length - parameters.getNewPath().length;
             while (index < 0) {
                 path.jjtRemoveChild(0);
                 index++;
             }
             for (int i = 0; i < index; i++) {
-                ((JpqlIdentifier)path.jjtGetChild(i)).setValue(newPath[i]);
+                ((JpqlIdentifier)path.jjtGetChild(i)).setValue(parameters.getNewPath()[i]);
             }
-            for (; index < newPath.length; index++) {
-                ((JpqlIdentifier)path.jjtGetChild(index)).setValue(newPath[index]);
+            for (; index < parameters.getNewPath().length; index++) {
+                ((JpqlIdentifier)path.jjtGetChild(index)).setValue(parameters.getNewPath()[index]);
             }
+        }
+    }
+    
+    private class ReplaceParameters {
+        
+        private String[] oldPath;
+        private String[] newPath;
+        
+        public ReplaceParameters(String[] oldPath, String[] newPath) {
+            this.oldPath = oldPath;
+            this.newPath = newPath;
+        }
+        
+        public String[] getOldPath() {
+            return oldPath;
+        }
+        
+        public String[] getNewPath() {
+            return newPath;
         }
     }
 }
