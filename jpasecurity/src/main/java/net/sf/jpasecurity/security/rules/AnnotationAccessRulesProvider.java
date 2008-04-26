@@ -118,12 +118,12 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
         return pathVisitor;
     }
     
-    private class PathVisitor extends JpqlVisitorAdapter {
+    private class PathVisitor extends JpqlVisitorAdapter<String> {
         
-        private QueryPreparator queryPreparator = new QueryPreparator();
+        private final QueryPreparator queryPreparator = new QueryPreparator();
         
-        public boolean visit(JpqlPath path, Object alias) {
-            queryPreparator.prepend(alias.toString(), path);
+        public boolean visit(JpqlPath path, String alias) {
+            queryPreparator.prepend(alias, path);
             return true;
         }
     }

@@ -43,7 +43,6 @@ import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.rules.AccessRule;
 
 /**
- * <strong>Note: This class is not thread-safe. Instances of this class may only be used on a single thread.</strong>
  * @author Arne Limburg
  */
 public class JpqlCompiler {
@@ -105,147 +104,99 @@ public class JpqlCompiler {
     }
     
     public List<String> getSelectedPaths(Node node) {
-    	selectVisitor.reset();
-    	node.visit(selectVisitor);
-    	return selectVisitor.getSelectedPaths();
+        List<String> selectedPaths = new ArrayList<String>();
+        node.visit(selectVisitor, selectedPaths);
+    	return selectedPaths;
     }
     
     public Map<String, Class<?>> getAliasTypes(Node node) {
-    	aliasVisitor.reset();
-    	node.visit(aliasVisitor);
-    	return aliasVisitor.getAliasTypes();
+        Map<String, Class<?>> aliasTypes = new HashMap<String, Class<?>>();
+    	node.visit(aliasVisitor, aliasTypes);
+    	return aliasTypes;
     }
     
     public Set<String> getNamedParameters(Node node) {
-        namedParameterVisitor.reset();
-        node.visit(namedParameterVisitor);
-        return namedParameterVisitor.getNamedParameters();
+        Set<String> namedParameters = new HashSet<String>();
+        node.visit(namedParameterVisitor, namedParameters);
+        return namedParameters;
     }
     
     public Set<String> getPositionalParameters(Node node) {
-        positionalParameterVisitor.reset();
-        node.visit(positionalParameterVisitor);
-        return positionalParameterVisitor.getPositionalParameters();
+        Set<String> positionalParameters = new HashSet<String>();
+        node.visit(positionalParameterVisitor, positionalParameters);
+        return positionalParameters;
     }
     
-    private class SelectVisitor extends JpqlVisitorAdapter {
+    private class SelectVisitor extends JpqlVisitorAdapter<List<String>> {
 
-    	private List<String> selectedPaths = new ArrayList<String>();
         private final ToStringVisitor toStringVisitor = new ToStringVisitor();
 
-        public List<String> getSelectedPaths() {
-        	return new ArrayList<String>(selectedPaths);
-        }
-        
-    	public boolean visit(JpqlSelectExpression node, Object data) {
+    	public boolean visit(JpqlSelectExpression node, List<String> selectedPaths) {
     		toStringVisitor.reset();
     		node.visit(toStringVisitor);
     		selectedPaths.add(toStringVisitor.toString());
     		return false;
         }
     	
-        public boolean visit(JpqlSubselect node, Object data) {
+        public boolean visit(JpqlSubselect node, List<String> selectedPaths) {
             return false;
         }
-
-        public void reset() {
-    		selectedPaths.clear();
-    	}
     }
     
-    private class AliasVisitor extends JpqlVisitorAdapter {
+    private class AliasVisitor extends JpqlVisitorAdapter<Map<String, Class<?>>> {
      
-        private Map<String, Class<?>> aliasTypes = new HashMap<String, Class<?>>();
-        private final ToStringVisitor toStringVisitor = new ToStringVisitor();
-
-        public Map<String, Class<?>> getAliasTypes() {
-            return new HashMap<String, Class<?>>(aliasTypes);
-        }
-        
-        public boolean visit(JpqlFromItem node, Object data) {
-            toStringVisitor.reset();
-            node.jjtGetChild(0).visit(toStringVisitor);
-            String abstractSchemaName = toStringVisitor.toString();
-            toStringVisitor.reset();
-            node.jjtGetChild(1).visit(toStringVisitor);
-            String alias = toStringVisitor.toString();
+        public boolean visit(JpqlFromItem node, Map<String, Class<?>> aliasTypes) {
+            String abstractSchemaName = node.jjtGetChild(0).toString();
+            String alias = node.jjtGetChild(1).toString();
             Class<?> type = mappingInformation.getClassMapping(abstractSchemaName.trim()).getEntityType();
             aliasTypes.put(alias, type);
     		return false;
         }
 
-        public boolean visit(JpqlInnerJoin node, Object data) {
-        	return visitFetch(node);
+        public boolean visit(JpqlInnerJoin node, Map<String, Class<?>> aliasTypes) {
+        	return visitFetch(node, aliasTypes);
         }
 
-        public boolean visit(JpqlOuterJoin node, Object data) {
-        	return visitFetch(node);
+        public boolean visit(JpqlOuterJoin node, Map<String, Class<?>> aliasTypes) {
+        	return visitFetch(node, aliasTypes);
         }
 
-        public boolean visit(JpqlOuterFetchJoin node, Object data) {
-        	return visitFetch(node);
+        public boolean visit(JpqlOuterFetchJoin node, Map<String, Class<?>> aliasTypes) {
+        	return visitFetch(node, aliasTypes);
         }
 
-        public boolean visit(JpqlInnerFetchJoin node, Object data) {
-        	return visitFetch(node);
+        public boolean visit(JpqlInnerFetchJoin node, Map<String, Class<?>> aliasTypes) {
+        	return visitFetch(node, aliasTypes);
         }
         
-        private boolean visitFetch(Node node) {
+        private boolean visitFetch(Node node, Map<String, Class<?>> aliasTypes) {
         	if (node.jjtGetNumChildren() > 1) {
-        		toStringVisitor.reset();
-        		node.jjtGetChild(0).visit(toStringVisitor);
-        		String fetchPath = toStringVisitor.toString();        	
-        		toStringVisitor.reset();
-        		node.jjtGetChild(1).visit(toStringVisitor);
-        		String alias = toStringVisitor.toString();        		
+        		String fetchPath = node.jjtGetChild(0).toString();        	
+        		String alias = node.jjtGetChild(1).toString();        		
         		Class type = getType(fetchPath, aliasTypes);
         		aliasTypes.put(alias, type);
         	}
             return false;        	
         }
 
-        public boolean visit(JpqlSubselect node, Object data) {
+        public boolean visit(JpqlSubselect node, Map<String, Class<?>> aliasTypes) {
             return false;
-        }
-
-        public void reset() {
-            aliasTypes.clear();
         }
     }
     
-    private class NamedParameterVisitor extends JpqlVisitorAdapter {
+    private class NamedParameterVisitor extends JpqlVisitorAdapter<Set<String>> {
         
-        private Set<String> namedParameters = new HashSet<String>();
-        
-        public Set<String> getNamedParameters() {
-            return new HashSet<String>(namedParameters);
-        }
-        
-        public boolean visit(JpqlNamedInputParameter node, Object data) {
+        public boolean visit(JpqlNamedInputParameter node, Set<String> namedParameters) {
             namedParameters.add(node.getValue());
             return true;
         }
-
-        private void reset() {
-            namedParameters.clear();
-        }
     }
     
-    private class PositionalParameterVisitor extends JpqlVisitorAdapter {
+    private class PositionalParameterVisitor extends JpqlVisitorAdapter<Set<String>> {
 
-        private Set<String> positionalParameters = new HashSet<String>();
-        
-        public Set<String> getPositionalParameters() {
-            return new HashSet<String>(positionalParameters);
-        }
-        
-        public boolean visit(JpqlPositionalInputParameter node, Object data) {
+        public boolean visit(JpqlPositionalInputParameter node, Set<String> positionalParameters) {
             positionalParameters.add(node.getValue());
             return true;
-        }
-
-        private void reset() {
-            positionalParameters.clear();
         }
     }
 }

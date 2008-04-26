@@ -27,6 +27,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.SimpleNode;
+import net.sf.jpasecurity.util.ValueHolder;
 
 /**
  * @author Arne Limburg
@@ -69,8 +70,9 @@ public class JpqlCompiledStatement implements Cloneable {
     public JpqlFrom getFromClause() {
         if (fromClause == null) {
             FromVisitor visitor = new FromVisitor();
-            statement.visit(visitor);
-            fromClause = visitor.getFromClause();
+            ValueHolder<JpqlFrom> fromClauseHolder = new ValueHolder<JpqlFrom>();
+            statement.visit(visitor, fromClauseHolder);
+            fromClause = fromClauseHolder.getValue();
         }
         return fromClause;    	
     }
@@ -78,8 +80,9 @@ public class JpqlCompiledStatement implements Cloneable {
     public JpqlWhere getWhereClause() {
         if (whereClause == null) {
             WhereVisitor visitor = new WhereVisitor();
-            statement.visit(visitor);
-            whereClause = visitor.getWhereClause();
+            ValueHolder<JpqlWhere> whereClauseHolder = new ValueHolder<JpqlWhere>();
+            statement.visit(visitor, whereClauseHolder);
+            whereClause = whereClauseHolder.getValue();
         }
         return whereClause;
     }
@@ -102,39 +105,27 @@ public class JpqlCompiledStatement implements Cloneable {
         return getClass() + "[\"" + statement.toString() + "\"]";
     }
     
-    private class FromVisitor extends JpqlVisitorAdapter {
+    private class FromVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlFrom>> {
         
-        private JpqlFrom fromClause;
-        
-        public boolean visit(JpqlFrom fromClause, Object data) {
-            this.fromClause = fromClause;
+        public boolean visit(JpqlFrom fromClause, ValueHolder<JpqlFrom> fromClauseHolder) {
+            fromClauseHolder.setValue(fromClause);
             return false;
         }
         
-        public boolean visit(JpqlSubselect node, Object data) {
+        public boolean visit(JpqlSubselect node, ValueHolder<JpqlFrom> fromClauseHolder) {
             return false;
-        }
-
-        public JpqlFrom getFromClause() {
-            return fromClause;
         }
     }
 
-    private class WhereVisitor extends JpqlVisitorAdapter {
+    private class WhereVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlWhere>> {
         
-        private JpqlWhere whereClause;
-        
-        public boolean visit(JpqlWhere whereClause, Object data) {
-            this.whereClause = whereClause;
+        public boolean visit(JpqlWhere whereClause, ValueHolder<JpqlWhere> whereClauseHolder) {
+            whereClauseHolder.setValue(whereClause);
             return false;
         }
         
-        public boolean visit(JpqlSubselect node, Object data) {
+        public boolean visit(JpqlSubselect node, ValueHolder<JpqlWhere> whereClauseHolder) {
             return false;
-        }
-
-        public JpqlWhere getWhereClause() {
-            return whereClause;
         }
     }
 }
