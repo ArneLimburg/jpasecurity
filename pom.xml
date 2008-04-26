@@ -44,9 +44,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/</connection>
-    <developerConnection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/</developerConnection>
-    <url>http://jpasecurity.svn.sourceforge.net/viewvc/jpasecurity/trunk/</url>
+    <connection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/jpasecurity/</connection>
+    <developerConnection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/jpasecurity/</developerConnection>
+    <url>http://jpasecurity.svn.sourceforge.net/viewvc/jpasecurity/trunk/jpasecurity/</url>
   </scm>
   <organization>
     <name>JPA Security</name>
