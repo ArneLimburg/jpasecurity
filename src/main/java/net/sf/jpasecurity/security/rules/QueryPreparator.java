@@ -37,6 +37,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlSelectExpressions;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
+import net.sf.jpasecurity.jpql.parser.SimpleNode;
 
 /**
  * @author Arne Limburg
@@ -303,7 +304,7 @@ public class QueryPreparator {
                 return false;
             }
             for (int i = 0; i < parameters.getOldPath().length; i++) {
-                if (!((JpqlIdentificationVariable)path.jjtGetChild(i)).getValue().equals(parameters.getOldPath()[i])) {
+                if (!parameters.getOldPath()[i].equals(((SimpleNode)path.jjtGetChild(i)).getValue())) {
                     return false;
                 }
             }
@@ -317,10 +318,10 @@ public class QueryPreparator {
                 index++;
             }
             for (int i = 0; i < index; i++) {
-                ((JpqlIdentifier)path.jjtGetChild(i)).setValue(parameters.getNewPath()[i]);
+                ((SimpleNode)path.jjtGetChild(i)).setValue(parameters.getNewPath()[i]);
             }
             for (; index < parameters.getNewPath().length; index++) {
-                ((JpqlIdentifier)path.jjtGetChild(index)).setValue(parameters.getNewPath()[index]);
+                ((SimpleNode)path.jjtGetChild(index)).setValue(parameters.getNewPath()[index]);
             }
         }
     }
