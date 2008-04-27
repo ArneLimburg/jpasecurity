@@ -96,7 +96,7 @@ public abstract class AbstractMappingParser {
         } else if (isCollectionValuedRelationshipProperty(property)) {
             ClassMappingInformation targetMapping = parse(getTargetType(property));
             return new CollectionValuedRelationshipMappingInformation(name, type, targetMapping, classMapping);
-        } else if (isSimpePropertyType(type)) {
+        } else if (isSimplePropertyType(type)) {
             return new SimplePropertyMappingInformation(name, type, classMapping);
         } else {
             throw new PersistenceException("could not determine mapping for property \"" + name + "\" of class " + property.getDeclaringClass().getName());
@@ -177,7 +177,7 @@ public abstract class AbstractMappingParser {
         return !Modifier.isStatic(member.getModifiers()) && !Modifier.isTransient(member.getModifiers());
     }
     
-    protected boolean isSimpePropertyType(Class<?> type) {
+    protected boolean isSimplePropertyType(Class<?> type) {
         return isEmbeddable(type)
             || type.isPrimitive()
             || type.equals(Boolean.class)
