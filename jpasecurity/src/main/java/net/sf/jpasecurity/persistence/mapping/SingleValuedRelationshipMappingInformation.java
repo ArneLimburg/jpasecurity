@@ -22,7 +22,8 @@ public class SingleValuedRelationshipMappingInformation extends RelationshipMapp
 
     SingleValuedRelationshipMappingInformation(String propertyName,
                                                ClassMappingInformation relatedClassMapping,
-                                               ClassMappingInformation declaringClassMapping) {
-        super(propertyName, relatedClassMapping, declaringClassMapping);
+                                               ClassMappingInformation declaringClassMapping,
+                                               boolean isIdProperty) {
+        super(propertyName, relatedClassMapping, declaringClassMapping, isIdProperty);
     }
 }

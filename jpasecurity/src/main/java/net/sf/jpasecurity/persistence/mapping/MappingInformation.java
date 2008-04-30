@@ -62,7 +62,12 @@ public class MappingInformation {
     }
 
     public ClassMappingInformation getClassMapping(Class<?> entityType) {
-        return entityTypeMappings.get(entityType);
+        ClassMappingInformation classMapping = entityTypeMappings.get(entityType);
+        while (classMapping == null && entityType != null) {
+            entityType = entityType.getSuperclass();
+            classMapping = entityTypeMappings.get(entityType);
+        }
+        return classMapping;
     }
     
     public ClassMappingInformation getClassMapping(String entityName) {

@@ -15,6 +15,10 @@
  */
 package net.sf.jpasecurity.persistence.mapping;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import javax.persistence.PersistenceException;
 
 /**
@@ -22,10 +26,13 @@ import javax.persistence.PersistenceException;
  */
 public abstract class PropertyMappingInformation {
 
+    private static final String GET_METHOD_PREFIX = "get";
+    
     private String name;
     private ClassMappingInformation containingClassMapping;
+    private boolean idProperty;
 
-    PropertyMappingInformation(String propertyName, ClassMappingInformation classMapping) {
+    PropertyMappingInformation(String propertyName, ClassMappingInformation classMapping, boolean isIdProperty) {
         if (propertyName == null) {
             throw new IllegalArgumentException("property name not specified");
         }
@@ -34,13 +41,51 @@ public abstract class PropertyMappingInformation {
         }
         name = propertyName;
         containingClassMapping = classMapping;
+        idProperty = isIdProperty;
     }
 
+    public boolean isIdProperty() {
+        return idProperty;
+    }
+    
     public String getPropertyName() {
         return name;
     }
     
     public abstract Class<?> getProperyType();
+    
+    public Object getPropertyValue(Object target) {
+        ClassMappingInformation classMapping = getContainingClassMapping();
+        if (classMapping.usesFieldAccess()) {
+            try {
+                Field field = classMapping.getEntityType().getDeclaredField(getPropertyName());
+                field.setAccessible(true);
+                return field.get(target);
+            } catch (NoSuchFieldException e) {
+                throw new PersistenceException(e);
+            } catch (IllegalAccessException e) {
+                throw new PersistenceException(e);
+            }
+        } else {
+            try {
+                String propertyName = getPropertyName();
+                String methodName = GET_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
+                Method method = classMapping.getEntityType().getDeclaredMethod(methodName);
+                method.setAccessible(true);
+                return method.invoke(target, (Object[])null);
+            } catch (NoSuchMethodException e) {
+                throw new PersistenceException(e);
+            } catch (IllegalAccessException e) {
+                throw new PersistenceException(e);
+            } catch (InvocationTargetException e) {
+                if (e.getTargetException() instanceof RuntimeException) {
+                    throw (RuntimeException)e.getTargetException();
+                } else {
+                    throw new PersistenceException(e.getTargetException());
+                }
+            }            
+        }
+    }
 
     public ClassMappingInformation getContainingClassMapping() {
         return containingClassMapping;
