@@ -110,6 +110,9 @@ public class SimpleContactsTest extends TestCase {
             List<User> users = entityManager.createQuery("SELECT user FROM User user").getResultList();
             entityManager.getTransaction().commit();
             return users;
+        } catch (RuntimeException e) {
+            entityManager.getTransaction().rollback();
+            throw e;
         } finally {
             entityManager.close();
         }
@@ -124,9 +127,12 @@ public class SimpleContactsTest extends TestCase {
                                            .getSingleResult();
             entityManager.getTransaction().commit();
             return user;
+        } catch (RuntimeException e) {
+            entityManager.getTransaction().rollback();
+            throw e;
         } finally {
             entityManager.close();
-        }        
+        }
     }
     
     public List<Contact> getAllContacts() {
@@ -136,6 +142,9 @@ public class SimpleContactsTest extends TestCase {
             List<Contact> contacts = entityManager.createQuery("SELECT contact FROM Contact contact").getResultList();
             entityManager.getTransaction().commit();
             return contacts;
+        } catch (RuntimeException e) {
+            entityManager.getTransaction().rollback();
+            throw e;
         } finally {
             entityManager.close();
         }
