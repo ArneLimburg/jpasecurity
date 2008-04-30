@@ -19,6 +19,8 @@ import java.lang.reflect.Member;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.PersistenceException;
+
 import net.sf.jpasecurity.xml.XmlNodeList;
 
 import org.w3c.dom.Document;
@@ -50,6 +52,11 @@ public class OrmXmlParser extends AbstractMappingParser {
      * The tag name for attributes
      */
     public static final String ATTRIBUTES_TAG_NAME = "attributes";
+
+    /**
+     * The tag name for id classes
+     */
+    public static final String ID_CLASS_TAG_NAME = "id-class";
 
     /**
      * The tag name for embedded ids
@@ -87,12 +94,12 @@ public class OrmXmlParser extends AbstractMappingParser {
     public static final String TRANSIENT_TAG_NAME = "transient";
 
     /**
-     * The tag name for classes
+     * The attribute name for classes
      */
     public static final String CLASS_ATTRIBUTE_NAME = "class";
 
     /**
-     * The tag name for names
+     * The attribute name for names
      */
     public static final String NAME_ATTRIBUTE_NAME = "name";
 
@@ -122,6 +129,20 @@ public class OrmXmlParser extends AbstractMappingParser {
         return embeddableNodes;
     }
 
+    protected Class<?> getIdClass(Class<?> entityClass, boolean useFieldAccess) {
+        Node entityNode = getEntityNode(entityClass);
+        XmlNodeList childNodes = new XmlNodeList(entityNode.getChildNodes());
+        List<Node> idClassNodes = childNodes.subList(ID_CLASS_TAG_NAME, "");
+        if (idClassNodes.size() > 0) {
+            try {
+                return Class.forName(idClassNodes.get(0).getAttributes().getNamedItem(CLASS_ATTRIBUTE_NAME).getTextContent());
+            } catch (ClassNotFoundException e) {
+                throw new PersistenceException(e);
+            }
+        }
+        return null;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -155,9 +176,25 @@ public class OrmXmlParser extends AbstractMappingParser {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    protected boolean isIdProperty(Member property) {
+        String name = getName(property);
+        Node entityNode = getEntityNode(property.getDeclaringClass());
+        XmlNodeList childNodes = new XmlNodeList(entityNode.getChildNodes());
+        List<Node> idNodes = childNodes.subList(ID_TAG_NAME, "");
+        for (Node id: idNodes) {
+            if (name.equals(id.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getTextContent())) {
+                return true;
+            }
+        }
+        List<Node> embeddedIdNodes = childNodes.subList(EMBEDDED_ID_TAG_NAME, "");
+        for (Node embeddedId: embeddedIdNodes) {
+            if (name.equals(embeddedId.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getTextContent())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected boolean isSingleValuedRelationshipProperty(Member property) {
         String name = getName(property);
         Node classNode = getMappedClassNode(property.getDeclaringClass());
@@ -196,13 +233,22 @@ public class OrmXmlParser extends AbstractMappingParser {
         }
         return false;
     }
-
-    private Node getMappedClassNode(Class<?> mappedClass) {
-        List<Node> nodes = entityNodes.subList(CLASS_ATTRIBUTE_NAME, mappedClass.getName());
-        if (!nodes.isEmpty()) {
+    
+    private Node getEntityNode(Class<?> entityClass) {
+        List<Node> nodes = entityNodes.subList(CLASS_ATTRIBUTE_NAME, entityClass.getName());
+        if (nodes.isEmpty()) {
+            return null;
+        } else {
             return nodes.get(0);
         }
-        nodes = superclassNodes.subList(CLASS_ATTRIBUTE_NAME, mappedClass.getName());
+    }
+
+    private Node getMappedClassNode(Class<?> mappedClass) {
+        Node entityClassNode = getEntityNode(mappedClass);
+        if (entityClassNode != null) {
+            return entityClassNode;
+        }
+        List<Node> nodes = superclassNodes.subList(CLASS_ATTRIBUTE_NAME, mappedClass.getName());
         if (!nodes.isEmpty()) {
             return nodes.get(0);
         }

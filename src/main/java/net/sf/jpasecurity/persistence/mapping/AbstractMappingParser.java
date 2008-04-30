@@ -40,7 +40,7 @@ import javax.persistence.PersistenceException;
  */
 public abstract class AbstractMappingParser {
 
-    private static final String READ_PROPERTY_PREFIX = "get";
+    public static final String READ_PROPERTY_PREFIX = "get";
 
     private Map<Class<?>, ClassMappingInformation> classMappings;
 
@@ -63,8 +63,16 @@ public abstract class AbstractMappingParser {
                 } else {
                     usesFieldAccess = usesFieldAccess(mappedClass);
                 }
+                Class<?> idClass = null;
+                if (superclassMapping == null || superclassMapping.getIdClass() == null) {
+                    idClass = getIdClass(mappedClass, usesFieldAccess);
+                }
                 //TODO add extracting of the entity name here
-                classMapping = new ClassMappingInformation(mappedClass.getSimpleName(), mappedClass, superclassMapping);
+                classMapping = new ClassMappingInformation(mappedClass.getSimpleName(),
+                                                           mappedClass,
+                                                           superclassMapping,
+                                                           idClass,
+                                                           usesFieldAccess);
                 classMappings.put(mappedClass, classMapping);
                 if (usesFieldAccess) {
                     for (Field field: mappedClass.getDeclaredFields()) {
@@ -90,14 +98,15 @@ public abstract class AbstractMappingParser {
         String name = getName(property);
         Class<?> type = getType(property);
         ClassMappingInformation classMapping = parse(property.getDeclaringClass());
+        boolean isIdProperty = isIdProperty(property);
         if (isSingleValuedRelationshipProperty(property)) {
             ClassMappingInformation typeMapping = parse(type);
-            return new SingleValuedRelationshipMappingInformation(name, typeMapping, classMapping);
+            return new SingleValuedRelationshipMappingInformation(name, typeMapping, classMapping, isIdProperty);
         } else if (isCollectionValuedRelationshipProperty(property)) {
             ClassMappingInformation targetMapping = parse(getTargetType(property));
-            return new CollectionValuedRelationshipMappingInformation(name, type, targetMapping, classMapping);
+            return new CollectionValuedRelationshipMappingInformation(name, type, targetMapping, classMapping, isIdProperty);
         } else if (isSimplePropertyType(type)) {
-            return new SimplePropertyMappingInformation(name, type, classMapping);
+            return new SimplePropertyMappingInformation(name, type, classMapping, isIdProperty);
         } else {
             throw new PersistenceException("could not determine mapping for property \"" + name + "\" of class " + property.getDeclaringClass().getName());
         }
@@ -105,7 +114,7 @@ public abstract class AbstractMappingParser {
 
     protected String getName(Member property) {
         if (property instanceof Method) {
-            return Character.toUpperCase(property.getName().charAt(3)) + property.getName().substring(4);
+            return Character.toLowerCase(property.getName().charAt(3)) + property.getName().substring(4);
         } else {
             return property.getName();
         }
@@ -172,6 +181,8 @@ public abstract class AbstractMappingParser {
     protected abstract boolean isMapped(Class<?> mappedClass);
 
     protected abstract boolean isMapped(Member member);
+    
+    protected abstract Class<?> getIdClass(Class<?> entityClass, boolean usesFieldAccess);
 
     protected boolean isMappable(Member member) {
         return !Modifier.isStatic(member.getModifiers()) && !Modifier.isTransient(member.getModifiers());
@@ -206,6 +217,8 @@ public abstract class AbstractMappingParser {
     
     protected abstract boolean isEmbeddable(Class<?> type);
 
+    protected abstract boolean isIdProperty(Member property);
+    
     protected boolean isRelationshipProperty(Member property) {
         return isSingleValuedRelationshipProperty(property) || isCollectionValuedRelationshipProperty(property);
     }

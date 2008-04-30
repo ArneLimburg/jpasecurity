@@ -27,8 +27,9 @@ public class CollectionValuedRelationshipMappingInformation extends Relationship
     CollectionValuedRelationshipMappingInformation(String propertyName,
                                                    Class<?> collectionType,
                                                    ClassMappingInformation relatedClassMapping,
-                                                   ClassMappingInformation declaringClassMapping) {
-        super(propertyName, relatedClassMapping, declaringClassMapping);
+                                                   ClassMappingInformation declaringClassMapping,
+                                                   boolean isIdProperty) {
+        super(propertyName, relatedClassMapping, declaringClassMapping, isIdProperty);
         if (collectionType == null) {
             throw new PersistenceException("could not determine collection type of property \"" + propertyName + "\" of class " + declaringClassMapping.getEntityName());
         }

@@ -16,7 +16,9 @@
 package net.sf.jpasecurity.persistence.mapping;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import javax.persistence.Basic;
@@ -27,6 +29,7 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -46,6 +49,15 @@ public class JpaAnnotationParser extends AbstractMappingParser {
 
     public JpaAnnotationParser(Map<Class<?>, ClassMappingInformation> classMappings) {
         super(classMappings);
+    }
+    
+    protected Class<?> getIdClass(Class<?> entityClass, boolean usesFieldAccess) {
+        IdClass idClass = entityClass.getAnnotation(IdClass.class);
+        if (idClass == null) {
+            return null;
+        } else {
+            return idClass.value();
+        }
     }
 
     protected Class<?> getTargetType(Member property) {
@@ -86,6 +98,30 @@ public class JpaAnnotationParser extends AbstractMappingParser {
 
     protected boolean isEmbeddable(Class<?> type) {
         return type.isAnnotationPresent(Embeddable.class);
+    }
+
+    protected boolean isIdProperty(Member property) {
+        if (property instanceof Field) {
+            Field field = (Field)property;
+            if (field.getAnnotation(Id.class) != null) {
+                return true;
+            } else if (field.getAnnotation(EmbeddedId.class) != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (property instanceof Method) {
+            Method method = (Method)property;
+            if (method.getAnnotation(Id.class) != null) {
+                return true;
+            } else if (method.getAnnotation(EmbeddedId.class) != null) {
+                return true;
+            } else {
+                return false;
+            }            
+        } else {
+            return false;
+        }
     }
 
     /**

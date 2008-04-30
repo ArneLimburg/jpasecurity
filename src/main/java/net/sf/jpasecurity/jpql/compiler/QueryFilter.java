@@ -116,8 +116,8 @@ public class QueryFilter {
             and.jjtSetParent(where);
             where.jjtSetChild(and, 0);
         }
+        LOG.info("Optimizing filtered query " + statement.getStatement());
         String filteredQuery = statement.getStatement().toString();
-        LOG.info("Returning filtered query " + filteredQuery);
         return new FilterResult(filteredQuery,
                                 userParameterNameCount > 0? userParameterName: null,
                                 roleParameterNames.size() > 0? roleParameterNames: null);
