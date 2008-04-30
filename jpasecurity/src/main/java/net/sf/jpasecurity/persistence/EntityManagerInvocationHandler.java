@@ -18,15 +18,17 @@ package net.sf.jpasecurity.persistence;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.jpql.compiler.FilterResult;
 import net.sf.jpasecurity.jpql.compiler.QueryFilter;
+import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
 import net.sf.jpasecurity.security.rules.AccessRule;
@@ -40,14 +42,16 @@ public class EntityManagerInvocationHandler implements InvocationHandler {
     
     private EntityManager entityManager;
     private AuthenticationProvider authenticationProvider;
+    private MappingInformation mappingInformation;
     private QueryFilter queryFilter;
 
     EntityManagerInvocationHandler(EntityManager entityManager,
-                        MappingInformation mappingInformation,
-                        AuthenticationProvider authenticationProvider,
-                        List<AccessRule> accessRules) {
+                                   MappingInformation mappingInformation,
+                                   AuthenticationProvider authenticationProvider,
+                                   List<AccessRule> accessRules) {
         this.entityManager = entityManager;
         this.authenticationProvider = authenticationProvider;
+        this.mappingInformation = mappingInformation;
         this.queryFilter = new QueryFilter(mappingInformation, accessRules);
     }
 
@@ -76,7 +80,22 @@ public class EntityManagerInvocationHandler implements InvocationHandler {
      */
     private Query createQuery(String qlString) {
         Object user = authenticationProvider.getUser();
-        Collection<Object> roles = authenticationProvider.getRoles();
+        if (user != null) {
+            ClassMappingInformation userClassMapping = mappingInformation.getClassMapping(user.getClass());
+            if (userClassMapping != null) {
+                Object id = userClassMapping.getId(user);
+                user = entityManager.getReference(userClassMapping.getEntityType(), id);
+            }
+        }
+        List<Object> roles = new ArrayList<Object>(authenticationProvider.getRoles());
+        for (ListIterator<Object> i = roles.listIterator(); i.hasNext();) {
+            Object role = i.next();
+            ClassMappingInformation roleClassMapping = mappingInformation.getClassMapping(role.getClass());
+            if (roleClassMapping != null) {
+                Object id = roleClassMapping.getId(role);
+                i.set(entityManager.getReference(roleClassMapping.getEntityType(), id));
+            }            
+        }
         FilterResult filterResult = queryFilter.filterQuery(qlString, user, roles);
         Query query = entityManager.createQuery(filterResult.getQuery());
         if (filterResult.getUserParameterName() != null) {
