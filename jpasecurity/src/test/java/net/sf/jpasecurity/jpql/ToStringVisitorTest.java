@@ -68,6 +68,7 @@ public class ToStringVisitorTest extends TestCase {
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.id = MAX( DISTINCT bean.id)");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.id = MAX( DISTINCT bean.id)");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.collectionProperty IS EMPTY");
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.collectionProperty IS NOT EMPTY");
 		assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id = 0 AND bean.name = 'Test')");
 		assertJpql("SELECT bean FROM TestBean bean WHERE - MOD(bean.id, 2) = -1");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean NOT MEMBER OF bean.collectionProperty");
@@ -78,6 +79,7 @@ public class ToStringVisitorTest extends TestCase {
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.created < CURRENT_TIMESTAMP");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.created < CURRENT_TIME");
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name IN ('name 1', 'name 2')");
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
 		assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0");
 		assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0 WHERE bean.id = 0");
 		assertJpql("DELETE FROM TestBean bean");
