@@ -59,6 +59,7 @@ public class ToStringVisitorTest extends TestCase {
 		assertJpql("SELECT DISTINCT bean FROM TestBean bean LEFT OUTER JOIN FETCH bean.beanProperty");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.id > 0");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.name LIKE '%beanName%'");
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT LIKE '%beanName%'");
 		assertJpql("SELECT bean FROM TestBean bean WHERE (bean.collectionProperty IS NULL OR SIZE(bean.collectionProperty) = 0)");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.name IS NOT NULL");
 		assertJpql("SELECT bean FROM TestBean bean WHERE NOT (bean.id = SQRT(2) )");

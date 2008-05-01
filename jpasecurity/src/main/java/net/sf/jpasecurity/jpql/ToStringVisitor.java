@@ -455,6 +455,7 @@ public class ToStringVisitor implements JpqlParserVisitor {
     public boolean visit(JpqlNot node, Object data) {
         assert node.jjtGetNumChildren() == 1;
         if (!(node.jjtGetChild(0) instanceof JpqlBetween
+              || node.jjtGetChild(0) instanceof JpqlLike
               || node.jjtGetChild(0) instanceof JpqlIsNull
               || node.jjtGetChild(0) instanceof JpqlIsEmpty
               || node.jjtGetChild(0) instanceof JpqlIn
@@ -502,11 +503,13 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlLike node, Object data) {
+        assert node.jjtGetNumChildren() == 2;
         node.jjtGetChild(0).visit(this, data);
-        query.append(" LIKE ");
-        for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);
+        if (node.jjtGetParent() instanceof JpqlNot) {
+            query.append(" NOT");
         }
+        query.append(" LIKE ");
+        node.jjtGetChild(1).visit(this, data);
         return false;
     }
 
