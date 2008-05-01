@@ -453,7 +453,14 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlNot node, Object data) {
-        query.append(" NOT ");
+        assert node.jjtGetNumChildren() == 1;
+        if (!(node.jjtGetChild(0) instanceof JpqlBetween
+              || node.jjtGetChild(0) instanceof JpqlIsNull
+              || node.jjtGetChild(0) instanceof JpqlIsEmpty
+              || node.jjtGetChild(0) instanceof JpqlIn
+              || node.jjtGetChild(0) instanceof JpqlMemberOf)) {
+            query.append(" NOT ");
+        }
         return true;
     }
 
@@ -461,13 +468,15 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlBetween node, Object data) {
-        for (int i = 0; i < node.jjtGetNumChildren() - 2; i++) {
-            node.jjtGetChild(i).visit(this, data);
+        assert node.jjtGetNumChildren() == 3;
+        node.jjtGetChild(0).visit(this, data);
+        if (node.jjtGetParent() instanceof JpqlNot) {
+            query.append(" NOT ");
         }
         query.append(" BETWEEN ");
-        node.jjtGetChild(node.jjtGetNumChildren() - 2).visit(this, data);
+        node.jjtGetChild(1).visit(this, data);
         query.append(" AND ");
-        node.jjtGetChild(node.jjtGetNumChildren() - 1).visit(this, data);
+        node.jjtGetChild(2).visit(this, data);
         return false;
     }
 
@@ -476,6 +485,9 @@ public class ToStringVisitor implements JpqlParserVisitor {
      */
     public boolean visit(JpqlIn node, Object data) {
         node.jjtGetChild(0).visit(this, data);
+        if (node.jjtGetParent() instanceof JpqlNot) {
+            query.append(" NOT");
+        }
         query.append(" IN (");
         node.jjtGetChild(1).visit(this, data);
         for (int i = 2; i < node.jjtGetNumChildren(); i++) {
@@ -504,8 +516,8 @@ public class ToStringVisitor implements JpqlParserVisitor {
     public boolean visit(JpqlIsNull node, Object data) {
         node.jjtGetChild(0).visit(this, data);
         query.append(" IS ");
-        for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);
+        if (node.jjtGetParent() instanceof JpqlNot) {
+            query.append("NOT");
         }
         query.append(" NULL ");
         return false;
@@ -515,10 +527,11 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlIsEmpty node, Object data) {
+        assert node.jjtGetNumChildren() == 1;
         node.jjtGetChild(0).visit(this, data);
         query.append(" IS ");
-        for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, data);
+        if (node.jjtGetParent() instanceof JpqlNot) {
+            query.append("NOT");
         }
         query.append(" EMPTY ");
         return false;
@@ -528,11 +541,13 @@ public class ToStringVisitor implements JpqlParserVisitor {
      * {@inheritDoc}
      */
     public boolean visit(JpqlMemberOf node, Object data) {
-        for (int i = 0; i < node.jjtGetNumChildren() - 1; i++) {
-            node.jjtGetChild(i).visit(this, data);
+        assert node.jjtGetNumChildren() == 2;
+        node.jjtGetChild(0).visit(this, data);
+        if (node.jjtGetParent() instanceof JpqlNot) {
+            query.append(" NOT");
         }
         query.append(" MEMBER OF ");
-        node.jjtGetChild(node.jjtGetNumChildren() - 1).visit(this, data);
+        node.jjtGetChild(1).visit(this, data);
         return false;
     }
 
