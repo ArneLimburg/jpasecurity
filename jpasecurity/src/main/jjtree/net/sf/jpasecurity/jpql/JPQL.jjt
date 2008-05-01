@@ -640,8 +640,17 @@ void literalOrParam(): {} {
     | inputParameter())
 }
 
-void likeExpression() #Like: {} {
-    stringExpression() [<NOT> #Not] <LIKE> patternValue() 
+void likeExpression(): {} {
+	LOOKAHEAD(positiveLikeExpression()) positiveLikeExpression()
+	| LOOKAHEAD(negativeLikeExpression()) negativeLikeExpression() #Not
+}
+
+void positiveLikeExpression() #Like: {} {
+    stringExpression() <LIKE> patternValue() 
+}
+
+void negativeLikeExpression() #Like: {} {
+    stringExpression() <NOT> <LIKE> patternValue() 
 }
 
 void nullComparisonExpression(): {} {
