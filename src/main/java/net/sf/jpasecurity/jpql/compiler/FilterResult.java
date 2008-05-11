@@ -15,7 +15,7 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
-import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Arne Limburg
@@ -24,12 +24,12 @@ public class FilterResult {
 
     private String query;
     private String userParameterName;
-    private Collection<String> roleParameterNames;
+    private Map<String, Object> roleParameters;
 
-    public FilterResult(String query, String userParameterName, Collection<String> roleParameterNames) {
+    public FilterResult(String query, String userParameterName, Map<String, Object> roleParameters) {
         this.query = query;
         this.userParameterName = userParameterName;
-        this.roleParameterNames = roleParameterNames;
+        this.roleParameters = roleParameters;
     }
 
     public String getQuery() {
@@ -40,7 +40,7 @@ public class FilterResult {
         return userParameterName;
     }
 
-    public Collection<String> getRoleParameterNames() {
-        return roleParameterNames;
+    public Map<String, Object> getRoleParameters() {
+        return roleParameters;
     }
 }
