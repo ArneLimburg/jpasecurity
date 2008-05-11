@@ -34,7 +34,7 @@ import net.sf.jpasecurity.security.rules.Permit;
 @Permit(where = "name = :user")
 public class User {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     @Basic
     private String name;
