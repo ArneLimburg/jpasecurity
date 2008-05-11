@@ -42,6 +42,11 @@ public class SimpleContactsTest extends TestCase {
         testData = new ContactsTestData(entityManager);
     }
     
+    public void tearDown() {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        testData.clear(entityManager);
+    }
+    
     public void testUnauthenticated() {
         assertEquals(0, getAllUsers().size());
         try {

@@ -52,6 +52,11 @@ public class SpringContactsTest extends TestCase {
         testData = new ContactsTestData(entityManager);
     }
     
+    public void tearDown() {
+        EntityManager entityManager = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory")).createEntityManager();
+        testData.clear(entityManager);
+    }
+    
     public void testUnauthenticated() {
         assertEquals(0, contactsDao.getAllUsers().size());
         try {

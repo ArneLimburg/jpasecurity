@@ -33,7 +33,7 @@ import net.sf.jpasecurity.security.rules.Permit;
 @Permit(where = "user.name = :user")
 public class Contact {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     @ManyToOne
     private User user;
