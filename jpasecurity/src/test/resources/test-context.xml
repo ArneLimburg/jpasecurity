@@ -36,11 +36,6 @@
 
     <bean id="entityManagerFactory" class="net.sf.jpasecurity.persistence.SecureLocalEntityManagerFactoryBean">
     	<property name="persistenceUnitName" value="spring-contacts"/>
-    	<property name="jpaProperties">
-    	    <props>
-    	        <prop key="javax.persistence.nonJtaDataSource"/>
-    	    </props>
-    	</property>
     </bean>
 
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">

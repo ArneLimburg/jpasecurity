@@ -56,6 +56,7 @@ public class EjbContactsTest extends TestCase {
     private static TestContextFactoryBuilder contextFactoryBuilder = new TestContextFactoryBuilder();
     
     private ContactsDaoBean contactsDaoBean = new ContactsDaoBean();
+    private EntityManagerFactory entityManagerFactory;
     private ContactsTestData testData;
     
     public void setUp() throws Exception {
@@ -106,7 +107,7 @@ public class EjbContactsTest extends TestCase {
         
         replay(contextFactory, context, ejbContext, principal);
 
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("ejb-contacts");
+        entityManagerFactory = Persistence.createEntityManagerFactory("ejb-contacts");
         Field entityManagerField = ContactsDaoBean.class.getDeclaredField("entityManager");
         entityManagerField.setAccessible(true);
         entityManagerField.set(contactsDaoBean, entityManagerFactory.createEntityManager());
@@ -115,6 +116,8 @@ public class EjbContactsTest extends TestCase {
     }
     
     public void tearDown() {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        testData.clear(entityManager);
         System.clearProperty(Context.SECURITY_PRINCIPAL);
         System.clearProperty(Context.SECURITY_CREDENTIALS);
     }
