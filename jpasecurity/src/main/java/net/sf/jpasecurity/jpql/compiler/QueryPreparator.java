@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.security.rules;
+package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
+import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
@@ -38,6 +39,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.SimpleNode;
+import net.sf.jpasecurity.security.rules.AccessRule;
 
 /**
  * @author Arne Limburg
@@ -112,8 +114,20 @@ public class QueryPreparator {
     /**
      * Creates a <tt>JpqlWhere</tt> node.
      */
-    public JpqlWhere createWhere() {
-        return new JpqlWhere(JpqlParserTreeConstants.JJTWHERE);
+    public JpqlWhere createWhere(Node child) {
+        JpqlWhere where = new JpqlWhere(JpqlParserTreeConstants.JJTWHERE);
+        child.jjtSetParent(where);
+        where.jjtAddChild(child, 0);
+        return where;
+    }
+
+    /**
+     * Creates a <tt>JpqlBooleanLiteral</tt> node with the specified value.
+     */
+    public JpqlBooleanLiteral createBoolean(boolean value) {
+        JpqlBooleanLiteral bool = new JpqlBooleanLiteral(JpqlParserTreeConstants.JJTBOOLEANLITERAL);
+        bool.setValue(Boolean.toString(value));
+        return bool;
     }
 
     /**
@@ -255,6 +269,17 @@ public class QueryPreparator {
     	path.jjtSetParent(expression);
     	expression.jjtAddChild(path, 0);
     	return select;
+    }
+    
+    public void remove(Node node) {
+        if (node.jjtGetParent() != null) {
+            for (int i = 0; i < node.jjtGetParent().jjtGetNumChildren(); i++) {
+                if (node.jjtGetParent().jjtGetChild(i) == node) {
+                    node.jjtGetParent().jjtRemoveChild(i);
+                    node.jjtSetParent(null);
+                }
+            }
+        }
     }
     
     public void replace(Node oldNode, Node newNode) {
