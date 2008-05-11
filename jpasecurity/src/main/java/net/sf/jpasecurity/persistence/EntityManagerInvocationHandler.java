@@ -18,10 +18,11 @@ package net.sf.jpasecurity.persistence;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -87,13 +88,17 @@ public class EntityManagerInvocationHandler implements InvocationHandler {
                 user = entityManager.getReference(userClassMapping.getEntityType(), id);
             }
         }
-        List<Object> roles = new ArrayList<Object>(authenticationProvider.getRoles());
-        for (ListIterator<Object> i = roles.listIterator(); i.hasNext();) {
-            Object role = i.next();
-            ClassMappingInformation roleClassMapping = mappingInformation.getClassMapping(role.getClass());
-            if (roleClassMapping != null) {
-                Object id = roleClassMapping.getId(role);
-                i.set(entityManager.getReference(roleClassMapping.getEntityType(), id));
+        Collection<Object> authorizedRoles = authenticationProvider.getRoles();
+        Set<Object> roles = new HashSet<Object>();
+        if (authorizedRoles != null) {
+            for (Object role: authorizedRoles) {
+                ClassMappingInformation roleClassMapping = mappingInformation.getClassMapping(role.getClass());
+                if (roleClassMapping == null) {
+                    roles.add(role);
+                } else {
+                    Object id = roleClassMapping.getId(role);
+                    roles.add(entityManager.getReference(roleClassMapping.getEntityType(), id));
+                }
             }            
         }
         FilterResult filterResult = queryFilter.filterQuery(qlString, user, roles);
@@ -101,14 +106,9 @@ public class EntityManagerInvocationHandler implements InvocationHandler {
         if (filterResult.getUserParameterName() != null) {
             query.setParameter(filterResult.getUserParameterName(), user);
         }
-        if (roles != null && filterResult.getRoleParameterNames() != null) {
-            Iterator<String> roleParameterIterator = filterResult.getRoleParameterNames().iterator();
-            Iterator<Object> roleIterator = roles.iterator();
-            for (; roleParameterIterator.hasNext() && roleIterator.hasNext();) {
-                query.setParameter(roleParameterIterator.next(), roleIterator.next());
-            }
-            if (roleParameterIterator.hasNext() || roleIterator.hasNext()) {
-                throw new IllegalStateException("roleParameters don't match roles");
+        if (filterResult.getRoleParameters() != null) {
+            for (Map.Entry<String, Object> roleParameter: filterResult.getRoleParameters().entrySet()) {
+                query.setParameter(roleParameter.getKey(), roleParameter.getValue());
             }
         }
         return query;

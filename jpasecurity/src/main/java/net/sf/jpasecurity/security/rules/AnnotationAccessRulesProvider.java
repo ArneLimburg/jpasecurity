@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
+import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
