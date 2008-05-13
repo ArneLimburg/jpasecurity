@@ -21,7 +21,13 @@ import java.util.List;
  * This interface may be implemented to access <tt>AccessRule</tt>s.
  * Implementations don't need to cache rules as {@link #getAccessRules()}
  * may be called only once per <tt>EntityManager</tt>.
- * 	
+ * 
+ * If the <tt>AuthenticationProvider</tt> needs information about the configured
+ * persistence information like entity mapping information or persistence properties,
+ * it may also implement the
+ * {@link net.sf.jpasecurity.persistence.PersistenceInformationReceiver} interface
+ * to become this information injected during runtime.
+ *
  * @author Arne Limburg
  */
 public interface AccessRulesProvider {
