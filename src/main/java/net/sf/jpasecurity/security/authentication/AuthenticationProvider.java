@@ -18,6 +18,14 @@ package net.sf.jpasecurity.security.authentication;
 import java.util.Collection;
 
 /**
+ * This interface may be implemented to provide authentication credentials.
+ *
+ * If the <tt>AuthenticationProvider</tt> needs information about the configured
+ * persistence information like entity mapping information or persistence properties,
+ * it may also implement the
+ * {@link net.sf.jpasecurity.persistence.PersistenceInformationReceiver} interface
+ * to become this information injected during runtime.
+ *
  * @author Arne Limburg
  */
 public interface AuthenticationProvider {
