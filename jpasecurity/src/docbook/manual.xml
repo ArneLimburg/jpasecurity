@@ -27,9 +27,8 @@
 
   <xi:include href="preface.xml"/>
   <xi:include href="introduction.xml"/>
+  <xi:include href="basics.xml"/>
   <xi:include href="integration.xml"/>
-  <xi:include href="authentication.xml"/>
-  <xi:include href="access-control.xml"/>
 
   <!--<part id="appendixes">-->
 

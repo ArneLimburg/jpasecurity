@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="basics" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title>Basics - Rules, Users and Roles</title>
+  <para>
+    In JPA Security the access to entities is defined by access rules.
+    There is one set of access rules for your application. This set of access rules
+    applies to every JPA query you perform. Every rule may be restricted to be valid
+    for just one user or role a group of users or roles.
+  </para>
+  <example>
+    <title>Example</title>
+    <para>
+      The following rule restricts the read access to accounts,
+      where the owner is equal to the current user. In other words:
+      every user can read only its own accounts.
+    </para>
+    <programlisting>
+      GRANT READ ACCESS TO Account account WHERE account.owner = :user
+    </programlisting>
+  </example>
+  <para>
+    The current version of JPA Security only allows the definition of rules that
+    grant read access. Currently there is not explicit way to deny read access.
+    Although this is not needed,
+    since every entity to which no read access is granted may not be accessed.
+    An exception from this behaviour are entity-classes for which
+    no access rule exists at all.
+    Entities of such class may be accessed without any restriction.
+  </para>
+  <para>
+    In the current version of JPA Security only read access may be restricted.
+    The ability to restrict create, update or delete operations is planned for
+    later versions. Until then you have to use other security frameworks like
+    JavaEE Security or Spring Security which provide such ability and integrate
+    smooth with JPA Security.
+  </para>
+  <section id="syntax">
+    <title>The syntax of access rules</title>
+    <para>
+      An access rule of JPA Security always starts with <quote>GRANT READ ACCESS TO</quote>,
+      followed by the entity name (according to the JPA Specification,
+      defaults to the class name, if not otherwise specified)
+      and an alias for that entity. This is optionally followed by a WHERE clause,
+      thats syntax is derived from the syntax of WHERE clauses of JPQL, the query
+      language of JPA. Within the WHERE clause there are two special input parameters,
+      that may be used: <quote>:user</quote> and <quote>:roles</quote>.
+      The <quote>:user</quote> parameters will be evaluated to the currently authenticated
+      user during runtime and the <quote>:roles</quote> parameter will be expanded to a list
+      of roles that the current user belongs to. No other input parameters may be used in
+      the WHERE clause.
+    </para>
+  </section>
+  <section id="rules">
+    <title>Providing access rules</title>
+    <para>
+      With JPA Security there are two predefined ways to provide access rules:
+      via XML configuration or via annotations. You may implement your own way
+      of providing access rules (i.e. via JDBC) by implementing the interface
+      <foreignphrase>net.sf.jpasecurity.security.rules.AccessRulesProvider</foreignphrase>.
+      Take a look at its javadoc documentation for further reference.
+    </para>
+    <section id="rules:xml">
+      <title>Access rules via XML</title>
+      <para>
+        One predefined way to provide access rules in JPA Security is via a file
+        calles <quote>security.xml</quote>, which is located in the <quote>META-INF</quote>
+        folder of your application. Below is an example of the structure of such file:
+      </para>
+      <programlisting>
+&lt;security xmlns="http://jpasecurity.sf.net/xml/ns/security"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://jpasecurity.sf.net/xml/ns/security http://jpasecurity.sf.net/xml/ns/security/security_1_0.xsd"
+          version="1.0"&gt;
+
+  &lt;persistence-unit name="..."&gt;
+    &lt;access-rule&gt;...&lt;/access-rule&gt;
+    ...
+  &lt;/persistence-unit&gt;
+&lt;/security&gt;
+      </programlisting>
+      <para>
+        You have to specify <quote>net.sf.jpasecurity.security.rules.provider</quote>
+        with the value <quote>net.sf.jpasecurity.security.rules.XmlAccessRulesProvider</quote>
+        within your persistence properties in order to provide your access rules this way.
+      </para>
+    </section>
+    <section id="rules:annotations">
+      <title>Access rules via Annotations</title>
+      <para>
+        The other predefined way to provide access rules in JPA Security is via annotations.
+        You may annotate your entity classes with one of the following two annotations:
+        <quote>javax.annotation.security.RolesAllowed</quote> and
+        <quote>net.sf.jpasecurity.security.rules.Permit</quote>.
+      </para>
+      <para>
+        Note that the semantics of the <code>@RolesAllowed</cote> annotation slightly differs
+        between the EJB Specification and JPA Security: If you annotate a class with the
+        <code>@RolesAllowed</code> annotation this means for EJB any access to any method
+        of an instance of that class will cause a <code>SecurityException</code>, if the
+        current user is not in one of the roles allowed. JPA Security goes a step further:
+        The current user will not retrieve this object from database if he is not in one of
+        the roles allowed. JPA Security does not support the <code>@RolesAllowed</code>
+        annotation at method-level.
+      </para>
+      <para>
+        The <quote>Permit</quote> annotation has an optional parameter <quote>where</quote>.
+        With this parameter you can specify your restrictions for entities
+        of the annotated class.
+      </para>
+      <para>
+        You have to specify <quote>net.sf.jpasecurity.security.rules.provider</quote>
+        with the value <quote>net.sf.jpasecurity.security.rules.AnnotationAccessRulesProvider</quote>
+        within your persistence properties in order to provide your access rules via annotations.
+      </para>
+    </section>
+  </section>
+  <xi:include href="authentication.xml"/>
+</chapter>
