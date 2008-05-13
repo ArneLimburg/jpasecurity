@@ -94,7 +94,7 @@
         <quote>net.sf.jpasecurity.security.rules.Permit</quote>.
       </para>
       <para>
-        Note that the semantics of the <code>@RolesAllowed</cote> annotation slightly differs
+        Note that the semantics of the <code>@RolesAllowed</code> annotation slightly differs
         between the EJB Specification and JPA Security: If you annotate a class with the
         <code>@RolesAllowed</code> annotation this means for EJB any access to any method
         of an instance of that class will cause a <code>SecurityException</code>, if the
