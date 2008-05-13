@@ -3,10 +3,9 @@
 <chapter id="introduction" xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>Introduction</title>
   <para>
-    Application Security usually covers three aspects:
-    Authentication, Authorisation and Access Control.
+    Application Security usually covers two aspects:
+    Authentication and Authorisation.
   </para>
   <xi:include href="introduction-authentication.xml"/>
   <xi:include href="introduction-authorization.xml"/>
-  <xi:include href="introduction-access-control.xml"/>
 </chapter>

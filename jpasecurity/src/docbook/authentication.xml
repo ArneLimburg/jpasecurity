@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<chapter id="authentication" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <title>Authentication and Authorization</title>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="authentication" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title>Authentication</title>
   <para>
     JPA Security is designed to integrate smoothly into existing
-    authentication and authorization frameworks like JavaEE Security
-    and Spring Security, but it also has its own rudimentary
-    authentication and authorization support.
+    authentication frameworks like JavaEE Security and Spring Security,
+    but it also has its own rudimentary authentication support.
   </para>
   <xi:include href="javaee-security.xml"/>
   <xi:include href="spring-security.xml"/>
   <xi:include href="build-in-authentication.xml"/>
-</chapter>
+</section>

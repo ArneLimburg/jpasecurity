@@ -13,6 +13,6 @@
     it may treat JPA Security like a persistence provider.
     please refer to the manual of your application server on how to
     integrate a new persistence provider and integrate JPA Security like
-    it is described there.
+    it is described there. In the examples
   </para>
 </section>
