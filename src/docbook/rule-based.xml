@@ -1,8 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section id="rule-based">
-  <title>Rule-based Access Control</title>
+  <title>Basics</title>
   <para>
-    This section is still to come...
+    In JPA Security the access to entities is defined by access rules.
+    There is one set of access rules per application. This set of access rules
+    applies to every JPA query you perform. Every rule may be restricted to be valid
+    for just one user or role a group of users or roles.
+  </para>
+  <example>
+    <para>
+      The following rule restricts the read access to accounts,
+      where the owner is equal to the current user. In other words:
+      every user can read only its own accounts.
+    </para>
+    <programlisting>
+      GRANT READ ACCESS TO Account account WHERE account.owner = :user
+    </programlisting>
+  </example>
+  <para>
+    The current version of JPA Security only allows the definition of rules that
+    grant read access. Currently there is no explicit way to deny read access.
+    Although this is not needed,
+    since every entity to which no read access is granted may not be accessed.
+    An exception from this behaviour are entity-classes for which
+    no access rule exists at all.
+    Entities of such class may be accessed without any restriction.
+  </para>
+  <para>
+    In the current version of JPA Security only read access may be restricted.
+    The ability to restrict create, update or delete operations is planned for
+    later versions. Until then you have to use other security frameworks like
+    JavaEE Security or Spring Security which provide such ability and integrate
+    smooth with JPA Security.
   </para>
 </section>

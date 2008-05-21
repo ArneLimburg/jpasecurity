@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="rules">
+  <title>Providing access rules</title>
+  <para>
+    With JPA Security there are two predefined ways to provide access rules:
+    via XML configuration or via annotations. You may implement your own way
+    of providing access rules (i.e. via JDBC) by implementing the interface
+    <code>net.sf.jpasecurity.security.rules.AccessRulesProvider</code>.
+    Take a look at its javadoc documentation for further reference.
+  </para>
+  <section id="rules:xml">
+    <title>Access rules via XML</title>
+    <para>
+      One predefined way to provide access rules in JPA Security is via a file
+      called <quote>security.xml</quote>, which is located in the <quote>META-INF</quote>
+      folder of your application. Below is an example of the structure of such file:
+    </para>
+    <programlisting>
+&lt;security xmlns="http://jpasecurity.sf.net/xml/ns/security"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://jpasecurity.sf.net/xml/ns/security http://jpasecurity.sf.net/xml/ns/security/security_1_0.xsd"
+          version="1.0"&gt;
+
+  &lt;persistence-unit name="..."&gt;
+    &lt;access-rule&gt;...&lt;/access-rule&gt;
+    ...
+  &lt;/persistence-unit&gt;
+&lt;/security&gt;
+    </programlisting>
+    <para>
+      You have to specify <quote>net.sf.jpasecurity.security.rules.provider</quote>
+      with the value <quote>net.sf.jpasecurity.security.rules.XmlAccessRulesProvider</quote>
+      within your persistence properties in order to provide your access rules this way.
+    </para>
+  </section>
+  <section id="rules:annotations">
+    <title>Access rules via Annotations</title>
+    <para>
+      The other predefined way to provide access rules in JPA Security is via annotations.
+      You may annotate your entity classes with one of the following two annotations:
+      <code>javax.annotation.security.RolesAllowed</code> and
+      <code>net.sf.jpasecurity.security.rules.Permit</code>.
+    </para>
+    <para>
+      Note that the semantics of the <code>@RolesAllowed</code> annotation slightly differs
+      between the EJB Specification and JPA Security: If you annotate a class with the
+      <code>@RolesAllowed</code> annotation this means for EJB any access to any method
+      of an instance of that class will cause a <code>SecurityException</code>, if the
+      current user is not in one of the roles allowed. JPA Security goes a step further:
+      The current user will not retrieve this object from database if he is not in one of
+      the roles allowed. JPA Security does not support the <code>@RolesAllowed</code>
+      annotation at method-level.
+    </para>
+    <para>
+      The <code>Permit</code> annotation has an optional parameter <code>where</code>.
+      With this parameter you can specify your restrictions for entities
+      of the annotated class.
+    </para>
+    <para>
+      You have to specify <quote>net.sf.jpasecurity.security.rules.provider</quote>
+      with the value <quote>net.sf.jpasecurity.security.rules.AnnotationAccessRulesProvider</quote>
+      within your persistence properties in order to provide your access rules via annotations.
+    </para>
+  </section>
+</section>

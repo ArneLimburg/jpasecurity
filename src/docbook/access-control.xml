@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<chapter id="access-control" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <title>Access Control</title>
-  <xi:include href="rule-based.xml"/>
-  <xi:include href="special-cases.xml"/>
-</chapter>
