@@ -6,6 +6,5 @@
     There are few steps to integrate JPA Security
     into your existing JPA application.
   </para>
-  <xi:include href="classpath.xml"/>
   <xi:include href="persistence.xml"/>
 </chapter>

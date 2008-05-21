@@ -3,34 +3,34 @@
 <section id="persistence.xml">
   <title>Modifying your persistence.xml</title>
   <para>
-    In order to use JPA Security you have to modify your <file>persistence.xml</file>
+    In order to use JPA Security you have to modify your <quote>persistence.xml</quote>
     to point to JPA Security. Additional you have to provide three properties for
     JPA Security to work. The three properties are:
   </para>
-  <itemizedList>
-    <listItem>
+  <itemizedlist>
+    <listitem>
       <code>net.sf.jpasecurity.persistence.provider</code>
       - The value of this list may be your original persistence provider
-    </listItem>
-    <listItem>
+    </listitem>
+    <listitem>
       <code>net.sf.jpasecurity.security.authentication.provider</code>
       - The value of this list may be an implementation of
       <code>net.sf.jpasecurity.security.authentication.AuthenticationProvider</code>
       (see more in <xref linkend="authentication"
                          endterm="Authentication and Authorization"/>)
-    </listItem>
-    <listItem>
+    </listitem>
+    <listitem>
       <code>net.sf.jpasecurity.security.rules.provider</code>
       - The value of this list may be an implementation of
       <code>net.sf.jpasecurity.security.rules.AccessRulesProvider</code>
       (see more in <xref linkend="rule-based"
                          endterm="Rule-based Access Control"/>)
-    </listItem>
-  </itemizedList>
+    </listitem>
+  </itemizedlist>
   <example>
     <para>
       Supposed you have an existing JPA application. This example assumes
-      Hibernate as persistence provider. Your <file>persistence.xml</file>
+      Hibernate as persistence provider. Your <quote>persistence.xml</quote>
       may look similar to this:
     </para> 
     <programlisting>
@@ -59,7 +59,7 @@
           
     </programlisting>
     <para>
-      After integrating JPA Security your <file>persistence.xml</file>
+      After integrating JPA Security your <quote>persistence.xml</quote>
       may look like this:
     </para>
     <programlisting>
@@ -97,13 +97,6 @@
       We changed the &lt;provider&gt; tag to point to JPA Security's
       implementation of the <code>PersistenceProvider</code> interface
       and added the three properties needed to configure JPA Security.
-    </para>
-    <para>
-      You may now read the chapter
-      <xref linkend="authentication" endterm="Authentication and Authorization"/>
-      to read more about authentication providers or you may directly
-      dive into the <xref linkend="rule-based" endterm="Rule-based Access Control"/>
-      provided by JPA Security via access-rules providers.
     </para>
   </example>
 </section>

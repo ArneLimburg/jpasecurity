@@ -24,30 +24,28 @@
           <id>introduction-authorization</id>
           <title>Authorization</title>
         </section>
-        <section>
-          <id>introduction-access-control</id>
-          <title>Access Control</title>
-        </section>
       </sections>
     </chapter>
     <chapter>
-      <id>integration</id>
-      <title>Integration of JPA Security</title>
+      <id>basics</id>
+      <title>Basics - Rules, Users and Roles</title>
       <sections>
         <section>
-          <id>classpath</id>
-          <title>JPA Security in your classpath</title>
+          <id>rule-based</id>
+          <title>Basics</title>
         </section>
         <section>
-          <id>persistence</id>
-          <title>Modifying your persistence.xml</title>
+          <id>syntax</id>
+          <title>The syntax of access rules</title>
         </section>
-      </sections>
-    </chapter>
-    <chapter>
-      <id>authentication</id>
-      <title>Authentication and Authorization</title>
-      <sections>
+        <section>
+          <id>rules</id>
+          <title>Providing access rules</title>
+        </section>
+        <section>
+          <id>authentication</id>
+          <title>Authentication</title>
+        </section>
         <section>
           <id>javaee-security</id>
           <title>Integration with JavaEE Security</title>
@@ -63,16 +61,12 @@
       </sections>
     </chapter>
     <chapter>
-      <id>access-control</id>
-      <title>Access Control</title>
+      <id>integration</id>
+      <title>Getting started with JPA Security</title>
       <sections>
         <section>
-          <id>rule-based</id>
-          <title>Rule-based Access Control</title>
-        </section>
-        <section>
-          <id>special-cases</id>
-          <title>Special Cases</title>
+          <id>persistence</id>
+          <title>Modifying your persistence.xml</title>
         </section>
       </sections>
     </chapter>
