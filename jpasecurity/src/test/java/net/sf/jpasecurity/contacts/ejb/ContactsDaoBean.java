@@ -30,7 +30,7 @@ import net.sf.jpasecurity.contacts.User;
 @Stateless
 public class ContactsDaoBean implements LocalContactsDao, RemoteContactsDao {
 
-    @PersistenceContext(unitName = "ejb-contacts")
+    @PersistenceContext(unitName = "contacts")
     private EntityManager entityManager;
 
     public List<User> getAllUsers() {
