@@ -12,7 +12,7 @@
         </section>
       </sections>
     </chapter>
-    <chapter>
+    <!--chapter>
       <id>introduction</id>
       <title>Introduction</title>
       <sections>
@@ -25,7 +25,7 @@
           <title>Authorization</title>
         </section>
       </sections>
-    </chapter>
+    </chapter-->
     <chapter>
       <id>basics</id>
       <title>Basics - Rules, Users and Roles</title>
