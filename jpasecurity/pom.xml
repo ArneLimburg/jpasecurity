@@ -6,13 +6,13 @@
   <version>${version}</version>
   <description>
     JPA Security provides an interface to define security requirements of your
-    Data Access Layer at a single place in code for ease of usability and
+    Data Access Layer via XML or Annotations for ease of usability and
     maintainability.
     It is designed to extend current security solutions like J2EE Security and
     Spring Security (formerly known as Acegi-Security),
     but may be used on its own, too. It enables applications to control access
     to JPA Entity Beans based on the currently authenticated user
-    and/or its roles in the application.
+    and/or its roles in the application without any coding.
   </description>
   <url>http://jpasecurity.sf.net</url>
 
