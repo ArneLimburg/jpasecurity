@@ -16,15 +16,11 @@
       <code>net.sf.jpasecurity.security.authentication.provider</code>
       - The value of this list may be an implementation of
       <code>net.sf.jpasecurity.security.authentication.AuthenticationProvider</code>
-      (see more in <xref linkend="authentication"
-                         endterm="Authentication and Authorization"/>)
     </listitem>
     <listitem>
       <code>net.sf.jpasecurity.security.rules.provider</code>
       - The value of this list may be an implementation of
       <code>net.sf.jpasecurity.security.rules.AccessRulesProvider</code>
-      (see more in <xref linkend="rule-based"
-                         endterm="Rule-based Access Control"/>)
     </listitem>
   </itemizedlist>
   <example>
@@ -79,11 +75,11 @@
                 
               &lt;properties&gt;
                   &lt;property name="net.sf.jpasecurity.persistence.provider"
-                             value="org.hibernate.ejb.HibernatePersistence"/&gt;
+                            value="org.hibernate.ejb.HibernatePersistence"/&gt;
                   &lt;property name="net.sf.jpasecurity.security.authentication.provider"
-                             value="net.sf.jpasecurity.security.authentication.DefaultAuthenticationProvider"/&gt;
+                            value="net.sf.jpasecurity.security.authentication.DefaultAuthenticationProvider"/&gt;
                   &lt;property name="net.sf.jpasecurity.security.rules.provider"
-                             value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/&gt;
+                            value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/&gt;
                   &lt;!-- Hibernate-specific properties go here --&gt;
                   ...
               &lt;/properties&gt;
