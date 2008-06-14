@@ -27,7 +27,7 @@
       <item name="Introduction" href="index.html" />
       <item name="Download" href="https://sourceforge.net/project/showfiles.php?group_id=219346" />
       <item name="Documentation" href="project-doc.html">
-        <item name="Tutorial" href="simple-tutorial.html" />
+        <item name="Tutorial" href="simple-tutorial/index.html" />
         <item name="Reference Manual" href="reference/index.html" />
       </item>
       <!--item name="Release Notes" href="release-notes.html" /-->

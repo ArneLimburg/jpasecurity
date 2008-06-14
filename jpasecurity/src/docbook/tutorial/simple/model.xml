@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="model">
+  <title>Object Model</title>
+  <para>
+    We want to write a simple applications where users can store contacts.
+    For this we need two objects annotated with JPA Annotations:
+    the users and the contacts.
+  </para>
+  <programlisting>
+    <![CDATA[
+@Entity
+public class User {
+
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+    @Basic
+    private String name;
+    
+    public User() {
+    }
+    
+    public User(String name) {
+        setName(name);
+    }
+    
+    public int getId() {
+        return id;
+    }
+    
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public boolean equals(Object object) {
+        if (!(object instanceof User)) {
+            return false;
+        }
+        User user = (User)object;
+        return getName().equals(user.getName());
+    }
+    
+    public int hashCode() {
+        return getName().hashCode();
+    }
+}
+
+@Entity
+public class Contact {
+
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+    @ManyToOne
+    private User user;
+    @Basic
+    private String text;
+    
+    public Contact() {
+    }
+    
+    public Contact(User user, String text) {
+        setUser(user);
+        setText(text);
+    }
+    
+    public int getId() {
+        return id;
+    }
+    
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    public User getUser() {
+        return user;
+    }
+    
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getText() {
+        return text;
+    }
+    
+    public void setText(String text) {
+        this.text = text;
+    }
+    
+    public boolean equals(Object object) {
+        if (!(object instanceof Contact)) {
+            return false;
+        }
+        Contact contact = (Contact)object;
+        return getUser().equals(contact.getUser()) && getText().equals(contact.getText());
+    }
+    
+    public int hashCode() {
+        return getUser().hashCode() ^ getText().hashCode();
+    }
+}
+    ]]>
+  </programlisting>
+</section>

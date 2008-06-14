@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="persistence">
+  <title>Persistence Unit</title>
+  <para>
+    In order to use JPA with Hibernate, we need a persistence.xml in the META-INF folder of our application.
+    We want Hibernate to use hsqldb and create the schema for us, so our persistence.xml looks like this:
+  </para>
+  <programlisting>
+    <![CDATA[
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+                                 http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+             version="1.0">
+
+  <persistence-unit name="contacts" transaction-type="RESOURCE_LOCAL">
+
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+    <class>net.sf.jpasecurity.contacts.User</class>
+    <class>net.sf.jpasecurity.contacts.Contact</class>
+
+    <properties>
+      <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+      <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+      <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
+      <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:contacts" />
+      <property name="hibernate.connection.username" value="sa" />
+      <property name="hibernate.connection.password" value="" />
+    </properties>
+
+  </persistence-unit>
+
+</persistence>
+    ]]>
+  </programlisting>
+</section>
