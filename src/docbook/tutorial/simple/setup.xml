@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="setup">
+  <title>Basic Setup</title>
+  <para>
+    We want to use Maven 2 to build and run our application.
+    We set up our project with the following command:
+  </para>
+  <programlisting>
+    <![CDATA[
+mvn archetype:create -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity-simple-sample -Dversion=0.1.0-SNAPSHOT
+    ]]>
+  </programlisting>
+  <para>
+    This created a directory called jpasecurity-simple-sample with a file named pom.xml
+    and a subdirectory named src in it. Within the src-directory there is a directory-structure
+    special to Maven. We will place our classes in src/main/java. Maven already created the
+    packages net.sf.jpasecurity for us. Within this package Maven created a simple
+    Hello-World-example called App.java.
+    Maven also created src/test/java, but we don't need this directory nor its subdirectories,
+    so we can savely delete it.
+    We now create a subpackage sample.simple in the package net.sf.jpasecurity
+    and move the App.java into it.
+  </para>
+  <para>
+    Our sample shall be packed into an executable jar file. In order to configure Maven to do so,
+    we have to add the following configuration to the pom.xml before the &lt;dependencies&gt; section:
+  </para>
+  <programlisting>
+    <![CDATA[
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>net.sf.jpasecurity.sample.simple.App</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+    ]]>
+  </programlisting>
+  <para>
+    You can now compile our project by issueing the following Maven command
+    from within the jpasecurity-simple-sample folder:
+  </para>
+  <programlisting>
+    <![CDATA[
+mvn package
+    ]]>
+  </programlisting>
+  <para>
+    If everything is configured correctly this command should end with
+    something like "BUILD SUCCESSFUL" and you can start our application with
+    the following command:
+  </para>
+  <programlisting>
+    <![CDATA[
+java -jar target/jpasecurity-simple-sample-0.1.0-SNAPSHOT.jar
+    ]]>
+  </programlisting>
+  <para>
+    If you now see the output "Hello World!" you have successfully set up this sample.
+  </para>
+</section>

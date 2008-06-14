@@ -10,16 +10,16 @@
   <itemizedlist>
     <listitem>
       <code>net.sf.jpasecurity.persistence.provider</code>
-      - The value of this list may be your original persistence provider
+      - The value of this property may be your original persistence provider
     </listitem>
     <listitem>
       <code>net.sf.jpasecurity.security.authentication.provider</code>
-      - The value of this list may be an implementation of
+      - The value of this property may be an implementation of
       <code>net.sf.jpasecurity.security.authentication.AuthenticationProvider</code>
     </listitem>
     <listitem>
       <code>net.sf.jpasecurity.security.rules.provider</code>
-      - The value of this list may be an implementation of
+      - The value of this property may be an implementation of
       <code>net.sf.jpasecurity.security.rules.AccessRulesProvider</code>
     </listitem>
   </itemizedlist>

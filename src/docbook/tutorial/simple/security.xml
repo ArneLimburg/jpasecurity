@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="security">
+  <title>Integrating JPA Security</title>
+  <para>
+    In order to integrate JPA Security we need three things to be configured:
+    <itemizedlist>
+      <listitem>a persistence provider</listitem>
+      <listitem>an authentication provider and</listitem>
+      <listitem>a rules provider</listitem>
+    </itemizedlist>
+    The persistence provider is a JPA persistence provider that does the real work for us.
+    In our application this will be Hibernate with its org.hibernate.ejb.HibernatePersistence provider.
+    The authentication provider is needed to provide information about the currently authenticated user
+    to JPA Security. Read more about this in the appropriate {{{{manual.html#authenticationprovider}}chapter}}
+    of the reference manual. In our case a net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider suffers.
+    A rules provider provides the access rules on which our security depends. We want to define them in a security.xml
+    in our META-INF folder, so we use the net.sf.jpasecurity.security.rules.XmlAccessRulesProvider.
+    We change the persistence.xml as follows:
+  </para>
+  <programlisting>
+    <![CDATA[
+<persistence-unit name="contacts" transaction-type="RESOURCE_LOCAL">
+
+  <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+  <class>net.sf.jpasecurity.contacts.User</class>
+  <class>net.sf.jpasecurity.contacts.Contact</class>
+
+  <properties>
+    <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+    <property name="net.sf.jpasecurity.security.authentication.provider"
+              value="net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider"/>
+    <property name="net.sf.jpasecurity.security.rules.provider"
+              value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+    <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+    <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+    <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
+    <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:contacts" />
+    <property name="hibernate.connection.username" value="sa" />
+    <property name="hibernate.connection.password" value="" />
+  </properties>
+
+</persistence-unit>
+    ]]>
+  </programlisting>
+  <para>
+    The following line has changed in order to use JPA Security:
+  </para>
+  <programlisting>
+    <![CDATA[
+<provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+    ]]>
+  </programlisting>
+  <para>
+    The following lines are added to specify persistence provider, authentication provider and rules provider:
+  </para>
+  <programlisting>
+    <![CDATA[
+    <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+    <property name="net.sf.jpasecurity.security.authentication.provider"
+              value="net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider"/>
+    <property name="net.sf.jpasecurity.security.rules.provider"
+              value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+    ]]>
+  </programlisting>
+  <para>
+    OK, let's run our program again and let's see what happens...
+  </para>
+  <para>
+    As you can see from the output of our application: nothing happend, everything stayed as before. JPA Security integrated smooth, we even can't see it work.
+    We have not defined access rules for now. We do this by creating a security.xml in the META-INF folder:
+  </para>
+  <programlisting>
+    <![CDATA[
+<security>
+  <persistence-unit name="contacts">
+    <access-rule>GRAND READ ACCESS TO Contact contact WHERE contact.user = :user</access-rule>
+    <access-rule>GRAND READ ACCESS TO Contact contact WHERE 'admin' IN (:roles)</access-rule>
+    <access-rule>GRAND READ ACCESS TO User user WHERE 'admin' IN (:roles)</access-rule>
+  </persistence-unit>
+</security>
+    ]]>
+  </programlisting>
+  <para>
+    This are three access rules that show the capability of JPA Security.
+    The first rule says that contacts can be accessed by the users they belong to.
+    The second rule says that contacts can be accessed by users that are in the role of an administrator.
+    The third rule says that users can be accessed by users that are in the role of an administrator.
+  </para>
+  <para>
+    Let's try our program now and see what happens...
+    This tutorial is to be continued...
+  </para>
+</section>

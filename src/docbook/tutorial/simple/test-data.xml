@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="test-data">
+  <title>Test Data</title>
+  <para>
+    Now we can go and create some users and contacts. For this we must create an EntityManagerFactory,
+    an EntityManager, start a Transaction and persist the users:
+  </para>
+  <programlisting>
+EntityManagerFactory entityManagerFactory;
+EntityManager entityManager;
+entityManagerFactory = Persistence.createEntityManagerFactory("contacts");
+
+entityManager = entityManagerFactory.createEntityManager();
+entityManager.getTransaction().begin();
+entityManager.persist(new User("John"));
+entityManager.persist(new User("Mary"));
+entityManager.getTransaction().commit();
+entityManager.close();
+  </programlisting>
+  <para>
+    Ok, let's retrieve the users from the database to see whether they were really persisted:
+  </para>
+  <programlisting>
+entityManager = entityManagerFactory.createEntityManager();
+entityManager.getTransaction().begin();
+List&lt;User&gt; users = entityManager.createQuery("SELECT user FROM User user").getResultList();
+System.out.println("users.size = " + users.size);
+entityManager.getTransaction().commit();
+entityManager.close();
+  </programlisting>
+  <para>
+    As we can see, there are really two users in the database. But are this really John and Mary?
+    Let's see:
+  </para>
+  <programlisting>
+entityManager = entityManagerFactory.createEntityManager();
+entityManager.getTransaction().begin();
+User john = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'John'").getSingleResult();
+User mary = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'Mary'").getSingleResult();
+entityManager.getTransaction().commit();
+entityManager.close();
+  </programlisting>
+  <para>
+    If the users would not have been found, the calls to getSingleResult() would have thrown a NoResultException.
+    So we can be sure our users are there. Now let's create some contact data for them:
+  </para>
+  <programlisting>
+entityManager = entityManagerFactory.createEntityManager();
+entityManager.getTransaction().begin();
+entityManager.persist(new Contact(john, "john@jpasecurity.sf.net"));
+entityManager.persist(new Contact(john, "0 12 34 - 56 789"));
+entityManager.persist(new Contact(mary, "mary@jpasecurity.sf.net"));
+entityManager.persist(new Contact(mary, "12 34 56 78 90"));
+entityManager.getTransaction().commit();
+entityManager.close();
+  </programlisting>
+  <para>
+    Let's see if all four contacts are there:
+  </para>
+  <programlisting>
+entityManager = entityManagerFactory.createEntityManager();
+entityManager.getTransaction().begin();
+List&lt;Contact&gt; contacts = entityManager.createQuery("SELECT contact FROM Contact contact").getResultList();
+System.out.println("contacts.size = " + contacts.size());
+entityManager.getTransaction().commit();
+entityManager.close();
+  </programlisting>
+  <para>
+    As we can see from the output: All contacts are persisted. Now it's time for some security.
+  </para>
+</section>

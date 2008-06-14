@@ -12,20 +12,6 @@
         </section>
       </sections>
     </chapter>
-    <!--chapter>
-      <id>introduction</id>
-      <title>Introduction</title>
-      <sections>
-        <section>
-          <id>introduction-authentication</id>
-          <title>Authentication</title>
-        </section>
-        <section>
-          <id>introduction-authorization</id>
-          <title>Authorization</title>
-        </section>
-      </sections>
-    </chapter-->
     <chapter>
       <id>basics</id>
       <title>Basics - Rules, Users and Roles</title>
