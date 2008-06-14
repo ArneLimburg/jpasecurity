@@ -18,8 +18,8 @@ package net.sf.jpasecurity.persistence;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 
-import net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider;
 import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
+import net.sf.jpasecurity.security.authentication.SpringAuthenticationProvider;
 import net.sf.jpasecurity.security.rules.AccessRulesProvider;
 import net.sf.jpasecurity.security.rules.XmlAccessRulesProvider;
 
@@ -35,7 +35,7 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
     
     public AuthenticationProvider getAuthenticationProvider() {
         if (authenticationProvider == null) {
-            authenticationProvider = new AcegiAuthenticationProvider();
+            authenticationProvider = new SpringAuthenticationProvider();
         }
         return authenticationProvider;
     }
