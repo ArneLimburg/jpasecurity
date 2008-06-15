@@ -26,7 +26,7 @@ public class SimplePropertyMappingInformation extends PropertyMappingInformation
 
     SimplePropertyMappingInformation(String propertyName,
                                      Class<?> simpleType,
-                                     ClassMappingInformation classMapping, 
+                                     ClassMappingInformation classMapping,
                                      boolean isIdProperty) {
         super(propertyName, classMapping, isIdProperty);
         if (simpleType == null) {

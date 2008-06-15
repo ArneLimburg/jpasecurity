@@ -165,7 +165,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     public boolean visit(JpqlIdentificationVariableDeclaration node, T data) {
         return visit(node);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -205,9 +205,9 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlSetClause node, T data) {
-    	return visit(node);
+        return visit(node);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -576,7 +576,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlLocate node, T data) {
-    	return visit(node);
+        return visit(node);
     }
 
     /**
@@ -744,7 +744,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlAggregatePath node, T data) {
-    	return visit(node);
+        return visit(node);
     }
 
     /**
@@ -802,7 +802,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     public boolean visit(JpqlIdentificationVariableDeclaration node) {
         return true;
     }
-    
+
     /**
      * @see #visit(JpqlInnerJoin, Object)
      */
@@ -844,7 +844,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     public boolean visit(JpqlSetClause node) {
         return true;
     }
-    
+
     /**
      * @see #visit(JpqlUpdateItem, Object)
      */

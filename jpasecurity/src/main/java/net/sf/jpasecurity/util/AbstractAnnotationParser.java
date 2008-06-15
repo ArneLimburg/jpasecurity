@@ -25,7 +25,7 @@ import java.util.Collections;
 /**
  * This parser parses a specified <tt>Set</tt> of classes for annotations of
  * the specified type(s).
- * @param <A> the annotation to be parsed 
+ * @param <A> the annotation to be parsed
  * @author Arne Limburg
  */
 public abstract class AbstractAnnotationParser<A extends Annotation> {
@@ -37,7 +37,7 @@ public abstract class AbstractAnnotationParser<A extends Annotation> {
      * the generic type argument of the class.
      * @throws IllegalStateException if the annotation cannot be extracted
      */
-    protected AbstractAnnotationParser() throws IllegalArgumentException {
+    protected AbstractAnnotationParser() {
         annotationTypes = Collections.singleton(extractAnnotationType());
     }
 

@@ -20,14 +20,14 @@ import java.util.Collection;
 
 /**
  * This is an implementation of the {@link AuthenticationProvider} interface
- * that uses a thread-local variable to store the authentication information. 
+ * that uses a thread-local variable to store the authentication information.
  * @author Arne Limburg
  */
 public class DefaultAuthenticationProvider implements AuthenticationProvider {
 
     private static ThreadLocal<Object> user = new ThreadLocal<Object>();
     private static ThreadLocal<Collection<Object>> roles = new ThreadLocal<Collection<Object>>();
-    
+
     /**
      * Sets the current authenticated user to the specified user, assigning the specified roles.
      * @param user the user
@@ -36,7 +36,7 @@ public class DefaultAuthenticationProvider implements AuthenticationProvider {
     public void authenticate(Object user, Object... roles) {
         authenticate(user, Arrays.asList(roles));
     }
-    
+
     /**
      * Sets the current authenticated user to the specified user, assigning the specified roles.
      * @param user the user
@@ -54,7 +54,7 @@ public class DefaultAuthenticationProvider implements AuthenticationProvider {
         DefaultAuthenticationProvider.user.remove();
         DefaultAuthenticationProvider.roles.remove();
     }
-    
+
     public Object getUser() {
         return user.get();
     }

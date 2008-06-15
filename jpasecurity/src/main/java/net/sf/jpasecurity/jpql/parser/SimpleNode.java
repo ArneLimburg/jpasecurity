@@ -83,16 +83,16 @@ public class SimpleNode implements Node {
     public Node jjtGetChild(int i) {
         return children[i];
     }
-    
+
     public void jjtSetChild(Node n, int i) {
-    	children[i] = (SimpleNode)n;
+        children[i] = (SimpleNode)n;
     }
-    
+
     public void jjtRemoveChild(int i) {
         SimpleNode[] c = new SimpleNode[i - 1];
         System.arraycopy(children, 0, c, 0, i);
         System.arraycopy(children, i + 1, c, i, c.length - i);
-        children = c;        
+        children = c;
     }
 
     /**
@@ -110,7 +110,7 @@ public class SimpleNode implements Node {
     public void visit(JpqlParserVisitor visitor) {
         visit(visitor, null);
     }
-    
+
     public void visit(JpqlParserVisitor visitor, Object data) {
         if ((Boolean)jjtAccept(visitor, data) && children != null) {
             for (int i = 0; i < children.length; i++) {
@@ -138,12 +138,12 @@ public class SimpleNode implements Node {
         try {
             node = (SimpleNode)super.clone();
             if (node.children != null) {
-            	node.children = node.children.clone();
-            	for (int i = 0; i < node.children.length; i++) {
-            		SimpleNode child = (SimpleNode)node.children[i].clone();
-            		child.parent = node;
-            		node.children[i] = child;
-            	}
+                node.children = node.children.clone();
+                for (int i = 0; i < node.children.length; i++) {
+                    SimpleNode child = (SimpleNode)node.children[i].clone();
+                    child.parent = node;
+                    node.children[i] = child;
+                }
             }
             return node;
         } catch (CloneNotSupportedException e) {

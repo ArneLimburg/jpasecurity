@@ -50,7 +50,7 @@ public class JpaAnnotationParser extends AbstractMappingParser {
     public JpaAnnotationParser(Map<Class<?>, ClassMappingInformation> classMappings) {
         super(classMappings);
     }
-    
+
     protected Class<?> getIdClass(Class<?> entityClass, boolean usesFieldAccess) {
         IdClass idClass = entityClass.getAnnotation(IdClass.class);
         if (idClass == null) {
@@ -105,20 +105,16 @@ public class JpaAnnotationParser extends AbstractMappingParser {
             Field field = (Field)property;
             if (field.getAnnotation(Id.class) != null) {
                 return true;
-            } else if (field.getAnnotation(EmbeddedId.class) != null) {
-                return true;
             } else {
-                return false;
+                return field.getAnnotation(EmbeddedId.class) != null;
             }
         } else if (property instanceof Method) {
             Method method = (Method)property;
             if (method.getAnnotation(Id.class) != null) {
                 return true;
-            } else if (method.getAnnotation(EmbeddedId.class) != null) {
-                return true;
             } else {
-                return false;
-            }            
+                return method.getAnnotation(EmbeddedId.class) != null;
+            }
         } else {
             return false;
         }

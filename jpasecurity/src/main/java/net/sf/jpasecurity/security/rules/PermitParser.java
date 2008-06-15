@@ -27,14 +27,14 @@ import net.sf.jpasecurity.util.AbstractAnnotationParser;
  */
 public class PermitParser extends AbstractAnnotationParser<Permit> {
 
-    private Map<Class<?>, String> whereClauses = new HashMap<Class<?>, String>(); 
-    
+    private Map<Class<?>, String> whereClauses = new HashMap<Class<?>, String>();
+
     public Map<Class<?>, String> parsePermissions(Class<?>... classes) {
         whereClauses.clear();
         parse(classes);
         return whereClauses;
     }
-    
+
     protected void process(Class<?> annotatedClass, Permit permit) {
         whereClauses.put(annotatedClass, permit.where());
     }
