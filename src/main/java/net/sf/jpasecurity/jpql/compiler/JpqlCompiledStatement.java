@@ -8,7 +8,7 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an "AS IS" BASIS, 
+ * software distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions
  * and limitations under the License.
@@ -50,7 +50,7 @@ public class JpqlCompiledStatement implements Cloneable {
         this.aliasTypes = name;
         this.namedParameters = namedParameters;
     }
-    
+
     public Node getStatement() {
         return statement;
     }
@@ -62,11 +62,11 @@ public class JpqlCompiledStatement implements Cloneable {
     public Map<String, Class<?>> getAliasTypes() {
         return aliasTypes;
     }
-    
+
     public Set<String> getNamedParameters() {
         return namedParameters;
     }
-    
+
     public JpqlFrom getFromClause() {
         if (fromClause == null) {
             FromVisitor visitor = new FromVisitor();
@@ -74,9 +74,9 @@ public class JpqlCompiledStatement implements Cloneable {
             statement.visit(visitor, fromClauseHolder);
             fromClause = fromClauseHolder.getValue();
         }
-        return fromClause;    	
+        return fromClause;
     }
-    
+
     public JpqlWhere getWhereClause() {
         if (whereClause == null) {
             WhereVisitor visitor = new WhereVisitor();
@@ -86,7 +86,7 @@ public class JpqlCompiledStatement implements Cloneable {
         }
         return whereClause;
     }
-    
+
     public JpqlCompiledStatement clone() {
         try {
             JpqlCompiledStatement statement = (JpqlCompiledStatement)super.clone();
@@ -100,30 +100,30 @@ public class JpqlCompiledStatement implements Cloneable {
             throw new IllegalStateException(e);
         }
     }
-    
+
     public String toString() {
         return getClass() + "[\"" + statement.toString() + "\"]";
     }
-    
+
     private class FromVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlFrom>> {
-        
+
         public boolean visit(JpqlFrom fromClause, ValueHolder<JpqlFrom> fromClauseHolder) {
             fromClauseHolder.setValue(fromClause);
             return false;
         }
-        
+
         public boolean visit(JpqlSubselect node, ValueHolder<JpqlFrom> fromClauseHolder) {
             return false;
         }
     }
 
     private class WhereVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlWhere>> {
-        
+
         public boolean visit(JpqlWhere whereClause, ValueHolder<JpqlWhere> whereClauseHolder) {
             whereClauseHolder.setValue(whereClause);
             return false;
         }
-        
+
         public boolean visit(JpqlSubselect node, ValueHolder<JpqlWhere> whereClauseHolder) {
             return false;
         }

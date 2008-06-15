@@ -87,7 +87,7 @@ import net.sf.jpasecurity.persistence.mapping.PropertyMappingInformation;
  * @author Arne Limburg
  */
 public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationParameters> {
-    
+
     public boolean canEvaluate(Node node, InMemoryEvaluationParameters parameters) {
         try {
             evaluate(node, parameters);
@@ -96,12 +96,12 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             return false;
         }
     }
-    
+
     public <R> R evaluate(Node node, InMemoryEvaluationParameters<R> parameters) throws NotEvaluatableException {
         node.visit(this, parameters);
         return parameters.getResult();
     }
-    
+
     public boolean visit(JpqlSelectClause node) {
         return false;
     }
@@ -260,7 +260,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         }
         return false;
     }
-    
+
     private String createRegularExpression(String pattern) {
         StringBuilder regularExpressionBuilder = new StringBuilder();
         int index = 0;
@@ -305,7 +305,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             node.jjtGetChild(0).visit(this, data);
             data.setResult(data.getResult() == null);
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -316,7 +316,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             node.jjtGetChild(0).visit(this, data);
             data.setResult(((Collection)data.getResult()).isEmpty());
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -329,7 +329,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             node.jjtGetChild(1).visit(this, data);
             data.setResult(((Collection)data.getResult()).contains(value));
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -343,7 +343,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             Object value2 = data.getResult();
             data.setResult(value1.equals(value2));
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -357,7 +357,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             Object value2 = data.getResult();
             data.setResult(!value1.equals(value2));
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -371,7 +371,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             Comparable value2 = (Comparable)data.getResult();
             data.setResult(value1.compareTo(value2) > 0);
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -385,7 +385,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             Comparable value2 = (Comparable)data.getResult();
             data.setResult(value1.compareTo(value2) >= 0);
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -399,7 +399,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             Comparable value2 = (Comparable)data.getResult();
             data.setResult(value1.compareTo(value2) < 0);
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -413,7 +413,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             Comparable value2 = (Comparable)data.getResult();
             data.setResult(value1.compareTo(value2) <= 0);
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -427,7 +427,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             BigDecimal value2 = new BigDecimal(data.getResult().toString());
             data.setResult(value1.add(value2));
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -441,7 +441,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             BigDecimal value2 = new BigDecimal(data.getResult().toString());
             data.setResult(value1.subtract(value2));
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -455,7 +455,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             BigDecimal value2 = new BigDecimal(data.getResult().toString());
             data.setResult(value1.multiply(value2));
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -469,7 +469,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             BigDecimal value2 = new BigDecimal(data.getResult().toString());
             data.setResult(value1.divide(value2));
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -481,7 +481,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             BigDecimal value = new BigDecimal(data.getResult().toString());
             data.setResult(value.negate());
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -495,7 +495,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             String value2 = (String)data.getResult();
             data.setResult(value1 + value2);
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -511,7 +511,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             int toIndex = new BigDecimal(data.getResult().toString()).intValue();
             data.setResult(text.substring(fromIndex, toIndex));
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -537,7 +537,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                 trimCharacter = ((String)data.getResult()).charAt(0);
             } else if (!trimSpecificationPresent && node.jjtGetNumChildren() == 2) {
                 node.jjtGetChild(0).visit(this, data);
-                trimCharacter = ((String)data.getResult()).charAt(0);                
+                trimCharacter = ((String)data.getResult()).charAt(0);
             }
             node.jjtGetChild(node.jjtGetNumChildren() - 1).visit(this, data);
             String text = (String)data.getResult();
@@ -554,7 +554,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             }
             data.setResult(builder.toString());
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -565,7 +565,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             node.jjtGetChild(0).visit(this, data);
             data.setResult(data.getResult().toString().toLowerCase());
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -576,7 +576,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             node.jjtGetChild(0).visit(this, data);
             data.setResult(data.getResult().toString().toUpperCase());
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -587,7 +587,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             node.jjtGetChild(0).visit(this, data);
             data.setResult(data.getResult().toString().length());
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -606,7 +606,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             }
             data.setResult(text.indexOf(substring, start));
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -617,7 +617,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             node.jjtGetChild(0).visit(this, data);
             data.setResult(new BigDecimal(data.getResult().toString()).abs());
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -628,7 +628,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             node.jjtGetChild(0).visit(this, data);
             data.setResult(Math.sqrt(new BigDecimal(data.getResult().toString()).doubleValue()));
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -642,7 +642,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             int i2 = Integer.parseInt(data.getResult().toString());
             data.setResult(i1 % i2);
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -653,7 +653,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             node.jjtGetChild(0).visit(this, data);
             data.setResult(((Collection)data.getResult()).size());
         } catch (NotEvaluatableException e) {
-            //result is undefined, which is ok here            
+            //result is undefined, which is ok here
         }
         return false;
     }
@@ -679,7 +679,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     public boolean visit(JpqlIdentifier node, InMemoryEvaluationParameters data) {
         assert node.jjtGetNumChildren() == 0;
         try {
-            data.setResult(data.getAliasValue(node.getValue()));;
+            data.setResult(data.getAliasValue(node.getValue()));
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
         }

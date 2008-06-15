@@ -26,7 +26,7 @@ import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 
 /**
- * Optimizes a query by evaluating subtrees in memory. 
+ * Optimizes a query by evaluating subtrees in memory.
  * @author Arne Limburg
  */
 public class QueryOptimizer {
@@ -35,24 +35,27 @@ public class QueryOptimizer {
     private final InMemoryEvaluationParameters<Boolean> parameters;
     private final NodeOptimizer nodeOptimizer = new NodeOptimizer();
     private final QueryPreparator queryPreparator = new QueryPreparator();
-    
+
     public QueryOptimizer(MappingInformation mappingInformation,
                           Map<String, Object> aliases,
                           Map<String, Object> namedParameters,
                           Map<Integer, Object> positionalParameters) {
-        this.parameters = new InMemoryEvaluationParameters<Boolean>(mappingInformation, aliases, namedParameters, positionalParameters);
+        this.parameters = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
+                                                                    aliases,
+                                                                    namedParameters,
+                                                                    positionalParameters);
     }
-    
+
     public void optimize(JpqlCompiledStatement compiledStatement) {
         optimize(compiledStatement.getWhereClause());
     }
-    
+
     public void optimize(Node node) {
         node.visit(nodeOptimizer, new InMemoryEvaluationParameters<Boolean>(parameters));
     }
-    
+
     private class NodeOptimizer extends JpqlVisitorAdapter<InMemoryEvaluationParameters<Boolean>> {
-        
+
         public boolean visit(JpqlWhere where, InMemoryEvaluationParameters<Boolean> data) {
             assert where.jjtGetNumChildren() == 1;
             try {
@@ -67,12 +70,13 @@ public class QueryOptimizer {
                 return true;
             }
         }
-        
+
         public boolean visit(JpqlOr node, InMemoryEvaluationParameters<Boolean> data) {
             assert node.jjtGetNumChildren() == 2;
             try {
                 if (evaluator.evaluate(node.jjtGetChild(0), data)) {
-                    queryPreparator.replace(node, queryPreparator.createEquals(queryPreparator.createBoolean(true), queryPreparator.createBoolean(true)));
+                    queryPreparator.replace(node, queryPreparator.createEquals(queryPreparator.createBoolean(true),
+                                                                               queryPreparator.createBoolean(true)));
                 } else {
                     queryPreparator.replace(node, node.jjtGetChild(1));
                 }
@@ -80,14 +84,16 @@ public class QueryOptimizer {
             } catch (NotEvaluatableException e) {
                 try {
                     if (evaluator.evaluate(node.jjtGetChild(1), data)) {
-                        queryPreparator.replace(node, queryPreparator.createEquals(queryPreparator.createBoolean(true), queryPreparator.createBoolean(true)));
+                        queryPreparator.replace(node,
+                                                queryPreparator.createEquals(queryPreparator.createBoolean(true),
+                                                                             queryPreparator.createBoolean(true)));
                     } else {
                         queryPreparator.replace(node, node.jjtGetChild(0));
                     }
                     return false;
                 } catch (NotEvaluatableException n) {
                     return true;
-                }                
+                }
             }
         }
 
@@ -110,16 +116,16 @@ public class QueryOptimizer {
                     return false;
                 } catch (NotEvaluatableException n) {
                     return true;
-                }                
+                }
             }
         }
-        
+
         public boolean visit(JpqlBrackets brackets, InMemoryEvaluationParameters<Boolean> data) {
             assert brackets.jjtGetNumChildren() == 1;
             while (brackets.jjtGetChild(0) instanceof JpqlBrackets) {
                 queryPreparator.replace(brackets.jjtGetChild(0), brackets.jjtGetChild(0).jjtGetChild(0));
             }
             return true;
-        }        
+        }
     }
 }

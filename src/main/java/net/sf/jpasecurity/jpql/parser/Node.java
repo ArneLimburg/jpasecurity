@@ -15,48 +15,67 @@
  */
 package net.sf.jpasecurity.jpql.parser;
 
-/* All AST nodes must implement this interface.  It provides basic
-   machinery for constructing the parent and child relationships
-   between nodes. */
-
+/*
+ * All AST nodes must implement this interface.  It provides basic
+ * machinery for constructing the parent and child relationships
+ * between nodes.
+ */
 public interface Node extends Cloneable {
 
-  /** This method is called after the node has been made the current
-    node.  It indicates that child nodes can now be added to it. */
-  void jjtOpen();
+    /**
+     * This method is called after the node has been made the current
+     * node.  It indicates that child nodes can now be added to it.
+     */
+    void jjtOpen();
 
-  /** This method is called after all the child nodes have been
-    added. */
-  void jjtClose();
+    /**
+     * This method is called after all the child nodes have been
+     * added.
+     */
+    void jjtClose();
 
-  /** This pair of methods are used to inform the node of its
-    parent. */
-  void jjtSetParent(Node n);
-  Node jjtGetParent();
+    /**
+     * This pair of methods are used to inform the node of its
+     * parent.
+     */
+    void jjtSetParent(Node n);
+    Node jjtGetParent();
 
-  /** This method tells the node to add its argument to the node's
-    list of children.  */
-  void jjtAddChild(Node n, int i);
+    /**
+     * This method tells the node to add its argument to the node's
+     * list of children.
+     */
+    void jjtAddChild(Node n, int i);
 
-  /** This method returns a child node.  The children are numbered
-     from zero, left to right. */
-  Node jjtGetChild(int i);
-  
-  void jjtSetChild(Node n, int i);
-  
-  void jjtRemoveChild(int i);
+    /**
+     * This method returns a child node.  The children are numbered
+     * from zero, left to right.
+     */
+    Node jjtGetChild(int i);
 
-  /** Return the number of children the node has. */
-  int jjtGetNumChildren();
-  
-  /** Accept the visitor. **/
-  Object jjtAccept(JpqlParserVisitor visitor, Object data);
+    void jjtSetChild(Node n, int i);
 
-  /** Visits the visitor. **/
-  void visit(JpqlParserVisitor visitor);
+    void jjtRemoveChild(int i);
 
-  /** Visits the visitor. **/
-  void visit(JpqlParserVisitor visitor, Object data);
+    /**
+     * Return the number of children the node has.
+     */
+    int jjtGetNumChildren();
 
-  Node clone();
+    /**
+     * Accept the visitor.
+     */
+    Object jjtAccept(JpqlParserVisitor visitor, Object data);
+
+    /**
+     * Visits the visitor.
+     */
+    void visit(JpqlParserVisitor visitor);
+
+    /**
+     * Visits the visitor.
+     */
+    void visit(JpqlParserVisitor visitor, Object data);
+
+    Node clone();
 }

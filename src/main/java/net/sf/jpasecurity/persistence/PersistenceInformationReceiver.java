@@ -27,6 +27,6 @@ import net.sf.jpasecurity.persistence.mapping.MappingInformation;
  */
 public interface PersistenceInformationReceiver {
 
-	void setPersistenceMapping(MappingInformation persistenceMapping);
-	void setPersistenceProperties(Map<String, String> properties);
+    void setPersistenceMapping(MappingInformation persistenceMapping);
+    void setPersistenceProperties(Map<String, String> properties);
 }

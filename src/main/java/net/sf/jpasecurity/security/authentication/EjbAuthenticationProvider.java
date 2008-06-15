@@ -34,37 +34,37 @@ import net.sf.jpasecurity.persistence.mapping.MappingInformation;
  */
 public class EjbAuthenticationProvider implements AuthenticationProvider, PersistenceInformationReceiver {
 
-	private Set<String> roles;
+    private Set<String> roles;
 
-	public void setPersistenceMapping(MappingInformation persistenceMapping) {
-		roles = new DeclareRolesParser().parseDeclaredRoles(persistenceMapping.getPersistentClasses());
-	}
-	
-	public Object getUser() {
-		return getContext().getCallerPrincipal().getName();
-	}
-	
-	public Collection<Object> getRoles() {
-		EJBContext context = getContext();
-		List<Object> filteredRoles = new ArrayList<Object>();
-		for (String role: roles) {
-			if (context.isCallerInRole(role)) {
-				filteredRoles.add(role);
-			}
-		}
-		return filteredRoles;
-	}
-	
-	protected EJBContext getContext() {
-		try {
-			InitialContext context = new InitialContext();
-		    return (EJBContext)context.lookup("java:comp/EJBContext");
-		} catch (NamingException e) {
-			throw new EJBException(e);
-		}		
-	}
+    public void setPersistenceMapping(MappingInformation persistenceMapping) {
+        roles = new DeclareRolesParser().parseDeclaredRoles(persistenceMapping.getPersistentClasses());
+    }
 
-	public void setPersistenceProperties(Map<String, String> properties) {
-		//not needed
-	}
+    public Object getUser() {
+        return getContext().getCallerPrincipal().getName();
+    }
+
+    public Collection<Object> getRoles() {
+        EJBContext context = getContext();
+        List<Object> filteredRoles = new ArrayList<Object>();
+        for (String role : roles) {
+            if (context.isCallerInRole(role)) {
+                filteredRoles.add(role);
+            }
+        }
+        return filteredRoles;
+    }
+
+    protected EJBContext getContext() {
+        try {
+            InitialContext context = new InitialContext();
+            return (EJBContext)context.lookup("java:comp/EJBContext");
+        } catch (NamingException e) {
+            throw new EJBException(e);
+        }
+    }
+
+    public void setPersistenceProperties(Map<String, String> properties) {
+        //not needed
+    }
 }

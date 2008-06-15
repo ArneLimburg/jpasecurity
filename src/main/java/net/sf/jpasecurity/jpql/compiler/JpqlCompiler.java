@@ -8,7 +8,7 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an "AS IS" BASIS, 
+ * software distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions
  * and limitations under the License.
@@ -54,28 +54,28 @@ public class JpqlCompiler {
         accessRuleParameters.add(AccessRule.DEFAULT_ROLES_PARAMETER_NAME);
         ACCESS_RULE_PARAMETERS = Collections.unmodifiableSet(accessRuleParameters);
     }
-    
-	private MappingInformation mappingInformation;
-	private final SelectVisitor selectVisitor = new SelectVisitor();
-	private final AliasVisitor aliasVisitor = new AliasVisitor();
+
+    private MappingInformation mappingInformation;
+    private final SelectVisitor selectVisitor = new SelectVisitor();
+    private final AliasVisitor aliasVisitor = new AliasVisitor();
     private final NamedParameterVisitor namedParameterVisitor = new NamedParameterVisitor();
     private final PositionalParameterVisitor positionalParameterVisitor = new PositionalParameterVisitor();
-	
-	public JpqlCompiler(MappingInformation mappingInformation) {
-		this.mappingInformation = mappingInformation;
-	}
-	
+
+    public JpqlCompiler(MappingInformation mappingInformation) {
+        this.mappingInformation = mappingInformation;
+    }
+
     public JpqlCompiledStatement compile(JpqlStatement statement) {
         List<String> selectedPathes = getSelectedPaths(statement);
         Map<String, Class<?>> aliasTypes = getAliasTypes(statement);
         Set<String> namedParameters = getNamedParameters(statement);
         return new JpqlCompiledStatement(statement, selectedPathes, aliasTypes, namedParameters);
     }
-    
+
     public AccessRule compile(JpqlAccessRule rule) {
         Map<String, Class<?>> aliasTypes = getAliasTypes(rule);
         if (aliasTypes.size() > 1) {
-        	throw new IllegalStateException("An access rule may have only on alias specified");
+            throw new IllegalStateException("An access rule may have only on alias specified");
         }
         Map.Entry<String, Class<?>> aliasType = aliasTypes.entrySet().iterator().next();
         Set<String> namedParameters = getNamedParameters(rule);
@@ -87,111 +87,111 @@ public class JpqlCompiler {
         if (getPositionalParameters(rule).size() > 0) {
             throw new PersistenceException("Positional parameters are not allowed for access rules");
         }
-        return new AccessRule(rule, aliasType.getKey(), aliasType.getValue(), namedParameters);    	
+        return new AccessRule(rule, aliasType.getKey(), aliasType.getValue(), namedParameters);
     }
-    
+
     public Class<?> getType(String path, Map<String, Class<?>> aliasTypes) {
-    	try {
-    		String[] entries = path.split("\\.");
-    		Class<?> type = aliasTypes.get(entries[0]);
-    		for (int i = 1; i < entries.length; i++) {
-    			type = mappingInformation.getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
-    		}
-    		return type;
-    	} catch (NullPointerException e) {
-    		throw new PersistenceException("Could not determine type of alias \"" + path + "\"", e);
-    	}
+        try {
+            String[] entries = path.split("\\.");
+            Class<?> type = aliasTypes.get(entries[0]);
+            for (int i = 1; i < entries.length; i++) {
+                type = mappingInformation.getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
+            }
+            return type;
+        } catch (NullPointerException e) {
+            throw new PersistenceException("Could not determine type of alias \"" + path + "\"", e);
+        }
     }
-    
+
     public List<String> getSelectedPaths(Node node) {
         List<String> selectedPaths = new ArrayList<String>();
         node.visit(selectVisitor, selectedPaths);
-    	return selectedPaths;
+        return selectedPaths;
     }
-    
+
     public Map<String, Class<?>> getAliasTypes(Node node) {
         Map<String, Class<?>> aliasTypes = new HashMap<String, Class<?>>();
-    	node.visit(aliasVisitor, aliasTypes);
-    	return aliasTypes;
+        node.visit(aliasVisitor, aliasTypes);
+        return aliasTypes;
     }
-    
+
     public Set<String> getNamedParameters(Node node) {
         Set<String> namedParameters = new HashSet<String>();
         node.visit(namedParameterVisitor, namedParameters);
         return namedParameters;
     }
-    
+
     public Set<String> getPositionalParameters(Node node) {
         Set<String> positionalParameters = new HashSet<String>();
         node.visit(positionalParameterVisitor, positionalParameters);
         return positionalParameters;
     }
-    
+
     private class SelectVisitor extends JpqlVisitorAdapter<List<String>> {
 
         private final ToStringVisitor toStringVisitor = new ToStringVisitor();
 
-    	public boolean visit(JpqlSelectExpression node, List<String> selectedPaths) {
-    		toStringVisitor.reset();
-    		node.visit(toStringVisitor);
-    		selectedPaths.add(toStringVisitor.toString());
-    		return false;
+        public boolean visit(JpqlSelectExpression node, List<String> selectedPaths) {
+            toStringVisitor.reset();
+            node.visit(toStringVisitor);
+            selectedPaths.add(toStringVisitor.toString());
+            return false;
         }
-    	
+
         public boolean visit(JpqlSubselect node, List<String> selectedPaths) {
             return false;
         }
     }
-    
+
     private class AliasVisitor extends JpqlVisitorAdapter<Map<String, Class<?>>> {
-     
+
         public boolean visit(JpqlFromItem node, Map<String, Class<?>> aliasTypes) {
             String abstractSchemaName = node.jjtGetChild(0).toString();
             String alias = node.jjtGetChild(1).toString();
             Class<?> type = mappingInformation.getClassMapping(abstractSchemaName.trim()).getEntityType();
             aliasTypes.put(alias, type);
-    		return false;
+            return false;
         }
 
         public boolean visit(JpqlInnerJoin node, Map<String, Class<?>> aliasTypes) {
-        	return visitFetch(node, aliasTypes);
+            return visitFetch(node, aliasTypes);
         }
 
         public boolean visit(JpqlOuterJoin node, Map<String, Class<?>> aliasTypes) {
-        	return visitFetch(node, aliasTypes);
+            return visitFetch(node, aliasTypes);
         }
 
         public boolean visit(JpqlOuterFetchJoin node, Map<String, Class<?>> aliasTypes) {
-        	return visitFetch(node, aliasTypes);
+            return visitFetch(node, aliasTypes);
         }
 
         public boolean visit(JpqlInnerFetchJoin node, Map<String, Class<?>> aliasTypes) {
-        	return visitFetch(node, aliasTypes);
+            return visitFetch(node, aliasTypes);
         }
-        
+
         private boolean visitFetch(Node node, Map<String, Class<?>> aliasTypes) {
-        	if (node.jjtGetNumChildren() > 1) {
-        		String fetchPath = node.jjtGetChild(0).toString();        	
-        		String alias = node.jjtGetChild(1).toString();        		
-        		Class type = getType(fetchPath, aliasTypes);
-        		aliasTypes.put(alias, type);
-        	}
-            return false;        	
+            if (node.jjtGetNumChildren() > 1) {
+                String fetchPath = node.jjtGetChild(0).toString();
+                String alias = node.jjtGetChild(1).toString();
+                Class type = getType(fetchPath, aliasTypes);
+                aliasTypes.put(alias, type);
+            }
+            return false;
         }
 
         public boolean visit(JpqlSubselect node, Map<String, Class<?>> aliasTypes) {
             return false;
         }
     }
-    
+
     private class NamedParameterVisitor extends JpqlVisitorAdapter<Set<String>> {
-        
+
         public boolean visit(JpqlNamedInputParameter node, Set<String> namedParameters) {
             namedParameters.add(node.getValue());
             return true;
         }
     }
-    
+
     private class PositionalParameterVisitor extends JpqlVisitorAdapter<Set<String>> {
 
         public boolean visit(JpqlPositionalInputParameter node, Set<String> positionalParameters) {

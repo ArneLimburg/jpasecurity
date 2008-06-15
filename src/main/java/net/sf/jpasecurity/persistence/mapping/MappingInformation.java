@@ -43,22 +43,27 @@ public class MappingInformation {
     private static final String CLASS_ENTRY_SUFFIX = ".class";
 
     private PersistenceUnitInfo persistenceUnit;
-    private Map<Class<?>, ClassMappingInformation> entityTypeMappings = new HashMap<Class<?>, ClassMappingInformation>();
+    private Map<Class<?>, ClassMappingInformation> entityTypeMappings
+        = new HashMap<Class<?>, ClassMappingInformation>();
     private Map<String, ClassMappingInformation> entityNameMappings;
     private ClassLoader classLoader;
     private JpaAnnotationParser annotationParser = new JpaAnnotationParser(entityTypeMappings);
 
+    /**
+     * Creates mapping information from the specified persistence-unit information.
+     * @param persistenceUnitInfo the persistence-unit information create the mapping information from
+     */
     public MappingInformation(PersistenceUnitInfo persistenceUnitInfo) {
         persistenceUnit = persistenceUnitInfo;
         parse();
     }
-    
+
     public String getPersistenceUnitName() {
         return persistenceUnit.getPersistenceUnitName();
     }
-    
+
     public Collection<Class<?>> getPersistentClasses() {
-    	return Collections.unmodifiableSet(entityTypeMappings.keySet());
+        return Collections.unmodifiableSet(entityTypeMappings.keySet());
     }
 
     public ClassMappingInformation getClassMapping(Class<?> entityType) {
@@ -69,26 +74,26 @@ public class MappingInformation {
         }
         return classMapping;
     }
-    
+
     public ClassMappingInformation getClassMapping(String entityName) {
         if (entityNameMappings == null) {
             initializeEntityNameMappings();
         }
         ClassMappingInformation classMapping = entityNameMappings.get(entityName);
         if (classMapping == null) {
-        	throw new PersistenceException("Could not find mapping for entity with name \"" + entityName + '"');
+            throw new PersistenceException("Could not find mapping for entity with name \"" + entityName + '"');
         }
         return classMapping;
     }
-    
+
     private void initializeEntityNameMappings() {
-    	entityNameMappings = new HashMap<String, ClassMappingInformation>();
+        entityNameMappings = new HashMap<String, ClassMappingInformation>();
         for (ClassMappingInformation classMapping: entityTypeMappings.values()) {
             entityNameMappings.put(classMapping.getEntityName(), classMapping);
             entityNameMappings.put(classMapping.getEntityType().getName(), classMapping);
         }
     }
-    
+
     private void parse() {
         classLoader = findClassLoader();
         if (persistenceUnit.getPersistenceUnitRootUrl() != null) {
@@ -156,7 +161,7 @@ public class MappingInformation {
             throw new PersistenceException(e);
         }
     }
-    
+
     private String getClassName(Node classNode) {
         Node classAttribute = classNode.getAttributes().getNamedItem(OrmXmlParser.CLASS_ATTRIBUTE_NAME);
         return classAttribute.getNodeValue();

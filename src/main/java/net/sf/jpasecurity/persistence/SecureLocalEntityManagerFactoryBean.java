@@ -16,7 +16,6 @@
 package net.sf.jpasecurity.persistence;
 
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
 import net.sf.jpasecurity.security.authentication.SpringAuthenticationProvider;
@@ -32,7 +31,7 @@ public class SecureLocalEntityManagerFactoryBean extends LocalEntityManagerFacto
 
     private AuthenticationProvider authenticationProvider;
     private AccessRulesProvider accessRulesProvider;
-    
+
     public AuthenticationProvider getAuthenticationProvider() {
         if (authenticationProvider == null) {
             authenticationProvider = new SpringAuthenticationProvider();
@@ -55,7 +54,7 @@ public class SecureLocalEntityManagerFactoryBean extends LocalEntityManagerFacto
         this.accessRulesProvider = accessRulesProvider;
     }
 
-    protected EntityManagerFactory createNativeEntityManagerFactory() throws PersistenceException {
+    protected EntityManagerFactory createNativeEntityManagerFactory() {
         EntityManagerFactory entityManagerFactory = super.createNativeEntityManagerFactory();
         SecurePersistenceProvider persistenceProvider = new SecurePersistenceProvider();
         return persistenceProvider.createSecureEntityManagerFactory(entityManagerFactory,

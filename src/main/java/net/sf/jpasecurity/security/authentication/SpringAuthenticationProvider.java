@@ -29,23 +29,23 @@ import org.springframework.security.context.SecurityContextHolder;
  */
 public class SpringAuthenticationProvider implements AuthenticationProvider {
 
-	public Object getUser() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null) {
-		    return null;
+    public Object getUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
         }
-		return authentication.getPrincipal();
-	}
+        return authentication.getPrincipal();
+    }
 
-	public Collection<Object> getRoles() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null || authentication.getAuthorities() == null) {
-		    return Collections.EMPTY_LIST;
+    public Collection<Object> getRoles() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getAuthorities() == null) {
+            return Collections.EMPTY_LIST;
         }
-		List<Object> roles = new ArrayList<Object>();
-		for (GrantedAuthority authority: authentication.getAuthorities()) {
-			roles.add(authority.getAuthority());
-		}
-		return roles;
-	}
+        List<Object> roles = new ArrayList<Object>();
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            roles.add(authority.getAuthority());
+        }
+        return roles;
+    }
 }

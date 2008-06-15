@@ -79,10 +79,10 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
             return null;
         }
     }
-    
+
     private Collection<String> parsePermissions(Class<?> annotatedClass) {
         try {
-            Set<String> rules = new HashSet<String>(); 
+            Set<String> rules = new HashSet<String>();
             Map<Class<?>, String> permissions = permissionParser.parsePermissions(annotatedClass);
             for (Map.Entry<Class<?>, String> permission: permissions.entrySet()) {
                 String name = annotatedClass.getSimpleName();
@@ -104,25 +104,25 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
     private void appendAlias(JpqlWhere whereClause, String alias) {
         whereClause.visit(getPathVisitor(), alias);
     }
-    
+
     private JpqlParser getWhereClauseParser() {
         if (whereClauseParser == null) {
             whereClauseParser = new JpqlParser();
         }
         return whereClauseParser;
     }
-    
+
     private PathVisitor getPathVisitor() {
         if (pathVisitor == null) {
             pathVisitor = new PathVisitor();
         }
         return pathVisitor;
     }
-    
+
     private class PathVisitor extends JpqlVisitorAdapter<String> {
-        
+
         private final QueryPreparator queryPreparator = new QueryPreparator();
-        
+
         public boolean visit(JpqlPath path, String alias) {
             queryPreparator.prepend(alias, path);
             return true;

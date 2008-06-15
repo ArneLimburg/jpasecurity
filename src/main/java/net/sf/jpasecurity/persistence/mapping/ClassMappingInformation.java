@@ -28,7 +28,6 @@ import javax.persistence.PersistenceException;
 
 /**
  * @author Arne Limburg
- *
  */
 public class ClassMappingInformation {
 
@@ -37,7 +36,7 @@ public class ClassMappingInformation {
     private String entityName;
     private Class<?> entityType;
     private ClassMappingInformation superclassMapping;
-    private Class<?> idClass; 
+    private Class<?> idClass;
     private boolean fieldAccess;
     private Map<String, PropertyMappingInformation> propertyMappings
         = new HashMap<String, PropertyMappingInformation>();
@@ -57,11 +56,11 @@ public class ClassMappingInformation {
     public String getEntityName() {
         return entityName;
     }
-    
+
     public Class<?> getEntityType() {
         return entityType;
     }
-    
+
     public Class<?> getIdClass() {
         return idClass;
     }
@@ -116,7 +115,7 @@ public class ClassMappingInformation {
             }
         }
     }
-    
+
     private List<PropertyMappingInformation> getIdPropertyMappings() {
         List<PropertyMappingInformation> idPropertyMappings = new ArrayList<PropertyMappingInformation>();
         for (PropertyMappingInformation propertyMapping: propertyMappings.values()) {
@@ -138,7 +137,7 @@ public class ClassMappingInformation {
         field.setAccessible(true);
         field.set(target, fieldValue);
     }
-    
+
     private Field getField(Class type, String name) {
         if (type == null) {
             return null;
@@ -149,14 +148,16 @@ public class ClassMappingInformation {
             return getField(type.getSuperclass(), name);
         }
     }
-    
-    private void setMethodValue(Object target, String propertyName, Object propertyValue) throws IllegalAccessException, InvocationTargetException {
-        String methodName = SET_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
+
+    private void setMethodValue(Object target, String propertyName, Object propertyValue)
+            throws IllegalAccessException, InvocationTargetException {
+        String methodName
+            = SET_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
         Method method = getMethod(target.getClass(), methodName);
         method.setAccessible(true);
         method.invoke(target, propertyValue);
     }
-    
+
     private Method getMethod(Class type, String name) {
         if (type == null) {
             return null;
