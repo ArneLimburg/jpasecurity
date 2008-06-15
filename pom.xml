@@ -119,7 +119,7 @@
           <execution>
             <goals>
               <goal>generate-html</goal>
-              <!--goal>generate-pdf</goal-->
+              <goal>generate-pdf</goal>
             </goals>
             <phase>pre-site</phase>
           </execution>
@@ -198,7 +198,7 @@
     </plugins>
   </build>
   
-  <!--reporting>
+  <reporting>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -216,18 +216,43 @@
         <artifactId>cobertura-maven-plugin</artifactId>
       </plugin>
     </plugins>
-  </reporting-->
+  </reporting>
+  
+  <repositories>
+    <repository>
+      <id>central</id>
+      <name>Maven Plugin Repository</name>
+      <url>http://repo1.maven.org/maven2</url>
+    </repository>
+    <repository>
+      <id>jboss</id>
+      <name>JBoss Repository</name>
+      <url>http://repository.jboss.com/maven2</url>
+    </repository>
+    <repository>
+      <id>ja-sig</id>
+      <name>JA-SIG</name>
+      <url>http://developer.ja-sig.org/maven2</url>
+    </repository>
+  </repositories>
   
   <dependencies>
-    <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>persistence-api</artifactId>
-      <version>1.0</version>
-    </dependency>
     <dependency>
       <groupId>javax.ejb</groupId>
       <artifactId>ejb-api</artifactId>
       <version>3.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>jsr250-api</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.persistence</groupId>
+      <artifactId>persistence-api</artifactId>
+      <version>1.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -322,7 +347,7 @@
     <dependency>
       <groupId>toplink.essentials</groupId>
       <artifactId>toplink-essentials</artifactId>
-      <version>2.1-29</version>
+      <version>2.0-38</version>
       <scope>test</scope>
     </dependency>
     <dependency>
