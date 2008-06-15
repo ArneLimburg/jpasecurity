@@ -29,13 +29,13 @@ import net.sf.jpasecurity.util.AbstractAnnotationParser;
 public class RolesAllowedParser extends AbstractAnnotationParser<RolesAllowed> {
 
     private Set<String> rolesAllowed = new HashSet<String>();
-    
+
     public Set<String> parseAllowedRoles(Class<?>... classes) {
         rolesAllowed.clear();
         parse(classes);
         return rolesAllowed;
     }
-    
+
     protected void process(RolesAllowed annotation) {
         for (String role: annotation.value()) {
             rolesAllowed.add(role);

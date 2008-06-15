@@ -104,7 +104,11 @@ public abstract class AbstractMappingParser {
             return new SingleValuedRelationshipMappingInformation(name, typeMapping, classMapping, isIdProperty);
         } else if (isCollectionValuedRelationshipProperty(property)) {
             ClassMappingInformation targetMapping = parse(getTargetType(property));
-            return new CollectionValuedRelationshipMappingInformation(name, type, targetMapping, classMapping, isIdProperty);
+            return new CollectionValuedRelationshipMappingInformation(name,
+                                                                      type,
+                                                                      targetMapping,
+                                                                      classMapping,
+                                                                      isIdProperty);
         } else if (isSimplePropertyType(type)) {
             return new SimplePropertyMappingInformation(name, type, classMapping, isIdProperty);
         } else {
@@ -181,13 +185,13 @@ public abstract class AbstractMappingParser {
     protected abstract boolean isMapped(Class<?> mappedClass);
 
     protected abstract boolean isMapped(Member member);
-    
+
     protected abstract Class<?> getIdClass(Class<?> entityClass, boolean usesFieldAccess);
 
     protected boolean isMappable(Member member) {
         return !Modifier.isStatic(member.getModifiers()) && !Modifier.isTransient(member.getModifiers());
     }
-    
+
     protected boolean isSimplePropertyType(Class<?> type) {
         return isEmbeddable(type)
             || type.isPrimitive()
@@ -214,11 +218,11 @@ public abstract class AbstractMappingParser {
             || Enum.class.isAssignableFrom(type)
             || Serializable.class.isAssignableFrom(type);
     }
-    
+
     protected abstract boolean isEmbeddable(Class<?> type);
 
     protected abstract boolean isIdProperty(Member property);
-    
+
     protected boolean isRelationshipProperty(Member property) {
         return isSingleValuedRelationshipProperty(property) || isCollectionValuedRelationshipProperty(property);
     }

@@ -40,7 +40,7 @@ public class EntityManagerFactoryInvocationHandler implements InvocationHandler 
 
     private static final String CLOSE_METHOD_NAME = "close";
     private static final String CREATE_ENTITY_MANAGER_METHOD_NAME = "createEntityManager";
-    
+
     private EntityManagerFactory entityManagerFactory;
     private MappingInformation mappingInformation;
     private AuthenticationProvider authenticationProvider;
@@ -67,7 +67,8 @@ public class EntityManagerFactoryInvocationHandler implements InvocationHandler 
         this.authenticationProvider = authenticationProvider;
         this.accessRulesProvider = accessRulesProvider;
         this.mappingInformation = new MappingInformation(persistenceUnitInfo);
-        Map<String, String> persistenceProperties = new HashMap<String, String>((Map)persistenceUnitInfo.getProperties());
+        Map<String, String> persistenceProperties
+            = new HashMap<String, String>((Map)persistenceUnitInfo.getProperties());
         if (properties != null) {
             persistenceProperties.putAll(properties);
         }
@@ -97,21 +98,23 @@ public class EntityManagerFactoryInvocationHandler implements InvocationHandler 
                 entityManagerFactory = null;
                 mappingInformation = null;
                 authenticationProvider = null;
-                accessRulesProvider = null;                
+                accessRulesProvider = null;
             } else if (method.getName().equals(CREATE_ENTITY_MANAGER_METHOD_NAME)) {
+                EntityManagerInvocationHandler invocationHandler
+                    = new EntityManagerInvocationHandler((EntityManager)result,
+                                                         mappingInformation,
+                                                         authenticationProvider,
+                                                         accessRulesProvider.getAccessRules());
                 result = Proxy.newProxyInstance(result.getClass().getClassLoader(),
                                                 getImplementingInterfaces(result.getClass()),
-                                                new EntityManagerInvocationHandler((EntityManager)result,
-                                                                                   mappingInformation,
-                                                                                   authenticationProvider,
-                                                                                   accessRulesProvider.getAccessRules()));
+                                                invocationHandler);
             }
             return result;
         } catch (InvocationTargetException e) {
             throw e.getCause();
         }
     }
-    
+
     protected Class<?>[] getImplementingInterfaces(Class<?> type) {
         Set<Class<?>> interfaces = new HashSet<Class<?>>();
         while (type != null) {

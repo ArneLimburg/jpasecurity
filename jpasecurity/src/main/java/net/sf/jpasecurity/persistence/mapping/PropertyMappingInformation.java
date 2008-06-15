@@ -27,7 +27,7 @@ import javax.persistence.PersistenceException;
 public abstract class PropertyMappingInformation {
 
     private static final String GET_METHOD_PREFIX = "get";
-    
+
     private String name;
     private ClassMappingInformation containingClassMapping;
     private boolean idProperty;
@@ -47,13 +47,13 @@ public abstract class PropertyMappingInformation {
     public boolean isIdProperty() {
         return idProperty;
     }
-    
+
     public String getPropertyName() {
         return name;
     }
-    
+
     public abstract Class<?> getProperyType();
-    
+
     public Object getPropertyValue(Object target) {
         ClassMappingInformation classMapping = getContainingClassMapping();
         if (classMapping.usesFieldAccess()) {
@@ -69,7 +69,8 @@ public abstract class PropertyMappingInformation {
         } else {
             try {
                 String propertyName = getPropertyName();
-                String methodName = GET_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
+                String methodName
+                    = GET_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
                 Method method = classMapping.getEntityType().getDeclaredMethod(methodName);
                 method.setAccessible(true);
                 return method.invoke(target, (Object[])null);
@@ -83,7 +84,7 @@ public abstract class PropertyMappingInformation {
                 } else {
                     throw new PersistenceException(e.getTargetException());
                 }
-            }            
+            }
         }
     }
 

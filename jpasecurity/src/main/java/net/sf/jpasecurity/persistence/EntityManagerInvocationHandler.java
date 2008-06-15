@@ -40,7 +40,7 @@ import net.sf.jpasecurity.security.rules.AccessRule;
 public class EntityManagerInvocationHandler implements InvocationHandler {
 
     public static final String CREATE_QUERY_METHOD_NAME = "createQuery";
-    
+
     private EntityManager entityManager;
     private AuthenticationProvider authenticationProvider;
     private MappingInformation mappingInformation;
@@ -67,7 +67,7 @@ public class EntityManagerInvocationHandler implements InvocationHandler {
             throw e.getCause();
         }
     }
-    
+
     private boolean isCreateQueryMethod(Method method) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         return method.getName().equals(CREATE_QUERY_METHOD_NAME)
@@ -99,7 +99,7 @@ public class EntityManagerInvocationHandler implements InvocationHandler {
                     Object id = roleClassMapping.getId(role);
                     roles.add(entityManager.getReference(roleClassMapping.getEntityType(), id));
                 }
-            }            
+            }
         }
         FilterResult filterResult = queryFilter.filterQuery(qlString, user, roles);
         Query query = entityManager.createQuery(filterResult.getQuery());

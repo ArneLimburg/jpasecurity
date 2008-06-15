@@ -8,7 +8,7 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an "AS IS" BASIS, 
+ * software distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions
  * and limitations under the License.
@@ -29,11 +29,11 @@ import org.w3c.dom.NodeList;
 public class XmlNodeList extends AbstractList<Node> {
 
     private NodeList nodes;
-    
+
     public XmlNodeList(NodeList nodeList) {
         nodes = nodeList;
     }
-    
+
     public List<Node> subList(String attributeName, String attributeValue) {
         List<Node> nodes = new ArrayList<Node>();
         for (Node node: this) {
@@ -43,11 +43,11 @@ public class XmlNodeList extends AbstractList<Node> {
         }
         return nodes;
     }
-    
+
     public boolean containsAttribute(String attributeName, String attributeValue) {
         return subList(attributeName, attributeValue).size() > 0;
     }
-    
+
     public Node get(int index) {
         return nodes.item(index);
     }

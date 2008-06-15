@@ -8,7 +8,7 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an "AS IS" BASIS, 
+ * software distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions
  * and limitations under the License.
@@ -48,8 +48,8 @@ import org.apache.commons.logging.LogFactory;
  */
 public class QueryFilter {
 
-    private static final Log LOG = LogFactory.getLog(QueryFilter.class); 
-    
+    private static final Log LOG = LogFactory.getLog(QueryFilter.class);
+
     private final MappingInformation mappingInformation;
     private final JpqlParser parser;
     private final JpqlCompiler compiler;
@@ -58,30 +58,30 @@ public class QueryFilter {
     private final QueryPreparator queryPreparator = new QueryPreparator();
     private final NamedParameterReplacer namedParameterReplacer = new NamedParameterReplacer();
     private List<AccessRule> accessRules;
-    
+
     public QueryFilter(MappingInformation mappingInformation, List<AccessRule> accessRules) {
         this.mappingInformation = mappingInformation;
-    	this.parser = new JpqlParser();
-    	this.compiler = new JpqlCompiler(mappingInformation);
+        this.parser = new JpqlParser();
+        this.compiler = new JpqlCompiler(mappingInformation);
         this.accessRules = accessRules;
     }
-    
+
     public FilterResult filterQuery(String query, Object user, Set<Object> roles) {
 
         LOG.info("Filtering query " + query);
-        
+
         JpqlCompiledStatement statement = compile(query);
-        
+
         Node accessRules = createAccessRuleNode(statement, roles != null? roles.size(): 0);
         if (accessRules == null) {
             LOG.info("No access rules defined for selected type. Returning unfiltered query");
             return new FilterResult(query, null, null);
         }
-        
-        LOG.info("Using access rules " + accessRules);                
+
+        LOG.info("Using access rules " + accessRules);
 
         Set<String> namedParameters = statement.getNamedParameters();
-        
+
         String userParameterName = createUserParameterName(namedParameters, accessRules);
         Set<String> roleParameterNames = createRoleParameterNames(namedParameters, userParameterName, accessRules);
         Map<String, Object> roleParameters = createRoleParameters(roleParameterNames, roles);
@@ -94,9 +94,12 @@ public class QueryFilter {
 
         try {
             InMemoryEvaluationParameters<Boolean> evaluationParameters
-                = new InMemoryEvaluationParameters<Boolean>(mappingInformation, Collections.EMPTY_MAP, parameters, Collections.EMPTY_MAP);
+                = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
+                                                            Collections.EMPTY_MAP,
+                                                            parameters,
+                                                            Collections.EMPTY_MAP);
             if (queryEvaluator.evaluate(accessRules, evaluationParameters)) {
-                LOG.info("Access rules are always true for current user and roles. Returning unfiltered query");                
+                LOG.info("Access rules are always true for current user and roles. Returning unfiltered query");
                 return new FilterResult(query, null, null);
             }
         } catch (NotEvaluatableException e) {
@@ -120,10 +123,12 @@ public class QueryFilter {
             and.jjtSetParent(where);
             where.jjtSetChild(and, 0);
         }
-        
+
         LOG.info("Optimizing filtered query " + statement.getStatement());
 
-        new QueryOptimizer(mappingInformation, Collections.EMPTY_MAP, parameters, Collections.EMPTY_MAP).optimize(accessRules);
+        QueryOptimizer optimizer
+            = new QueryOptimizer(mappingInformation, Collections.EMPTY_MAP, parameters, Collections.EMPTY_MAP);
+        optimizer.optimize(accessRules);
         Set<String> newRoleParameterNames = compiler.getNamedParameters(accessRules);
         roleParameters.keySet().retainAll(newRoleParameterNames);
         if (!newRoleParameterNames.contains(userParameterName)) {
@@ -135,7 +140,7 @@ public class QueryFilter {
                                 userParameterName,
                                 roleParameters.size() > 0? roleParameters: null);
     }
-    
+
     private Node createAccessRuleNode(JpqlCompiledStatement statement, int roleCount) {
         Node accessRuleNode = null;
         Map<String, Class<?>> selectedTypes = getSelectedTypes(statement);
@@ -158,7 +163,7 @@ public class QueryFilter {
             return queryPreparator.createBrackets(accessRuleNode);
         }
     }
-    
+
     private String createUserParameterName(Set<String> namedParameters, Node accessRules) {
         String userParameterName = AccessRule.DEFAULT_USER_PARAMETER_NAME;
         for (int i = 0; namedParameters.contains(userParameterName); i++) {
@@ -169,14 +174,18 @@ public class QueryFilter {
         return userParameterNameCount > 0? userParameterName: null;
     }
 
-    private Set<String> createRoleParameterNames(Set<String> namedParameters, String userParameterName, Node accessRules) {
+    private Set<String> createRoleParameterNames(Set<String> namedParameters,
+                                                 String userParameterName,
+                                                 Node accessRules) {
         Set<String> roleParameterNames = compiler.getNamedParameters(accessRules);
         roleParameterNames.remove(userParameterName);
         Set<String> duplicateParameterNames = new HashSet<String>(roleParameterNames);
         duplicateParameterNames.retainAll(namedParameters);
         for (String duplicateParameterName: duplicateParameterNames) {
             String newParameterName = AccessRule.DEFAULT_ROLE_PARAMETER_NAME + 0;
-            for (int i = 1; namedParameters.contains(newParameterName) || roleParameterNames.contains(newParameterName); i++) {
+            for (int i = 1;
+                 namedParameters.contains(newParameterName) || roleParameterNames.contains(newParameterName);
+                 i++) {
                 newParameterName = AccessRule.DEFAULT_ROLE_PARAMETER_NAME + i;
             }
             roleParameterNames.remove(duplicateParameterName);
@@ -184,7 +193,7 @@ public class QueryFilter {
         }
         return roleParameterNames;
     }
-    
+
     private Map<String, Object> createRoleParameters(Set<String> roleParameterNames, Set<Object> roles) {
         Map<String, Object> roleParameters = new HashMap<String, Object>();
         if (roles != null && roleParameterNames.size() > 0) {
@@ -199,7 +208,7 @@ public class QueryFilter {
         }
         return roleParameters;
     }
-    
+
     private JpqlCompiledStatement compile(String query) {
         JpqlCompiledStatement compiledStatement = statementCache.get(query);
         if (compiledStatement == null) {
@@ -209,11 +218,11 @@ public class QueryFilter {
                 statementCache.put(query, compiledStatement);
             } catch (ParseException e) {
                 throw new PersistenceException(e);
-            }            
+            }
         }
         return compiledStatement.clone();
     }
-    
+
     private Map<String, Class<?>> getSelectedTypes(JpqlCompiledStatement statement) {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: statement.getSelectedPathes()) {
@@ -221,7 +230,7 @@ public class QueryFilter {
         }
         return selectedTypes;
     }
-    
+
     private Class<?> getSelectedType(AccessRule entry) {
         Map<String, Class<?>> selectedTypes = getSelectedTypes(entry);
         if (selectedTypes.size() > 1) {
@@ -229,17 +238,17 @@ public class QueryFilter {
         }
         return selectedTypes.values().iterator().next();
     }
-    
+
     private int replaceNamedParameters(Node node, String oldNamedParameter, String newNamedParameter) {
         ReplacementParameters parameters = new ReplacementParameters(oldNamedParameter, newNamedParameter);
         node.visit(namedParameterReplacer, parameters);
         return parameters.getReplacementCount();
     }
-    
+
     private class FilteredAccessRules extends AbstractSet<AccessRule> {
 
         private Class<?> type;
-        
+
         public FilteredAccessRules(Class<?> type) {
             this.type = type;
         }
@@ -255,25 +264,25 @@ public class QueryFilter {
             }
             return size;
         }
-        
+
         private class FilteredIterator implements Iterator<AccessRule> {
 
             private Iterator<AccessRule> iterator;
             private AccessRule next;
-            
+
             public FilteredIterator(Iterator<AccessRule> iterator) {
                 this.iterator = iterator;
                 initialize();
             }
-            
+
             private void initialize() {
                 try {
                     next();
                 } catch (NoSuchElementException e) {
                     //this is expected to be thrown on initialization
-                }                
+                }
             }
-            
+
             public boolean hasNext() {
                 return next != null;
             }
@@ -285,7 +294,8 @@ public class QueryFilter {
                         next = null;
                         break;
                     }
-                } while (getSelectedType(next = iterator.next()) != type);
+                    next = iterator.next();
+                } while (getSelectedType(next) != type);
                 if (current == null) {
                     throw new NoSuchElementException();
                 }
@@ -297,9 +307,9 @@ public class QueryFilter {
             }
         }
     }
-    
+
     private class NamedParameterReplacer extends JpqlVisitorAdapter<ReplacementParameters> {
-        
+
         public boolean visit(JpqlNamedInputParameter node, ReplacementParameters replacement) {
             if (replacement.getOldNamedParameter().equals(node.getValue())) {
                 node.setValue(replacement.getNewNamedParameter());
@@ -308,30 +318,30 @@ public class QueryFilter {
             return true;
         }
     }
-    
+
     private class ReplacementParameters {
 
         private String oldNamedParameter;
         private String newNamedParameter;
         private int replacementCount;
-        
+
         public ReplacementParameters(String oldNamedParameter, String newNamedParameter) {
             this.oldNamedParameter = oldNamedParameter;
             this.newNamedParameter = newNamedParameter;
         }
-        
+
         public String getOldNamedParameter() {
             return oldNamedParameter;
         }
-        
+
         public String getNewNamedParameter() {
             return newNamedParameter;
         }
-        
+
         public int getReplacementCount() {
             return replacementCount;
         }
-        
+
         public void incrementReplacementCount() {
             replacementCount++;
         }
