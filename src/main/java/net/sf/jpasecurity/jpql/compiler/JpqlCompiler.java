@@ -132,9 +132,9 @@ public class JpqlCompiler {
         private final ToStringVisitor toStringVisitor = new ToStringVisitor();
 
         public boolean visit(JpqlSelectExpression node, List<String> selectedPaths) {
-            toStringVisitor.reset();
-            node.visit(toStringVisitor);
-            selectedPaths.add(toStringVisitor.toString());
+            StringBuilder path = new StringBuilder();
+            node.visit(toStringVisitor, path);
+            selectedPaths.add(path.toString());
             return false;
         }
 
