@@ -1135,7 +1135,7 @@ void positionalInputParameter() #PositionalInputParameter: {
 
 void patternValue() #PatternValue: {} {
     inputParameter() | stringLiteral()
-    [(<ESCAPE> escapeCharacter() #EscapeCharacter)]
+    [(<ESCAPE> escapeCharacter())]
 }
 
 void escapeCharacter() #EscapeCharacter :
