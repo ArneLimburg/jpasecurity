@@ -32,12 +32,16 @@ public class ToStringVisitorTest extends TestCase {
 	
 	public void testToStringVisitor() throws ParseException {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.id = :id");
+        assertJpql("SELECT COUNT(bean) FROM TestBean bean WHERE bean.id = :id");
+        assertJpql("SELECT AVG(bean) FROM TestBean bean WHERE bean.id = :id");
+        assertJpql("SELECT SUM(bean) FROM TestBean bean WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM net.sf.jpasecurity.model.TestBean bean WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN bean.name name WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN FETCH bean.name WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.name name WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean INNER JOIN FETCH bean.name WHERE bean.id = :id");
-		assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id NOT BETWEEN 5 AND 7)");
+		assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id BETWEEN 5 AND 7)");
+        assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id NOT BETWEEN 5 AND 7)");
 		assertJpql("SELECT DISTINCT bean, bean.id FROM TestBean bean WHERE :id = bean.id");
 		assertJpql("SELECT bean1 FROM TestBean bean1, TestBean bean2 WHERE bean1.id < bean2.id");
 		assertJpql("SELECT bean.name FROM TestBean bean WHERE (bean.name <> 'testBean')");
@@ -48,6 +52,7 @@ public class ToStringVisitorTest extends TestCase {
 		assertJpql("SELECT bean.name FROM TestBean bean WHERE (-(3 - 2) * 2) <= 10.0");
 		assertJpql("SELECT bean.name FROM TestBean bean WHERE ((3 + 2) * 2) >= 10.0");
 		assertJpql("SELECT bean.id FROM TestBean bean WHERE ABS(bean.id) = 1 HAVING bean.id > 0");
+        assertJpql("SELECT bean.id FROM TestBean bean WHERE ABS(bean.id) = 1 GROUP BY bean.id HAVING COUNT(bean.id) > 0");
 		assertJpql("SELECT bean FROM TestBean bean WHERE TRIM(LEADING ' ' FROM bean.name) = TRIM(TRAILING FROM bean.name)");
 		assertJpql("SELECT bean FROM TestBean bean WHERE TRIM(bean.name) = TRIM(BOTH FROM bean.name)");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.name = ALL( SELECT bean.collectionProperty.name FROM TestBean bean)");
@@ -59,6 +64,7 @@ public class ToStringVisitorTest extends TestCase {
 		assertJpql("SELECT DISTINCT bean FROM TestBean bean LEFT OUTER JOIN FETCH bean.beanProperty");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.id > 0");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.name LIKE '%beanName%'");
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name LIKE '%beanName%' ESCAPE '\\'");
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT LIKE '%beanName%'");
 		assertJpql("SELECT bean FROM TestBean bean WHERE (bean.collectionProperty IS NULL OR SIZE(bean.collectionProperty) = 0)");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.name IS NOT NULL");
@@ -72,10 +78,17 @@ public class ToStringVisitorTest extends TestCase {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.collectionProperty IS NOT EMPTY");
 		assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id = 0 AND bean.name = 'Test')");
 		assertJpql("SELECT bean FROM TestBean bean WHERE - MOD(bean.id, 2) = -1");
-		assertJpql("SELECT bean FROM TestBean bean WHERE bean NOT MEMBER OF bean.collectionProperty");
+		assertJpql("SELECT bean FROM TestBean bean WHERE bean MEMBER OF bean.collectionProperty");
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean NOT MEMBER OF bean.collectionProperty");
+        assertJpql("SELECT bean FROM TestBean bean WHERE EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)");
+        assertJpql("SELECT bean FROM TestBean bean WHERE NOT EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)");
 		assertJpql("SELECT bean FROM TestBean bean WHERE SUBSTRING(bean.name, 2, 3) = 'est'");
 		assertJpql("SELECT bean FROM TestBean bean WHERE LOCATE(bean.name, 'est') = 2");
+        assertJpql("SELECT bean FROM TestBean bean WHERE CONCAT(bean.name, 'est') = 'Nameest'");
 		assertJpql("SELECT bean FROM TestBean bean WHERE LOCATE(bean.name, 'est', 2) = -1");
+        assertJpql("SELECT bean FROM TestBean bean WHERE LENGTH(bean.name) = 0");
+        assertJpql("SELECT bean FROM TestBean bean WHERE UPPER(bean.name) = 'NAME'");
+        assertJpql("SELECT bean FROM TestBean bean WHERE LOWER(bean.name) = 'name'");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.name = ?1");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.created < CURRENT_TIMESTAMP");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.created < CURRENT_TIME");
@@ -87,11 +100,11 @@ public class ToStringVisitorTest extends TestCase {
 	}
 	
 	public void assertJpql(String query) throws ParseException {
-		toStringVisitor.reset();
-		JpqlStatement statement = parser.parseQuery(query);
-		statement.visit(toStringVisitor);
+        StringBuilder queryBuilder = new StringBuilder();
+        JpqlStatement statement = parser.parseQuery(query);
+		statement.visit(toStringVisitor, queryBuilder);
 		query = stripWhiteSpaces(query);
-		String result = stripWhiteSpaces(toStringVisitor.toString());
+		String result = stripWhiteSpaces(queryBuilder.toString());
 		LOG.debug(query);
 		LOG.debug(result);
 		assertEquals("JPQL", query, result);
