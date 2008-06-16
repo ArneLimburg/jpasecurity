@@ -128,9 +128,9 @@ public class SimpleNode implements Node {
     }
 
     public String toString() {
-        ToStringVisitor toStringVisitor = new ToStringVisitor();
-        visit(toStringVisitor);
-        return toStringVisitor.toString();
+        StringBuilder stringBuilder = new StringBuilder();
+        visit(new ToStringVisitor(), stringBuilder);
+        return stringBuilder.toString();
     }
 
     public Node clone() {
