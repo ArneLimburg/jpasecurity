@@ -3,19 +3,19 @@
 <section id="security">
   <title>Integrating JPA Security</title>
   <para>
-    In order to integrate JPA Security we need three things to be configured:
+    In order to integrate JPA Security in our application we need three things to be configured:
     <itemizedlist>
       <listitem>a persistence provider</listitem>
       <listitem>an authentication provider and</listitem>
       <listitem>a rules provider</listitem>
     </itemizedlist>
     The persistence provider is a JPA persistence provider that does the real work for us.
-    In our application this will be Hibernate with its org.hibernate.ejb.HibernatePersistence provider.
+    In our application this will be Hibernate with its <code>org.hibernate.ejb.HibernatePersistence</code> provider.
     The authentication provider is needed to provide information about the currently authenticated user
-    to JPA Security. Read more about this in the appropriate {{{{manual.html#authenticationprovider}}chapter}}
-    of the reference manual. In our case a net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider suffers.
+    to JPA Security. Read more about this in the appropriate chapter of the reference manual.
+    In our case a <code>net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider</code> suffers.
     A rules provider provides the access rules on which our security depends. We want to define them in a security.xml
-    in our META-INF folder, so we use the net.sf.jpasecurity.security.rules.XmlAccessRulesProvider.
+    in our META-INF folder, so we use the <code>net.sf.jpasecurity.security.rules.XmlAccessRulesProvider</code>.
     We change the persistence.xml as follows:
   </para>
   <programlisting>
@@ -28,11 +28,11 @@
   <class>net.sf.jpasecurity.contacts.Contact</class>
 
   <properties>
-    <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+    <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
     <property name="net.sf.jpasecurity.security.authentication.provider"
-              value="net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider"/>
+              value="net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider" />
     <property name="net.sf.jpasecurity.security.rules.provider"
-              value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+              value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider" />
     <property name="hibernate.hbm2ddl.auto" value="create-drop" />
     <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
     <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -57,11 +57,11 @@
   </para>
   <programlisting>
     <![CDATA[
-    <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+    <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
     <property name="net.sf.jpasecurity.security.authentication.provider"
-              value="net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider"/>
+              value="net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider" />
     <property name="net.sf.jpasecurity.security.rules.provider"
-              value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+              value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider" />
     ]]>
   </programlisting>
   <para>
@@ -90,6 +90,5 @@
   </para>
   <para>
     Let's try our program now and see what happens...
-    This tutorial is to be continued...
   </para>
 </section>

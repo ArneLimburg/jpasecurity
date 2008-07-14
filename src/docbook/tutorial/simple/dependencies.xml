@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="dependencies">
+  <title>Dependencies</title>
+  <para>
+    Our application uses Hibernate as persistence provider and HSQLDB as (in-memory-)database.
+    So we have to add the appropriate dependencies to our pom.xml file (as we don't need it,
+    we remove the dependency to JUnit, that maven created):
+  </para>
+  <programlisting>
+    <![CDATA[
+  <dependencies>
+    <dependency>
+      <groupId>net.sf.jpasecurity</groupId>
+      <artifactId>jpasecurity</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+      <version>3.3.2.GA</version>
+    </dependency>
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.7</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+    ]]>
+  </programlisting>
+  <para>
+    As no remote repository contains JPA Security yet, we need to install it to our local maven-repository.
+    We do this by the following call from within the folder where the JPA Security JAR-file resists:
+  </para>
+  <programlisting>
+mvn install:install-file -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity -Dversion=0.1.0-SNAPSHOT -Dpackaging=jar -Dfile=jpasecurity-0.1.0-SNAPSHOT.jar
+  </programlisting>
+  <para>
+    Note, that you have to provide the absolute path to your jpa-security-0.1.0-SNAPSHOT.jar.
+  </para>
+</section>

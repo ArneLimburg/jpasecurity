@@ -47,7 +47,7 @@ mvn archetype:create -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity-simpl
     ]]>
   </programlisting>
   <para>
-    You can now compile our project by issueing the following Maven command
+    You can now compile our project by issuing the following Maven command
     from within the jpasecurity-simple-sample folder:
   </para>
   <programlisting>
