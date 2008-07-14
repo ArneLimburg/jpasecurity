@@ -52,7 +52,10 @@ public class User {
         return getName().hashCode();
     }
 }
-
+    ]]>
+  </programlisting>
+  <programlisting>
+    <![CDATA[
 @Entity
 public class Contact {
 
@@ -107,6 +110,21 @@ public class Contact {
         return getUser().hashCode() ^ getText().hashCode();
     }
 }
+    ]]>
+  </programlisting>
+  <para>
+    The code for these entities is also available in the jpasecurity-0.1.0-SNAPSHOT-tests.jar.
+    If you provide this within your pom.xml via the following snippet,
+    you don't have to write the classes yourself.
+  </para>
+  <programlisting>
+    <![CDATA[
+    <dependency>
+      <groupId>net.sf.jpasecurity</groupId>
+      <artifactId>jpasecurity</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+      <scope>test<scope>
+    </dependency>
     ]]>
   </programlisting>
 </section>
