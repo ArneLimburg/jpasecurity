@@ -14,6 +14,10 @@
           <id>setup</id>
           <title>Basic Setup</title>
         </section>
+        <section>
+          <id>dependencies</id>
+          <title>Dependencies</title>
+        </section>
       </sections>
     </chapter>
     <chapter>
