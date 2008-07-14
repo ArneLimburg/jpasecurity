@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.security.authentication;
 
+import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -46,6 +48,28 @@ public class StaticAuthenticationProvider implements AuthenticationProvider {
     public static void authenticate(Object user, Collection<Object> roles) {
         StaticAuthenticationProvider.user = user;
         StaticAuthenticationProvider.roles = roles;
+    }
+    
+    public static <R> R runAs(Object user, Collection<Object> roles, PrivilegedExceptionAction<R> action) throws Exception {
+        Object currentUser = StaticAuthenticationProvider.user;
+        Collection<Object> currentRoles = StaticAuthenticationProvider.roles;
+        try {
+            authenticate(user, roles);
+            return action.run();
+        } finally {
+            authenticate(currentUser, currentRoles);
+        }
+    }
+
+    public static <R> R runAs(Object user, Collection<Object> roles, PrivilegedAction<R> action) {
+        Object currentUser = StaticAuthenticationProvider.user;
+        Collection<Object> currentRoles = StaticAuthenticationProvider.roles;
+        try {
+            authenticate(user, roles);
+            return action.run();
+        } finally {
+            authenticate(currentUser, currentRoles);
+        }
     }
 
     public Object getUser() {
