@@ -49,8 +49,10 @@ public class StaticAuthenticationProvider implements AuthenticationProvider {
         StaticAuthenticationProvider.user = user;
         StaticAuthenticationProvider.roles = roles;
     }
-    
-    public static <R> R runAs(Object user, Collection<Object> roles, PrivilegedExceptionAction<R> action) throws Exception {
+
+    public static <R> R runAs(Object user,
+                              Collection<Object> roles,
+                              PrivilegedExceptionAction<R> action) throws Exception {
         Object currentUser = StaticAuthenticationProvider.user;
         Collection<Object> currentRoles = StaticAuthenticationProvider.roles;
         try {
