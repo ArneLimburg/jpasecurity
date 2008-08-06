@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.samples.simple;
+package net.sf.jpasecurity.sample.simple;
 
+import java.security.PrivilegedAction;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -23,6 +25,7 @@ import javax.persistence.Persistence;
 
 import net.sf.jpasecurity.contacts.Contact;
 import net.sf.jpasecurity.contacts.User;
+import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
 
 /**
  * @author Arne Limburg
@@ -30,6 +33,7 @@ import net.sf.jpasecurity.contacts.User;
 public class App {
 
     public static void main(String[] args) {
+        StaticAuthenticationProvider.authenticate("John");
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("contacts");
         createUsers(entityManagerFactory);
         displayUserCount(entityManagerFactory);
@@ -59,19 +63,24 @@ public class App {
         entityManager.close();
     }
 
-    public static void createContacts(EntityManagerFactory entityManagerFactory) {
-        EntityManager entityManager;
+    public static void createContacts(final EntityManagerFactory entityManagerFactory) {
+        StaticAuthenticationProvider.runAs("root", Arrays.asList("admin"), new PrivilegedAction() {
+            public Object run() {
+                EntityManager entityManager;
 
-        entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
-        User john = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'John'").getSingleResult();
-        User mary = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'Mary'").getSingleResult();
-        entityManager.persist(new Contact(john, "john@jpasecurity.sf.net"));
-        entityManager.persist(new Contact(john, "0 12 34 - 56 789"));
-        entityManager.persist(new Contact(mary, "mary@jpasecurity.sf.net"));
-        entityManager.persist(new Contact(mary, "12 34 56 78 90"));
-        entityManager.getTransaction().commit();
-        entityManager.close();
+                entityManager = entityManagerFactory.createEntityManager();
+                entityManager.getTransaction().begin();
+                User john = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'John'").getSingleResult();
+                User mary = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'Mary'").getSingleResult();
+                entityManager.persist(new Contact(john, "john@jpasecurity.sf.net"));
+                entityManager.persist(new Contact(john, "0 12 34 - 56 789"));
+                entityManager.persist(new Contact(mary, "mary@jpasecurity.sf.net"));
+                entityManager.persist(new Contact(mary, "12 34 56 78 90"));
+                entityManager.getTransaction().commit();
+                entityManager.close();
+                return null;
+            }
+        });
     }
 
     public static void displayContactCount(EntityManagerFactory entityManagerFactory) {
