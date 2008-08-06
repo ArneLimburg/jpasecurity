@@ -29,7 +29,7 @@ public class DefaultAuthenticationProvider implements AuthenticationProvider {
 
     private static ThreadLocal<Object> user = new ThreadLocal<Object>();
     private static ThreadLocal<Collection<Object>> roles = new ThreadLocal<Collection<Object>>();
-    
+
     /**
      * Sets the current authenticated user to the specified user, assigning the specified roles.
      * @param user the user
@@ -65,7 +65,9 @@ public class DefaultAuthenticationProvider implements AuthenticationProvider {
         return roles.get();
     }
 
-    public static <R> R runAs(Object user, Collection<Object> roles, PrivilegedExceptionAction<R> action) throws Exception {
+    public static <R> R runAs(Object user,
+                              Collection<Object> roles,
+                              PrivilegedExceptionAction<R> action) throws Exception {
         DefaultAuthenticationProvider authenticationProvider = new DefaultAuthenticationProvider();
         Object currentUser = authenticationProvider.getUser();
         Collection<Object> currentRoles = authenticationProvider.getRoles();
