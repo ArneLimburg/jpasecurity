@@ -5,7 +5,7 @@
           version="1.0">
 
   <persistence-unit name="contacts">
-    <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.user = :user</access-rule>
+    <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.user.name = :user</access-rule>
     <access-rule>GRANT READ ACCESS TO Contact contact WHERE 'admin' IN (:roles)</access-rule>
     <access-rule>GRANT READ ACCESS TO User user WHERE 'admin' IN (:roles)</access-rule>
   </persistence-unit>
