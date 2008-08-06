@@ -24,10 +24,26 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
+              <classpathPrefix>lib</classpathPrefix>
               <mainClass>net.sf.jpasecurity.sample.simple.App</mainClass>
             </manifest>
           </archive>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/lib</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -53,7 +69,6 @@
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>1.8.0.7</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
