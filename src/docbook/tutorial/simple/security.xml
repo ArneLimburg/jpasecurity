@@ -1,25 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <section id="security">
-  <title>Integrating JPA Security</title>
+  <title>Adding Security</title>
   <para>
-    In order to integrate JPA Security in our application we need three things to be configured:
-    <itemizedlist>
-      <listitem>a persistence provider</listitem>
-      <listitem>an authentication provider and</listitem>
-      <listitem>a rules provider</listitem>
-    </itemizedlist>
-    The persistence provider is a JPA persistence provider that does the real work for us.
-    In our application this will be Hibernate with its <code>org.hibernate.ejb.HibernatePersistence</code> provider.
-    The authentication provider is needed to provide information about the currently authenticated user
-    to JPA Security. Read more about this in the appropriate chapter of the reference manual.
-    In our case a <code>net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider</code> suffers.
-    A rules provider provides the access rules on which our security depends. We want to define them in a security.xml
-    in our META-INF folder, so we use the <code>net.sf.jpasecurity.security.rules.XmlAccessRulesProvider</code>.
-    We change the persistence.xml as follows:
+    In order to add access-control to our application we first need to integrate JPA Security.
   </para>
-  <programlisting>
-    <![CDATA[
+  <section>
+    <title>Integrating JPA Security</title>
+    <para>
+      In order to integrate JPA Security in our application we need three things to be configured:
+      <itemizedlist>
+        <listitem>a persistence provider</listitem>
+        <listitem>an authentication provider and</listitem>
+        <listitem>a rules provider</listitem>
+      </itemizedlist>
+      The persistence provider is a JPA persistence provider that does the real work for us.
+      In our application this will be Hibernate with its <code>org.hibernate.ejb.HibernatePersistence</code> provider.
+      The authentication provider is needed to provide information about the currently authenticated user
+      to JPA Security. Read more about this in the appropriate chapter of the reference manual.
+      In our case a <code>net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider</code> suffers.
+      A rules provider provides the access rules on which our security depends. We want to define them in a security.xml
+      in our META-INF folder, so we use the <code>net.sf.jpasecurity.security.rules.XmlAccessRulesProvider</code>.
+      We change the persistence.xml as follows:
+    </para>
+    <programlisting>
+      <![CDATA[
 <persistence-unit name="contacts" transaction-type="RESOURCE_LOCAL">
 
   <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
@@ -42,37 +47,43 @@
   </properties>
 
 </persistence-unit>
-    ]]>
-  </programlisting>
-  <para>
-    The following line has changed in order to use JPA Security:
-  </para>
-  <programlisting>
-    <![CDATA[
+      ]]>
+    </programlisting>
+    <para>
+      The following line has changed in order to use JPA Security:
+    </para>
+    <programlisting>
+      <![CDATA[
 <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
-    ]]>
-  </programlisting>
-  <para>
-    The following lines are added to specify persistence provider, authentication provider and rules provider:
-  </para>
-  <programlisting>
-    <![CDATA[
+      ]]>
+    </programlisting>
+    <para>
+      The following lines are added to specify persistence provider, authentication provider and rules provider:
+    </para>
+    <programlisting>
+      <![CDATA[
     <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
     <property name="net.sf.jpasecurity.security.authentication.provider"
               value="net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider" />
     <property name="net.sf.jpasecurity.security.rules.provider"
               value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider" />
-    ]]>
-  </programlisting>
-  <para>
-    OK, let's run our program again and let's see what happens...
-  </para>
-  <para>
-    As you can see from the output of our application: nothing happend, everything stayed as before. JPA Security integrated smooth, we even can't see it work.
-    We have not defined access rules for now. We do this by creating a security.xml in the META-INF folder:
-  </para>
-  <programlisting>
-    <![CDATA[
+      ]]>
+    </programlisting>
+    <para>
+      OK, let's run our program again and let's see what happens...
+    </para>
+    <para>
+      As you can see from the output of our application: nothing happend, everything stayed as before. JPA Security integrated smooth, we even can't see it work.
+      We have not defined access rules for now.
+    </para>
+  </section>
+  <section>
+    <title>Defining access rules</title>
+    <para>
+      We define access rules by creating a security.xml in the META-INF folder:
+    </para>
+    <programlisting>
+      <![CDATA[
 <security xmlns="http://jpasecurity.sf.net/xml/ns/security"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://jpasecurity.sf.net/xml/ns/security
@@ -86,15 +97,98 @@
   </persistence-unit>
 
 </security>
-    ]]>
-  </programlisting>
-  <para>
-    This are three access rules that show the capability of JPA Security.
-    The first rule says that contacts can be accessed by the users they belong to.
-    The second rule says that contacts can be accessed by users that are in the role of an administrator.
-    The third rule says that users can be accessed by users that are in the role of an administrator.
-  </para>
-  <para>
-    Let's try our program now and see what happens...
-  </para>
+      ]]>
+    </programlisting>
+    <para>
+      This are three access rules that show the capability of JPA Security.
+      The first rule says that contacts can be accessed by the users they belong to.
+      The second rule says that contacts can be accessed by users that are in the role of an administrator.
+      The third rule says that users can be accessed by users that are in the role of an administrator.
+    </para>
+    <para>
+      Let's try our program now and see what happens...
+    </para>
+    <para>
+      As we can see an exception is thrown, a <code>javax.persistence.NoResultException</code>
+      at the line where we try to select john from the database. That's great. We should have expected this,
+      as we are not authenticated and thus not permitted to select john from the database.
+	  An additional output proves this, as we can see the number of users we get displayed
+	  by our <code>displayUserCount</code> method is actually 0.
+    </para>
+  </section>
+  <section>
+    <title>Using <code>runAs</code></title>
+    <para>
+      Apparently we need admin rights to create contacts (to access all users), that means we must
+      run the <code>createContacts</code> method as admin. We can to this by using the <code>runAs</code>
+      method of the <code>StaticAuthenticationProvider</code>. The following code runs the method as user
+      "root" with the role "admin":
+    </para>
+    <programlisting>
+  public static void createContacts(final EntityManagerFactory entityManagerFactory) {
+    StaticAuthenticationProvider.runAs("root", Arrays.asList("admin"), new PrivilegedAction() {
+      public Object run() {
+        EntityManager entityManager;
+
+        entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        User john = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'John'").getSingleResult();
+        User mary = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'Mary'").getSingleResult();
+        entityManager.persist(new Contact(john, "john@jpasecurity.sf.net"));
+        entityManager.persist(new Contact(john, "0 12 34 - 56 789"));
+        entityManager.persist(new Contact(mary, "mary@jpasecurity.sf.net"));
+        entityManager.persist(new Contact(mary, "12 34 56 78 90"));
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        return null;
+      }
+    });
+  }
+    </programlisting>
+  </section>
+  <section>
+    <title>Authentication</title>
+    <para>
+      When we now run the application, we see that the exception is gone away, but when we take a look at
+      the output of our <code>displayUserCount</code> and <code>displayContactCount</code> method is actually 0.
+      This is because we just authenticated for the <code>createContacts</code> method. Let's authenticate
+      as "root" with the role admin at the beginning of the <code>main</code> method:
+    </para>
+    <programlisting>
+  public static void main(String[] args) {
+    StaticAuthenticationProvider.authenticate("root", "admin");
+    EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("contacts");
+    createUsers(entityManagerFactory);
+    displayUserCount(entityManagerFactory);
+    createContacts(entityManagerFactory);
+    displayContactCount(entityManagerFactory);
+  }
+    </programlisting>
+    <para>
+      When we now run our program we can see from the output, that we get 2 users and 4 contacts.
+      This is what we expected, as we are permitted to select all data with the role "admin".
+    </para>
+    <para>
+      But what is, when we authenticate as "John"? Let's try...
+    </para>
+    <programlisting>
+  public static void main(String[] args) {
+    StaticAuthenticationProvider.authenticate("John");
+    EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("contacts");
+    createUsers(entityManagerFactory);
+    displayUserCount(entityManagerFactory);
+    createContacts(entityManagerFactory);
+    displayContactCount(entityManagerFactory);
+  }
+    </programlisting>
+    <para>
+      Now the output says that we get 1 user (that is John) and 2 contacts (that are Johns contacts).
+      Obviously JPA Security works: It filters out the contacts we are not allowed to see. We may
+      authenticate as "Mary" and see that it works, too.
+    </para>
+    <para>
+      Congratulations, you have successfully set up and worked with JPA Security.
+      Next steps may be to read the manual or take a look at the API-Documentation.
+    </para>
+  </section>
 </section>
