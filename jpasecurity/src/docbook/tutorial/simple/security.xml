@@ -117,7 +117,7 @@
     </para>
   </section>
   <section>
-    <title>Using <code>runAs</code></title>
+    <title>Using runAs</title>
     <para>
       Apparently we need admin rights to create contacts (to access all users), that means we must
       run the <code>createContacts</code> method as admin. We can to this by using the <code>runAs</code>
