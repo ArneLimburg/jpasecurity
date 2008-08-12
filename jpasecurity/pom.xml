@@ -5,14 +5,16 @@
   <name>JPA Security</name>
   <version>${version}</version>
   <description>
+    JPA Security is an Access Control Solution for the Java Persistence API. 
     JPA Security provides an interface to define security requirements of your
-    Data Access Layer without any coding for ease of usability and
-    maintainability.
-    It is designed to extend current security solutions like J2EE Security and
-    Spring Security (formerly known as Acegi-Security),
+    Data Access Layer via configuration (Annotations or XML). Thus JPA Security
+    enables you to completely remove security-related code from your code-base,
+    improving development and maintainability.
+    JPA Security is designed to extend current security solutions like J2EE Security
+    and Spring Security (formerly known as Acegi-Security),
     but may be used on its own, too. It enables you to configure access control
     to your JPA Entity Beans based on the currently authenticated user
-    and/or its roles in the application via XML or Annotations.
+    and/or its roles in the application.
   </description>
   <url>http://jpasecurity.sf.net</url>
 
