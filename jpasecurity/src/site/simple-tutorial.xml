@@ -38,7 +38,7 @@
         </section>
         <section>
           <id>security</id>
-          <title>Integrating JPA Security</title>
+          <title>Adding Security</title>
         </section>
       </sections>
     </chapter>

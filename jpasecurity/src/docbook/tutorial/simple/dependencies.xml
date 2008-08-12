@@ -13,18 +13,17 @@
     <dependency>
       <groupId>net.sf.jpasecurity</groupId>
       <artifactId>jpasecurity</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
+      <version>0.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
-      <version>3.3.2.GA</version>
+      <version>3.3.2.ga</version>
     </dependency>
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>1.8.0.7</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
     ]]>
@@ -34,9 +33,9 @@
     We do this by the following call from within the folder where the JPA Security JAR-file resists:
   </para>
   <programlisting>
-mvn install:install-file -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity -Dversion=0.1.0-SNAPSHOT -Dpackaging=jar -Dfile=jpasecurity-0.1.0-SNAPSHOT.jar
+mvn install:install-file -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity -Dversion=0.1.0 -Dpackaging=jar -Dfile=/path/to/jpasecurity-0.1.0.jar
   </programlisting>
   <para>
-    Note, that you have to provide the absolute path to your jpa-security-0.1.0-SNAPSHOT.jar.
+    Note that you have to provide the absolute path to your <code>jpa-security-0.1.0.jar</code>.
   </para>
 </section>
