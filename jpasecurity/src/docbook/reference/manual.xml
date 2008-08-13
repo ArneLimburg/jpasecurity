@@ -29,6 +29,7 @@
   <!--xi:include href="introduction.xml"/-->
   <xi:include href="basics.xml"/>
   <xi:include href="integration.xml"/>
+  <xi:include href="authentication.xml"/>
 
   <!--<part id="appendixes">-->
 

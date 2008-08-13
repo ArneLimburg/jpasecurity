@@ -5,5 +5,4 @@
   <xi:include href="rule-based.xml"/>
   <xi:include href="syntax.xml"/>
   <xi:include href="rules.xml"/>
-  <xi:include href="authentication.xml"/>
 </chapter>

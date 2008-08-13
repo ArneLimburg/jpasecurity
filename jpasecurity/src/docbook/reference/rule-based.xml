@@ -6,7 +6,7 @@
     In JPA Security the access to entities is defined by access rules.
     There is one set of access rules per application. This set of access rules
     applies to every JPA query you perform. Every rule may be restricted to be valid
-    for just one user or role a group of users or roles.
+    for just one user or role or a group of users or roles.
   </para>
   <example>
     <para>

@@ -25,40 +25,68 @@
   </itemizedlist>
   <example>
     <para>
-      Supposed you have an existing JPA application. This example assumes
-      Hibernate as persistence provider. Your <quote>persistence.xml</quote>
+      Supposed you have an existing JPA application. Your <quote>persistence.xml</quote>
       may look similar to this:
     </para> 
     <programlisting>
-      &lt;persistence xmlns="http://java.sun.com/xml/ns/persistence"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
-                                        http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
-                    version="1.0"&gt;
+      <![CDATA[
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+                                 http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+             version="1.0">
           
-          &lt;persistence-unit name="test-unit" transaction-type="RESOURCE_LOCAL"&gt;
+  <persistence-unit name="persistence-unit-name" transaction-type="RESOURCE_LOCAL">
 
-              &lt;provider&gt;org.hibernate.ejb.HibernatePersistence&lt;/provider&gt;
+    <provider>your.persistence.provider.ClassName</provider>
 
-              &lt;class&gt;net.sf.jpasecurity.TestBean&lt;/class&gt;
-              &lt;!-- More class-mappings go here --&gt;
-              ...
+    <class>net.sf.jpasecurity.TestBean</class>
+      <!-- More class-mappings go here -->
+      ...
                 
-              &lt;properties&gt;
-                  &lt;!-- Hibernate-specific properties go here --&gt;
-                  ...
-              &lt;/properties&gt;
+      <properties>
+        <!-- persistence-provider-specific properties go here -->
+        ...
+      </properties>
 
-          &lt;/persistence-unit&gt;
-
-      &lt;/persistence&gt;
-          
+    </persistence-unit>
+</persistence>
+      ]]>          
     </programlisting>
     <para>
       After integrating JPA Security your <quote>persistence.xml</quote>
       may look like this:
     </para>
     <programlisting>
+      <![CDATA[
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+                                 http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+             version="1.0">
+          
+  <persistence-unit name="persistence-unit-name" transaction-type="RESOURCE_LOCAL">
+
+    <provider>your.persistence.provider.ClassName</provider>
+
+    <class>net.sf.jpasecurity.TestBean</class>
+      <!-- More class-mappings go here -->
+      ...
+                
+      <properties>
+&lt;property name="net.sf.jpasecurity.persistence.provider"
+                            value="org.hibernate.ejb.HibernatePersistence"/&gt;
+                  &lt;property name="net.sf.jpasecurity.security.authentication.provider"
+                            value="net.sf.jpasecurity.security.authentication.DefaultAuthenticationProvider"/&gt;
+                  &lt;property name="net.sf.jpasecurity.security.rules.provider"
+                            value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/&gt;
+        <!-- persistence-provider-specific properties go here -->
+        ...
+      </properties>
+
+    </persistence-unit>
+</persistence>
+      ]]>          
       &lt;persistence xmlns="http://java.sun.com/xml/ns/persistence"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
