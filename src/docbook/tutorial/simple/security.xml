@@ -7,7 +7,6 @@
   </para>
   <section>
     <title>Integrating JPA Security</title>
-    <para>
       In order to integrate JPA Security in our application we need three things to be configured:
       <itemizedlist>
         <listitem>a persistence provider</listitem>
@@ -18,7 +17,7 @@
       In our application this will be Hibernate with its <code>org.hibernate.ejb.HibernatePersistence</code> provider.
       The authentication provider is needed to provide information about the currently authenticated user
       to JPA Security. Read more about this in the appropriate chapter of the reference manual.
-      In our case a <code>net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider</code> suffers.
+      In our case a <code>net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider</code> suffices.
       A rules provider provides the access rules on which our security depends. We want to define them in a security.xml
       in our META-INF folder, so we use the <code>net.sf.jpasecurity.security.rules.XmlAccessRulesProvider</code>.
       We change the persistence.xml as follows:
@@ -73,7 +72,8 @@
       OK, let's run our program again and let's see what happens...
     </para>
     <para>
-      As you can see from the output of our application: nothing happend, everything stayed as before. JPA Security integrated smooth, we even can't see it work.
+      As you can see from the output: nothing happend, everything stayed as before.
+      JPA Security smoothly integrated into our application, we even can't see it work.
       We have not defined access rules for now.
     </para>
   </section>
@@ -91,7 +91,7 @@
           version="1.0">
 
   <persistence-unit name="contacts">
-    <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.user = :user</access-rule>
+    <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.owner.name = :user</access-rule>
     <access-rule>GRANT READ ACCESS TO Contact contact WHERE 'admin' IN (:roles)</access-rule>
     <access-rule>GRANT READ ACCESS TO User user WHERE 'admin' IN (:roles)</access-rule>
   </persistence-unit>
@@ -100,7 +100,7 @@
       ]]>
     </programlisting>
     <para>
-      This are three access rules that show the capability of JPA Security.
+      These are three access rules that show the capability of JPA Security.
       The first rule says that contacts can be accessed by the users they belong to.
       The second rule says that contacts can be accessed by users that are in the role of an administrator.
       The third rule says that users can be accessed by users that are in the role of an administrator.
@@ -121,8 +121,8 @@
     <para>
       Apparently we need admin rights to create contacts (to access all users), that means we must
       run the <code>createContacts</code> method as admin. We can to this by using the <code>runAs</code>
-      method of the <code>StaticAuthenticationProvider</code>. The following code runs the method as user
-      "root" with the role "admin":
+      method of the <code>StaticAuthenticationProvider</code>. We change the method <code>createContacts</code>
+      to run as user "root" with the role "admin":
     </para>
     <programlisting>
   public static void createContacts(final EntityManagerFactory entityManagerFactory) {
@@ -134,9 +134,9 @@
         entityManager.getTransaction().begin();
         User john = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'John'").getSingleResult();
         User mary = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'Mary'").getSingleResult();
-        entityManager.persist(new Contact(john, "john@jpasecurity.sf.net"));
+        entityManager.persist(new Contact(john, "peter@jpasecurity.sf.net"));
         entityManager.persist(new Contact(john, "0 12 34 - 56 789"));
-        entityManager.persist(new Contact(mary, "mary@jpasecurity.sf.net"));
+        entityManager.persist(new Contact(mary, "paul@jpasecurity.sf.net"));
         entityManager.persist(new Contact(mary, "12 34 56 78 90"));
         entityManager.getTransaction().commit();
         entityManager.close();
@@ -182,13 +182,15 @@
   }
     </programlisting>
     <para>
-      Now the output says that we get 1 user (that is John) and 2 contacts (that are Johns contacts).
-      Obviously JPA Security works: It filters out the contacts we are not allowed to see. We may
-      authenticate as "Mary" and see that it works, too.
+      Now the output says that we get no user and 2 contacts (that are Johns contacts). We get no
+      user because only users with the role "admin" are allowed to get users.
+      Obviously JPA Security works: It filters out the users and contacts we are not allowed to see.
+      We may authenticate as "Mary" and see that it works, too.
     </para>
     <para>
       Congratulations, you have successfully set up and worked with JPA Security.
-      Next steps may be to read the manual or take a look at the API-Documentation.
+      It remains as an exercise to the reader to add an access rule to let every user retrieve itself
+      from the database. Next steps may be to read the manual or take a look at the API-Documentation.
     </para>
   </section>
 </section>

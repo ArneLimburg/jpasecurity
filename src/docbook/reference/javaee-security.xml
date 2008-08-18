@@ -3,11 +3,12 @@
 <section>
   <title>Integration with JavaEE Security</title>
   <para>
-    To integrate JPA Security with JavaEE Security you may specify the
+    To use JavaEE Authentication for JPA Security you may integrate JPA Security like
+    described in the previous chapter and specify
     <code>net.sf.jpasecurity.security.authentication.EjbAuthenticationProvider</code>
     as authentication provider in your persistence properties.
     You need to define all the roles your application is using
-    with the <code>@DeclareRoles</code> annotation
+    with the <code>@DeclareRoles</code> annotation at at least one of your entity beans
     in order to make the <code>EjbAuthenticationProvider</code> to work correctly.
   </para>
 </section>

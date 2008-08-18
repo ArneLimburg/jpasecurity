@@ -3,8 +3,8 @@
 <section id="persistence">
   <title>Persistence Unit</title>
   <para>
-    In order to use JPA, we need a persistence.xml in the META-INF folder of our application.
-    The META-INF folder will be placed in src/main/resources.
+    In order to use JPA, we need a persistence.xml.
+    We have to put it into the src/main/resources/META-INF folder, which we have to create previously.
     We want Hibernate to use HSQLDB and create the schema for us, so our persistence.xml looks like this:
   </para>
   <programlisting>
@@ -19,8 +19,8 @@
 
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
-    <class>net.sf.jpasecurity.contacts.User</class>
-    <class>net.sf.jpasecurity.contacts.Contact</class>
+    <class>net.sf.jpasecurity.contacts.model.User</class>
+    <class>net.sf.jpasecurity.contacts.model.Contact</class>
 
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="create-drop" />

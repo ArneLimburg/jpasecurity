@@ -8,7 +8,8 @@
     It is just a simple sample to provide an entry point to JPA Security.
     The code can be found in the module jpasecurity-simple-sample.
     This tutorial assumes basic knowledge of the Java Persistence API.
-    Maven 2 is used to build this sample so you should have installed Maven 2
+    <ulink url="http://maven.apache.org" type="text/html">Maven 2</ulink>
+    is used to build this sample so you should have installed Maven 2
     before you start.
   </para>
 </section>

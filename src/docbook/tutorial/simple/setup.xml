@@ -19,9 +19,13 @@ mvn archetype:create -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity-simpl
     Hello-World-example called App.java.
     Maven also created src/test/java, but we don't need this directory nor its subdirectories,
     so we can savely delete it.
-    We now create a subpackage sample.simple in the package net.sf.jpasecurity
-    and move the App.java into it.
+    We now create subfolders in our src/main/java/net/sf/jpasecurity folder named sample/simple
+    and move the App.java into it. Don't forget to correct the package declaration in the App.java
+    to point to the right package:
   </para>
+  <programlisting>
+package net.sf.jpasecurity.sample.simple;
+  </programlisting>
   <para>
     Our sample shall be compiled and executed with Java 5 and shall be packed into an executable jar file.
     In order to configure Maven to do so, we have to add the following configuration to the pom.xml
@@ -79,9 +83,13 @@ mvn package
     ]]>
   </programlisting>
   <para>
+    This will cause some dependencies to be downloaded. So please ensure
+    you are connected to the internet.
+  </para>
+  <para>
     If everything is configured correctly this command should end with
     something like "BUILD SUCCESSFUL" and you can start our application
-    by changing into the <code>target</code> directory and issueing
+    by changing into the subdirectory <code>target</code> and issueing
     the following command:
   </para>
   <programlisting>
