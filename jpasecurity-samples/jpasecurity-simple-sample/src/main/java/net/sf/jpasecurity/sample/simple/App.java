@@ -23,8 +23,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import net.sf.jpasecurity.contacts.Contact;
-import net.sf.jpasecurity.contacts.User;
+import net.sf.jpasecurity.contacts.model.Contact;
+import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
 
 /**
@@ -72,9 +72,9 @@ public class App {
                 entityManager.getTransaction().begin();
                 User john = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'John'").getSingleResult();
                 User mary = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'Mary'").getSingleResult();
-                entityManager.persist(new Contact(john, "john@jpasecurity.sf.net"));
+                entityManager.persist(new Contact(john, "peter@jpasecurity.sf.net"));
                 entityManager.persist(new Contact(john, "0 12 34 - 56 789"));
-                entityManager.persist(new Contact(mary, "mary@jpasecurity.sf.net"));
+                entityManager.persist(new Contact(mary, "paul@jpasecurity.sf.net"));
                 entityManager.persist(new Contact(mary, "12 34 56 78 90"));
                 entityManager.getTransaction().commit();
                 entityManager.close();
