@@ -17,8 +17,8 @@ package net.sf.jpasecurity.contacts.spring;
 
 import java.util.List;
 
-import net.sf.jpasecurity.contacts.Contact;
-import net.sf.jpasecurity.contacts.User;
+import net.sf.jpasecurity.contacts.model.Contact;
+import net.sf.jpasecurity.contacts.model.User;
 
 /**
  * @author Arne Limburg

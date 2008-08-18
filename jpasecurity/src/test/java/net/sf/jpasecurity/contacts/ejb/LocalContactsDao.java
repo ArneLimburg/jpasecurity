@@ -19,8 +19,8 @@ import java.util.List;
 
 import javax.ejb.Local;
 
-import net.sf.jpasecurity.contacts.Contact;
-import net.sf.jpasecurity.contacts.User;
+import net.sf.jpasecurity.contacts.model.Contact;
+import net.sf.jpasecurity.contacts.model.User;
 
 /**
  * @author Arne Limburg

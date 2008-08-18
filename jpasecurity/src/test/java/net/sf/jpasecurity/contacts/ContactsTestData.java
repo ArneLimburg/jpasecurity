@@ -17,6 +17,9 @@ package net.sf.jpasecurity.contacts;
 
 import javax.persistence.EntityManager;
 
+import net.sf.jpasecurity.contacts.model.Contact;
+import net.sf.jpasecurity.contacts.model.User;
+
 import junit.framework.TestCase;
 
 /**

@@ -7,8 +7,8 @@
 
     <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-    <class>net.sf.jpasecurity.contacts.User</class>
-    <class>net.sf.jpasecurity.contacts.Contact</class>
+    <class>net.sf.jpasecurity.contacts.model.User</class>
+    <class>net.sf.jpasecurity.contacts.model.Contact</class>
 
     <properties>
       <property name="net.sf.jpasecurity.persistence.provider" value="org.apache.openjpa.persistence.PersistenceProviderImpl"/>
@@ -33,8 +33,8 @@
 
     <provider>oracle.toplink.essentials.PersistenceProvider</provider>
 
-    <class>net.sf.jpasecurity.contacts.User</class>
-    <class>net.sf.jpasecurity.contacts.Contact</class>
+    <class>net.sf.jpasecurity.contacts.model.User</class>
+    <class>net.sf.jpasecurity.contacts.model.Contact</class>
 
     <properties>
       <property name="toplink.ddl-generation" value="drop-and-create-tables"/>
@@ -51,8 +51,8 @@
 
     <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-    <class>net.sf.jpasecurity.contacts.User</class>
-    <class>net.sf.jpasecurity.contacts.Contact</class>
+    <class>net.sf.jpasecurity.contacts.model.User</class>
+    <class>net.sf.jpasecurity.contacts.model.Contact</class>
 
     <properties>
       <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>

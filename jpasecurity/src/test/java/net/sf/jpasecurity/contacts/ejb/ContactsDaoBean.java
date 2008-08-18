@@ -21,8 +21,8 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import net.sf.jpasecurity.contacts.Contact;
-import net.sf.jpasecurity.contacts.User;
+import net.sf.jpasecurity.contacts.model.Contact;
+import net.sf.jpasecurity.contacts.model.User;
 
 /**
  * @author Arne Limburg
