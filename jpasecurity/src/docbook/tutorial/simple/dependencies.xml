@@ -4,12 +4,12 @@
   <title>Dependencies</title>
   <para>
     Our application uses Hibernate as persistence provider and HSQLDB as (in-memory-)database.
-    So we have to add the appropriate dependencies to our pom.xml file (as we don't need it,
-    we remove the dependency to JUnit, that maven created):
+    So we have to add the appropriate dependencies to our pom.xml file
+    (between the <code>&lt;dependencies&gt;&lt;/dependencies&gt; section). As we don't need it,
+    we replace the dependency to JUnit, that maven created:
   </para>
   <programlisting>
     <![CDATA[
-  <dependencies>
     <dependency>
       <groupId>net.sf.jpasecurity</groupId>
       <artifactId>jpasecurity</artifactId>
@@ -25,17 +25,26 @@
       <artifactId>hsqldb</artifactId>
       <version>1.8.0.7</version>
     </dependency>
-  </dependencies>
     ]]>
   </programlisting>
   <para>
-    As no remote repository contains JPA Security yet, we need to install it to our local maven-repository.
-    We do this by the following call from within the folder where the JPA Security JAR-file resists:
+    Hibernate needs the Transaction-API from sun. Download it <ulink url="http://java.sun.com/products/jta" type="text/html">here</ulink>
+    and install it to your local Maven repository with the following command:
+  </para>
+  <programlisting>
+mvn install:install-file -DgroupId=javax.transaction -DartifactId=jta -Dversion=1.0.1B -Dpackaging=jar -Dfile=/path/to/jta.jar
+  </programlisting>
+  <para>
+    Note that you have to provide the absolute path to the <code>jta.jar</code>.
+  </para>
+  <para>
+    As no remote repository contains JPA Security yet, we need to install it to our local maven-repository, too.
+    We do this with the following command:
   </para>
   <programlisting>
 mvn install:install-file -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity -Dversion=0.1.0 -Dpackaging=jar -Dfile=/path/to/jpasecurity-0.1.0.jar
   </programlisting>
   <para>
-    Note that you have to provide the absolute path to your <code>jpa-security-0.1.0.jar</code>.
+    Note again that you have to provide the absolute path to your <code>jpa-security-0.1.0.jar</code>.
   </para>
 </section>

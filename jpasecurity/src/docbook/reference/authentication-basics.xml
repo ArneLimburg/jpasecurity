@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="authentication-basics" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title>Authentication Basics</title>
+  <para>
+    JPA Security uses an implementation of the <code>net.sf.jpasecurity.authentication.AuthenticationProvider</code>
+    interface to be aware of the currently authenticated user and/or it's roles at runtime. The chapter about
+    integrating JPA Security will show how to configure this and the chapter about authentication will show which
+    authentication provider to use.
+  </para>
+</section>

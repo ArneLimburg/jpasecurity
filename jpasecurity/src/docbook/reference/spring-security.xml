@@ -4,8 +4,23 @@
   <title>Integration with Spring Security</title>
   <para>
     If you are using the Springframework with Acegi Security or Spring Security,
-    your integration is as simple as replacing the <code>LocalEntityManagerFactoryBean</code>
-    or <code>LocalContainerEntityManagerFactoryBean</code> in your Spring configuration with
-    with the appropriate counterpart in the <code>net.sf.jpasecurity.security</code> package.
+    you don't have to follow the chapter <emphasize>Getting started with JPA Security</emphasize>
+    (also you can do and specify the
+    <code>net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider</code> or
+    <code>net.sf.jpasecurity.security.authentication.SpringAuthenticationProvider</code> in your
+    persistence.properties).
+  </para>
+  <para>
+	The easiest way to integrate Spring-Security is to simply replace your
+    <code>LocalEntityManagerFactoryBean</code> or <code>LocalContainerEntityManagerFactoryBean</code>
+    in your Spring configuration with the appropriate counterpart in the
+    <code>net.sf.jpasecurity.persistence</code> package (which are <code>SecureLocalEntityManagerFactoryBean</code>
+    and <code>SecureContainerEntityManagerFactoryBean</code>).
+  </para>
+  <para>
+    If you are using Acegi-Security instead of Spring-Security you have to set the
+    <code>net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider</code> into the
+    <code>authenticationProvider</code> property of your <code>SecureEntityManagerFactoryBean</code>
+    in your application context.
   </para>
 </section>

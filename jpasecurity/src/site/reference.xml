@@ -3,7 +3,7 @@
   <title>JPA Security Manual</title>
   <chapters>
     <chapter>
-      <id>preface-1</id>
+      <id>preamble</id>
       <title>Preamble</title>
       <sections>
         <section>
@@ -27,6 +27,10 @@
         <section>
           <id>rules</id>
           <title>Providing access rules</title>
+        </section>
+        <section>
+          <id>authentication-basics</id>
+          <title>Authentication Basics</title>
         </section>
       </sections>
     </chapter>
