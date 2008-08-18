@@ -3,8 +3,8 @@
 <section id="test-data">
   <title>Test Data</title>
   <para>
-    Now we can go and create some users and contacts. For this we change the just created App.java from the
-    src/main/java/net/sf/jpasecurity/samples/simple folder. First we must import the following classes:
+    Now we can go and create some users and contacts. For this we change the App.java file we created during setup.
+    First we must import the following classes:
   </para>
   <programlisting>
 import java.security.PrivilegedAction;
@@ -22,8 +22,7 @@ import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
   <para>
     To create the users and contacts we must create an EntityManagerFactory, an EntityManager,
     start a Transaction and persist the users. As recommended by the JPA Specification,
-    we use one EntityManagerFactory per application. So we create it directly within the main of the 
-    App.java file which we created during setup:
+    we use one EntityManagerFactory per application. So we create it directly within the main:
   </para>
   <programlisting>
   public static void main(String[] args) {
