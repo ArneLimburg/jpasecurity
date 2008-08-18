@@ -5,7 +5,7 @@
   <para>
     Our application uses Hibernate as persistence provider and HSQLDB as (in-memory-)database.
     So we have to add the appropriate dependencies to our pom.xml file
-    (between the <code>&lt;dependencies&gt;&lt;/dependencies&gt; section). As we don't need it,
+    (between the <code>&lt;dependencies&gt;&lt;/dependencies&gt;</code> section). As we don't need it,
     we replace the dependency to JUnit, that maven created:
   </para>
   <programlisting>
