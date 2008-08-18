@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.contacts;
+package net.sf.jpasecurity.contacts.model;
 
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.Basic;
@@ -30,13 +30,13 @@ import net.sf.jpasecurity.security.rules.Permit;
  */
 @Entity
 @RolesAllowed("admin")
-@Permit(where = "user.name = :user")
+@Permit(where = "owner.name = :user")
 public class Contact {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     @ManyToOne
-    private User user;
+    private User owner;
     @Basic
     private String text;
     
@@ -44,7 +44,7 @@ public class Contact {
     }
     
     public Contact(User user, String text) {
-        setUser(user);
+        setOwner(user);
         setText(text);
     }
     
@@ -56,12 +56,12 @@ public class Contact {
         this.id = id;
     }
     
-    public User getUser() {
-        return user;
+    public User getOwner() {
+        return owner;
     }
     
-    public void setUser(User user) {
-        this.user = user;
+    public void setOwner(User user) {
+        this.owner = user;
     }
 
     public String getText() {
@@ -77,10 +77,10 @@ public class Contact {
             return false;
         }
         Contact contact = (Contact)object;
-        return getUser().equals(contact.getUser()) && getText().equals(contact.getText());
+        return getOwner().equals(contact.getOwner()) && getText().equals(contact.getText());
     }
     
     public int hashCode() {
-        return getUser().hashCode() ^ getText().hashCode();
+        return getOwner().hashCode() ^ getText().hashCode();
     }
 }

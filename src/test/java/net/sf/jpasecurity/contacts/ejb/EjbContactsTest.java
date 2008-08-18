@@ -41,9 +41,9 @@ import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 
 import junit.framework.TestCase;
-import net.sf.jpasecurity.contacts.Contact;
 import net.sf.jpasecurity.contacts.ContactsTestData;
-import net.sf.jpasecurity.contacts.User;
+import net.sf.jpasecurity.contacts.model.Contact;
+import net.sf.jpasecurity.contacts.model.User;
 
 import org.easymock.IAnswer;
 import org.hsqldb.jdbc.jdbcDataSource;
