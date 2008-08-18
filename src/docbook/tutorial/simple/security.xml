@@ -7,6 +7,7 @@
   </para>
   <section>
     <title>Integrating JPA Security</title>
+    <para>
       In order to integrate JPA Security in our application we need three things to be configured:
       <itemizedlist>
         <listitem>a persistence provider</listitem>
