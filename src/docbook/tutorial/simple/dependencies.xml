@@ -28,7 +28,8 @@
     ]]>
   </programlisting>
   <para>
-    Hibernate needs the Transaction-API from sun. Download it <ulink url="http://java.sun.com/products/jta" type="text/html">here</ulink>
+    Hibernate needs the Transaction-API from sun.
+    Download it <ulink url="http://repository.jboss.com/maven2/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar">here</ulink>
     and install it to your local Maven repository with the following command:
   </para>
   <programlisting>
@@ -39,6 +40,7 @@ mvn install:install-file -DgroupId=javax.transaction -DartifactId=jta -Dversion=
   </para>
   <para>
     As no remote repository contains JPA Security yet, we need to install it to our local maven-repository, too.
+    If you don't already have, you may download the jpasecurity-0.1.0.jar <ulink url="https://sourceforge.net/project/showfiles.php?group_id=219346">here</ulink>
     We do this with the following command:
   </para>
   <programlisting>

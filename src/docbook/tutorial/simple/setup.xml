@@ -4,6 +4,8 @@
   <title>Basic Setup</title>
   <para>
     We want to use Maven 2 to build and run our application.
+    Maven will try to download the needed dependencies from a remote repository.
+    So please ensure you are connected to the internet.
     We set up our project with the following command:
   </para>
   <programlisting>
@@ -82,10 +84,6 @@ package net.sf.jpasecurity.sample.simple;
 mvn package
     ]]>
   </programlisting>
-  <para>
-    This will cause some dependencies to be downloaded. So please ensure
-    you are connected to the internet.
-  </para>
   <para>
     If everything is configured correctly this command should end with
     something like "BUILD SUCCESSFUL" and you can start our application
