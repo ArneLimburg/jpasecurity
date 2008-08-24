@@ -5,7 +5,7 @@
   <groupId>net.sf.jpasecurity</groupId>
   <artifactId>jpasecurity-simple-sample</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <name>jpasecurity-simple-sample</name>
   <url>http://jpasecurity.sf.net</url>
 
