@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
   <bannerLeft>
-    <name/>
+    <name>Hosted on SourceForge.net</name>
+    <src>http://sflogo.sourceforge.net/sflogo.php?group_id=219346&amp;type=4</src>
+    <href>http://sourceforge.net</href>
   </bannerLeft>
   <bannerRight>
     <src>images/logo.png</src>
@@ -11,9 +13,6 @@
     <logo name="Build with Maven 2"
           href="http://maven.apache.org/"
           img="images/logos/maven-feather.png"/>
-    <logo name="Hosted on SourceForge.net"
-          href="http://sourceforge.net"
-          img="http://sflogo.sourceforge.net/sflogo.php?group_id=219346&amp;type=1"/>
     <logo name="Donate"
           href="http://sourceforge.net/donate/index.php?group_id=219346"
           img="http://images.sourceforge.net/images/project-support.jpg"/>
