@@ -40,8 +40,8 @@ mvn install:install-file -DgroupId=javax.transaction -DartifactId=jta -Dversion=
   </para>
   <para>
     As no remote repository contains JPA Security yet, we need to install it to our local maven-repository, too.
-    If you don't already have, you may download the jpasecurity-0.1.0.jar <ulink url="https://sourceforge.net/project/showfiles.php?group_id=219346">here</ulink>
-    We do this with the following command:
+    If you don't already have, you may download the jpasecurity-0.1.0.jar <ulink url="https://sourceforge.net/project/showfiles.php?group_id=219346">here</ulink>.
+    We install it with the following command:
   </para>
   <programlisting>
 mvn install:install-file -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity -Dversion=0.1.0 -Dpackaging=jar -Dfile=/path/to/jpasecurity-0.1.0.jar
