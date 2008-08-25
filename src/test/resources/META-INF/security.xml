@@ -4,17 +4,17 @@
           version="1.0">
 
   <persistence-unit name="simple-contacts">
-    <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.owner = :user</access-rule>
-    <access-rule>GRANT READ ACCESS TO Contact contact WHERE 'admin' IN (:roles)</access-rule>
-    <access-rule>GRANT READ ACCESS TO User user WHERE user = :user</access-rule>
-    <access-rule>GRANT READ ACCESS TO User user WHERE 'admin' IN (:roles)</access-rule>
+    <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.owner = CURRENT_USER</access-rule>
+    <access-rule>GRANT READ ACCESS TO Contact contact WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
+    <access-rule>GRANT READ ACCESS TO User user WHERE user = CURRENT_USER</access-rule>
+    <access-rule>GRANT READ ACCESS TO User user WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
   </persistence-unit>
 
   <persistence-unit name="spring-contacts">
-    <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.owner.name = :user</access-rule>
-    <access-rule>GRANT READ ACCESS TO Contact contact WHERE 'ROLE_ADMIN' IN (:roles)</access-rule>
-    <access-rule>GRANT READ ACCESS TO User user WHERE user.name = :user</access-rule>
-    <access-rule>GRANT READ ACCESS TO User user WHERE 'ROLE_ADMIN' IN (:roles)</access-rule>
+    <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.owner.name = CURRENT_USER</access-rule>
+    <access-rule>GRANT READ ACCESS TO Contact contact WHERE 'ROLE_ADMIN' IN (CURRENT_ROLES)</access-rule>
+    <access-rule>GRANT READ ACCESS TO User user WHERE user.name = CURRENT_USER</access-rule>
+    <access-rule>GRANT READ ACCESS TO User user WHERE 'ROLE_ADMIN' IN (CURRENT_ROLES)</access-rule>
   </persistence-unit>
 
 </security>

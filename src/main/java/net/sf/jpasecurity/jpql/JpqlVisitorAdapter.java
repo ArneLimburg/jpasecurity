@@ -33,8 +33,10 @@ import net.sf.jpasecurity.jpql.parser.JpqlConstructor;
 import net.sf.jpasecurity.jpql.parser.JpqlConstructorParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlCount;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentDate;
+import net.sf.jpasecurity.jpql.parser.JpqlCurrentRoles;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentTime;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentTimestamp;
+import net.sf.jpasecurity.jpql.parser.JpqlCurrentUser;
 import net.sf.jpasecurity.jpql.parser.JpqlDecimalLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlDelete;
 import net.sf.jpasecurity.jpql.parser.JpqlDescending;
@@ -625,6 +627,20 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlCurrentTimestamp node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlCurrentUser node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlCurrentRoles node, T data) {
         return visit(node);
     }
 
@@ -1262,6 +1278,20 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * @see #visit(JpqlCurrentTimestamp, Object)
      */
     public boolean visit(JpqlCurrentTimestamp node) {
+        return true;
+    }
+
+    /**
+     * @see #visit(JpqlCurrentUser, Object)
+     */
+    public boolean visit(JpqlCurrentUser node) {
+        return true;
+    }
+
+    /**
+     * @see #visit(JpqlCurrentRoles, Object)
+     */
+    public boolean visit(JpqlCurrentRoles node) {
         return true;
     }
 

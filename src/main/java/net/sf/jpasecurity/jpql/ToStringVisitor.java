@@ -31,8 +31,10 @@ import net.sf.jpasecurity.jpql.parser.JpqlConcat;
 import net.sf.jpasecurity.jpql.parser.JpqlConstructor;
 import net.sf.jpasecurity.jpql.parser.JpqlCount;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentDate;
+import net.sf.jpasecurity.jpql.parser.JpqlCurrentRoles;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentTime;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentTimestamp;
+import net.sf.jpasecurity.jpql.parser.JpqlCurrentUser;
 import net.sf.jpasecurity.jpql.parser.JpqlDecimalLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlDelete;
 import net.sf.jpasecurity.jpql.parser.JpqlDescending;
@@ -850,6 +852,22 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
      */
     public boolean visit(JpqlCurrentTimestamp node, StringBuilder query) {
         query.append("CURRENT_TIMESTAMP");
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlCurrentUser node, StringBuilder query) {
+        query.append("CURRENT_USER");
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlCurrentRoles node, StringBuilder query) {
+        query.append("CURRENT_ROLES");
         return true;
     }
 
