@@ -31,7 +31,7 @@ import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
-import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
+import net.sf.jpasecurity.jpql.parser.JpqlCurrentUser;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
@@ -56,7 +56,7 @@ public class QueryFilter {
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final InMemoryEvaluator queryEvaluator = new InMemoryEvaluator();
     private final QueryPreparator queryPreparator = new QueryPreparator();
-    private final NamedParameterReplacer namedParameterReplacer = new NamedParameterReplacer();
+    private final CurrentUserReplacer currentUserReplacer = new CurrentUserReplacer();
     private List<AccessRule> accessRules;
 
     public QueryFilter(MappingInformation mappingInformation, List<AccessRule> accessRules) {
@@ -169,8 +169,7 @@ public class QueryFilter {
         for (int i = 0; namedParameters.contains(userParameterName); i++) {
             userParameterName = AccessRule.DEFAULT_USER_PARAMETER_NAME + i;
         }
-        int userParameterNameCount
-            = replaceNamedParameters(accessRules, AccessRule.DEFAULT_USER_PARAMETER_NAME, userParameterName);
+        int userParameterNameCount = replaceCurrentUser(accessRules, userParameterName);
         return userParameterNameCount > 0? userParameterName: null;
     }
 
@@ -239,9 +238,9 @@ public class QueryFilter {
         return selectedTypes.values().iterator().next();
     }
 
-    private int replaceNamedParameters(Node node, String oldNamedParameter, String newNamedParameter) {
-        ReplacementParameters parameters = new ReplacementParameters(oldNamedParameter, newNamedParameter);
-        node.visit(namedParameterReplacer, parameters);
+    private int replaceCurrentUser(Node node, String namedParameter) {
+        ReplacementParameters parameters = new ReplacementParameters(namedParameter);
+        node.visit(currentUserReplacer, parameters);
         return parameters.getReplacementCount();
     }
 
@@ -308,34 +307,26 @@ public class QueryFilter {
         }
     }
 
-    private class NamedParameterReplacer extends JpqlVisitorAdapter<ReplacementParameters> {
+    private class CurrentUserReplacer extends JpqlVisitorAdapter<ReplacementParameters> {
 
-        public boolean visit(JpqlNamedInputParameter node, ReplacementParameters replacement) {
-            if (replacement.getOldNamedParameter().equals(node.getValue())) {
-                node.setValue(replacement.getNewNamedParameter());
-                replacement.incrementReplacementCount();
-            }
+        public boolean visit(JpqlCurrentUser node, ReplacementParameters replacement) {
+            queryPreparator.replace(node, queryPreparator.createInputParameter(replacement.getNamedParameter()));
+            replacement.incrementReplacementCount();
             return true;
         }
     }
 
     private class ReplacementParameters {
 
-        private String oldNamedParameter;
-        private String newNamedParameter;
+        private String namedParameter;
         private int replacementCount;
 
-        public ReplacementParameters(String oldNamedParameter, String newNamedParameter) {
-            this.oldNamedParameter = oldNamedParameter;
-            this.newNamedParameter = newNamedParameter;
+        public ReplacementParameters(String namedParameter) {
+            this.namedParameter = namedParameter;
         }
 
-        public String getOldNamedParameter() {
-            return oldNamedParameter;
-        }
-
-        public String getNewNamedParameter() {
-            return newNamedParameter;
+        public String getNamedParameter() {
+            return namedParameter;
         }
 
         public int getReplacementCount() {

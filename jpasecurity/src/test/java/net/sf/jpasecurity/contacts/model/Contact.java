@@ -30,7 +30,7 @@ import net.sf.jpasecurity.security.rules.Permit;
  */
 @Entity
 @RolesAllowed("admin")
-@Permit(where = "owner.name = :user")
+@Permit(where = "owner.name = CURRENT_USER")
 public class Contact {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)

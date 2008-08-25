@@ -16,7 +16,6 @@
 package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -47,14 +46,6 @@ import net.sf.jpasecurity.security.rules.AccessRule;
  */
 public class JpqlCompiler {
 
-    public static final Set<String> ACCESS_RULE_PARAMETERS;
-    static {
-        Set<String> accessRuleParameters = new HashSet<String>();
-        accessRuleParameters.add(AccessRule.DEFAULT_USER_PARAMETER_NAME);
-        accessRuleParameters.add(AccessRule.DEFAULT_ROLES_PARAMETER_NAME);
-        ACCESS_RULE_PARAMETERS = Collections.unmodifiableSet(accessRuleParameters);
-    }
-
     private MappingInformation mappingInformation;
     private final SelectVisitor selectVisitor = new SelectVisitor();
     private final AliasVisitor aliasVisitor = new AliasVisitor();
@@ -79,10 +70,8 @@ public class JpqlCompiler {
         }
         Map.Entry<String, Class<?>> aliasType = aliasTypes.entrySet().iterator().next();
         Set<String> namedParameters = getNamedParameters(rule);
-        namedParameters.addAll(ACCESS_RULE_PARAMETERS);
-        if (namedParameters.size() > 2) {
-            namedParameters.removeAll(ACCESS_RULE_PARAMETERS);
-            throw new PersistenceException("Illegal parameter name \"" + namedParameters.iterator().next() + "\" for access rule");
+        if (namedParameters.size() > 0) {
+            throw new PersistenceException("Named parameters are not allowed for access rules");
         }
         if (getPositionalParameters(rule).size() > 0) {
             throw new PersistenceException("Positional parameters are not allowed for access rules");

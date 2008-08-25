@@ -22,6 +22,7 @@ import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
+import net.sf.jpasecurity.jpql.parser.JpqlCurrentRoles;
 import net.sf.jpasecurity.jpql.parser.JpqlEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentifier;
@@ -46,7 +47,7 @@ import net.sf.jpasecurity.security.rules.AccessRule;
  */
 public class QueryPreparator {
 
-    private final InRolesVisitor inRolesVisitor = new InRolesVisitor();
+    private final CurrentRolesVisitor currentRolesVisitor = new CurrentRolesVisitor();
     private final PathReplacer pathReplacer = new PathReplacer();
 
     /**
@@ -95,7 +96,7 @@ public class QueryPreparator {
     public AccessRule expand(AccessRule accessRule, int roleCount) {
         accessRule = (AccessRule)accessRule.clone();
         List<JpqlIn> inRoles = new ArrayList<JpqlIn>();
-        accessRule.getStatement().visit(inRolesVisitor, inRoles);
+        accessRule.getStatement().visit(currentRolesVisitor, inRoles);
         for (JpqlIn inRole: inRoles) {
             if (roleCount == 0) {
                 replace(inRole, createNotEquals(createNumber(1), createNumber(1)));
@@ -303,15 +304,10 @@ public class QueryPreparator {
         return -1;
     }
 
-    private class InRolesVisitor extends JpqlVisitorAdapter<List<JpqlIn>> {
+    private class CurrentRolesVisitor extends JpqlVisitorAdapter<List<JpqlIn>> {
 
-        public boolean visit(JpqlIn node, List<JpqlIn> inRoles) {
-            if (node.jjtGetChild(1) instanceof JpqlNamedInputParameter) {
-                JpqlNamedInputParameter namedInputParameter = (JpqlNamedInputParameter)node.jjtGetChild(1);
-                if (AccessRule.DEFAULT_ROLES_PARAMETER_NAME.equals(namedInputParameter.getValue())) {
-                    inRoles.add(node);
-                }
-            }
+        public boolean visit(JpqlCurrentRoles node, List<JpqlIn> inRoles) {
+            inRoles.add((JpqlIn)node.jjtGetParent());
             return true;
         }
     }

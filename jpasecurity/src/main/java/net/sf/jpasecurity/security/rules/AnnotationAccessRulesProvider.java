@@ -68,10 +68,10 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
             rule.append(annotatedClass.getName()).append(' ');
             rule.append(Character.toLowerCase(name.charAt(0))).append(name.substring(1)).append(' ');
             Iterator<String> roleIterator = roles.iterator();
-            rule.append("WHERE '").append(roleIterator.next()).append("' IN (:roles)");
+            rule.append("WHERE '").append(roleIterator.next()).append("' IN (CURRENT_ROLES)");
             if (roleIterator.hasNext()) {
                 for (String role = roleIterator.next(); roleIterator.hasNext(); role = roleIterator.next()) {
-                    rule.append(" OR '").append(role).append("' IN (:roles)");
+                    rule.append(" OR '").append(role).append("' IN (CURRENT_ROLES)");
                 }
             }
             return rule.toString();
