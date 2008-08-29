@@ -15,14 +15,18 @@
  */
 package net.sf.jpasecurity.security.rules;
 
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author Arne Limburg
  */
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Permit {
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface PermitWhere {
 
-    String where();
+    String value();
 }
