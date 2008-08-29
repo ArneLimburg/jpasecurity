@@ -23,14 +23,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import net.sf.jpasecurity.security.rules.Permit;
+import net.sf.jpasecurity.security.rules.PermitWhere;
 
 /**
  * @author Arne Limburg
  */
 @Entity
 @RolesAllowed("admin")
-@Permit(where = "owner.name = CURRENT_USER")
+@PermitWhere("owner.name = CURRENT_USER")
 public class Contact {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)

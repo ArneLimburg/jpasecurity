@@ -22,10 +22,10 @@ import java.util.Map;
 import net.sf.jpasecurity.util.AbstractAnnotationParser;
 
 /**
- * This class parses classes for the {@link Permit} annotation.
+ * This class parses classes for the {@link PermitWhere} annotation.
  * @author Arne Limburg
  */
-public class PermitParser extends AbstractAnnotationParser<Permit> {
+public class PermitParser extends AbstractAnnotationParser<PermitWhere> {
 
     private Map<Class<?>, String> whereClauses = new HashMap<Class<?>, String>();
 
@@ -35,7 +35,7 @@ public class PermitParser extends AbstractAnnotationParser<Permit> {
         return whereClauses;
     }
 
-    protected void process(Class<?> annotatedClass, Permit permit) {
-        whereClauses.put(annotatedClass, permit.where());
+    protected void process(Class<?> annotatedClass, PermitWhere permit) {
+        whereClauses.put(annotatedClass, permit.value());
     }
 }
