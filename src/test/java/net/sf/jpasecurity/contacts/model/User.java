@@ -23,7 +23,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import net.sf.jpasecurity.security.rules.Permit;
+import net.sf.jpasecurity.security.rules.PermitWhere;
 
 /**
  * @author Arne Limburg
@@ -31,7 +31,7 @@ import net.sf.jpasecurity.security.rules.Permit;
 @Entity
 @DeclareRoles({"admin", "user"})
 @RolesAllowed("admin")
-@Permit(where = "name = CURRENT_USER")
+@PermitWhere("name = CURRENT_USER")
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
