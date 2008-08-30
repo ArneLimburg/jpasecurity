@@ -55,6 +55,7 @@ public class SpringContactsTest extends TestCase {
     public void tearDown() {
         EntityManager entityManager = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory")).createEntityManager();
         testData.clear(entityManager);
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
     
     public void testUnauthenticated() {
