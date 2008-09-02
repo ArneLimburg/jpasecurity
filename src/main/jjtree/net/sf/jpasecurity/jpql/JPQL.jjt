@@ -196,6 +196,11 @@ TOKEN[IGNORE_CASE]: {
 }
 
 TOKEN[IGNORE_CASE]: {
+    <CURRENT_USER: "CURRENT_USER">
+  | <CURRENT_ROLES: "CURRENT_ROLES">
+}
+
+TOKEN[IGNORE_CASE]: {
     <SELECT: "SELECT">
   | <DISTINCT: "DISTINCT">
   | <FROM: "FROM">
@@ -424,7 +429,7 @@ void newValue() #UpdateValue: {} {
 }
 
 void simpleEntityExpression(): {} {
-    identificationVariable() | inputParameter()
+    identificationVariable() | inputParameter() | currentUser()
 }
 
 void selectClause() #SelectClause: {} {
@@ -621,7 +626,7 @@ void inExpression(): {} {
 void positiveInExpression() #In: {} {
     (path() | literalOrParam())
     <IN> "(" (literalOrParam()
-             (<COMMA> (literalOrParam()))* | subquery())
+             (<COMMA> (literalOrParam()))* | subquery() | currentRoles())
          ")" 
 }
 
@@ -629,7 +634,7 @@ void negativeInExpression() #In: {} {
     (path() | literalOrParam())
     <NOT> <IN>
         "(" (literalOrParam()
-            (<COMMA> (literalOrParam()))* | subquery())
+            (<COMMA> (literalOrParam()))* | subquery() | currentRoles())
         ")" 
 }
 
@@ -637,7 +642,8 @@ void literalOrParam(): {} {
     (numericLiteral()
     | stringLiteral()
     | booleanLiteral()
-    | inputParameter())
+    | inputParameter()
+    | currentUser())
 }
 
 void likeExpression(): {} {
@@ -659,11 +665,11 @@ void nullComparisonExpression(): {} {
 }
 
 void positiveNullComparisionExpression() #IsNull: {} {
-    (inputParameter() | path()) <IS> <NULL> 
+    (inputParameter() | path() | currentUser()) <IS> <NULL> 
 }
 
 void negativeNullComparisionExpression() #IsNull: {} {
-    (inputParameter() | path()) <IS> <NOT> <NULL> 
+    (inputParameter() | path() | currentUser()) <IS> <NOT> <NULL> 
 }
 
 void emptyCollectionComparisonExpression(): {} {
@@ -685,11 +691,11 @@ void collectionMemberExpression(): {} {
 }
 
 void positiveCollectionMemberExpression() #MemberOf: {} {
-    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent()) <MEMBER> [<OF>] path()
+    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent() | currentUser()) <MEMBER> [<OF>] path()
 }
 
 void negativeCollectionMemberExpression() #MemberOf: {} {
-    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent()) <NOT> <MEMBER> [<OF>] path()
+    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent() | currentUser()) <NOT> <MEMBER> [<OF>] path()
 }
 
 void existsExpression(): {} {
@@ -899,7 +905,15 @@ void entityBeanValue(): {} {
 }
 
 void entityBeanExpression(): {} {
-    inputParameter() | entityBeanValue()
+    inputParameter() | entityBeanValue() | currentUser()
+}
+
+void currentUser() #CurrentUser: {} {
+    <CURRENT_USER>
+}
+
+void currentRoles() #CurrentRoles: {} {
+    <CURRENT_ROLES>
 }
 
 void functionsReturningStrings(): {} {
