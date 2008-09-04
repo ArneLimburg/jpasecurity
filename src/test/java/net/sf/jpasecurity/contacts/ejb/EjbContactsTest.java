@@ -15,26 +15,17 @@
  */
 package net.sf.jpasecurity.contacts.ejb;
 
-import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.getCurrentArguments;
 import static org.easymock.EasyMock.replay;
 
 import java.lang.reflect.Field;
 import java.security.Principal;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Properties;
 
 import javax.ejb.EJBContext;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.spi.InitialContextFactory;
-import javax.naming.spi.InitialContextFactoryBuilder;
-import javax.naming.spi.NamingManager;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
@@ -54,59 +45,38 @@ import org.hsqldb.jdbc.jdbcDataSource;
  */
 public class EjbContactsTest extends TestCase {
 
-    private static TestContextFactoryBuilder contextFactoryBuilder = new TestContextFactoryBuilder();
-    
     private ContactsDaoBean contactsDaoBean = new ContactsDaoBean();
     private EntityManagerFactory entityManagerFactory;
     private ContactsTestData testData;
     
     public void setUp() throws Exception {
+
+        System.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.commons.naming.java.javaURLContextFactory");
+        System.setProperty(Context.URL_PKG_PREFIXES, "org.apache.commons.naming");            
+
+        InitialContext initialContext = new InitialContext();
+        initialContext.createSubcontext("java:");
+        initialContext.createSubcontext("java:comp");
+        initialContext.createSubcontext("java:comp/env");
+        initialContext.createSubcontext("java:comp/env/ejb");
+        initialContext.createSubcontext("java:comp/env/ejb/ContactsDaoBean");
+        initialContext.bind("java:comp/env/ejb/ContactsDaoBean/remote", contactsDaoBean);
         
         jdbcDataSource dataSource = new jdbcDataSource();
         dataSource.setDatabase("jdbc:hsqldb:mem:contacts");
         dataSource.setUser("sa");
         dataSource.setPassword("");
+        initialContext.bind("java:/ContactsDataSource", dataSource);
         
         Principal principal = createMock(Principal.class);
         EJBContext ejbContext = createMock(EJBContext.class);
         expect(ejbContext.getCallerPrincipal()).andReturn(principal).anyTimes();
-        expect(ejbContext.isCallerInRole("admin")).andAnswer(new IAnswer<Boolean>() {
-            public Boolean answer() throws Throwable {
-                return "admin".equals(System.getProperty(Context.SECURITY_PRINCIPAL));
-            }
-        }).anyTimes();
-        expect(ejbContext.isCallerInRole("user")).andAnswer(new IAnswer<Boolean>() {
-            public Boolean answer() throws Throwable {
-                return System.getProperty(Context.SECURITY_PRINCIPAL) != null;
-            }
-        }).anyTimes();
-        expect(principal.getName()).andAnswer(new IAnswer<String>() {
-            public String answer() throws Throwable {
-                return System.getProperty(Context.SECURITY_PRINCIPAL);
-            }
-        }).anyTimes();
+        expect(ejbContext.isCallerInRole("admin")).andAnswer(new IsPrincipalAdminAnswer()).anyTimes();
+        expect(ejbContext.isCallerInRole("user")).andAnswer(new IsPrincipalNotEmptyAnswer()).anyTimes();
+        expect(principal.getName()).andAnswer(new GetPrincipalNameAnswer()).anyTimes();
+        initialContext.bind("java:comp/EJBContext", ejbContext);
         
-        InitialContextFactory contextFactory = createMock(InitialContextFactory.class);
-        contextFactoryBuilder.replaceInitialContextFactory(contextFactory);
-        final Context context = createMock(Context.class);
-
-        expect(contextFactory.getInitialContext((Hashtable<?, ?>)anyObject())).andAnswer(new IAnswer<Context>() {
-            public Context answer() throws Throwable {
-                Hashtable<?, ?> environment = (Hashtable<?, ?>)getCurrentArguments()[0];
-                if (environment != null) {
-                    System.getProperties().putAll(environment);
-                }
-                return context;
-            }
-        }).anyTimes();
-        
-        expect(context.lookup("java:/ContactsDataSource")).andReturn(dataSource).anyTimes();
-        expect(context.lookup("java:comp/EJBContext")).andReturn(ejbContext).anyTimes();
-        expect(context.lookup("ContactsDaoBean/remote")).andReturn(contactsDaoBean).anyTimes();
-        context.close();
-        expectLastCall().anyTimes().asStub();
-        
-        replay(contextFactory, context, ejbContext, principal);
+        replay(ejbContext, principal);
 
         entityManagerFactory = Persistence.createEntityManagerFactory("ejb-contacts");
         Field entityManagerField = ContactsDaoBean.class.getDeclaredField("entityManager");
@@ -116,16 +86,24 @@ public class EjbContactsTest extends TestCase {
         testData = new ContactsTestData(entityManager);
     }
     
-    public void tearDown() {
+    public void tearDown() throws Exception {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         testData.clear(entityManager);
+        InitialContext initialContext = new InitialContext();
+        initialContext.unbind("java:comp/env/ejb/ContactsDaoBean");
+        initialContext.unbind("java:comp/env/ejb");
+        initialContext.unbind("java:comp/env");
+        initialContext.unbind("java:comp");
+        initialContext.unbind("java:");
         System.clearProperty(Context.SECURITY_PRINCIPAL);
         System.clearProperty(Context.SECURITY_CREDENTIALS);
+        System.clearProperty(Context.INITIAL_CONTEXT_FACTORY);
+        System.clearProperty(Context.URL_PKG_PREFIXES);            
     }
     
     public void testUnauthenticated() throws Exception {
         InitialContext context = new InitialContext();
-        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("ContactsDaoBean/remote");
+        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("java:comp/env/ejb/ContactsDaoBean/remote");
         assertEquals(0, contactsDao.getAllUsers().size());
         try {
             contactsDao.getUser("John");
@@ -143,11 +121,10 @@ public class EjbContactsTest extends TestCase {
     }
     
     public void testAuthenticatedAsAdmin() throws Exception {
-        Properties environment = new Properties();
-        environment.setProperty(Context.SECURITY_PRINCIPAL, "admin");
-        environment.setProperty(Context.SECURITY_CREDENTIALS, "admin");
-        InitialContext context = new InitialContext(environment);
-        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("ContactsDaoBean/remote");
+        System.setProperty(Context.SECURITY_PRINCIPAL, "admin");
+        System.setProperty(Context.SECURITY_CREDENTIALS, "admin");
+        InitialContext context = new InitialContext();
+        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("java:comp/env/ejb/ContactsDaoBean/remote");
         assertEquals(2, contactsDao.getAllUsers().size());
         assertEquals(testData.getJohn(), contactsDao.getUser("John"));
         assertEquals(testData.getMary(), contactsDao.getUser("Mary"));
@@ -155,11 +132,10 @@ public class EjbContactsTest extends TestCase {
     }
     
     public void testAuthenticatedAsJohn() throws Exception {
-        Properties environment = new Properties();
-        environment.setProperty(Context.SECURITY_PRINCIPAL, "John");
-        environment.setProperty(Context.SECURITY_CREDENTIALS, "john");
-        InitialContext context = new InitialContext(environment);
-        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("ContactsDaoBean/remote");
+        System.setProperty(Context.SECURITY_PRINCIPAL, "John");
+        System.setProperty(Context.SECURITY_CREDENTIALS, "john");
+        InitialContext context = new InitialContext();
+        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("java:comp/env/ejb/ContactsDaoBean/remote");
         List<User> allUsers = contactsDao.getAllUsers();
         assertEquals(1, allUsers.size());
         assertEquals(testData.getJohn(), allUsers.get(0));
@@ -177,11 +153,10 @@ public class EjbContactsTest extends TestCase {
     }
     
     public void testAuthenticatedAsMary() throws Exception {
-        Properties environment = new Properties();
-        environment.setProperty(Context.SECURITY_PRINCIPAL, "Mary");
-        environment.setProperty(Context.SECURITY_CREDENTIALS, "mary");
-        InitialContext context = new InitialContext(environment);
-        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("ContactsDaoBean/remote");
+        System.setProperty(Context.SECURITY_PRINCIPAL, "Mary");
+        System.setProperty(Context.SECURITY_CREDENTIALS, "mary");
+        InitialContext context = new InitialContext();
+        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("java:comp/env/ejb/ContactsDaoBean/remote");
         List<User> allUsers = contactsDao.getAllUsers();
         assertEquals(1, allUsers.size());
         assertEquals(testData.getMary(), allUsers.get(0));
@@ -199,32 +174,31 @@ public class EjbContactsTest extends TestCase {
     }
     
     public void testProxying() throws Exception {
-        Properties environment = new Properties();
-        environment.setProperty(Context.SECURITY_PRINCIPAL, "admin");
-        environment.setProperty(Context.SECURITY_CREDENTIALS, "admin");
-        InitialContext context = new InitialContext(environment);
-        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("ContactsDaoBean/remote");
+        System.setProperty(Context.SECURITY_PRINCIPAL, "admin");
+        System.setProperty(Context.SECURITY_CREDENTIALS, "admin");
+        InitialContext context = new InitialContext();
+        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("java:comp/env/ejb/ContactsDaoBean/remote");
         assertTrue(contactsDao.getAllUsers().get(0) instanceof SecureEntity);        
     }
     
-    private static class TestContextFactoryBuilder implements InitialContextFactoryBuilder {
+    private class IsPrincipalAdminAnswer implements IAnswer<Boolean> {
 
-        private InitialContextFactory contextFactory;
+        public Boolean answer() throws Throwable {
+            return "admin".equals(System.getProperty(Context.SECURITY_PRINCIPAL));
+        }
+    }
+    
+    private class IsPrincipalNotEmptyAnswer implements IAnswer<Boolean> {
 
-        public TestContextFactoryBuilder() {
-            try {
-                NamingManager.setInitialContextFactoryBuilder(this);
-            } catch (NamingException e) {
-                throw new IllegalStateException(e);
-            }
+        public Boolean answer() throws Throwable {
+            return System.getProperty(Context.SECURITY_PRINCIPAL) != null;
         }
-        
-        public void replaceInitialContextFactory(InitialContextFactory contextFactory) {
-            this.contextFactory = contextFactory;
+    }
+    
+    private class GetPrincipalNameAnswer implements IAnswer<String> {
+
+        public String answer() throws Throwable {
+            return System.getProperty(Context.SECURITY_PRINCIPAL);
         }
-        
-        public InitialContextFactory createInitialContextFactory(Hashtable<?, ?> environment) throws NamingException {
-            return contextFactory;
-        }
-    }    
+    }
 }
