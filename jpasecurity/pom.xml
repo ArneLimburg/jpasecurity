@@ -340,6 +340,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>commons-naming</groupId>
+      <artifactId>commons-naming-core</artifactId>
+      <version>20031116.223527</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
       <version>3.3.2.GA</version>
