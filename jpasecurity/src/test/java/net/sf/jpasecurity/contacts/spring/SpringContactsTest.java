@@ -22,12 +22,10 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 
 import junit.framework.TestCase;
-
 import net.sf.jpasecurity.contacts.ContactsTestData;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.persistence.mapping.SecureEntity;
-import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
