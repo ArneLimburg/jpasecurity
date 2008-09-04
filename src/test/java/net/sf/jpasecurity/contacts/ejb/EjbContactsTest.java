@@ -44,6 +44,7 @@ import junit.framework.TestCase;
 import net.sf.jpasecurity.contacts.ContactsTestData;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
+import net.sf.jpasecurity.persistence.mapping.SecureEntity;
 
 import org.easymock.IAnswer;
 import org.hsqldb.jdbc.jdbcDataSource;
@@ -195,6 +196,15 @@ public class EjbContactsTest extends TestCase {
         assertEquals(2, contacts.size());
         assertTrue(contacts.contains(testData.getMarysContact1()));
         assertTrue(contacts.contains(testData.getMarysContact2()));
+    }
+    
+    public void testProxying() throws Exception {
+        Properties environment = new Properties();
+        environment.setProperty(Context.SECURITY_PRINCIPAL, "admin");
+        environment.setProperty(Context.SECURITY_CREDENTIALS, "admin");
+        InitialContext context = new InitialContext(environment);
+        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("ContactsDaoBean/remote");
+        assertTrue(contactsDao.getAllUsers().get(0) instanceof SecureEntity);        
     }
     
     private static class TestContextFactoryBuilder implements InitialContextFactoryBuilder {
