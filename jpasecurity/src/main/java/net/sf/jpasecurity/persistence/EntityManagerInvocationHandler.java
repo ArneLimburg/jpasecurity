@@ -18,7 +18,9 @@ package net.sf.jpasecurity.persistence;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,10 +29,13 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import net.sf.cglib.proxy.Enhancer;
 import net.sf.jpasecurity.jpql.compiler.FilterResult;
 import net.sf.jpasecurity.jpql.compiler.QueryFilter;
 import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.persistence.mapping.EntityInvocationHandler;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.persistence.mapping.SecureEntity;
 import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
 import net.sf.jpasecurity.security.rules.AccessRule;
 
@@ -45,6 +50,7 @@ public class EntityManagerInvocationHandler implements InvocationHandler {
     private AuthenticationProvider authenticationProvider;
     private MappingInformation mappingInformation;
     private QueryFilter queryFilter;
+    private Map<Class, Map<Object, Object>> secureEntities;
 
     EntityManagerInvocationHandler(EntityManager entityManager,
                                    MappingInformation mappingInformation,
@@ -54,12 +60,13 @@ public class EntityManagerInvocationHandler implements InvocationHandler {
         this.authenticationProvider = authenticationProvider;
         this.mappingInformation = mappingInformation;
         this.queryFilter = new QueryFilter(mappingInformation, accessRules);
+        this.secureEntities = new HashMap<Class, Map<Object,Object>>();
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
             if (isCreateQueryMethod(method)) {
-                return createQuery((String)args[0]);
+                return createQuery((EntityManager)proxy, (String)args[0]);
             } else {
                 return method.invoke(entityManager, args);
             }
@@ -67,7 +74,7 @@ public class EntityManagerInvocationHandler implements InvocationHandler {
             throw e.getCause();
         }
     }
-
+    
     private boolean isCreateQueryMethod(Method method) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         return method.getName().equals(CREATE_QUERY_METHOD_NAME)
@@ -79,7 +86,7 @@ public class EntityManagerInvocationHandler implements InvocationHandler {
      * This implementation filters the query according to the provided access rules
      * and the authenticated user and its roles.
      */
-    private Query createQuery(String qlString) {
+    private Query createQuery(EntityManager entityManagerProxy, String qlString) {
         Object user = authenticationProvider.getUser();
         if (user != null) {
             ClassMappingInformation userClassMapping = mappingInformation.getClassMapping(user.getClass());
@@ -111,6 +118,35 @@ public class EntityManagerInvocationHandler implements InvocationHandler {
                 query.setParameter(roleParameter.getKey(), roleParameter.getValue());
             }
         }
-        return query;
+        return (Query)Proxy.newProxyInstance(query.getClass().getClassLoader(),
+                                             new Class[] {Query.class},
+                                             new QueryInvocationHandler(this, query));
+    }
+
+    public Object getSecureEntity(Object object) {
+        ClassMappingInformation mapping = mappingInformation.getClassMapping(object.getClass());
+        if (mapping == null) {
+            throw new IllegalArgumentException(object.getClass() + " is not mapped");
+        }
+        Object id = mapping.getId(object);
+        Map<Object, Object> entities = secureEntities.get(mapping.getEntityType());
+        if (entities != null) {
+            Object secureEntity = entities.get(id);
+            if (secureEntity != null) {
+                return secureEntity;
+            }
+        } else {
+            entities = new HashMap<Object, Object>();
+            secureEntities.put(mapping.getEntityType(), entities);
+        }
+        Object secureEntity = createSecureEntity(mapping, object);
+        entities.put(id, secureEntity);
+        return secureEntity;
+    }
+    
+    private Object createSecureEntity(ClassMappingInformation mapping, Object entity) {
+        return Enhancer.create(mapping.getEntityType(),
+                               new Class[] {SecureEntity.class},
+                               new EntityInvocationHandler(mapping, this, entity));
     }
 }
