@@ -35,7 +35,7 @@ import junit.framework.TestCase;
 import net.sf.jpasecurity.contacts.ContactsTestData;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
-import net.sf.jpasecurity.persistence.mapping.SecureEntity;
+import net.sf.jpasecurity.persistence.SecureEntityTester;
 
 import org.easymock.IAnswer;
 import org.hsqldb.jdbc.jdbcDataSource;
@@ -178,7 +178,7 @@ public class EjbContactsTest extends TestCase {
         System.setProperty(Context.SECURITY_CREDENTIALS, "admin");
         InitialContext context = new InitialContext();
         RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("java:comp/env/ejb/ContactsDaoBean/remote");
-        assertTrue(contactsDao.getAllUsers().get(0) instanceof SecureEntity);        
+        assertTrue(SecureEntityTester.isSecureEntity(contactsDao.getAllUsers().get(0)));        
     }
     
     private class IsPrincipalAdminAnswer implements IAnswer<Boolean> {
