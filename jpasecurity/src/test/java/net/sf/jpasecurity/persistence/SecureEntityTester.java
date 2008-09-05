@@ -13,12 +13,17 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.persistence.mapping;
+package net.sf.jpasecurity.persistence;
+
+import net.sf.jpasecurity.persistence.SecureEntity;
 
 /**
- * A marker interface for secure entities
+ * A class to test for the <tt>SecureEntity</tt> interface.
  * @author Arne Limburg
  */
-public interface SecureEntity {
+public abstract class SecureEntityTester {
 
+    public static boolean isSecureEntity(Object entity) {
+        return entity instanceof SecureEntity;
+    }
 }
