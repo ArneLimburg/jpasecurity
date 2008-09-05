@@ -35,7 +35,6 @@ import net.sf.jpasecurity.jpql.compiler.QueryFilter;
 import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.persistence.mapping.EntityInvocationHandler;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
-import net.sf.jpasecurity.persistence.mapping.SecureEntity;
 import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
 import net.sf.jpasecurity.security.rules.AccessRule;
 

@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 import net.sf.jpasecurity.contacts.ContactsTestData;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
-import net.sf.jpasecurity.persistence.mapping.SecureEntity;
+import net.sf.jpasecurity.persistence.SecureEntityTester;
 import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
 
 /**
@@ -112,7 +112,7 @@ public class SimpleContactsTest extends TestCase {
     
     public void testProxying() throws Exception {
         StaticAuthenticationProvider.authenticate(null, "admin");
-        assertTrue(getAllUsers().get(0) instanceof SecureEntity);        
+        assertTrue(SecureEntityTester.isSecureEntity(getAllUsers().get(0)));        
     }
     
     public List<User> getAllUsers() {

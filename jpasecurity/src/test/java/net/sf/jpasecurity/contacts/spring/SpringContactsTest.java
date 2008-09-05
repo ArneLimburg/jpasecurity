@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 import net.sf.jpasecurity.contacts.ContactsTestData;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
-import net.sf.jpasecurity.persistence.mapping.SecureEntity;
+import net.sf.jpasecurity.persistence.SecureEntityTester;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -121,7 +121,7 @@ public class SpringContactsTest extends TestCase {
     
     public void testProxying() throws Exception {
         authenticate("admin");
-        assertTrue(contactsDao.getAllUsers().get(0) instanceof SecureEntity);        
+        assertTrue(SecureEntityTester.isSecureEntity(contactsDao.getAllUsers().get(0)));        
     }
     
     private void authenticate(String userName) {
