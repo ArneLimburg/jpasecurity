@@ -24,6 +24,7 @@ import javax.persistence.PersistenceException;
 import net.sf.jpasecurity.xml.XmlNodeList;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 /**
@@ -103,6 +104,16 @@ public class OrmXmlParser extends AbstractMappingParser {
      */
     public static final String NAME_ATTRIBUTE_NAME = "name";
 
+    /**
+     * The attribute name for access
+     */
+    public static final String ACCESS_ATTRIBUTE_NAME = "access";
+
+    /**
+     * The field access type value
+     */
+    public static final String FIELD_ACCESS = "FIELD";
+
     private XmlNodeList entityNodes;
     private XmlNodeList superclassNodes;
     private XmlNodeList embeddableNodes;
@@ -155,6 +166,22 @@ public class OrmXmlParser extends AbstractMappingParser {
     /**
      * {@inheritDoc}
      */
+    protected boolean usesFieldAccess(Class<?> mappedClass) {
+        Node entityNode = getEntityNode(mappedClass);
+        NamedNodeMap attributes = entityNode.getAttributes();
+        if (attributes == null) {
+            return super.usesFieldAccess(mappedClass);
+        }
+        Node access = attributes.getNamedItem(ACCESS_ATTRIBUTE_NAME);
+        if (access == null) {
+            return super.usesFieldAccess(mappedClass);
+        }
+        return FIELD_ACCESS.equals(access.getNodeValue().toUpperCase());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected boolean isMapped(Class<?> mappedClass) {
         return getMappedClassNode(mappedClass) != null;
     }
@@ -181,16 +208,17 @@ public class OrmXmlParser extends AbstractMappingParser {
     protected boolean isIdProperty(Member property) {
         String name = getName(property);
         Node entityNode = getEntityNode(property.getDeclaringClass());
-        XmlNodeList childNodes = new XmlNodeList(entityNode.getChildNodes());
-        List<Node> idNodes = childNodes.subList(ID_TAG_NAME, "");
+        Node attributesNode = new XmlNodeList(entityNode.getChildNodes()).subList(ATTRIBUTES_TAG_NAME).get(0);
+        XmlNodeList childNodes = new XmlNodeList(attributesNode.getChildNodes());
+        List<Node> idNodes = childNodes.subList(ID_TAG_NAME);
         for (Node id: idNodes) {
-            if (name.equals(id.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getTextContent())) {
+            if (name.equals(id.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getNodeValue())) {
                 return true;
             }
         }
-        List<Node> embeddedIdNodes = childNodes.subList(EMBEDDED_ID_TAG_NAME, "");
+        List<Node> embeddedIdNodes = childNodes.subList(EMBEDDED_ID_TAG_NAME);
         for (Node embeddedId: embeddedIdNodes) {
-            if (name.equals(embeddedId.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getTextContent())) {
+            if (name.equals(embeddedId.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getNodeValue())) {
                 return true;
             }
         }
@@ -204,11 +232,9 @@ public class OrmXmlParser extends AbstractMappingParser {
         for (int i = 0; i < attributesNode.getChildNodes().getLength(); i++) {
             Node child = attributesNode.getChildNodes().item(i);
             if (EMBEDDED_ID_TAG_NAME.equals(child.getNodeName())
-                || ID_TAG_NAME.equals(child.getNodeName())
                 || MANY_TO_ONE_TAG_NAME.equals(child.getNodeName())
                 || ONE_TO_ONE_TAG_NAME.equals(child.getNodeName())) {
-                XmlNodeList children = new XmlNodeList(child.getChildNodes());
-                if (!children.subList(NAME_ATTRIBUTE_NAME, name).isEmpty()) {
+                if (child.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getNodeValue().equals(name)) {
                     return true;
                 }
             }
@@ -227,8 +253,7 @@ public class OrmXmlParser extends AbstractMappingParser {
             Node child = attributesNode.getChildNodes().item(i);
             if (ONE_TO_MANY_TAG_NAME.equals(child.getNodeName())
                 || MANY_TO_MANY_TAG_NAME.equals(child.getNodeName())) {
-                XmlNodeList children = new XmlNodeList(child.getChildNodes());
-                if (!children.subList(NAME_ATTRIBUTE_NAME, name).isEmpty()) {
+                if (child.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getNodeValue().equals(name)) {
                     return true;
                 }
             }
