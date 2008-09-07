@@ -111,8 +111,10 @@ public abstract class AbstractMappingParser {
                                                                       isIdProperty);
         } else if (isSimplePropertyType(type)) {
             return new SimplePropertyMappingInformation(name, type, classMapping, isIdProperty);
+        } else if (classMapping.getPropertyMapping(name) != null) {
+            return classMapping.getPropertyMapping(name);
         } else {
-            throw new PersistenceException("could not determine mapping for property \"" + name + "\" of class " + property.getDeclaringClass().getName());
+            throw new PersistenceException("could not determine mapping for property \"" + name + "\" of class " + property.getDeclaringClass().getName());            
         }
     }
 

@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -109,6 +110,7 @@ public class MappingInformation {
                 throw new PersistenceException(e);
             }
         }
+        parse("META-INF/orm.xml");
         for (String mappingFilename: persistenceUnit.getMappingFileNames()) {
             parse(mappingFilename);
         }
@@ -138,9 +140,19 @@ public class MappingInformation {
 
     private void parse(String mappingFilename) {
         try {
+            for (Enumeration<URL> mappings = classLoader.getResources(mappingFilename); mappings.hasMoreElements();) {
+                parse(mappings.nextElement().openStream());
+            }
+        } catch (IOException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    private void parse(InputStream stream) throws IOException {    
+        try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(classLoader.getResourceAsStream(mappingFilename));
+            Document document = builder.parse(stream);
             OrmXmlParser parser = new OrmXmlParser(entityTypeMappings, document);
             for (Node node: parser.getEntityNodes()) {
                 parser.parse(classLoader.loadClass(getClassName(node)));
@@ -159,6 +171,8 @@ public class MappingInformation {
             throw new PersistenceException(e);
         } catch (ClassNotFoundException e) {
             throw new PersistenceException(e);
+        } finally {
+            stream.close();
         }
     }
 

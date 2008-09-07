@@ -63,11 +63,11 @@ public class JpaAnnotationParser extends AbstractMappingParser {
     protected Class<?> getTargetType(Member property) {
         AnnotatedElement annotatedProperty = (AnnotatedElement)property;
         OneToMany oneToMany = annotatedProperty.getAnnotation(OneToMany.class);
-        if (oneToMany != null && oneToMany.targetEntity() != null) {
+        if (oneToMany != null && oneToMany.targetEntity() != null && oneToMany.targetEntity() != void.class) {
             return oneToMany.targetEntity();
         }
         ManyToMany manyToMany = annotatedProperty.getAnnotation(ManyToMany.class);
-        if (manyToMany != null && manyToMany.targetEntity() != null) {
+        if (manyToMany != null && manyToMany.targetEntity() != null && manyToMany.targetEntity() != void.class) {
             return manyToMany.targetEntity();
         }
         return super.getTargetType(property);
