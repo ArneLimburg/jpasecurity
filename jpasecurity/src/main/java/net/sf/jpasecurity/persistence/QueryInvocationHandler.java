@@ -23,16 +23,18 @@ import java.util.List;
 
 import javax.persistence.Query;
 
+import net.sf.jpasecurity.util.SecureEntityHandler;
+
 /**
  * An invocation handler to handle invocations on queries.
  * @author Arne Limburg
  */
 public class QueryInvocationHandler implements InvocationHandler {
 
-    private EntityManagerInvocationHandler entityHandler;
+    private SecureEntityHandler entityHandler;
     private Query target;
     
-    public QueryInvocationHandler(EntityManagerInvocationHandler entityHandler, Query query) {
+    public QueryInvocationHandler(SecureEntityHandler entityHandler, Query query) {
         this.entityHandler = entityHandler;
         this.target = query;
     }
