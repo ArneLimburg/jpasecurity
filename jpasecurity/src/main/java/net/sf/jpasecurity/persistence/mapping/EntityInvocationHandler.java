@@ -60,6 +60,7 @@ public class EntityInvocationHandler implements MethodInterceptor {
     }
 
     private void initialize(Object object) {
+        object = unproxy(object);
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
             setPropertyValue(propertyMapping, entity, object);
         }
@@ -98,5 +99,19 @@ public class EntityInvocationHandler implements MethodInterceptor {
         }
         propertyMapping.setPropertyValue(target, value);
         propertyValues.put(propertyMapping.getPropertyName(), value);        
+    }
+    
+    private Object unproxy(Object object) {
+        try {
+            Class<?> hibernateProxy = Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.HibernateProxy");
+            if (!hibernateProxy.isInstance(object)) {
+                return object;
+            }
+            Class<?> lazyInitializer = Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.LazyInitializer"); 
+            Object lazyInitializerInstance = hibernateProxy.getMethod("getHibernateLazyInitializer").invoke(object);
+            return lazyInitializer.getMethod("getImplementation").invoke(lazyInitializerInstance);
+        } catch (Exception e) {
+            return object;
+        }
     }
 }
