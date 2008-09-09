@@ -37,11 +37,12 @@ import net.sf.jpasecurity.persistence.mapping.EntityInvocationHandler;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
 import net.sf.jpasecurity.security.rules.AccessRule;
+import net.sf.jpasecurity.util.SecureEntityHandler;
 
 /**
  * @author Arne Limburg
  */
-public class EntityManagerInvocationHandler implements InvocationHandler {
+public class EntityManagerInvocationHandler implements SecureEntityHandler, InvocationHandler {
 
     public static final String CREATE_QUERY_METHOD_NAME = "createQuery";
 
@@ -122,6 +123,10 @@ public class EntityManagerInvocationHandler implements InvocationHandler {
                                              new QueryInvocationHandler(this, query));
     }
 
+    public boolean isAccessible(Object object) {
+        return true;
+    }
+    
     public Object getSecureEntity(Object object) {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(object.getClass());
         if (mapping == null) {
