@@ -31,7 +31,8 @@ import javax.persistence.Query;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.jpasecurity.jpql.compiler.FilterResult;
-import net.sf.jpasecurity.jpql.compiler.QueryFilter;
+import net.sf.jpasecurity.jpql.compiler.EntityFilter;
+import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.persistence.mapping.EntityInvocationHandler;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
@@ -49,7 +50,7 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
     private EntityManager entityManager;
     private AuthenticationProvider authenticationProvider;
     private MappingInformation mappingInformation;
-    private QueryFilter queryFilter;
+    private EntityFilter entityFilter;
     private Map<Class, Map<Object, Object>> secureEntities;
 
     EntityManagerInvocationHandler(EntityManager entityManager,
@@ -59,7 +60,7 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
         this.entityManager = entityManager;
         this.authenticationProvider = authenticationProvider;
         this.mappingInformation = mappingInformation;
-        this.queryFilter = new QueryFilter(mappingInformation, accessRules);
+        this.entityFilter = new EntityFilter(entityManager, mappingInformation, accessRules);
         this.secureEntities = new HashMap<Class, Map<Object,Object>>();
     }
 
@@ -87,28 +88,9 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
      * and the authenticated user and its roles.
      */
     private Query createQuery(EntityManager entityManagerProxy, String qlString) {
-        Object user = authenticationProvider.getUser();
-        if (user != null) {
-            ClassMappingInformation userClassMapping = mappingInformation.getClassMapping(user.getClass());
-            if (userClassMapping != null) {
-                Object id = userClassMapping.getId(user);
-                user = entityManager.getReference(userClassMapping.getEntityType(), id);
-            }
-        }
-        Collection<Object> authorizedRoles = authenticationProvider.getRoles();
-        Set<Object> roles = new HashSet<Object>();
-        if (authorizedRoles != null) {
-            for (Object role: authorizedRoles) {
-                ClassMappingInformation roleClassMapping = mappingInformation.getClassMapping(role.getClass());
-                if (roleClassMapping == null) {
-                    roles.add(role);
-                } else {
-                    Object id = roleClassMapping.getId(role);
-                    roles.add(entityManager.getReference(roleClassMapping.getEntityType(), id));
-                }
-            }
-        }
-        FilterResult filterResult = queryFilter.filterQuery(qlString, user, roles);
+        Object user = getCurrentUser();
+        Set<Object> roles = getCurrentRoles();
+        FilterResult filterResult = entityFilter.filterQuery(qlString, user, roles);
         Query query = entityManager.createQuery(filterResult.getQuery());
         if (filterResult.getUserParameterName() != null) {
             query.setParameter(filterResult.getUserParameterName(), user);
@@ -123,8 +105,12 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
                                              new QueryInvocationHandler(this, query));
     }
 
-    public boolean isAccessible(Object object) {
-        return true;
+    public boolean isAccessible(Object entity) {
+        try {
+            return entityFilter.isAccessible(entity, getCurrentUser(), getCurrentRoles());
+        } catch (NotEvaluatableException e) {
+            throw new SecurityException(e);
+        }
     }
     
     public Object getSecureEntity(Object object) {
@@ -146,6 +132,35 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
         Object secureEntity = createSecureEntity(mapping, object);
         entities.put(id, secureEntity);
         return secureEntity;
+    }
+
+    private Object getCurrentUser() {
+        Object user = authenticationProvider.getUser();
+        if (user != null) {
+            ClassMappingInformation userClassMapping = mappingInformation.getClassMapping(user.getClass());
+            if (userClassMapping != null) {
+                Object id = userClassMapping.getId(user);
+                user = entityManager.getReference(userClassMapping.getEntityType(), id);
+            }
+        }
+        return user;
+    }
+    
+    private Set<Object> getCurrentRoles() {
+        Collection<Object> authorizedRoles = authenticationProvider.getRoles();
+        Set<Object> roles = new HashSet<Object>();
+        if (authorizedRoles != null) {
+            for (Object role: authorizedRoles) {
+                ClassMappingInformation roleClassMapping = mappingInformation.getClassMapping(role.getClass());
+                if (roleClassMapping == null) {
+                    roles.add(role);
+                } else {
+                    Object id = roleClassMapping.getId(role);
+                    roles.add(entityManager.getReference(roleClassMapping.getEntityType(), id));
+                }
+            }
+        }
+        return roles;
     }
     
     private Object createSecureEntity(ClassMappingInformation mapping, Object entity) {

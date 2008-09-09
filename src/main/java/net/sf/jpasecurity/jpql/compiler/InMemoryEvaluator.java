@@ -232,7 +232,11 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(this, data);
             try {
-                values.add(data.getResult());
+                if (data.getResult() instanceof Collection) {
+                    values.addAll((Collection)data.getResult());
+                } else {
+                    values.add(data.getResult());
+                }
             } catch (NotEvaluatableException e) {
                 undefined = true;
             }
