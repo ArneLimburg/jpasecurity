@@ -13,41 +13,22 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
 package net.sf.jpasecurity.util;
 
-import java.util.AbstractCollection;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * @author Arne Limburg
  */
-public class FilteredCollection<E> extends AbstractCollection<E> {
+public class SecureSet<E> extends SecureCollection<E, Set<E>> implements Set<E> {
 
-    private Collection<E> collection;
-    
-    public FilteredCollection(Collection<E> collection) {
-        this.collection = collection;
-    }
-    
-    public Iterator<E> iterator() {
-        return collection.iterator();
-    }
-    
-    public boolean add(E o) {
-        return collection.add(o);
+    public SecureSet(Set<E> set, SecureEntityHandler entityHandler) {
+        super(set, entityHandler);
     }
 
-    public boolean remove(Object o) {
-        return collection.remove(o);
-    }
-
-    public void clear() {
-        collection.clear();
-    }
-
-    public int size() {
-        return collection.size();
+    protected Set<E> createFiltered() {
+        return new HashSet<E>();
     }
 }

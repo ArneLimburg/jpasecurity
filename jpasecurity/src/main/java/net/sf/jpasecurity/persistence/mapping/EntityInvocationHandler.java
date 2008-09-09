@@ -23,11 +23,11 @@ import java.util.SortedSet;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import net.sf.jpasecurity.persistence.EntityManagerInvocationHandler;
-import net.sf.jpasecurity.util.FilteredCollection;
-import net.sf.jpasecurity.util.FilteredList;
-import net.sf.jpasecurity.util.FilteredSet;
-import net.sf.jpasecurity.util.FilteredSortedSet;
+import net.sf.jpasecurity.util.SecureCollection;
+import net.sf.jpasecurity.util.SecureEntityHandler;
+import net.sf.jpasecurity.util.SecureList;
+import net.sf.jpasecurity.util.SecureSet;
+import net.sf.jpasecurity.util.SecureSortedSet;
 
 /**
  * @author Arne Limburg
@@ -35,12 +35,12 @@ import net.sf.jpasecurity.util.FilteredSortedSet;
 public class EntityInvocationHandler implements MethodInterceptor {
 
     private ClassMappingInformation mapping;
-    private EntityManagerInvocationHandler entityHandler;
+    private SecureEntityHandler entityHandler;
     private boolean initialized;
     private Object entity;
 
     public EntityInvocationHandler(ClassMappingInformation mapping,
-                                   EntityManagerInvocationHandler entityHandler,
+                                   SecureEntityHandler entityHandler,
                                    Object entity) {
         this.mapping = mapping;
         this.entityHandler = entityHandler;
@@ -65,13 +65,13 @@ public class EntityInvocationHandler implements MethodInterceptor {
                 } else {
                     Collection<?> relatedEntities = (Collection<?>)propertyMapping.getPropertyValue(entity);
                     if (relatedEntities instanceof List) {
-                        propertyMapping.setPropertyValue(object, new FilteredList((List)relatedEntities));                        
+                        propertyMapping.setPropertyValue(object, new SecureList((List)relatedEntities, entityHandler));
                     } else if (relatedEntities instanceof SortedSet) {
-                        propertyMapping.setPropertyValue(object, new FilteredSortedSet((SortedSet)relatedEntities));                        
+                        propertyMapping.setPropertyValue(object, new SecureSortedSet((SortedSet)relatedEntities, entityHandler));
                     } else if (relatedEntities instanceof Set) {
-                        propertyMapping.setPropertyValue(object, new FilteredSet((Set)relatedEntities));                        
+                        propertyMapping.setPropertyValue(object, new SecureSet((Set)relatedEntities, entityHandler));
                     } else {
-                        propertyMapping.setPropertyValue(object, new FilteredCollection(relatedEntities));                        
+                        propertyMapping.setPropertyValue(object, new SecureCollection(relatedEntities, entityHandler));
                     }
                 }
             } else {
