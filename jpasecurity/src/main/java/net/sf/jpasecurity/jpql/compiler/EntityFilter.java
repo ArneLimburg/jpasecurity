@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
@@ -37,6 +38,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ParseException;
+import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.rules.AccessRule;
 
@@ -46,24 +48,43 @@ import org.apache.commons.logging.LogFactory;
 /**
  * @author Arne Limburg
  */
-public class QueryFilter {
+public class EntityFilter {
 
-    private static final Log LOG = LogFactory.getLog(QueryFilter.class);
+    private static final Log LOG = LogFactory.getLog(EntityFilter.class);
 
     private final MappingInformation mappingInformation;
     private final JpqlParser parser;
     private final JpqlCompiler compiler;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final InMemoryEvaluator queryEvaluator = new InMemoryEvaluator();
+    private final EntityManagerEvaluator entityManagerEvaluator;
     private final QueryPreparator queryPreparator = new QueryPreparator();
     private final CurrentUserReplacer currentUserReplacer = new CurrentUserReplacer();
-    private List<AccessRule> accessRules;
+    private final List<AccessRule> accessRules;
 
-    public QueryFilter(MappingInformation mappingInformation, List<AccessRule> accessRules) {
+    public EntityFilter(EntityManager entityManager,
+                        MappingInformation mappingInformation,
+                        List<AccessRule> accessRules) {
         this.mappingInformation = mappingInformation;
         this.parser = new JpqlParser();
         this.compiler = new JpqlCompiler(mappingInformation);
+        this.entityManagerEvaluator = new EntityManagerEvaluator(entityManager, compiler);
         this.accessRules = accessRules;
+    }
+    
+    public boolean isAccessible(Object entity, Object user, Set<Object> roles) throws NotEvaluatableException {
+        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
+        String alias = Character.toLowerCase(mapping.getEntityName().charAt(0)) + mapping.getEntityName().substring(1);
+        Node accessRulesNode = createAccessRuleNode(alias, mapping.getEntityType(), roles.size());
+        String userParameterName = createUserParameterName(Collections.EMPTY_SET, accessRulesNode);
+        Map<String, Object> parameters
+            = createAuthenticationParameters(Collections.EMPTY_SET, userParameterName, user, roles, accessRulesNode);
+        InMemoryEvaluationParameters<Boolean> evaluationParameters
+            = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
+                                                        Collections.singletonMap(alias, entity),
+                                                        parameters,
+                                                        Collections.EMPTY_MAP);
+        return entityManagerEvaluator.evaluate(accessRulesNode, evaluationParameters);
     }
 
     public FilterResult filterQuery(String query, Object user, Set<Object> roles) {
@@ -81,17 +102,9 @@ public class QueryFilter {
         LOG.info("Using access rules " + accessRules);
 
         Set<String> namedParameters = statement.getNamedParameters();
-
         String userParameterName = createUserParameterName(namedParameters, accessRules);
-        Set<String> roleParameterNames = createRoleParameterNames(namedParameters, userParameterName, accessRules);
-        Map<String, Object> roleParameters = createRoleParameters(roleParameterNames, roles);
-
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        if (userParameterName != null) {
-            parameters.put(userParameterName, user);
-        }
-        parameters.putAll(roleParameters);
-
+        Map<String, Object> parameters
+            = createAuthenticationParameters(namedParameters, userParameterName, user, roles, accessRules);
         try {
             InMemoryEvaluationParameters<Boolean> evaluationParameters
                 = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
@@ -129,21 +142,32 @@ public class QueryFilter {
         QueryOptimizer optimizer
             = new QueryOptimizer(mappingInformation, Collections.EMPTY_MAP, parameters, Collections.EMPTY_MAP);
         optimizer.optimize(accessRules);
-        Set<String> newRoleParameterNames = compiler.getNamedParameters(accessRules);
-        roleParameters.keySet().retainAll(newRoleParameterNames);
-        if (!newRoleParameterNames.contains(userParameterName)) {
+        Set<String> parameterNames = compiler.getNamedParameters(accessRules);
+        parameters.keySet().retainAll(parameterNames);
+        if (parameterNames.contains(userParameterName)) {
+            parameters.remove(userParameterName);
+        } else {
             userParameterName = null;
         }
 
         LOG.info("Returning optimized query " + statement.getStatement());
         return new FilterResult(statement.getStatement().toString(),
                                 userParameterName,
-                                roleParameters.size() > 0? roleParameters: null);
+                                parameters.size() > 0? parameters: null);
     }
 
     private Node createAccessRuleNode(JpqlCompiledStatement statement, int roleCount) {
+        return createAccessRuleNode(getSelectedTypes(statement), roleCount);
+    }
+    
+    private Node createAccessRuleNode(String alias, Class<?> type, int roleCount) {
+        Map<String, Class<?>> aliases = new HashMap<String, Class<?>>();
+        aliases.put(alias, type);
+        return createAccessRuleNode(aliases, roleCount);
+    }
+    
+    private Node createAccessRuleNode(Map<String, Class<?>> selectedTypes, int roleCount) {
         Node accessRuleNode = null;
-        Map<String, Class<?>> selectedTypes = getSelectedTypes(statement);
         for (Map.Entry<String, Class<?>> selectedType: selectedTypes.entrySet()) {
             Collection<AccessRule> accessRules = new FilteredAccessRules(selectedType.getValue());
             for (AccessRule accessRule: accessRules) {
@@ -162,6 +186,22 @@ public class QueryFilter {
         } else {
             return queryPreparator.createBrackets(accessRuleNode);
         }
+    }
+    
+    private Map<String, Object> createAuthenticationParameters(Set<String> namedParameters,
+                                                               String userParameterName,
+                                                               Object user,
+                                                               Set<Object> roles,
+                                                               Node accessRules) {
+        Set<String> roleParameterNames = createRoleParameterNames(namedParameters, userParameterName, accessRules);
+        Map<String, Object> roleParameters = createRoleParameters(roleParameterNames, roles);
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        if (userParameterName != null) {
+            parameters.put(userParameterName, user);
+        }
+        parameters.putAll(roleParameters);
+        return parameters;
     }
 
     private String createUserParameterName(Set<String> namedParameters, Node accessRules) {
