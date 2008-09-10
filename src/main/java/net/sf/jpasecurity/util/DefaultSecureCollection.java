@@ -15,20 +15,19 @@
  */
 package net.sf.jpasecurity.util;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * @author Arne Limburg
  */
-public class SecureSet<E> extends AbstractSecureCollection<E, Set<E>> implements Set<E> {
+public class DefaultSecureCollection<E, T extends Collection<E>> extends AbstractSecureCollection<E, T> {
 
-    public SecureSet(Set<E> set, SecureEntityHandler entityHandler) {
-        super(set, entityHandler);
+    public DefaultSecureCollection(T collection, SecureEntityHandler entityHandler) {
+        super(collection, entityHandler);
     }
 
-    protected Set<E> createFiltered() {
-        return new HashSet<E>();
+    protected T createFiltered() {
+        return (T)new ArrayList<E>();
     }
 }

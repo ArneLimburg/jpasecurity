@@ -23,7 +23,7 @@ import java.util.TreeSet;
 /**
  * @author Arne Limburg
  */
-public class SecureSortedSet<E> extends SecureCollection<E, SortedSet<E>> implements SortedSet<E> {
+public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>> implements SortedSet<E> {
 
     public SecureSortedSet(SortedSet<E> sortedSet, SecureEntityHandler entityHandler) {
         super(sortedSet, entityHandler);

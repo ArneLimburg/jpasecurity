@@ -25,10 +25,10 @@ import java.util.List;
  */
 public class SecureList<E> extends AbstractList<E> {
 
-    private SecureCollection<E, List<E>> secureList;
+    private AbstractSecureCollection<E, List<E>> secureList;
     
     public SecureList(List<E> list, SecureEntityHandler entityHandler) {
-        secureList = new SecureCollection<E, List<E>>(list, entityHandler);
+        secureList = new DefaultSecureCollection<E, List<E>>(list, entityHandler);
     }
 
     public E get(int index) {
