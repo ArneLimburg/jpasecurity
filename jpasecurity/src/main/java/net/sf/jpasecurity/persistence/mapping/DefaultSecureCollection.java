@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.util;
+package net.sf.jpasecurity.persistence.mapping;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * @author Arne Limburg
  */
-public interface SecureEntityHandler {
+public class DefaultSecureCollection<E, T extends Collection<E>> extends AbstractSecureCollection<E, T> {
 
-    public boolean isAccessible(Object object);
-    public Object getSecureEntity(Object object);
+    public DefaultSecureCollection(T collection, SecureEntityHandler entityHandler) {
+        super(collection, entityHandler);
+    }
+
+    protected T createFiltered() {
+        return (T)new ArrayList<E>();
+    }
 }
