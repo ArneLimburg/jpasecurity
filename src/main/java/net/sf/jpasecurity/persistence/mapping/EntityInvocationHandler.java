@@ -16,20 +16,11 @@
 package net.sf.jpasecurity.persistence.mapping;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import net.sf.jpasecurity.util.DefaultSecureCollection;
-import net.sf.jpasecurity.util.SecureEntityHandler;
-import net.sf.jpasecurity.util.SecureList;
-import net.sf.jpasecurity.util.SecureSet;
-import net.sf.jpasecurity.util.SecureSortedSet;
 
 /**
  * @author Arne Limburg
@@ -51,6 +42,9 @@ public class EntityInvocationHandler implements MethodInterceptor {
     }
     
     public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+        if (method.getName().equals("getUnsecureEntity") && method.getParameterTypes().length == 0) {
+            return entity;
+        }
         if (!initialized) {
             initialize(object);
         }
@@ -58,49 +52,47 @@ public class EntityInvocationHandler implements MethodInterceptor {
         updatedChangedProperties(object);
         return result;
     }
-
+    
     private void initialize(Object object) {
         object = unproxy(object);
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
-            setPropertyValue(propertyMapping, entity, object);
+            Object value = propertyMapping.getPropertyValue(entity);
+            if (propertyMapping instanceof RelationshipMappingInformation) {
+                value = entityHandler.getSecureObject(value);
+//                if (relationshipMapping instanceof SingleValuedRelationshipMappingInformation) {
+//                } else {
+//                    Collection<?> relatedEntities = (Collection<?>)propertyMapping.getPropertyValue(source);
+//                    if (relatedEntities instanceof List) {
+//                        value = new SecureList((List)relatedEntities, entityHandler);
+//                    } else if (relatedEntities instanceof SortedSet) {
+//                        value = new SecureSortedSet((SortedSet)relatedEntities, entityHandler);
+//                    } else if (relatedEntities instanceof Set) {
+//                        value = new SecureSet((Set)relatedEntities, entityHandler);
+//                    } else {
+//                        value = new DefaultSecureCollection(relatedEntities, entityHandler);
+//                    }
+//                }
+            }
+            propertyMapping.setPropertyValue(object, value);
+            propertyValues.put(propertyMapping.getPropertyName(), value);        
         }
         initialized = true;
     }
     
     private void updatedChangedProperties(Object object) {
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
-            if (propertyMapping.getPropertyValue(object) != propertyValues.get(propertyMapping.getPropertyName())) {
-                setPropertyValue(propertyMapping, object, entity);
-            }
-        }
-    }
-    
-    private void setPropertyValue(PropertyMappingInformation propertyMapping, Object source, Object target) {
-        Object value;
-        if (propertyMapping instanceof RelationshipMappingInformation) {
-            RelationshipMappingInformation relationshipMapping = (RelationshipMappingInformation)propertyMapping;
-            if (relationshipMapping instanceof SingleValuedRelationshipMappingInformation) {
-                Object relatedEntity = propertyMapping.getPropertyValue(source);
-                value = entityHandler.getSecureEntity(relatedEntity);
-            } else {
-                Collection<?> relatedEntities = (Collection<?>)propertyMapping.getPropertyValue(source);
-                if (relatedEntities instanceof List) {
-                    value = new SecureList((List)relatedEntities, entityHandler);
-                } else if (relatedEntities instanceof SortedSet) {
-                    value = new SecureSortedSet((SortedSet)relatedEntities, entityHandler);
-                } else if (relatedEntities instanceof Set) {
-                    value = new SecureSet((Set)relatedEntities, entityHandler);
-                } else {
-                    value = new DefaultSecureCollection(relatedEntities, entityHandler);
+            Object value = propertyMapping.getPropertyValue(object);
+            if (value != propertyValues.get(propertyMapping.getPropertyName())) {
+                propertyMapping.setPropertyValue(entity, entityHandler.getUnsecureObject(value));
+                if (propertyMapping instanceof RelationshipMappingInformation) {
+                    value = entityHandler.getSecureObject(object);
+                    propertyMapping.setPropertyValue(object, value);
                 }
+                propertyValues.put(propertyMapping.getPropertyName(), value);
             }
-        } else {
-            value = propertyMapping.getPropertyValue(source);
         }
-        propertyMapping.setPropertyValue(target, value);
-        propertyValues.put(propertyMapping.getPropertyName(), value);        
     }
-    
+
     private Object unproxy(Object object) {
         try {
             Class<?> hibernateProxy = Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.HibernateProxy");

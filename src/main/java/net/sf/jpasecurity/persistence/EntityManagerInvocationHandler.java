@@ -30,15 +30,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import net.sf.cglib.proxy.Enhancer;
-import net.sf.jpasecurity.jpql.compiler.FilterResult;
 import net.sf.jpasecurity.jpql.compiler.EntityFilter;
+import net.sf.jpasecurity.jpql.compiler.FilterResult;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.persistence.mapping.EntityInvocationHandler;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.persistence.mapping.SecureEntityHandler;
 import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
 import net.sf.jpasecurity.security.rules.AccessRule;
-import net.sf.jpasecurity.util.SecureEntityHandler;
 
 /**
  * @author Arne Limburg
@@ -113,7 +113,7 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
         }
     }
     
-    public Object getSecureEntity(Object object) {
+    public Object getSecureObject(Object object) {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(object.getClass());
         if (mapping == null) {
             throw new IllegalArgumentException(object.getClass() + " is not mapped");
@@ -133,7 +133,15 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
         entities.put(id, secureEntity);
         return secureEntity;
     }
-
+    
+    public Object getUnsecureObject(Object object) {
+        if (object instanceof SecureEntity) {
+            return ((SecureEntity)object).getUnsecureEntity();
+        } else {
+            return object;
+        }
+    }
+    
     private Object getCurrentUser() {
         Object user = authenticationProvider.getUser();
         if (user != null) {

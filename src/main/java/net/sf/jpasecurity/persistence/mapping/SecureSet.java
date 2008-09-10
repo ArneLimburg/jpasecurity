@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.util;
+package net.sf.jpasecurity.persistence.mapping;
 
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * @author Arne Limburg
  */
-public interface SecureCollection<E> extends Collection<E> {
+public class SecureSet<E> extends AbstractSecureCollection<E, Set<E>> implements Set<E> {
 
+    public SecureSet(Set<E> set, SecureEntityHandler entityHandler) {
+        super(set, entityHandler);
+    }
+
+    protected Set<E> createFiltered() {
+        return new HashSet<E>();
+    }
 }

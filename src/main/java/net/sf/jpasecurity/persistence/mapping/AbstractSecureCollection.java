@@ -14,7 +14,7 @@
  * and limitations under the License.
  */
 
-package net.sf.jpasecurity.util;
+package net.sf.jpasecurity.persistence.mapping;
 
 import java.util.AbstractCollection;
 import java.util.ArrayList;
@@ -49,6 +49,10 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         this.filtered = filtered;
     }
 
+    public Object getUnsecureEntity() {
+        return getOriginal();
+    }
+    
     protected final SecureEntityHandler getEntityHandler() {
         return entityHandler;
     }
