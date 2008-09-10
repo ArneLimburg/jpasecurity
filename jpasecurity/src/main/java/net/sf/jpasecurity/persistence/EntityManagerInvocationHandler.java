@@ -130,7 +130,7 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
         }
     }
     
-    public Object getSecureObject(Object object) {
+    public <T> T getSecureObject(T object) {
         if ((object instanceof SecureEntity) || (object instanceof SecureCollection)) {
             return object;
         }
@@ -139,13 +139,13 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
         }
         if (object instanceof Collection) {
           if (object instanceof List) {
-              return new SecureList((List)object, this);
+              return (T)new SecureList((List)object, this);
           } else if (object instanceof SortedSet) {
-              return new SecureSortedSet((SortedSet)object, this);
+              return (T)new SecureSortedSet((SortedSet)object, this);
           } else if (object instanceof Set) {
-              return new SecureSet((Set)object, this);
+              return (T)new SecureSet((Set)object, this);
           } else {
-              return new DefaultSecureCollection((Collection)object, this);
+              return (T)new DefaultSecureCollection((Collection)object, this);
           }
         } else {
             ClassMappingInformation mapping = mappingInformation.getClassMapping(object.getClass());
@@ -157,7 +157,7 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
             if (entities != null) {
                 Object secureEntity = entities.get(id);
                 if (secureEntity != null) {
-                    return secureEntity;
+                    return (T)secureEntity;
                 }
             } else {
                 entities = new HashMap<Object, Object>();
@@ -165,17 +165,17 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
             }
             Object secureEntity = createSecureEntity(mapping, object);
             entities.put(id, secureEntity);
-            return secureEntity;
+            return (T)secureEntity;
         }
     }
     
-    public Object getUnsecureObject(Object object) {
+    public <T> T getUnsecureObject(T object) {
         if (object instanceof SecureEntity) {
-            return ((EntityInvocationHandler)Proxy.getInvocationHandler(object)).getEntity();
+            return (T)((EntityInvocationHandler)Proxy.getInvocationHandler(object)).getEntity();
         } else if (object instanceof AbstractSecureCollection) {
-            return ((AbstractSecureCollection)object).getOriginal();
+            return (T)((AbstractSecureCollection)object).getOriginal();
         } else if (object instanceof SecureList) {
-            return ((SecureList)object).getOriginal();
+            return (T)((SecureList)object).getOriginal();
         } else {
             return object;
         }
