@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import java.lang.reflect.Proxy;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -44,5 +46,8 @@ public class PropertyNavigationTest extends TestCase {
         entityManager.close();
         assertEquals(1, bean.getChildBeans().size());
         assertEquals(USER1, bean.getChildBeans().get(0).getBeanName());
+        EntityManagerInvocationHandler entityHandler
+            = (EntityManagerInvocationHandler)Proxy.getInvocationHandler(entityManager);
+        assertEquals(2, entityHandler.getUnsecureObject(bean.getChildBeans()).size());
     }
 }
