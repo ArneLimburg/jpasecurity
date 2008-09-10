@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.persistence.mapping;
+package net.sf.jpasecurity.persistence;
+
+import java.util.Collection;
 
 /**
+ * A marker interface for secure collections.
  * @author Arne Limburg
  */
-public interface SecureEntityHandler {
-
-    boolean isAccessible(Object object);
-    Object getSecureObject(Object object);
-    Object getUnsecureObject(Object object);
+interface SecureCollection<E> extends Collection<E> {
 }
