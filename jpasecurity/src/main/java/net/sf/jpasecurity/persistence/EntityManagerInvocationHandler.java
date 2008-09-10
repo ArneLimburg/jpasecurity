@@ -45,6 +45,7 @@ import net.sf.jpasecurity.security.rules.AccessRule;
 public class EntityManagerInvocationHandler implements SecureEntityHandler, InvocationHandler {
 
     public static final String CREATE_QUERY_METHOD_NAME = "createQuery";
+    public static final String MERGE_METHOD_NAME = "merge";
 
     private EntityManager entityManager;
     private AuthenticationProvider authenticationProvider;
@@ -67,6 +68,8 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
         try {
             if (isCreateQueryMethod(method)) {
                 return createQuery((EntityManager)proxy, (String)args[0]);
+            } else if (isMergeMethod(method)) {
+                return merge(args[0]);
             } else {
                 return method.invoke(entityManager, args);
             }
@@ -80,6 +83,13 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
         return method.getName().equals(CREATE_QUERY_METHOD_NAME)
             && parameterTypes.length == 1
             && parameterTypes[0] == String.class;
+    }
+
+    private boolean isMergeMethod(Method method) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        return method.getName().equals(MERGE_METHOD_NAME)
+            && parameterTypes.length == 1
+            && parameterTypes[0] == Object.class;
     }
 
     /**
@@ -103,6 +113,14 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
                                              new Class[] {Query.class},
                                              new QueryInvocationHandler(this, query));
     }
+    
+    private Object merge(Object entity) {
+        entity = entityManager.merge(entity);
+        if (!isAccessible(entity)) {
+            throw new SecurityException("entity not accessible");
+        }
+        return getSecureObject(entity);
+    }
 
     public boolean isAccessible(Object entity) {
         try {
@@ -115,6 +133,9 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
     public Object getSecureObject(Object object) {
         if ((object instanceof SecureEntity) || (object instanceof SecureCollection)) {
             return object;
+        }
+        if (object == null) {
+            return null;
         }
         if (object instanceof Collection) {
           if (object instanceof List) {
