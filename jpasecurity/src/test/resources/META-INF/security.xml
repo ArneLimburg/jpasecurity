@@ -16,5 +16,9 @@
     <access-rule>GRANT READ ACCESS TO User user WHERE user.name = CURRENT_USER</access-rule>
     <access-rule>GRANT READ ACCESS TO User user WHERE 'ROLE_ADMIN' IN (CURRENT_ROLES)</access-rule>
   </persistence-unit>
+  
+  <persistence-unit name="annotation-based-field-access">
+    <access-rule>GRANT READ ACCESS TO FieldAccessAnnotationTestBean bean WHERE bean.name = CURRENT_USER</access-rule>
+  </persistence-unit>
 
 </security>
