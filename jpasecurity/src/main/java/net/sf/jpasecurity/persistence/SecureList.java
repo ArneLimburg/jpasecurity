@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.persistence.mapping;
+package net.sf.jpasecurity.persistence;
 
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.List;
+
 
 
 /**
@@ -31,10 +32,6 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
         secureList = new DefaultSecureCollection<E, List<E>>(list, entityHandler);
     }
 
-    public Object getUnsecureEntity() {
-        return secureList.getOriginal();
-    }
-    
     public E get(int index) {
         return secureList.getFiltered().get(index);
     }
@@ -72,5 +69,9 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
 
     public int size() {
         return secureList.size();
+    }
+    
+    List<E> getOriginal() {
+        return secureList.getOriginal();
     }
 }

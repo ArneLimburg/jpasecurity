@@ -14,12 +14,13 @@
  * and limitations under the License.
  */
 
-package net.sf.jpasecurity.persistence.mapping;
+package net.sf.jpasecurity.persistence;
 
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
 
 
 /**
@@ -44,57 +45,9 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
      * @param filtered the (initialized) filtered collection
      * @param entityHandler the enityHandler
      */
-    protected AbstractSecureCollection(T original, T filtered, SecureEntityHandler entityHandler) {
+    AbstractSecureCollection(T original, T filtered, SecureEntityHandler entityHandler) {
         this(original, entityHandler);
         this.filtered = filtered;
-    }
-
-    public Object getUnsecureEntity() {
-        return getOriginal();
-    }
-    
-    protected final SecureEntityHandler getEntityHandler() {
-        return entityHandler;
-    }
-    
-    protected final T getOriginal() {
-        return original;
-    }
-
-    /**
-     * Returns the filtered collection, initializing it when necessary.
-     * @return the filtered collection
-     */
-    protected final T getFiltered() {
-        checkInitialized();
-        return filtered;
-    }
-    
-    protected abstract T createFiltered();
-
-    protected void checkAccessible(E entity) {
-        if (!isAccessible(entity)) {
-            throw new SecurityException("Entity may not be added");
-        }        
-    }
-    
-    protected boolean isAccessible(E entity) {
-        return entityHandler.isAccessible(entity);
-    }
-    
-    private void checkInitialized() {
-        if (filtered == null) {
-            initialize();
-        }        
-    }
-    
-    private void initialize() {
-        this.filtered = createFiltered();
-        for (E entity: original) {
-            if (isAccessible(entity)) {
-                filtered.add(entity);
-            }
-        }
     }
     
     public Iterator<E> iterator() {
@@ -118,15 +71,6 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         return result;
     }
     
-    protected Collection<? extends E> filterAll(Collection<? extends E> collection) {
-        Collection<E> filteredCollection = new ArrayList<E>(collection);
-        for (Iterator<E> i = filteredCollection.iterator(); i.hasNext();) {
-            if (!isAccessible(i.next())) {
-                i.remove();
-            }
-        }
-        return filteredCollection;
-    }
 
     public boolean remove(Object entity) {
         if (getOriginal().remove(entity)) {
@@ -156,5 +100,59 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
 
     public int size() {
         return getFiltered().size();
+    }
+
+    final SecureEntityHandler getEntityHandler() {
+        return entityHandler;
+    }
+    
+    final T getOriginal() {
+        return original;
+    }
+
+    /**
+     * Returns the filtered collection, initializing it when necessary.
+     * @return the filtered collection
+     */
+    final T getFiltered() {
+        checkInitialized();
+        return filtered;
+    }
+    
+    abstract T createFiltered();
+
+    void checkAccessible(E entity) {
+        if (!isAccessible(entity)) {
+            throw new SecurityException("Entity may not be added");
+        }        
+    }
+    
+    boolean isAccessible(E entity) {
+        return entityHandler.isAccessible(entity);
+    }
+    
+    Collection<? extends E> filterAll(Collection<? extends E> collection) {
+        Collection<E> filteredCollection = new ArrayList<E>(collection);
+        for (Iterator<E> i = filteredCollection.iterator(); i.hasNext();) {
+            if (!isAccessible(i.next())) {
+                i.remove();
+            }
+        }
+        return filteredCollection;
+    }
+
+    private void checkInitialized() {
+        if (filtered == null) {
+            initialize();
+        }        
+    }
+    
+    private void initialize() {
+        this.filtered = createFiltered();
+        for (E entity: original) {
+            if (isAccessible(entity)) {
+                filtered.add(entityHandler.getSecureObject(entity));
+            }
+        }
     }
 }

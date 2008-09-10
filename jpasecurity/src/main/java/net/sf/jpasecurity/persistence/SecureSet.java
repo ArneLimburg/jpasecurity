@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.persistence.mapping;
+package net.sf.jpasecurity.persistence;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+
 
 /**
  * @author Arne Limburg
  */
-public class DefaultSecureCollection<E, T extends Collection<E>> extends AbstractSecureCollection<E, T> {
+public class SecureSet<E> extends AbstractSecureCollection<E, Set<E>> implements Set<E> {
 
-    public DefaultSecureCollection(T collection, SecureEntityHandler entityHandler) {
-        super(collection, entityHandler);
+    public SecureSet(Set<E> set, SecureEntityHandler entityHandler) {
+        super(set, entityHandler);
     }
 
-    protected T createFiltered() {
-        return (T)new ArrayList<E>();
+    protected Set<E> createFiltered() {
+        return new HashSet<E>();
     }
 }
