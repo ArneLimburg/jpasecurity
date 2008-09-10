@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -34,9 +35,7 @@ import net.sf.jpasecurity.jpql.compiler.EntityFilter;
 import net.sf.jpasecurity.jpql.compiler.FilterResult;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
-import net.sf.jpasecurity.persistence.mapping.EntityInvocationHandler;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
-import net.sf.jpasecurity.persistence.mapping.SecureEntityHandler;
 import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
 import net.sf.jpasecurity.security.rules.AccessRule;
 
@@ -114,29 +113,48 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
     }
     
     public Object getSecureObject(Object object) {
-        ClassMappingInformation mapping = mappingInformation.getClassMapping(object.getClass());
-        if (mapping == null) {
-            throw new IllegalArgumentException(object.getClass() + " is not mapped");
+        if ((object instanceof SecureEntity) || (object instanceof SecureCollection)) {
+            return object;
         }
-        Object id = mapping.getId(object);
-        Map<Object, Object> entities = secureEntities.get(mapping.getEntityType());
-        if (entities != null) {
-            Object secureEntity = entities.get(id);
-            if (secureEntity != null) {
-                return secureEntity;
-            }
+        if (object instanceof Collection) {
+          if (object instanceof List) {
+              return new SecureList((List)object, this);
+          } else if (object instanceof SortedSet) {
+              return new SecureSortedSet((SortedSet)object, this);
+          } else if (object instanceof Set) {
+              return new SecureSet((Set)object, this);
+          } else {
+              return new DefaultSecureCollection((Collection)object, this);
+          }
         } else {
-            entities = new HashMap<Object, Object>();
-            secureEntities.put(mapping.getEntityType(), entities);
+            ClassMappingInformation mapping = mappingInformation.getClassMapping(object.getClass());
+            if (mapping == null) {
+                throw new IllegalArgumentException(object.getClass() + " is not mapped");
+            }
+            Object id = mapping.getId(object);
+            Map<Object, Object> entities = secureEntities.get(mapping.getEntityType());
+            if (entities != null) {
+                Object secureEntity = entities.get(id);
+                if (secureEntity != null) {
+                    return secureEntity;
+                }
+            } else {
+                entities = new HashMap<Object, Object>();
+                secureEntities.put(mapping.getEntityType(), entities);
+            }
+            Object secureEntity = createSecureEntity(mapping, object);
+            entities.put(id, secureEntity);
+            return secureEntity;
         }
-        Object secureEntity = createSecureEntity(mapping, object);
-        entities.put(id, secureEntity);
-        return secureEntity;
     }
     
     public Object getUnsecureObject(Object object) {
         if (object instanceof SecureEntity) {
-            return ((SecureEntity)object).getUnsecureEntity();
+            return ((EntityInvocationHandler)Proxy.getInvocationHandler(object)).getEntity();
+        } else if (object instanceof AbstractSecureCollection) {
+            return ((AbstractSecureCollection)object).getOriginal();
+        } else if (object instanceof SecureList) {
+            return ((SecureList)object).getOriginal();
         } else {
             return object;
         }

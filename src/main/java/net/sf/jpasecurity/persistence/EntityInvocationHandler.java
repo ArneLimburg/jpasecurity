@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.persistence.mapping;
+package net.sf.jpasecurity.persistence;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -21,6 +21,9 @@ import java.util.Map;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.persistence.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.persistence.mapping.RelationshipMappingInformation;
 
 /**
  * @author Arne Limburg
@@ -28,13 +31,13 @@ import net.sf.cglib.proxy.MethodProxy;
 public class EntityInvocationHandler implements MethodInterceptor {
 
     private ClassMappingInformation mapping;
-    private SecureEntityHandler entityHandler;
+    private EntityManagerInvocationHandler entityHandler;
     private boolean initialized;
     private Object entity;
     private Map<String, Object> propertyValues = new HashMap<String, Object>();
     
     public EntityInvocationHandler(ClassMappingInformation mapping,
-                                   SecureEntityHandler entityHandler,
+                                   EntityManagerInvocationHandler entityHandler,
                                    Object entity) {
         this.mapping = mapping;
         this.entityHandler = entityHandler;
@@ -53,25 +56,16 @@ public class EntityInvocationHandler implements MethodInterceptor {
         return result;
     }
     
+    Object getEntity() {
+        return entity;
+    }
+    
     private void initialize(Object object) {
         object = unproxy(object);
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
             Object value = propertyMapping.getPropertyValue(entity);
             if (propertyMapping instanceof RelationshipMappingInformation) {
                 value = entityHandler.getSecureObject(value);
-//                if (relationshipMapping instanceof SingleValuedRelationshipMappingInformation) {
-//                } else {
-//                    Collection<?> relatedEntities = (Collection<?>)propertyMapping.getPropertyValue(source);
-//                    if (relatedEntities instanceof List) {
-//                        value = new SecureList((List)relatedEntities, entityHandler);
-//                    } else if (relatedEntities instanceof SortedSet) {
-//                        value = new SecureSortedSet((SortedSet)relatedEntities, entityHandler);
-//                    } else if (relatedEntities instanceof Set) {
-//                        value = new SecureSet((Set)relatedEntities, entityHandler);
-//                    } else {
-//                        value = new DefaultSecureCollection(relatedEntities, entityHandler);
-//                    }
-//                }
             }
             propertyMapping.setPropertyValue(object, value);
             propertyValues.put(propertyMapping.getPropertyName(), value);        
