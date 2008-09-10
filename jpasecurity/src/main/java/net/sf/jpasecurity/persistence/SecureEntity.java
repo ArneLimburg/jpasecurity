@@ -19,6 +19,7 @@ package net.sf.jpasecurity.persistence;
  * A marker interface for secure entities
  * @author Arne Limburg
  */
-interface SecureEntity {
+public interface SecureEntity {
 
+    Object getUnsecureEntity();
 }

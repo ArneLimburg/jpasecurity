@@ -23,7 +23,7 @@ import java.util.List;
 
 import javax.persistence.Query;
 
-import net.sf.jpasecurity.util.SecureEntityHandler;
+import net.sf.jpasecurity.persistence.mapping.SecureEntityHandler;
 
 /**
  * An invocation handler to handle invocations on queries.
@@ -49,11 +49,11 @@ public class QueryInvocationHandler implements InvocationHandler {
         if (method.getName().equals("getResultList")) {
             List<Object> resultList = new ArrayList<Object>();
             for (Object entity: (List<Object>)result) {
-                resultList.add(entityHandler.getSecureEntity(entity));
+                resultList.add(entityHandler.getSecureObject(entity));
             }
             return resultList;
         } else if (method.getName().equals("getSingleResult")) {
-            return entityHandler.getSecureEntity(result);
+            return entityHandler.getSecureObject(result);
         } else if (target.equals(result)) {
             return proxy;
         } else {
