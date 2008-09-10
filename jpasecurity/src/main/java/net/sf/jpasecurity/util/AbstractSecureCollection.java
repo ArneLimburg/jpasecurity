@@ -26,13 +26,13 @@ import java.util.Iterator;
  * @author Arne Limburg
  * @param <E>
  */
-public class SecureCollection<E, T extends Collection<E>> extends AbstractCollection<E> {
+public abstract class AbstractSecureCollection<E, T extends Collection<E>> extends AbstractCollection<E> {
 
     private T original;
     private T filtered;
     private SecureEntityHandler entityHandler;
     
-    public SecureCollection(T collection, SecureEntityHandler entityHandler) {
+    public AbstractSecureCollection(T collection, SecureEntityHandler entityHandler) {
         this.original = collection;
         this.entityHandler = entityHandler;
     }
@@ -43,7 +43,7 @@ public class SecureCollection<E, T extends Collection<E>> extends AbstractCollec
      * @param filtered the (initialized) filtered collection
      * @param entityHandler the enityHandler
      */
-    protected SecureCollection(T original, T filtered, SecureEntityHandler entityHandler) {
+    protected AbstractSecureCollection(T original, T filtered, SecureEntityHandler entityHandler) {
         this(original, entityHandler);
         this.filtered = filtered;
     }
@@ -65,10 +65,8 @@ public class SecureCollection<E, T extends Collection<E>> extends AbstractCollec
         return filtered;
     }
     
-    protected T createFiltered() {
-        return (T)new ArrayList<E>();
-    }
-    
+    protected abstract T createFiltered();
+
     protected void checkAccessible(E entity) {
         if (!isAccessible(entity)) {
             throw new SecurityException("Entity may not be added");

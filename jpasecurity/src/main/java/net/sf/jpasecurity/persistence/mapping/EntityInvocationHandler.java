@@ -25,7 +25,7 @@ import java.util.SortedSet;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import net.sf.jpasecurity.util.SecureCollection;
+import net.sf.jpasecurity.util.DefaultSecureCollection;
 import net.sf.jpasecurity.util.SecureEntityHandler;
 import net.sf.jpasecurity.util.SecureList;
 import net.sf.jpasecurity.util.SecureSet;
@@ -91,7 +91,7 @@ public class EntityInvocationHandler implements MethodInterceptor {
                 } else if (relatedEntities instanceof Set) {
                     value = new SecureSet((Set)relatedEntities, entityHandler);
                 } else {
-                    value = new SecureCollection(relatedEntities, entityHandler);
+                    value = new DefaultSecureCollection(relatedEntities, entityHandler);
                 }
             }
         } else {
