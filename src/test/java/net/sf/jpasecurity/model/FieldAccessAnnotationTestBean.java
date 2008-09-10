@@ -15,8 +15,10 @@
  */
 package net.sf.jpasecurity.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -41,8 +43,15 @@ public class FieldAccessAnnotationTestBean {
     @ManyToOne
     @JoinColumn(name = "parentBean")
     private FieldAccessAnnotationTestBean parent;
-    @OneToMany(mappedBy = "parent")
-    private List<FieldAccessAnnotationTestBean> children;
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    private List<FieldAccessAnnotationTestBean> children = new ArrayList<FieldAccessAnnotationTestBean>();
+    
+    protected FieldAccessAnnotationTestBean() {
+    }
+    
+    public FieldAccessAnnotationTestBean(String name) {
+        this.name = name; 
+    }
     
     public int getIdentifier() {
         return id;
