@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @author Arne Limburg
  */
-public class SecureList<E> extends AbstractList<E> {
+public class SecureList<E> extends AbstractList<E> implements SecureCollection<E> {
 
     private AbstractSecureCollection<E, List<E>> secureList;
     

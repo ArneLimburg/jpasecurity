@@ -26,7 +26,8 @@ import java.util.Iterator;
  * @author Arne Limburg
  * @param <E>
  */
-public abstract class AbstractSecureCollection<E, T extends Collection<E>> extends AbstractCollection<E> {
+public abstract class AbstractSecureCollection<E, T extends Collection<E>> extends AbstractCollection<E>
+                                                                           implements SecureCollection<E> {
 
     private T original;
     private T filtered;
