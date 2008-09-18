@@ -76,12 +76,14 @@ public abstract class AbstractMappingParser {
                 classMappings.put(mappedClass, classMapping);
                 if (usesFieldAccess) {
                     for (Field field: mappedClass.getDeclaredFields()) {
-                        PropertyMappingInformation propertyMapping = parse(field);
-                        classMapping.addPropertyMapping(propertyMapping);
+                        if (isMappable(field)) {
+                            PropertyMappingInformation propertyMapping = parse(field);
+                            classMapping.addPropertyMapping(propertyMapping);
+                        }
                     }
                 } else {
                     for (Method method: mappedClass.getDeclaredMethods()) {
-                        if (method.getName().startsWith(READ_PROPERTY_PREFIX)) {
+                        if (method.getName().startsWith(READ_PROPERTY_PREFIX) && isMappable(method)) {
                             PropertyMappingInformation propertyMapping = parse(method);
                             classMapping.addPropertyMapping(propertyMapping);
                         }
