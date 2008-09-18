@@ -76,6 +76,9 @@ public class EntityFilter {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         String alias = Character.toLowerCase(mapping.getEntityName().charAt(0)) + mapping.getEntityName().substring(1);
         Node accessRulesNode = createAccessRuleNode(alias, mapping.getEntityType(), roles.size());
+        if (accessRulesNode == null) {
+            return true;
+        }
         String userParameterName = createUserParameterName(Collections.EMPTY_SET, accessRulesNode);
         Map<String, Object> parameters
             = createAuthenticationParameters(Collections.EMPTY_SET, userParameterName, user, roles, accessRulesNode);
@@ -279,6 +282,9 @@ public class EntityFilter {
     }
 
     private int replaceCurrentUser(Node node, String namedParameter) {
+        if (node == null) {
+            return 0;
+        }
         ReplacementParameters parameters = new ReplacementParameters(namedParameter);
         node.visit(currentUserReplacer, parameters);
         return parameters.getReplacementCount();
