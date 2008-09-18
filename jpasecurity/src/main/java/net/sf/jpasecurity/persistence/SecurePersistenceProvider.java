@@ -159,8 +159,9 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             if (persistenceProviderClassName == null) {
                 persistenceProviderClassName = persistenceUnitInfo.getPersistenceProviderClassName();
             }
-            if (persistenceProviderClassName == null) {
-                throw new PersistenceException("No persistence provider specified for net.sf.jpasecurity.persistence.SecureEntityManagerFactory. Specify its class name via property \"" + PERSISTENCE_PROVIDER_PROPERTY + "\"");
+            if (persistenceProviderClassName == null
+                || persistenceProviderClassName.equals(SecurePersistenceProvider.class.getName())) {
+                throw new PersistenceException("No persistence provider specified for net.sf.jpasecurity.persistence.SecureEntityManagerFactory. Specify its class name via property \"" + NATIVE_PERSISTENCE_PROVIDER_PROPERTY + "\"");
             }
             Class<?> persistenceProviderClass
                 = getClassLoader(persistenceUnitInfo).loadClass(persistenceProviderClassName);
