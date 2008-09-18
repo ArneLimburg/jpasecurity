@@ -33,6 +33,7 @@ public class EntityInvocationHandler implements MethodInterceptor {
     private ClassMappingInformation mapping;
     private EntityManagerInvocationHandler entityHandler;
     private boolean initialized;
+    private ThreadLocal<Boolean> updating = new ThreadLocal<Boolean>();
     private Object entity;
     private Map<String, Object> propertyValues = new HashMap<String, Object>();
     
@@ -48,11 +49,13 @@ public class EntityInvocationHandler implements MethodInterceptor {
         if (method.getName().equals("getUnsecureEntity") && method.getParameterTypes().length == 0) {
             return entity;
         }
-        if (!initialized) {
+        if (!initialized && !isUpdating()) {
             initialize(object);
         }
         Object result = methodProxy.invokeSuper(object, args);
-        updatedChangedProperties(object);
+        if (!isUpdating()) {
+            updatedChangedProperties(object);
+        }
         return result;
     }
     
@@ -60,8 +63,13 @@ public class EntityInvocationHandler implements MethodInterceptor {
         return entity;
     }
     
+    private boolean isUpdating() {
+        return updating.get() != null && updating.get();
+    }
+    
     private void initialize(Object object) {
-        object = unproxy(object);
+        updating.set(true);
+        entity = unproxy(entity);
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
             Object value = propertyMapping.getPropertyValue(entity);
             if (propertyMapping instanceof RelationshipMappingInformation) {
@@ -71,9 +79,11 @@ public class EntityInvocationHandler implements MethodInterceptor {
             propertyValues.put(propertyMapping.getPropertyName(), value);        
         }
         initialized = true;
+        updating.remove();
     }
     
     private void updatedChangedProperties(Object object) {
+        updating.set(true);
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
             Object value = propertyMapping.getPropertyValue(object);
             if (value != propertyValues.get(propertyMapping.getPropertyName())) {
@@ -85,6 +95,7 @@ public class EntityInvocationHandler implements MethodInterceptor {
                 propertyValues.put(propertyMapping.getPropertyName(), value);
             }
         }
+        updating.remove();
     }
 
     private Object unproxy(Object object) {
