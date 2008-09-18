@@ -1075,6 +1075,9 @@ void pathComponent() #IdentificationVariable: {
     | token = <SET>
     | token = <OBJECT>
     | token = <IDENTIFIER>
+    | token = <GRANT>
+    | token = <READ>
+    | token = <ACCESS>
     ) { jjtThis.setValue(token.image); }
 }
 
