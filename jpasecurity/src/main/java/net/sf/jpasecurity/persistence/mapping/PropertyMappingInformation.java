@@ -110,7 +110,7 @@ public abstract class PropertyMappingInformation {
         String propertyName = getPropertyName();
         String methodName
             = GET_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
-        Method method = getMethod(target.getClass(), methodName);
+        Method method = getMethod(target.getClass(), methodName, 0);
         try {
             return method.invoke(target, (Object[])null);
         } catch (InvocationTargetException e) {
@@ -126,7 +126,7 @@ public abstract class PropertyMappingInformation {
         String propertyName = getPropertyName();
         String methodName
             = SET_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
-        Method method = getMethod(target.getClass(), methodName);
+        Method method = getMethod(target.getClass(), methodName, 1);
         try {
             method.invoke(target, propertyValue);
         } catch (InvocationTargetException e) {
@@ -138,16 +138,16 @@ public abstract class PropertyMappingInformation {
         }
     }
 
-    private Method getMethod(Class type, String name) {
+    private Method getMethod(Class type, String name, int parameterCount) {
         if (type == null) {
             return null;
         }
         for (Method method: type.getDeclaredMethods()) {
-            if (name.equals(method.getName()) && method.getParameterTypes().length == 1) {
+            if (name.equals(method.getName()) && method.getParameterTypes().length == parameterCount) {
                 method.setAccessible(true);
                 return method;
             }
         }
-        return getMethod(type.getSuperclass(), name);
+        return getMethod(type.getSuperclass(), name, parameterCount);
     }
 }
