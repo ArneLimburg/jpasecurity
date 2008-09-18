@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -93,24 +94,36 @@ public class JpqlCompiler {
     }
 
     public List<String> getSelectedPaths(Node node) {
+        if (node == null) {
+            return Collections.EMPTY_LIST;
+        }
         List<String> selectedPaths = new ArrayList<String>();
         node.visit(selectVisitor, selectedPaths);
         return selectedPaths;
     }
 
     public Map<String, Class<?>> getAliasTypes(Node node) {
+        if (node == null) {
+            return Collections.EMPTY_MAP;
+        }
         Map<String, Class<?>> aliasTypes = new HashMap<String, Class<?>>();
         node.visit(aliasVisitor, aliasTypes);
         return aliasTypes;
     }
 
     public Set<String> getNamedParameters(Node node) {
+        if (node == null) {
+            return Collections.EMPTY_SET;
+        }
         Set<String> namedParameters = new HashSet<String>();
         node.visit(namedParameterVisitor, namedParameters);
         return namedParameters;
     }
 
     public Set<String> getPositionalParameters(Node node) {
+        if (node == null) {
+            return Collections.EMPTY_SET;
+        }
         Set<String> positionalParameters = new HashSet<String>();
         node.visit(positionalParameterVisitor, positionalParameters);
         return positionalParameters;

@@ -79,6 +79,15 @@ public class JpaAnnotationParser extends AbstractMappingParser {
             || mappedClass.getAnnotation(MappedSuperclass.class) != null;
     }
 
+    protected boolean isMappable(Member member) {
+        AnnotatedElement annotatedMember = (AnnotatedElement)member;
+        if (annotatedMember.isAnnotationPresent(Transient.class)) {
+            return false;
+        } else {
+            return super.isMappable(member);
+        }
+    }
+
     protected boolean isMapped(Member member) {
         AnnotatedElement annotatedMember = (AnnotatedElement)member;
         if (annotatedMember.isAnnotationPresent(Transient.class)) {
