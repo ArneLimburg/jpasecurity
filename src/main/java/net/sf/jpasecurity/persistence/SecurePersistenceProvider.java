@@ -28,6 +28,10 @@ import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import net.sf.jpasecurity.jpql.compiler.EntityFilter;
 import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
 import net.sf.jpasecurity.security.rules.AccessRulesProvider;
 
@@ -42,10 +46,14 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         = "net.sf.jpasecurity.persistence.provider";
     public static final String AUTHENTICATION_PROVIDER_PROPERTY
         = "net.sf.jpasecurity.security.authentication.provider";
+    public static final String DEFAULT_AUTHENTICATION_PROVIDER_CLASS
+        = "net.sf.jpasecurity.security.authentication.DefaultAuthenticationProvider";
     public static final String ACCESS_RULES_PROVIDER_PROPERTY
         = "net.sf.jpasecurity.security.rules.provider";
     public static final String DEFAULT_ACCESS_RULES_PROVIDER_CLASS
-        = "net.sf.jpasecurity.security.rules.XmlAccessRulesProvider";
+        = "net.sf.jpasecurity.security.rules.DefaultAccessRulesProvider";
+
+    private static final Log LOG = LogFactory.getLog(SecurePersistenceProvider.class);
 
     public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map map) {
         PersistenceProvider persistenceProvider = createNativePersistenceProvider(info, map);
@@ -184,11 +192,10 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             }
             if (authenticationProviderClassName == null) {
                 authenticationProviderClassName
-                    = persistenceUnitInfo.getProperties().getProperty(AUTHENTICATION_PROVIDER_PROPERTY);
+                    = persistenceUnitInfo.getProperties().getProperty(AUTHENTICATION_PROVIDER_PROPERTY,
+                                                                      DEFAULT_AUTHENTICATION_PROVIDER_CLASS);
             }
-            if (authenticationProviderClassName == null) {
-                throw new PersistenceException("No authentication provider specified for net.sf.jpasecurity.persistence.SecureEntityManagerFactory. Specify its class name via property \"" + AUTHENTICATION_PROVIDER_PROPERTY + "\"");
-            }
+            LOG.info("using " + authenticationProviderClassName + " as authentication provider");
             Class<?> authenticationProviderClass
                 = getClassLoader(persistenceUnitInfo).loadClass(authenticationProviderClassName);
             return (AuthenticationProvider)authenticationProviderClass.newInstance();
@@ -213,6 +220,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
                     = persistenceUnitInfo.getProperties().getProperty(ACCESS_RULES_PROVIDER_PROPERTY,
                                                                       DEFAULT_ACCESS_RULES_PROVIDER_CLASS);
             }
+            LOG.info("using " + accessRulesProviderClassName + " as access rules provider");
             Class<?> accessRulesProviderClass
                 = getClassLoader(persistenceUnitInfo).loadClass(accessRulesProviderClassName);
             return (AccessRulesProvider)accessRulesProviderClass.newInstance();
