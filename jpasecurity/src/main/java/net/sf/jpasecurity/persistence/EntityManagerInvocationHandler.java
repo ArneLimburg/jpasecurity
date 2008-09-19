@@ -46,6 +46,8 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
 
     public static final String CREATE_QUERY_METHOD_NAME = "createQuery";
     public static final String MERGE_METHOD_NAME = "merge";
+    public static final String FIND_METHOD_NAME = "find";
+    public static final String GET_REFERENCE_METHOD_NAME = "getReference";
 
     private EntityManager entityManager;
     private AuthenticationProvider authenticationProvider;
@@ -70,6 +72,10 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
                 return createQuery((EntityManager)proxy, (String)args[0]);
             } else if (isMergeMethod(method)) {
                 return merge(args[0]);
+            } else if (isFindMethod(method)) {
+                return find((Class<Object>)args[0], args[1]);
+            } else if (isGetReferenceMethod(method)) {
+                return find((Class<Object>)args[0], args[1]);
             } else {
                 return method.invoke(entityManager, args);
             }
@@ -90,6 +96,22 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
         return method.getName().equals(MERGE_METHOD_NAME)
             && parameterTypes.length == 1
             && parameterTypes[0] == Object.class;
+    }
+
+    private boolean isFindMethod(Method method) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        return method.getName().equals(FIND_METHOD_NAME)
+            && parameterTypes.length == 2
+            && parameterTypes[0] == Class.class
+            && parameterTypes[1] == Object.class;
+    }
+
+    private boolean isGetReferenceMethod(Method method) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        return method.getName().equals(GET_REFERENCE_METHOD_NAME)
+            && parameterTypes.length == 2
+            && parameterTypes[0] == Class.class
+            && parameterTypes[1] == Object.class;
     }
 
     /**
@@ -118,6 +140,14 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
         entity = entityManager.merge(entity);
         if (!isAccessible(entity)) {
             throw new SecurityException("entity not accessible");
+        }
+        return getSecureObject(entity);
+    }
+    
+    private <T> T find(Class<T> type, Object id) {
+        T entity = entityManager.find(type, id);
+        if (!isAccessible(entity)) {
+            throw new SecurityException();
         }
         return getSecureObject(entity);
     }
