@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 /**
  * @author Arne Limburg
  */
-public class PropertyNavigationTest extends TestCase {
+public class PropertyAccessTest extends TestCase {
 
     public static final String USER1 = "user1";
     public static final String USER2 = "user2";
@@ -49,5 +49,42 @@ public class PropertyNavigationTest extends TestCase {
         EntityManagerInvocationHandler entityHandler
             = (EntityManagerInvocationHandler)Proxy.getInvocationHandler(entityManager);
         assertEquals(2, entityHandler.getUnsecureObject(bean.getChildBeans()).size());
+    }
+    
+    public void testUpdate() {
+        TestAuthenticationProvider.authenticate(USER1);
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean(USER1);
+        entityManager.persist(bean);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+
+        entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        bean = entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
+        bean.setBeanName(USER2);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        
+        entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        try {
+            entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
+            fail("should have thrown exception, since we are not allowed to see beans with name " + USER2);
+        } catch (SecurityException e) {
+            //expected
+        }
+        entityManager.getTransaction().rollback();
+        entityManager.close();
+
+        TestAuthenticationProvider.authenticate(USER2);
+        entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        bean = entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        assertEquals(USER2, bean.getBeanName());
     }
 }
