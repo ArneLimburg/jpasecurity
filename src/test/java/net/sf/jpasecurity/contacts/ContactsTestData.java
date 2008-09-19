@@ -36,6 +36,12 @@ public class ContactsTestData extends TestCase {
     
     public ContactsTestData(EntityManager entityManager) {
         entityManager.getTransaction().begin();
+        createTestData(entityManager);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+    }
+    
+    protected void createTestData(EntityManager entityManager) {
         john = new User("John");
         entityManager.persist(john);
         mary = new User("Mary");
@@ -47,9 +53,7 @@ public class ContactsTestData extends TestCase {
         marysContact1 = new Contact(mary, "mary@jpasecurity.sf.net");
         entityManager.persist(marysContact1);
         marysContact2 = new Contact(mary, "12 34 56 78 90");
-        entityManager.persist(marysContact2);
-        entityManager.getTransaction().commit();
-        entityManager.close();
+        entityManager.persist(marysContact2);    	
     }
 
     public User getJohn() {
@@ -78,13 +82,17 @@ public class ContactsTestData extends TestCase {
     
     public void clear(EntityManager entityManager) {
         entityManager.getTransaction().begin();
+        clearTestData(entityManager);
+        entityManager.getTransaction().commit();
+        entityManager.close();        
+    }
+    
+    protected void clearTestData(EntityManager entityManager) {
         entityManager.remove(entityManager.getReference(User.class, john.getId()));
         entityManager.remove(entityManager.getReference(User.class, mary.getId()));
         entityManager.remove(entityManager.getReference(Contact.class, johnsContact1.getId()));
         entityManager.remove(entityManager.getReference(Contact.class, johnsContact2.getId()));
         entityManager.remove(entityManager.getReference(Contact.class, marysContact1.getId()));
-        entityManager.remove(entityManager.getReference(Contact.class, marysContact2.getId()));
-        entityManager.getTransaction().commit();
-        entityManager.close();        
+        entityManager.remove(entityManager.getReference(Contact.class, marysContact2.getId()));        
     }
 }
