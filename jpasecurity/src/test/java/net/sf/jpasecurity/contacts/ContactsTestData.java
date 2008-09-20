@@ -88,11 +88,7 @@ public class ContactsTestData extends TestCase {
     }
     
     protected void clearTestData(EntityManager entityManager) {
-        entityManager.remove(entityManager.getReference(User.class, john.getId()));
-        entityManager.remove(entityManager.getReference(User.class, mary.getId()));
-        entityManager.remove(entityManager.getReference(Contact.class, johnsContact1.getId()));
-        entityManager.remove(entityManager.getReference(Contact.class, johnsContact2.getId()));
-        entityManager.remove(entityManager.getReference(Contact.class, marysContact1.getId()));
-        entityManager.remove(entityManager.getReference(Contact.class, marysContact2.getId()));        
+        entityManager.createQuery("delete from Contact contact").executeUpdate();
+        entityManager.createQuery("delete from User user").executeUpdate();
     }
 }
