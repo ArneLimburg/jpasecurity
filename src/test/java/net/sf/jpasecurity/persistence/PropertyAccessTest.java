@@ -87,4 +87,8 @@ public class PropertyAccessTest extends TestCase {
         entityManager.close();
         assertEquals(USER2, bean.getBeanName());
     }
+    
+    public void tearDown() {
+        TestAuthenticationProvider.authenticate(null);        
+    }
 }
