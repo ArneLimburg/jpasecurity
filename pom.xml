@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.sf.jpasecurity</groupId>
+  <artifactId>jpasecurity-modules</artifactId>
+  <name>JPA Security Modules</name>
+  <version>0.2.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>jpasecurity</module>
+    <module>jpasecurity-acl</module>
+    <module>jpasecurity-samples</module>
+  </modules>
+</project>
