@@ -44,6 +44,7 @@ public class AclEntry<E, U> {
 		this.owner = owner;
 	}
 	
+    @Transient
 	public int getId() {
 	    return id;
 	}
