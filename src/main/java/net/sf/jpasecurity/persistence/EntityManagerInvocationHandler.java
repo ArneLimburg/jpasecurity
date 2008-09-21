@@ -224,7 +224,7 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
     }
     
     private Set<Object> getCurrentRoles() {
-        Collection<Object> authorizedRoles = authenticationProvider.getRoles();
+        Collection<?> authorizedRoles = authenticationProvider.getRoles();
         Set<Object> roles = new HashSet<Object>();
         if (authorizedRoles != null) {
             for (Object role: authorizedRoles) {

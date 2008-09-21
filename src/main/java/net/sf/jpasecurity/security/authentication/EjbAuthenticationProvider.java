@@ -44,10 +44,10 @@ public class EjbAuthenticationProvider implements AuthenticationProvider, Persis
         return getContext().getCallerPrincipal().getName();
     }
 
-    public Collection<Object> getRoles() {
+    public Collection<String> getRoles() {
         EJBContext context = getContext();
-        List<Object> filteredRoles = new ArrayList<Object>();
-        for (String role : roles) {
+        List<String> filteredRoles = new ArrayList<String>();
+        for (String role: roles) {
             if (context.isCallerInRole(role)) {
                 filteredRoles.add(role);
             }

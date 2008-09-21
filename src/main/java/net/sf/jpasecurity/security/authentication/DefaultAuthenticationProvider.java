@@ -28,7 +28,7 @@ import java.util.Collection;
 public class DefaultAuthenticationProvider implements AuthenticationProvider {
 
     private static ThreadLocal<Object> user = new ThreadLocal<Object>();
-    private static ThreadLocal<Collection<Object>> roles = new ThreadLocal<Collection<Object>>();
+    private static ThreadLocal<Collection<?>> roles = new ThreadLocal<Collection<?>>();
 
     /**
      * Sets the current authenticated user to the specified user, assigning the specified roles.
@@ -44,7 +44,7 @@ public class DefaultAuthenticationProvider implements AuthenticationProvider {
      * @param user the user
      * @param roles the roles
      */
-    public void authenticate(Object user, Collection<Object> roles) {
+    public void authenticate(Object user, Collection<?> roles) {
         DefaultAuthenticationProvider.user.set(user);
         DefaultAuthenticationProvider.roles.set(roles);
     }
@@ -61,16 +61,14 @@ public class DefaultAuthenticationProvider implements AuthenticationProvider {
         return user.get();
     }
 
-    public Collection<Object> getRoles() {
+    public Collection<?> getRoles() {
         return roles.get();
     }
 
-    public static <R> R runAs(Object user,
-                              Collection<Object> roles,
-                              PrivilegedExceptionAction<R> action) throws Exception {
+    public static <R> R runAs(Object user, Collection<?> roles, PrivilegedExceptionAction<R> action) throws Exception {
         DefaultAuthenticationProvider authenticationProvider = new DefaultAuthenticationProvider();
         Object currentUser = authenticationProvider.getUser();
-        Collection<Object> currentRoles = authenticationProvider.getRoles();
+        Collection<?> currentRoles = authenticationProvider.getRoles();
         try {
             authenticationProvider.authenticate(user, roles);
             return action.run();
@@ -79,10 +77,10 @@ public class DefaultAuthenticationProvider implements AuthenticationProvider {
         }
     }
 
-    public static <R> R runAs(Object user, Collection<Object> roles, PrivilegedAction<R> action) {
+    public static <R> R runAs(Object user, Collection<?> roles, PrivilegedAction<R> action) {
         DefaultAuthenticationProvider authenticationProvider = new DefaultAuthenticationProvider();
         Object currentUser = authenticationProvider.getUser();
-        Collection<Object> currentRoles = authenticationProvider.getRoles();
+        Collection<?> currentRoles = authenticationProvider.getRoles();
         try {
             authenticationProvider.authenticate(user, roles);
             return action.run();
