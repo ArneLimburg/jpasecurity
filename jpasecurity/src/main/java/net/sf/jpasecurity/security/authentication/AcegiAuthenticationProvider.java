@@ -37,13 +37,13 @@ public class AcegiAuthenticationProvider implements AuthenticationProvider {
         return authentication.getPrincipal();
     }
 
-    public Collection<Object> getRoles() {
+    public Collection<String> getRoles() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getAuthorities() == null) {
             return Collections.EMPTY_LIST;
         }
-        List<Object> roles = new ArrayList<Object>();
-        for (GrantedAuthority authority : authentication.getAuthorities()) {
+        List<String> roles = new ArrayList<String>();
+        for (GrantedAuthority authority: authentication.getAuthorities()) {
             roles.add(authority.getAuthority());
         }
         return roles;
