@@ -29,7 +29,7 @@ import java.util.Collection;
 public class StaticAuthenticationProvider implements AuthenticationProvider {
 
     private static Object user;
-    private static Collection<Object> roles;
+    private static Collection<?> roles;
 
     /**
      * Sets the current authenticated user to the specified user, assigning the specified roles.
@@ -45,16 +45,14 @@ public class StaticAuthenticationProvider implements AuthenticationProvider {
      * @param user the user
      * @param roles the roles
      */
-    public static void authenticate(Object user, Collection<Object> roles) {
+    public static void authenticate(Object user, Collection<?> roles) {
         StaticAuthenticationProvider.user = user;
         StaticAuthenticationProvider.roles = roles;
     }
 
-    public static <R> R runAs(Object user,
-                              Collection<Object> roles,
-                              PrivilegedExceptionAction<R> action) throws Exception {
+    public static <R> R runAs(Object user, Collection<?> roles, PrivilegedExceptionAction<R> action) throws Exception {
         Object currentUser = StaticAuthenticationProvider.user;
-        Collection<Object> currentRoles = StaticAuthenticationProvider.roles;
+        Collection<?> currentRoles = StaticAuthenticationProvider.roles;
         try {
             authenticate(user, roles);
             return action.run();
@@ -63,9 +61,9 @@ public class StaticAuthenticationProvider implements AuthenticationProvider {
         }
     }
 
-    public static <R> R runAs(Object user, Collection<Object> roles, PrivilegedAction<R> action) {
+    public static <R> R runAs(Object user, Collection<?> roles, PrivilegedAction<R> action) {
         Object currentUser = StaticAuthenticationProvider.user;
-        Collection<Object> currentRoles = StaticAuthenticationProvider.roles;
+        Collection<?> currentRoles = StaticAuthenticationProvider.roles;
         try {
             authenticate(user, roles);
             return action.run();
@@ -78,7 +76,7 @@ public class StaticAuthenticationProvider implements AuthenticationProvider {
         return user;
     }
 
-    public Collection<Object> getRoles() {
+    public Collection<?> getRoles() {
         return roles;
     }
 }

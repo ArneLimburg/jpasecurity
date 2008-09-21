@@ -38,5 +38,5 @@ public interface AuthenticationProvider {
     /**
      * Returns the roles of the authenticated user.
      */
-    Collection<Object> getRoles();
+    Collection<?> getRoles();
 }

@@ -50,7 +50,7 @@ public class AutodetectingAuthenticationProvider implements AuthenticationProvid
         return authenticationProvider.getUser();
     }
 
-    public Collection<Object> getRoles() {
+    public Collection<?> getRoles() {
         return authenticationProvider.getRoles();
     }
 }
