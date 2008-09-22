@@ -26,11 +26,18 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 
 /**
  * @author Arne Limburg
  */
+@NamedQueries({
+  @NamedQuery(name = "findAll", query = "select bean from FieldAccessAnnotationTestBean bean"),
+  @NamedQuery(name = "findById", query = "select bean from FieldAccessAnnotationTestBean bean where bean.id = :id")
+})
+@NamedQuery(name = "findByName", query = "select bean from FieldAccessAnnotationTestBean bean where bean.name = :name")
 @Entity
 public class FieldAccessAnnotationTestBean {
 
