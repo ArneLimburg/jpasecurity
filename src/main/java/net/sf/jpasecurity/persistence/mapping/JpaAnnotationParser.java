@@ -34,6 +34,8 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
@@ -47,9 +49,23 @@ import javax.persistence.Version;
  */
 public class JpaAnnotationParser extends AbstractMappingParser {
 
-    public JpaAnnotationParser(Map<Class<?>, ClassMappingInformation> classMappings) {
-        super(classMappings);
+    public JpaAnnotationParser(Map<Class<?>, ClassMappingInformation> classMappings,
+                               Map<String, String> namedQueries) {
+        super(classMappings, namedQueries);
     }
+    
+    protected void parseNamedQueries(Class<?> entityClass) {
+        NamedQuery namedQuery = entityClass.getAnnotation(NamedQuery.class);
+        if (namedQuery != null) {
+            addNamedQuery(namedQuery.name(), namedQuery.query());
+        }
+        NamedQueries queries = entityClass.getAnnotation(NamedQueries.class);
+        if (queries != null) {
+            for (NamedQuery query: queries.value()) {
+                addNamedQuery(query.name(), query.query());
+            }
+        }
+    } 
 
     protected Class<?> getIdClass(Class<?> entityClass, boolean usesFieldAccess) {
         IdClass idClass = entityClass.getAnnotation(IdClass.class);
