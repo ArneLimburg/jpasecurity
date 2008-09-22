@@ -31,6 +31,16 @@ import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
  */
 public class MappingTest extends TestCase {
 
+    public void testAnnotatedNamedQueries() {
+        Persistence.createEntityManagerFactory("annotation-based-field-access");
+        MappingInformation mapping = TestAuthenticationProvider.getPersistenceMapping();
+        assertEquals("select bean from FieldAccessAnnotationTestBean bean", mapping.getNamedQuery("findAll"));
+        assertEquals("select bean from FieldAccessAnnotationTestBean bean where bean.id = :id",
+                     mapping.getNamedQuery("findById"));
+        assertEquals("select bean from FieldAccessAnnotationTestBean bean where bean.name = :name",
+                     mapping.getNamedQuery("findByName"));
+    }
+    
     public void testAnnotationMethodAccess() {
         testAccess("annotation-based-method-access", false, MethodAccessAnnotationTestBean.class);
     }
