@@ -121,8 +121,10 @@ public class OrmXmlParser extends AbstractMappingParser {
     /**
      * Creates a parser to parse a orm.xml file.
      */
-    public OrmXmlParser(Map<Class<?>, ClassMappingInformation> classMappings, Document mappingDocument) {
-        super(classMappings);
+    public OrmXmlParser(Map<Class<?>, ClassMappingInformation> classMappings, 
+                        Map<String, String> namedQueries,
+                        Document mappingDocument) {
+        super(classMappings, namedQueries);
         entityNodes = new XmlNodeList(mappingDocument.getElementsByTagName(ENTITY_TAG_NAME));
         superclassNodes = new XmlNodeList(mappingDocument.getElementsByTagName(MAPPED_SUPERCLASS_TAG_NAME));
         embeddableNodes = new XmlNodeList(mappingDocument.getElementsByTagName(EMBEDDABLE_TAG_NAME));

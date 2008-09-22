@@ -44,11 +44,12 @@ public class MappingInformation {
     private static final String CLASS_ENTRY_SUFFIX = ".class";
 
     private PersistenceUnitInfo persistenceUnit;
+    private Map<String, String> namedQueries = new HashMap<String, String>();
     private Map<Class<?>, ClassMappingInformation> entityTypeMappings
         = new HashMap<Class<?>, ClassMappingInformation>();
     private Map<String, ClassMappingInformation> entityNameMappings;
     private ClassLoader classLoader;
-    private JpaAnnotationParser annotationParser = new JpaAnnotationParser(entityTypeMappings);
+    private JpaAnnotationParser annotationParser = new JpaAnnotationParser(entityTypeMappings, namedQueries);
 
     /**
      * Creates mapping information from the specified persistence-unit information.
@@ -62,7 +63,11 @@ public class MappingInformation {
     public String getPersistenceUnitName() {
         return persistenceUnit.getPersistenceUnitName();
     }
-
+    
+    public String getNamedQuery(String name) {
+        return namedQueries.get(name);
+    }
+    
     public Collection<Class<?>> getPersistentClasses() {
         return Collections.unmodifiableSet(entityTypeMappings.keySet());
     }
@@ -105,7 +110,8 @@ public class MappingInformation {
         }
         for (String className: persistenceUnit.getManagedClassNames()) {
             try {
-                annotationParser.parse(classLoader.loadClass(className));
+                Class<?> entityClass = classLoader.loadClass(className);
+                annotationParser.parse(entityClass);
             } catch (ClassNotFoundException e) {
                 throw new PersistenceException(e);
             }
@@ -153,7 +159,7 @@ public class MappingInformation {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(stream);
-            OrmXmlParser parser = new OrmXmlParser(entityTypeMappings, document);
+            OrmXmlParser parser = new OrmXmlParser(entityTypeMappings, namedQueries, document);
             for (Node node: parser.getEntityNodes()) {
                 parser.parse(classLoader.loadClass(getClassName(node)));
             }

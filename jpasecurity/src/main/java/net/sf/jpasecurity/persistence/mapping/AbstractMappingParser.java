@@ -43,14 +43,19 @@ public abstract class AbstractMappingParser {
     public static final String READ_PROPERTY_PREFIX = "get";
 
     private Map<Class<?>, ClassMappingInformation> classMappings;
+    private Map<String, String> namedQueries;
 
-    public AbstractMappingParser(Map<Class<?>, ClassMappingInformation> classMappings) {
+    public AbstractMappingParser(Map<Class<?>, ClassMappingInformation> classMappings,
+                                 Map<String, String> namedQueries) {
         this.classMappings = classMappings;
+        this.namedQueries = namedQueries;
+        parseNamedQueries();
     }
-
+    
     public ClassMappingInformation parse(Class<?> mappedClass) {
         ClassMappingInformation classMapping = classMappings.get(mappedClass);
         if (classMapping == null) {
+            parseNamedQueries(mappedClass);
             Class<?> superclass = mappedClass.getSuperclass();
             ClassMappingInformation superclassMapping = null;
             if (superclass != null) {
@@ -184,6 +189,16 @@ public abstract class AbstractMappingParser {
             }
         }
         return false;
+    }
+
+    protected void parseNamedQueries() {
+    }
+
+    protected void parseNamedQueries(Class<?> mappedClass) {
+    }
+    
+    protected void addNamedQuery(String name, String query) {
+        namedQueries.put(name, query);
     }
 
     protected abstract boolean isMapped(Class<?> mappedClass);
