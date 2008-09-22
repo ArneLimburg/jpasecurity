@@ -53,4 +53,8 @@ public class NamedQueryTest extends TestCase {
         entityManager.getTransaction().commit();
         entityManager.close();
     }
+    
+    public void tearDown() {
+        TestAuthenticationProvider.authenticate(null);
+    }
 }
