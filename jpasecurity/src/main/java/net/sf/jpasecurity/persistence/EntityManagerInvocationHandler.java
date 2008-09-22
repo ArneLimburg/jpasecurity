@@ -49,6 +49,7 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
     public static final String MERGE_METHOD_NAME = "merge";
     public static final String FIND_METHOD_NAME = "find";
     public static final String GET_REFERENCE_METHOD_NAME = "getReference";
+    public static final String REFRESH_METHOD_NAME = "refresh";
 
     private EntityManager entityManager;
     private AuthenticationProvider authenticationProvider;
@@ -80,6 +81,9 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
                 return find((Class<Object>)args[0], args[1]);
             } else if (isGetReferenceMethod(method)) {
                 return find((Class<Object>)args[0], args[1]);
+            } else if (isRefreshMethod(method)) {
+                refresh(args[0]);
+                return null;
             } else {
                 return method.invoke(entityManager, args);
             }
@@ -125,6 +129,13 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
             && parameterTypes[1] == Object.class;
     }
 
+    private boolean isRefreshMethod(Method method) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        return method.getName().equals(REFRESH_METHOD_NAME)
+            && parameterTypes.length == 1
+            && parameterTypes[0] == Object.class;
+    }
+
     /**
      * This implementation filters the query according to the provided access rules
      * and the authenticated user and its roles.
@@ -161,6 +172,13 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
             throw new SecurityException();
         }
         return getSecureObject(entity);
+    }
+    
+    private void refresh(Object entity) {
+        if (!isAccessible(entity)) {
+            throw new SecurityException();
+        }
+        entityManager.refresh(entity);
     }
 
     public boolean isAccessible(Object entity) {
