@@ -44,6 +44,7 @@ import net.sf.jpasecurity.security.rules.AccessRule;
  */
 public class EntityManagerInvocationHandler implements SecureEntityHandler, InvocationHandler {
 
+    public static final String CREATE_NAMED_QUERY_METHOD_NAME = "createNamedQuery";
     public static final String CREATE_QUERY_METHOD_NAME = "createQuery";
     public static final String MERGE_METHOD_NAME = "merge";
     public static final String FIND_METHOD_NAME = "find";
@@ -68,7 +69,10 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
-            if (isCreateQueryMethod(method)) {
+            if (isCreateNamedQueryMethod(method)) {
+                String query = mappingInformation.getNamedQuery((String)args[0]);
+                return createQuery((EntityManager)proxy, query);
+            } else if (isCreateQueryMethod(method)) {
                 return createQuery((EntityManager)proxy, (String)args[0]);
             } else if (isMergeMethod(method)) {
                 return merge(args[0]);
@@ -82,6 +86,13 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
         } catch (InvocationTargetException e) {
             throw e.getCause();
         }
+    }
+    
+    private boolean isCreateNamedQueryMethod(Method method) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        return method.getName().equals(CREATE_NAMED_QUERY_METHOD_NAME)
+            && parameterTypes.length == 1
+            && parameterTypes[0] == String.class;        
     }
     
     private boolean isCreateQueryMethod(Method method) {
