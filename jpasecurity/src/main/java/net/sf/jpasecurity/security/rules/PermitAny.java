@@ -13,29 +13,20 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
 package net.sf.jpasecurity.security.rules;
 
-import java.util.HashMap;
-import java.util.Map;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import net.sf.jpasecurity.util.AbstractAnnotationParser;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
- * This class parses classes for the {@link PermitWhere} annotation.
  * @author Arne Limburg
  */
-public class PermitParser extends AbstractAnnotationParser<PermitWhere> {
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface PermitAny {
 
-    private Map<Class<?>, String> whereClauses = new HashMap<Class<?>, String>();
-
-    public Map<Class<?>, String> parsePermissions(Class<?>... classes) {
-        whereClauses.clear();
-        parse(classes);
-        return whereClauses;
-    }
-
-    protected void process(Class<?> annotatedClass, PermitWhere permit) {
-        whereClauses.put(annotatedClass, permit.value());
-    }
+    PermitWhere[] value();
 }

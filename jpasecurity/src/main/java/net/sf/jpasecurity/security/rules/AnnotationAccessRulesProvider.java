@@ -38,7 +38,7 @@ import net.sf.jpasecurity.jpql.parser.ParseException;
 public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
 
     private RolesAllowedParser rolesAllowedParser;
-    private PermitParser permissionParser;
+    private PermissionParser permissionParser;
     private JpqlParser whereClauseParser;
     private PathVisitor pathVisitor;
 
@@ -49,7 +49,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
     protected void initializeAccessRules() {
         if (rolesAllowedParser == null && permissionParser == null) {
             rolesAllowedParser = new RolesAllowedParser();
-            permissionParser = new PermitParser();
+            permissionParser = new PermissionParser();
             Set<String> rules = new HashSet<String>();
             for (Class<?> annotatedClass : getPersistenceMapping().getPersistentClasses()) {
                 rules.add(parseAllowedRoles(annotatedClass));
