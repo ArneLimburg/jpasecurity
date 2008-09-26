@@ -49,7 +49,7 @@ public abstract class AbstractMappingParser {
                                  Map<String, String> namedQueries) {
         this.classMappings = classMappings;
         this.namedQueries = namedQueries;
-        parseNamedQueries();
+//        parseNamedQueries();
     }
     
     public ClassMappingInformation parse(Class<?> mappedClass) {
