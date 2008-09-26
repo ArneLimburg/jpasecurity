@@ -15,18 +15,26 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
+import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 /**
  * @author Arne Limburg
+ * @author Johannes Siemer
  */
 public class NamedQueryTest extends TestCase {
 
@@ -52,6 +60,21 @@ public class NamedQueryTest extends TestCase {
         assertEquals(bean1.getIdentifier(), result.get(0).getIdentifier());
         entityManager.getTransaction().commit();
         entityManager.close();
+    }
+    
+    public void testParseAllNamedQueries() throws Exception {
+    	DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    	Document document = db.parse("src/test/resources/META-INF/orm.xml");
+    	HashMap<String, String> namedQueryMap = new HashMap<String, String>();
+		OrmXmlParser parser = new OrmXmlParser(new HashMap<Class<?>, ClassMappingInformation>(), namedQueryMap, document);
+    	parser.parseNamedQueries();
+    	
+    	assertEquals(4, namedQueryMap.size());
+    	
+    	assertEquals("select test from Contact test", namedQueryMap.get("myQuery1"));
+    	assertEquals("select test from Contact test", namedQueryMap.get("myQuery2"));
+    	assertEquals("select test from Contact test", namedQueryMap.get("myQuery3"));
+    	assertEquals("select test from Contact test", namedQueryMap.get("myQuery4"));
     }
     
     public void tearDown() {
