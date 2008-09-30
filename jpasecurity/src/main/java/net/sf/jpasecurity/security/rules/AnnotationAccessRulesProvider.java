@@ -15,9 +15,11 @@
  */
 package net.sf.jpasecurity.security.rules;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -83,13 +85,28 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
     private Collection<String> parsePermissions(Class<?> annotatedClass) {
         try {
             Set<String> rules = new HashSet<String>();
-            Map<Class<?>, String> permissions = permissionParser.parsePermissions(annotatedClass);
-            for (Map.Entry<Class<?>, String> permission: permissions.entrySet()) {
+            Map<Class<?>, PermitWhere> permissions = permissionParser.parsePermissions(annotatedClass);
+            for (Map.Entry<Class<?>, PermitWhere> permission: permissions.entrySet()) {
                 String name = annotatedClass.getSimpleName();
-                JpqlWhere whereClause = getWhereClauseParser().parseWhereClause("WHERE " + permission.getValue());
+                JpqlWhere whereClause
+                    = getWhereClauseParser().parseWhereClause("WHERE " + permission.getValue().value());
                 String alias = Character.toLowerCase(name.charAt(0)) + name.substring(1);
                 appendAlias(whereClause, alias);
-                StringBuilder rule = new StringBuilder("GRANT READ ACCESS TO ");
+                StringBuilder rule = new StringBuilder("GRANT ");
+                List<AccessType> access = Arrays.asList(permission.getValue().access());
+                if (access.contains(AccessType.CREATE)) {
+                    rule.append("CREATE ");
+                }
+                if (access.contains(AccessType.READ)) {
+                    rule.append("READ ");
+                }
+                if (access.contains(AccessType.UPDATE)) {
+                    rule.append("UPDATE ");
+                }
+                if (access.contains(AccessType.DELETE)) {
+                    rule.append("DELETE ");
+                }
+                rule.append("ACCESS TO ");
                 rule.append(annotatedClass.getName()).append(' ');
                 rule.append(alias).append(' ');
                 rule.append(whereClause);

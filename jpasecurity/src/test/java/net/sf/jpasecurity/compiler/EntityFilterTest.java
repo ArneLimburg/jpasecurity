@@ -28,6 +28,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.persistence.mapping.TestMappingInformation;
 import net.sf.jpasecurity.security.rules.AccessRule;
+import net.sf.jpasecurity.security.rules.AccessType;
 
 /**
  * @author Arne Limburg
@@ -50,8 +51,8 @@ public class EntityFilterTest extends TestCase {
         EntityFilter filter = new EntityFilter(null, mappingInformation, accessRules);
         User john = new User("John");
         Contact contact = new Contact(john, "123456789");
-        assertTrue(filter.isAccessible(contact, john, Collections.EMPTY_SET));
+        assertTrue(filter.isAccessible(contact, AccessType.READ, john, Collections.EMPTY_SET));
         User mary = new User("Mary");
-        assertFalse(filter.isAccessible(contact, mary, Collections.EMPTY_SET));
+        assertFalse(filter.isAccessible(contact, AccessType.READ, mary, Collections.EMPTY_SET));
     }
 }

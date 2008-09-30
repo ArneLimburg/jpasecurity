@@ -39,6 +39,22 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlSelect node, T data);
 
     /**
+     * Called when visiting a <tt>JpqlCreate</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlCreate node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlRead</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlRead node, T data);
+
+    /**
      * Called when visiting a <tt>JpqlUpdate</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor

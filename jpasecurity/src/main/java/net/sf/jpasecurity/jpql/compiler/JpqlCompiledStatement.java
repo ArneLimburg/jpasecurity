@@ -23,10 +23,12 @@ import java.util.Set;
 
 import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
+import net.sf.jpasecurity.jpql.parser.JpqlParserVisitor;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.SimpleNode;
+import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.util.ValueHolder;
 
 /**
@@ -58,6 +60,14 @@ public class JpqlCompiledStatement implements Cloneable {
     public List<String> getSelectedPathes() {
         return selectedPathes;
     }
+    
+    public Map<String, Class<?>> getSelectedTypes(MappingInformation mappingInformation) {
+        Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
+        for (String selectedPath: getSelectedPathes()) {
+            selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, getAliasTypes()));
+        }
+        return selectedTypes;
+    }
 
     public Map<String, Class<?>> getAliasTypes() {
         return aliasTypes;
@@ -71,7 +81,7 @@ public class JpqlCompiledStatement implements Cloneable {
         if (fromClause == null) {
             FromVisitor visitor = new FromVisitor();
             ValueHolder<JpqlFrom> fromClauseHolder = new ValueHolder<JpqlFrom>();
-            statement.visit(visitor, fromClauseHolder);
+            visit(visitor, fromClauseHolder);
             fromClause = fromClauseHolder.getValue();
         }
         return fromClause;
@@ -81,7 +91,7 @@ public class JpqlCompiledStatement implements Cloneable {
         if (whereClause == null) {
             WhereVisitor visitor = new WhereVisitor();
             ValueHolder<JpqlWhere> whereClauseHolder = new ValueHolder<JpqlWhere>();
-            statement.visit(visitor, whereClauseHolder);
+            visit(visitor, whereClauseHolder);
             whereClause = whereClauseHolder.getValue();
         }
         return whereClause;
@@ -103,6 +113,10 @@ public class JpqlCompiledStatement implements Cloneable {
 
     public String toString() {
         return getClass() + "[\"" + statement.toString() + "\"]";
+    }
+    
+    protected <T> void visit(JpqlParserVisitor<T> visitor, T data) {
+        statement.visit(visitor, data);
     }
 
     private class FromVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlFrom>> {

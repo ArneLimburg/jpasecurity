@@ -48,6 +48,7 @@ public class NamedQueryTest extends TestCase {
         entityManager.getTransaction().begin();
         FieldAccessAnnotationTestBean bean1 = new FieldAccessAnnotationTestBean(USER1);
         entityManager.persist(bean1);
+        TestAuthenticationProvider.authenticate(USER2);
         FieldAccessAnnotationTestBean bean2 = new FieldAccessAnnotationTestBean(USER2);
         entityManager.persist(bean2);
         entityManager.getTransaction().commit();
@@ -57,12 +58,12 @@ public class NamedQueryTest extends TestCase {
         entityManager.getTransaction().begin();
         List<FieldAccessAnnotationTestBean> result = entityManager.createNamedQuery("findAll").getResultList();
         assertEquals(1, result.size()); //the other bean is not accessible
-        assertEquals(bean1.getIdentifier(), result.get(0).getIdentifier());
+        assertEquals(bean2.getIdentifier(), result.get(0).getIdentifier());
         entityManager.getTransaction().commit();
         entityManager.close();
     }
     
-    public void testParseAllNamedQueries() throws Exception {
+    public void testParseNamedQueriesInOrmXml() throws Exception {
     	DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     	Document document = db.parse("src/test/resources/META-INF/orm.xml");
     	HashMap<String, String> namedQueryMap = new HashMap<String, String>();

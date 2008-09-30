@@ -28,7 +28,7 @@ public class PermissionParser extends AbstractAnnotationParser<PermitAny> {
 
     private PermitWhereParser permitWhereParser;
     
-    public Map<Class<?>, String> parsePermissions(Class<?>... classes) {
+    public Map<Class<?>, PermitWhere> parsePermissions(Class<?>... classes) {
         permitWhereParser = new PermitWhereParser();
         parse(classes);
         return permitWhereParser.parsePermissions(classes);

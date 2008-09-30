@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.persistence;
+package net.sf.jpasecurity.security.rules;
 
 /**
  * @author Arne Limburg
  */
-public interface SecureEntityHandler {
+public enum AccessType {
 
-    boolean isAccessible(Object object);
-    <E> E getSecureObject(E object);
+    CREATE, READ, UPDATE, DELETE;
+    public static final AccessType[] ALL = {CREATE, READ, UPDATE, DELETE};
 }
