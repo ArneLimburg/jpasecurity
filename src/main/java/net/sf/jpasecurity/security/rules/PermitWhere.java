@@ -18,6 +18,8 @@ package net.sf.jpasecurity.security.rules;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+import static net.sf.jpasecurity.security.rules.AccessType.*;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -29,4 +31,5 @@ import java.lang.annotation.Target;
 public @interface PermitWhere {
 
     String value();
+    AccessType[] access() default {CREATE, READ, UPDATE, DELETE};
 }

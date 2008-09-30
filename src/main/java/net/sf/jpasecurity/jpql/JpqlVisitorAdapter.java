@@ -32,6 +32,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlConcat;
 import net.sf.jpasecurity.jpql.parser.JpqlConstructor;
 import net.sf.jpasecurity.jpql.parser.JpqlConstructorParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlCount;
+import net.sf.jpasecurity.jpql.parser.JpqlCreate;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentDate;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentRoles;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentTime;
@@ -85,6 +86,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlParserVisitor;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlPatternValue;
 import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
+import net.sf.jpasecurity.jpql.parser.JpqlRead;
 import net.sf.jpasecurity.jpql.parser.JpqlSelect;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
@@ -130,6 +132,20 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlSelect node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlCreate node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlRead node, T data) {
         return visit(node);
     }
 
@@ -781,6 +797,20 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * @see #visit(JpqlSelect, Object)
      */
     public boolean visit(JpqlSelect node) {
+        return true;
+    }
+
+    /**
+     * @see #visit(JpqlCreate, Object)
+     */
+    public boolean visit(JpqlCreate node) {
+        return true;
+    }
+
+    /**
+     * @see #visit(JpqlRead, Object)
+     */
+    public boolean visit(JpqlRead node) {
         return true;
     }
 

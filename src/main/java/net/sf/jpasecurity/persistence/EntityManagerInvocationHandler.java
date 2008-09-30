@@ -15,9 +15,9 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import static net.sf.jpasecurity.security.rules.AccessType.CREATE;
+import static net.sf.jpasecurity.security.rules.AccessType.READ;
+
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,9 +28,18 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
 import net.sf.cglib.proxy.Enhancer;
+import net.sf.jpasecurity.entity.DefaultSecureCollection;
+import net.sf.jpasecurity.entity.EntityInvocationHandler;
+import net.sf.jpasecurity.entity.SecureCollection;
+import net.sf.jpasecurity.entity.SecureEntity;
+import net.sf.jpasecurity.entity.SecureEntityHandler;
+import net.sf.jpasecurity.entity.SecureList;
+import net.sf.jpasecurity.entity.SecureSet;
+import net.sf.jpasecurity.entity.SecureSortedSet;
 import net.sf.jpasecurity.jpql.compiler.EntityFilter;
 import net.sf.jpasecurity.jpql.compiler.FilterResult;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
@@ -38,11 +47,13 @@ import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
 import net.sf.jpasecurity.security.rules.AccessRule;
+import net.sf.jpasecurity.security.rules.AccessType;
+import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 /**
  * @author Arne Limburg
  */
-public class EntityManagerInvocationHandler implements SecureEntityHandler, InvocationHandler {
+public class EntityManagerInvocationHandler extends ProxyInvocationHandler<EntityManager> implements SecureEntityHandler {
 
     public static final String CREATE_NAMED_QUERY_METHOD_NAME = "createNamedQuery";
     public static final String CREATE_QUERY_METHOD_NAME = "createQuery";
@@ -51,7 +62,6 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
     public static final String GET_REFERENCE_METHOD_NAME = "getReference";
     public static final String REFRESH_METHOD_NAME = "refresh";
 
-    private EntityManager entityManager;
     private AuthenticationProvider authenticationProvider;
     private MappingInformation mappingInformation;
     private EntityFilter entityFilter;
@@ -61,129 +71,116 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
                                    MappingInformation mappingInformation,
                                    AuthenticationProvider authenticationProvider,
                                    List<AccessRule> accessRules) {
-        this.entityManager = entityManager;
+        super(entityManager);
         this.authenticationProvider = authenticationProvider;
         this.mappingInformation = mappingInformation;
         this.entityFilter = new EntityFilter(entityManager, mappingInformation, accessRules);
         this.secureEntities = new HashMap<Class, Map<Object,Object>>();
     }
 
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        try {
-            if (isCreateNamedQueryMethod(method)) {
-                String query = mappingInformation.getNamedQuery((String)args[0]);
-                return createQuery((EntityManager)proxy, query);
-            } else if (isCreateQueryMethod(method)) {
-                return createQuery((EntityManager)proxy, (String)args[0]);
-            } else if (isMergeMethod(method)) {
-                return merge(args[0]);
-            } else if (isFindMethod(method)) {
-                return find((Class<Object>)args[0], args[1]);
-            } else if (isGetReferenceMethod(method)) {
-                return find((Class<Object>)args[0], args[1]);
-            } else if (isRefreshMethod(method)) {
-                refresh(args[0]);
-                return null;
-            } else {
-                return method.invoke(entityManager, args);
-            }
-        } catch (InvocationTargetException e) {
-            throw e.getCause();
+    public void persist(Object entity) {
+        if (!isAccessible(entity, CREATE)) {
+            throw new SecurityException();
+        }
+        getTarget().persist(entity);
+    }
+    
+    public <T> T merge(T entity) {
+        if (entity instanceof SecureEntity) {
+            return (T)((SecureEntity)entity).merge(getTarget());
+        } else if (!isAccessible(entity, CREATE)) {
+            throw new SecurityException();            
+        }
+        return (T)getSecureObject(entity);
+    }
+    
+    public <T> T find(Class<T> type, Object id) {
+        //TODO look into our cache
+        T entity = getTarget().find(type, id);
+        if (!isAccessible(entity, READ)) {
+            throw new SecurityException();
+        }
+        return getSecureObject(entity);
+    }
+    
+    public void refresh(Object entity) {
+        if (entity instanceof SecureEntity) {
+            ((SecureEntity)entity).refresh(getTarget());
+        } else {
+            throw new IllegalArgumentException("entity not managed");
         }
     }
-    
-    private boolean isCreateNamedQueryMethod(Method method) {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        return method.getName().equals(CREATE_NAMED_QUERY_METHOD_NAME)
-            && parameterTypes.length == 1
-            && parameterTypes[0] == String.class;        
+
+    public <T> T getReference(Class<T> type, Object id) {
+        return find(type, id);
     }
     
-    private boolean isCreateQueryMethod(Method method) {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        return method.getName().equals(CREATE_QUERY_METHOD_NAME)
-            && parameterTypes.length == 1
-            && parameterTypes[0] == String.class;
+    public void lock(Object entity, LockModeType lockMode) {
+        if (entity instanceof SecureEntity) {
+            ((SecureEntity)entity).lock(getTarget(), lockMode);
+        } else {
+            throw new IllegalArgumentException("entity is not managed");
+        }
     }
 
-    private boolean isMergeMethod(Method method) {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        return method.getName().equals(MERGE_METHOD_NAME)
-            && parameterTypes.length == 1
-            && parameterTypes[0] == Object.class;
+    public boolean contains(Object entity) {
+        return (entity instanceof SecureEntity) && ((SecureEntity)entity).isContained(getTarget());
+    }
+    
+    public Query createNamedQuery(String name) {
+        return createQuery(mappingInformation.getNamedQuery(name));
+    }
+    
+    //public Query createNativeQuery(String sqlString);
+    
+    //public Query createNativeQuery(String sqlString, Class resultClass);
+    
+    //public Query createNativeQuery(String sqlString, String resultSetMapping);
+    
+    public Object getDelegate() {
+        return getTarget();
     }
 
-    private boolean isFindMethod(Method method) {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        return method.getName().equals(FIND_METHOD_NAME)
-            && parameterTypes.length == 2
-            && parameterTypes[0] == Class.class
-            && parameterTypes[1] == Object.class;
+    public void clear() {
+        secureEntities.clear();
+        getTarget().clear();
     }
 
-    private boolean isGetReferenceMethod(Method method) {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        return method.getName().equals(GET_REFERENCE_METHOD_NAME)
-            && parameterTypes.length == 2
-            && parameterTypes[0] == Class.class
-            && parameterTypes[1] == Object.class;
+    public void close() {
+        secureEntities.clear();
+        getTarget().close();
     }
-
-    private boolean isRefreshMethod(Method method) {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        return method.getName().equals(REFRESH_METHOD_NAME)
-            && parameterTypes.length == 1
-            && parameterTypes[0] == Object.class;
-    }
-
+    
     /**
      * This implementation filters the query according to the provided access rules
      * and the authenticated user and its roles.
      */
-    private Query createQuery(EntityManager entityManagerProxy, String qlString) {
+    public Query createQuery(String qlString) {
         Object user = getCurrentUser();
         Set<Object> roles = getCurrentRoles();
-        FilterResult filterResult = entityFilter.filterQuery(qlString, user, roles);
-        Query query = entityManager.createQuery(filterResult.getQuery());
-        if (filterResult.getUserParameterName() != null) {
-            query.setParameter(filterResult.getUserParameterName(), user);
-        }
-        if (filterResult.getRoleParameters() != null) {
-            for (Map.Entry<String, Object> roleParameter: filterResult.getRoleParameters().entrySet()) {
-                query.setParameter(roleParameter.getKey(), roleParameter.getValue());
+        FilterResult filterResult = entityFilter.filterQuery(qlString, READ, user, roles);
+        if (filterResult.getQuery() == null) {
+            return new EmptyResultQuery();
+        } else {
+            Query query = getTarget().createQuery(filterResult.getQuery());
+            if (filterResult.getUserParameterName() != null) {
+                query.setParameter(filterResult.getUserParameterName(), user);
             }
+            if (filterResult.getRoleParameters() != null) {
+                for (Map.Entry<String, Object> roleParameter: filterResult.getRoleParameters().entrySet()) {
+                    query.setParameter(roleParameter.getKey(), roleParameter.getValue());
+                }
+            }
+            return (Query)Proxy.newProxyInstance(query.getClass().getClassLoader(),
+                                                 new Class[] {Query.class},
+                                                 new QueryInvocationHandler(this, query));
         }
-        return (Query)Proxy.newProxyInstance(query.getClass().getClassLoader(),
-                                             new Class[] {Query.class},
-                                             new QueryInvocationHandler(this, query));
     }
     
-    private Object merge(Object entity) {
-        entity = entityManager.merge(entity);
-        if (!isAccessible(entity)) {
-            throw new SecurityException("entity not accessible");
-        }
-        return getSecureObject(entity);
-    }
-    
-    private <T> T find(Class<T> type, Object id) {
-        T entity = entityManager.find(type, id);
-        if (!isAccessible(entity)) {
-            throw new SecurityException();
-        }
-        return getSecureObject(entity);
-    }
-    
-    private void refresh(Object entity) {
-        if (!isAccessible(entity)) {
-            throw new SecurityException();
-        }
-        entityManager.refresh(entity);
-    }
 
-    public boolean isAccessible(Object entity) {
+    public boolean isAccessible(Object entity, AccessType accessType) {
         try {
-            return entityFilter.isAccessible(entity, getCurrentUser(), getCurrentRoles());
+            return entityFilter.isAccessible(entity, accessType, getCurrentUser(), getCurrentRoles());
         } catch (NotEvaluatableException e) {
             throw new SecurityException(e);
         }
@@ -228,16 +225,20 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
         }
     }
     
-    public <T> T getUnsecureObject(T object) {
-        if (object instanceof SecureEntity) {
-            return (T)((EntityInvocationHandler)Proxy.getInvocationHandler(object)).getEntity();
-        } else if (object instanceof AbstractSecureCollection) {
-            return (T)((AbstractSecureCollection)object).getOriginal();
-        } else if (object instanceof SecureList) {
-            return (T)((SecureList)object).getOriginal();
-        } else {
-            return object;
-        }
+    public boolean isNewEntity(Object entity) {
+        return true;
+    }
+    
+    public boolean isDetachedEntity(Object entity) {
+        return true;
+    }
+    
+    public boolean isManagedEntity(Object entity) {
+        return true;
+    }
+    
+    public boolean isDeletedEntity(Object entity) {
+        return true;
     }
     
     private Object getCurrentUser() {
@@ -246,7 +247,7 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
             ClassMappingInformation userClassMapping = mappingInformation.getClassMapping(user.getClass());
             if (userClassMapping != null) {
                 Object id = userClassMapping.getId(user);
-                user = entityManager.getReference(userClassMapping.getEntityType(), id);
+                user = getTarget().getReference(userClassMapping.getEntityType(), id);
             }
         }
         return user;
@@ -262,7 +263,7 @@ public class EntityManagerInvocationHandler implements SecureEntityHandler, Invo
                     roles.add(role);
                 } else {
                     Object id = roleClassMapping.getId(role);
-                    roles.add(entityManager.getReference(roleClassMapping.getEntityType(), id));
+                    roles.add(getTarget().getReference(roleClassMapping.getEntityType(), id));
                 }
             }
         }

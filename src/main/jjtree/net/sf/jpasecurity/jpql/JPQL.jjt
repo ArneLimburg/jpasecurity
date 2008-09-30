@@ -207,6 +207,7 @@ TOKEN[IGNORE_CASE]: {
   | <UPDATE: "UPDATE">
   | <DELETE: "DELETE">
   | <GRANT: "GRANT">
+  | <CREATE: "CREATE">
   | <READ: "READ">
   | <ACCESS: "ACCESS">
   | <TO: "TO">
@@ -317,7 +318,7 @@ JpqlStatement jpqlStatement() #Statement: {} {
 }
 
 JpqlAccessRule jpqlAccessRule() #AccessRule: {} {
-    <GRANT> <READ> <ACCESS> toClause() whereClause()
+    <GRANT> [<CREATE> #Create][<READ> #Read][<UPDATE> #Update][<DELETE> #Delete] <ACCESS> toClause() whereClause()
     {
         return jjtThis;
     }
@@ -1076,6 +1077,7 @@ void pathComponent() #IdentificationVariable: {
     | token = <OBJECT>
     | token = <IDENTIFIER>
     | token = <GRANT>
+    | token = <CREATE>
     | token = <READ>
     | token = <ACCESS>
     ) { jjtThis.setValue(token.image); }

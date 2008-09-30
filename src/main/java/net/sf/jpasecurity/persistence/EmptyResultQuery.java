@@ -1,0 +1,85 @@
+/*
+ * Copyright 2008 Arne Limburg
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
+package net.sf.jpasecurity.persistence;
+
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.FlushModeType;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.TemporalType;
+
+/**
+ * An implementation of the {@link Query} interface, that returns always an empty result.
+ * @author Arne Limburg
+ */
+public class EmptyResultQuery implements Query {
+
+    public Query setParameter(String name, Object value) {
+        return this;
+    }
+
+    public Query setParameter(int position, Object value) {
+        return this;
+    }
+
+    public Query setParameter(String name, Date value, TemporalType temporalType) {
+        return this;
+    }
+
+    public Query setParameter(String name, Calendar value, TemporalType temporalType) {
+        return this;
+    }
+
+    public Query setParameter(int position, Date value, TemporalType temporalType) {
+        return this;
+    }
+
+    public Query setParameter(int position, Calendar value, TemporalType temporalType) {
+        return this;
+    }
+    
+    public Query setFirstResult(int startPosition) {
+        return this;
+    }
+
+    public Query setMaxResults(int maxResult) {
+        return this;
+    }
+
+    public Query setHint(String hintName, Object value) {
+        return this;
+    }
+
+    public Query setFlushMode(FlushModeType flushMode) {
+        return this;
+    }
+
+    public int executeUpdate() {
+        return 0;
+    }
+
+    public Object getSingleResult() {
+        throw new NoResultException();
+    }
+
+    public List getResultList() {
+        return Collections.EMPTY_LIST;
+    }
+}

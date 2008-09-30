@@ -80,19 +80,6 @@ public class JpqlCompiler {
         return new AccessRule(rule, aliasType.getKey(), aliasType.getValue(), namedParameters);
     }
 
-    public Class<?> getType(String path, Map<String, Class<?>> aliasTypes) {
-        try {
-            String[] entries = path.split("\\.");
-            Class<?> type = aliasTypes.get(entries[0]);
-            for (int i = 1; i < entries.length; i++) {
-                type = mappingInformation.getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
-            }
-            return type;
-        } catch (NullPointerException e) {
-            throw new PersistenceException("Could not determine type of alias \"" + path + "\"", e);
-        }
-    }
-
     public List<String> getSelectedPaths(Node node) {
         if (node == null) {
             return Collections.EMPTY_LIST;
@@ -175,7 +162,7 @@ public class JpqlCompiler {
             if (node.jjtGetNumChildren() > 1) {
                 String fetchPath = node.jjtGetChild(0).toString();
                 String alias = node.jjtGetChild(1).toString();
-                Class type = getType(fetchPath, aliasTypes);
+                Class type = mappingInformation.getType(fetchPath, aliasTypes);
                 aliasTypes.put(alias, type);
             }
             return false;

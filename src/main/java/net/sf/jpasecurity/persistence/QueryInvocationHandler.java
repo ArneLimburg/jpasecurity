@@ -23,6 +23,8 @@ import java.util.List;
 
 import javax.persistence.Query;
 
+import net.sf.jpasecurity.entity.SecureEntityHandler;
+
 
 /**
  * An invocation handler to handle invocations on queries.

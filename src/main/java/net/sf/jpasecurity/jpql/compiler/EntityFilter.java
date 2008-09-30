@@ -16,21 +16,19 @@
 
 package net.sf.jpasecurity.jpql.compiler;
 
-import java.util.AbstractSet;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
+import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentUser;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
@@ -41,6 +39,7 @@ import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.rules.AccessRule;
+import net.sf.jpasecurity.security.rules.AccessType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -72,10 +71,10 @@ public class EntityFilter {
         this.accessRules = accessRules;
     }
     
-    public boolean isAccessible(Object entity, Object user, Set<Object> roles) throws NotEvaluatableException {
+    public boolean isAccessible(Object entity, AccessType accessType, Object user, Set<Object> roles) throws NotEvaluatableException {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         String alias = Character.toLowerCase(mapping.getEntityName().charAt(0)) + mapping.getEntityName().substring(1);
-        Node accessRulesNode = createAccessRuleNode(alias, mapping.getEntityType(), roles.size());
+        Node accessRulesNode = createAccessRuleNode(alias, mapping.getEntityType(), accessType, roles.size());
         if (accessRulesNode == null) {
             return true;
         }
@@ -90,16 +89,23 @@ public class EntityFilter {
         return entityManagerEvaluator.evaluate(accessRulesNode, evaluationParameters);
     }
 
-    public FilterResult filterQuery(String query, Object user, Set<Object> roles) {
+    public FilterResult filterQuery(String query, AccessType accessType, Object user, Set<Object> roles) {
 
         LOG.info("Filtering query " + query);
 
         JpqlCompiledStatement statement = compile(query);
 
-        Node accessRules = createAccessRuleNode(statement, roles != null? roles.size(): 0);
-        if (accessRules == null) {
-            LOG.info("No access rules defined for selected type. Returning unfiltered query");
-            return new FilterResult(query, null, null);
+        Node accessRules = createAccessRuleNode(statement, accessType, roles != null? roles.size(): 0);
+        if (accessRules instanceof JpqlBooleanLiteral) {
+            JpqlBooleanLiteral booleanLiteral = (JpqlBooleanLiteral)accessRules;
+            boolean accessRestricted = !Boolean.parseBoolean(booleanLiteral.getValue());
+            if (accessRestricted) {
+                LOG.info("No access rules defined for access type " + accessType + ". Returning <null> query.");
+                return new FilterResult(null, null, null);
+            } else {
+                LOG.info("No access rules defined for selected type. Returning unfiltered query");
+                return new FilterResult(query, null, null);                
+            }
         }
 
         LOG.info("Using access rules " + accessRules);
@@ -159,33 +165,38 @@ public class EntityFilter {
                                 parameters.size() > 0? parameters: null);
     }
 
-    private Node createAccessRuleNode(JpqlCompiledStatement statement, int roleCount) {
-        return createAccessRuleNode(getSelectedTypes(statement), roleCount);
+    private Node createAccessRuleNode(JpqlCompiledStatement statement, AccessType accessType, int roleCount) {
+        return createAccessRuleNode(getSelectedTypes(statement), accessType, roleCount);
     }
     
-    private Node createAccessRuleNode(String alias, Class<?> type, int roleCount) {
+    private Node createAccessRuleNode(String alias, Class<?> type, AccessType accessType, int roleCount) {
         Map<String, Class<?>> aliases = new HashMap<String, Class<?>>();
         aliases.put(alias, type);
-        return createAccessRuleNode(aliases, roleCount);
+        return createAccessRuleNode(aliases, accessType, roleCount);
     }
     
-    private Node createAccessRuleNode(Map<String, Class<?>> selectedTypes, int roleCount) {
+    private Node createAccessRuleNode(Map<String, Class<?>> selectedTypes, AccessType accessType, int roleCount) {
+        boolean accessRestricted = false;
         Node accessRuleNode = null;
         for (Map.Entry<String, Class<?>> selectedType: selectedTypes.entrySet()) {
-            Collection<AccessRule> accessRules = new FilteredAccessRules(selectedType.getValue());
             for (AccessRule accessRule: accessRules) {
-                accessRule = queryPreparator.expand(accessRule, roleCount);
-                Node condition = queryPreparator.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
-                queryPreparator.replace(condition, accessRule.getSelectedPath(), selectedType.getKey());
-                if (accessRuleNode == null) {
-                    accessRuleNode = condition;
-                } else {
-                    accessRuleNode = queryPreparator.createOr(accessRuleNode, condition);
+                if (accessRule.isAssignable(selectedType.getValue(), mappingInformation)) {
+                    accessRestricted = true;
+                    if (accessRule.grantsAccess(accessType)) {
+                        accessRule = queryPreparator.expand(accessRule, roleCount);
+                        Node condition = queryPreparator.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
+                        queryPreparator.replace(condition, accessRule.getSelectedPath(), selectedType.getKey());
+                        if (accessRuleNode == null) {
+                            accessRuleNode = condition;
+                        } else {
+                            accessRuleNode = queryPreparator.createOr(accessRuleNode, condition);
+                        }
+                    }
                 }
             }
         }
         if (accessRuleNode == null) {
-            return null;
+            return queryPreparator.createBoolean(!accessRestricted);
         } else {
             return queryPreparator.createBrackets(accessRuleNode);
         }
@@ -268,17 +279,9 @@ public class EntityFilter {
     private Map<String, Class<?>> getSelectedTypes(JpqlCompiledStatement statement) {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: statement.getSelectedPathes()) {
-            selectedTypes.put(selectedPath, compiler.getType(selectedPath, statement.getAliasTypes()));
+            selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, statement.getAliasTypes()));
         }
         return selectedTypes;
-    }
-
-    private Class<?> getSelectedType(AccessRule entry) {
-        Map<String, Class<?>> selectedTypes = getSelectedTypes(entry);
-        if (selectedTypes.size() > 1) {
-            throw new IllegalStateException("an acl entry may have only one selected type");
-        }
-        return selectedTypes.values().iterator().next();
     }
 
     private int replaceCurrentUser(Node node, String namedParameter) {
@@ -288,69 +291,6 @@ public class EntityFilter {
         ReplacementParameters parameters = new ReplacementParameters(namedParameter);
         node.visit(currentUserReplacer, parameters);
         return parameters.getReplacementCount();
-    }
-
-    private class FilteredAccessRules extends AbstractSet<AccessRule> {
-
-        private Class<?> type;
-
-        public FilteredAccessRules(Class<?> type) {
-            this.type = type;
-        }
-
-        public Iterator<AccessRule> iterator() {
-            return new FilteredIterator(accessRules.iterator());
-        }
-
-        public int size() {
-            int size = 0;
-            for (Iterator<AccessRule> i = iterator(); i.hasNext(); i.next()) {
-                size++;
-            }
-            return size;
-        }
-
-        private class FilteredIterator implements Iterator<AccessRule> {
-
-            private Iterator<AccessRule> iterator;
-            private AccessRule next;
-
-            public FilteredIterator(Iterator<AccessRule> iterator) {
-                this.iterator = iterator;
-                initialize();
-            }
-
-            private void initialize() {
-                try {
-                    next();
-                } catch (NoSuchElementException e) {
-                    //this is expected to be thrown on initialization
-                }
-            }
-
-            public boolean hasNext() {
-                return next != null;
-            }
-
-            public AccessRule next() {
-                AccessRule current = next;
-                do {
-                    if (!iterator.hasNext()) {
-                        next = null;
-                        break;
-                    }
-                    next = iterator.next();
-                } while (getSelectedType(next) != type);
-                if (current == null) {
-                    throw new NoSuchElementException();
-                }
-                return current;
-            }
-
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        }
     }
 
     private class CurrentUserReplacer extends JpqlVisitorAdapter<ReplacementParameters> {

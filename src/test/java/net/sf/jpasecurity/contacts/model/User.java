@@ -31,7 +31,7 @@ import net.sf.jpasecurity.security.rules.PermitWhere;
 @Entity
 @DeclareRoles({"admin", "user"})
 @RolesAllowed("admin")
-@PermitWhere("name = CURRENT_USER")
+@PermitWhere(value = "name = CURRENT_USER")
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
