@@ -30,6 +30,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlClassName;
 import net.sf.jpasecurity.jpql.parser.JpqlConcat;
 import net.sf.jpasecurity.jpql.parser.JpqlConstructor;
 import net.sf.jpasecurity.jpql.parser.JpqlCount;
+import net.sf.jpasecurity.jpql.parser.JpqlCreate;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentDate;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentRoles;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentTime;
@@ -78,6 +79,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
+import net.sf.jpasecurity.jpql.parser.JpqlRead;
 import net.sf.jpasecurity.jpql.parser.JpqlSelect;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpressions;
 import net.sf.jpasecurity.jpql.parser.JpqlSetClause;
@@ -108,6 +110,22 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
      */
     public boolean visit(JpqlSelect node, StringBuilder query) {
         query.append(" SELECT ");
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlCreate node, StringBuilder query) {
+        query.append(" CREATE ");
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlRead node, StringBuilder query) {
+        query.append(" READ ");
         return true;
     }
 

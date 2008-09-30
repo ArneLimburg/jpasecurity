@@ -37,6 +37,15 @@
         <timezone>+1</timezone>
       </roles>
     </developer>
+    <developer>
+      <id>jsiemer</id>
+      <name>Johannes Siemer</name>
+      <email>jsiemer(a)users.sourceforge.net</email>
+      <roles>
+        <role>Java Developer</role>
+        <timezone>+1</timezone>
+      </roles>
+    </developer>
   </developers>
   <licenses>
     <license>
@@ -227,6 +236,10 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jdepend-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </reporting>

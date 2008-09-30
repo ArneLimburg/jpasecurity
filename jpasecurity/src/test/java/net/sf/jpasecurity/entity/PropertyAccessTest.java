@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.persistence;
-
-import java.lang.reflect.Proxy;
+package net.sf.jpasecurity.entity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import junit.framework.TestCase;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
-import junit.framework.TestCase;
 
 /**
  * @author Arne Limburg
@@ -46,9 +44,7 @@ public class PropertyAccessTest extends TestCase {
         entityManager.close();
         assertEquals(1, bean.getChildBeans().size());
         assertEquals(USER1, bean.getChildBeans().get(0).getBeanName());
-        EntityManagerInvocationHandler entityHandler
-            = (EntityManagerInvocationHandler)Proxy.getInvocationHandler(entityManager);
-        assertEquals(2, entityHandler.getUnsecureObject(bean.getChildBeans()).size());
+        assertEquals(2, ((SecureList<FieldAccessAnnotationTestBean>)bean.getChildBeans()).getOriginal().size());
     }
     
     public void testUpdate() {

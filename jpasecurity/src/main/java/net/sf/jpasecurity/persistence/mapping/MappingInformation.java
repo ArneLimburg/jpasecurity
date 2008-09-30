@@ -92,6 +92,19 @@ public class MappingInformation {
         return classMapping;
     }
 
+    public Class<?> getType(String path, Map<String, Class<?>> aliasTypes) {
+        try {
+            String[] entries = path.split("\\.");
+            Class<?> type = aliasTypes.get(entries[0]);
+            for (int i = 1; i < entries.length; i++) {
+                type = getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
+            }
+            return type;
+        } catch (NullPointerException e) {
+            throw new PersistenceException("Could not determine type of alias \"" + path + "\"", e);
+        }
+    }
+
     private void initializeEntityNameMappings() {
         entityNameMappings = new HashMap<String, ClassMappingInformation>();
         for (ClassMappingInformation classMapping: entityTypeMappings.values()) {
