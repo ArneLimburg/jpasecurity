@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import net.sf.jpasecurity.security.AuthenticationProvider;
+
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;

@@ -66,7 +66,7 @@
   <distributionManagement>
     <site>
       <id>sourceforge</id>
-      <url>scp://jpasecurity.sf.net:/home/groups/j/jp/jpasecurity/htdocs/</url>
+      <url>scp://jpasecurity.sf.net:/home/groups/j/jp/jpasecurity/htdocs/0.2.0/</url>
     </site>
   </distributionManagement>
   

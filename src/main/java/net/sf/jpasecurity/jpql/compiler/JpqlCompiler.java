@@ -23,11 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.PersistenceException;
-
-import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
-import net.sf.jpasecurity.jpql.ToStringVisitor;
-import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
@@ -38,9 +33,10 @@ import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
+import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
+import net.sf.jpasecurity.jpql.parser.ToStringVisitor;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
-import net.sf.jpasecurity.security.rules.AccessRule;
 
 /**
  * @author Arne Limburg
@@ -62,22 +58,6 @@ public class JpqlCompiler {
         Map<String, Class<?>> aliasTypes = getAliasTypes(statement);
         Set<String> namedParameters = getNamedParameters(statement);
         return new JpqlCompiledStatement(statement, selectedPathes, aliasTypes, namedParameters);
-    }
-
-    public AccessRule compile(JpqlAccessRule rule) {
-        Map<String, Class<?>> aliasTypes = getAliasTypes(rule);
-        if (aliasTypes.size() > 1) {
-            throw new IllegalStateException("An access rule may have only on alias specified");
-        }
-        Map.Entry<String, Class<?>> aliasType = aliasTypes.entrySet().iterator().next();
-        Set<String> namedParameters = getNamedParameters(rule);
-        if (namedParameters.size() > 0) {
-            throw new PersistenceException("Named parameters are not allowed for access rules");
-        }
-        if (getPositionalParameters(rule).size() > 0) {
-            throw new PersistenceException("Positional parameters are not allowed for access rules");
-        }
-        return new AccessRule(rule, aliasType.getKey(), aliasType.getValue(), namedParameters);
     }
 
     public List<String> getSelectedPaths(Node node) {

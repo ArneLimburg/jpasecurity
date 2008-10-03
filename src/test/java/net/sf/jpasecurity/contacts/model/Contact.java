@@ -23,7 +23,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import net.sf.jpasecurity.security.rules.PermitWhere;
+import net.sf.jpasecurity.security.PermitWhere;
 
 /**
  * @author Arne Limburg

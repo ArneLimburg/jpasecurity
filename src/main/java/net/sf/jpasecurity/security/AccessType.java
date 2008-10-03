@@ -13,20 +13,13 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.persistence;
-
-import java.util.Map;
-
-import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+package net.sf.jpasecurity.security;
 
 /**
- * This interface may be implemented by {@link net.sf.jpasecurity.security.AuthenticationProvider}s
- * and {@link net.sf.jpasecurity.security.AccessRulesProvider}s to obtain the specified persistence informations.
- *
  * @author Arne Limburg
  */
-public interface PersistenceInformationReceiver {
+public enum AccessType {
 
-    void setPersistenceMapping(MappingInformation persistenceMapping);
-    void setPersistenceProperties(Map<String, String> properties);
+    CREATE, READ, UPDATE, DELETE;
+    public static final AccessType[] ALL = {CREATE, READ, UPDATE, DELETE};
 }

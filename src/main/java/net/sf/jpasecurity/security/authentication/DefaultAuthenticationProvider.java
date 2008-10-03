@@ -20,6 +20,8 @@ import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
 import java.util.Collection;
 
+import net.sf.jpasecurity.security.AuthenticationProvider;
+
 /**
  * This is an implementation of the {@link AuthenticationProvider} interface
  * that uses a thread-local variable to store the authentication information.

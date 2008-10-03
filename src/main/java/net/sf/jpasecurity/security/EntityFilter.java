@@ -14,7 +14,7 @@
  * and limitations under the License.
  */
 
-package net.sf.jpasecurity.jpql.compiler;
+package net.sf.jpasecurity.security;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,19 +27,23 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 
-import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
+import net.sf.jpasecurity.jpql.compiler.EntityManagerEvaluator;
+import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluationParameters;
+import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluator;
+import net.sf.jpasecurity.jpql.compiler.JpqlCompiledStatement;
+import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
+import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentUser;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
+import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
-import net.sf.jpasecurity.security.rules.AccessRule;
-import net.sf.jpasecurity.security.rules.AccessType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

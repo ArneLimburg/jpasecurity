@@ -16,12 +16,15 @@
 
 package net.sf.jpasecurity.entity;
 
+import static net.sf.jpasecurity.security.AccessType.READ;
+import static net.sf.jpasecurity.security.AccessType.UPDATE;
+
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import net.sf.jpasecurity.security.rules.AccessType;
+import net.sf.jpasecurity.security.AccessType;
 
 /**
  * This is the base class for secure collections.
@@ -56,7 +59,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
     }
 
     public boolean add(E entity) {
-        checkAccessible(entity, AccessType.UPDATE); //TODO create?
+        checkAccessible(entity, UPDATE); //TODO create?
         if (getOriginal().add(entity)) {
             getFiltered().add(entity);
             return true;
@@ -134,7 +137,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
     Collection<? extends E> filterAll(Collection<? extends E> collection) {
         Collection<E> filteredCollection = new ArrayList<E>(collection);
         for (Iterator<E> i = filteredCollection.iterator(); i.hasNext();) {
-            if (!isAccessible(i.next(), AccessType.READ)) {
+            if (!isAccessible(i.next(), READ)) {
                 i.remove();
             }
         }
@@ -150,7 +153,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
     private void initialize() {
         this.filtered = createFiltered();
         for (E entity: original) {
-            if (isAccessible(entity, AccessType.READ)) {
+            if (isAccessible(entity, READ)) {
                 filtered.add(entityHandler.getSecureObject(entity));
             }
         }

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
-import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlAbs;
 import net.sf.jpasecurity.jpql.parser.JpqlAdd;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
@@ -79,6 +78,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlTrimCharacter;
 import net.sf.jpasecurity.jpql.parser.JpqlTrimLeading;
 import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
+import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.persistence.mapping.PropertyMappingInformation;

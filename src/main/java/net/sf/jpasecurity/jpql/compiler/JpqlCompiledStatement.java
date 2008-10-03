@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
 import net.sf.jpasecurity.jpql.parser.JpqlParserVisitor;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
+import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.SimpleNode;

@@ -18,6 +18,7 @@ package net.sf.jpasecurity.security.rules;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.jpasecurity.security.PermitWhere;
 import net.sf.jpasecurity.util.AbstractAnnotationParser;
 
 /**

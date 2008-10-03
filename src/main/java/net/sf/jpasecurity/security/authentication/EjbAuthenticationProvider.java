@@ -28,6 +28,7 @@ import javax.naming.NamingException;
 
 import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.security.AuthenticationProvider;
 
 /**
  * @author Arne Limburg

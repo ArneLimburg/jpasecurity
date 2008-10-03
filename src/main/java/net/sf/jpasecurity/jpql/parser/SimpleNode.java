@@ -18,7 +18,6 @@ package net.sf.jpasecurity.jpql.parser;
 
 import javax.persistence.PersistenceException;
 
-import net.sf.jpasecurity.jpql.ToStringVisitor;
 
 public class SimpleNode implements Node {
 

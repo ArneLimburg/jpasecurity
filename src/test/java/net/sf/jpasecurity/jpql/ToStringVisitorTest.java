@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.ParseException;
+import net.sf.jpasecurity.jpql.parser.ToStringVisitor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

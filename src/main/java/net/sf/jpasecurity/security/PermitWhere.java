@@ -13,20 +13,33 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.security.rules;
+package net.sf.jpasecurity.security;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import static net.sf.jpasecurity.security.AccessType.*;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
+ * An annotation to provide an access rule for an entity.
+ * <p>
+ * Example:
+ * <code>
+ * @Entity
+ * @PermitWhere("owner = CURRENT_USER")
+ * public class ExampleEntity {
+ *   ...
+ * }
+ * </code>
  * @author Arne Limburg
  */
 @Retention(RUNTIME)
 @Target(TYPE)
-public @interface PermitAny {
+public @interface PermitWhere {
 
-    PermitWhere[] value();
+    String value();
+    AccessType[] access() default { CREATE, READ, UPDATE, DELETE };
 }

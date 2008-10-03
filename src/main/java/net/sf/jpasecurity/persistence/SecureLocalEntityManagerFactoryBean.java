@@ -16,11 +16,10 @@
 package net.sf.jpasecurity.persistence;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceException;
 
-import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
-import net.sf.jpasecurity.security.authentication.SpringAuthenticationProvider;
-import net.sf.jpasecurity.security.rules.AccessRulesProvider;
-import net.sf.jpasecurity.security.rules.XmlAccessRulesProvider;
+import net.sf.jpasecurity.security.AccessRulesProvider;
+import net.sf.jpasecurity.security.AuthenticationProvider;
 
 import org.springframework.orm.jpa.LocalEntityManagerFactoryBean;
 
@@ -34,7 +33,7 @@ public class SecureLocalEntityManagerFactoryBean extends LocalEntityManagerFacto
 
     public AuthenticationProvider getAuthenticationProvider() {
         if (authenticationProvider == null) {
-            authenticationProvider = new SpringAuthenticationProvider();
+            authenticationProvider = createProvider(SecurePersistenceProvider.DEFAULT_AUTHENTICATION_PROVIDER_CLASS);
         }
         return authenticationProvider;
     }
@@ -45,13 +44,25 @@ public class SecureLocalEntityManagerFactoryBean extends LocalEntityManagerFacto
 
     public AccessRulesProvider getAccessRulesProvider() {
         if (accessRulesProvider == null) {
-            accessRulesProvider = new XmlAccessRulesProvider();
+            accessRulesProvider = createProvider(SecurePersistenceProvider.DEFAULT_ACCESS_RULES_PROVIDER_CLASS);
         }
         return accessRulesProvider;
     }
 
     public void setAccessRulesProvider(AccessRulesProvider accessRulesProvider) {
         this.accessRulesProvider = accessRulesProvider;
+    }
+
+    protected <P> P createProvider(String className) {
+        try {
+            return (P)getClass().getClassLoader().loadClass(className).newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new PersistenceException(e);
+        } catch (InstantiationException e) {
+            throw new PersistenceException(e);
+        } catch (IllegalAccessException e) {
+            throw new PersistenceException(e);
+        }
     }
 
     protected EntityManagerFactory createNativeEntityManagerFactory() {
