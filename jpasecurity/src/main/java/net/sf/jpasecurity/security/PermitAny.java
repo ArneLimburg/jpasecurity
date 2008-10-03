@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.entity;
+package net.sf.jpasecurity.security;
 
-import net.sf.jpasecurity.security.rules.AccessType;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
  * @author Arne Limburg
  */
-public interface SecureEntityHandler {
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface PermitAny {
 
-    boolean isAccessible(Object object, AccessType accessType);
-    <E> E getSecureObject(E object);
+    PermitWhere[] value();
 }

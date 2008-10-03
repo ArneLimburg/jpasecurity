@@ -15,11 +15,11 @@
  */
 package net.sf.jpasecurity.entity;
 
+import static net.sf.jpasecurity.security.AccessType.UPDATE;
+
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.List;
-
-import net.sf.jpasecurity.security.rules.AccessType;
 
 /**
  * A list-implementation of a secure collection.
@@ -39,7 +39,7 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
     }
 
     public E set(int index, E entity) {
-        secureList.checkAccessible(entity, AccessType.UPDATE); //TODO CREATE?
+        secureList.checkAccessible(entity, UPDATE); //TODO CREATE?
         E old = secureList.getFiltered().set(index, entity);
         index = secureList.getOriginal().indexOf(old);
         secureList.getOriginal().set(index, entity);
@@ -47,7 +47,7 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
     }
 
     public void add(int index, E entity) {
-        secureList.checkAccessible(entity, AccessType.UPDATE); //TODO CREATE
+        secureList.checkAccessible(entity, UPDATE); //TODO CREATE
         E old = secureList.getFiltered().get(index);
         secureList.getFiltered().add(index, entity);
         index = secureList.getOriginal().indexOf(old);

@@ -22,12 +22,13 @@ import java.util.Map;
 
 import javax.persistence.PersistenceException;
 
-import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.security.AccessRule;
+import net.sf.jpasecurity.security.AccessRulesProvider;
 
 /**
  * A base class for implementations of the {@link AccessRulesProvider} interface
@@ -39,9 +40,7 @@ import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 public abstract class AbstractAccessRulesProvider implements AccessRulesProvider, PersistenceInformationReceiver {
 
     private MappingInformation persistenceMapping;
-
     private Map<String, String> persistenceProperties;
-
     private List<AccessRule> accessRules;
 
     public MappingInformation getPersistenceMapping() {
@@ -93,7 +92,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
             throw new IllegalStateException("access rules are already compiled");
         }
         JpqlParser jpqlParser = new JpqlParser();
-        JpqlCompiler compiler = new JpqlCompiler(persistenceMapping);
+        AccessRulesCompiler compiler = new AccessRulesCompiler(persistenceMapping);
         accessRules = new ArrayList<AccessRule>();
         try {
             for (String accessRule : rules) {

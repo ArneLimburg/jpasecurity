@@ -15,9 +15,9 @@
  */
 package net.sf.jpasecurity.entity;
 
-import static net.sf.jpasecurity.security.rules.AccessType.DELETE;
-import static net.sf.jpasecurity.security.rules.AccessType.READ;
-import static net.sf.jpasecurity.security.rules.AccessType.UPDATE;
+import static net.sf.jpasecurity.security.AccessType.DELETE;
+import static net.sf.jpasecurity.security.AccessType.READ;
+import static net.sf.jpasecurity.security.AccessType.UPDATE;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;

@@ -30,8 +30,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
-import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
-import net.sf.jpasecurity.security.rules.AccessRulesProvider;
+import net.sf.jpasecurity.security.AccessRulesProvider;
+import net.sf.jpasecurity.security.AuthenticationProvider;
 
 /**
  * @author Arne Limburg

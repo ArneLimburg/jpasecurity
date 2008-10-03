@@ -13,105 +13,11 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.jpql;
+package net.sf.jpasecurity.jpql.parser;
 
-import net.sf.jpasecurity.jpql.parser.JpqlAbs;
-import net.sf.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
-import net.sf.jpasecurity.jpql.parser.JpqlAdd;
-import net.sf.jpasecurity.jpql.parser.JpqlAggregatePath;
-import net.sf.jpasecurity.jpql.parser.JpqlAll;
-import net.sf.jpasecurity.jpql.parser.JpqlAnd;
-import net.sf.jpasecurity.jpql.parser.JpqlAny;
-import net.sf.jpasecurity.jpql.parser.JpqlAscending;
-import net.sf.jpasecurity.jpql.parser.JpqlAverage;
-import net.sf.jpasecurity.jpql.parser.JpqlBetween;
-import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
-import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
-import net.sf.jpasecurity.jpql.parser.JpqlClassName;
-import net.sf.jpasecurity.jpql.parser.JpqlConcat;
-import net.sf.jpasecurity.jpql.parser.JpqlConstructor;
-import net.sf.jpasecurity.jpql.parser.JpqlConstructorParameter;
-import net.sf.jpasecurity.jpql.parser.JpqlCount;
-import net.sf.jpasecurity.jpql.parser.JpqlCreate;
-import net.sf.jpasecurity.jpql.parser.JpqlCurrentDate;
-import net.sf.jpasecurity.jpql.parser.JpqlCurrentRoles;
-import net.sf.jpasecurity.jpql.parser.JpqlCurrentTime;
-import net.sf.jpasecurity.jpql.parser.JpqlCurrentTimestamp;
-import net.sf.jpasecurity.jpql.parser.JpqlCurrentUser;
-import net.sf.jpasecurity.jpql.parser.JpqlDecimalLiteral;
-import net.sf.jpasecurity.jpql.parser.JpqlDelete;
-import net.sf.jpasecurity.jpql.parser.JpqlDescending;
-import net.sf.jpasecurity.jpql.parser.JpqlDistinct;
-import net.sf.jpasecurity.jpql.parser.JpqlDistinctPath;
-import net.sf.jpasecurity.jpql.parser.JpqlDivide;
-import net.sf.jpasecurity.jpql.parser.JpqlEquals;
-import net.sf.jpasecurity.jpql.parser.JpqlEscapeCharacter;
-import net.sf.jpasecurity.jpql.parser.JpqlExists;
-import net.sf.jpasecurity.jpql.parser.JpqlFrom;
-import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
-import net.sf.jpasecurity.jpql.parser.JpqlGreaterOrEquals;
-import net.sf.jpasecurity.jpql.parser.JpqlGreaterThan;
-import net.sf.jpasecurity.jpql.parser.JpqlGroupBy;
-import net.sf.jpasecurity.jpql.parser.JpqlHaving;
-import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
-import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariableDeclaration;
-import net.sf.jpasecurity.jpql.parser.JpqlIdentifier;
-import net.sf.jpasecurity.jpql.parser.JpqlIn;
-import net.sf.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
-import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
-import net.sf.jpasecurity.jpql.parser.JpqlIntegerLiteral;
-import net.sf.jpasecurity.jpql.parser.JpqlIsEmpty;
-import net.sf.jpasecurity.jpql.parser.JpqlIsNull;
-import net.sf.jpasecurity.jpql.parser.JpqlLength;
-import net.sf.jpasecurity.jpql.parser.JpqlLessOrEquals;
-import net.sf.jpasecurity.jpql.parser.JpqlLessThan;
-import net.sf.jpasecurity.jpql.parser.JpqlLike;
-import net.sf.jpasecurity.jpql.parser.JpqlLocate;
-import net.sf.jpasecurity.jpql.parser.JpqlLower;
-import net.sf.jpasecurity.jpql.parser.JpqlMaximum;
-import net.sf.jpasecurity.jpql.parser.JpqlMemberOf;
-import net.sf.jpasecurity.jpql.parser.JpqlMinimum;
-import net.sf.jpasecurity.jpql.parser.JpqlMod;
-import net.sf.jpasecurity.jpql.parser.JpqlMultiply;
-import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
-import net.sf.jpasecurity.jpql.parser.JpqlNegative;
-import net.sf.jpasecurity.jpql.parser.JpqlNot;
-import net.sf.jpasecurity.jpql.parser.JpqlNotEquals;
-import net.sf.jpasecurity.jpql.parser.JpqlOr;
-import net.sf.jpasecurity.jpql.parser.JpqlOrderBy;
-import net.sf.jpasecurity.jpql.parser.JpqlOrderByItem;
-import net.sf.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
-import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
-import net.sf.jpasecurity.jpql.parser.JpqlParserVisitor;
-import net.sf.jpasecurity.jpql.parser.JpqlPath;
-import net.sf.jpasecurity.jpql.parser.JpqlPatternValue;
-import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
-import net.sf.jpasecurity.jpql.parser.JpqlRead;
-import net.sf.jpasecurity.jpql.parser.JpqlSelect;
-import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
-import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
-import net.sf.jpasecurity.jpql.parser.JpqlSelectExpressions;
-import net.sf.jpasecurity.jpql.parser.JpqlSetClause;
-import net.sf.jpasecurity.jpql.parser.JpqlSize;
-import net.sf.jpasecurity.jpql.parser.JpqlSqrt;
-import net.sf.jpasecurity.jpql.parser.JpqlStatement;
-import net.sf.jpasecurity.jpql.parser.JpqlStringLiteral;
-import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
-import net.sf.jpasecurity.jpql.parser.JpqlSubstring;
-import net.sf.jpasecurity.jpql.parser.JpqlSubtract;
-import net.sf.jpasecurity.jpql.parser.JpqlSum;
-import net.sf.jpasecurity.jpql.parser.JpqlTrim;
-import net.sf.jpasecurity.jpql.parser.JpqlTrimBoth;
-import net.sf.jpasecurity.jpql.parser.JpqlTrimCharacter;
-import net.sf.jpasecurity.jpql.parser.JpqlTrimLeading;
-import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
-import net.sf.jpasecurity.jpql.parser.JpqlUpdate;
-import net.sf.jpasecurity.jpql.parser.JpqlUpdateItem;
-import net.sf.jpasecurity.jpql.parser.JpqlUpdateValue;
-import net.sf.jpasecurity.jpql.parser.JpqlUpper;
-import net.sf.jpasecurity.jpql.parser.JpqlWhere;
-import net.sf.jpasecurity.jpql.parser.Node;
-
+/**
+ * @author Arne Limburg
+ */
 public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
 
     /**

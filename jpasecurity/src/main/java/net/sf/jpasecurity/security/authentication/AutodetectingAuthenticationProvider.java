@@ -20,6 +20,8 @@ import java.util.Collection;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import net.sf.jpasecurity.security.AuthenticationProvider;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

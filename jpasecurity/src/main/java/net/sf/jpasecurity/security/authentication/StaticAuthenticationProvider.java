@@ -20,6 +20,8 @@ import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
 import java.util.Collection;
 
+import net.sf.jpasecurity.security.AuthenticationProvider;
+
 /**
  * This class provides support for static authentication (one authentication per vm).
  * It is intended mainly for test-use, since per-vm-authentication is seldom usefull

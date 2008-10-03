@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
  * to method-implementations provided by the implementing invocation handler itself.
  * @author Arne Limburg
  */
-public class AbstractInvocationHandler implements InvocationHandler {
+public abstract class AbstractInvocationHandler implements InvocationHandler {
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {

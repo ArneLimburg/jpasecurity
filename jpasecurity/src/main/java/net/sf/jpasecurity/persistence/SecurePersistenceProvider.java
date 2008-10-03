@@ -28,8 +28,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
-import net.sf.jpasecurity.security.rules.AccessRulesProvider;
+import net.sf.jpasecurity.security.AccessRulesProvider;
+import net.sf.jpasecurity.security.AuthenticationProvider;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
