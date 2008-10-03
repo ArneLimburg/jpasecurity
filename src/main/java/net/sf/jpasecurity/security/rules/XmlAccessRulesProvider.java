@@ -33,6 +33,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
+ * This class scans the classpath for <tt>security.xml</tt> files
+ * in the <tt>META-INF</tt> folder and provides the contained access rules.
  * @author Arne Limburg
  */
 public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {

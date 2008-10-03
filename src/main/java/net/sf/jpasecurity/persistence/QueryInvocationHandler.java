@@ -15,8 +15,6 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,41 +22,37 @@ import java.util.List;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.entity.SecureEntityHandler;
+import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 
 /**
  * An invocation handler to handle invocations on queries.
  * @author Arne Limburg
  */
-public class QueryInvocationHandler implements InvocationHandler {
+public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
 
     private SecureEntityHandler entityHandler;
-    private Query target;
-    
+
     public QueryInvocationHandler(SecureEntityHandler entityHandler, Query query) {
+        super(query);
         this.entityHandler = entityHandler;
-        this.target = query;
     }
-    
+
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object result;
-        try {
-            result = method.invoke(target, args);
-        } catch (InvocationTargetException e) {
-            throw e.getCause();
+        Object result = super.invoke(proxy, method, args);
+        return getTarget().equals(result)? proxy: result;
+    }
+
+    public Object getSingleResult() {
+        return entityHandler.getSecureObject(getTarget().getSingleResult());
+    }
+
+    public List getResultList() {
+        List targetResult = getTarget().getResultList();
+        List proxyResult = new ArrayList();
+        for (Object entity: targetResult) {
+            proxyResult.add(entityHandler.getSecureObject(entity));
         }
-        if (method.getName().equals("getResultList")) {
-            List<Object> resultList = new ArrayList<Object>();
-            for (Object entity: (List<Object>)result) {
-                resultList.add(entityHandler.getSecureObject(entity));
-            }
-            return resultList;
-        } else if (method.getName().equals("getSingleResult")) {
-            return entityHandler.getSecureObject(result);
-        } else if (target.equals(result)) {
-            return proxy;
-        } else {
-            return result;
-        }
+        return proxyResult;
     }
 }

@@ -19,20 +19,23 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
+ * This implementation of the {@link java.lang.reflect.InvocationHandler} interface
+ * delegates to a target object if the super-class cannot handle an invocation.
+ * @see AbstractInvocationHandler for invocation handling of the super-class
  * @author Arne Limburg
  */
 public class ProxyInvocationHandler<T> extends AbstractInvocationHandler {
 
     private T target;
-    
+
     public ProxyInvocationHandler(T target) {
         this.target = target;
     }
-    
+
     protected T getTarget() {
         return target;
     }
-    
+
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (canInvoke(method)) {
             return super.invoke(proxy, method, args);

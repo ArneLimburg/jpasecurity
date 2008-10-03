@@ -45,6 +45,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * This class handles the access control.
+ * It filters JPQL queries and can evaluate for a specific entity
+ * whether it is accessible or not.
  * @author Arne Limburg
  */
 public class EntityFilter {
@@ -70,8 +73,9 @@ public class EntityFilter {
         this.entityManagerEvaluator = new EntityManagerEvaluator(entityManager, compiler);
         this.accessRules = accessRules;
     }
-    
-    public boolean isAccessible(Object entity, AccessType accessType, Object user, Set<Object> roles) throws NotEvaluatableException {
+
+    public boolean isAccessible(Object entity, AccessType accessType, Object user, Set<Object> roles)
+            throws NotEvaluatableException {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         String alias = Character.toLowerCase(mapping.getEntityName().charAt(0)) + mapping.getEntityName().substring(1);
         Node accessRulesNode = createAccessRuleNode(alias, mapping.getEntityType(), accessType, roles.size());
@@ -104,7 +108,7 @@ public class EntityFilter {
                 return new FilterResult(null, null, null);
             } else {
                 LOG.info("No access rules defined for selected type. Returning unfiltered query");
-                return new FilterResult(query, null, null);                
+                return new FilterResult(query, null, null);
             }
         }
 
@@ -168,13 +172,13 @@ public class EntityFilter {
     private Node createAccessRuleNode(JpqlCompiledStatement statement, AccessType accessType, int roleCount) {
         return createAccessRuleNode(getSelectedTypes(statement), accessType, roleCount);
     }
-    
+
     private Node createAccessRuleNode(String alias, Class<?> type, AccessType accessType, int roleCount) {
         Map<String, Class<?>> aliases = new HashMap<String, Class<?>>();
         aliases.put(alias, type);
         return createAccessRuleNode(aliases, accessType, roleCount);
     }
-    
+
     private Node createAccessRuleNode(Map<String, Class<?>> selectedTypes, AccessType accessType, int roleCount) {
         boolean accessRestricted = false;
         Node accessRuleNode = null;
@@ -201,7 +205,7 @@ public class EntityFilter {
             return queryPreparator.createBrackets(accessRuleNode);
         }
     }
-    
+
     private Map<String, Object> createAuthenticationParameters(Set<String> namedParameters,
                                                                String userParameterName,
                                                                Object user,

@@ -52,7 +52,7 @@ public abstract class AbstractAnnotationParser<A extends Annotation> {
      * Parses the specified classes for the annotation(s).
      */
     protected void parse(Class<?>... classes) {
-        for (Class<?> annotatedClass : classes) {
+        for (Class<?> annotatedClass: classes) {
             parse(annotatedClass);
         }
     }

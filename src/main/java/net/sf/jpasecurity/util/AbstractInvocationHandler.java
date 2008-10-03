@@ -20,6 +20,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
+ * This implementation of the {@link InvocationHandler} interface delegates invocations
+ * to method-implementations provided by the implementing invocation handler itself.
  * @author Arne Limburg
  */
 public class AbstractInvocationHandler implements InvocationHandler {
@@ -31,7 +33,7 @@ public class AbstractInvocationHandler implements InvocationHandler {
             throw e.getCause();
         }
     }
-    
+
     protected boolean canInvoke(Method method) {
         try {
             Method targetMethod = getClass().getDeclaredMethod(method.getName(), method.getParameterTypes());

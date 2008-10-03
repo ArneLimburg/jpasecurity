@@ -19,9 +19,8 @@ import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-
-
 /**
+ * A sorted set-implementation of secure collection.
  * @author Arne Limburg
  */
 public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>> implements SortedSet<E> {
@@ -29,7 +28,7 @@ public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>
     public SecureSortedSet(SortedSet<E> sortedSet, SecureEntityHandler entityHandler) {
         super(sortedSet, entityHandler);
     }
-    
+
     SecureSortedSet(SortedSet<E> original, SortedSet<E> filtered, SecureEntityHandler entityHandler) {
         super(original, filtered, entityHandler);
     }
