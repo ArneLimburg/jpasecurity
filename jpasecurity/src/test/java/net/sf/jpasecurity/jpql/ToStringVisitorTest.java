@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.jpql;
 
 import junit.framework.TestCase;
+import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.ParseException;
@@ -98,6 +99,8 @@ public class ToStringVisitorTest extends TestCase {
 		assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0");
 		assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0 WHERE bean.id = 0");
 		assertJpql("DELETE FROM TestBean bean");
+        assertJpql("DELETE FROM TestBean bean WHERE bean.id = 0");
+        assertAccessRule("GRANT CREATE READ UPDATE DELETE ACCESS TO TestBean bean WHERE bean.id = 0");
 	}
 	
 	public void assertJpql(String query) throws ParseException {
@@ -111,6 +114,17 @@ public class ToStringVisitorTest extends TestCase {
 		assertEquals("JPQL", query, result);
 	}
 	
+    public void assertAccessRule(String rule) throws ParseException {
+        StringBuilder ruleBuilder = new StringBuilder();
+        JpqlAccessRule accessRule = parser.parseRule(rule);
+        accessRule.visit(toStringVisitor, ruleBuilder);
+        rule = stripWhiteSpaces(rule);
+        String result = stripWhiteSpaces(ruleBuilder.toString());
+        LOG.debug(rule);
+        LOG.debug(result);
+        assertEquals("AccessRule", rule, result);
+    }
+    
 	protected String stripWhiteSpaces(String query) {
 		return query.replaceAll("\\s+", " ").trim();
 	}
