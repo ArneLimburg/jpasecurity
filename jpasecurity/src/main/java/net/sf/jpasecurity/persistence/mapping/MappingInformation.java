@@ -23,8 +23,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
@@ -37,11 +35,12 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
+ * This class provides mapping information for a specific persistence unit.
+ * Initialized with a {@link javax.persistence.spi.PersistenceUnitInfo} it parses
+ * the persistence unit and builds the mapping information.
  * @author Arne Limburg
  */
 public class MappingInformation {
-
-    private static final String CLASS_ENTRY_SUFFIX = ".class";
 
     private PersistenceUnitInfo persistenceUnit;
     private Map<String, String> namedQueries = new HashMap<String, String>();
@@ -49,11 +48,10 @@ public class MappingInformation {
         = new HashMap<Class<?>, ClassMappingInformation>();
     private Map<String, ClassMappingInformation> entityNameMappings;
     private ClassLoader classLoader;
-    private JpaAnnotationParser annotationParser = new JpaAnnotationParser(entityTypeMappings, namedQueries);
 
     /**
-     * Creates mapping information from the specified persistence-unit information.
-     * @param persistenceUnitInfo the persistence-unit information create the mapping information from
+     * Creates mapping information from the specified persistence unit information.
+     * @param persistenceUnitInfo the persistence unit information to create the mapping information for
      */
     public MappingInformation(PersistenceUnitInfo persistenceUnitInfo) {
         persistenceUnit = persistenceUnitInfo;
@@ -63,11 +61,11 @@ public class MappingInformation {
     public String getPersistenceUnitName() {
         return persistenceUnit.getPersistenceUnitName();
     }
-    
+
     public String getNamedQuery(String name) {
         return namedQueries.get(name);
     }
-    
+
     public Collection<Class<?>> getPersistentClasses() {
         return Collections.unmodifiableSet(entityTypeMappings.keySet());
     }
@@ -115,16 +113,19 @@ public class MappingInformation {
 
     private void parse() {
         classLoader = findClassLoader();
-        if (persistenceUnit.getPersistenceUnitRootUrl() != null) {
-            parse(persistenceUnit.getPersistenceUnitRootUrl());
+        JpaAnnotationParser parser = new JpaAnnotationParser(entityTypeMappings, namedQueries, classLoader);
+        if (!persistenceUnit.excludeUnlistedClasses()) {
+            if (persistenceUnit.getPersistenceUnitRootUrl() != null) {
+                parser.parse(persistenceUnit.getPersistenceUnitRootUrl());
+            }
         }
         for (URL url: persistenceUnit.getJarFileUrls()) {
-            parse(url);
+            parser.parse(url);
         }
         for (String className: persistenceUnit.getManagedClassNames()) {
             try {
                 Class<?> entityClass = classLoader.loadClass(className);
-                annotationParser.parse(entityClass);
+                parser.parse(entityClass);
             } catch (ClassNotFoundException e) {
                 throw new PersistenceException(e);
             }
@@ -134,27 +135,6 @@ public class MappingInformation {
             parse(mappingFilename);
         }
         classLoader = null;
-    }
-
-    private void parse(URL url) {
-        try {
-            InputStream in = url.openStream();
-            try {
-                ZipInputStream zipStream = new ZipInputStream(in);
-                for (ZipEntry entry = zipStream.getNextEntry(); entry != null; entry = zipStream.getNextEntry()) {
-                    if (entry.getName().endsWith(CLASS_ENTRY_SUFFIX)) {
-                        annotationParser.parse(classLoader.loadClass(entry.getName()));
-                    }
-                    zipStream.closeEntry();
-                }
-            } finally {
-                in.close();
-            }
-        } catch (ClassNotFoundException e) {
-            throw new PersistenceException(e);
-        } catch (IOException e) {
-            throw new PersistenceException(e);
-        }
     }
 
     private void parse(String mappingFilename) {
@@ -167,20 +147,30 @@ public class MappingInformation {
         }
     }
 
-    private void parse(InputStream stream) throws IOException {    
+    private void parse(InputStream stream) throws IOException {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(stream);
-            OrmXmlParser parser = new OrmXmlParser(entityTypeMappings, namedQueries, document);
-            for (Node node: parser.getEntityNodes()) {
-                parser.parse(classLoader.loadClass(getClassName(node)));
-            }
-            for (Node node: parser.getSuperclassNodes()) {
-                parser.parse(classLoader.loadClass(getClassName(node)));
-            }
-            for (Node node: parser.getEmbeddableNodes()) {
-                parser.parse(classLoader.loadClass(getClassName(node)));
+            OrmXmlParser parser = new OrmXmlParser(entityTypeMappings, namedQueries, document, classLoader);
+            parser.parseNamedQueries();
+            if (persistenceUnit.excludeUnlistedClasses()) {
+                for (String className: persistenceUnit.getManagedClassNames()) {
+                    parser.parse(classLoader.loadClass(className));
+                }
+                for (URL url: persistenceUnit.getJarFileUrls()) {
+                    parser.parse(url);
+                }
+            } else {
+                for (Node node: parser.getEntityNodes()) {
+                    parser.parse(classLoader.loadClass(getClassName(node)));
+                }
+                for (Node node: parser.getSuperclassNodes()) {
+                    parser.parse(classLoader.loadClass(getClassName(node)));
+                }
+                for (Node node: parser.getEmbeddableNodes()) {
+                    parser.parse(classLoader.loadClass(getClassName(node)));
+                }
             }
         } catch (ParserConfigurationException e) {
             throw new PersistenceException(e);
