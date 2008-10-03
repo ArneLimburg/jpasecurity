@@ -33,8 +33,9 @@ import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 
 /**
- * This class parses the persistent classes for the annotation
- * {@link javax.annotation.security.RolesAllowed} and provides access rules based on the allowed roles.
+ * This class parses the persistent classes for the annotations
+ * {@link javax.annotation.security.RolesAllowed}, {@link PermitWhere} and {@link PermitAny}.
+ * It provides access rules based on the specified annotations.
  * @author Arne Limburg
  */
 public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
@@ -53,7 +54,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
             rolesAllowedParser = new RolesAllowedParser();
             permissionParser = new PermissionParser();
             Set<String> rules = new HashSet<String>();
-            for (Class<?> annotatedClass : getPersistenceMapping().getPersistentClasses()) {
+            for (Class<?> annotatedClass: getPersistenceMapping().getPersistentClasses()) {
                 rules.add(parseAllowedRoles(annotatedClass));
                 rules.addAll(parsePermissions(annotatedClass));
             }
@@ -85,32 +86,34 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
     private Collection<String> parsePermissions(Class<?> annotatedClass) {
         try {
             Set<String> rules = new HashSet<String>();
-            Map<Class<?>, PermitWhere> permissions = permissionParser.parsePermissions(annotatedClass);
-            for (Map.Entry<Class<?>, PermitWhere> permission: permissions.entrySet()) {
+            Map<Class<?>, List<PermitWhere>> permissions = permissionParser.parsePermissions(annotatedClass);
+            for (Map.Entry<Class<?>, List<PermitWhere>> annotations: permissions.entrySet()) {
                 String name = annotatedClass.getSimpleName();
-                JpqlWhere whereClause
-                    = getWhereClauseParser().parseWhereClause("WHERE " + permission.getValue().value());
-                String alias = Character.toLowerCase(name.charAt(0)) + name.substring(1);
-                appendAlias(whereClause, alias);
-                StringBuilder rule = new StringBuilder("GRANT ");
-                List<AccessType> access = Arrays.asList(permission.getValue().access());
-                if (access.contains(AccessType.CREATE)) {
-                    rule.append("CREATE ");
+                for (PermitWhere permission: annotations.getValue()) {
+                    JpqlWhere whereClause
+                        = getWhereClauseParser().parseWhereClause("WHERE " + permission.value());
+                    String alias = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+                    appendAlias(whereClause, alias);
+                    StringBuilder rule = new StringBuilder("GRANT ");
+                    List<AccessType> access = Arrays.asList(permission.access());
+                    if (access.contains(AccessType.CREATE)) {
+                        rule.append("CREATE ");
+                    }
+                    if (access.contains(AccessType.READ)) {
+                        rule.append("READ ");
+                    }
+                    if (access.contains(AccessType.UPDATE)) {
+                        rule.append("UPDATE ");
+                    }
+                    if (access.contains(AccessType.DELETE)) {
+                        rule.append("DELETE ");
+                    }
+                    rule.append("ACCESS TO ");
+                    rule.append(annotatedClass.getName()).append(' ');
+                    rule.append(alias).append(' ');
+                    rule.append(whereClause);
+                    rules.add(rule.toString());
                 }
-                if (access.contains(AccessType.READ)) {
-                    rule.append("READ ");
-                }
-                if (access.contains(AccessType.UPDATE)) {
-                    rule.append("UPDATE ");
-                }
-                if (access.contains(AccessType.DELETE)) {
-                    rule.append("DELETE ");
-                }
-                rule.append("ACCESS TO ");
-                rule.append(annotatedClass.getName()).append(' ');
-                rule.append(alias).append(' ');
-                rule.append(whereClause);
-                rules.add(rule.toString());
             }
             return rules;
         } catch (ParseException e) {
