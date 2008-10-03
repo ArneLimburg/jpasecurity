@@ -23,18 +23,20 @@ import javax.persistence.Query;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 
 /**
+ * This class evaluates JPQL queries. If in-memory-evaluation
+ * cannot be performed a call to a specified <tt>EntityManager</tt> is used.
  * @author Arne Limburg
  */
 public class EntityManagerEvaluator extends InMemoryEvaluator {
 
     private EntityManager entityManager;
     private JpqlCompiler compiler;
-    
+
     public EntityManagerEvaluator(EntityManager entityManager, JpqlCompiler compiler) {
         this.entityManager = entityManager;
         this.compiler = compiler;
     }
-    
+
     public boolean visit(JpqlSubselect node, InMemoryEvaluationParameters data) {
         try {
             Set<String> namedParameters = compiler.getNamedParameters(node);
@@ -46,7 +48,7 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
             return false;
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
-            return false;            
+            return false;
         }
     }
 }

@@ -24,8 +24,9 @@ import java.util.Iterator;
 import net.sf.jpasecurity.security.rules.AccessType;
 
 /**
+ * This is the base class for secure collections.
+ * Secure collections filter collections based on the accessibility of their elements.
  * @author Arne Limburg
- * @param <E>
  */
 public abstract class AbstractSecureCollection<E, T extends Collection<E>> extends AbstractCollection<E>
                                                                            implements SecureCollection<E> {
@@ -33,12 +34,12 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
     private T original;
     private T filtered;
     private SecureEntityHandler entityHandler;
-    
-    public AbstractSecureCollection(T collection, SecureEntityHandler entityHandler) {
+
+    AbstractSecureCollection(T collection, SecureEntityHandler entityHandler) {
         this.original = collection;
         this.entityHandler = entityHandler;
     }
-    
+
     /**
      * This constructor can be used to create an already initialized secure collection
      * @param original the original collection
@@ -49,13 +50,13 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         this(original, entityHandler);
         this.filtered = filtered;
     }
-    
+
     public Iterator<E> iterator() {
         return getFiltered().iterator();
     }
-    
+
     public boolean add(E entity) {
-        checkAccessible(entity, AccessType.UPDATE);//TODO create?
+        checkAccessible(entity, AccessType.UPDATE); //TODO create?
         if (getOriginal().add(entity)) {
             getFiltered().add(entity);
             return true;
@@ -63,14 +64,13 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
             return false;
         }
     }
-    
+
     public boolean addAll(Collection<? extends E> collection) {
         collection = filterAll(collection);
         boolean result = getFiltered().addAll(collection);
         getOriginal().addAll(collection);
         return result;
     }
-    
 
     public boolean remove(Object entity) {
         if (getOriginal().remove(entity)) {
@@ -86,7 +86,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         getOriginal().removeAll(collection);
         return result;
     }
-    
+
     public boolean retainAll(Collection<?> collection) {
         boolean result = getFiltered().retainAll(collection);
         getOriginal().retainAll(collection);
@@ -105,7 +105,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
     final SecureEntityHandler getEntityHandler() {
         return entityHandler;
     }
-    
+
     final T getOriginal() {
         return original;
     }
@@ -118,19 +118,19 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         checkInitialized();
         return filtered;
     }
-    
+
     abstract T createFiltered();
 
     void checkAccessible(E entity, AccessType accessType) {
         if (!isAccessible(entity, accessType)) {
             throw new SecurityException("Entity may not be added");
-        }        
+        }
     }
-    
+
     boolean isAccessible(E entity, AccessType accessType) {
         return entityHandler.isAccessible(entity, accessType);
     }
-    
+
     Collection<? extends E> filterAll(Collection<? extends E> collection) {
         Collection<E> filteredCollection = new ArrayList<E>(collection);
         for (Iterator<E> i = filteredCollection.iterator(); i.hasNext();) {
@@ -144,9 +144,9 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
     private void checkInitialized() {
         if (filtered == null) {
             initialize();
-        }        
+        }
     }
-    
+
     private void initialize() {
         this.filtered = createFiltered();
         for (E entity: original) {

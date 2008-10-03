@@ -32,6 +32,8 @@ import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.util.ValueHolder;
 
 /**
+ * This class represents compiled JPQL statements.
+ * It contains methods to access the structure of a JPQL statement.
  * @author Arne Limburg
  */
 public class JpqlCompiledStatement implements Cloneable {
@@ -60,7 +62,7 @@ public class JpqlCompiledStatement implements Cloneable {
     public List<String> getSelectedPathes() {
         return selectedPathes;
     }
-    
+
     public Map<String, Class<?>> getSelectedTypes(MappingInformation mappingInformation) {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: getSelectedPathes()) {
@@ -114,7 +116,7 @@ public class JpqlCompiledStatement implements Cloneable {
     public String toString() {
         return getClass() + "[\"" + statement.toString() + "\"]";
     }
-    
+
     protected <T> void visit(JpqlParserVisitor<T> visitor, T data) {
         statement.visit(visitor, data);
     }

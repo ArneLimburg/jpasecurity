@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.persistence.PersistenceException;
 
 /**
+ * This class contains mapping information of a specific class.
  * @author Arne Limburg
  */
 public class ClassMappingInformation {
@@ -75,7 +76,7 @@ public class ClassMappingInformation {
         }
         return propertyMapping;
     }
-    
+
     public List<PropertyMappingInformation> getPropertyMappings() {
         List<PropertyMappingInformation> propertyMappings = new ArrayList<PropertyMappingInformation>();
         propertyMappings.addAll(this.propertyMappings.values());
@@ -88,7 +89,7 @@ public class ClassMappingInformation {
     public void addPropertyMapping(PropertyMappingInformation propertyMappingInformation) {
         propertyMappings.put(propertyMappingInformation.getPropertyName(), propertyMappingInformation);
     }
-    
+
     public Object getId(Object entity) {
         List<PropertyMappingInformation> idProperties = getIdPropertyMappings();
         if (idProperties.size() == 0) {

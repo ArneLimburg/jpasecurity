@@ -33,6 +33,8 @@ import net.sf.jpasecurity.jpql.parser.JpqlUpdate;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 
 /**
+ * This class represents compiled JPA Security access rules.
+ * It contains methods to access the structure of an access rule.
  * @author Arne Limburg
  */
 public class AccessRule extends JpqlCompiledStatement {
@@ -53,35 +55,35 @@ public class AccessRule extends JpqlCompiledStatement {
     public String getSelectedPath() {
         return getSelectedPathes().get(0);
     }
-    
+
     public Class<?> getSelectedType(MappingInformation mappingInformation) {
         return getSelectedTypes(mappingInformation).values().iterator().next();
     }
-    
+
     public boolean isAssignable(Class<?> type, MappingInformation mappingInformation) {
         return getSelectedType(mappingInformation).isAssignableFrom(type);
     }
-    
+
     public boolean grantsCreateAccess() {
         return getAccess().contains(AccessType.CREATE);
     }
-    
+
     public boolean grantsReadAccess() {
         return getAccess().contains(AccessType.READ);
     }
-    
+
     public boolean grantsUpdateAccess() {
         return getAccess().contains(AccessType.UPDATE);
     }
-    
+
     public boolean grantsDeleteAccess() {
         return getAccess().contains(AccessType.DELETE);
     }
-    
+
     public boolean grantsAccess(AccessType type) {
         return getAccess().contains(type);
     }
-    
+
     private Set<AccessType> getAccess() {
         if (access == null) {
             Set<AccessType> access = new HashSet<AccessType>();
@@ -94,9 +96,9 @@ public class AccessRule extends JpqlCompiledStatement {
         }
         return access;
     }
-    
+
     private class AccessVisitor extends JpqlVisitorAdapter<Collection<AccessType>> {
-        
+
         public boolean visit(JpqlCreate node, Collection<AccessType> access) {
             access.add(AccessType.CREATE);
             return true;
