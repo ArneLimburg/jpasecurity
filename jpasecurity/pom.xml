@@ -195,28 +195,28 @@
           </execution>
         </executions>
         <configuration>
-        <books>
-          <book>
-            <directory>src/docbook/reference</directory>
-            <descriptor>src/site/reference.xml</descriptor>
-            <formats>
-              <format>
-                <id>xdoc</id>
-              </format>
-            </formats>
-          </book>
-          <book>
-            <directory>src/docbook/tutorial/simple</directory>
-            <descriptor>src/site/simple-tutorial.xml</descriptor>
-            <formats>
-              <format>
-                <id>xdoc</id>
-              </format>
-            </formats>
-          </book>
-        </books>
-      </configuration>
-    </plugin>
+          <books>
+            <book>
+              <directory>src/docbook/reference</directory>
+              <descriptor>src/site/reference.xml</descriptor>
+              <formats>
+                <format>
+                  <id>xdoc</id>
+                </format>
+              </formats>
+            </book>
+            <book>
+              <directory>src/docbook/tutorial/simple</directory>
+              <descriptor>src/site/simple-tutorial.xml</descriptor>
+              <formats>
+                <format>
+                  <id>xdoc</id>
+                </format>
+              </formats>
+            </book>
+          </books>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   
