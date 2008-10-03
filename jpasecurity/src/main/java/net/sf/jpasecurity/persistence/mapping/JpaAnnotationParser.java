@@ -50,10 +50,11 @@ import javax.persistence.Version;
 public class JpaAnnotationParser extends AbstractMappingParser {
 
     public JpaAnnotationParser(Map<Class<?>, ClassMappingInformation> classMappings,
-                               Map<String, String> namedQueries) {
-        super(classMappings, namedQueries);
+                               Map<String, String> namedQueries,
+                               ClassLoader classLoader) {
+        super(classMappings, namedQueries, classLoader);
     }
-    
+
     protected void parseNamedQueries(Class<?> entityClass) {
         NamedQuery namedQuery = entityClass.getAnnotation(NamedQuery.class);
         if (namedQuery != null) {
@@ -65,7 +66,7 @@ public class JpaAnnotationParser extends AbstractMappingParser {
                 addNamedQuery(query.name(), query.query());
             }
         }
-    } 
+    }
 
     protected Class<?> getIdClass(Class<?> entityClass, boolean usesFieldAccess) {
         IdClass idClass = entityClass.getAnnotation(IdClass.class);

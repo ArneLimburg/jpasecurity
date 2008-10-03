@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.persistence.mapping;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -26,10 +28,13 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URL;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.persistence.PersistenceException;
 
@@ -40,28 +45,53 @@ import javax.persistence.PersistenceException;
  */
 public abstract class AbstractMappingParser {
 
-    public static final String READ_PROPERTY_PREFIX = "get";
+    private static final String CLASS_ENTRY_SUFFIX = ".class";
+    private static final String GET_PROPERTY_PREFIX = "get";
+    private static final String IS_PROPERTY_PREFIX = "is";
 
     private Map<Class<?>, ClassMappingInformation> classMappings;
     private Map<String, String> namedQueries;
+    private ClassLoader classLoader;
 
     public AbstractMappingParser(Map<Class<?>, ClassMappingInformation> classMappings,
-                                 Map<String, String> namedQueries) {
+                                 Map<String, String> namedQueries,
+                                 ClassLoader classLoader) {
         this.classMappings = classMappings;
         this.namedQueries = namedQueries;
-//        parseNamedQueries();
+        this.classLoader = classLoader;
     }
-    
+
+    public void parse(URL url) {
+        try {
+            InputStream in = url.openStream();
+            try {
+                ZipInputStream zipStream = new ZipInputStream(in);
+                for (ZipEntry entry = zipStream.getNextEntry(); entry != null; entry = zipStream.getNextEntry()) {
+                    if (entry.getName().endsWith(CLASS_ENTRY_SUFFIX)) {
+                        parse(classLoader.loadClass(entry.getName()));
+                    }
+                    zipStream.closeEntry();
+                }
+            } finally {
+                in.close();
+            }
+        } catch (ClassNotFoundException e) {
+            throw new PersistenceException(e);
+        } catch (IOException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
     public ClassMappingInformation parse(Class<?> mappedClass) {
         ClassMappingInformation classMapping = classMappings.get(mappedClass);
         if (classMapping == null) {
-            parseNamedQueries(mappedClass);
             Class<?> superclass = mappedClass.getSuperclass();
             ClassMappingInformation superclassMapping = null;
             if (superclass != null) {
                 superclassMapping = parse(mappedClass.getSuperclass());
             }
             if (isMapped(mappedClass)) {
+                parseNamedQueries(mappedClass);
                 boolean usesFieldAccess;
                 if (superclassMapping != null) {
                     usesFieldAccess = superclassMapping.usesFieldAccess();
@@ -88,7 +118,9 @@ public abstract class AbstractMappingParser {
                     }
                 } else {
                     for (Method method: mappedClass.getDeclaredMethods()) {
-                        if (method.getName().startsWith(READ_PROPERTY_PREFIX) && isMappable(method)) {
+                        if ((method.getName().startsWith(GET_PROPERTY_PREFIX)
+                             || method.getName().startsWith(IS_PROPERTY_PREFIX))
+                            && isMappable(method)) {
                             PropertyMappingInformation propertyMapping = parse(method);
                             classMapping.addPropertyMapping(propertyMapping);
                         }
@@ -121,7 +153,7 @@ public abstract class AbstractMappingParser {
         } else if (classMapping.getPropertyMapping(name) != null) {
             return classMapping.getPropertyMapping(name);
         } else {
-            throw new PersistenceException("could not determine mapping for property \"" + name + "\" of class " + property.getDeclaringClass().getName());            
+            throw new PersistenceException("could not determine mapping for property \"" + name + "\" of class " + property.getDeclaringClass().getName());
         }
     }
 
@@ -196,7 +228,7 @@ public abstract class AbstractMappingParser {
 
     protected void parseNamedQueries(Class<?> mappedClass) {
     }
-    
+
     protected void addNamedQuery(String name, String query) {
         namedQueries.put(name, query);
     }
