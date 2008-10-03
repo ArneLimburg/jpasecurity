@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.jpql.compiler;
+package net.sf.jpasecurity.security;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
@@ -37,10 +36,10 @@ import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpressions;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
+import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.SimpleNode;
-import net.sf.jpasecurity.security.rules.AccessRule;
 
 /**
  * @author Arne Limburg

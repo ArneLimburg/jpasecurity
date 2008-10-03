@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.jpql.compiler;
+package net.sf.jpasecurity.security;
 
 import java.util.Map;
 
-import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
+import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluationParameters;
+import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluator;
+import net.sf.jpasecurity.jpql.compiler.JpqlCompiledStatement;
+import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlOr;
+import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
@@ -65,7 +69,7 @@ public class QueryOptimizer {
                     Node node = queryPreparator.createBoolean(false);
                     queryPreparator.replace(where.jjtGetChild(0), node);
                 }
-                return false;
+                return true;
             } catch (NotEvaluatableException e) {
                 return true;
             }
@@ -80,7 +84,7 @@ public class QueryOptimizer {
                 } else {
                     queryPreparator.replace(node, node.jjtGetChild(1));
                 }
-                return false;
+                return true;
             } catch (NotEvaluatableException e) {
                 try {
                     if (evaluator.evaluate(node.jjtGetChild(1), data)) {
@@ -90,7 +94,7 @@ public class QueryOptimizer {
                     } else {
                         queryPreparator.replace(node, node.jjtGetChild(0));
                     }
-                    return false;
+                    return true;
                 } catch (NotEvaluatableException n) {
                     return true;
                 }
@@ -105,7 +109,7 @@ public class QueryOptimizer {
                 } else {
                     queryPreparator.replace(node, queryPreparator.createBoolean(false));
                 }
-                return false;
+                return true;
             } catch (NotEvaluatableException e) {
                 try {
                     if (evaluator.evaluate(node.jjtGetChild(1), data)) {
@@ -113,7 +117,7 @@ public class QueryOptimizer {
                     } else {
                         queryPreparator.replace(node, queryPreparator.createBoolean(false));
                     }
-                    return false;
+                    return true;
                 } catch (NotEvaluatableException n) {
                     return true;
                 }

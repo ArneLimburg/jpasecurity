@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.compiler;
+package net.sf.jpasecurity.security;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,14 +21,14 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
-import net.sf.jpasecurity.jpql.compiler.EntityFilter;
-import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.persistence.mapping.TestMappingInformation;
-import net.sf.jpasecurity.security.rules.AccessRule;
-import net.sf.jpasecurity.security.rules.AccessType;
+import net.sf.jpasecurity.security.AccessRule;
+import net.sf.jpasecurity.security.AccessType;
+import net.sf.jpasecurity.security.EntityFilter;
+import net.sf.jpasecurity.security.rules.AccessRulesCompiler;
 
 /**
  * @author Arne Limburg
@@ -43,7 +43,7 @@ public class EntityFilterTest extends TestCase {
         JpqlParser parser = new JpqlParser();
         JpqlAccessRule rule
             = parser.parseRule("GRANT READ ACCESS TO Contact contact WHERE contact.owner = CURRENT_USER");
-        JpqlCompiler compiler = new JpqlCompiler(mappingInformation);
+        AccessRulesCompiler compiler = new AccessRulesCompiler(mappingInformation);
         accessRules = Collections.singletonList(compiler.compile(rule));
     }
     

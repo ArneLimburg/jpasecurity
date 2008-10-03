@@ -22,6 +22,8 @@ import java.util.Map;
 
 import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.security.AccessRule;
+import net.sf.jpasecurity.security.AccessRulesProvider;
 
 /**
  * This implementation of the {@link AccessRulesProvider} interface.

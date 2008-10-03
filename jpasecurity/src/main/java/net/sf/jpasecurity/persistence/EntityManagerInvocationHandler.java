@@ -15,8 +15,8 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import static net.sf.jpasecurity.security.rules.AccessType.CREATE;
-import static net.sf.jpasecurity.security.rules.AccessType.READ;
+import static net.sf.jpasecurity.security.AccessType.CREATE;
+import static net.sf.jpasecurity.security.AccessType.READ;
 
 import java.lang.reflect.Proxy;
 import java.util.Collection;
@@ -40,14 +40,14 @@ import net.sf.jpasecurity.entity.SecureEntityHandler;
 import net.sf.jpasecurity.entity.SecureList;
 import net.sf.jpasecurity.entity.SecureSet;
 import net.sf.jpasecurity.entity.SecureSortedSet;
-import net.sf.jpasecurity.jpql.compiler.EntityFilter;
-import net.sf.jpasecurity.jpql.compiler.FilterResult;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
-import net.sf.jpasecurity.security.authentication.AuthenticationProvider;
-import net.sf.jpasecurity.security.rules.AccessRule;
-import net.sf.jpasecurity.security.rules.AccessType;
+import net.sf.jpasecurity.security.AccessRule;
+import net.sf.jpasecurity.security.AccessType;
+import net.sf.jpasecurity.security.AuthenticationProvider;
+import net.sf.jpasecurity.security.EntityFilter;
+import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 /**

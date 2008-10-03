@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.security.authentication;
+package net.sf.jpasecurity.security;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
- * This interface may be implemented to provide authentication credentials.
+ * This interface may be implemented to access <tt>AccessRule</tt>s.
+ * Implementations don't need to cache rules as {@link #getAccessRules()}
+ * may be called only once per <tt>EntityManager</tt>.
  *
  * If the <tt>AuthenticationProvider</tt> needs information about the configured
  * persistence information like entity mapping information or persistence properties,
@@ -28,15 +30,10 @@ import java.util.Collection;
  *
  * @author Arne Limburg
  */
-public interface AuthenticationProvider {
+public interface AccessRulesProvider {
 
     /**
-     * Returns the authenticated user.
+     * Returns the access rules used for security.
      */
-    Object getUser();
-
-    /**
-     * Returns the roles of the authenticated user.
-     */
-    Collection<?> getRoles();
+    List<AccessRule> getAccessRules();
 }

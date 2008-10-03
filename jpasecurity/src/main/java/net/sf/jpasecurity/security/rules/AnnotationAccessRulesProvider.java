@@ -25,16 +25,20 @@ import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
-import net.sf.jpasecurity.jpql.JpqlVisitorAdapter;
-import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
+import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.ParseException;
+import net.sf.jpasecurity.security.AccessType;
+import net.sf.jpasecurity.security.PermitWhere;
+import net.sf.jpasecurity.security.QueryPreparator;
 
 /**
  * This class parses the persistent classes for the annotations
- * {@link javax.annotation.security.RolesAllowed}, {@link PermitWhere} and {@link PermitAny}.
+ * {@link javax.annotation.security.RolesAllowed},
+ * {@link net.sf.jpasecurity.security.PermitWhere}
+ * and {@link net.sf.jpasecurity.security.PermitAny}.
  * It provides access rules based on the specified annotations.
  * @author Arne Limburg
  */

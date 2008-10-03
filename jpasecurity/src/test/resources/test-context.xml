@@ -36,6 +36,12 @@
 
     <bean id="entityManagerFactory" class="net.sf.jpasecurity.persistence.SecureLocalEntityManagerFactoryBean">
     	<property name="persistenceUnitName" value="spring-contacts"/>
+    	<property name="authenticationProvider">
+    	    <bean class="net.sf.jpasecurity.security.authentication.SpringAuthenticationProvider"/>
+    	</property>
+    	<property name="accessRulesProvider">
+    	    <bean class="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+    	</property>
     </bean>
 
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
