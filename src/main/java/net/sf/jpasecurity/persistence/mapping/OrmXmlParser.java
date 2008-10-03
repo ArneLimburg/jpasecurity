@@ -44,10 +44,10 @@ import org.w3c.dom.Text;
  */
 public class OrmXmlParser extends AbstractMappingParser {
 
-	private static final String XPATH_NAMED_QUERY = "//named-query";
+    private static final String XPATH_NAMED_QUERY = "//named-query";
 
-	private static final Log LOG = LogFactory.getLog(OrmXmlParser.class);
-	
+    private static final Log LOG = LogFactory.getLog(OrmXmlParser.class);
+
     /**
      * The tag name for entities
      */
@@ -128,19 +128,21 @@ public class OrmXmlParser extends AbstractMappingParser {
      */
     public static final String FIELD_ACCESS = "FIELD";
 
+    private static final XPath XPATH = XPathFactory.newInstance().newXPath();;
+
     private XmlNodeList entityNodes;
     private XmlNodeList superclassNodes;
     private XmlNodeList embeddableNodes;
     private Document ormDocument;
-    private static XPath xpath = XPathFactory.newInstance().newXPath();;
 
     /**
      * Creates a parser to parse a orm.xml file.
      */
-    public OrmXmlParser(Map<Class<?>, ClassMappingInformation> classMappings, 
+    public OrmXmlParser(Map<Class<?>, ClassMappingInformation> classMappings,
                         Map<String, String> namedQueries,
-                        Document mappingDocument) {
-        super(classMappings, namedQueries);
+                        Document mappingDocument,
+                        ClassLoader classLoader) {
+        super(classMappings, namedQueries, classLoader);
         entityNodes = new XmlNodeList(mappingDocument.getElementsByTagName(ENTITY_TAG_NAME));
         superclassNodes = new XmlNodeList(mappingDocument.getElementsByTagName(MAPPED_SUPERCLASS_TAG_NAME));
         embeddableNodes = new XmlNodeList(mappingDocument.getElementsByTagName(EMBEDDABLE_TAG_NAME));
@@ -160,26 +162,26 @@ public class OrmXmlParser extends AbstractMappingParser {
     }
 
     public void parseNamedQueries() {
-    	NodeList entries = null;
-		try {
-			entries = (NodeList) xpath.evaluate(XPATH_NAMED_QUERY, ormDocument, XPathConstants.NODESET);
-		} catch (XPathExpressionException e) {
-			LOG.error("Error while reading named queries.", e);
-			return;
-		}
-    	for (int index=0; index<entries.getLength(); index++) {
-    		Element namedQueryElement = (Element) entries.item(index);
-    		String name = namedQueryElement.getAttribute("name");
-    		NodeList queryList = namedQueryElement.getElementsByTagName("query");
-    		String query = ((Text) ((Element)queryList.item(0)).getFirstChild()).getData();    		
-    		LOG.info("Adding query to query map. Name: '" + name + "'.");
-    		if (LOG.isDebugEnabled()) {
-    			LOG.debug("Query: '" + query.trim() + "'.");
-    		}
-    		addNamedQuery(name, query);
-    	}
+        NodeList entries = null;
+        try {
+            entries = (NodeList)XPATH.evaluate(XPATH_NAMED_QUERY, ormDocument, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            LOG.error("Error while reading named queries.", e);
+            return;
+        }
+        for (int index = 0; index < entries.getLength(); index++) {
+            Element namedQueryElement = (Element)entries.item(index);
+            String name = namedQueryElement.getAttribute("name");
+            NodeList queryList = namedQueryElement.getElementsByTagName("query");
+            String query = ((Text)((Element)queryList.item(0)).getFirstChild()).getData();
+            LOG.info("Adding query to query map. Name: '" + name + "'.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Query: '" + query.trim() + "'.");
+            }
+            addNamedQuery(name, query);
+        }
     }
-    
+
     protected Class<?> getIdClass(Class<?> entityClass, boolean useFieldAccess) {
         Node entityNode = getEntityNode(entityClass);
         XmlNodeList childNodes = new XmlNodeList(entityNode.getChildNodes());

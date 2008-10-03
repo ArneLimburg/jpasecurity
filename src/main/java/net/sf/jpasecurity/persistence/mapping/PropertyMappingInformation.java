@@ -27,6 +27,7 @@ import javax.persistence.PersistenceException;
 public abstract class PropertyMappingInformation {
 
     private static final String GET_METHOD_PREFIX = "get";
+    private static final String IS_METHOD_PREFIX = "is";
     private static final String SET_METHOD_PREFIX = "set";
 
     private String name;
@@ -66,7 +67,7 @@ public abstract class PropertyMappingInformation {
             throw new SecurityException(e);
         }
     }
-    
+
     public void setPropertyValue(Object target, Object value) {
         try {
             if (getContainingClassMapping().usesFieldAccess()) {
@@ -87,7 +88,7 @@ public abstract class PropertyMappingInformation {
         Field field = getField(target.getClass());
         return field.get(target);
     }
-    
+
     private void setFieldValue(Object target, Object fieldValue) throws IllegalAccessException {
         Field field = getField(target.getClass());
         field.set(target, fieldValue);
@@ -105,12 +106,17 @@ public abstract class PropertyMappingInformation {
             return getField(type.getSuperclass());
         }
     }
-    
+
     private Object getMethodValue(Object target) throws IllegalAccessException {
         String propertyName = getPropertyName();
         String methodName
             = GET_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
         Method method = getMethod(target.getClass(), methodName, 0);
+        if (method == null) {
+            methodName
+                = IS_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
+            method = getMethod(target.getClass(), methodName, 0);
+        }
         try {
             return method.invoke(target, (Object[])null);
         } catch (InvocationTargetException e) {
