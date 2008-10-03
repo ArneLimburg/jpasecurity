@@ -51,9 +51,11 @@ import net.sf.jpasecurity.security.rules.AccessType;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 /**
+ * An invocation handler to handle invocations on entity managers.
  * @author Arne Limburg
  */
-public class EntityManagerInvocationHandler extends ProxyInvocationHandler<EntityManager> implements SecureEntityHandler {
+public class EntityManagerInvocationHandler extends ProxyInvocationHandler<EntityManager>
+                                            implements SecureEntityHandler {
 
     public static final String CREATE_NAMED_QUERY_METHOD_NAME = "createNamedQuery";
     public static final String CREATE_QUERY_METHOD_NAME = "createQuery";
@@ -75,7 +77,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         this.authenticationProvider = authenticationProvider;
         this.mappingInformation = mappingInformation;
         this.entityFilter = new EntityFilter(entityManager, mappingInformation, accessRules);
-        this.secureEntities = new HashMap<Class, Map<Object,Object>>();
+        this.secureEntities = new HashMap<Class, Map<Object, Object>>();
     }
 
     public void persist(Object entity) {
@@ -84,16 +86,16 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         }
         getTarget().persist(entity);
     }
-    
+
     public <T> T merge(T entity) {
         if (entity instanceof SecureEntity) {
             return (T)((SecureEntity)entity).merge(getTarget());
         } else if (!isAccessible(entity, CREATE)) {
-            throw new SecurityException();            
+            throw new SecurityException();
         }
         return (T)getSecureObject(entity);
     }
-    
+
     public <T> T find(Class<T> type, Object id) {
         //TODO look into our cache
         T entity = getTarget().find(type, id);
@@ -102,7 +104,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         }
         return getSecureObject(entity);
     }
-    
+
     public void refresh(Object entity) {
         if (entity instanceof SecureEntity) {
             ((SecureEntity)entity).refresh(getTarget());
@@ -114,7 +116,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     public <T> T getReference(Class<T> type, Object id) {
         return find(type, id);
     }
-    
+
     public void lock(Object entity, LockModeType lockMode) {
         if (entity instanceof SecureEntity) {
             ((SecureEntity)entity).lock(getTarget(), lockMode);
@@ -126,17 +128,17 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     public boolean contains(Object entity) {
         return (entity instanceof SecureEntity) && ((SecureEntity)entity).isContained(getTarget());
     }
-    
+
     public Query createNamedQuery(String name) {
         return createQuery(mappingInformation.getNamedQuery(name));
     }
-    
+
     //public Query createNativeQuery(String sqlString);
-    
+
     //public Query createNativeQuery(String sqlString, Class resultClass);
-    
+
     //public Query createNativeQuery(String sqlString, String resultSetMapping);
-    
+
     public Object getDelegate() {
         return getTarget();
     }
@@ -150,7 +152,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         secureEntities.clear();
         getTarget().close();
     }
-    
+
     /**
      * This implementation filters the query according to the provided access rules
      * and the authenticated user and its roles.
@@ -176,7 +178,6 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                                                  new QueryInvocationHandler(this, query));
         }
     }
-    
 
     public boolean isAccessible(Object entity, AccessType accessType) {
         try {
@@ -185,7 +186,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             throw new SecurityException(e);
         }
     }
-    
+
     public <T> T getSecureObject(T object) {
         if ((object instanceof SecureEntity) || (object instanceof SecureCollection)) {
             return object;
@@ -224,23 +225,38 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             return (T)secureEntity;
         }
     }
-    
+
     public boolean isNewEntity(Object entity) {
-        return true;
+        if (entity instanceof SecureEntity) {
+            return false;
+        }
+        return !getTarget().contains(entity);
     }
-    
+
     public boolean isDetachedEntity(Object entity) {
-        return true;
+        if (!(entity instanceof SecureEntity)) {
+            return false;
+        }
+        SecureEntity secureEntity = (SecureEntity)entity;
+        return !secureEntity.isContained(getTarget());
     }
-    
+
     public boolean isManagedEntity(Object entity) {
-        return true;
+        if (!(entity instanceof SecureEntity)) {
+            return false;
+        }
+        SecureEntity secureEntity = (SecureEntity)entity;
+        return secureEntity.isContained(getTarget());
     }
-    
+
     public boolean isDeletedEntity(Object entity) {
-        return true;
+        if (!(entity instanceof SecureEntity)) {
+            return false;
+        }
+        SecureEntity secureEntity = (SecureEntity)entity;
+        return secureEntity.isRemoved();
     }
-    
+
     private Object getCurrentUser() {
         Object user = authenticationProvider.getUser();
         if (user != null) {
@@ -252,7 +268,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         }
         return user;
     }
-    
+
     private Set<Object> getCurrentRoles() {
         Collection<?> authorizedRoles = authenticationProvider.getRoles();
         Set<Object> roles = new HashSet<Object>();
@@ -269,7 +285,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         }
         return roles;
     }
-    
+
     private Object createSecureEntity(ClassMappingInformation mapping, Object entity) {
         return Enhancer.create(mapping.getEntityType(),
                                new Class[] {SecureEntity.class},
