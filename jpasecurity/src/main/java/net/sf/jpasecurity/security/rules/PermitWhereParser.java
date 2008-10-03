@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
 package net.sf.jpasecurity.security.rules;
 
 import java.util.HashMap;
@@ -29,11 +28,16 @@ public class PermitWhereParser extends AbstractAnnotationParser<PermitWhere> {
 
     private Map<Class<?>, PermitWhere> permissions = new HashMap<Class<?>, PermitWhere>();
 
+    /**
+     * Parses the specified classes for the {@link PermitWhere} annotation.
+     * @param classes the classes to parse
+     * @return a map containing the {@link PermitWhere} annotations for the specified classes
+     */
     public Map<Class<?>, PermitWhere> parsePermissions(Class<?>... classes) {
         parse(classes);
         return permissions;
     }
-    
+
     protected void process(Class<?> annotatedClass, PermitWhere permitWhere) {
         permissions.put(annotatedClass, permitWhere);
     }

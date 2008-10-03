@@ -24,6 +24,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
+ * An annotation to provide an access rule for an entity.
+ * <p>
+ * Example:
+ * <code>
+ * @Entity
+ * @PermitWhere("owner = CURRENT_USER")
+ * public class ExampleEntity {
+ *   ...
+ * }
+ * </code>
  * @author Arne Limburg
  */
 @Retention(RUNTIME)
@@ -31,5 +41,5 @@ import java.lang.annotation.Target;
 public @interface PermitWhere {
 
     String value();
-    AccessType[] access() default {CREATE, READ, UPDATE, DELETE};
+    AccessType[] access() default { CREATE, READ, UPDATE, DELETE };
 }

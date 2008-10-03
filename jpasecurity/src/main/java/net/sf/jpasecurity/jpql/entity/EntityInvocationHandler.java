@@ -35,6 +35,7 @@ import net.sf.jpasecurity.persistence.mapping.RelationshipMappingInformation;
 import net.sf.jpasecurity.util.AbstractInvocationHandler;
 
 /**
+ * An invocation handler to handle invocations on entities.
  * @author Arne Limburg
  */
 public class EntityInvocationHandler extends AbstractInvocationHandler implements MethodInterceptor {
@@ -46,7 +47,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     private ThreadLocal<Boolean> updating = new ThreadLocal<Boolean>();
     private Object entity;
     private Map<String, Object> propertyValues = new HashMap<String, Object>();
-    
+
     public EntityInvocationHandler(ClassMappingInformation mapping,
                                    SecureEntityHandler entityHandler,
                                    Object entity) {
@@ -54,7 +55,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         this.entityHandler = entityHandler;
         this.entity = entity;
     }
-    
+
     public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         if (canInvoke(method)) {
             return invoke(object, method, args);
@@ -68,7 +69,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         }
         return result;
     }
-    
+
     public boolean isContained(EntityManager entityManager) {
         return entityManager.contains(entity);
     }
@@ -76,7 +77,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     public boolean isRemoved() {
         return deleted;
     }
-    
+
     public SecureEntity merge(EntityManager entityManager) {
         if (!entityHandler.isAccessible(entity, UPDATE)) {
             throw new SecurityException();
@@ -108,11 +109,11 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         entityManager.remove(entity);
         deleted = true;
     }
-    
+
     private boolean isUpdating() {
         return updating.get() != null && updating.get();
     }
-    
+
     private void initialize(Object object) {
         updating.set(true);
         entity = unproxy(entity);
@@ -122,12 +123,12 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
                 value = entityHandler.getSecureObject(value);
             }
             propertyMapping.setPropertyValue(object, value);
-            propertyValues.put(propertyMapping.getPropertyName(), value);        
+            propertyValues.put(propertyMapping.getPropertyName(), value);
         }
         initialized = true;
         updating.remove();
     }
-    
+
     private void updatedChangedProperties(Object object) {
         updating.set(true);
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
@@ -155,14 +156,16 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             return object;
         }
     }
-    
+
     private Object unproxy(Object object) {
         try {
-            Class<?> hibernateProxy = Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.HibernateProxy");
+            Class<?> hibernateProxy
+                = Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.HibernateProxy");
             if (!hibernateProxy.isInstance(object)) {
                 return object;
             }
-            Class<?> lazyInitializer = Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.LazyInitializer"); 
+            Class<?> lazyInitializer
+                = Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.LazyInitializer");
             Object lazyInitializerInstance = hibernateProxy.getMethod("getHibernateLazyInitializer").invoke(object);
             return lazyInitializer.getMethod("getImplementation").invoke(lazyInitializerInstance);
         } catch (Exception e) {

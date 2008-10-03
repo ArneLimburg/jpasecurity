@@ -19,10 +19,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
 /**
+ * This is an interface implemented by every entity
+ * that is managed by JPA Security.
  * @author Arne Limburg
  */
 public interface SecureEntity {
-    
+
     boolean isContained(EntityManager entityManager);
     boolean isRemoved();
     SecureEntity merge(EntityManager entityManager);

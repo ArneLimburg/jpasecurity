@@ -24,6 +24,7 @@ import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 
 /**
+ * This implementation of the {@link AccessRulesProvider} interface.
  * @author Arne Limburg
  */
 public class DefaultAccessRulesProvider implements AccessRulesProvider, PersistenceInformationReceiver {
@@ -31,7 +32,7 @@ public class DefaultAccessRulesProvider implements AccessRulesProvider, Persiste
     private final AnnotationAccessRulesProvider annotationRulesProvider = new AnnotationAccessRulesProvider();
     private final XmlAccessRulesProvider xmlRulesProvider = new XmlAccessRulesProvider();
     private List<AccessRule> accessRules;
-    
+
     public List<AccessRule> getAccessRules() {
         if (accessRules == null) {
             List<AccessRule> accessRules = new ArrayList<AccessRule>();

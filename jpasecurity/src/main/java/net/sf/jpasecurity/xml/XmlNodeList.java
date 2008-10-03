@@ -25,6 +25,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
+ * A list containing {@link Node}s.
  * @author Arne Limburg
  */
 public class XmlNodeList extends AbstractList<Node> {
@@ -44,7 +45,7 @@ public class XmlNodeList extends AbstractList<Node> {
         }
         return nodes;
     }
-    
+
     public List<Node> subList(String attributeName, String attributeValue) {
         List<Node> nodes = new ArrayList<Node>();
         if (nodes instanceof Node) {
@@ -55,7 +56,7 @@ public class XmlNodeList extends AbstractList<Node> {
                 if (namedItem != null && namedItem.getTextContent().equals(attributeValue)) {
                     nodes.add(node);
                 }
-            }            
+            }
         }
         for (Node node: this) {
             NamedNodeMap attributes = node.getAttributes();
