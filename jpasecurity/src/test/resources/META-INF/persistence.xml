@@ -130,6 +130,8 @@
     <class>net.sf.jpasecurity.contacts.model.User</class>
     <class>net.sf.jpasecurity.contacts.model.Contact</class>
 
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
     <properties>
       <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
       <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.EjbAuthenticationProvider"/>
