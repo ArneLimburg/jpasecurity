@@ -67,7 +67,8 @@ public class NamedQueryTest extends TestCase {
     	DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     	Document document = db.parse("src/test/resources/META-INF/orm.xml");
     	HashMap<String, String> namedQueryMap = new HashMap<String, String>();
-		OrmXmlParser parser = new OrmXmlParser(new HashMap<Class<?>, ClassMappingInformation>(), namedQueryMap, document);
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		OrmXmlParser parser = new OrmXmlParser(new HashMap<Class<?>, ClassMappingInformation>(), namedQueryMap, document, classLoader);
     	parser.parseNamedQueries();
     	
     	assertEquals(4, namedQueryMap.size());
