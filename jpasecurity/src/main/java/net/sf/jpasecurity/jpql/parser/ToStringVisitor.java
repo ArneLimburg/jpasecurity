@@ -24,6 +24,33 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
     /**
      * {@inheritDoc}
      */
+    public boolean visit(JpqlAccessRule node, StringBuilder query) {
+        query.append(" GRANT ");
+        int index = node.jjtGetNumChildren() - 1;
+        if (!(node.jjtGetChild(index) instanceof JpqlFrom)) {
+            index--;
+        }
+        for (int i = 0; i < index; i++) {
+            node.jjtGetChild(i).visit(this, query);
+        }
+        query.append("ACCESS TO ");
+        for (int i = 0; i < node.jjtGetChild(index).jjtGetNumChildren() - 1; i++) {
+            node.jjtGetChild(index).jjtGetChild(i).visit(this, query);
+            query.append(", ");
+        }
+        node.jjtGetChild(index).jjtGetChild(node.jjtGetChild(index).jjtGetNumChildren() - 1).visit(this, query);
+        for (int i = index; i < node.jjtGetChild(index).jjtGetNumChildren(); i++) {
+            node.jjtGetChild(index).jjtGetChild(i).visit(this, query);
+        }
+        for (int i = index + 1; i < node.jjtGetNumChildren(); i++) {
+            node.jjtGetChild(i).visit(this, query);
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean visit(JpqlSelect node, StringBuilder query) {
         query.append(" SELECT ");
         return true;

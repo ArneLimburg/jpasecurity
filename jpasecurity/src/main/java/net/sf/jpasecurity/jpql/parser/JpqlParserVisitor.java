@@ -31,6 +31,14 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlStatement node, T data);
 
     /**
+     * Called when visiting a <tt>JpqlAccessRule</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlAccessRule node, T data);
+
+    /**
      * Called when visiting a <tt>JpqlSelect</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor
