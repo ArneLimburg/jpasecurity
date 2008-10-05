@@ -68,6 +68,11 @@ public interface Node extends Cloneable {
     Object jjtAccept(JpqlParserVisitor visitor, Object data);
 
     /**
+     * Returns the value of this node or <tt>null</tt>, if this node does not have a value.
+     */
+    String getValue();
+
+    /**
      * Visits the visitor.
      */
     void visit(JpqlParserVisitor visitor);
