@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.persistence.PersistenceException;
 
+import net.sf.jpasecurity.jpql.compiler.MappingEvaluator;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
@@ -29,6 +30,7 @@ import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
 import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.AccessRule;
 import net.sf.jpasecurity.security.AccessRulesProvider;
+import net.sf.jpasecurity.security.QueryPreparator;
 
 /**
  * A base class for implementations of the {@link AccessRulesProvider} interface
@@ -65,6 +67,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
     public final List<AccessRule> getAccessRules() {
         if (accessRules == null) {
             initializeAccessRules();
+            checkRules();
         }
         return accessRules;
     }
@@ -102,6 +105,18 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
             }
         } catch (ParseException e) {
             throw new PersistenceException(e);
+        }
+    }
+
+    /**
+     * Check whether the mapping is consistent with the rules
+     */
+    private void checkRules() {
+        MappingEvaluator evaluator = new MappingEvaluator(persistenceMapping);
+        QueryPreparator preparator = new QueryPreparator();
+        for (AccessRule accessRule: accessRules) {
+            evaluator.evaluate(preparator.createPath(accessRule.getSelectedPath()), accessRule.getAliasTypes());
+            evaluator.evaluate(accessRule.getWhereClause(), accessRule.getAliasTypes());
         }
     }
 }
