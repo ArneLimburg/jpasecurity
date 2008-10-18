@@ -73,6 +73,10 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
         return secureList.size();
     }
 
+    public boolean isInitialized() {
+        return secureList.isInitialized();
+    }
+    
     List<E> getOriginal() {
         return secureList.getOriginal();
     }

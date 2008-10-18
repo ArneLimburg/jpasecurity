@@ -23,5 +23,5 @@ import net.sf.jpasecurity.security.AccessType;
 public interface SecureEntityHandler {
 
     boolean isAccessible(Object object, AccessType accessType);
-    <E> E getSecureObject(E object);
+    <E> SecureObject getSecureObject(E object);
 }

@@ -21,5 +21,5 @@ import java.util.Collection;
  * A marker interface for secure collections.
  * @author Arne Limburg
  */
-public interface SecureCollection<E> extends Collection<E> {
+public interface SecureCollection<E> extends SecureObject, Collection<E> {
 }
