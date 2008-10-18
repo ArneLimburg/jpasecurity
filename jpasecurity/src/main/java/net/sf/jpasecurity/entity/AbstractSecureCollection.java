@@ -53,7 +53,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         this(original, entityHandler);
         this.filtered = filtered;
     }
-
+    
     public Iterator<E> iterator() {
         return getFiltered().iterator();
     }
@@ -144,8 +144,12 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         return filteredCollection;
     }
 
+    public boolean isInitialized() {
+        return filtered != null;
+    }
+
     private void checkInitialized() {
-        if (filtered == null) {
+        if (!isInitialized()) {
             initialize();
         }
     }
@@ -154,7 +158,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         this.filtered = createFiltered();
         for (E entity: original) {
             if (isAccessible(entity, READ)) {
-                filtered.add(entityHandler.getSecureObject(entity));
+                filtered.add((E)entityHandler.getSecureObject(entity));
             }
         }
     }

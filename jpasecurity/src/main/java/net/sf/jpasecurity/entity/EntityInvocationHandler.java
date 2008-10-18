@@ -15,13 +15,9 @@
  */
 package net.sf.jpasecurity.entity;
 
-import static net.sf.jpasecurity.security.AccessType.CREATE;
-import static net.sf.jpasecurity.security.AccessType.DELETE;
-import static net.sf.jpasecurity.security.AccessType.READ;
-import static net.sf.jpasecurity.security.AccessType.UPDATE;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,6 +32,7 @@ import net.sf.cglib.proxy.MethodProxy;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.mapping.RelationshipMappingInformation;
+import net.sf.jpasecurity.security.AccessType;
 import net.sf.jpasecurity.util.AbstractInvocationHandler;
 
 /**
@@ -64,7 +61,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         if (canInvoke(method)) {
             return invoke(object, method, args);
         }
-        if (!initialized && !isUpdating()) {
+        if (!isInitialized() && !isUpdating()) {
             initialize(object);
         }
         Object result = methodProxy.invokeSuper(object, args);
@@ -72,6 +69,10 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             updatedChangedProperties(object);
         }
         return result;
+    }
+    
+    public boolean isInitialized() {
+        return initialized;
     }
 
     public boolean isContained(EntityManager entityManager) {
@@ -83,72 +84,68 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
     
     public void persist(EntityManager entityManager) {
-        checkPersist(entity, new HashSet<Object>());
+        checkAccess(entity, AccessType.CREATE, CascadeType.PERSIST, new HashSet<Object>());
         entityManager.persist(entity);
     }
 
     public SecureEntity merge(EntityManager entityManager) {
-        checkMerge(entity, new HashSet<Object>());
+        checkAccess(entity, AccessType.UPDATE, CascadeType.MERGE, new HashSet<Object>());
         return (SecureEntity)entityHandler.getSecureObject(entityManager.merge(entity));
     }
 
-    private void checkPersist(Object entity, Set<Object> checkedEntities) {
-        if (checkedEntities.contains(entity)) {
-            return;
-        }
-        if (!entityHandler.isAccessible(entity, CREATE)) {
-            throw new SecurityException();
-        }
-        checkedEntities.add(entity);
-        for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
-            if (propertyMapping.getCascadeTypes().contains(CascadeType.PERSIST)
-                || propertyMapping.getCascadeTypes().contains(CascadeType.ALL)) {
-                checkPersist(propertyMapping.getPropertyValue(entity), checkedEntities);
-            }
-        }        
+    public void remove(EntityManager entityManager) {
+        checkAccess(entity, AccessType.DELETE, CascadeType.REMOVE, new HashSet<Object>());
+        entityManager.remove(entity);
+        deleted = true;
     }
 
-    private void checkMerge(Object entity, Set<Object> checkedEntities) {
-        if (checkedEntities.contains(entity)) {
-            return;
-        }
-        if (!entityHandler.isAccessible(entity, UPDATE)) {
-            throw new SecurityException();
-        }
-        checkedEntities.add(entity);
-        for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
-            if (propertyMapping.getCascadeTypes().contains(CascadeType.MERGE)
-                || propertyMapping.getCascadeTypes().contains(CascadeType.ALL)) {
-                checkMerge(propertyMapping.getPropertyValue(entity), checkedEntities);
-            }
-        }
-    } 
-    
     public void refresh(EntityManager entityManager) {
-        if (!entityHandler.isAccessible(entity, READ)) {
-            throw new SecurityException();
-        }
+        checkAccess(entity, AccessType.READ, CascadeType.REFRESH, new HashSet<Object>());
         entityManager.refresh(entity);
         initialized = false;
     }
 
     public void lock(EntityManager entityManager, LockModeType lockMode) {
-        if (lockMode == LockModeType.READ && !entityHandler.isAccessible(entity, READ)) {
+        if (lockMode == LockModeType.READ && !entityHandler.isAccessible(entity, AccessType.READ)) {
             throw new SecurityException();
-        } else if (lockMode == LockModeType.WRITE && !entityHandler.isAccessible(entity, UPDATE)) {
+        } else if (lockMode == LockModeType.WRITE && !entityHandler.isAccessible(entity, AccessType.UPDATE)) {
             throw new SecurityException();
         }
         entityManager.lock(entity, lockMode);
     }
 
-    public void remove(EntityManager entityManager) {
-        if (!entityHandler.isAccessible(entity, DELETE)) {
-            throw new SecurityException();
+    private void checkAccess(Object object,
+                             AccessType accessType,
+                             CascadeType cascadeType,
+                             Set<Object> checkedEntities) {
+        if (checkedEntities.contains(object) || !entityHandler.getSecureObject(object).isInitialized()) {
+            return;
         }
-        entityManager.remove(entity);
-        deleted = true;
+        if (object instanceof Collection) {
+            checkAccess((Collection)object, accessType, cascadeType, checkedEntities);
+        } else {
+            if (!entityHandler.isAccessible(object, accessType)) {
+                throw new SecurityException();
+            }
+            checkedEntities.add(object);
+            for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
+                if (propertyMapping.getCascadeTypes().contains(cascadeType)
+                        || propertyMapping.getCascadeTypes().contains(CascadeType.ALL)) {
+                    checkAccess(propertyMapping.getPropertyValue(object), accessType, cascadeType, checkedEntities);
+                }
+            }
+        }        
     }
 
+    private void checkAccess(Collection<?> collection,
+                             AccessType accessType,
+                             CascadeType cascadeType,
+                             Set<Object> checkedEntities) {
+        for (Object object: collection) {
+            checkAccess(object, accessType, cascadeType, checkedEntities);
+        }
+    }
+    
     private boolean isUpdating() {
         return updating.get() != null && updating.get();
     }
