@@ -84,7 +84,8 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public void persist(Object entity) {
-        ((SecureEntity)getSecureObject(entity)).persist(getTarget());
+        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
+        createSecureEntity(mapping, entity).persist(getTarget());
     }
 
     public <T> T merge(T entity) {
