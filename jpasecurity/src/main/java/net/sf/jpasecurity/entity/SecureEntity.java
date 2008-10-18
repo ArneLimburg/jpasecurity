@@ -28,6 +28,7 @@ public interface SecureEntity {
     boolean isContained(EntityManager entityManager);
     boolean isRemoved();
     SecureEntity merge(EntityManager entityManager);
+    void persist(EntityManager entityManager);
     void refresh(EntityManager entityManager);
     void lock(EntityManager entityManager, LockModeType lockMode);
     void remove(EntityManager entityManager);
