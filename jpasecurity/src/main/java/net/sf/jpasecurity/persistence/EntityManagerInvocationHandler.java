@@ -58,13 +58,6 @@ import net.sf.jpasecurity.util.ProxyInvocationHandler;
 public class EntityManagerInvocationHandler extends ProxyInvocationHandler<EntityManager>
                                             implements SecureEntityHandler {
 
-    public static final String CREATE_NAMED_QUERY_METHOD_NAME = "createNamedQuery";
-    public static final String CREATE_QUERY_METHOD_NAME = "createQuery";
-    public static final String MERGE_METHOD_NAME = "merge";
-    public static final String FIND_METHOD_NAME = "find";
-    public static final String GET_REFERENCE_METHOD_NAME = "getReference";
-    public static final String REFRESH_METHOD_NAME = "refresh";
-
     private AuthenticationProvider authenticationProvider;
     private MappingInformation mappingInformation;
     private EntityFilter entityFilter;
@@ -84,8 +77,8 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public void persist(Object entity) {
-        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-        createSecureEntity(mapping, entity).persist(getTarget());
+        SecureEntity secureEntity = createSecureEntity(mappingInformation.getClassMapping(entity.getClass()), entity);
+        secureEntity.persist(getTarget());
     }
 
     public <T> T merge(T entity) {
