@@ -15,21 +15,13 @@
  */
 package net.sf.jpasecurity.entity;
 
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-
 /**
- * This is an interface implemented by every entity
+ * This is an interface implemented by every object
  * that is managed by JPA Security.
  * @author Arne Limburg
  */
-public interface SecureEntity extends SecureObject {
+public interface SecureObject {
 
-    boolean isContained(EntityManager entityManager);
-    boolean isRemoved();
-    SecureEntity merge(EntityManager entityManager);
-    void persist(EntityManager entityManager);
-    void refresh(EntityManager entityManager);
-    void lock(EntityManager entityManager, LockModeType lockMode);
-    void remove(EntityManager entityManager);
+    boolean isInitialized();
+
 }

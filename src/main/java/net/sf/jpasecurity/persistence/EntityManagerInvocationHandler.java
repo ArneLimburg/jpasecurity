@@ -38,6 +38,7 @@ import net.sf.jpasecurity.entity.SecureCollection;
 import net.sf.jpasecurity.entity.SecureEntity;
 import net.sf.jpasecurity.entity.SecureEntityHandler;
 import net.sf.jpasecurity.entity.SecureList;
+import net.sf.jpasecurity.entity.SecureObject;
 import net.sf.jpasecurity.entity.SecureSet;
 import net.sf.jpasecurity.entity.SecureSortedSet;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
@@ -67,7 +68,8 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     private AuthenticationProvider authenticationProvider;
     private MappingInformation mappingInformation;
     private EntityFilter entityFilter;
-    private Map<Class, Map<Object, Object>> secureEntities;
+    private Map<Class, Map<Object, SecureEntity>> secureEntities;
+    private Map<Integer, SecureCollection<?>> secureCollections;
 
     EntityManagerInvocationHandler(EntityManager entityManager,
                                    MappingInformation mappingInformation,
@@ -77,7 +79,8 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         this.authenticationProvider = authenticationProvider;
         this.mappingInformation = mappingInformation;
         this.entityFilter = new EntityFilter(entityManager, mappingInformation, accessRules);
-        this.secureEntities = new HashMap<Class, Map<Object, Object>>();
+        this.secureEntities = new HashMap<Class, Map<Object, SecureEntity>>();
+        this.secureCollections = new HashMap<Integer, SecureCollection<?>>();
     }
 
     public void persist(Object entity) {
@@ -99,7 +102,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         if (!isAccessible(entity, READ)) {
             throw new SecurityException();
         }
-        return getSecureObject(entity);
+        return (T)getSecureObject(entity);
     }
 
     public void refresh(Object entity) {
@@ -184,45 +187,20 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         }
     }
 
-    public <T> T getSecureObject(T object) {
-        if ((object instanceof SecureEntity) || (object instanceof SecureCollection)) {
-            return object;
+    public <T> SecureObject getSecureObject(T object) {
+        if (object instanceof SecureObject) {
+            return (SecureObject)object;
         }
         if (object == null) {
             return null;
         }
         if (object instanceof Collection) {
-          if (object instanceof List) {
-              return (T)new SecureList((List)object, this);
-          } else if (object instanceof SortedSet) {
-              return (T)new SecureSortedSet((SortedSet)object, this);
-          } else if (object instanceof Set) {
-              return (T)new SecureSet((Set)object, this);
-          } else {
-              return (T)new DefaultSecureCollection((Collection)object, this);
-          }
+            return getSecureCollection((Collection)object);
         } else {
-            ClassMappingInformation mapping = mappingInformation.getClassMapping(object.getClass());
-            if (mapping == null) {
-                throw new IllegalArgumentException(object.getClass() + " is not mapped");
-            }
-            Object id = mapping.getId(object);
-            Map<Object, Object> entities = secureEntities.get(mapping.getEntityType());
-            if (entities != null) {
-                Object secureEntity = entities.get(id);
-                if (secureEntity != null) {
-                    return (T)secureEntity;
-                }
-            } else {
-                entities = new HashMap<Object, Object>();
-                secureEntities.put(mapping.getEntityType(), entities);
-            }
-            Object secureEntity = createSecureEntity(mapping, object);
-            entities.put(id, secureEntity);
-            return (T)secureEntity;
+            return getSecureEntity(object);
         }
     }
-
+    
     public boolean isNewEntity(Object entity) {
         if (entity instanceof SecureEntity) {
             return false;
@@ -283,9 +261,52 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         return roles;
     }
 
-    private Object createSecureEntity(ClassMappingInformation mapping, Object entity) {
-        return Enhancer.create(mapping.getEntityType(),
-                               new Class[] {SecureEntity.class},
-                               new EntityInvocationHandler(mapping, this, entity));
+    private SecureEntity getSecureEntity(Object entity) {
+        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
+        if (mapping == null) {
+            throw new IllegalArgumentException(entity.getClass() + " is not mapped");
+        }
+        Object id = mapping.getId(entity);
+        Map<Object, SecureEntity> entities = secureEntities.get(mapping.getEntityType());
+        if (entities != null) {
+            SecureEntity secureEntity = entities.get(id);
+            if (secureEntity != null) {
+                return secureEntity;
+            }
+        } else {
+            entities = new HashMap<Object, SecureEntity>();
+            secureEntities.put(mapping.getEntityType(), entities);
+        }
+        SecureEntity secureEntity = createSecureEntity(mapping, entity);
+        entities.put(id, secureEntity);
+        return secureEntity;
+    }
+    
+    private SecureEntity createSecureEntity(ClassMappingInformation mapping, Object entity) {
+        return (SecureEntity)Enhancer.create(mapping.getEntityType(),
+                                             new Class[] {SecureEntity.class},
+                                             new EntityInvocationHandler(mapping, this, entity));
+    }
+    
+    private SecureCollection<?> getSecureCollection(Collection<?> collection) {
+        int hashCode = System.identityHashCode(collection);
+        SecureCollection<?> secureCollection = secureCollections.get(hashCode);
+        if (secureCollection == null) {
+            secureCollection = createSecureCollection(collection);
+            secureCollections.put(hashCode, secureCollection);
+        }
+        return secureCollection;
+    }
+    
+    private SecureCollection<?> createSecureCollection(Collection<?> collection) {
+        if (collection instanceof List) {
+            return new SecureList((List)collection, this);
+        } else if (collection instanceof SortedSet) {
+            return new SecureSortedSet((SortedSet)collection, this);
+        } else if (collection instanceof Set) {
+            return new SecureSet((Set)collection, this);
+        } else {
+            return new DefaultSecureCollection(collection, this);
+        }
     }
 }
