@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.persistence.CascadeType;
 import javax.persistence.PersistenceException;
 
 /**
@@ -140,14 +141,19 @@ public abstract class AbstractMappingParser {
         boolean isIdProperty = isIdProperty(property);
         if (isSingleValuedRelationshipProperty(property)) {
             ClassMappingInformation typeMapping = parse(type);
-            return new SingleValuedRelationshipMappingInformation(name, typeMapping, classMapping, isIdProperty);
+            return new SingleValuedRelationshipMappingInformation(name,
+                                                                  typeMapping,
+                                                                  classMapping,
+                                                                  isIdProperty,
+                                                                  getCascadeTypes(property));
         } else if (isCollectionValuedRelationshipProperty(property)) {
             ClassMappingInformation targetMapping = parse(getTargetType(property));
             return new CollectionValuedRelationshipMappingInformation(name,
                                                                       type,
                                                                       targetMapping,
                                                                       classMapping,
-                                                                      isIdProperty);
+                                                                      isIdProperty,
+                                                                      getCascadeTypes(property));
         } else if (isSimplePropertyType(type)) {
             return new SimplePropertyMappingInformation(name, type, classMapping, isIdProperty);
         } else if (classMapping.getPropertyMapping(name) != null) {
@@ -155,6 +161,10 @@ public abstract class AbstractMappingParser {
         } else {
             throw new PersistenceException("could not determine mapping for property \"" + name + "\" of class " + property.getDeclaringClass().getName());
         }
+    }
+    
+    protected ClassMappingInformation getMapping(Class<?> type) {
+        return classMappings.get(type);
     }
 
     protected String getName(Member property) {
@@ -165,7 +175,7 @@ public abstract class AbstractMappingParser {
         }
     }
 
-    private Class<?> getType(Member property) {
+    protected Class<?> getType(Member property) {
         if (property instanceof Method) {
             return ((Method)property).getReturnType();
         } else {
@@ -274,6 +284,8 @@ public abstract class AbstractMappingParser {
 
     protected abstract boolean isIdProperty(Member property);
 
+    protected abstract CascadeType[] getCascadeTypes(Member property);
+    
     protected boolean isRelationshipProperty(Member property) {
         return isSingleValuedRelationshipProperty(property) || isCollectionValuedRelationshipProperty(property);
     }

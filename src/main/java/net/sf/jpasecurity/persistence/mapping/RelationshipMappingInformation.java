@@ -15,14 +15,21 @@
  */
 package net.sf.jpasecurity.persistence.mapping;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.PersistenceException;
 
 /**
  * @author Arne Limburg
  */
-public class RelationshipMappingInformation extends PropertyMappingInformation {
+public abstract class RelationshipMappingInformation extends PropertyMappingInformation {
 
     private ClassMappingInformation relatedClassMapping;
+    private Set<CascadeType> cascadeTypes;
 
     /**
      * Creates a <tt>RelationshipMappingInformation</tt> for the specified property
@@ -37,12 +44,14 @@ public class RelationshipMappingInformation extends PropertyMappingInformation {
     RelationshipMappingInformation(String propertyName,
                                    ClassMappingInformation relatedClassMapping,
                                    ClassMappingInformation declaringClassMapping,
-                                   boolean isIdProperty) {
+                                   boolean isIdProperty,
+                                   CascadeType... cascadeTypes) {
         super(propertyName, declaringClassMapping, isIdProperty);
         if (relatedClassMapping == null) {
             throw new PersistenceException("could not determine target class for property \"" + propertyName + "\" of class " + declaringClassMapping.getEntityName());
         }
         this.relatedClassMapping = relatedClassMapping;
+        this.cascadeTypes = Collections.unmodifiableSet(new HashSet<CascadeType>(Arrays.asList(cascadeTypes)));
     }
 
     public ClassMappingInformation getRelatedClassMapping() {
@@ -52,4 +61,8 @@ public class RelationshipMappingInformation extends PropertyMappingInformation {
     public Class<?> getProperyType() {
         return relatedClassMapping.getEntityType();
     }
+    
+    public Set<CascadeType> getCascadeTypes() {
+        return cascadeTypes;
+    } 
 }

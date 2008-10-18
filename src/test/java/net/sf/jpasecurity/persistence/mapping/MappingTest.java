@@ -19,11 +19,9 @@ import javax.persistence.Persistence;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
-import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.FieldAccessXmlTestBean;
+import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.MethodAccessXmlTestBean;
-import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
-import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 /**
@@ -80,5 +78,10 @@ public class MappingTest extends TestCase {
         assertEquals(String.class, classMapping.getPropertyMapping("name").getProperyType());
         assertEquals(entityType, classMapping.getPropertyMapping("parent").getProperyType());
         assertEquals(entityType, classMapping.getPropertyMapping("children").getProperyType());        
+        assertEquals(0, classMapping.getPropertyMapping("id").getCascadeTypes().size());
+        assertEquals(0, classMapping.getPropertyMapping("name").getCascadeTypes().size());
+        assertEquals(0, classMapping.getPropertyMapping("parent").getCascadeTypes().size());
+//        assertTrue(classMapping.getPropertyMapping("children").getCascadeTypes().contains(CascadeType.ALL)
+//                || classMapping.getPropertyMapping("children").getCascadeTypes().contains(CascadeType.PERSIST));
     }
 }

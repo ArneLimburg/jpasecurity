@@ -17,6 +17,7 @@ package net.sf.jpasecurity.model;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -67,7 +68,8 @@ public class MethodAccessAnnotationTestBean {
         parentBean = parent;
     }
     
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent",
+               cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH})
     public List<MethodAccessAnnotationTestBean> getChildren() {
         return childBeans;
     }
