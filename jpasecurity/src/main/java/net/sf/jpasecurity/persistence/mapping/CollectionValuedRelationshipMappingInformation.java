@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.persistence.mapping;
 
+import javax.persistence.CascadeType;
 import javax.persistence.PersistenceException;
 
 /**
@@ -28,8 +29,9 @@ public class CollectionValuedRelationshipMappingInformation extends Relationship
                                                    Class<?> collectionType,
                                                    ClassMappingInformation relatedClassMapping,
                                                    ClassMappingInformation declaringClassMapping,
-                                                   boolean isIdProperty) {
-        super(propertyName, relatedClassMapping, declaringClassMapping, isIdProperty);
+                                                   boolean isIdProperty,
+                                                   CascadeType... cascadeTypes) {
+        super(propertyName, relatedClassMapping, declaringClassMapping, isIdProperty, cascadeTypes);
         if (collectionType == null) {
             throw new PersistenceException("could not determine collection type of property \"" + propertyName + "\" of class " + declaringClassMapping.getEntityName());
         }

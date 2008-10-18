@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.persistence.mapping;
 
+import javax.persistence.CascadeType;
+
 /**
  * @author Arne Limburg
  */
@@ -23,7 +25,8 @@ public class SingleValuedRelationshipMappingInformation extends RelationshipMapp
     SingleValuedRelationshipMappingInformation(String propertyName,
                                                ClassMappingInformation relatedClassMapping,
                                                ClassMappingInformation declaringClassMapping,
-                                               boolean isIdProperty) {
-        super(propertyName, relatedClassMapping, declaringClassMapping, isIdProperty);
+                                               boolean isIdProperty,
+                                               CascadeType... cascadeTypes) {
+        super(propertyName, relatedClassMapping, declaringClassMapping, isIdProperty, cascadeTypes);
     }
 }

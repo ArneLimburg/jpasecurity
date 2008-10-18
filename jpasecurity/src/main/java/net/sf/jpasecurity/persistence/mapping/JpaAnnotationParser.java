@@ -16,12 +16,11 @@
 package net.sf.jpasecurity.persistence.mapping;
 
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Field;
 import java.lang.reflect.Member;
-import java.lang.reflect.Method;
 import java.util.Map;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
@@ -127,23 +126,33 @@ public class JpaAnnotationParser extends AbstractMappingParser {
     }
 
     protected boolean isIdProperty(Member property) {
-        if (property instanceof Field) {
-            Field field = (Field)property;
-            if (field.getAnnotation(Id.class) != null) {
-                return true;
-            } else {
-                return field.getAnnotation(EmbeddedId.class) != null;
-            }
-        } else if (property instanceof Method) {
-            Method method = (Method)property;
-            if (method.getAnnotation(Id.class) != null) {
-                return true;
-            } else {
-                return method.getAnnotation(EmbeddedId.class) != null;
-            }
+        AnnotatedElement annotatedProperty = (AnnotatedElement)property;
+        if (annotatedProperty.getAnnotation(Id.class) != null) {
+            return true;
         } else {
-            return false;
+            return annotatedProperty.getAnnotation(EmbeddedId.class) != null;
         }
+    }
+
+    protected CascadeType[] getCascadeTypes(Member property) {
+        AnnotatedElement annotatedProperty = (AnnotatedElement)property;
+        ManyToMany manyToMany = annotatedProperty.getAnnotation(ManyToMany.class);
+        if (manyToMany != null) {
+            return manyToMany.cascade();
+        }
+        ManyToOne manyToOne = annotatedProperty.getAnnotation(ManyToOne.class);
+        if (manyToOne != null) {
+            return manyToOne.cascade();
+        }
+        OneToMany oneToMany = annotatedProperty.getAnnotation(OneToMany.class);
+        if (oneToMany != null) {
+            return oneToMany.cascade();
+        }
+        OneToOne oneToOne = annotatedProperty.getAnnotation(OneToOne.class);
+        if (oneToOne != null) {
+            return oneToOne.cascade();
+        }
+        return new CascadeType[0];
     }
 
     /**
