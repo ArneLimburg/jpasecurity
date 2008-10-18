@@ -27,7 +27,7 @@ import javax.persistence.PersistenceException;
  * This class contains mapping information of a specific class.
  * @author Arne Limburg
  */
-public class ClassMappingInformation {
+public final class ClassMappingInformation {
 
     private String entityName;
     private Class<?> entityType;

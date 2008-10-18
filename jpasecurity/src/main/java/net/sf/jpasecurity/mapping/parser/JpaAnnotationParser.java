@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.mapping;
+package net.sf.jpasecurity.mapping.parser;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
@@ -40,6 +40,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import javax.persistence.Version;
+
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
 
 /**
  * Parses classes for persistence annotations and stores mapping information
