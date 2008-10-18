@@ -81,10 +81,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public void persist(Object entity) {
-        if (!isAccessible(entity, CREATE)) {
-            throw new SecurityException();
-        }
-        getTarget().persist(entity);
+        ((SecureEntity)getSecureObject(entity)).persist(getTarget());
     }
 
     public <T> T merge(T entity) {

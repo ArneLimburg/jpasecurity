@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.entity;
 
+import static net.sf.jpasecurity.security.AccessType.CREATE;
 import static net.sf.jpasecurity.security.AccessType.DELETE;
 import static net.sf.jpasecurity.security.AccessType.READ;
 import static net.sf.jpasecurity.security.AccessType.UPDATE;
@@ -80,10 +81,31 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     public boolean isRemoved() {
         return deleted;
     }
+    
+    public void persist(EntityManager entityManager) {
+        checkPersist(entity, new HashSet<Object>());
+        entityManager.persist(entity);
+    }
 
     public SecureEntity merge(EntityManager entityManager) {
         checkMerge(entity, new HashSet<Object>());
         return (SecureEntity)entityHandler.getSecureObject(entityManager.merge(entity));
+    }
+
+    private void checkPersist(Object entity, Set<Object> checkedEntities) {
+        if (checkedEntities.contains(entity)) {
+            return;
+        }
+        if (!entityHandler.isAccessible(entity, CREATE)) {
+            throw new SecurityException();
+        }
+        checkedEntities.add(entity);
+        for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
+            if (propertyMapping.getCascadeTypes().contains(CascadeType.PERSIST)
+                || propertyMapping.getCascadeTypes().contains(CascadeType.ALL)) {
+                checkPersist(propertyMapping.getPropertyValue(entity), checkedEntities);
+            }
+        }        
     }
 
     private void checkMerge(Object entity, Set<Object> checkedEntities) {
