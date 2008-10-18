@@ -26,8 +26,8 @@ import javax.ejb.EJBException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
-import net.sf.jpasecurity.persistence.mapping.MappingInformation;
 import net.sf.jpasecurity.security.AuthenticationProvider;
 
 /**

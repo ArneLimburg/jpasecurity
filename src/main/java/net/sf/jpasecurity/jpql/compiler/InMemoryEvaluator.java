@@ -80,8 +80,8 @@ import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
-import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
-import net.sf.jpasecurity.persistence.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 
 /**
  * @author Arne Limburg

@@ -22,10 +22,10 @@ import javax.persistence.PersistenceException;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
-import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
-import net.sf.jpasecurity.persistence.mapping.MappingInformation;
-import net.sf.jpasecurity.persistence.mapping.PropertyMappingInformation;
-import net.sf.jpasecurity.persistence.mapping.SimplePropertyMappingInformation;
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.mapping.SimplePropertyMappingInformation;
 
 /**
  * @author Arne Limburg

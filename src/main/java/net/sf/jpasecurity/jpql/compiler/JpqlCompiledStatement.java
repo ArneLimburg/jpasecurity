@@ -28,7 +28,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.SimpleNode;
-import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.util.ValueHolder;
 
 /**

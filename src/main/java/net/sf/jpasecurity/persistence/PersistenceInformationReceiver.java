@@ -17,7 +17,7 @@ package net.sf.jpasecurity.persistence;
 
 import java.util.Map;
 
-import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
  * This interface may be implemented by {@link net.sf.jpasecurity.security.AuthenticationProvider}s

@@ -30,7 +30,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlDelete;
 import net.sf.jpasecurity.jpql.parser.JpqlRead;
 import net.sf.jpasecurity.jpql.parser.JpqlUpdate;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
-import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
  * This class represents compiled JPA Security access rules.
