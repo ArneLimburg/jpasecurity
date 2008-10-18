@@ -28,7 +28,7 @@ import org.w3c.dom.Document;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
-import net.sf.jpasecurity.mapping.OrmXmlParser;
+import net.sf.jpasecurity.mapping.parser.OrmXmlParser;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
