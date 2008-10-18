@@ -18,7 +18,7 @@ package net.sf.jpasecurity.jpql.compiler;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
  * @author Arne Limburg

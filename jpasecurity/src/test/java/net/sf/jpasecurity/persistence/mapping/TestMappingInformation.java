@@ -17,6 +17,7 @@ package net.sf.jpasecurity.persistence.mapping;
 
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
 
 /**

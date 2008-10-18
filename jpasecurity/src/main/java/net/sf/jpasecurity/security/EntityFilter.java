@@ -42,8 +42,8 @@ import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ParseException;
-import net.sf.jpasecurity.persistence.mapping.ClassMappingInformation;
-import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformation;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

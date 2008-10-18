@@ -22,7 +22,7 @@ import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
-import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.security.AccessRule;
 
 /**
