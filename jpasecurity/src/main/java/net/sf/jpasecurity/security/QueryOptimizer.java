@@ -27,7 +27,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlOr;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
-import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
  * Optimizes a query by evaluating subtrees in memory.

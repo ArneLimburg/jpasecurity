@@ -23,7 +23,7 @@ import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
-import net.sf.jpasecurity.persistence.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.persistence.mapping.TestMappingInformation;
 import net.sf.jpasecurity.security.AccessRule;
 import net.sf.jpasecurity.security.AccessType;

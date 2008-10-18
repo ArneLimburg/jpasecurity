@@ -18,6 +18,8 @@ package net.sf.jpasecurity.persistence.mapping;
 import javax.persistence.Persistence;
 
 import junit.framework.TestCase;
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.FieldAccessXmlTestBean;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
