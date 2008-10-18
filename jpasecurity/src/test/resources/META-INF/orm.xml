@@ -20,7 +20,14 @@
       <id name="id"/>
       <basic name="name"/>
       <many-to-one name="parent"/>
-      <one-to-many name="children"/>
+      <one-to-many name="children">
+        <cascade>
+          <cascade-persist/>
+          <cascade-merge/>
+          <cascade-remove/>
+          <cascade-refresh/>
+        </cascade>
+      </one-to-many>
     </attributes>
   </entity>
   <entity class="net.sf.jpasecurity.model.FieldAccessXmlTestBean" access="FIELD">
@@ -28,7 +35,11 @@
       <id name="id"/>
       <basic name="name"/>
       <many-to-one name="parent"/>
-      <one-to-many name="children"/>
+      <one-to-many name="children">
+        <cascade>
+          <cascade-all/>
+        </cascade>
+      </one-to-many>
     </attributes>
   </entity>
 
