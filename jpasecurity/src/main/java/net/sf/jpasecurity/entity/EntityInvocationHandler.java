@@ -22,8 +22,11 @@ import static net.sf.jpasecurity.security.AccessType.UPDATE;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
@@ -79,12 +82,26 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     public SecureEntity merge(EntityManager entityManager) {
-        if (!entityHandler.isAccessible(entity, UPDATE)) {
-            throw new SecurityException();
-        }
+        checkMerge(entity, new HashSet<Object>());
         return (SecureEntity)entityHandler.getSecureObject(entityManager.merge(entity));
     }
 
+    private void checkMerge(Object entity, Set<Object> checkedEntities) {
+        if (checkedEntities.contains(entity)) {
+            return;
+        }
+        if (!entityHandler.isAccessible(entity, UPDATE)) {
+            throw new SecurityException();
+        }
+        checkedEntities.add(entity);
+        for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
+            if (propertyMapping.getCascadeTypes().contains(CascadeType.MERGE)
+                || propertyMapping.getCascadeTypes().contains(CascadeType.ALL)) {
+                checkMerge(propertyMapping.getPropertyValue(entity), checkedEntities);
+            }
+        }
+    } 
+    
     public void refresh(EntityManager entityManager) {
         if (!entityHandler.isAccessible(entity, READ)) {
             throw new SecurityException();
