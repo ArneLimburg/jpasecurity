@@ -16,9 +16,12 @@
 package net.sf.jpasecurity.persistence.mapping;
 
 import java.lang.reflect.Member;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.CascadeType;
 import javax.persistence.PersistenceException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -44,7 +47,8 @@ import org.w3c.dom.Text;
  */
 public class OrmXmlParser extends AbstractMappingParser {
 
-    private static final String XPATH_NAMED_QUERY = "//named-query";
+    private static final String NAMED_QUERY_XPATH = "//named-query";
+    private static final String CASCADE_TYPE_XPATH = "//entity[@class=''{0}'']/*[@name=''{1}'']/cascade/*";
 
     private static final Log LOG = LogFactory.getLog(OrmXmlParser.class);
 
@@ -102,7 +106,7 @@ public class OrmXmlParser extends AbstractMappingParser {
      * The tag name for many-to-many mappings
      */
     public static final String MANY_TO_MANY_TAG_NAME = "many-to-many";
-
+    
     /**
      * The tag name for transient attributes
      */
@@ -164,7 +168,7 @@ public class OrmXmlParser extends AbstractMappingParser {
     public void parseNamedQueries() {
         NodeList entries = null;
         try {
-            entries = (NodeList)XPATH.evaluate(XPATH_NAMED_QUERY, ormDocument, XPathConstants.NODESET);
+            entries = (NodeList)XPATH.evaluate(NAMED_QUERY_XPATH, ormDocument, XPathConstants.NODESET);
         } catch (XPathExpressionException e) {
             LOG.error("Error while reading named queries.", e);
             return;
@@ -265,6 +269,22 @@ public class OrmXmlParser extends AbstractMappingParser {
             }
         }
         return false;
+    }
+
+    protected CascadeType[] getCascadeTypes(Member property) {
+        try {
+            String query
+                = MessageFormat.format(CASCADE_TYPE_XPATH, property.getDeclaringClass().getName(), getName(property));
+            NodeList list = (NodeList)XPATH.evaluate(query, ormDocument, XPathConstants.NODESET);
+            List<CascadeType> cascadeTypes = new ArrayList<CascadeType>(list.getLength());
+            for (int i = 0; i < list.getLength(); i++) {
+                cascadeTypes.add(CascadeType.valueOf(list.item(i).getNodeName().substring(8).toUpperCase()));
+            }
+            return cascadeTypes.toArray(new CascadeType[cascadeTypes.size()]);
+        } catch (XPathExpressionException e) {
+            LOG.error("Error while reading cascade style.", e);
+            return new CascadeType[0];
+        }
     }
 
     protected boolean isSingleValuedRelationshipProperty(Member property) {

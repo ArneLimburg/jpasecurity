@@ -18,7 +18,10 @@ package net.sf.jpasecurity.persistence.mapping;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.PersistenceException;
 
 /**
@@ -55,6 +58,10 @@ public abstract class PropertyMappingInformation {
     }
 
     public abstract Class<?> getProperyType();
+    
+    public Set<CascadeType> getCascadeTypes() {
+        return Collections.EMPTY_SET;
+    }
 
     public Object getPropertyValue(Object target) {
         try {
