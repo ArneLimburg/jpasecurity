@@ -20,14 +20,14 @@ import javax.persistence.PersistenceException;
 /**
  * @author Arne Limburg
  */
-public class SimplePropertyMappingInformation extends PropertyMappingInformation {
+public final class SimplePropertyMappingInformation extends PropertyMappingInformation {
 
     private Class<?> type;
 
-    SimplePropertyMappingInformation(String propertyName,
-                                     Class<?> simpleType,
-                                     ClassMappingInformation classMapping,
-                                     boolean isIdProperty) {
+    public SimplePropertyMappingInformation(String propertyName,
+                                            Class<?> simpleType,
+                                            ClassMappingInformation classMapping,
+                                            boolean isIdProperty) {
         super(propertyName, classMapping, isIdProperty);
         if (simpleType == null) {
             throw new PersistenceException("could not determine type of property \"" + propertyName + "\" of class " + classMapping.getEntityName());

@@ -21,16 +21,16 @@ import javax.persistence.PersistenceException;
 /**
  * @author Arne Limburg
  */
-public class CollectionValuedRelationshipMappingInformation extends RelationshipMappingInformation {
+public final class CollectionValuedRelationshipMappingInformation extends RelationshipMappingInformation {
 
     private Class<?> collectionType;
 
-    CollectionValuedRelationshipMappingInformation(String propertyName,
-                                                   Class<?> collectionType,
-                                                   ClassMappingInformation relatedClassMapping,
-                                                   ClassMappingInformation declaringClassMapping,
-                                                   boolean isIdProperty,
-                                                   CascadeType... cascadeTypes) {
+    public CollectionValuedRelationshipMappingInformation(String propertyName,
+                                                          Class<?> collectionType,
+                                                          ClassMappingInformation relatedClassMapping,
+                                                          ClassMappingInformation declaringClassMapping,
+                                                          boolean isIdProperty,
+                                                          CascadeType... cascadeTypes) {
         super(propertyName, relatedClassMapping, declaringClassMapping, isIdProperty, cascadeTypes);
         if (collectionType == null) {
             throw new PersistenceException("could not determine collection type of property \"" + propertyName + "\" of class " + declaringClassMapping.getEntityName());

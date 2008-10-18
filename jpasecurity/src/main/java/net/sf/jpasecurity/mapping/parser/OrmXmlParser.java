@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.mapping;
+package net.sf.jpasecurity.mapping.parser;
 
 import java.lang.reflect.Member;
 import java.text.MessageFormat;
@@ -28,6 +28,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.xml.XmlNodeList;
 
 import org.apache.commons.logging.Log;

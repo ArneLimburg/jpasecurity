@@ -20,13 +20,13 @@ import javax.persistence.CascadeType;
 /**
  * @author Arne Limburg
  */
-public class SingleValuedRelationshipMappingInformation extends RelationshipMappingInformation {
+public final class SingleValuedRelationshipMappingInformation extends RelationshipMappingInformation {
 
-    SingleValuedRelationshipMappingInformation(String propertyName,
-                                               ClassMappingInformation relatedClassMapping,
-                                               ClassMappingInformation declaringClassMapping,
-                                               boolean isIdProperty,
-                                               CascadeType... cascadeTypes) {
+    public SingleValuedRelationshipMappingInformation(String propertyName,
+                                                      ClassMappingInformation relatedClassMapping,
+                                                      ClassMappingInformation declaringClassMapping,
+                                                      boolean isIdProperty,
+                                                      CascadeType... cascadeTypes) {
         super(propertyName, relatedClassMapping, declaringClassMapping, isIdProperty, cascadeTypes);
     }
 }

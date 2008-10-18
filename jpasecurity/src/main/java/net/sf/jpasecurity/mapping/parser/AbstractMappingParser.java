@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.mapping;
+package net.sf.jpasecurity.mapping.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +38,12 @@ import java.util.zip.ZipInputStream;
 
 import javax.persistence.CascadeType;
 import javax.persistence.PersistenceException;
+
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
+import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.mapping.SimplePropertyMappingInformation;
+import net.sf.jpasecurity.mapping.SingleValuedRelationshipMappingInformation;
 
 /**
  * Parses classes for persistence annotations and stores mapping information
