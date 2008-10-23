@@ -49,7 +49,7 @@ import org.w3c.dom.Text;
 public class OrmXmlParser extends AbstractMappingParser {
 
     private static final String NAMED_QUERY_XPATH = "//named-query";
-    private static final String CASCADE_TYPE_XPATH = "//entity[@class=''{0}'']/*[@name=''{1}'']/cascade/*";
+    private static final String CASCADE_TYPE_XPATH = "//entity[@class=''{0}'']//*[@name=''{1}'']/cascade/*";
 
     private static final Log LOG = LogFactory.getLog(OrmXmlParser.class);
 
