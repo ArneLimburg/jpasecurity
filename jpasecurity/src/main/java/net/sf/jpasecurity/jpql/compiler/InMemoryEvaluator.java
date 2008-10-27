@@ -102,23 +102,28 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         return parameters.getResult();
     }
 
-    public boolean visit(JpqlSelectClause node) {
+    public boolean visit(JpqlSelectClause node, InMemoryEvaluationParameters data) {
+        data.setResultUndefined();
         return false;
     }
 
-    public boolean visit(JpqlFrom node) {
+    public boolean visit(JpqlFrom node, InMemoryEvaluationParameters data) {
+        data.setResultUndefined();
         return false;
     }
 
-    public boolean visit(JpqlGroupBy node) {
+    public boolean visit(JpqlGroupBy node, InMemoryEvaluationParameters data) {
+        data.setResultUndefined();
         return false;
     }
 
-    public boolean visit(JpqlHaving node) {
+    public boolean visit(JpqlHaving node, InMemoryEvaluationParameters data) {
+        data.setResultUndefined();
         return false;
     }
 
-    public boolean visit(JpqlOrderBy node) {
+    public boolean visit(JpqlOrderBy node, InMemoryEvaluationParameters data) {
+        data.setResultUndefined();
         return false;
     }
 
