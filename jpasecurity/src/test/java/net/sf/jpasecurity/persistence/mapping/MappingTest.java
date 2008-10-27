@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.persistence.mapping;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Persistence;
 
 import junit.framework.TestCase;
@@ -83,7 +84,7 @@ public class MappingTest extends TestCase {
         assertEquals(0, classMapping.getPropertyMapping("id").getCascadeTypes().size());
         assertEquals(0, classMapping.getPropertyMapping("name").getCascadeTypes().size());
         assertEquals(0, classMapping.getPropertyMapping("parent").getCascadeTypes().size());
-//        assertTrue(classMapping.getPropertyMapping("children").getCascadeTypes().contains(CascadeType.ALL)
-//                || classMapping.getPropertyMapping("children").getCascadeTypes().contains(CascadeType.PERSIST));
+        assertTrue(classMapping.getPropertyMapping("children").getCascadeTypes().contains(CascadeType.ALL)
+                || classMapping.getPropertyMapping("children").getCascadeTypes().contains(CascadeType.PERSIST));
     }
 }
