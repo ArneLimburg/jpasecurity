@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.jpql;
+package net.sf.jpasecurity.jpql.parser;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
