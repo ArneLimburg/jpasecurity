@@ -18,7 +18,6 @@ package net.sf.jpasecurity.mapping.parser;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.net.URL;
-import java.util.Map;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -43,22 +42,14 @@ import javax.persistence.Transient;
 import javax.persistence.Version;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import net.sf.jpasecurity.mapping.ClassMappingInformation;
-
 /**
- * Parses classes for persistence annotations and stores mapping information
- * in the provided map.
+ * Parses a persistence unit for persistence annotations.
+ * <strong>This class is not thread-safe</strong>
  * @author Arne Limburg
  */
 public class JpaAnnotationParser extends AbstractMappingParser {
 
-    public JpaAnnotationParser(Map<Class<?>, ClassMappingInformation> classMappings,
-                               Map<String, String> namedQueries) {
-        super(classMappings, namedQueries);
-    }
-    
-    public void parse(PersistenceUnitInfo persistenceUnit) {
-        setPersistenceUnitInfo(persistenceUnit);
+    protected void parsePersistenceUnit(PersistenceUnitInfo persistenceUnit) {
         if (!persistenceUnit.excludeUnlistedClasses()) {
             if (persistenceUnit.getPersistenceUnitRootUrl() != null) {
                 parse(persistenceUnit.getPersistenceUnitRootUrl());
