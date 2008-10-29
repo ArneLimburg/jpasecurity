@@ -17,6 +17,7 @@ package net.sf.jpasecurity.mapping.parser;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
+import java.net.URL;
 import java.util.Map;
 
 import javax.persistence.Basic;
@@ -40,6 +41,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import javax.persistence.Version;
+import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 
@@ -51,9 +53,23 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
 public class JpaAnnotationParser extends AbstractMappingParser {
 
     public JpaAnnotationParser(Map<Class<?>, ClassMappingInformation> classMappings,
-                               Map<String, String> namedQueries,
-                               ClassLoader classLoader) {
-        super(classMappings, namedQueries, classLoader);
+                               Map<String, String> namedQueries) {
+        super(classMappings, namedQueries);
+    }
+    
+    public void parse(PersistenceUnitInfo persistenceUnit) {
+        setPersistenceUnitInfo(persistenceUnit);
+        if (!persistenceUnit.excludeUnlistedClasses()) {
+            if (persistenceUnit.getPersistenceUnitRootUrl() != null) {
+                parse(persistenceUnit.getPersistenceUnitRootUrl());
+            }
+        }
+        for (URL url: persistenceUnit.getJarFileUrls()) {
+            parse(url);
+        }
+        for (String className: persistenceUnit.getManagedClassNames()) {
+            parse(getClass(className));
+        }
     }
 
     protected void parseNamedQueries(Class<?> entityClass) {

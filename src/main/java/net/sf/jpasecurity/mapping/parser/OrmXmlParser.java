@@ -15,14 +15,22 @@
  */
 package net.sf.jpasecurity.mapping.parser;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Member;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.PersistenceException;
+import javax.persistence.spi.PersistenceUnitInfo;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -39,6 +47,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+import org.xml.sax.SAXException;
 
 /**
  * Parser to parse orm.xml
@@ -144,28 +153,17 @@ public class OrmXmlParser extends AbstractMappingParser {
      * Creates a parser to parse a orm.xml file.
      */
     public OrmXmlParser(Map<Class<?>, ClassMappingInformation> classMappings,
-                        Map<String, String> namedQueries,
-                        Document mappingDocument,
-                        ClassLoader classLoader) {
-        super(classMappings, namedQueries, classLoader);
-        entityNodes = new XmlNodeList(mappingDocument.getElementsByTagName(ENTITY_TAG_NAME));
-        superclassNodes = new XmlNodeList(mappingDocument.getElementsByTagName(MAPPED_SUPERCLASS_TAG_NAME));
-        embeddableNodes = new XmlNodeList(mappingDocument.getElementsByTagName(EMBEDDABLE_TAG_NAME));
-        ormDocument = mappingDocument;
+                        Map<String, String> namedQueries) {
+        super(classMappings, namedQueries);
     }
 
-    public List<Node> getEntityNodes() {
-        return entityNodes;
+    public void parse(PersistenceUnitInfo persistenceUnit) {
+        parse(persistenceUnit, "META-INF/orm.xml");
+        for (String mappingFilename: persistenceUnit.getMappingFileNames()) {
+            parse(persistenceUnit, mappingFilename);
+        }        
     }
-
-    public List<Node> getSuperclassNodes() {
-        return superclassNodes;
-    }
-
-    public List<Node> getEmbeddableNodes() {
-        return embeddableNodes;
-    }
-
+    
     public void parseNamedQueries() {
         NodeList entries = null;
         try {
@@ -322,6 +320,63 @@ public class OrmXmlParser extends AbstractMappingParser {
             }
         }
         return false;
+    }
+    
+    private void parse(PersistenceUnitInfo persistenceUnit, String mappingFilename) {
+        try {
+            for (Enumeration<URL> mappings = getResources(mappingFilename); mappings.hasMoreElements();) {
+                parse(persistenceUnit, mappings.nextElement().openStream());
+            }
+        } catch (IOException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    private void parse(PersistenceUnitInfo persistenceUnit, InputStream stream) throws IOException {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            parse(persistenceUnit, builder.parse(stream));
+        } catch (ParserConfigurationException e) {
+            throw new PersistenceException(e);
+        } catch (SAXException e) {
+            throw new PersistenceException(e);
+        } catch (IOException e) {
+            throw new PersistenceException(e);
+        } finally {
+            stream.close();
+        }
+    }
+
+    private void parse(PersistenceUnitInfo persistenceUnit, Document mappingDocument) {
+        entityNodes = new XmlNodeList(mappingDocument.getElementsByTagName(ENTITY_TAG_NAME));
+        superclassNodes = new XmlNodeList(mappingDocument.getElementsByTagName(MAPPED_SUPERCLASS_TAG_NAME));
+        embeddableNodes = new XmlNodeList(mappingDocument.getElementsByTagName(EMBEDDABLE_TAG_NAME));
+        ormDocument = mappingDocument;
+        parseNamedQueries();
+        if (persistenceUnit.excludeUnlistedClasses()) {
+            for (String className: persistenceUnit.getManagedClassNames()) {
+                parse(getClass(className));
+            }
+            for (URL url: persistenceUnit.getJarFileUrls()) {
+                parse(url);
+            }
+        } else {
+            for (Node node: entityNodes) {
+                parse(getClass(getClassName(node)));
+            }
+            for (Node node: superclassNodes) {
+                parse(getClass(getClassName(node)));
+            }
+            for (Node node: embeddableNodes) {
+                parse(getClass(getClassName(node)));
+            }
+        }
+    }
+
+    private String getClassName(Node classNode) {
+        Node classAttribute = classNode.getAttributes().getNamedItem(OrmXmlParser.CLASS_ATTRIBUTE_NAME);
+        return classAttribute.getNodeValue();
     }
 
     private Node getEntityNode(Class<?> entityClass) {
