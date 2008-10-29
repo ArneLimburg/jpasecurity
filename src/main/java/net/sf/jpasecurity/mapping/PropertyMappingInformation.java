@@ -25,6 +25,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.PersistenceException;
 
 /**
+ * This class holds mapping information for property mappings.
  * @author Arne Limburg
  */
 public abstract class PropertyMappingInformation {
@@ -58,7 +59,7 @@ public abstract class PropertyMappingInformation {
     }
 
     public abstract Class<?> getProperyType();
-    
+
     public Set<CascadeType> getCascadeTypes() {
         return Collections.EMPTY_SET;
     }

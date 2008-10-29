@@ -24,6 +24,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.PersistenceException;
 
 /**
+ * This class holds mapping information for relationship property mappings.
  * @author Arne Limburg
  */
 public abstract class RelationshipMappingInformation extends PropertyMappingInformation {
@@ -61,8 +62,8 @@ public abstract class RelationshipMappingInformation extends PropertyMappingInfo
     public Class<?> getProperyType() {
         return relatedClassMapping.getEntityType();
     }
-    
+
     public Set<CascadeType> getCascadeTypes() {
         return cascadeTypes;
-    } 
+    }
 }

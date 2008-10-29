@@ -38,28 +38,34 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
     private T filtered;
     private SecureEntityHandler entityHandler;
 
+    /**
+     * Creates a collection that filters the specified (original) collection
+     * based on the accessibility of their elements.
+     * @param collection the original collection
+     * @param entityHandler the entity handler
+     */
     AbstractSecureCollection(T collection, SecureEntityHandler entityHandler) {
         this.original = collection;
         this.entityHandler = entityHandler;
     }
 
     /**
-     * This constructor can be used to create an already initialized secure collection
+     * This constructor can be used to create an already initialized secure collection.
      * @param original the original collection
      * @param filtered the (initialized) filtered collection
-     * @param entityHandler the enityHandler
+     * @param entityHandler the enity handler
      */
     AbstractSecureCollection(T original, T filtered, SecureEntityHandler entityHandler) {
         this(original, entityHandler);
         this.filtered = filtered;
     }
-    
+
     public Iterator<E> iterator() {
         return getFiltered().iterator();
     }
 
     public boolean add(E entity) {
-        checkAccessible(entity, UPDATE); //TODO create?
+        checkAccessible(entity, UPDATE); //TODO CREATE?
         if (getOriginal().add(entity)) {
             getFiltered().add(entity);
             return true;

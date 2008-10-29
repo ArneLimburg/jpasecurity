@@ -64,10 +64,19 @@ public abstract class AbstractMappingParser {
     private Map<String, String> namedQueries;
     private ClassLoader classLoader;
 
+    /**
+     * Parses the specified persistence unit information and returns mapping information.
+     */
     public MappingInformation parse(PersistenceUnitInfo persistenceUnitInfo) {
         return parse(persistenceUnitInfo, null);
     }
-    
+
+    /**
+     * Parses the specified persistence unit information and returns mapping information,
+     * merging the specified mapping information.
+     * @param persistenceUnitInfo the persistence unit information
+     * @param mappingInformation the mapping information to merge, may be <tt>null</tt>
+     */
     public MappingInformation parse(PersistenceUnitInfo persistenceUnitInfo, MappingInformation mappingInformation) {
         classMappings = new HashMap<Class<?>, ClassMappingInformation>();
         namedQueries = new HashMap<String, String>();
@@ -83,7 +92,7 @@ public abstract class AbstractMappingParser {
         parsePersistenceUnit(persistenceUnitInfo);
         return new MappingInformation(persistenceUnitInfo.getPersistenceUnitName(), classMappings, namedQueries);
     }
-    
+
     protected void parse(URL url) {
         try {
             InputStream in = url.openStream();
@@ -153,7 +162,7 @@ public abstract class AbstractMappingParser {
         }
         return classMapping;
     }
-    
+
     protected Class<?> getClass(String name) {
         try {
             return classLoader.loadClass(name);
@@ -161,7 +170,7 @@ public abstract class AbstractMappingParser {
             throw new PersistenceException(e);
         }
     }
-    
+
     protected Enumeration<URL> getResources(String name) {
         try {
             return classLoader.getResources(name);
@@ -198,7 +207,7 @@ public abstract class AbstractMappingParser {
             throw new PersistenceException("could not determine mapping for property \"" + name + "\" of class " + property.getDeclaringClass().getName());
         }
     }
-    
+
     protected ClassMappingInformation getMapping(Class<?> type) {
         return classMappings.get(type);
     }
@@ -268,7 +277,7 @@ public abstract class AbstractMappingParser {
         }
         return false;
     }
-    
+
     protected abstract void parsePersistenceUnit(PersistenceUnitInfo persistenceUnitInfo);
 
     protected void parseNamedQueries(Class<?> mappedClass) {
@@ -320,7 +329,7 @@ public abstract class AbstractMappingParser {
     protected abstract boolean isIdProperty(Member property);
 
     protected abstract CascadeType[] getCascadeTypes(Member property);
-    
+
     protected boolean isRelationshipProperty(Member property) {
         return isSingleValuedRelationshipProperty(property) || isCollectionValuedRelationshipProperty(property);
     }
