@@ -24,9 +24,7 @@ import java.util.Set;
 import javax.persistence.PersistenceException;
 
 /**
- * This class provides mapping information for a specific persistence unit.
- * Initialized with a {@link javax.persistence.spi.PersistenceUnitInfo} it parses
- * the persistence unit and builds the mapping information.
+ * This class holds mapping information for a specific persistence unit.
  * @author Arne Limburg
  */
 public class MappingInformation {
@@ -38,9 +36,9 @@ public class MappingInformation {
     private Map<String, ClassMappingInformation> entityNameMappings;
 
     /**
-     * Creates mapping information from the specified persistence unit information.
-     * @param persistenceUnitInfo the persistence unit information to create the mapping information for
-     * @param mappingParser the parser to parse the persistence mapping 
+     * @param persistenceUnitName the name of the persistence unit
+     * @param entityTypeMappings the mapping information of the entities contained in the persistence unit
+     * @param namedQueries the named queries contained in the persistence unit
      */
     public MappingInformation(String persistenceUnitName,
                               Map<Class<?>, ClassMappingInformation> entityTypeMappings,
@@ -57,7 +55,7 @@ public class MappingInformation {
     public Set<String> getNamedQueryNames() {
         return Collections.unmodifiableSet(namedQueries.keySet());
     }
-    
+
     public String getNamedQuery(String name) {
         return namedQueries.get(name);
     }

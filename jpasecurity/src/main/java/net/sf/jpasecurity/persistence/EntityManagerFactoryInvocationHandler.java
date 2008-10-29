@@ -15,9 +15,6 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,16 +31,13 @@ import net.sf.jpasecurity.mapping.parser.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.parser.OrmXmlParser;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
+import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 /**
  * @author Arne Limburg
  */
-public class EntityManagerFactoryInvocationHandler implements InvocationHandler {
+public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandler<EntityManagerFactory> {
 
-    private static final String CLOSE_METHOD_NAME = "close";
-    private static final String CREATE_ENTITY_MANAGER_METHOD_NAME = "createEntityManager";
-
-    private EntityManagerFactory entityManagerFactory;
     private MappingInformation mappingInformation;
     private AuthenticationProvider authenticationProvider;
     private AccessRulesProvider accessRulesProvider;
@@ -53,6 +47,7 @@ public class EntityManagerFactoryInvocationHandler implements InvocationHandler 
                                           Map<String, String> properties,
                                           AuthenticationProvider authenticationProvider,
                                           AccessRulesProvider accessRulesProvider) {
+        super(entityManagerFactory);
         if (entityManagerFactory == null) {
             throw new IllegalArgumentException("entityManagerFactory may not be null");
         }
@@ -65,7 +60,6 @@ public class EntityManagerFactoryInvocationHandler implements InvocationHandler 
         if (persistenceUnitInfo == null) {
             throw new IllegalArgumentException("persistenceUnitInfo may not be null");
         }
-        this.entityManagerFactory = entityManagerFactory;
         this.authenticationProvider = authenticationProvider;
         this.accessRulesProvider = accessRulesProvider;
         this.mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
@@ -77,7 +71,44 @@ public class EntityManagerFactoryInvocationHandler implements InvocationHandler 
         }
         injectPersistenceInformation(persistenceProperties);
     }
-    
+
+    public EntityManager createEntityManager() {
+        return createSecureEntityManager(getTarget().createEntityManager());
+    }
+
+    public EntityManager createEntityManager(Map map) {
+        return createSecureEntityManager(getTarget().createEntityManager(map));
+    }
+
+    public void close() {
+        mappingInformation = null;
+        authenticationProvider = null;
+        accessRulesProvider = null;
+        getTarget().close();
+    }
+
+    protected Class<?>[] getImplementingInterfaces(Class<?> type) {
+        Set<Class<?>> interfaces = new HashSet<Class<?>>();
+        while (type != null) {
+            for (Class<?> iface: type.getInterfaces()) {
+                interfaces.add(iface);
+            }
+            type = type.getSuperclass();
+        }
+        return interfaces.toArray(new Class<?>[interfaces.size()]);
+    }
+
+    private EntityManager createSecureEntityManager(EntityManager entityManager) {
+        EntityManagerInvocationHandler invocationHandler
+            = new EntityManagerInvocationHandler(entityManager,
+                                                 mappingInformation,
+                                                 authenticationProvider,
+                                                 accessRulesProvider.getAccessRules());
+        return (EntityManager)Proxy.newProxyInstance(entityManager.getClass().getClassLoader(),
+                                                     getImplementingInterfaces(entityManager.getClass()),
+                                                     invocationHandler);
+    }
+
     private void injectPersistenceInformation(Map<String, String> persistenceProperties) {
         persistenceProperties = Collections.unmodifiableMap(persistenceProperties);
         if (authenticationProvider instanceof PersistenceInformationReceiver) {
@@ -92,40 +123,5 @@ public class EntityManagerFactoryInvocationHandler implements InvocationHandler 
             persistenceInformationReceiver.setPersistenceProperties(persistenceProperties);
             persistenceInformationReceiver.setPersistenceMapping(mappingInformation);
         }
-    }
-
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        try {
-            Object result = method.invoke(entityManagerFactory, args);
-            if (method.getName().equals(CLOSE_METHOD_NAME)) {
-                entityManagerFactory = null;
-                mappingInformation = null;
-                authenticationProvider = null;
-                accessRulesProvider = null;
-            } else if (method.getName().equals(CREATE_ENTITY_MANAGER_METHOD_NAME)) {
-                EntityManagerInvocationHandler invocationHandler
-                    = new EntityManagerInvocationHandler((EntityManager)result,
-                                                         mappingInformation,
-                                                         authenticationProvider,
-                                                         accessRulesProvider.getAccessRules());
-                result = Proxy.newProxyInstance(result.getClass().getClassLoader(),
-                                                getImplementingInterfaces(result.getClass()),
-                                                invocationHandler);
-            }
-            return result;
-        } catch (InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    protected Class<?>[] getImplementingInterfaces(Class<?> type) {
-        Set<Class<?>> interfaces = new HashSet<Class<?>>();
-        while (type != null) {
-            for (Class<?> iface: type.getInterfaces()) {
-                interfaces.add(iface);
-            }
-            type = type.getSuperclass();
-        }
-        return interfaces.toArray(new Class<?>[interfaces.size()]);
     }
 }
