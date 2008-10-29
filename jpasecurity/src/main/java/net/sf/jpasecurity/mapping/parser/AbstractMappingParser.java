@@ -32,12 +32,14 @@ import java.net.URL;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.persistence.CascadeType;
 import javax.persistence.PersistenceException;
+import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
@@ -61,35 +63,35 @@ public abstract class AbstractMappingParser {
     private ClassLoader classLoader;
 
     public AbstractMappingParser(Map<Class<?>, ClassMappingInformation> classMappings,
-                                 Map<String, String> namedQueries,
-                                 ClassLoader classLoader) {
+                                 Map<String, String> namedQueries) {
         this.classMappings = classMappings;
         this.namedQueries = namedQueries;
-        this.classLoader = classLoader;
+    }
+    
+    protected void setPersistenceUnitInfo(PersistenceUnitInfo persistenceUnitInfo) {
+        this.classLoader = findClassLoader(persistenceUnitInfo);
     }
 
-    public void parse(URL url) {
+    protected void parse(URL url) {
         try {
             InputStream in = url.openStream();
             try {
                 ZipInputStream zipStream = new ZipInputStream(in);
                 for (ZipEntry entry = zipStream.getNextEntry(); entry != null; entry = zipStream.getNextEntry()) {
                     if (entry.getName().endsWith(CLASS_ENTRY_SUFFIX)) {
-                        parse(classLoader.loadClass(entry.getName()));
+                        parse(getClass(entry.getName()));
                     }
                     zipStream.closeEntry();
                 }
             } finally {
                 in.close();
             }
-        } catch (ClassNotFoundException e) {
-            throw new PersistenceException(e);
         } catch (IOException e) {
             throw new PersistenceException(e);
         }
     }
 
-    public ClassMappingInformation parse(Class<?> mappedClass) {
+    protected ClassMappingInformation parse(Class<?> mappedClass) {
         ClassMappingInformation classMapping = classMappings.get(mappedClass);
         if (classMapping == null) {
             Class<?> superclass = mappedClass.getSuperclass();
@@ -138,6 +140,22 @@ public abstract class AbstractMappingParser {
             }
         }
         return classMapping;
+    }
+    
+    protected Class<?> getClass(String name) {
+        try {
+            return classLoader.loadClass(name);
+        } catch (ClassNotFoundException e) {
+            throw new PersistenceException(e);
+        }
+    }
+    
+    protected Enumeration<URL> getResources(String name) {
+        try {
+            return classLoader.getResources(name);
+        } catch (IOException e) {
+            throw new PersistenceException(e);
+        }
     }
 
     private PropertyMappingInformation parse(Member property) {
@@ -299,4 +317,16 @@ public abstract class AbstractMappingParser {
     protected abstract boolean isSingleValuedRelationshipProperty(Member property);
 
     protected abstract boolean isCollectionValuedRelationshipProperty(Member property);
+
+    private ClassLoader findClassLoader(PersistenceUnitInfo persistenceUnit) {
+        ClassLoader classLoader = persistenceUnit.getNewTempClassLoader();
+        if (classLoader != null) {
+            return classLoader;
+        }
+        classLoader = persistenceUnit.getClassLoader();
+        if (classLoader != null) {
+            return classLoader;
+        }
+        return Thread.currentThread().getContextClassLoader();
+    }
 }
