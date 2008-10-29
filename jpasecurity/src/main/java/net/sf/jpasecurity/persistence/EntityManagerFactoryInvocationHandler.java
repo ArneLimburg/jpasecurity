@@ -29,7 +29,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.parser.JpaAnnotationParser;
+import net.sf.jpasecurity.mapping.parser.OrmXmlParser;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
 
@@ -66,13 +69,24 @@ public class EntityManagerFactoryInvocationHandler implements InvocationHandler 
         this.entityManagerFactory = entityManagerFactory;
         this.authenticationProvider = authenticationProvider;
         this.accessRulesProvider = accessRulesProvider;
-        this.mappingInformation = new MappingInformation(persistenceUnitInfo);
+        buildMappingInformation(persistenceUnitInfo);
         Map<String, String> persistenceProperties
             = new HashMap<String, String>((Map)persistenceUnitInfo.getProperties());
         if (properties != null) {
             persistenceProperties.putAll(properties);
         }
         injectPersistenceInformation(persistenceProperties);
+    }
+    
+    private void buildMappingInformation(PersistenceUnitInfo persistenceUnitInfo) {
+        Map<Class<?>, ClassMappingInformation> classMappings = new HashMap<Class<?>, ClassMappingInformation>();
+        Map<String, String> namedQueries = new HashMap<String, String>();
+        JpaAnnotationParser annotationParser = new JpaAnnotationParser(classMappings, namedQueries);
+        OrmXmlParser ormXmlParser = new OrmXmlParser(classMappings, namedQueries);
+        annotationParser.parse(persistenceUnitInfo);
+        ormXmlParser.parse(persistenceUnitInfo);
+        mappingInformation
+            = new MappingInformation(persistenceUnitInfo.getPersistenceUnitName(), classMappings, namedQueries);
     }
 
     private void injectPersistenceInformation(Map<String, String> persistenceProperties) {
