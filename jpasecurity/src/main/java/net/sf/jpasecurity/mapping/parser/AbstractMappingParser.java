@@ -33,6 +33,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -43,13 +44,14 @@ import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.mapping.SimplePropertyMappingInformation;
 import net.sf.jpasecurity.mapping.SingleValuedRelationshipMappingInformation;
 
 /**
- * Parses classes for persistence annotations and stores mapping information
- * in the provided map.
+ * Parses persistence units and created mapping information.
+ * <strong>This class is not thread-safe</strong>
  * @author Arne Limburg
  */
 public abstract class AbstractMappingParser {
@@ -62,16 +64,26 @@ public abstract class AbstractMappingParser {
     private Map<String, String> namedQueries;
     private ClassLoader classLoader;
 
-    public AbstractMappingParser(Map<Class<?>, ClassMappingInformation> classMappings,
-                                 Map<String, String> namedQueries) {
-        this.classMappings = classMappings;
-        this.namedQueries = namedQueries;
+    public MappingInformation parse(PersistenceUnitInfo persistenceUnitInfo) {
+        return parse(persistenceUnitInfo, null);
     }
     
-    protected void setPersistenceUnitInfo(PersistenceUnitInfo persistenceUnitInfo) {
-        this.classLoader = findClassLoader(persistenceUnitInfo);
+    public MappingInformation parse(PersistenceUnitInfo persistenceUnitInfo, MappingInformation mappingInformation) {
+        classMappings = new HashMap<Class<?>, ClassMappingInformation>();
+        namedQueries = new HashMap<String, String>();
+        classLoader = findClassLoader(persistenceUnitInfo);
+        if (mappingInformation != null) {
+            for (Class<?> type: mappingInformation.getPersistentClasses()) {
+                classMappings.put(type, mappingInformation.getClassMapping(type));
+            }
+            for (String name: mappingInformation.getNamedQueryNames()) {
+                namedQueries.put(name, mappingInformation.getNamedQuery(name));
+            }
+        }
+        parsePersistenceUnit(persistenceUnitInfo);
+        return new MappingInformation(persistenceUnitInfo.getPersistenceUnitName(), classMappings, namedQueries);
     }
-
+    
     protected void parse(URL url) {
         try {
             InputStream in = url.openStream();
@@ -256,9 +268,8 @@ public abstract class AbstractMappingParser {
         }
         return false;
     }
-
-    protected void parseNamedQueries() {
-    }
+    
+    protected abstract void parsePersistenceUnit(PersistenceUnitInfo persistenceUnitInfo);
 
     protected void parseNamedQueries(Class<?> mappedClass) {
     }
