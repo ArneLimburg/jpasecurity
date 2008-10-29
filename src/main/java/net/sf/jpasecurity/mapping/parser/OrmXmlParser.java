@@ -23,7 +23,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.PersistenceException;
@@ -36,7 +35,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.xml.XmlNodeList;
 
 import org.apache.commons.logging.Log;
@@ -51,6 +49,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Parser to parse orm.xml
+ * <strong>This class is not thread-safe</strong>
  * @todo support <xml-mapping-metadata-complete/> tag
  * @author Arne Limburg
  * @author Johannes Siemer
@@ -149,42 +148,13 @@ public class OrmXmlParser extends AbstractMappingParser {
     private XmlNodeList embeddableNodes;
     private Document ormDocument;
 
-    /**
-     * Creates a parser to parse a orm.xml file.
-     */
-    public OrmXmlParser(Map<Class<?>, ClassMappingInformation> classMappings,
-                        Map<String, String> namedQueries) {
-        super(classMappings, namedQueries);
-    }
-
-    public void parse(PersistenceUnitInfo persistenceUnit) {
+    public void parsePersistenceUnit(PersistenceUnitInfo persistenceUnit) {
         parse(persistenceUnit, "META-INF/orm.xml");
         for (String mappingFilename: persistenceUnit.getMappingFileNames()) {
             parse(persistenceUnit, mappingFilename);
         }        
     }
     
-    public void parseNamedQueries() {
-        NodeList entries = null;
-        try {
-            entries = (NodeList)XPATH.evaluate(NAMED_QUERY_XPATH, ormDocument, XPathConstants.NODESET);
-        } catch (XPathExpressionException e) {
-            LOG.error("Error while reading named queries.", e);
-            return;
-        }
-        for (int index = 0; index < entries.getLength(); index++) {
-            Element namedQueryElement = (Element)entries.item(index);
-            String name = namedQueryElement.getAttribute("name");
-            NodeList queryList = namedQueryElement.getElementsByTagName("query");
-            String query = ((Text)((Element)queryList.item(0)).getFirstChild()).getData();
-            LOG.info("Adding query to query map. Name: '" + name + "'.");
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Query: '" + query.trim() + "'.");
-            }
-            addNamedQuery(name, query);
-        }
-    }
-
     protected Class<?> getIdClass(Class<?> entityClass, boolean useFieldAccess) {
         Node entityNode = getEntityNode(entityClass);
         XmlNodeList childNodes = new XmlNodeList(entityNode.getChildNodes());
@@ -371,6 +341,27 @@ public class OrmXmlParser extends AbstractMappingParser {
             for (Node node: embeddableNodes) {
                 parse(getClass(getClassName(node)));
             }
+        }
+    }
+
+    private void parseNamedQueries() {
+        NodeList entries = null;
+        try {
+            entries = (NodeList)XPATH.evaluate(NAMED_QUERY_XPATH, ormDocument, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            LOG.error("Error while reading named queries.", e);
+            return;
+        }
+        for (int index = 0; index < entries.getLength(); index++) {
+            Element namedQueryElement = (Element)entries.item(index);
+            String name = namedQueryElement.getAttribute("name");
+            NodeList queryList = namedQueryElement.getElementsByTagName("query");
+            String query = ((Text)((Element)queryList.item(0)).getFirstChild()).getData();
+            LOG.info("Adding query to query map. Name: '" + name + "'.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Query: '" + query.trim() + "'.");
+            }
+            addNamedQuery(name, query);
         }
     }
 

@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
@@ -53,6 +54,10 @@ public class MappingInformation {
         return persistenceUnitName;
     }
 
+    public Set<String> getNamedQueryNames() {
+        return Collections.unmodifiableSet(namedQueries.keySet());
+    }
+    
     public String getNamedQuery(String name) {
         return namedQueries.get(name);
     }

@@ -29,7 +29,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.parser.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.parser.OrmXmlParser;
@@ -69,7 +68,8 @@ public class EntityManagerFactoryInvocationHandler implements InvocationHandler 
         this.entityManagerFactory = entityManagerFactory;
         this.authenticationProvider = authenticationProvider;
         this.accessRulesProvider = accessRulesProvider;
-        buildMappingInformation(persistenceUnitInfo);
+        this.mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
+        this.mappingInformation = new OrmXmlParser().parse(persistenceUnitInfo, mappingInformation);
         Map<String, String> persistenceProperties
             = new HashMap<String, String>((Map)persistenceUnitInfo.getProperties());
         if (properties != null) {
@@ -78,17 +78,6 @@ public class EntityManagerFactoryInvocationHandler implements InvocationHandler 
         injectPersistenceInformation(persistenceProperties);
     }
     
-    private void buildMappingInformation(PersistenceUnitInfo persistenceUnitInfo) {
-        Map<Class<?>, ClassMappingInformation> classMappings = new HashMap<Class<?>, ClassMappingInformation>();
-        Map<String, String> namedQueries = new HashMap<String, String>();
-        JpaAnnotationParser annotationParser = new JpaAnnotationParser(classMappings, namedQueries);
-        OrmXmlParser ormXmlParser = new OrmXmlParser(classMappings, namedQueries);
-        annotationParser.parse(persistenceUnitInfo);
-        ormXmlParser.parse(persistenceUnitInfo);
-        mappingInformation
-            = new MappingInformation(persistenceUnitInfo.getPersistenceUnitName(), classMappings, namedQueries);
-    }
-
     private void injectPersistenceInformation(Map<String, String> persistenceProperties) {
         persistenceProperties = Collections.unmodifiableMap(persistenceProperties);
         if (authenticationProvider instanceof PersistenceInformationReceiver) {
