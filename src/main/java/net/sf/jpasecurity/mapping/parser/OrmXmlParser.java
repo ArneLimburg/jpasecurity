@@ -115,11 +115,16 @@ public class OrmXmlParser extends AbstractMappingParser {
      * The tag name for many-to-many mappings
      */
     public static final String MANY_TO_MANY_TAG_NAME = "many-to-many";
-    
+
     /**
      * The tag name for transient attributes
      */
     public static final String TRANSIENT_TAG_NAME = "transient";
+
+    /**
+     * The tag prefix for cascade styles
+     */
+    public static final String CASCADE_TAG_PREFIX = "cascade-";
 
     /**
      * The attribute name for classes
@@ -152,9 +157,9 @@ public class OrmXmlParser extends AbstractMappingParser {
         parse(persistenceUnit, "META-INF/orm.xml");
         for (String mappingFilename: persistenceUnit.getMappingFileNames()) {
             parse(persistenceUnit, mappingFilename);
-        }        
+        }
     }
-    
+
     protected Class<?> getIdClass(Class<?> entityClass, boolean useFieldAccess) {
         Node entityNode = getEntityNode(entityClass);
         XmlNodeList childNodes = new XmlNodeList(entityNode.getChildNodes());
@@ -247,7 +252,8 @@ public class OrmXmlParser extends AbstractMappingParser {
             NodeList list = (NodeList)XPATH.evaluate(query, ormDocument, XPathConstants.NODESET);
             List<CascadeType> cascadeTypes = new ArrayList<CascadeType>(list.getLength());
             for (int i = 0; i < list.getLength(); i++) {
-                cascadeTypes.add(CascadeType.valueOf(list.item(i).getNodeName().substring(8).toUpperCase()));
+                String cascadeType = list.item(i).getNodeName().substring(CASCADE_TAG_PREFIX.length());
+                cascadeTypes.add(CascadeType.valueOf(cascadeType.toUpperCase()));
             }
             return cascadeTypes.toArray(new CascadeType[cascadeTypes.size()]);
         } catch (XPathExpressionException e) {
@@ -291,7 +297,7 @@ public class OrmXmlParser extends AbstractMappingParser {
         }
         return false;
     }
-    
+
     private void parse(PersistenceUnitInfo persistenceUnit, String mappingFilename) {
         try {
             for (Enumeration<URL> mappings = getResources(mappingFilename); mappings.hasMoreElements();) {
