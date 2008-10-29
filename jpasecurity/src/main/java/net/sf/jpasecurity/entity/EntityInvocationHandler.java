@@ -70,11 +70,18 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         }
         return result;
     }
-    
+
     public boolean isInitialized() {
         return initialized;
     }
 
+    /**
+     * Returns <tt>true</tt>, if the entity of this invocation handler
+     * is contained in the specified <tt>EntityManager</tt>.
+     * @param entityManager the entity manager
+     * @return <tt>true</tt>, if the entity of this invocation handler
+     *         is contained in the specified <tt>EntityManager</tt>, <tt>false</tt> otherwise
+     */
     public boolean isContained(EntityManager entityManager) {
         return entityManager.contains(entity);
     }
@@ -82,29 +89,44 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     public boolean isRemoved() {
         return deleted;
     }
-    
+
+    /**
+     * @throws SecurityException when the current user is not allowed to persist the entity of this invocation handler
+     */
     public void persist(EntityManager entityManager) {
         checkAccess(entity, AccessType.CREATE, CascadeType.PERSIST, new HashSet<Object>());
         entityManager.persist(entity);
     }
 
+    /**
+     * @throws SecurityException when the current user is not allowed to merge the entity of this invocation handler
+     */
     public SecureEntity merge(EntityManager entityManager) {
         checkAccess(entity, AccessType.UPDATE, CascadeType.MERGE, new HashSet<Object>());
         return (SecureEntity)entityHandler.getSecureObject(entityManager.merge(entity));
     }
 
+    /**
+     * @throws SecurityException when the current user is not allowed to remove the entity of this invocation handler
+     */
     public void remove(EntityManager entityManager) {
         checkAccess(entity, AccessType.DELETE, CascadeType.REMOVE, new HashSet<Object>());
         entityManager.remove(entity);
         deleted = true;
     }
 
+    /**
+     * @throws SecurityException when the current user is not allowed to refresh the entity of this invocation handler
+     */
     public void refresh(EntityManager entityManager) {
         checkAccess(entity, AccessType.READ, CascadeType.REFRESH, new HashSet<Object>());
         entityManager.refresh(entity);
         initialized = false;
     }
 
+    /**
+     * @throws SecurityException when the current user is not allowed to lock the entity of this invocation handler
+     */
     public void lock(EntityManager entityManager, LockModeType lockMode) {
         if (lockMode == LockModeType.READ && !entityHandler.isAccessible(entity, AccessType.READ)) {
             throw new SecurityException();
@@ -134,7 +156,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
                     checkAccess(propertyMapping.getPropertyValue(object), accessType, cascadeType, checkedEntities);
                 }
             }
-        }        
+        }
     }
 
     private void checkAccess(Collection<?> collection,
@@ -145,7 +167,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             checkAccess(object, accessType, cascadeType, checkedEntities);
         }
     }
-    
+
     private boolean isUpdating() {
         return updating.get() != null && updating.get();
     }

@@ -28,12 +28,15 @@ import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.mapping.SimplePropertyMappingInformation;
 
 /**
+ * This evaluator is used to check queries and rules.
+ * It checks whether the queries and rules only use types and properties
+ * that are contained in the specified mapping.
  * @author Arne Limburg
  */
 public class MappingEvaluator extends JpqlVisitorAdapter<Map<String, Class<?>>> {
 
     private MappingInformation mappingInformation;
-    
+
     public MappingEvaluator(MappingInformation mappingInformation) {
         this.mappingInformation = mappingInformation;
     }

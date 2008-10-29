@@ -18,6 +18,7 @@ package net.sf.jpasecurity.mapping;
 import javax.persistence.PersistenceException;
 
 /**
+ * This class holds mapping information for simple property mappings.
  * @author Arne Limburg
  */
 public final class SimplePropertyMappingInformation extends PropertyMappingInformation {
