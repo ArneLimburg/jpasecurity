@@ -91,7 +91,6 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public <T> T find(Class<T> type, Object id) {
-        //TODO look into our cache
         T entity = getTarget().find(type, id);
         if (!isAccessible(entity, READ)) {
             throw new SecurityException();
@@ -194,7 +193,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             return getSecureEntity(object);
         }
     }
-    
+
     public boolean isNewEntity(Object entity) {
         if (entity instanceof SecureEntity) {
             return false;
@@ -275,13 +274,13 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         entities.put(id, secureEntity);
         return secureEntity;
     }
-    
+
     private SecureEntity createSecureEntity(ClassMappingInformation mapping, Object entity) {
         return (SecureEntity)Enhancer.create(mapping.getEntityType(),
                                              new Class[] {SecureEntity.class},
                                              new EntityInvocationHandler(mapping, this, entity));
     }
-    
+
     private SecureCollection<?> getSecureCollection(Collection<?> collection) {
         int hashCode = System.identityHashCode(collection);
         SecureCollection<?> secureCollection = secureCollections.get(hashCode);
@@ -291,7 +290,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         }
         return secureCollection;
     }
-    
+
     private SecureCollection<?> createSecureCollection(Collection<?> collection) {
         if (collection instanceof List) {
             return new SecureList((List)collection, this);
