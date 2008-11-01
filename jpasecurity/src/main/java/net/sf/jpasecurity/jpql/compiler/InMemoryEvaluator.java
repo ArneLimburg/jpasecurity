@@ -213,10 +213,29 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             node.jjtGetChild(0).visit(this, data);
             Comparable value = (Comparable)data.getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable lower = (Comparable)data.getResult();
+            Comparable lower;
+            try {
+                lower = (Comparable)data.getResult();
+            } catch (NotEvaluatableException e) {
+                lower = null;
+            }
             node.jjtGetChild(2).visit(this, data);
-            Comparable upper = (Comparable)data.getResult();
-            data.setResult(lower.compareTo(value) <= 0 && upper.compareTo(value) >= 0);
+            Comparable upper;
+            try {
+                upper = (Comparable)data.getResult();
+            } catch (NotEvaluatableException e) {
+                upper = null;
+            }
+            if ((lower != null && lower.compareTo(value) > 0)
+             || (upper != null && upper.compareTo(value) < 0)) {
+                data.setResult(false);
+            } else if (lower == null || upper == null) {
+                data.setResultUndefined();
+            } else {
+                data.setResult(true);
+            }
+        } catch (ClassCastException e) {
+            data.setResultUndefined();
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
         }
