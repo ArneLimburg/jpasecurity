@@ -63,12 +63,12 @@ public class AutodetectingAuthenticationProvider implements AuthenticationProvid
 
     protected AuthenticationProvider autodetectAuthenticationProvider() {
         try {
-            Class.forName(SPRING_CONTEXT_HOLDER_CLASS);
+            Class.forName(SPRING_CONTEXT_HOLDER_CLASS, false, Thread.currentThread().getContextClassLoader());
             LOG.info("autodetected presence of Spring Security, using SpringAuthenticationProvider");
             return new SpringAuthenticationProvider();
         } catch (ClassNotFoundException springSecurityNotFoundException) {
             try {
-                Class.forName(ACEGI_CONTEXT_HOLDER_CLASS);
+                Class.forName(ACEGI_CONTEXT_HOLDER_CLASS, false, Thread.currentThread().getContextClassLoader());
                 LOG.info("autodetected presence of Acegi Security, using AcegiAuthenticationProvider");
                 return new AcegiAuthenticationProvider();
             } catch (ClassNotFoundException acegiSecurityNotFoundException) {
