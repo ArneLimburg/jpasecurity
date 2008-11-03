@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -202,6 +203,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         positionalParameters.put(1, 1);
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
@@ -216,6 +218,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         positionalParameters.clear();
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
@@ -250,6 +253,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         positionalParameters.put(1, 0);
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
@@ -264,6 +268,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         positionalParameters.clear();
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
@@ -287,6 +292,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         namedParameters.clear();
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
@@ -323,6 +329,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         positionalParameters.clear();
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
@@ -331,6 +338,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         positionalParameters.put(1, 0);
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
@@ -339,6 +347,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         positionalParameters.put(2, 0);
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
@@ -349,6 +358,110 @@ public class InMemoryEvaluatorTest extends TestCase {
     
         positionalParameters.clear();
         positionalParameters.put(2, -1);
+        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+    }
+    
+    public void testEvaluateIn() throws Exception {
+        JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.id IN (?1, ?2)");
+
+        aliases.clear();
+        positionalParameters.put(1, 0);
+        positionalParameters.put(1, 1);
+        try {
+            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+        
+        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+
+        positionalParameters.put(1, 0);
+        positionalParameters.put(2, 1);
+        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+
+        positionalParameters.put(1, 1);
+        positionalParameters.put(2, 0);
+        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+
+        positionalParameters.put(1, -1);
+        positionalParameters.put(2, 1);
+        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+
+        positionalParameters.put(1, 1);
+        positionalParameters.put(2, -1);
+        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+
+        positionalParameters.clear();
+        positionalParameters.put(1, 0);
+        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+
+        positionalParameters.clear();
+        positionalParameters.put(2, 0);
+        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+
+        positionalParameters.clear();
+        try {
+            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+
+        positionalParameters.clear();
+        positionalParameters.put(1, 1);
+        try {
+            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+
+        positionalParameters.clear();
+        positionalParameters.put(2, 1);
+        try {
+            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+    }
+    
+    public void testEvaluateIsNull() throws Exception {
+        JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.parent IS NULL");
+        FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean("test1");
+        
+        aliases.clear();
+        try {
+            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+        
+        aliases.put("bean", bean);
+        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+
+        bean.setParentBean(new FieldAccessAnnotationTestBean("testParent"));
+        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+    }
+    
+    public void testEvaluateIsEmpty() throws Exception {
+        JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.children IS EMPTY");
+        FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean("test1");
+        
+        aliases.clear();
+        try {
+            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+        
+        aliases.put("bean", bean);
+        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+
+        bean.setChildren(Collections.singletonList(new FieldAccessAnnotationTestBean("testChild")));
         assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
     }
     
