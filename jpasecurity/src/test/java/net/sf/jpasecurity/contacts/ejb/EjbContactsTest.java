@@ -55,7 +55,6 @@ public class EjbContactsTest extends TestCase {
         System.setProperty(Context.URL_PKG_PREFIXES, "org.apache.commons.naming");            
 
         InitialContext initialContext = new InitialContext();
-        initialContext.createSubcontext("java:");
         initialContext.createSubcontext("java:comp");
         initialContext.createSubcontext("java:comp/env");
         initialContext.createSubcontext("java:comp/env/ejb");
@@ -94,7 +93,6 @@ public class EjbContactsTest extends TestCase {
         initialContext.unbind("java:comp/env/ejb");
         initialContext.unbind("java:comp/env");
         initialContext.unbind("java:comp");
-        initialContext.unbind("java:");
         System.clearProperty(Context.SECURITY_PRINCIPAL);
         System.clearProperty(Context.SECURITY_CREDENTIALS);
         System.clearProperty(Context.INITIAL_CONTEXT_FACTORY);
