@@ -94,6 +94,7 @@
             <exclude>${basedir}/target/generated-sources/javacc/net/sf/jpasecurity/jpql/parser/Node.java</exclude>
             <exclude>${basedir}/target/generated-sources/javacc/net/sf/jpasecurity/jpql/parser/SimpleNode.java</exclude>
           </excludes>
+          <compilerArgument>-ea</compilerArgument>
         </configuration>
       </plugin>
       <plugin>
