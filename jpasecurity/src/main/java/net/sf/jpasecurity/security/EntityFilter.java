@@ -184,32 +184,72 @@ public class EntityFilter {
     }
 
     private Node createAccessRuleNode(Map<String, Class<?>> selectedTypes, AccessType accessType, int roleCount) {
-        boolean accessRestricted = false;
+        Set<Class<?>> restrictedTypes = new HashSet<Class<?>>();
         Node accessRuleNode = null;
         for (Map.Entry<String, Class<?>> selectedType: selectedTypes.entrySet()) {
             for (AccessRule accessRule: accessRules) {
                 if (accessRule.isAssignable(selectedType.getValue(), mappingInformation)) {
-                    accessRestricted = true;
+                    restrictedTypes.add(selectedType.getValue());
                     if (accessRule.grantsAccess(accessType)) {
-                        accessRule = queryPreparator.expand(accessRule, roleCount);
-                        Node condition = queryPreparator.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
-                        queryPreparator.replace(condition, accessRule.getSelectedPath(), selectedType.getKey());
-                        if (accessRuleNode == null) {
-                            accessRuleNode = condition;
-                        } else {
-                            accessRuleNode = queryPreparator.createOr(accessRuleNode, condition);
+                        accessRuleNode = appendAccessRule(accessRuleNode, accessRule, roleCount, selectedType.getKey());
+                        if (accessRule.mayBeAssignable(selectedType.getValue(), mappingInformation)) {
                         }
+                    }
+                } else if (accessRule.mayBeAssignable(selectedType.getValue(), mappingInformation)) {
+                    restrictedTypes.add(accessRule.getSelectedType(mappingInformation));
+                    if (accessRule.grantsAccess(accessType)) {
+                        //TODO group all access rules by subclass and create one node each
+                        Class<?> type = accessRule.getSelectedType(mappingInformation);
+                        Node instanceOf
+                            = queryPreparator.createInstanceOf(selectedType.getKey(),
+                                                               mappingInformation.getClassMapping(type));
+                        Node preparedAccessRule = prepareAccessRule(accessRule, roleCount, selectedType.getKey());
+                        accessRuleNode = appendNode(accessRuleNode, queryPreparator.createAnd(instanceOf, preparedAccessRule));
                     }
                 }
             }
+            if (restrictedTypes.size() > 0 && !restrictedTypes.contains(selectedType.getValue())) {
+                Node superclassNode = null;
+                for (Class<?> restrictedType: restrictedTypes) {
+                    Node instanceOf
+                        = queryPreparator.createInstanceOf(selectedType.getKey(),
+                                                           mappingInformation.getClassMapping(restrictedType));
+                    if (superclassNode == null) {
+                        superclassNode = queryPreparator.createNot(instanceOf);
+                    } else {
+                        superclassNode = queryPreparator.createAnd(superclassNode,
+                                                                   queryPreparator.createNot(instanceOf));
+                    }
+                }
+                accessRuleNode = appendNode(accessRuleNode, superclassNode);
+            }
         }
         if (accessRuleNode == null) {
-            return queryPreparator.createBoolean(!accessRestricted);
+            return queryPreparator.createBoolean(restrictedTypes.size() == 0);
         } else {
             return queryPreparator.createBrackets(accessRuleNode);
         }
     }
+    
+    private Node appendAccessRule(Node accessRuleNode, AccessRule accessRule, int roleCount, String selectedAlias) {
+        return appendNode(accessRuleNode, prepareAccessRule(accessRule, roleCount, selectedAlias));
+    }
+    
+    private Node appendNode(Node accessRules, Node accessRule) {
+        if (accessRules == null) {
+            return accessRule;
+        } else {
+            return queryPreparator.createOr(accessRules, accessRule);
+        }
+    }
 
+    private Node prepareAccessRule(AccessRule accessRule, int roleCount, String selectedAlias) {
+        accessRule = queryPreparator.expand(accessRule, roleCount);
+        Node preparedAccessRule = queryPreparator.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
+        queryPreparator.replace(preparedAccessRule, accessRule.getSelectedPath(), selectedAlias);
+        return preparedAccessRule;
+    }
+    
     private Map<String, Object> createAuthenticationParameters(Set<String> namedParameters,
                                                                String userParameterName,
                                                                Object user,

@@ -64,6 +64,15 @@ public class AccessRule extends JpqlCompiledStatement {
         return getSelectedType(mappingInformation).isAssignableFrom(type);
     }
 
+    /**
+     * Returns <tt>true</tt>, if the specified type is a superclass of the selected type
+     * of this access rule and so this rule may be assignable if the type of the concrete
+     * entity is of the selected type or a subclass.
+     */
+    public boolean mayBeAssignable(Class<?> type, MappingInformation mappingInformation) {
+        return type.isAssignableFrom(getSelectedType(mappingInformation));
+    }
+
     public boolean grantsCreateAccess() {
         return getAccess().contains(AccessType.CREATE);
     }
