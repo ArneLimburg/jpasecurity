@@ -18,8 +18,10 @@ package net.sf.jpasecurity.mapping;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
@@ -32,6 +34,7 @@ public final class ClassMappingInformation {
     private String entityName;
     private Class<?> entityType;
     private ClassMappingInformation superclassMapping;
+    private Set<ClassMappingInformation> subclassMappings = new HashSet<ClassMappingInformation>();
     private Class<?> idClass;
     private boolean fieldAccess;
     private Map<String, PropertyMappingInformation> propertyMappings
@@ -45,6 +48,9 @@ public final class ClassMappingInformation {
         this.entityName = entityName;
         this.entityType = entityType;
         this.superclassMapping = superclassMapping;
+        if (superclassMapping != null) {
+            superclassMapping.subclassMappings.add(this);
+        }
         this.idClass = idClass;
         this.fieldAccess = usesFieldAccess;
     }
@@ -55,6 +61,10 @@ public final class ClassMappingInformation {
 
     public Class<?> getEntityType() {
         return entityType;
+    }
+    
+    public Set<ClassMappingInformation> getSubclassMappings() {
+        return Collections.unmodifiableSet(subclassMappings);
     }
 
     public Class<?> getIdClass() {
@@ -90,6 +100,22 @@ public final class ClassMappingInformation {
         propertyMappings.put(propertyMappingInformation.getPropertyName(), propertyMappingInformation);
     }
 
+    public List<PropertyMappingInformation> getIdPropertyMappings() {
+        List<PropertyMappingInformation> idPropertyMappings = new ArrayList<PropertyMappingInformation>();
+        for (PropertyMappingInformation propertyMapping: propertyMappings.values()) {
+            if (propertyMapping.isIdProperty()) {
+                idPropertyMappings.add(propertyMapping);
+            }
+        }
+        if (idPropertyMappings.size() > 0) {
+            return Collections.unmodifiableList(idPropertyMappings);
+        } else if (superclassMapping != null) {
+            return superclassMapping.getIdPropertyMappings();
+        } else {
+            return Collections.EMPTY_LIST;
+        }
+    }
+
     public Object getId(Object entity) {
         List<PropertyMappingInformation> idProperties = getIdPropertyMappings();
         if (idProperties.size() == 0) {
@@ -108,22 +134,6 @@ public final class ClassMappingInformation {
             } catch (IllegalAccessException e) {
                 throw new PersistenceException(e);
             }
-        }
-    }
-
-    private List<PropertyMappingInformation> getIdPropertyMappings() {
-        List<PropertyMappingInformation> idPropertyMappings = new ArrayList<PropertyMappingInformation>();
-        for (PropertyMappingInformation propertyMapping: propertyMappings.values()) {
-            if (propertyMapping.isIdProperty()) {
-                idPropertyMappings.add(propertyMapping);
-            }
-        }
-        if (idPropertyMappings.size() > 0) {
-            return Collections.unmodifiableList(idPropertyMappings);
-        } else if (superclassMapping != null) {
-            return superclassMapping.getIdPropertyMappings();
-        } else {
-            return Collections.EMPTY_LIST;
         }
     }
 }
