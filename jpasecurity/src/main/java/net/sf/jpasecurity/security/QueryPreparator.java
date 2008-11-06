@@ -18,16 +18,22 @@ package net.sf.jpasecurity.security;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentRoles;
 import net.sf.jpasecurity.jpql.parser.JpqlEquals;
+import net.sf.jpasecurity.jpql.parser.JpqlExists;
+import net.sf.jpasecurity.jpql.parser.JpqlFrom;
+import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
+import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariableDeclaration;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentifier;
 import net.sf.jpasecurity.jpql.parser.JpqlIn;
 import net.sf.jpasecurity.jpql.parser.JpqlIntegerLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
+import net.sf.jpasecurity.jpql.parser.JpqlNot;
 import net.sf.jpasecurity.jpql.parser.JpqlNotEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlOr;
 import net.sf.jpasecurity.jpql.parser.JpqlParserTreeConstants;
@@ -40,6 +46,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.SimpleNode;
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
 
 /**
  * @author Arne Limburg
@@ -172,6 +179,10 @@ public class QueryPreparator {
         return appendChildren(new JpqlOr(JpqlParserTreeConstants.JJTOR), node1, node2);
     }
 
+    public Node createNot(Node node) {
+        return appendChildren(new JpqlNot(JpqlParserTreeConstants.JJTNOT), node);
+    }
+
     /**
      * Connects the specified node with <tt>JpqlEquals</tt>.
      */
@@ -186,7 +197,7 @@ public class QueryPreparator {
         return appendChildren(new JpqlNotEquals(JpqlParserTreeConstants.JJTNOTEQUALS), node1, node2);
     }
 
-    private Node appendChildren(Node parent, Node... children) {
+    private <N extends Node> N appendChildren(N parent, Node... children) {
         for (int i = 0; i < children.length; i++) {
             parent.jjtAddChild(children[i], i);
             children[i].jjtSetParent(parent);
@@ -223,17 +234,14 @@ public class QueryPreparator {
      */
     public Node createPath(String pathString) {
         String[] pathComponents = pathString.split("\\.");
-        JpqlPath path = new JpqlPath(JpqlParserTreeConstants.JJTPATH);
-        JpqlIdentifier identifier = new JpqlIdentifier(JpqlParserTreeConstants.JJTIDENTIFIER);
-        identifier.setValue(pathComponents[0]);
-        identifier.jjtSetParent(path);
-        path.jjtAddChild(identifier, 0);
+        JpqlIdentifier identifier = createIdentifier(pathComponents[0]);
+        JpqlPath path = appendChildren(new JpqlPath(JpqlParserTreeConstants.JJTPATH), identifier);
         for (int i = 1; i < pathComponents.length; i++) {
             JpqlIdentificationVariable identificationVariable
                 = new JpqlIdentificationVariable(JpqlParserTreeConstants.JJTIDENTIFICATIONVARIABLE);
             identificationVariable.setValue(pathComponents[i]);
             identificationVariable.jjtSetParent(path);
-            path.jjtAddChild(identifier, i);
+            path.jjtAddChild(identifier, i - 1);
         }
         return path;
     }
@@ -242,34 +250,61 @@ public class QueryPreparator {
      * Creates a <tt>JpqlSubselect</tt> node for the specified access rule.
      */
     public Node createSubselect(AccessRule rule) {
-        JpqlSubselect subselect = new JpqlSubselect(JpqlParserTreeConstants.JJTSUBSELECT);
         Node select = createSelectClause(rule.getSelectedPath());
-        select.jjtSetParent(subselect);
-        subselect.jjtAddChild(select, 0);
         Node from = rule.getFromClause();
-        from.jjtSetParent(subselect);
-        subselect.jjtAddChild(from, 1);
         Node where = rule.getWhereClause();
-        where.jjtSetParent(subselect);
-        subselect.jjtAddChild(where, 2);
-        return subselect;
+        return appendChildren(new JpqlSubselect(JpqlParserTreeConstants.JJTSUBSELECT), select, from, where);
     }
 
     /**
      * Creates a <tt>JpqlSelectClause</tt> node to select the specified path.
      */
-    public Node createSelectClause(String selectedPath) {
-        JpqlSelectClause select = new JpqlSelectClause(JpqlParserTreeConstants.JJTSELECTCLAUSE);
-        JpqlSelectExpressions expressions = new JpqlSelectExpressions(JpqlParserTreeConstants.JJTSELECTEXPRESSIONS);
-        expressions.jjtSetParent(select);
-        select.jjtAddChild(expressions, 0);
+    public JpqlSelectClause createSelectClause(String selectedPath) {
         JpqlSelectExpression expression = new JpqlSelectExpression(JpqlParserTreeConstants.JJTSELECTEXPRESSION);
-        expression.jjtSetParent(expressions);
-        expressions.jjtAddChild(expression, 0);
-        Node path = createPath(selectedPath);
-        path.jjtSetParent(expression);
-        expression.jjtAddChild(path, 0);
-        return select;
+        expression = appendChildren(expression, createPath(selectedPath));
+        JpqlSelectExpressions expressions = new JpqlSelectExpressions(JpqlParserTreeConstants.JJTSELECTEXPRESSIONS);
+        expressions = appendChildren(expressions, expression);
+        return appendChildren(new JpqlSelectClause(JpqlParserTreeConstants.JJTSELECTCLAUSE), expressions);
+    }
+    
+    /**
+     * Creates a <tt>JpqlSelectClause</tt> node to select the specified path.
+     */
+    public JpqlFrom createFrom(ClassMappingInformation classMapping, String alias) {
+        JpqlIdentificationVariableDeclaration declaration
+            = new JpqlIdentificationVariableDeclaration(JpqlParserTreeConstants.JJTIDENTIFICATIONVARIABLEDECLARATION);
+        declaration = appendChildren(declaration, createFromItem(classMapping.getEntityName(), alias));
+        return appendChildren(new JpqlFrom(JpqlParserTreeConstants.JJTFROM), declaration);
+    }
+    
+    public JpqlFromItem createFromItem(String type, String alias) {
+        JpqlAbstractSchemaName schemaName = new JpqlAbstractSchemaName(JpqlParserTreeConstants.JJTABSTRACTSCHEMANAME);
+        return appendChildren(new JpqlFromItem(JpqlParserTreeConstants.JJTFROMITEM),
+                              appendChildren(schemaName, createIdentifier(type)),
+                              createIdentifier(alias));
+    }
+    
+    public Node createInstanceOf(String path, ClassMappingInformation classMapping) {
+        return appendChildren(new JpqlExists(JpqlParserTreeConstants.JJTEXISTS),
+                              createSubselectById(path, classMapping));
+    }
+    
+    public JpqlSubselect createSubselectById(String path, ClassMappingInformation classMapping) {
+        String alias = classMapping.getEntityName();
+        alias = Character.toLowerCase(alias.charAt(0)) + alias.substring(1);
+        if (alias.equalsIgnoreCase(path)) {
+            alias = alias + '0';
+        }
+        JpqlSelectClause select = createSelectClause(alias);
+        JpqlFrom from = createFrom(classMapping, alias);
+        JpqlWhere where = createWhere(createEquals(createPath(alias), createPath(path)));
+        return appendChildren(new JpqlSubselect(JpqlParserTreeConstants.JJTSUBSELECT), select, from, where);
+    }
+    
+    public JpqlIdentifier createIdentifier(String value) {
+        JpqlIdentifier identifier = new JpqlIdentifier(JpqlParserTreeConstants.JJTIDENTIFIER);
+        identifier.setValue(value);
+        return identifier;
     }
 
     public void remove(Node node) {
