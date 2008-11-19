@@ -89,6 +89,7 @@ public class EjbContactsTest extends TestCase {
     public void tearDown() throws Exception {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         testData.clear(entityManager);
+        entityManagerFactory.close();
         InitialContext initialContext = new InitialContext();
         initialContext.unbind("java:comp/env/ejb/ContactsDaoBean");
         initialContext.unbind("java:comp/env/ejb");
