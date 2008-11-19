@@ -27,7 +27,7 @@ import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.persistence.SecureEntityTester;
 
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
@@ -39,7 +39,7 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
  */
 public class SpringContactsTest extends TestCase {
     
-    private ApplicationContext applicationContext;
+    private ConfigurableApplicationContext applicationContext;
     private ContactsDao contactsDao;
     private AuthenticationManager authenticationManager;
     private ContactsTestData testData;
@@ -56,6 +56,7 @@ public class SpringContactsTest extends TestCase {
         EntityManager entityManager = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory")).createEntityManager();
         testData.clear(entityManager);
         SecurityContextHolder.getContext().setAuthentication(null);
+        applicationContext.close();
     }
     
     public void testUnauthenticated() {
