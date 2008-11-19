@@ -46,6 +46,7 @@ public class SimpleContactsTest extends TestCase {
     public void tearDown() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         testData.clear(entityManager);
+        entityManagerFactory.close();
         StaticAuthenticationProvider.authenticate(null);
     }
     
