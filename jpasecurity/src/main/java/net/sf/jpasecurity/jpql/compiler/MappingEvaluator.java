@@ -15,11 +15,14 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.PersistenceException;
 
+import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
+import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
@@ -69,6 +72,23 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Map<String, Class<?>>> 
             }
             type = propertyMapping.getProperyType();
         }
+        return false;
+    }
+
+    public boolean visit(JpqlSubselect node, Map<String, Class<?>> aliasTypes) {
+        Map<String, Class<?>> subselectTypes = new HashMap<String, Class<?>>(aliasTypes);
+        for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+            node.jjtGetChild(i).visit(this, subselectTypes);
+        }
+        // visit the select clause last
+        node.jjtGetChild(0).visit(this, subselectTypes);
+        return false;
+    }
+
+    public boolean visit(JpqlFromItem node, Map<String, Class<?>> aliasTypes) {
+        String typeName = node.jjtGetChild(0).toString().trim();
+        String alias = node.jjtGetChild(1).toString().trim();
+        aliasTypes.put(alias, mappingInformation.getClassMapping(typeName).getEntityType());
         return false;
     }
 }
