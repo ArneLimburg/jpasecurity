@@ -214,7 +214,15 @@ public abstract class AbstractMappingParser {
 
     protected String getName(Member property) {
         if (property instanceof Method) {
-            return Character.toLowerCase(property.getName().charAt(3)) + property.getName().substring(4);
+            String name = property.getName();
+            if (name.startsWith(GET_PROPERTY_PREFIX)) {
+                name = name.substring(GET_PROPERTY_PREFIX.length());
+            } else if (property.getName().startsWith(IS_PROPERTY_PREFIX)) {
+                name = name.substring(IS_PROPERTY_PREFIX.length());
+            } else {
+                throw new IllegalArgumentException("Illegal method name for property-read-method, must start either with 'get' or 'is'");
+            }
+            return Character.toLowerCase(name.charAt(0)) + name.substring(1);
         } else {
             return property.getName();
         }
