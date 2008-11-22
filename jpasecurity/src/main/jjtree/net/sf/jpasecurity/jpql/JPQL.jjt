@@ -361,7 +361,7 @@ void subqueryFromClause() #From: {} {
     <FROM> subqueryFromItem() (LOOKAHEAD(1) <COMMA> subqueryFromItem())*
 }
 
-void subqueryFromItem() #FromItem: {} {
+void subqueryFromItem(): {} {
     LOOKAHEAD(collectionMemberDeclaration()) collectionMemberDeclaration()
   | LOOKAHEAD(identificationVariableDeclaration()) identificationVariableDeclaration()
 }
