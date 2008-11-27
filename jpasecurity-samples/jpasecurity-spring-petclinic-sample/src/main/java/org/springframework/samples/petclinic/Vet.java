@@ -1,6 +1,7 @@
 package org.springframework.samples.petclinic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -15,11 +16,12 @@ import org.springframework.beans.support.PropertyComparator;
  * @author Ken Krebs
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author Arne Limburg
  */
 public class Vet extends Person {
 
 	private Set<Specialty> specialties;
-
+	private Set<Visit> visits;
 
 	protected void setSpecialtiesInternal(Set<Specialty> specialties) {
 		this.specialties = specialties;
@@ -46,4 +48,33 @@ public class Vet extends Person {
 		getSpecialtiesInternal().add(specialty);
 	}
 
+
+    protected void setVisitsInternal(Set<Visit> visits) {
+        this.visits = visits;
+    }
+
+    protected Set<Visit> getVisitsInternal() {
+        if (this.visits == null) {
+            this.visits = new HashSet<Visit>();
+        }
+        return this.visits;
+    }
+
+    public List<Visit> getVisits() {
+        List<Visit> sortedVisits = new ArrayList<Visit>(getVisitsInternal());
+        PropertyComparator.sort(sortedVisits, new MutableSortDefinition("date", true, true));
+        return Collections.unmodifiableList(sortedVisits);
+    }
+
+    public int getNrOfVisits() {
+        return getVisitsInternal().size();
+    }
+
+    public void addVisit(Visit visit) {
+        getVisitsInternal().add(visit);
+    }
+    
+    public String toString() {
+        return super.toString() + " " + Arrays.toString(getSpecialties().toArray());
+    }
 }

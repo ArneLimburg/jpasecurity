@@ -9,6 +9,7 @@
     <tr>
     <thead>
       <th>Name</th>
+      <th>Vet</th>
       <th>Birth Date</th>
       <th>Type</th>
       <th>Owner</th>
@@ -16,6 +17,7 @@
     </tr>
     <tr>
       <td>${visit.pet.name}</td>
+      <td>${visit.vet.name}</td>
       <td><fmt:formatDate value="${visit.pet.birthDate}" pattern="yyyy-MM-dd"/></td>
       <td>${visit.pet.type.name}</td>
       <td>${visit.pet.owner.firstName} ${visit.pet.owner.lastName}</td>
@@ -32,6 +34,15 @@
         <form:input path="date" size="10" maxlength="10"/> (yyyy-mm-dd)
       </td>
     <tr/>
+    <tr>
+      <th>
+        Vet:
+        <br/><form:errors path="vet" cssClass="errors"/>
+      </th>
+      <td>
+        <form:select path="vet" items="${vets}"/>
+      </td>
+    </tr>
     <tr>
       <th valign="top">
         Description:
