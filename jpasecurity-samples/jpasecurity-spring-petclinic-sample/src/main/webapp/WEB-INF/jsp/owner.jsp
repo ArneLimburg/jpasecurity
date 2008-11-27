@@ -63,12 +63,14 @@
           <table>
             <tr>
             <thead>
+              <th>Vet</th>
               <th>Visit Date</th>
               <th>Description</th>
             </thead>
             </tr>
             <c:forEach var="visit" items="${pet.visits}">
               <tr>
+                <td>${visit.vet.name}</td>
                 <td><fmt:formatDate value="${visit.date}" pattern="yyyy-MM-dd"/></td>
                 <td>${visit.description}</td>
               </tr>

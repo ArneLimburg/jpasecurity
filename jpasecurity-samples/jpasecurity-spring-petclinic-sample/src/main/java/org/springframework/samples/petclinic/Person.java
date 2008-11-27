@@ -4,6 +4,7 @@ package org.springframework.samples.petclinic;
  * Simple JavaBean domain object representing an person.
  *
  * @author Ken Krebs
+ * @author Arne Limburg
  */
 public class Person extends BaseEntity {
 
@@ -27,6 +28,7 @@ public class Person extends BaseEntity {
 		this.lastName = lastName;
 	}
 
-
-
+	public String toString() {
+	    return this.getLastName() + ", " + this.getFirstName();
+    }
 }
