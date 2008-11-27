@@ -27,11 +27,11 @@
 		- This bean processes annotated handler methods, applying PetClinic-specific PropertyEditors
 		- for request parameter binding. It overrides the default AnnotationMethodHandlerAdapter.
 	-->
-	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+	<!--bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
 		<property name="webBindingInitializer">
 			<bean class="org.springframework.samples.petclinic.web.ClinicBindingInitializer"/>
 		</property>
-	</bean>
+	</bean-->
 
 	<!--
 		- This bean resolves specific types of exceptions to corresponding logical 
@@ -39,14 +39,14 @@
 		- is to propagate all exceptions to the servlet container: this will happen 
 		- here with all other types of exceptions.
 	-->
-	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+	<!--bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
 		<property name="exceptionMappings">
 			<props>
 				<prop key="org.springframework.dao.DataAccessException">dataAccessFailure</prop>
 				<prop key="org.springframework.transaction.TransactionException">dataAccessFailure</prop>
 			</props>
 		</property>
-	</bean>
+	</bean-->
 
 	<!--
 		- This bean configures the 'prefix' and 'suffix' properties of 
