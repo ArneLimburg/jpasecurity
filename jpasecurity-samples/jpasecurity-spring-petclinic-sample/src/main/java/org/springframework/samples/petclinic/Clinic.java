@@ -13,6 +13,7 @@ import org.springframework.dao.DataAccessException;
  * @author Ken Krebs
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author Arne Limburg
  */
 public interface Clinic {
 
@@ -52,6 +53,14 @@ public interface Clinic {
 	 * @throws org.springframework.dao.DataRetrievalFailureException if not found
 	 */
 	Pet loadPet(int id) throws DataAccessException;
+
+    /**
+     * Retrieve a <code>Vet</code> from the data store by id.
+     * @param id the id to search for
+     * @return the <code>Vet</code> if found
+     * @throws org.springframework.dao.DataRetrievalFailureException if not found
+     */
+    Vet loadVet(int id) throws DataAccessException;
 
 	/**
 	 * Save an <code>Owner</code> to the data store, either inserting or updating it.

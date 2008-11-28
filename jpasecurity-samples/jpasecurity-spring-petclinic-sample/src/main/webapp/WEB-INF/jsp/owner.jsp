@@ -70,7 +70,7 @@
             </tr>
             <c:forEach var="visit" items="${pet.visits}">
               <tr>
-                <td>${visit.vet.name}</td>
+                <td><a href="vet.do?vetId=${visit.vet.id}">${visit.vet.firstName} ${visit.vet.lastName}</a></td>
                 <td><fmt:formatDate value="${visit.date}" pattern="yyyy-MM-dd"/></td>
                 <td>${visit.description}</td>
               </tr>
