@@ -69,4 +69,19 @@ public class ClinicController {
 		return new ModelMap(this.clinic.loadOwner(ownerId));
 	}
 
+    /**
+     * Custom handler for displaying a vet.
+     * <p>
+     * Note that this handler returns a plain {@link ModelMap} object instead of
+     * a ModelAndView, thus leveraging convention-based model attribute names.
+     * It relies on the RequestToViewNameTranslator to determine the logical
+     * view name based on the request URL: "/vet.do" -&gt; "vet".
+     *
+     * @param vetId the ID of the vet to display
+     * @return a ModelMap with the model attributes for the view
+     */
+    @RequestMapping("/vet.do")
+    public ModelMap vetHandler(@RequestParam("vetId") int vetId) {
+        return new ModelMap(this.clinic.loadVet(vetId));
+    }
 }

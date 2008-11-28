@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Mike Keith
  * @author Rod Johnson
  * @author Sam Brannen
+ * @author Arne Limburg
  * @since 22.4.2006
  */
 @Repository
@@ -62,6 +63,12 @@ public class EntityManagerClinic implements Clinic {
 	public Pet loadPet(int id) {
 		return this.em.find(Pet.class, id);
 	}
+
+    @Transactional(readOnly = true)
+    public Vet loadVet(int id) {
+        System.out.println("loading vet with id " + id);
+        return this.em.find(Vet.class, id);
+    }
 
 	public void storeOwner(Owner owner) {
 		// Consider returning the persistent object here, for exposing
