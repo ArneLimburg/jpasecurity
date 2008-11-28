@@ -10,10 +10,6 @@
 
 		<!-- Prevent annotation scanning. In this app we are purely driven by orm.xml -->
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
-        
-        <!--properties>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-        </properties-->
 	</persistence-unit>
 
 </persistence>

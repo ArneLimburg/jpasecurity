@@ -4,9 +4,21 @@
 <%@ include file="/WEB-INF/jsp/includes.jsp" %>
 <%@ include file="/WEB-INF/jsp/header.jsp" %>
 
-	<P>Valid users:
-	<P>
-	<P>username <b>rod</b>, password <b>koala</b>
+	<p>Valid users:
+	<p>
+	<p>username <b>james</b>, password <b>koala</b>
+	<br>username <b>helen</b>, password <b>emu</b>
+	<br>username <b>linda</b>, password <b>wombat</b>
+	<br>username <b>raphael</b>, password <b>opal</b>
+	<br>username <b>henry</b>, password <b>koala</b>
+	<br>username <b>sharon</b>, password <b>emu</b>
+	<br>username <b>george</b>, password <b>wombat</b>
+	<br>username <b>betty</b>, password <b>opal</b>
+	<br>username <b>rod</b>, password <b>koala</b>
+	<br>username <b>harold</b>, password <b>emu</b>
+	<br>username <b>jean</b>, password <b>wombat</b>
+	<br>username <b>peter</b>, password <b>opal</b>
+	<br>username <b>rod</b>, password <b>koala</b>
 	<br>username <b>dianne</b>, password <b>emu</b>
 	<br>username <b>scott</b>, password <b>wombat</b>
 	<br>username <b>peter</b>, password <b>opal</b>

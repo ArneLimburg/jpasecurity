@@ -30,7 +30,9 @@
 		</attributes>
 	</mapped-superclass>
 
-	<mapped-superclass class="Person">
+	<entity class="Person">
+		<table name="PERSONS"/>
+	    <inheritance strategy="JOINED"/>
 		<attributes>
 			<basic name="firstName">
 				<column name="FIRST_NAME"/>
@@ -38,8 +40,36 @@
 			<basic name="lastName">
 				<column name="LAST_NAME"/>
 			</basic>
+			<one-to-one name="credential" target-entity="Credential" mapped-by="user" fetch="EAGER">
+				<cascade>
+					<cascade-all/>
+				</cascade>
+			</one-to-one>
 		</attributes>
-	</mapped-superclass>
+	</entity>
+
+	<entity class="Credential">
+		<table name="USERS"/>
+		<attributes>
+			<basic name="username">
+				<column name="USERNAME"/>
+			</basic>
+			<basic name="password">
+				<column name="PASSWORD"/>
+			</basic>
+			<one-to-one name="user" target-entity="Person" fetch="EAGER">
+				<join-column name="PERSON_ID"/>
+				<cascade>
+					<cascade-all/>
+				</cascade>
+			</one-to-one>
+			<transient name="authorities"/>
+			<transient name="enabled"/>
+			<transient name="accountNonExpired"/>
+			<transient name="accountNonLocked"/>
+			<transient name="credentialsNonExpired"/>
+		</attributes>
+	</entity>
 
 	<entity class="Vet">
 		<table name="VETS"/>
