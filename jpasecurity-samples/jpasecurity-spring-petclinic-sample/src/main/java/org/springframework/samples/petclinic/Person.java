@@ -9,8 +9,8 @@ package org.springframework.samples.petclinic;
 public class Person extends BaseEntity {
 
 	private String firstName;
-
 	private String lastName;
+    private Credential credential;
 
 	public String getFirstName() {
 		return this.firstName;
@@ -27,6 +27,14 @@ public class Person extends BaseEntity {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
+    
+    public Credential getCredential() {
+        return credential;
+    }
+    
+    protected void setCredential(Credential credential) {
+        this.credential = credential;
+    }
 
 	public String toString() {
 	    return this.getLastName() + ", " + this.getFirstName();
