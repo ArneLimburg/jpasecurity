@@ -1,6 +1,7 @@
 package org.springframework.samples.petclinic.security;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
@@ -22,8 +23,12 @@ public class CredentialService implements UserDetailsService {
     private EntityManager em;    
     
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
-        Query query = this.em.createQuery("SELECT person.credential FROM Person person WHERE person.credential.username = :username");
-        query.setParameter("username", username);
-        return (UserDetails)query.getSingleResult();
+        try {
+            Query query = this.em.createQuery("SELECT person.credential FROM Person person WHERE person.credential.username = :username");
+            query.setParameter("username", username);
+            return (UserDetails)query.getSingleResult();
+        } catch (NoResultException e) {
+            throw new UsernameNotFoundException(username, e);
+        }
     }
 }
