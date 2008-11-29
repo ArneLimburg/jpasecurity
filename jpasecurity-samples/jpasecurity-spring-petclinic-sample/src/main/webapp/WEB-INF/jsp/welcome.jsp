@@ -2,14 +2,22 @@
 <%@ include file="/WEB-INF/jsp/header.jsp" %>
 
 <img src="images/pets.png" align="right" style="position:relative;right:30px;">
-<h2><fmt:message key="welcome"/></h2>
+<h2><fmt:message key="welcome"/> ${person.firstName} ${person.lastName}</h2>
 
 <ul>
-  <li><a href="<c:url value="/findOwners.do"/>">Find owner</a></li>
-  <li><a href="<c:url value="/vets.do"/>">Display all veterinarians</a></li>
-  <li><a href="<c:url value="/html/petclinic.html"/>">Tutorial</a></li>
-  <li><a href="<c:url value="/docs/index.html"/>">Documentation</a></li>
+  <c:choose>
+    <c:when test="${vet}">
+      <li><a href="<c:url value="/vet.do?vetId=${person.id}"/>">Personal information</a></li>
+      <li><a href="<c:url value="/findOwners.do"/>">Find owner</a></li>
+    </c:when>
+    <c:when test="${owner}">
+      <li><a href="<c:url value="/owner.do?ownerId=${person.id}"/>">Personal information</a></li>
+    </c:when>
+  </c:choose>
+  <li><a href="<c:url value="/vets.do"/>">All veterinarians</a></li>
 </ul>
+
+<p>&nbsp;</p>
 
 <p>&nbsp;</p>
 
