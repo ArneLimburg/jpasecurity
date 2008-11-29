@@ -24,7 +24,7 @@ public class CredentialService implements UserDetailsService {
     
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
         try {
-            Query query = this.em.createQuery("SELECT person.credential FROM Person person WHERE person.credential.username = :username");
+            Query query = this.em.createQuery("SELECT credential FROM Credential credential INNER JOIN FETCH credential.user WHERE credential.username = :username");
             query.setParameter("username", username);
             return (UserDetails)query.getSingleResult();
         } catch (NoResultException e) {
