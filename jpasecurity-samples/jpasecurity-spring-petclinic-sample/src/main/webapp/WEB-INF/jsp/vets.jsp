@@ -12,7 +12,7 @@
   </tr>
   <c:forEach var="vet" items="${vetList}">
     <tr>
-      <td>${vet.firstName} ${vet.lastName}</td>
+      <td><a href="vet.do?vetId=${vet.id}">${vet.firstName} ${vet.lastName}</a></td>
       <td>
 	    <c:forEach var="specialty" items="${vet.specialties}">
           ${specialty.name}
