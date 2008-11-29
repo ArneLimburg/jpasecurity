@@ -21,7 +21,7 @@ import java.util.List;
 
 import javax.persistence.Query;
 
-import net.sf.jpasecurity.entity.SecureEntityHandler;
+import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 
@@ -31,9 +31,9 @@ import net.sf.jpasecurity.util.ProxyInvocationHandler;
  */
 public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
 
-    private SecureEntityHandler entityHandler;
+    private SecureObjectManager entityHandler;
 
-    public QueryInvocationHandler(SecureEntityHandler entityHandler, Query query) {
+    public QueryInvocationHandler(SecureObjectManager entityHandler, Query query) {
         super(query);
         this.entityHandler = entityHandler;
     }

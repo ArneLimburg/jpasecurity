@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.entity;
+package net.sf.jpasecurity;
 
 import net.sf.jpasecurity.security.AccessType;
 
 /**
  * @author Arne Limburg
  */
-public interface SecureEntityHandler {
+public interface AccessChecker {
 
-    boolean isAccessible(Object object, AccessType accessType);
-    <E> SecureObject getSecureObject(E object);
+    boolean isAccessible(Object entity, AccessType accessType);
+
 }

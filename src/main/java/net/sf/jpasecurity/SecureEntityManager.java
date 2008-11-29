@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.entity;
+package net.sf.jpasecurity;
 
-import java.util.HashSet;
-import java.util.Set;
+import javax.persistence.EntityManager;
 
 /**
- * A set-implementation of secure collection.
  * @author Arne Limburg
  */
-public class SecureSet<E> extends AbstractSecureCollection<E, Set<E>> implements Set<E> {
-
-    public SecureSet(Set<E> set, SecureObjectManager objectManager) {
-        super(set, objectManager);
-    }
-
-    protected Set<E> createFiltered() {
-        return new HashSet<E>();
-    }
+public interface SecureEntityManager extends EntityManager, AccessChecker {
 }
