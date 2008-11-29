@@ -36,17 +36,17 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
 
     private T original;
     private T filtered;
-    private SecureEntityHandler entityHandler;
+    private SecureObjectManager objectManager;
 
     /**
      * Creates a collection that filters the specified (original) collection
      * based on the accessibility of their elements.
      * @param collection the original collection
-     * @param entityHandler the entity handler
+     * @param objectManager the object manager
      */
-    AbstractSecureCollection(T collection, SecureEntityHandler entityHandler) {
+    AbstractSecureCollection(T collection, SecureObjectManager objectManager) {
         this.original = collection;
-        this.entityHandler = entityHandler;
+        this.objectManager = objectManager;
     }
 
     /**
@@ -55,7 +55,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
      * @param filtered the (initialized) filtered collection
      * @param entityHandler the enity handler
      */
-    AbstractSecureCollection(T original, T filtered, SecureEntityHandler entityHandler) {
+    AbstractSecureCollection(T original, T filtered, SecureObjectManager entityHandler) {
         this(original, entityHandler);
         this.filtered = filtered;
     }
@@ -111,8 +111,8 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         return getFiltered().size();
     }
 
-    final SecureEntityHandler getEntityHandler() {
-        return entityHandler;
+    final SecureObjectManager getObjectManager() {
+        return objectManager;
     }
 
     final T getOriginal() {
@@ -137,7 +137,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
     }
 
     boolean isAccessible(E entity, AccessType accessType) {
-        return entityHandler.isAccessible(entity, accessType);
+        return objectManager.isAccessible(entity, accessType);
     }
 
     Collection<? extends E> filterAll(Collection<? extends E> collection) {
@@ -164,7 +164,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         this.filtered = createFiltered();
         for (E entity: original) {
             if (isAccessible(entity, READ)) {
-                filtered.add((E)entityHandler.getSecureObject(entity));
+                filtered.add((E)objectManager.getSecureObject(entity));
             }
         }
     }

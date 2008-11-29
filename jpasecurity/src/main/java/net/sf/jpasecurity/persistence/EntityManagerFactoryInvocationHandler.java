@@ -26,6 +26,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.parser.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.parser.OrmXmlParser;
@@ -89,6 +90,7 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
 
     protected Class<?>[] getImplementingInterfaces(Class<?> type) {
         Set<Class<?>> interfaces = new HashSet<Class<?>>();
+        interfaces.add(SecureEntityManager.class);
         while (type != null) {
             for (Class<?> iface: type.getInterfaces()) {
                 interfaces.add(iface);

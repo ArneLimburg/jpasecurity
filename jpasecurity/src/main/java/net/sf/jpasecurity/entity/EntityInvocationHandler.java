@@ -42,7 +42,7 @@ import net.sf.jpasecurity.util.AbstractInvocationHandler;
 public class EntityInvocationHandler extends AbstractInvocationHandler implements MethodInterceptor {
 
     private ClassMappingInformation mapping;
-    private SecureEntityHandler entityHandler;
+    private SecureObjectManager objectManager;
     private boolean initialized;
     private boolean deleted;
     private ThreadLocal<Boolean> updating = new ThreadLocal<Boolean>();
@@ -50,10 +50,10 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     private Map<String, Object> propertyValues = new HashMap<String, Object>();
 
     public EntityInvocationHandler(ClassMappingInformation mapping,
-                                   SecureEntityHandler entityHandler,
+                                   SecureObjectManager objectManager,
                                    Object entity) {
         this.mapping = mapping;
-        this.entityHandler = entityHandler;
+        this.objectManager = objectManager;
         this.entity = entity;
     }
 
@@ -103,7 +103,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
      */
     public SecureEntity merge(EntityManager entityManager) {
         checkAccess(entity, AccessType.UPDATE, CascadeType.MERGE, new HashSet<Object>());
-        return (SecureEntity)entityHandler.getSecureObject(entityManager.merge(entity));
+        return (SecureEntity)objectManager.getSecureObject(entityManager.merge(entity));
     }
 
     /**
@@ -128,9 +128,9 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
      * @throws SecurityException when the current user is not allowed to lock the entity of this invocation handler
      */
     public void lock(EntityManager entityManager, LockModeType lockMode) {
-        if (lockMode == LockModeType.READ && !entityHandler.isAccessible(entity, AccessType.READ)) {
+        if (lockMode == LockModeType.READ && !objectManager.isAccessible(entity, AccessType.READ)) {
             throw new SecurityException();
-        } else if (lockMode == LockModeType.WRITE && !entityHandler.isAccessible(entity, AccessType.UPDATE)) {
+        } else if (lockMode == LockModeType.WRITE && !objectManager.isAccessible(entity, AccessType.UPDATE)) {
             throw new SecurityException();
         }
         entityManager.lock(entity, lockMode);
@@ -140,13 +140,13 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
                              AccessType accessType,
                              CascadeType cascadeType,
                              Set<Object> checkedEntities) {
-        if (checkedEntities.contains(object) || !entityHandler.getSecureObject(object).isInitialized()) {
+        if (checkedEntities.contains(object) || !objectManager.getSecureObject(object).isInitialized()) {
             return;
         }
         if (object instanceof Collection) {
             checkAccess((Collection)object, accessType, cascadeType, checkedEntities);
         } else {
-            if (!entityHandler.isAccessible(object, accessType)) {
+            if (!objectManager.isAccessible(object, accessType)) {
                 throw new SecurityException();
             }
             checkedEntities.add(object);
@@ -178,7 +178,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
             Object value = propertyMapping.getPropertyValue(entity);
             if (propertyMapping instanceof RelationshipMappingInformation) {
-                value = entityHandler.getSecureObject(value);
+                value = objectManager.getSecureObject(value);
             }
             propertyMapping.setPropertyValue(object, value);
             propertyValues.put(propertyMapping.getPropertyName(), value);
@@ -194,7 +194,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             if (value != propertyValues.get(propertyMapping.getPropertyName())) {
                 propertyMapping.setPropertyValue(entity, getUnsecureObject(value));
                 if (propertyMapping instanceof RelationshipMappingInformation) {
-                    value = entityHandler.getSecureObject(object);
+                    value = objectManager.getSecureObject(object);
                     propertyMapping.setPropertyValue(object, value);
                 }
                 propertyValues.put(propertyMapping.getPropertyName(), value);

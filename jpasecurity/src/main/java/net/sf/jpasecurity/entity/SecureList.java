@@ -30,8 +30,8 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
 
     private AbstractSecureCollection<E, List<E>> secureList;
 
-    public SecureList(List<E> list, SecureEntityHandler entityHandler) {
-        secureList = new DefaultSecureCollection<E, List<E>>(list, entityHandler);
+    public SecureList(List<E> list, SecureObjectManager objectManager) {
+        secureList = new DefaultSecureCollection<E, List<E>>(list, objectManager);
     }
 
     /**
