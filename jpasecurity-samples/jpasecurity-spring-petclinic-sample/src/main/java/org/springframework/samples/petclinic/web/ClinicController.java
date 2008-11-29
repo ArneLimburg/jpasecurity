@@ -3,6 +3,10 @@ package org.springframework.samples.petclinic.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.Clinic;
+import org.springframework.samples.petclinic.Credential;
+import org.springframework.samples.petclinic.Owner;
+import org.springframework.samples.petclinic.Vet;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +39,12 @@ public class ClinicController {
 	 * -&gt; "welcome".
 	 */
 	@RequestMapping("/welcome.do")
-	public void welcomeHandler() {
+	public ModelMap welcomeHandler() {
+        Credential credential = (Credential)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ModelMap model = new ModelMap("person", credential.getUser());
+        model.addAttribute("vet", credential.getUser() instanceof Vet);
+        model.addAttribute("owner", credential.getUser() instanceof Owner);
+        return model;
 	}
 
 	/**
