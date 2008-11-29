@@ -87,9 +87,10 @@ public class EntityManagerClinic implements Clinic {
     public Vet loadVet(int id) {
         Query query = this.em.createQuery("SELECT vet FROM Vet vet "
                                         + "LEFT OUTER JOIN FETCH vet.specialtiesInternal specialities "
-                                        + "LEFT OUTER JOIN FETCH vet.visitsInternal visits "
-                                        + "LEFT OUTER JOIN FETCH visits.pet pet "
+                                        + "LEFT OUTER JOIN FETCH vet.visitsInternal visit "
+                                        + "LEFT OUTER JOIN FETCH visit.pet pet "
                                         + "LEFT OUTER JOIN FETCH pet.owner owner "
+                                        + "LEFT OUTER JOIN FETCH pet.type petType "
                                         + "WHERE vet.id = :id");
         query.setParameter("id", id);
         return (Vet)query.getSingleResult();
@@ -102,6 +103,7 @@ public class EntityManagerClinic implements Clinic {
                                         + "LEFT OUTER JOIN FETCH vet.specialtiesInternal specialties "
                                         + "LEFT OUTER JOIN FETCH visit.pet pet "
                                         + "LEFT OUTER JOIN FETCH pet.owner owner "
+                                        + "LEFT OUTER JOIN FETCH pet.type petType "
                                         + "LEFT OUTER JOIN FETCH pet.visitsInternal visits "
                                         + "WHERE visit.id = :id");
         query.setParameter("id", id);
