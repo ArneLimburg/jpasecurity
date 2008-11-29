@@ -36,7 +36,7 @@ import net.sf.jpasecurity.entity.DefaultSecureCollection;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
 import net.sf.jpasecurity.entity.SecureCollection;
 import net.sf.jpasecurity.entity.SecureEntity;
-import net.sf.jpasecurity.entity.SecureEntityHandler;
+import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.entity.SecureList;
 import net.sf.jpasecurity.entity.SecureObject;
 import net.sf.jpasecurity.entity.SecureSet;
@@ -56,7 +56,7 @@ import net.sf.jpasecurity.util.ProxyInvocationHandler;
  * @author Arne Limburg
  */
 public class EntityManagerInvocationHandler extends ProxyInvocationHandler<EntityManager>
-                                            implements SecureEntityHandler {
+                                            implements SecureObjectManager {
 
     private AuthenticationProvider authenticationProvider;
     private MappingInformation mappingInformation;

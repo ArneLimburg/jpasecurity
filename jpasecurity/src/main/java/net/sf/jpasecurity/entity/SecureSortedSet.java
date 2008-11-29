@@ -25,12 +25,12 @@ import java.util.TreeSet;
  */
 public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>> implements SortedSet<E> {
 
-    public SecureSortedSet(SortedSet<E> sortedSet, SecureEntityHandler entityHandler) {
-        super(sortedSet, entityHandler);
+    public SecureSortedSet(SortedSet<E> sortedSet, SecureObjectManager objectManager) {
+        super(sortedSet, objectManager);
     }
 
-    SecureSortedSet(SortedSet<E> original, SortedSet<E> filtered, SecureEntityHandler entityHandler) {
-        super(original, filtered, entityHandler);
+    SecureSortedSet(SortedSet<E> original, SortedSet<E> filtered, SecureObjectManager objectManager) {
+        super(original, filtered, objectManager);
     }
 
     protected SortedSet<E> createFiltered() {
@@ -56,18 +56,18 @@ public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>
     public SortedSet<E> headSet(E toElement) {
         return new SecureSortedSet(getOriginal().headSet(toElement),
                                      getFiltered().headSet(toElement),
-                                     getEntityHandler());
+                                     getObjectManager());
     }
 
     public SortedSet<E> subSet(E fromElement, E toElement) {
         return new SecureSortedSet(getOriginal().subSet(fromElement, toElement),
                                      getFiltered().subSet(fromElement, toElement),
-                                     getEntityHandler());
+                                     getObjectManager());
     }
 
     public SortedSet<E> tailSet(E fromElement) {
         return new SecureSortedSet(getOriginal().tailSet(fromElement),
                                      getFiltered().tailSet(fromElement),
-                                     getEntityHandler());
+                                     getObjectManager());
     }
 }
