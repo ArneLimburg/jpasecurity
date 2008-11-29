@@ -1,7 +1,6 @@
 package org.springframework.samples.petclinic;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -75,6 +74,16 @@ public class Vet extends Person {
     }
     
     public String toString() {
-        return super.toString() + " " + Arrays.toString(getSpecialties().toArray());
+        StringBuilder specialties = new StringBuilder();
+        for (Specialty specialty: getSpecialties()) {
+            specialties.append(' ').append(specialty.getName()).append(',');
+        }
+        if (getNrOfSpecialties() == 0) {
+            specialties.append("(none)");
+        } else {
+            specialties.setCharAt(0, '(');
+            specialties.setCharAt(specialties.length() - 1, ')');
+        }
+        return super.toString() + " " + specialties.toString();
     }
 }
