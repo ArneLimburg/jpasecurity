@@ -5,6 +5,9 @@ import org.springframework.samples.petclinic.Clinic;
 import org.springframework.samples.petclinic.Credential;
 import org.springframework.samples.petclinic.Owner;
 import org.springframework.samples.petclinic.validation.OwnerValidator;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
@@ -34,10 +37,11 @@ public class AddOwnerForm {
     private final UserDetailsService userDetailsService;
 
 	@Autowired
-	public AddOwnerForm(Clinic clinic, UserDetailsService userDetailsService) {
+	public AddOwnerForm(Clinic clinic,
+                        UserDetailsService userDetailsService) {
 		this.clinic = clinic;
         this.userDetailsService = userDetailsService;
-	}
+    }
 
     @InitBinder
     public void setAllowedFields(WebDataBinder dataBinder) {
@@ -51,6 +55,7 @@ public class AddOwnerForm {
         owner.setCredential(credential);
         credential.setUser(owner);
 		model.addAttribute(owner);
+        model.addAttribute(credential); //This is for the pre-authentication filter
 		return "ownerForm";
 	}
 
@@ -68,8 +73,12 @@ public class AddOwnerForm {
 		}
 		else {
 			this.clinic.storeOwner(owner);
+			Credential credential = owner.getCredential();
+            Authentication authentication
+                = new UsernamePasswordAuthenticationToken(credential, credential, credential.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 			status.setComplete();
-			return "redirect:owner.do?ownerId=" + owner.getId();
+			return "redirect:welcome.do";
 		}
 	}
 

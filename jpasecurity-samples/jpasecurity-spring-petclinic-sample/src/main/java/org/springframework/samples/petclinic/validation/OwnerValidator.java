@@ -43,6 +43,9 @@ public class OwnerValidator {
         if (!StringUtils.hasLength(owner.getCredential().getUsername())) {
             errors.rejectValue("credential.username", "required", "required");
         }
+        if (owner.getCredential().isNew() && !StringUtils.hasLength(owner.getCredential().getPassword())) {
+            errors.rejectValue("credential.newPassword", "required", "required");
+        }
 	}
 
 }

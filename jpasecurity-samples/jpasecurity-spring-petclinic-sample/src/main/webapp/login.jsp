@@ -36,4 +36,13 @@
 
     </form>
 
-<%@ include file="/WEB-INF/jsp/footer.jsp" %>
+  <table class="footer">
+    <tr>
+      <td><a href="<c:url value="/addOwner.do"/>">Register</a></td>
+    </tr>
+  </table>
+
+  </div>
+</body>
+
+</html>

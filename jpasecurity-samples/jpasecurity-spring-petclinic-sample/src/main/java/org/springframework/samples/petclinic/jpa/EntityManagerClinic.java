@@ -116,6 +116,7 @@ public class EntityManagerClinic implements Clinic {
 		Owner merged = this.em.merge(owner);
 		this.em.flush();
 		owner.setId(merged.getId());
+        owner.getCredential().setId(merged.getCredential().getId());
 	}
 
 	public void storePet(Pet pet) {

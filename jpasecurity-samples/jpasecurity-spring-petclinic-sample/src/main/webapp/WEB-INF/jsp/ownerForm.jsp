@@ -65,7 +65,7 @@
       <td>
         <c:choose>
           <c:when test="${owner.new}">
-            <p class="submit"><input type="submit" value="Add Owner"/></p>
+            <p class="submit"><input type="submit" value="Register User"/></p>
           </c:when>
           <c:otherwise>
             <p class="submit"><input type="submit" value="Update Owner"/></p>
