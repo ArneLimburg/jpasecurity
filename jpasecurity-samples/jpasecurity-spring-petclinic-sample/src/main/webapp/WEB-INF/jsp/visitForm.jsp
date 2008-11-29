@@ -32,7 +32,7 @@
       </th>
       <td>
         <c:choose>
-          <c:when test="${pet.new}">
+          <c:when test="${visit.new}">
             <form:input path="date" size="10" maxlength="10"/> (yyyy-mm-dd)
           </c:when>
           <c:otherwise>
@@ -48,7 +48,7 @@
       </th>
       <td>
         <c:choose>
-          <c:when test="${pet.new}">
+          <c:when test="${visit.new}">
             <form:select path="vet" items="${vets}"/>
           </c:when>
           <c:otherwise>
@@ -69,7 +69,7 @@
     <tr>
       <td colspan="2">
         <c:choose>
-          <c:when test="${pet.new}">
+          <c:when test="${visit.new}">
             <input type="hidden" name="petId" value="${visit.pet.id}"/>
             <p class="submit"><input type="submit" value="Add Visit"/></p>
           </c:when>
