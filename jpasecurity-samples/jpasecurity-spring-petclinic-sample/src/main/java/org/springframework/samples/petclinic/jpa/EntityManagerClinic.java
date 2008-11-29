@@ -37,37 +37,75 @@ public class EntityManagerClinic implements Clinic {
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public Collection<Vet> getVets() {
-		return this.em.createQuery("SELECT vet FROM Vet vet ORDER BY vet.lastName, vet.firstName").getResultList();
+		Query query = this.em.createQuery("SELECT DISTINCT vet FROM Vet vet "
+                                        + "LEFT OUTER JOIN FETCH vet.specialtiesInternal "
+                                        + "LEFT OUTER JOIN FETCH vet.visitsInternal "
+                                        + "ORDER BY vet.lastName, vet.firstName");
+		return query.getResultList();
 	}
 
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public Collection<PetType> getPetTypes() {
-		return this.em.createQuery("SELECT ptype FROM PetType ptype ORDER BY ptype.name").getResultList();
+        Query query = this.em.createQuery("SELECT ptype FROM PetType ptype "
+                                        + "ORDER BY ptype.name");
+        return query.getResultList();
 	}
 
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public Collection<Owner> findOwners(String lastName) {
-		Query query = this.em.createQuery("SELECT owner FROM Owner owner WHERE owner.lastName LIKE :lastName");
+		Query query = this.em.createQuery("SELECT owner FROM Owner owner "
+                                        + "LEFT OUTER JOIN FETCH owner.petsInternal pets "
+                                        + "WHERE owner.lastName LIKE :lastName");
 		query.setParameter("lastName", lastName + "%");
 		return query.getResultList();
 	}
 
 	@Transactional(readOnly = true)
 	public Owner loadOwner(int id) {
-		return this.em.find(Owner.class, id);
+		Query query = this.em.createQuery("SELECT owner FROM Owner owner "
+                                        + "LEFT OUTER JOIN FETCH owner.petsInternal pets "
+                                        + "LEFT OUTER JOIN FETCH pets.visitsInternal visits "
+                                        + "LEFT OUTER JOIN FETCH visits.vet vet "
+                                        + "WHERE owner.id = :id");
+        query.setParameter("id", id);
+        return (Owner)query.getSingleResult();
 	}
 
 	@Transactional(readOnly = true)
 	public Pet loadPet(int id) {
-		return this.em.find(Pet.class, id);
+        Query query = this.em.createQuery("SELECT pet FROM Pet pet "
+                                        + "LEFT OUTER JOIN FETCH pet.owner owner "
+                                        + "LEFT OUTER JOIN FETCH pet.visitsInternal visits "
+                                        + "WHERE pet.id = :id");
+        query.setParameter("id", id);
+        return (Pet)query.getSingleResult();
 	}
 
     @Transactional(readOnly = true)
     public Vet loadVet(int id) {
-        System.out.println("loading vet with id " + id);
-        return this.em.find(Vet.class, id);
+        Query query = this.em.createQuery("SELECT vet FROM Vet vet "
+                                        + "LEFT OUTER JOIN FETCH vet.specialtiesInternal specialities "
+                                        + "LEFT OUTER JOIN FETCH vet.visitsInternal visits "
+                                        + "LEFT OUTER JOIN FETCH visits.pet pet "
+                                        + "LEFT OUTER JOIN FETCH pet.owner owner "
+                                        + "WHERE vet.id = :id");
+        query.setParameter("id", id);
+        return (Vet)query.getSingleResult();
+    }
+
+    @Transactional(readOnly = true)
+    public Visit loadVisit(int id) {
+        Query query = this.em.createQuery("SELECT visit FROM Visit visit "
+                                        + "LEFT OUTER JOIN FETCH visit.vet vet "
+                                        + "LEFT OUTER JOIN FETCH vet.specialtiesInternal specialties "
+                                        + "LEFT OUTER JOIN FETCH visit.pet pet "
+                                        + "LEFT OUTER JOIN FETCH pet.owner owner "
+                                        + "LEFT OUTER JOIN FETCH pet.visitsInternal visits "
+                                        + "WHERE visit.id = :id");
+        query.setParameter("id", id);
+        return (Visit)query.getSingleResult();
     }
 
 	public void storeOwner(Owner owner) {

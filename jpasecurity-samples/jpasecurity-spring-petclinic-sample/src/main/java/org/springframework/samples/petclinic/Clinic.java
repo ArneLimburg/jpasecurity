@@ -62,6 +62,14 @@ public interface Clinic {
      */
     Vet loadVet(int id) throws DataAccessException;
 
+    /**
+     * Retrieve a <code>Visit</code> from the data store by id.
+     * @param id the id to search for
+     * @return the <code>Visit</code> if found
+     * @throws org.springframework.dao.DataRetrievalFailureException if not found
+     */
+    Visit loadVisit(int id) throws DataAccessException;
+
 	/**
 	 * Save an <code>Owner</code> to the data store, either inserting or updating it.
 	 * @param owner the <code>Owner</code> to save

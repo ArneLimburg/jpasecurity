@@ -9,6 +9,7 @@ import org.springframework.validation.Errors;
  *
  * @author Ken Krebs
  * @author Juergen Hoeller
+ * @author Arne Limburg
  */
 public class OwnerValidator {
 
@@ -38,6 +39,10 @@ public class OwnerValidator {
 				}
 			}
 		}
+        
+        if (!StringUtils.hasLength(owner.getCredential().getUsername())) {
+            errors.rejectValue("credential.username", "required", "required");
+        }
 	}
 
 }
