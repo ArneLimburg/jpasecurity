@@ -40,7 +40,7 @@
 			<basic name="lastName">
 				<column name="LAST_NAME"/>
 			</basic>
-			<one-to-one name="credential" target-entity="Credential" mapped-by="user" fetch="EAGER">
+			<one-to-one name="credential" target-entity="Credential" mapped-by="user" fetch="LAZY">
 				<cascade>
 					<cascade-all/>
 				</cascade>
@@ -57,12 +57,13 @@
 			<basic name="password">
 				<column name="PASSWORD"/>
 			</basic>
-			<one-to-one name="user" target-entity="Person" fetch="EAGER">
+			<one-to-one name="user" target-entity="Person" fetch="LAZY">
 				<join-column name="PERSON_ID"/>
 				<cascade>
 					<cascade-all/>
 				</cascade>
 			</one-to-one>
+			<transient name="newPassword"/>
 			<transient name="authorities"/>
 			<transient name="enabled"/>
 			<transient name="accountNonExpired"/>
@@ -74,12 +75,12 @@
 	<entity class="Vet">
 		<table name="VETS"/>
 		<attributes>
-			<one-to-many name="visitsInternal" target-entity="Visit" mapped-by="vet" fetch="EAGER">
+			<one-to-many name="visitsInternal" target-entity="Visit" mapped-by="vet" fetch="LAZY">
 				<cascade>
 					<cascade-all/>
 				</cascade>
 			</one-to-many>
-			<many-to-many name="specialtiesInternal" target-entity="Specialty" fetch="EAGER">
+			<many-to-many name="specialtiesInternal" target-entity="Specialty" fetch="LAZY">
 				<join-table name="VET_SPECIALTIES">
 					<join-column name="VET_ID"/>
 					<inverse-join-column name="SPECIALTY_ID"/>
@@ -102,7 +103,7 @@
 			<basic name="address"/>
 			<basic name="city"/>
 			<basic name="telephone"/>
-			<one-to-many name="petsInternal" target-entity="Pet" mapped-by="owner" fetch="EAGER">
+			<one-to-many name="petsInternal" target-entity="Pet" mapped-by="owner" fetch="LAZY">
 				<cascade>
 					<cascade-all/>
 				</cascade>
@@ -118,7 +119,7 @@
 				<column name="BIRTH_DATE"/>
 				<temporal>DATE</temporal>
 			</basic>
-			<many-to-one name="owner" fetch="EAGER">
+			<many-to-one name="owner" fetch="LAZY">
 				<cascade>
 					<cascade-all/>
 				</cascade>
@@ -128,7 +129,7 @@
 					<cascade-all/>
 				</cascade>
 			</many-to-one>
-			<one-to-many name="visitsInternal" target-entity="Visit" mapped-by="pet" fetch="EAGER">
+			<one-to-many name="visitsInternal" target-entity="Visit" mapped-by="pet" fetch="LAZY">
 				<cascade>
 					<cascade-all/>
 				</cascade>
@@ -148,12 +149,12 @@
 				<column name="VISIT_DATE"/>
 				<temporal>DATE</temporal>
 			</basic>
-			<many-to-one name="pet" fetch="EAGER">
+			<many-to-one name="pet" fetch="LAZY">
 				<cascade>
 					<cascade-all/>
 				</cascade>
 			</many-to-one>
-			<many-to-one name="vet" fetch="EAGER">
+			<many-to-one name="vet" fetch="LAZY">
 				<cascade>
 					<cascade-all/>
 				</cascade>

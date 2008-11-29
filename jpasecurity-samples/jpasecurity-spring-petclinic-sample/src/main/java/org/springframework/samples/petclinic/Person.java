@@ -32,7 +32,7 @@ public class Person extends BaseEntity {
         return credential;
     }
     
-    protected void setCredential(Credential credential) {
+    public void setCredential(Credential credential) {
         this.credential = credential;
     }
 

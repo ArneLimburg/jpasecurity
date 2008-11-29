@@ -17,7 +17,9 @@ package org.springframework.samples.petclinic;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.providers.encoding.Md5PasswordEncoder;
 import org.springframework.security.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Arne Limburg
@@ -34,7 +36,7 @@ public class Credential extends BaseEntity implements UserDetails {
         return username;
     }
     
-    protected void setUsername(String username) {
+    public void setUsername(String username) {
         this.username = username;
     }
 
@@ -46,11 +48,21 @@ public class Credential extends BaseEntity implements UserDetails {
         this.password = password;
     }
     
+    public String getNewPassword() {
+        return "new password";
+    }
+    
+    public void setNewPassword(String password) {
+        if (StringUtils.hasText(password)) {
+            setPassword(new Md5PasswordEncoder().encodePassword(password, null));
+        }
+    }
+    
     public Person getUser() {
         return user;
     }
     
-    protected void setUser(Person user) {
+    public void setUser(Person user) {
         this.user = user;
     }
 

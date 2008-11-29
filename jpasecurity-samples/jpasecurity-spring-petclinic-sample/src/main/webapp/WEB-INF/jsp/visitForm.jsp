@@ -17,7 +17,7 @@
     </tr>
     <tr>
       <td>${visit.pet.name}</td>
-      <td>${visit.vet.name}</td>
+      <td>${visit.vet.firstName} ${visit.vet.lastName}</td>
       <td><fmt:formatDate value="${visit.pet.birthDate}" pattern="yyyy-MM-dd"/></td>
       <td>${visit.pet.type.name}</td>
       <td>${visit.pet.owner.firstName} ${visit.pet.owner.lastName}</td>
@@ -31,7 +31,14 @@
         <br/><form:errors path="date" cssClass="errors"/>
       </th>
       <td>
-        <form:input path="date" size="10" maxlength="10"/> (yyyy-mm-dd)
+        <c:choose>
+          <c:when test="${pet.new}">
+            <form:input path="date" size="10" maxlength="10"/> (yyyy-mm-dd)
+          </c:when>
+          <c:otherwise>
+            <fmt:formatDate value="${visit.date}" pattern="yyyy-MM-dd"/>
+          </c:otherwise>
+        </c:choose>
       </td>
     <tr/>
     <tr>
@@ -40,7 +47,14 @@
         <br/><form:errors path="vet" cssClass="errors"/>
       </th>
       <td>
-        <form:select path="vet" items="${vets}"/>
+        <c:choose>
+          <c:when test="${pet.new}">
+            <form:select path="vet" items="${vets}"/>
+          </c:when>
+          <c:otherwise>
+            ${visit.vet.firstName} ${visit.vet.lastName}
+          </c:otherwise>
+        </c:choose>
       </td>
     </tr>
     <tr>
@@ -54,8 +68,15 @@
     </tr>
     <tr>
       <td colspan="2">
-        <input type="hidden" name="petId" value="${visit.pet.id}"/>
-        <p class="submit"><input type="submit" value="Add Visit"/></p>
+        <c:choose>
+          <c:when test="${pet.new}">
+            <input type="hidden" name="petId" value="${visit.pet.id}"/>
+            <p class="submit"><input type="submit" value="Add Visit"/></p>
+          </c:when>
+          <c:otherwise>
+            <p class="submit"><input type="submit" value="Update Visit"/></p>
+          </c:otherwise>
+        </c:choose>
       </td>
     </tr>
   </table>
