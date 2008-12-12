@@ -40,6 +40,7 @@ public class ToStringVisitorTest extends TestCase {
 		assertJpql("SELECT bean FROM net.sf.jpasecurity.model.TestBean bean WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN bean.name name WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN FETCH bean.name WHERE bean.id = :id");
+        assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN FETCH bean.name beanName WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.name name WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean INNER JOIN FETCH bean.name WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id BETWEEN 5 AND 7)");
