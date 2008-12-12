@@ -318,7 +318,7 @@ JpqlStatement jpqlStatement() #Statement: {} {
 }
 
 JpqlAccessRule jpqlAccessRule() #AccessRule: {} {
-    <GRANT> [<CREATE> #Create][<READ> #Read][<UPDATE> #Update][<DELETE> #Delete] <ACCESS> toClause() whereClause()
+    <GRANT> [<CREATE> #Create][<READ> #Read][<UPDATE> #Update][<DELETE> #Delete] <ACCESS> toClause() [whereClause()]
     {
         return jjtThis;
     }
