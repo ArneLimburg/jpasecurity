@@ -130,7 +130,11 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
      */
     public boolean visit(JpqlOuterFetchJoin node, StringBuilder query) {
         query.append(" LEFT OUTER JOIN FETCH ");
-        return true;
+        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+            node.jjtGetChild(i).visit(this, query);
+            query.append(' ');
+        }
+        return false;
     }
 
     /**
@@ -138,7 +142,11 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
      */
     public boolean visit(JpqlInnerFetchJoin node, StringBuilder query) {
         query.append(" INNER JOIN FETCH ");
-        return true;
+        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+            node.jjtGetChild(i).visit(this, query);
+            query.append(' ');
+        }
+        return false;
     }
 
     /**
