@@ -384,11 +384,11 @@ void fetchJoin(): {} {
 }
 
 void outerFetchJoin() #OuterFetchJoin: {} {
-    <LEFT> [<OUTER>] <JOIN> <FETCH> joinPath()
+    <LEFT> [<OUTER>] <JOIN> <FETCH> joinPath() [[LOOKAHEAD(1) <AS>] identificationVariable()]
 }
 
 void innerFetchJoin() #InnerFetchJoin: {} {
-    [<INNER>] <JOIN> <FETCH> joinPath()
+    [<INNER>] <JOIN> <FETCH> joinPath() [[LOOKAHEAD(1) <AS>] identificationVariable()]
 }
 
 void joinPath() #Path: {} {
