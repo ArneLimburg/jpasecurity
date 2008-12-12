@@ -116,7 +116,9 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
         QueryPreparator preparator = new QueryPreparator();
         for (AccessRule accessRule: accessRules) {
             evaluator.evaluate(preparator.createPath(accessRule.getSelectedPath()), accessRule.getAliasTypes());
-            evaluator.evaluate(accessRule.getWhereClause(), accessRule.getAliasTypes());
+            if (accessRule.getWhereClause() != null) {
+                evaluator.evaluate(accessRule.getWhereClause(), accessRule.getAliasTypes());
+            }
         }
     }
 }
