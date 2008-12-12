@@ -27,6 +27,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -35,46 +36,61 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.xml.XmlNodeList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
- * Parser to parse orm.xml
- * <strong>This class is not thread-safe</strong>
+ * Parser to parse orm.xml <strong>This class is not thread-safe</strong>
+ *
  * @todo support <xml-mapping-metadata-complete/> tag
  * @author Arne Limburg
  * @author Johannes Siemer
  */
 public class OrmXmlParser extends AbstractMappingParser {
 
-    private static final String NAMED_QUERY_XPATH = "//named-query";
-    private static final String CASCADE_TYPE_XPATH = "//entity[@class=''{0}'']//*[@name=''{1}'']/cascade/*";
-
     private static final Log LOG = LogFactory.getLog(OrmXmlParser.class);
 
-    /**
-     * The tag name for entities
-     */
-    public static final String ENTITY_TAG_NAME = "entity";
-
-    /**
-     * The tag name for mapped superclasses
-     */
-    public static final String MAPPED_SUPERCLASS_TAG_NAME = "mapped-superclass";
-
-    /**
-     * The tag name for embeddables
-     */
-    public static final String EMBEDDABLE_TAG_NAME = "embeddable";
+    public static final String NAMED_QUERY_XPATH
+        = "//named-query";
+    public static final String CASCADE_TYPE_XPATH
+        = "//entity[@class=''{0}'']//*[@name=''{1}'']/cascade/*";
+    public static final String PACKAGE_XPATH
+        = "//package";
+    public static final String ENTITIES_XPATH
+        = "//entity";
+    public static final String MAPPED_SUPERCLASSES_XPATH
+        = "//mapped-superclass";
+    public static final String EMBEDDABLES_XPATH
+        = "//embeddable";
+    public static final String ENTITY_XPATH
+        = "//entity[@class=''{0}'']";
+    public static final String MAPPED_SUPERCLASS_XPATH
+        = "//mapped-superclass[@class=''{0}'']";
+    public static final String EMBEDDABLE_XPATH
+        = "//embeddable[@class=''{0}'']";
+    public static final String CLASS_XPATH
+        = "//*[@class=''{0}'']";
+    public static final String ID_CLASS_XPATH
+        = "//entity[@class=''{0}'']//id-class/@class";
+    public static final String GLOBAL_ACCESS_TYPE_XPATH
+        = "//persistence-unit-defaults/access";
+    public static final String ACCESS_TYPE_XPATH
+        = "//*[@class=''{0}'']/@access";
+    public static final String ID_PROPERTY_XPATH
+        = "//entity[@class=''{0}'']//id[@name=''{1}'']";
+    public static final String EMBEDDED_ID_PROPERTY_XPATH
+        = "//entity[@class=''{0}'']/attributes/embedded-id[@name=''{1}'']";
+    public static final String TRANSIENT_PROPERTY_XPATH
+        = "//entity[@class=''{0}'']/attributes/transient[@name=''{1}'']";
 
     /**
      * The tag name for attributes
@@ -82,19 +98,9 @@ public class OrmXmlParser extends AbstractMappingParser {
     public static final String ATTRIBUTES_TAG_NAME = "attributes";
 
     /**
-     * The tag name for id classes
-     */
-    public static final String ID_CLASS_TAG_NAME = "id-class";
-
-    /**
      * The tag name for embedded ids
      */
     public static final String EMBEDDED_ID_TAG_NAME = "embedded-id";
-
-    /**
-     * The tag name for ids
-     */
-    public static final String ID_TAG_NAME = "id";
 
     /**
      * The tag name for many-to-one mappings
@@ -137,20 +143,12 @@ public class OrmXmlParser extends AbstractMappingParser {
     public static final String NAME_ATTRIBUTE_NAME = "name";
 
     /**
-     * The attribute name for access
-     */
-    public static final String ACCESS_ATTRIBUTE_NAME = "access";
-
-    /**
      * The field access type value
      */
     public static final String FIELD_ACCESS = "FIELD";
 
     private static final XPath XPATH = XPathFactory.newInstance().newXPath();;
 
-    private XmlNodeList entityNodes;
-    private XmlNodeList superclassNodes;
-    private XmlNodeList embeddableNodes;
     private Document ormDocument;
 
     public void parsePersistenceUnit(PersistenceUnitInfo persistenceUnit) {
@@ -161,42 +159,26 @@ public class OrmXmlParser extends AbstractMappingParser {
     }
 
     protected Class<?> getIdClass(Class<?> entityClass, boolean useFieldAccess) {
-        Node entityNode = getEntityNode(entityClass);
-        XmlNodeList childNodes = new XmlNodeList(entityNode.getChildNodes());
-        List<Node> idClassNodes = childNodes.subList(ID_CLASS_TAG_NAME, "");
-        if (idClassNodes.size() > 0) {
-            try {
-                String className
-                    = idClassNodes.get(0).getAttributes().getNamedItem(CLASS_ATTRIBUTE_NAME).getTextContent();
-                return Class.forName(className);
-            } catch (ClassNotFoundException e) {
-                throw new PersistenceException(e);
-            }
-        }
-        return null;
+        Node idClassNode = evaluateNode(ID_CLASS_XPATH, entityClass.getName());
+        return idClassNode == null? null: getClass(idClassNode.getTextContent());
     }
 
     /**
      * {@inheritDoc}
      */
     protected boolean isEmbeddable(Class<?> type) {
-        return embeddableNodes.containsAttribute(CLASS_ATTRIBUTE_NAME, type.getName());
+        return evaluateNode(EMBEDDABLE_XPATH, type.getName()) != null;
     }
 
     /**
      * {@inheritDoc}
      */
     protected boolean usesFieldAccess(Class<?> mappedClass) {
-        Node entityNode = getEntityNode(mappedClass);
-        NamedNodeMap attributes = entityNode.getAttributes();
-        if (attributes == null) {
+        Node accessNode = getAccessTypeNode(mappedClass);
+        if (accessNode == null) {
             return super.usesFieldAccess(mappedClass);
         }
-        Node access = attributes.getNamedItem(ACCESS_ATTRIBUTE_NAME);
-        if (access == null) {
-            return super.usesFieldAccess(mappedClass);
-        }
-        return FIELD_ACCESS.equals(access.getNodeValue().toUpperCase());
+        return FIELD_ACCESS.equals(accessNode.getTextContent().toUpperCase());
     }
 
     /**
@@ -227,39 +209,23 @@ public class OrmXmlParser extends AbstractMappingParser {
 
     protected boolean isIdProperty(Member property) {
         String name = getName(property);
-        Node entityNode = getEntityNode(property.getDeclaringClass());
-        Node attributesNode = new XmlNodeList(entityNode.getChildNodes()).subList(ATTRIBUTES_TAG_NAME).get(0);
-        XmlNodeList childNodes = new XmlNodeList(attributesNode.getChildNodes());
-        List<Node> idNodes = childNodes.subList(ID_TAG_NAME);
-        for (Node id: idNodes) {
-            if (name.equals(id.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getNodeValue())) {
-                return true;
-            }
+        Node idPropertyNode = evaluateNode(ID_PROPERTY_XPATH, property.getDeclaringClass().getName(), name);
+        if (idPropertyNode != null) {
+            return true;
         }
-        List<Node> embeddedIdNodes = childNodes.subList(EMBEDDED_ID_TAG_NAME);
-        for (Node embeddedId: embeddedIdNodes) {
-            if (name.equals(embeddedId.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getNodeValue())) {
-                return true;
-            }
-        }
-        return false;
+        idPropertyNode = evaluateNode(EMBEDDED_ID_PROPERTY_XPATH, property.getDeclaringClass().getName(), name);
+        return idPropertyNode != null;
     }
 
     protected CascadeType[] getCascadeTypes(Member property) {
-        try {
-            String query
-                = MessageFormat.format(CASCADE_TYPE_XPATH, property.getDeclaringClass().getName(), getName(property));
-            NodeList list = (NodeList)XPATH.evaluate(query, ormDocument, XPathConstants.NODESET);
-            List<CascadeType> cascadeTypes = new ArrayList<CascadeType>(list.getLength());
-            for (int i = 0; i < list.getLength(); i++) {
-                String cascadeType = list.item(i).getNodeName().substring(CASCADE_TAG_PREFIX.length());
-                cascadeTypes.add(CascadeType.valueOf(cascadeType.toUpperCase()));
-            }
-            return cascadeTypes.toArray(new CascadeType[cascadeTypes.size()]);
-        } catch (XPathExpressionException e) {
-            LOG.error("Error while reading cascade style.", e);
-            return new CascadeType[0];
+        XmlNodeList list
+            = evaluateNodes(CASCADE_TYPE_XPATH, property.getDeclaringClass().getName(), getName(property));
+        List<CascadeType> cascadeTypes = new ArrayList<CascadeType>(list.size());
+        for (Node node: list) {
+            String cascadeType = node.getNodeName().substring(CASCADE_TAG_PREFIX.length());
+            cascadeTypes.add(CascadeType.valueOf(cascadeType.toUpperCase()));
         }
+        return cascadeTypes.toArray(new CascadeType[cascadeTypes.size()]);
     }
 
     protected boolean isSingleValuedRelationshipProperty(Member property) {
@@ -298,6 +264,22 @@ public class OrmXmlParser extends AbstractMappingParser {
         return false;
     }
 
+    protected boolean isMappable(Member property) {
+        String packageName = getPackageName();
+        String className = property.getDeclaringClass().getName();
+        String propertyName = getName(property);
+        String prefix = packageName + '.';
+        if (className.startsWith(prefix)) {
+            if (evaluateNode(TRANSIENT_PROPERTY_XPATH, className.substring(prefix.length()), propertyName) != null) {
+                return false;
+            }
+        }
+        if (evaluateNode(TRANSIENT_PROPERTY_XPATH, className, propertyName) != null) {
+            return false;
+        }
+        return super.isMappable(property);
+    }
+
     private void parse(PersistenceUnitInfo persistenceUnit, String mappingFilename) {
         try {
             for (Enumeration<URL> mappings = getResources(mappingFilename); mappings.hasMoreElements();) {
@@ -325,41 +307,46 @@ public class OrmXmlParser extends AbstractMappingParser {
     }
 
     private void parse(PersistenceUnitInfo persistenceUnit, Document mappingDocument) {
-        entityNodes = new XmlNodeList(mappingDocument.getElementsByTagName(ENTITY_TAG_NAME));
-        superclassNodes = new XmlNodeList(mappingDocument.getElementsByTagName(MAPPED_SUPERCLASS_TAG_NAME));
-        embeddableNodes = new XmlNodeList(mappingDocument.getElementsByTagName(EMBEDDABLE_TAG_NAME));
         ormDocument = mappingDocument;
         parseNamedQueries();
-        if (persistenceUnit.excludeUnlistedClasses()) {
-            for (String className: persistenceUnit.getManagedClassNames()) {
-                parse(getClass(className));
-            }
-            for (URL url: persistenceUnit.getJarFileUrls()) {
-                parse(url);
+        String packageName = getPackageName();
+        for (Node node: evaluateNodes(ENTITIES_XPATH)) {
+            parse(node, packageName);
+        }
+        for (Node node: evaluateNodes(MAPPED_SUPERCLASSES_XPATH)) {
+            parse(node, packageName);
+        }
+        for (Node node: evaluateNodes(EMBEDDABLES_XPATH)) {
+            parse(node, packageName);
+        }
+    }
+
+    private ClassMappingInformation parse(Node node, String defaultPackage) {
+        String className = getClassName(node);
+        if (defaultPackage != null) {
+            try {
+                return parse(getClass(defaultPackage + '.' + className));
+            } catch (PersistenceException e) {
+                if (e.getCause() instanceof ClassNotFoundException) {
+                    try {
+                        return parse(getClass(className));
+                    } catch (PersistenceException c) {
+                        if (c.getCause() instanceof ClassNotFoundException) {
+                            throw className.indexOf('.') != -1? c: e;
+                        }
+                    }
+                }
+                throw e;
             }
         } else {
-            for (Node node: entityNodes) {
-                parse(getClass(getClassName(node)));
-            }
-            for (Node node: superclassNodes) {
-                parse(getClass(getClassName(node)));
-            }
-            for (Node node: embeddableNodes) {
-                parse(getClass(getClassName(node)));
-            }
+            return parse(getClass(className));
         }
     }
 
     private void parseNamedQueries() {
-        NodeList entries = null;
-        try {
-            entries = (NodeList)XPATH.evaluate(NAMED_QUERY_XPATH, ormDocument, XPathConstants.NODESET);
-        } catch (XPathExpressionException e) {
-            LOG.error("Error while reading named queries.", e);
-            return;
-        }
-        for (int index = 0; index < entries.getLength(); index++) {
-            Element namedQueryElement = (Element)entries.item(index);
+        XmlNodeList entries = evaluateNodes(NAMED_QUERY_XPATH);
+        for (Node node: entries) {
+            Element namedQueryElement = (Element)node;
             String name = namedQueryElement.getAttribute("name");
             NodeList queryList = namedQueryElement.getElementsByTagName("query");
             String query = ((Text)((Element)queryList.item(0)).getFirstChild()).getData();
@@ -371,31 +358,27 @@ public class OrmXmlParser extends AbstractMappingParser {
         }
     }
 
+    private String getPackageName() {
+        Node packageNode = evaluateNode(PACKAGE_XPATH);
+        return packageNode == null? null: packageNode.getTextContent();
+    }
+
     private String getClassName(Node classNode) {
         Node classAttribute = classNode.getAttributes().getNamedItem(OrmXmlParser.CLASS_ATTRIBUTE_NAME);
         return classAttribute.getNodeValue();
     }
 
-    private Node getEntityNode(Class<?> entityClass) {
-        List<Node> nodes = entityNodes.subList(CLASS_ATTRIBUTE_NAME, entityClass.getName());
-        if (nodes.isEmpty()) {
-            return null;
-        } else {
-            return nodes.get(0);
-        }
-    }
-
     private Node getMappedClassNode(Class<?> mappedClass) {
-        Node entityClassNode = getEntityNode(mappedClass);
-        if (entityClassNode != null) {
-            return entityClassNode;
+        String packageName = getPackageName();
+        String className = mappedClass.getName();
+        String prefix = packageName + '.';
+        if (className.startsWith(prefix)) {
+            Node classNode = evaluateNode(CLASS_XPATH, className.substring(prefix.length()));
+            if (classNode != null) {
+                return classNode;
+            }
         }
-        List<Node> nodes = superclassNodes.subList(CLASS_ATTRIBUTE_NAME, mappedClass.getName());
-        if (!nodes.isEmpty()) {
-            return nodes.get(0);
-        }
-        nodes = embeddableNodes.subList(CLASS_ATTRIBUTE_NAME, mappedClass.getName());
-        return nodes.isEmpty()? null: nodes.get(0);
+        return evaluateNode(CLASS_XPATH, className);
     }
 
     private Node getAttributesNode(Node classNode) {
@@ -406,5 +389,36 @@ public class OrmXmlParser extends AbstractMappingParser {
             }
         }
         return null;
+    }
+
+    private Node getAccessTypeNode(Class<?> mappedClass) {
+        String packageName = getPackageName();
+        String className = mappedClass.getName();
+        String prefix = packageName + '.';
+        if (className.startsWith(prefix)) {
+            Node accessNode = evaluateNode(ACCESS_TYPE_XPATH, className.substring(prefix.length()));
+            if (accessNode != null) {
+                return accessNode;
+            }
+        }
+        Node accessNode = evaluateNode(ACCESS_TYPE_XPATH, className);
+        return accessNode != null? accessNode: evaluateNode(GLOBAL_ACCESS_TYPE_XPATH);
+    }
+
+    private Node evaluateNode(String query, Object... parameters) {
+        return (Node)evaluate(query, XPathConstants.NODE, parameters);
+    }
+
+    private XmlNodeList evaluateNodes(String query, Object... parameters) {
+        return new XmlNodeList((NodeList)evaluate(query, XPathConstants.NODESET, parameters));
+    }
+
+    private Object evaluate(String query, QName resultType, Object... parameters) {
+        try {
+            query = MessageFormat.format(query, parameters);
+            return (NodeList)XPATH.evaluate(query, ormDocument, resultType);
+        } catch (XPathExpressionException e) {
+            throw new PersistenceException(e);
+        }
     }
 }

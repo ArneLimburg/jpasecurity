@@ -62,7 +62,7 @@ public final class ClassMappingInformation {
     public Class<?> getEntityType() {
         return entityType;
     }
-    
+
     public Set<ClassMappingInformation> getSubclassMappings() {
         return Collections.unmodifiableSet(subclassMappings);
     }
