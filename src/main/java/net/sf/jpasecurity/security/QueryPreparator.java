@@ -266,7 +266,7 @@ public class QueryPreparator {
         expressions = appendChildren(expressions, expression);
         return appendChildren(new JpqlSelectClause(JpqlParserTreeConstants.JJTSELECTCLAUSE), expressions);
     }
-    
+
     /**
      * Creates a <tt>JpqlSelectClause</tt> node to select the specified path.
      */
@@ -276,19 +276,19 @@ public class QueryPreparator {
         declaration = appendChildren(declaration, createFromItem(classMapping.getEntityName(), alias));
         return appendChildren(new JpqlFrom(JpqlParserTreeConstants.JJTFROM), declaration);
     }
-    
+
     public JpqlFromItem createFromItem(String type, String alias) {
         JpqlAbstractSchemaName schemaName = new JpqlAbstractSchemaName(JpqlParserTreeConstants.JJTABSTRACTSCHEMANAME);
         return appendChildren(new JpqlFromItem(JpqlParserTreeConstants.JJTFROMITEM),
                               appendChildren(schemaName, createIdentifier(type)),
                               createIdentifier(alias));
     }
-    
+
     public Node createInstanceOf(String path, ClassMappingInformation classMapping) {
         return appendChildren(new JpqlExists(JpqlParserTreeConstants.JJTEXISTS),
                               createSubselectById(path, classMapping));
     }
-    
+
     public JpqlSubselect createSubselectById(String path, ClassMappingInformation classMapping) {
         String alias = classMapping.getEntityName();
         alias = Character.toLowerCase(alias.charAt(0)) + alias.substring(1);
@@ -300,7 +300,7 @@ public class QueryPreparator {
         JpqlWhere where = createWhere(createEquals(createPath(alias), createPath(path)));
         return appendChildren(new JpqlSubselect(JpqlParserTreeConstants.JJTSUBSELECT), select, from, where);
     }
-    
+
     public JpqlIdentifier createIdentifier(String value) {
         JpqlIdentifier identifier = new JpqlIdentifier(JpqlParserTreeConstants.JJTIDENTIFIER);
         identifier.setValue(value);
