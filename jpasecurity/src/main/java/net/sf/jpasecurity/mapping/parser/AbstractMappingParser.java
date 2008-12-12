@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.mapping.parser;
 
+import java.beans.Introspector;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -57,8 +58,9 @@ import net.sf.jpasecurity.mapping.SingleValuedRelationshipMappingInformation;
 public abstract class AbstractMappingParser {
 
     private static final String CLASS_ENTRY_SUFFIX = ".class";
-    private static final String GET_PROPERTY_PREFIX = "get";
     private static final String IS_PROPERTY_PREFIX = "is";
+    private static final String GET_PROPERTY_PREFIX = "get";
+    private static final String SET_PROPERTY_PREFIX = "set";
 
     private Map<Class<?>, ClassMappingInformation> classMappings;
     private Map<String, String> namedQueries;
@@ -148,9 +150,7 @@ public abstract class AbstractMappingParser {
                     }
                 } else {
                     for (Method method: mappedClass.getDeclaredMethods()) {
-                        if ((method.getName().startsWith(GET_PROPERTY_PREFIX)
-                             || method.getName().startsWith(IS_PROPERTY_PREFIX))
-                            && isMappable(method)) {
+                        if (isPropertyGetter(method)) {
                             PropertyMappingInformation propertyMapping = parse(method);
                             classMapping.addPropertyMapping(propertyMapping);
                         }
@@ -213,18 +213,16 @@ public abstract class AbstractMappingParser {
     }
 
     protected String getName(Member property) {
-        if (property instanceof Method) {
-            String name = property.getName();
-            if (name.startsWith(GET_PROPERTY_PREFIX)) {
-                name = name.substring(GET_PROPERTY_PREFIX.length());
-            } else if (property.getName().startsWith(IS_PROPERTY_PREFIX)) {
-                name = name.substring(IS_PROPERTY_PREFIX.length());
-            } else {
-                throw new IllegalArgumentException("Illegal method name for property-read-method, must start either with 'get' or 'is'");
-            }
-            return Character.toLowerCase(name.charAt(0)) + name.substring(1);
-        } else {
+        if (property instanceof Field) {
             return property.getName();
+        }
+        String name = property.getName();
+        if (name.startsWith(GET_PROPERTY_PREFIX)) {
+            return Introspector.decapitalize(name.substring(GET_PROPERTY_PREFIX.length()));
+        } else if (property.getName().startsWith(IS_PROPERTY_PREFIX)) {
+            return Introspector.decapitalize(name.substring(IS_PROPERTY_PREFIX.length()));
+        } else {
+            throw new IllegalArgumentException("Illegal method name for property-read-method, must start either with 'get' or 'is'");
         }
     }
 
@@ -345,6 +343,26 @@ public abstract class AbstractMappingParser {
     protected abstract boolean isSingleValuedRelationshipProperty(Member property);
 
     protected abstract boolean isCollectionValuedRelationshipProperty(Member property);
+
+    private boolean isPropertyGetter(Method method) {
+        if ((!method.getName().startsWith(GET_PROPERTY_PREFIX)
+             && !method.getName().startsWith(IS_PROPERTY_PREFIX))
+            || method.getParameterTypes().length != 0
+            || method.getReturnType() == void.class
+            || !isMappable(method)) {
+            return false;
+        }
+        String propertyName = getName(method);
+        String propertySetterName
+            = SET_PROPERTY_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
+        Class<?> entityClass = method.getDeclaringClass();
+        Class<?> propertyType = method.getReturnType();
+        try {
+            return entityClass.getDeclaredMethod(propertySetterName, propertyType).getReturnType() == void.class;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
 
     private ClassLoader findClassLoader(PersistenceUnitInfo persistenceUnit) {
         ClassLoader classLoader = persistenceUnit.getNewTempClassLoader();
