@@ -46,7 +46,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     public static final String AUTHENTICATION_PROVIDER_PROPERTY
         = "net.sf.jpasecurity.security.authentication.provider";
     public static final String DEFAULT_AUTHENTICATION_PROVIDER_CLASS
-        = "net.sf.jpasecurity.security.authentication.DefaultAuthenticationProvider";
+        = "net.sf.jpasecurity.security.authentication.AutodetectingAuthenticationProvider";
     public static final String ACCESS_RULES_PROVIDER_PROPERTY
         = "net.sf.jpasecurity.security.rules.provider";
     public static final String DEFAULT_ACCESS_RULES_PROVIDER_CLASS
