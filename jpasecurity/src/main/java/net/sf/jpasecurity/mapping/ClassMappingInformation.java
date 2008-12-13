@@ -119,7 +119,7 @@ public final class ClassMappingInformation {
     public Object getId(Object entity) {
         List<PropertyMappingInformation> idProperties = getIdPropertyMappings();
         if (idProperties.size() == 0) {
-            return null;
+            throw new PersistenceException("Id property required for class " + getEntityType().getName());
         } else if (idProperties.size() == 1) {
             return idProperties.get(0).getPropertyValue(entity);
         } else {
