@@ -86,4 +86,8 @@ public class Vet extends Person {
         }
         return super.toString() + " " + specialties.toString();
     }
+
+    public boolean equals(Object object) {
+        return object instanceof Vet? super.equals(object): false;
+    }
 }

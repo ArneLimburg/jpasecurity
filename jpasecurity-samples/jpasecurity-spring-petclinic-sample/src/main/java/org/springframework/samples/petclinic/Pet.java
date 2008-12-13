@@ -74,4 +74,7 @@ public class Pet extends NamedEntity {
 		visit.setPet(this);
 	}
 
+    public boolean equals(Object object) {
+        return object instanceof Pet? super.equals(object): false;
+    }
 }

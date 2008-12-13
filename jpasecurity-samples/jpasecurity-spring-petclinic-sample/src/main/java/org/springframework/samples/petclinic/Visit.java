@@ -27,7 +27,6 @@ public class Visit extends BaseEntity {
 		this.date = new Date();
 	}
 
-
 	/** Getter for property date.
 	 * @return Value of property date.
 	 */
@@ -82,5 +81,9 @@ public class Visit extends BaseEntity {
      */
     public void setVet(Vet vet) {
         this.vet = vet;
+    }
+
+    public boolean equals(Object object) {
+        return object instanceof Visit? super.equals(object): false;
     }
 }

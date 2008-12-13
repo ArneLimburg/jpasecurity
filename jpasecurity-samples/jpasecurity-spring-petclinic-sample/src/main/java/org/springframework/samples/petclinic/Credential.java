@@ -85,4 +85,8 @@ public class Credential extends BaseEntity implements UserDetails {
     public boolean isCredentialsNonExpired() {
         return true;
     }
+    
+    public boolean equals(Object object) {
+        return object instanceof Credential? super.equals(object): false;
+    }
 }
