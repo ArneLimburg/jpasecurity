@@ -28,6 +28,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlAdd;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlBetween;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
+import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlConcat;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentDate;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentTime;
@@ -684,6 +685,11 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             //result is undefined, which is ok here
         }
         return false;
+    }
+
+    public boolean visit(JpqlBrackets node, InMemoryEvaluationParameters data) {
+        assert node.jjtGetNumChildren() == 1;
+        return visit(node.jjtGetChild(0), data);
     }
 
     public boolean visit(JpqlCurrentDate node, InMemoryEvaluationParameters data) {
