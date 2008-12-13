@@ -227,7 +227,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     private Object getCurrentUser() {
         Object user = authenticationProvider.getUser();
-        if (user != null) {
+        if (user != null && getTarget().isOpen()) {
             ClassMappingInformation userClassMapping = mappingInformation.getClassMapping(user.getClass());
             if (userClassMapping != null) {
                 Object id = userClassMapping.getId(user);
