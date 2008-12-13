@@ -38,6 +38,10 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
     }
 
     public boolean visit(JpqlSubselect node, InMemoryEvaluationParameters data) {
+        if (!entityManager.isOpen()) {
+            data.setResultUndefined();
+            return false;
+        }
         try {
             Set<String> namedParameters = compiler.getNamedParameters(node);
             Query query = entityManager.createQuery(node.toString());
