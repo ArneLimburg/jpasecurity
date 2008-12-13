@@ -34,7 +34,7 @@
 			p:password="${jdbc.password}"/>
 
 	<!-- JPA EntityManagerFactory -->
-	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+	<bean id="entityManagerFactory" class="net.sf.jpasecurity.persistence.SecureContainerEntityManagerFactoryBean"
 			p:dataSource-ref="dataSource">
         <property name="persistenceUnitName" value="PetClinic" />
   		<property name="jpaVendorAdapter">
