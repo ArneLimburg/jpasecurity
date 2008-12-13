@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
-import org.springframework.core.style.ToStringCreator;
 
 /**
  * Simple JavaBean domain object representing an owner.
@@ -26,7 +25,6 @@ public class Owner extends Person {
 	private String telephone;
 
 	private Set<Pet> pets;
-
 
 	public String getAddress() {
 		return this.address;
@@ -104,24 +102,7 @@ public class Owner extends Person {
 		return null;
 	}
 
-	@Override
-	public String toString() {
-		return new ToStringCreator(this)
-
-		.append("id", this.getId())
-
-		.append("new", this.isNew())
-
-		.append("lastName", this.getLastName())
-
-		.append("firstName", this.getFirstName())
-
-		.append("address", this.address)
-
-		.append("city", this.city)
-
-		.append("telephone", this.telephone)
-
-		.toString();
-	}
+    public boolean equals(Object object) {
+        return object instanceof Owner? super.equals(object): false;
+    }
 }

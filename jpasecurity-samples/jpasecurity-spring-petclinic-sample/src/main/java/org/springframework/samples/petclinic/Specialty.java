@@ -6,5 +6,8 @@ package org.springframework.samples.petclinic;
  * @author Juergen Hoeller
  */
 public class Specialty extends NamedEntity {
-
+    
+    public boolean equals(Object object) {
+        return object instanceof Specialty? super.equals(object): false;
+    }
 }
