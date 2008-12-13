@@ -80,17 +80,17 @@ public class OrmXmlParser extends AbstractMappingParser {
     public static final String CLASS_XPATH
         = "//*[@class=''{0}'']";
     public static final String ID_CLASS_XPATH
-        = "//entity[@class=''{0}'']//id-class/@class";
+        = "//*[@class=''{0}'']//id-class/@class";
     public static final String GLOBAL_ACCESS_TYPE_XPATH
         = "//persistence-unit-defaults/access";
     public static final String ACCESS_TYPE_XPATH
         = "//*[@class=''{0}'']/@access";
     public static final String ID_PROPERTY_XPATH
-        = "//entity[@class=''{0}'']//id[@name=''{1}'']";
+        = "//*[@class=''{0}'']//id[@name=''{1}'']";
     public static final String EMBEDDED_ID_PROPERTY_XPATH
-        = "//entity[@class=''{0}'']/attributes/embedded-id[@name=''{1}'']";
+        = "//*[@class=''{0}'']/attributes/embedded-id[@name=''{1}'']";
     public static final String TRANSIENT_PROPERTY_XPATH
-        = "//entity[@class=''{0}'']/attributes/transient[@name=''{1}'']";
+        = "//*[@class=''{0}'']/attributes/transient[@name=''{1}'']";
 
     /**
      * The tag name for attributes
@@ -209,12 +209,11 @@ public class OrmXmlParser extends AbstractMappingParser {
 
     protected boolean isIdProperty(Member property) {
         String name = getName(property);
-        Node idPropertyNode = evaluateNode(ID_PROPERTY_XPATH, property.getDeclaringClass().getName(), name);
-        if (idPropertyNode != null) {
+        if (evaluateNode(ID_PROPERTY_XPATH, property.getDeclaringClass(), name) != null) {
             return true;
+        } else {
+            return evaluateNode(EMBEDDED_ID_PROPERTY_XPATH, property.getDeclaringClass(), name) != null;
         }
-        idPropertyNode = evaluateNode(EMBEDDED_ID_PROPERTY_XPATH, property.getDeclaringClass().getName(), name);
-        return idPropertyNode != null;
     }
 
     protected CascadeType[] getCascadeTypes(Member property) {
@@ -265,19 +264,11 @@ public class OrmXmlParser extends AbstractMappingParser {
     }
 
     protected boolean isMappable(Member property) {
-        String packageName = getPackageName();
-        String className = property.getDeclaringClass().getName();
-        String propertyName = getName(property);
-        String prefix = packageName + '.';
-        if (className.startsWith(prefix)) {
-            if (evaluateNode(TRANSIENT_PROPERTY_XPATH, className.substring(prefix.length()), propertyName) != null) {
-                return false;
-            }
-        }
-        if (evaluateNode(TRANSIENT_PROPERTY_XPATH, className, propertyName) != null) {
+        if (evaluateNode(TRANSIENT_PROPERTY_XPATH, property.getDeclaringClass(), getName(property)) != null) {
             return false;
+        } else {
+            return super.isMappable(property);
         }
-        return super.isMappable(property);
     }
 
     private void parse(PersistenceUnitInfo persistenceUnit, String mappingFilename) {
@@ -369,16 +360,7 @@ public class OrmXmlParser extends AbstractMappingParser {
     }
 
     private Node getMappedClassNode(Class<?> mappedClass) {
-        String packageName = getPackageName();
-        String className = mappedClass.getName();
-        String prefix = packageName + '.';
-        if (className.startsWith(prefix)) {
-            Node classNode = evaluateNode(CLASS_XPATH, className.substring(prefix.length()));
-            if (classNode != null) {
-                return classNode;
-            }
-        }
-        return evaluateNode(CLASS_XPATH, className);
+        return evaluateNode(CLASS_XPATH, mappedClass);
     }
 
     private Node getAttributesNode(Node classNode) {
@@ -392,17 +374,25 @@ public class OrmXmlParser extends AbstractMappingParser {
     }
 
     private Node getAccessTypeNode(Class<?> mappedClass) {
+        Node accessNode = evaluateNode(ACCESS_TYPE_XPATH, mappedClass);
+        return accessNode != null? accessNode: evaluateNode(GLOBAL_ACCESS_TYPE_XPATH);
+    }
+
+    private Node evaluateNode(String query, Class<?> mappedClass, Object... parameters) {
+        Object[] extendedParameters = new Object[parameters.length + 1];
+        System.arraycopy(parameters, 0, extendedParameters, 1, parameters.length);
         String packageName = getPackageName();
         String className = mappedClass.getName();
         String prefix = packageName + '.';
         if (className.startsWith(prefix)) {
-            Node accessNode = evaluateNode(ACCESS_TYPE_XPATH, className.substring(prefix.length()));
+            extendedParameters[0] = className.substring(prefix.length());
+            Node accessNode = evaluateNode(query, extendedParameters);
             if (accessNode != null) {
                 return accessNode;
             }
         }
-        Node accessNode = evaluateNode(ACCESS_TYPE_XPATH, className);
-        return accessNode != null? accessNode: evaluateNode(GLOBAL_ACCESS_TYPE_XPATH);
+        extendedParameters[0] = className;
+        return evaluateNode(query, extendedParameters);
     }
 
     private Node evaluateNode(String query, Object... parameters) {
