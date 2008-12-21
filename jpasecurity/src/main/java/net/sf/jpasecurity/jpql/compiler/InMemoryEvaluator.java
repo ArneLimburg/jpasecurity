@@ -22,7 +22,18 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
+import javax.persistence.NoResultException;
+
+import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.parser.JpqlAbs;
 import net.sf.jpasecurity.jpql.parser.JpqlAdd;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
@@ -37,6 +48,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlDecimalLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlDivide;
 import net.sf.jpasecurity.jpql.parser.JpqlEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlEscapeCharacter;
+import net.sf.jpasecurity.jpql.parser.JpqlExists;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
 import net.sf.jpasecurity.jpql.parser.JpqlGreaterOrEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlGreaterThan;
@@ -81,7 +93,9 @@ import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
+import net.sf.jpasecurity.mapping.AliasDefinition;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 
 /**
@@ -131,27 +145,10 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     public boolean visit(JpqlPath node, InMemoryEvaluationParameters data) {
         try {
             node.jjtGetChild(0).visit(this, data);
-            Object result = data.getResult();
-            for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-                ClassMappingInformation classMapping = data.getMappingInformation().getClassMapping(result.getClass());
-                if (classMapping == null) {
-                    data.setResultUndefined();
-                    return false;
-                }
-                node.jjtGetChild(i).visit(this, data);
-                String propertyName = data.getResult().toString();
-                PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(propertyName);
-                result = propertyMapping.getPropertyValue(result);
-            }
-            data.setResult(result);
+            data.setResult(evaluatePath(node.toString(), data.getResult(), data.getMappingInformation()));
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
         }
-        return false;
-    }
-
-    public boolean visit(JpqlSubselect node, InMemoryEvaluationParameters data) {
-        data.setResultUndefined();
         return false;
     }
 
@@ -786,5 +783,172 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         assert node.jjtGetNumChildren() == 0;
         data.setResult(node.getValue());
         return false;
+    }
+
+    public boolean visit(JpqlExists node, InMemoryEvaluationParameters data) {
+        return visit(node.jjtGetChild(0), data);
+    }
+
+    public boolean visit(JpqlSubselect node, InMemoryEvaluationParameters data) {
+        if (!(node.jjtGetParent() instanceof JpqlExists)) {
+            data.setResultUndefined();
+            return false;
+        }
+        try {
+            SecureObjectManager objectManager = data.getObjectManager();
+            JpqlCompiler compiler = new JpqlCompiler(data.getMappingInformation());
+            JpqlCompiledStatement subselect = compiler.compile(node);
+            Map<String, List<Object>> aliasValues
+                = evaluateAliasValues(subselect.getAliasDefinitions(), objectManager);
+            for (Iterator<Map<String, Object>> i = new ValueIterator(aliasValues); i.hasNext();) {
+                Map<String, Object> aliases = i.next();
+                try {
+                    addJoinAliases(subselect.getAliasDefinitions(), aliases, data.getMappingInformation());
+                    InMemoryEvaluationParameters<Boolean> parameters
+                        = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
+                                                                    aliases,
+                                                                    data.getNamedParameters(),
+                                                                    data.getPositionalParameters(),
+                                                                    objectManager);
+                    if (subselect.getWhereClause() == null || evaluate(subselect.getWhereClause(), parameters)) {
+                        if (subselect.getSelectedPathes().size() != 1) {
+                            throw new IllegalStateException("Illegal number of select-pathes: expected 1, but was " + subselect.getSelectedPathes().size());
+                        }
+                        Object result = null;
+                        String selectedPath = subselect.getSelectedPathes().get(0);
+                        int index = selectedPath.indexOf('.');
+                        if (index == -1) {
+                            result = aliases.get(selectedPath);
+                        } else {
+                            String rootAlias = selectedPath.substring(0, index);
+                            Object root = aliases.get(rootAlias);
+                            result = evaluatePath(selectedPath, root, data.getMappingInformation());
+                        }
+                        if (result != null) {
+                            data.setResult(true);
+                            return false;
+                        }
+                    }
+                } catch (NoResultException e) {
+                    //Removed by inner join
+                }
+            }
+        } catch (NotEvaluatableException e) {
+            //result is undefined then
+        }
+        data.setResultUndefined();
+        return false;
+    }
+
+    private Map<String, List<Object>> evaluateAliasValues(Set<AliasDefinition> aliasDefinitions,
+                                                          SecureObjectManager objectManager) {
+        Map<String, List<Object>> aliasValues = new LinkedHashMap<String, List<Object>>();
+        for (AliasDefinition aliasDefinition: aliasDefinitions) {
+            if (!aliasDefinition.isJoin()) {
+                aliasValues.put(aliasDefinition.getAlias(),
+                                new ArrayList<Object>(objectManager.getSecureObjects(aliasDefinition.getType())));
+            }
+        }
+        return aliasValues;
+    }
+
+    private void addJoinAliases(Set<AliasDefinition> aliasDefinitions,
+                                Map<String, Object> aliases,
+                                MappingInformation mappingInformation) throws NotEvaluatableException {
+        Set<AliasDefinition> joinAliasDefinitions = new HashSet<AliasDefinition>();
+        for (AliasDefinition aliasDefinition: aliasDefinitions) {
+            if (aliasDefinition.isJoin()) {
+                joinAliasDefinitions.add(aliasDefinition);
+            }
+        }
+        //We cannot be sure about the order of the aliasDefinitions.
+        //So we process the aliases where the root alias is already available
+        //and do so until all aliases are processed
+        while (!joinAliasDefinitions.isEmpty()) {
+            int count = joinAliasDefinitions.size();
+            for (Iterator<AliasDefinition> i = joinAliasDefinitions.iterator(); i.hasNext();) {
+                AliasDefinition aliasDefinition = i.next();
+                String joinPath = aliasDefinition.getJoinPath();
+                String rootAlias = joinPath.substring(0, joinPath.indexOf('.'));
+                Object root = aliases.get(rootAlias);
+                if (root != null) {
+                    Object value = evaluatePath(joinPath, root, mappingInformation);
+                    if (aliasDefinition.isInnerJoin() && value == null) {
+                        throw new NoResultException();
+                    }
+                    aliases.put(aliasDefinition.getAlias(), value);
+                    i.remove();
+                }
+            }
+            if (joinAliasDefinitions.size() == count) {
+                //No alias removed. This would be an endless loop, if we would not throw an exception here
+                throw new NotEvaluatableException();
+            }
+        }
+    }
+
+    private Object evaluatePath(String path, Object root, MappingInformation mappingInformation)
+        throws NotEvaluatableException {
+        String[] pathElements = path.split("\\.");
+        Object result = null;
+        for (String property: pathElements) {
+            if (result == null) {
+                result = root;
+            } else {
+                ClassMappingInformation classMapping = mappingInformation.getClassMapping(result.getClass());
+                if (classMapping == null) {
+                    throw new NotEvaluatableException();
+                }
+                PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(property);
+                if (propertyMapping == null) {
+                    throw new NotEvaluatableException("Could not evaluate property '" + property + "' of class " + classMapping.getEntityName());
+                }
+                result = propertyMapping.getPropertyValue(result);
+                if (result == null) {
+                    return null;
+                }
+            }
+        }
+        return result;
+    }
+
+    private static class ValueIterator implements Iterator<Map<String, Object>> {
+
+        private Map<String, List<Object>> possibleValues;
+        private Map<String, Object> currentValue;
+
+        public ValueIterator(Map<String, List<Object>> possibleValues) {
+            this.possibleValues = possibleValues;
+            this.currentValue = new HashMap<String, Object>();
+        }
+
+        public boolean hasNext() {
+            for (String key: possibleValues.keySet()) {
+                List<Object> list = possibleValues.get(key);
+                if (list.indexOf(currentValue.get(key)) < list.size() - 1) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public Map<String, Object> next() {
+            for (String key: possibleValues.keySet()) {
+                List<Object> list = possibleValues.get(key);
+                Object current = currentValue.get(key);
+                int index = list.indexOf(current);
+                if (index == list.size() - 1) {
+                    currentValue.put(key, list.get(0));
+                } else {
+                    currentValue.put(key, list.get(index + 1));
+                    return new HashMap(currentValue);
+                }
+            }
+            throw new NoSuchElementException();
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
     }
 }

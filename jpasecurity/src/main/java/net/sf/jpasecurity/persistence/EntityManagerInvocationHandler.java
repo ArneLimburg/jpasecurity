@@ -15,11 +15,12 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import static net.sf.jpasecurity.security.AccessType.CREATE;
-import static net.sf.jpasecurity.security.AccessType.READ;
+import static net.sf.jpasecurity.AccessType.CREATE;
+import static net.sf.jpasecurity.AccessType.READ;
 
 import java.lang.reflect.Proxy;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +33,7 @@ import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
 import net.sf.cglib.proxy.Enhancer;
+import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.entity.DefaultSecureCollection;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
 import net.sf.jpasecurity.entity.SecureCollection;
@@ -45,7 +47,6 @@ import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.security.AccessRule;
-import net.sf.jpasecurity.security.AccessType;
 import net.sf.jpasecurity.security.AuthenticationProvider;
 import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
@@ -71,7 +72,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         super(entityManager);
         this.authenticationProvider = authenticationProvider;
         this.mappingInformation = mappingInformation;
-        this.entityFilter = new EntityFilter(entityManager, mappingInformation, accessRules);
+        this.entityFilter = new EntityFilter(entityManager, this, mappingInformation, accessRules);
         this.secureEntities = new HashMap<Class, Map<Object, SecureEntity>>();
         this.secureCollections = new HashMap<Integer, SecureCollection<?>>();
     }
@@ -191,6 +192,15 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             return getSecureCollection((Collection)object);
         } else {
             return getSecureEntity(object);
+        }
+    }
+
+    public <E> Collection<E> getSecureObjects(Class<E> type) {
+        Map<Object, SecureEntity> entities = secureEntities.get(type);
+        if (entities == null) {
+            return Collections.EMPTY_SET;
+        } else {
+            return (Collection<E>)Collections.unmodifiableCollection(entities.values());
         }
     }
 

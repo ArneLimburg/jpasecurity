@@ -115,9 +115,9 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
         MappingEvaluator evaluator = new MappingEvaluator(persistenceMapping);
         QueryPreparator preparator = new QueryPreparator();
         for (AccessRule accessRule: accessRules) {
-            evaluator.evaluate(preparator.createPath(accessRule.getSelectedPath()), accessRule.getAliasTypes());
+            evaluator.evaluate(preparator.createPath(accessRule.getSelectedPath()), accessRule.getAliasDefinitions());
             if (accessRule.getWhereClause() != null) {
-                evaluator.evaluate(accessRule.getWhereClause(), accessRule.getAliasTypes());
+                evaluator.evaluate(accessRule.getWhereClause(), accessRule.getAliasDefinitions());
             }
         }
     }

@@ -17,6 +17,7 @@ package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.SimpleNode;
+import net.sf.jpasecurity.mapping.AliasDefinition;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.util.ValueHolder;
 
@@ -38,20 +40,20 @@ import net.sf.jpasecurity.util.ValueHolder;
  */
 public class JpqlCompiledStatement implements Cloneable {
 
-    private SimpleNode statement;
+    private Node statement;
     private List<String> selectedPathes;
-    private Map<String, Class<?>> aliasTypes;
+    private Set<AliasDefinition> aliasDefinitions;
     private Set<String> namedParameters;
     private JpqlFrom fromClause;
     private JpqlWhere whereClause;
 
-    public JpqlCompiledStatement(SimpleNode statement,
+    public JpqlCompiledStatement(Node statement,
                                  List<String> selectedPathes,
-                                 Map<String, Class<?>> name,
+                                 Set<AliasDefinition> aliasDefinitions,
                                  Set<String> namedParameters) {
         this.statement = statement;
         this.selectedPathes = selectedPathes;
-        this.aliasTypes = name;
+        this.aliasDefinitions = aliasDefinitions;
         this.namedParameters = namedParameters;
     }
 
@@ -66,13 +68,13 @@ public class JpqlCompiledStatement implements Cloneable {
     public Map<String, Class<?>> getSelectedTypes(MappingInformation mappingInformation) {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: getSelectedPathes()) {
-            selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, getAliasTypes()));
+            selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, getAliasDefinitions()));
         }
         return selectedTypes;
     }
 
-    public Map<String, Class<?>> getAliasTypes() {
-        return aliasTypes;
+    public Set<AliasDefinition> getAliasDefinitions() {
+        return aliasDefinitions;
     }
 
     public Set<String> getNamedParameters() {
@@ -104,7 +106,7 @@ public class JpqlCompiledStatement implements Cloneable {
             JpqlCompiledStatement statement = (JpqlCompiledStatement)super.clone();
             statement.statement = (SimpleNode)statement.statement.clone();
             statement.selectedPathes = new ArrayList<String>(statement.selectedPathes);
-            statement.aliasTypes = new HashMap<String, Class<?>>(statement.aliasTypes);
+            statement.aliasDefinitions = new HashSet<AliasDefinition>(statement.aliasDefinitions);
             statement.whereClause = null;
             return statement;
         } catch (CloneNotSupportedException e) {

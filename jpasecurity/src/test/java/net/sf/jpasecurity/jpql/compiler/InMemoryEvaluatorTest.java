@@ -15,13 +15,19 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import org.easymock.IAnswer;
+
+import static org.easymock.EasyMock.*;
+
 import junit.framework.TestCase;
+import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
 import net.sf.jpasecurity.jpql.parser.JpqlGroupBy;
 import net.sf.jpasecurity.jpql.parser.JpqlHaving;
@@ -50,8 +56,16 @@ public class InMemoryEvaluatorTest extends TestCase {
     private Map<String, Object> aliases = new HashMap<String, Object>();
     private Map<String, Object> namedParameters = new HashMap<String, Object>();
     private Map<Integer, Object> positionalParameters = new HashMap<Integer, Object>();
+    private Map<Class<?>, Collection<?>> entities = new HashMap<Class<?>, Collection<?>>();
     
     public void setUp() {
+        SecureObjectManager objectManager = createMock(SecureObjectManager.class);
+        expect(objectManager.getSecureObjects((Class<Object>)anyObject())).andAnswer(new IAnswer<Collection<Object>>() {
+            public Collection<Object> answer() throws Throwable {
+                return (Collection<Object>)entities.get(getCurrentArguments()[0]);
+            }
+        }).anyTimes();
+        replay(objectManager);
         PersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
         mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
@@ -61,13 +75,15 @@ public class InMemoryEvaluatorTest extends TestCase {
         parameters = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
                                                                aliases,
                                                                namedParameters,
-                                                               positionalParameters);
+                                                               positionalParameters,
+                                                               objectManager);
     }
     
     public void tearDown() {
         aliases.clear();
         namedParameters.clear();
         positionalParameters.clear();
+        entities.clear();
     }
     
     public void testCanEvaluate() throws Exception {
@@ -463,6 +479,26 @@ public class InMemoryEvaluatorTest extends TestCase {
 
         bean.setChildren(Collections.singletonList(new FieldAccessAnnotationTestBean("testChild")));
         assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+    }
+    
+    public void testEvaluateExists() throws Exception {
+        JpqlCompiledStatement statement
+            = compile(SELECT + "WHERE EXISTS (" + SELECT.replace("bean", "bean1") + "WHERE bean1.parent = bean)");
+        FieldAccessAnnotationTestBean parent = new FieldAccessAnnotationTestBean("test1");
+        FieldAccessAnnotationTestBean child = new FieldAccessAnnotationTestBean("test2");
+        child.setParentBean(parent);
+        
+        aliases.put("bean", parent);
+        entities.put(FieldAccessAnnotationTestBean.class, Collections.EMPTY_SET);
+        try {
+            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+        
+        entities.put(FieldAccessAnnotationTestBean.class, Collections.singleton(child));
+        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
     }
     
     protected JpqlCompiledStatement compile(String query) throws ParseException {

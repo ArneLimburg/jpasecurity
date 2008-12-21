@@ -16,15 +16,15 @@
 
 package net.sf.jpasecurity.entity;
 
-import static net.sf.jpasecurity.security.AccessType.READ;
-import static net.sf.jpasecurity.security.AccessType.UPDATE;
+import static net.sf.jpasecurity.AccessType.READ;
+import static net.sf.jpasecurity.AccessType.UPDATE;
 
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import net.sf.jpasecurity.security.AccessType;
+import net.sf.jpasecurity.AccessType;
 
 /**
  * This is the base class for secure collections.
