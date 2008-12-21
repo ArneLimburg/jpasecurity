@@ -27,6 +27,8 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 
+import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.EntityManagerEvaluator;
 import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluationParameters;
 import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluator;
@@ -61,6 +63,7 @@ public class EntityFilter {
     private final MappingInformation mappingInformation;
     private final JpqlParser parser;
     private final JpqlCompiler compiler;
+    private final SecureObjectManager objectManager;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final InMemoryEvaluator queryEvaluator = new InMemoryEvaluator();
     private final EntityManagerEvaluator entityManagerEvaluator;
@@ -69,11 +72,13 @@ public class EntityFilter {
     private final List<AccessRule> accessRules;
 
     public EntityFilter(EntityManager entityManager,
+                        SecureObjectManager objectManager,
                         MappingInformation mappingInformation,
                         List<AccessRule> accessRules) {
         this.mappingInformation = mappingInformation;
         this.parser = new JpqlParser();
         this.compiler = new JpqlCompiler(mappingInformation);
+        this.objectManager = objectManager;
         this.entityManagerEvaluator = new EntityManagerEvaluator(entityManager, compiler);
         this.accessRules = accessRules;
     }
@@ -93,7 +98,8 @@ public class EntityFilter {
             = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
                                                         Collections.singletonMap(alias, entity),
                                                         parameters,
-                                                        Collections.EMPTY_MAP);
+                                                        Collections.EMPTY_MAP,
+                                                        objectManager);
         return entityManagerEvaluator.evaluate(accessRulesNode, evaluationParameters);
     }
 
@@ -127,7 +133,8 @@ public class EntityFilter {
                 = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
                                                             Collections.EMPTY_MAP,
                                                             parameters,
-                                                            Collections.EMPTY_MAP);
+                                                            Collections.EMPTY_MAP,
+                                                            objectManager);
             if (queryEvaluator.evaluate(accessRules, evaluationParameters)) {
                 LOG.info("Access rules are always true for current user and roles. Returning unfiltered query");
                 return new FilterResult(query, null, null);
@@ -156,8 +163,11 @@ public class EntityFilter {
 
         LOG.info("Optimizing filtered query " + statement.getStatement());
 
-        QueryOptimizer optimizer
-            = new QueryOptimizer(mappingInformation, Collections.EMPTY_MAP, parameters, Collections.EMPTY_MAP);
+        QueryOptimizer optimizer = new QueryOptimizer(mappingInformation,
+                                                      Collections.EMPTY_MAP,
+                                                      parameters,
+                                                      Collections.EMPTY_MAP,
+                                                      objectManager);
         optimizer.optimize(accessRules);
         Set<String> parameterNames = compiler.getNamedParameters(accessRules);
         parameters.keySet().retainAll(parameterNames);
@@ -329,7 +339,7 @@ public class EntityFilter {
     private Map<String, Class<?>> getSelectedTypes(JpqlCompiledStatement statement) {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: statement.getSelectedPathes()) {
-            selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, statement.getAliasTypes()));
+            selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, statement.getAliasDefinitions()));
         }
         return selectedTypes;
     }

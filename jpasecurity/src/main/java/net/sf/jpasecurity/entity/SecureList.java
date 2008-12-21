@@ -15,7 +15,7 @@
  */
 package net.sf.jpasecurity.entity;
 
-import static net.sf.jpasecurity.security.AccessType.UPDATE;
+import static net.sf.jpasecurity.AccessType.UPDATE;
 
 import java.util.AbstractList;
 import java.util.Collection;

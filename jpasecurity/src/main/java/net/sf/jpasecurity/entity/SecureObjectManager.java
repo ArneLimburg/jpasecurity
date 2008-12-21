@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.entity;
 
+import java.util.Collection;
+
 import net.sf.jpasecurity.AccessChecker;
 
 /**
@@ -23,5 +25,5 @@ import net.sf.jpasecurity.AccessChecker;
 public interface SecureObjectManager extends AccessChecker {
 
     <E> SecureObject getSecureObject(E object);
-
+    <E> Collection<E> getSecureObjects(Class<E> type);
 }

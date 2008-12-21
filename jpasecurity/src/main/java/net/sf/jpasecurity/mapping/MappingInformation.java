@@ -23,6 +23,7 @@ import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
+
 /**
  * This class holds mapping information for a specific persistence unit.
  * @author Arne Limburg
@@ -84,10 +85,10 @@ public class MappingInformation {
         return classMapping;
     }
 
-    public Class<?> getType(String path, Map<String, Class<?>> aliasTypes) {
+    public Class<?> getType(String path, Set<AliasDefinition> aliasDefinitions) {
         try {
             String[] entries = path.split("\\.");
-            Class<?> type = aliasTypes.get(entries[0]);
+            Class<?> type = getAliasType(entries[0], aliasDefinitions);
             for (int i = 1; i < entries.length; i++) {
                 type = getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
             }
@@ -103,5 +104,14 @@ public class MappingInformation {
             entityNameMappings.put(classMapping.getEntityName(), classMapping);
             entityNameMappings.put(classMapping.getEntityType().getName(), classMapping);
         }
+    }
+
+    private Class<?> getAliasType(String alias, Set<AliasDefinition> aliasDefinitions) {
+        for (AliasDefinition aliasDefinition: aliasDefinitions) {
+            if (aliasDefinition.getAlias().equals(alias)) {
+                return aliasDefinition.getType();
+            }
+        }
+        return null;
     }
 }
