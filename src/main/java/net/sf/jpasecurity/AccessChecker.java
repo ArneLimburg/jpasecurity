@@ -15,7 +15,6 @@
  */
 package net.sf.jpasecurity;
 
-import net.sf.jpasecurity.security.AccessType;
 
 /**
  * @author Arne Limburg

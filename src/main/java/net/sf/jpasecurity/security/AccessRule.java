@@ -19,10 +19,10 @@ package net.sf.jpasecurity.security;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlCreate;
@@ -30,6 +30,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlDelete;
 import net.sf.jpasecurity.jpql.parser.JpqlRead;
 import net.sf.jpasecurity.jpql.parser.JpqlUpdate;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
+import net.sf.jpasecurity.mapping.AliasDefinition;
 import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
@@ -45,10 +46,10 @@ public class AccessRule extends JpqlCompiledStatement {
 
     private Set<AccessType> access;
 
-    public AccessRule(JpqlAccessRule rule, String selectedAlias, Class<?> type, Set<String> namedParameters) {
+    public AccessRule(JpqlAccessRule rule, AliasDefinition aliasDefinition, Set<String> namedParameters) {
         super(rule,
-              Collections.singletonList(selectedAlias),
-              new HashMap<String, Class<?>>(Collections.singletonMap(selectedAlias, type)),
+              Collections.singletonList(aliasDefinition.getAlias()),
+              Collections.singleton(aliasDefinition),
               namedParameters);
     }
 

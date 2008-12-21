@@ -15,13 +15,13 @@
  */
 package net.sf.jpasecurity.security.rules;
 
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
+import net.sf.jpasecurity.mapping.AliasDefinition;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.security.AccessRule;
 
@@ -36,11 +36,10 @@ public class AccessRulesCompiler extends JpqlCompiler {
     }
 
     public AccessRule compile(JpqlAccessRule rule) {
-        Map<String, Class<?>> aliasTypes = getAliasTypes(rule);
-        if (aliasTypes.size() > 1) {
-            throw new IllegalStateException("An access rule may have only on alias specified");
+        Set<AliasDefinition> aliasDefinitions = getAliasDefinitions(rule);
+        if (aliasDefinitions.size() != 1) {
+            throw new IllegalStateException("An access rule must have exactly one alias specified");
         }
-        Map.Entry<String, Class<?>> aliasType = aliasTypes.entrySet().iterator().next();
         Set<String> namedParameters = getNamedParameters(rule);
         if (namedParameters.size() > 0) {
             throw new PersistenceException("Named parameters are not allowed for access rules");
@@ -48,6 +47,6 @@ public class AccessRulesCompiler extends JpqlCompiler {
         if (getPositionalParameters(rule).size() > 0) {
             throw new PersistenceException("Positional parameters are not allowed for access rules");
         }
-        return new AccessRule(rule, aliasType.getKey(), aliasType.getValue(), namedParameters);
+        return new AccessRule(rule, aliasDefinitions.iterator().next(), namedParameters);
     }
 }

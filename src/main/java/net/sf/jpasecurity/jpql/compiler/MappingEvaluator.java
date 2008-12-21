@@ -15,8 +15,8 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
@@ -25,6 +25,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
+import net.sf.jpasecurity.mapping.AliasDefinition;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
@@ -36,7 +37,7 @@ import net.sf.jpasecurity.mapping.SimplePropertyMappingInformation;
  * that are contained in the specified mapping.
  * @author Arne Limburg
  */
-public class MappingEvaluator extends JpqlVisitorAdapter<Map<String, Class<?>>> {
+public class MappingEvaluator extends JpqlVisitorAdapter<Set<AliasDefinition>> {
 
     private MappingInformation mappingInformation;
 
@@ -47,13 +48,18 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Map<String, Class<?>>> 
     /**
      * Checks whether the mapping is consistent for the specified node.
      */
-    public void evaluate(Node node, Map<String, Class<?>> aliasTypes) {
-        node.visit(this, aliasTypes);
+    public void evaluate(Node node, Set<AliasDefinition> aliasDefinitions) {
+        node.visit(this, aliasDefinitions);
     }
 
-    public boolean visit(JpqlPath node, Map<String, Class<?>> aliasTypes) {
+    public boolean visit(JpqlPath node, Set<AliasDefinition> aliasDefinitions) {
         String alias = node.jjtGetChild(0).getValue();
-        Class<?> type = aliasTypes.get(alias);
+        Class<?> type = null;
+        for (AliasDefinition aliasDefinition: aliasDefinitions) {
+            if (aliasDefinition.getAlias().equals(alias)) {
+                type = aliasDefinition.getType();
+            }
+        }
         if (type == null) {
             throw new PersistenceException("Type not found for alias \"" + alias + "\"");
         }
@@ -75,20 +81,20 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Map<String, Class<?>>> 
         return false;
     }
 
-    public boolean visit(JpqlSubselect node, Map<String, Class<?>> aliasTypes) {
-        Map<String, Class<?>> subselectTypes = new HashMap<String, Class<?>>(aliasTypes);
+    public boolean visit(JpqlSubselect node, Set<AliasDefinition> aliasDefinitions) {
+        Set<AliasDefinition> subselectDefinitions = new HashSet<AliasDefinition>(aliasDefinitions);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, subselectTypes);
+            node.jjtGetChild(i).visit(this, subselectDefinitions);
         }
         // visit the select clause last
-        node.jjtGetChild(0).visit(this, subselectTypes);
+        node.jjtGetChild(0).visit(this, subselectDefinitions);
         return false;
     }
 
-    public boolean visit(JpqlFromItem node, Map<String, Class<?>> aliasTypes) {
+    public boolean visit(JpqlFromItem node, Set<AliasDefinition> aliasDefinitions) {
         String typeName = node.jjtGetChild(0).toString().trim();
         String alias = node.jjtGetChild(1).toString().trim();
-        aliasTypes.put(alias, mappingInformation.getClassMapping(typeName).getEntityType());
+        aliasDefinitions.add(new AliasDefinition(alias, mappingInformation.getClassMapping(typeName).getEntityType()));
         return false;
     }
 }

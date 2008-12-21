@@ -18,10 +18,12 @@ package net.sf.jpasecurity.security;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import static net.sf.jpasecurity.security.AccessType.*;
+import static net.sf.jpasecurity.AccessType.*;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
+import net.sf.jpasecurity.AccessType;
 
 /**
  * An annotation to provide an access rule for an entity.

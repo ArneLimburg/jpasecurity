@@ -29,10 +29,10 @@ import javax.persistence.LockModeType;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.mapping.RelationshipMappingInformation;
-import net.sf.jpasecurity.security.AccessType;
 import net.sf.jpasecurity.util.AbstractInvocationHandler;
 
 /**

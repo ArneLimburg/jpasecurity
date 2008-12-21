@@ -15,12 +15,22 @@
  */
 package net.sf.jpasecurity.security;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import junit.framework.TestCase;
+import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
+import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
@@ -48,8 +58,13 @@ public class EntityFilterTest extends TestCase {
         accessRules = Collections.singletonList(compiler.compile(rule));
     }
     
-    public void testIsAccessible() throws Exception{
-        EntityFilter filter = new EntityFilter(null, mappingInformation, accessRules);
+    public void testIsAccessible() throws Exception {
+        EntityManager entityManager = createMock(EntityManager.class);
+        SecureObjectManager secureObjectManager = createMock(SecureObjectManager.class);
+        expect(secureObjectManager.getSecureObjects((Class<Object>)anyObject()))
+            .andReturn((Collection<Object>)Collections.EMPTY_SET).anyTimes();
+        replay(entityManager, secureObjectManager);
+        EntityFilter filter = new EntityFilter(entityManager, secureObjectManager, mappingInformation, accessRules);
         User john = new User("John");
         Contact contact = new Contact(john, "123456789");
         assertTrue(filter.isAccessible(contact, AccessType.READ, john, Collections.EMPTY_SET));
