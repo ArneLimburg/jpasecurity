@@ -38,6 +38,10 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
     }
 
     public boolean visit(JpqlSubselect node, InMemoryEvaluationParameters data) {
+        boolean visitChildren = super.visit(node, data);
+        if (!data.isResultUndefined()) {
+            return visitChildren;
+        }
         if (!entityManager.isOpen()) {
             data.setResultUndefined();
             return false;
