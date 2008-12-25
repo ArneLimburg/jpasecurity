@@ -44,15 +44,26 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
     }
 
     public Object getSingleResult() {
-        return entityHandler.getSecureObject(getTarget().getSingleResult());
+        return getSecureResult(getTarget().getSingleResult());
     }
 
     public List getResultList() {
         List targetResult = getTarget().getResultList();
         List proxyResult = new ArrayList();
         for (Object entity: targetResult) {
-            proxyResult.add(entityHandler.getSecureObject(entity));
+            proxyResult.add(getSecureResult(entity));
         }
         return proxyResult;
+    }
+
+    private Object getSecureResult(Object result) {
+        if (result instanceof Object[]) {
+            Object[] scalarResult = (Object[])result;
+            for (int i = 0; i < scalarResult.length; i++) {
+                scalarResult[i] = entityHandler.getSecureObject(scalarResult[i]);
+            }
+            return scalarResult;
+        }
+        return entityHandler.getSecureObject(result);
     }
 }
