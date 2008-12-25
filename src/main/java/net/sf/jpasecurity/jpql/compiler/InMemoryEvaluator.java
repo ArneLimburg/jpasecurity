@@ -786,7 +786,8 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlExists node, InMemoryEvaluationParameters data) {
-        return visit(node.jjtGetChild(0), data);
+        node.jjtGetChild(0).visit(this, data);
+        return false;
     }
 
     public boolean visit(JpqlSubselect node, InMemoryEvaluationParameters data) {
