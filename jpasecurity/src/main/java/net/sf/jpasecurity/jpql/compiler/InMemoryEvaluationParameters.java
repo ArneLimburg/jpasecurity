@@ -101,8 +101,12 @@ public class InMemoryEvaluationParameters<T> {
         return objectManager;
     }
 
+    public boolean isResultUndefined() {
+        return result == UNDEFINED;
+    }
+
     public T getResult() throws NotEvaluatableException {
-        if (result == UNDEFINED) {
+        if (isResultUndefined()) {
             throw new NotEvaluatableException();
         }
         return result;
