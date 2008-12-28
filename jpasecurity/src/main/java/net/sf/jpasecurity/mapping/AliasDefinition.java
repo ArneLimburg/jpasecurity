@@ -24,16 +24,21 @@ public class AliasDefinition {
     private Class<?> type;
     private String joinPath;
     private boolean innerJoin;
+    private boolean fetchJoin;
 
     public AliasDefinition(String alias, Class<?> type) {
         this.alias = alias;
         this.type = type;
     }
 
-    public AliasDefinition(String alias, Class<?> type, String joinPath, boolean innerJoin) {
+    public AliasDefinition(String alias, Class<?> type, String joinPath, boolean innerJoin, boolean fetchJoin) {
         this(alias, type);
+        if (joinPath == null) {
+            throw new IllegalArgumentException("joinPath may not be null");
+        }
         this.joinPath = joinPath;
         this.innerJoin = innerJoin;
+        this.fetchJoin = fetchJoin;
     }
 
     public String getAlias() {
@@ -54,6 +59,10 @@ public class AliasDefinition {
 
     public boolean isOuterJoin() {
         return isJoin() && !innerJoin;
+    }
+
+    public boolean isFetchJoin() {
+        return fetchJoin;
     }
 
     public Class<?> getType() {

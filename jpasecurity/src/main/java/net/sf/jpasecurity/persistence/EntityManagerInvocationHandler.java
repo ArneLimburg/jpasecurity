@@ -18,6 +18,7 @@ package net.sf.jpasecurity.persistence;
 import static net.sf.jpasecurity.AccessType.CREATE;
 import static net.sf.jpasecurity.AccessType.READ;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,11 +39,12 @@ import net.sf.jpasecurity.entity.DefaultSecureCollection;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
 import net.sf.jpasecurity.entity.SecureCollection;
 import net.sf.jpasecurity.entity.SecureEntity;
-import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.entity.SecureList;
 import net.sf.jpasecurity.entity.SecureObject;
+import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.entity.SecureSet;
 import net.sf.jpasecurity.entity.SecureSortedSet;
+import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
@@ -167,9 +169,15 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                     query.setParameter(roleParameter.getKey(), roleParameter.getValue());
                 }
             }
+            InvocationHandler queryInvocationHandler
+                = new QueryInvocationHandler(this,
+                                             query,
+                                             filterResult.getSelectedPaths(),
+                                             filterResult.getAliasDefinitions(),
+                                             new MappedPathEvaluator(mappingInformation));
             return (Query)Proxy.newProxyInstance(query.getClass().getClassLoader(),
                                                  new Class[] {Query.class},
-                                                 new QueryInvocationHandler(this, query));
+                                                 queryInvocationHandler);
         }
     }
 

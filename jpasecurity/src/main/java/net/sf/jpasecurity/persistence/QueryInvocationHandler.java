@@ -18,10 +18,13 @@ package net.sf.jpasecurity.persistence;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
+import net.sf.jpasecurity.mapping.AliasDefinition;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 
@@ -31,11 +34,21 @@ import net.sf.jpasecurity.util.ProxyInvocationHandler;
  */
 public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
 
-    private SecureObjectManager entityHandler;
+    private SecureObjectManager objectManager;
+    private List<String> selectedPaths;
+    private Set<AliasDefinition> aliases;
+    private PathEvaluator pathEvaluator;
 
-    public QueryInvocationHandler(SecureObjectManager entityHandler, Query query) {
+    public QueryInvocationHandler(SecureObjectManager objectManager,
+                                  Query query,
+                                  List<String> selectedPaths,
+                                  Set<AliasDefinition> aliases,
+                                  PathEvaluator pathEvaluator) {
         super(query);
-        this.entityHandler = entityHandler;
+        this.objectManager = objectManager;
+        this.selectedPaths = selectedPaths;
+        this.aliases = aliases;
+        this.pathEvaluator = pathEvaluator;
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -57,13 +70,53 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
     }
 
     private Object getSecureResult(Object result) {
-        if (result instanceof Object[]) {
-            Object[] scalarResult = (Object[])result;
-            for (int i = 0; i < scalarResult.length; i++) {
-                scalarResult[i] = entityHandler.getSecureObject(scalarResult[i]);
+        if (!(result instanceof Object[])) {
+            result = objectManager.getSecureObject(result);
+            if (selectedPaths != null) {
+                executeFetchPlan(result, selectedPaths.get(0));
             }
-            return scalarResult;
+            return result;
         }
-        return entityHandler.getSecureObject(result);
+        Object[] scalarResult = (Object[])result;
+        for (int i = 0; i < scalarResult.length; i++) {
+            scalarResult[i] = objectManager.getSecureObject(scalarResult[i]);
+            if (selectedPaths != null) {
+                executeFetchPlan(scalarResult[i], selectedPaths.get(i));
+            }
+        }
+        return scalarResult;
+    }
+
+    private void executeFetchPlan(Object entity, String selectedPath) {
+        selectedPath = resolveAliases(selectedPath);
+        for (AliasDefinition aliasDefinition: aliases) {
+            if (aliasDefinition.isFetchJoin()) {
+                String fetchPath = resolveAliases(aliasDefinition.getJoinPath());
+                if (fetchPath.startsWith(selectedPath)) {
+                    pathEvaluator.evaluate(entity, fetchPath.substring(selectedPath.length() + 1));
+                }
+            }
+        }
+    }
+
+    private String resolveAliases(String aliasedPath) {
+        int index = aliasedPath.indexOf('.');
+        String alias, path;
+        if (index == -1) {
+            alias = aliasedPath;
+            path = null;
+        } else {
+            alias = aliasedPath.substring(0, index);
+            path = aliasedPath.substring(index + 1);
+        }
+        for (AliasDefinition aliasDefinition: aliases) {
+            if (aliasDefinition.getAlias().equals(alias)) {
+                if (aliasDefinition.getJoinPath() == null) {
+                    return aliasedPath;
+                }
+                return resolveAliases(aliasDefinition.getJoinPath() + '.' + path);
+            }
+        }
+        throw new IllegalStateException("alias '" + alias + "' not found in alias definitions");
     }
 }

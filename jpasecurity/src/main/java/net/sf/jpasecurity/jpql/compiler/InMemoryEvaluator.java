@@ -21,6 +21,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -94,9 +95,6 @@ import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.mapping.AliasDefinition;
-import net.sf.jpasecurity.mapping.ClassMappingInformation;
-import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 
 /**
  * @author Arne Limburg
@@ -145,7 +143,12 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     public boolean visit(JpqlPath node, InMemoryEvaluationParameters data) {
         try {
             node.jjtGetChild(0).visit(this, data);
-            data.setResult(evaluatePath(node.toString(), data.getResult(), data.getMappingInformation()));
+            String path = node.toString();
+            int index = path.indexOf('.');
+            if (index != -1) {
+                PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMappingInformation());
+                data.setResult(pathEvaluator.evaluate(data.getResult(), path.substring(index + 1)));
+            }
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
         }
@@ -340,7 +343,8 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         assert node.jjtGetNumChildren() == 1;
         try {
             node.jjtGetChild(0).visit(this, data);
-            data.setResult(((Collection)data.getResult()).isEmpty());
+            Collection result = (Collection)data.getResult();
+            data.setResult(result == null || result.isEmpty());
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
         }
@@ -365,9 +369,13 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         try {
             node.jjtGetChild(0).visit(this, data);
             Object value1 = data.getResult();
-            node.jjtGetChild(1).visit(this, data);
-            Object value2 = data.getResult();
-            data.setResult(value1.equals(value2));
+            if (value1 == null) {
+                data.setResult(false);
+            } else {
+                node.jjtGetChild(1).visit(this, data);
+                Object value2 = data.getResult();
+                data.setResult(value1.equals(value2));
+            }
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
         }
@@ -786,7 +794,12 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlExists node, InMemoryEvaluationParameters data) {
-        node.jjtGetChild(0).visit(this, data);
+        try {
+            node.jjtGetChild(0).visit(this, data);
+            data.setResult(!((Collection)data.getResult()).isEmpty());
+        } catch (NotEvaluatableException e) {
+            //result is undefined
+        }
         return false;
     }
 
@@ -796,6 +809,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             return false;
         }
         try {
+            PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMappingInformation());
             SecureObjectManager objectManager = data.getObjectManager();
             JpqlCompiler compiler = new JpqlCompiler(data.getMappingInformation());
             JpqlCompiledStatement subselect = compiler.compile(node);
@@ -804,7 +818,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             for (Iterator<Map<String, Object>> i = new ValueIterator(aliasValues); i.hasNext();) {
                 Map<String, Object> aliases = i.next();
                 try {
-                    addJoinAliases(subselect.getAliasDefinitions(), aliases, data.getMappingInformation());
+                    addJoinAliases(subselect.getAliasDefinitions(), aliases, pathEvaluator);
                     InMemoryEvaluationParameters<Boolean> parameters
                         = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
                                                                     aliases,
@@ -812,21 +826,21 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                                                                     data.getPositionalParameters(),
                                                                     objectManager);
                     if (subselect.getWhereClause() == null || evaluate(subselect.getWhereClause(), parameters)) {
-                        if (subselect.getSelectedPathes().size() != 1) {
-                            throw new IllegalStateException("Illegal number of select-pathes: expected 1, but was " + subselect.getSelectedPathes().size());
+                        if (subselect.getSelectedPaths().size() != 1) {
+                            throw new IllegalStateException("Illegal number of select-pathes: expected 1, but was " + subselect.getSelectedPaths().size());
                         }
                         Object result = null;
-                        String selectedPath = subselect.getSelectedPathes().get(0);
+                        String selectedPath = subselect.getSelectedPaths().get(0);
                         int index = selectedPath.indexOf('.');
                         if (index == -1) {
                             result = aliases.get(selectedPath);
                         } else {
                             String rootAlias = selectedPath.substring(0, index);
                             Object root = aliases.get(rootAlias);
-                            result = evaluatePath(selectedPath, root, data.getMappingInformation());
+                            result = pathEvaluator.evaluate(root, selectedPath.substring(index + 1));
                         }
                         if (result != null) {
-                            data.setResult(true);
+                            data.setResult(Collections.singleton(result));
                             return false;
                         }
                     }
@@ -855,7 +869,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
     private void addJoinAliases(Set<AliasDefinition> aliasDefinitions,
                                 Map<String, Object> aliases,
-                                MappingInformation mappingInformation) throws NotEvaluatableException {
+                                PathEvaluator pathEvaluator) throws NotEvaluatableException {
         Set<AliasDefinition> joinAliasDefinitions = new HashSet<AliasDefinition>();
         for (AliasDefinition aliasDefinition: aliasDefinitions) {
             if (aliasDefinition.isJoin()) {
@@ -870,10 +884,11 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             for (Iterator<AliasDefinition> i = joinAliasDefinitions.iterator(); i.hasNext();) {
                 AliasDefinition aliasDefinition = i.next();
                 String joinPath = aliasDefinition.getJoinPath();
-                String rootAlias = joinPath.substring(0, joinPath.indexOf('.'));
+                int index = joinPath.indexOf('.');
+                String rootAlias = joinPath.substring(0, index);
                 Object root = aliases.get(rootAlias);
                 if (root != null) {
-                    Object value = evaluatePath(joinPath, root, mappingInformation);
+                    Object value = pathEvaluator.evaluate(root, joinPath);
                     if (aliasDefinition.isInnerJoin() && value == null) {
                         throw new NoResultException();
                     }
@@ -886,31 +901,6 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                 throw new NotEvaluatableException();
             }
         }
-    }
-
-    private Object evaluatePath(String path, Object root, MappingInformation mappingInformation)
-        throws NotEvaluatableException {
-        String[] pathElements = path.split("\\.");
-        Object result = null;
-        for (String property: pathElements) {
-            if (result == null) {
-                result = root;
-            } else {
-                ClassMappingInformation classMapping = mappingInformation.getClassMapping(result.getClass());
-                if (classMapping == null) {
-                    throw new NotEvaluatableException();
-                }
-                PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(property);
-                if (propertyMapping == null) {
-                    throw new NotEvaluatableException("Could not evaluate property '" + property + "' of class " + classMapping.getEntityName());
-                }
-                result = propertyMapping.getPropertyValue(result);
-                if (result == null) {
-                    return null;
-                }
-            }
-        }
-        return result;
     }
 
     private static class ValueIterator implements Iterator<Map<String, Object>> {
