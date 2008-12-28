@@ -41,7 +41,7 @@ import net.sf.jpasecurity.util.ValueHolder;
 public class JpqlCompiledStatement implements Cloneable {
 
     private Node statement;
-    private List<String> selectedPathes;
+    private List<String> selectedPaths;
     private Set<AliasDefinition> aliasDefinitions;
     private Set<String> namedParameters;
     private JpqlFrom fromClause;
@@ -52,7 +52,7 @@ public class JpqlCompiledStatement implements Cloneable {
                                  Set<AliasDefinition> aliasDefinitions,
                                  Set<String> namedParameters) {
         this.statement = statement;
-        this.selectedPathes = selectedPathes;
+        this.selectedPaths = selectedPathes;
         this.aliasDefinitions = aliasDefinitions;
         this.namedParameters = namedParameters;
     }
@@ -61,13 +61,13 @@ public class JpqlCompiledStatement implements Cloneable {
         return statement;
     }
 
-    public List<String> getSelectedPathes() {
-        return selectedPathes;
+    public List<String> getSelectedPaths() {
+        return selectedPaths;
     }
 
     public Map<String, Class<?>> getSelectedTypes(MappingInformation mappingInformation) {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
-        for (String selectedPath: getSelectedPathes()) {
+        for (String selectedPath: getSelectedPaths()) {
             selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, getAliasDefinitions()));
         }
         return selectedTypes;
@@ -105,7 +105,7 @@ public class JpqlCompiledStatement implements Cloneable {
         try {
             JpqlCompiledStatement statement = (JpqlCompiledStatement)super.clone();
             statement.statement = (SimpleNode)statement.statement.clone();
-            statement.selectedPathes = new ArrayList<String>(statement.selectedPathes);
+            statement.selectedPaths = new ArrayList<String>(statement.selectedPaths);
             statement.aliasDefinitions = new HashSet<AliasDefinition>(statement.aliasDefinitions);
             statement.whereClause = null;
             return statement;

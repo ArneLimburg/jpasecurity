@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import org.easymock.IAnswer;
@@ -166,7 +167,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
-        } catch (NotEvaluatableException e) {
+        } catch (PersistenceException e) {
             //expected
         }
     }

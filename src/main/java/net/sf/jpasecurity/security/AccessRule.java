@@ -54,7 +54,7 @@ public class AccessRule extends JpqlCompiledStatement {
     }
 
     public String getSelectedPath() {
-        return getSelectedPathes().get(0);
+        return getSelectedPaths().get(0);
     }
 
     public Class<?> getSelectedType(MappingInformation mappingInformation) {
