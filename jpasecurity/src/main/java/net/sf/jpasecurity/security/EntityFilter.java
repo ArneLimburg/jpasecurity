@@ -115,10 +115,10 @@ public class EntityFilter {
             boolean accessRestricted = !Boolean.parseBoolean(booleanLiteral.getValue());
             if (accessRestricted) {
                 LOG.info("No access rules defined for access type " + accessType + ". Returning <null> query.");
-                return new FilterResult(null, null, null);
+                return new FilterResult();
             } else {
                 LOG.info("No access rules defined for selected type. Returning unfiltered query");
-                return new FilterResult(query, null, null);
+                return new FilterResult(query);
             }
         }
 
@@ -137,7 +137,7 @@ public class EntityFilter {
                                                             objectManager);
             if (queryEvaluator.evaluate(accessRules, evaluationParameters)) {
                 LOG.info("Access rules are always true for current user and roles. Returning unfiltered query");
-                return new FilterResult(query, null, null);
+                return new FilterResult(query);
             }
         } catch (NotEvaluatableException e) {
             //access rules need to be applied then
@@ -176,11 +176,12 @@ public class EntityFilter {
         } else {
             userParameterName = null;
         }
-
         LOG.info("Returning optimized query " + statement.getStatement());
         return new FilterResult(statement.getStatement().toString(),
                                 userParameterName,
-                                parameters.size() > 0? parameters: null);
+                                parameters.size() > 0? parameters: null,
+                                statement.getSelectedPaths(),
+                                statement.getAliasDefinitions());
     }
 
     private Node createAccessRuleNode(JpqlCompiledStatement statement, AccessType accessType, int roleCount) {
@@ -338,7 +339,7 @@ public class EntityFilter {
 
     private Map<String, Class<?>> getSelectedTypes(JpqlCompiledStatement statement) {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
-        for (String selectedPath: statement.getSelectedPathes()) {
+        for (String selectedPath: statement.getSelectedPaths()) {
             selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, statement.getAliasDefinitions()));
         }
         return selectedTypes;

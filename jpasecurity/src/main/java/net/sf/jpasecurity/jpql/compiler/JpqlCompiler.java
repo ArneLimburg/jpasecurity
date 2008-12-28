@@ -138,27 +138,30 @@ public class JpqlCompiler {
         }
 
         public boolean visit(JpqlInnerJoin node, Set<AliasDefinition> aliasDefinitions) {
-            return visitJoin(node, aliasDefinitions, true);
+            return visitJoin(node, aliasDefinitions, true, false);
         }
 
         public boolean visit(JpqlOuterJoin node, Set<AliasDefinition> aliasDefinitions) {
-            return visitJoin(node, aliasDefinitions, false);
+            return visitJoin(node, aliasDefinitions, false, false);
         }
 
         public boolean visit(JpqlOuterFetchJoin node, Set<AliasDefinition> aliasDefinitions) {
-            return visitJoin(node, aliasDefinitions, false);
+            return visitJoin(node, aliasDefinitions, false, true);
         }
 
         public boolean visit(JpqlInnerFetchJoin node, Set<AliasDefinition> aliasDefinitions) {
-            return visitJoin(node, aliasDefinitions, true);
+            return visitJoin(node, aliasDefinitions, true, true);
         }
 
-        private boolean visitJoin(Node node, Set<AliasDefinition> aliasDefinitions, boolean innerJoin) {
+        private boolean visitJoin(Node node,
+                                  Set<AliasDefinition> aliasDefinitions,
+                                  boolean innerJoin,
+                                  boolean fetchJoin) {
             if (node.jjtGetNumChildren() > 1) {
                 String fetchPath = node.jjtGetChild(0).toString();
                 String alias = node.jjtGetChild(1).toString();
                 Class type = mappingInformation.getType(fetchPath, aliasDefinitions);
-                aliasDefinitions.add(new AliasDefinition(alias, type, fetchPath, innerJoin));
+                aliasDefinitions.add(new AliasDefinition(alias, type, fetchPath, innerJoin, fetchJoin));
             }
             return false;
         }

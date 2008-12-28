@@ -15,7 +15,11 @@
  */
 package net.sf.jpasecurity.security;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import net.sf.jpasecurity.mapping.AliasDefinition;
 
 /**
  * @author Arne Limburg
@@ -25,11 +29,26 @@ public class FilterResult {
     private String query;
     private String userParameterName;
     private Map<String, Object> roleParameters;
+    private List<String> selectedPaths;
+    private Set<AliasDefinition> aliases;
 
-    public FilterResult(String query, String userParameterName, Map<String, Object> roleParameters) {
+    public FilterResult() {
+    }
+
+    public FilterResult(String query) {
         this.query = query;
+    }
+
+    public FilterResult(String query,
+                        String userParameterName,
+                        Map<String, Object> roleParameters,
+                        List<String> selectedPaths,
+                        Set<AliasDefinition> aliases) {
+        this(query);
         this.userParameterName = userParameterName;
         this.roleParameters = roleParameters;
+        this.selectedPaths = selectedPaths;
+        this.aliases = aliases;
     }
 
     public String getQuery() {
@@ -42,5 +61,13 @@ public class FilterResult {
 
     public Map<String, Object> getRoleParameters() {
         return roleParameters;
+    }
+
+    public List<String> getSelectedPaths() {
+        return selectedPaths;
+    }
+
+    public Set<AliasDefinition> getAliasDefinitions() {
+        return aliases;
     }
 }
