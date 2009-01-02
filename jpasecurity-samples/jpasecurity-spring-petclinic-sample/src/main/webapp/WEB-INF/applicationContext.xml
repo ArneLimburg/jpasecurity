@@ -38,7 +38,7 @@
 			p:dataSource-ref="dataSource">
         <property name="persistenceUnitName" value="PetClinic" />
   		<property name="jpaVendorAdapter">
-			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+			<bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"
 					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
 		</property>
 	</bean>

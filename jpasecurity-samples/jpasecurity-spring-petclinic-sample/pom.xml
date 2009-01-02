@@ -26,6 +26,18 @@
     </plugins>
   </build>
 
+  <repositories>
+    <repository>
+      <id>central</id>
+      <name>Maven Plugin Repository</name>
+      <url>http://repo1.maven.org/maven2</url>
+    </repository>
+    <repository>
+      <id>EclipseLink Repo</id>
+      <url>http://www.eclipse.org/downloads/download.php?r=1&amp;nf=1&amp;file=/rt/eclipselink/maven.repo</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>net.sf.jpasecurity</groupId>
@@ -53,9 +65,9 @@
       <version>1.2.2</version>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-entitymanager</artifactId>
-      <version>3.3.2.GA</version>
+      <groupId>org.apache.openjpa</groupId>
+      <artifactId>openjpa</artifactId>
+      <version>1.2.0</version>
     </dependency>
     <dependency>
       <groupId>hsqldb</groupId>
