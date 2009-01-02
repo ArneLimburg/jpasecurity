@@ -16,7 +16,6 @@
 package net.sf.jpasecurity.persistence;
 
 import java.io.IOException;
-import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -30,6 +29,7 @@ import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
+import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -112,15 +112,13 @@ public class SecurePersistenceProvider implements PersistenceProvider {
                                                                  Map<String, String> properties,
                                                                  AuthenticationProvider authenticationProvider,
                                                                  AccessRulesProvider accessRulesProvider) {
-        Class<?> type = nativeEntityManagerFactory.getClass();
-        EntityManagerFactoryInvocationHandler invocationHandler
+        ProxyInvocationHandler<EntityManagerFactory> invocationHandler
             = new EntityManagerFactoryInvocationHandler(nativeEntityManagerFactory,
                                                         info,
                                                         properties,
                                                         authenticationProvider,
                                                         accessRulesProvider);
-        Class<?>[] interfaces = invocationHandler.getImplementingInterfaces(type);
-        return (EntityManagerFactory)Proxy.newProxyInstance(type.getClassLoader(), interfaces, invocationHandler);
+        return invocationHandler.createProxy();
     }
 
     private PersistenceUnitInfo createPersistenceUnitInfo(String persistenceUnitName) {

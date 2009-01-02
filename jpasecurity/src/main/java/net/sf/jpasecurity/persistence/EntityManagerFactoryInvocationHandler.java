@@ -15,18 +15,14 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.parser.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.parser.OrmXmlParser;
@@ -88,27 +84,13 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
         getTarget().close();
     }
 
-    protected Class<?>[] getImplementingInterfaces(Class<?> type) {
-        Set<Class<?>> interfaces = new HashSet<Class<?>>();
-        interfaces.add(SecureEntityManager.class);
-        while (type != null) {
-            for (Class<?> iface: type.getInterfaces()) {
-                interfaces.add(iface);
-            }
-            type = type.getSuperclass();
-        }
-        return interfaces.toArray(new Class<?>[interfaces.size()]);
-    }
-
     private EntityManager createSecureEntityManager(EntityManager entityManager) {
         EntityManagerInvocationHandler invocationHandler
             = new EntityManagerInvocationHandler(entityManager,
                                                  mappingInformation,
                                                  authenticationProvider,
                                                  accessRulesProvider.getAccessRules());
-        return (EntityManager)Proxy.newProxyInstance(entityManager.getClass().getClassLoader(),
-                                                     getImplementingInterfaces(entityManager.getClass()),
-                                                     invocationHandler);
+        return invocationHandler.createProxy();
     }
 
     private void injectPersistenceInformation(Map<String, String> persistenceProperties) {
