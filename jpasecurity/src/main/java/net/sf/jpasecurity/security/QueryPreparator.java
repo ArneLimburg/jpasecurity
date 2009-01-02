@@ -107,9 +107,9 @@ public class QueryPreparator {
             if (roleCount == 0) {
                 replace(inRole, createNotEquals(createNumber(1), createNumber(1)));
             } else {
-                Node parent = createEquals(inRole.jjtGetChild(0), createInputParameter("role0"));
+                Node parent = createEquals(inRole.jjtGetChild(0), createNamedParameter("role0"));
                 for (int i = 1; i < roleCount; i++) {
-                    Node node = createEquals(inRole.jjtGetChild(0), createInputParameter("role" + i));
+                    Node node = createEquals(inRole.jjtGetChild(0), createNamedParameter("role" + i));
                     parent = createOr(parent, node);
                 }
                 replace(inRole, createBrackets(parent));
@@ -159,7 +159,7 @@ public class QueryPreparator {
     /**
      * Creates a <tt>JpqlNamedInputParameter</tt> node with the specified name.
      */
-    public JpqlNamedInputParameter createInputParameter(String name) {
+    public JpqlNamedInputParameter createNamedParameter(String name) {
         JpqlNamedInputParameter parameter = new JpqlNamedInputParameter(JpqlParserTreeConstants.JJTNAMEDINPUTPARAMETER);
         parameter.setValue(name);
         return parameter;
