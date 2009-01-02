@@ -16,14 +16,15 @@
 package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
 import net.sf.jpasecurity.jpql.parser.JpqlParserVisitor;
+import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
@@ -46,6 +47,7 @@ public class JpqlCompiledStatement implements Cloneable {
     private Set<String> namedParameters;
     private JpqlFrom fromClause;
     private JpqlWhere whereClause;
+    private List<JpqlPath> whereClausePaths;
 
     public JpqlCompiledStatement(Node statement,
                                  List<String> selectedPathes,
@@ -100,14 +102,27 @@ public class JpqlCompiledStatement implements Cloneable {
         }
         return whereClause;
     }
+    
+    public List<JpqlPath> getWhereClausePaths() {
+        if (whereClausePaths == null) {
+            PathVisitor visitor = new PathVisitor();
+            List<JpqlPath> whereClausePaths = new ArrayList<JpqlPath>();
+            JpqlWhere whereClause = getWhereClause();
+            if (whereClause != null) {
+                whereClause.visit(visitor, whereClausePaths);
+            }
+            this.whereClausePaths = Collections.unmodifiableList(whereClausePaths);
+        }
+        return whereClausePaths;
+    }
 
     public JpqlCompiledStatement clone() {
         try {
             JpqlCompiledStatement statement = (JpqlCompiledStatement)super.clone();
             statement.statement = (SimpleNode)statement.statement.clone();
-            statement.selectedPaths = new ArrayList<String>(statement.selectedPaths);
-            statement.aliasDefinitions = new HashSet<AliasDefinition>(statement.aliasDefinitions);
+            statement.fromClause = null;
             statement.whereClause = null;
+            statement.whereClausePaths = null;
             return statement;
         } catch (CloneNotSupportedException e) {
             //this should not happen since we are cloneable
@@ -141,8 +156,12 @@ public class JpqlCompiledStatement implements Cloneable {
             whereClauseHolder.setValue(whereClause);
             return false;
         }
+    }
+    
+    private class PathVisitor extends JpqlVisitorAdapter<List<JpqlPath>> {
 
-        public boolean visit(JpqlSubselect node, ValueHolder<JpqlWhere> whereClauseHolder) {
+        public boolean visit(JpqlPath path, List<JpqlPath> paths) {
+            paths.add(path);
             return false;
         }
     }
