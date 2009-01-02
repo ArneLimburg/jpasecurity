@@ -72,7 +72,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
         parser = new JpqlParser();
         compiler = new JpqlCompiler(mappingInformation);
-        inMemoryEvaluator = new InMemoryEvaluator();
+        inMemoryEvaluator = new InMemoryEvaluator(compiler, new MappedPathEvaluator(mappingInformation));
         parameters = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
                                                                aliases,
                                                                namedParameters,
