@@ -75,7 +75,7 @@ public class JpqlCompiler {
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(selectVisitor, selectedPaths);
         }
-        return selectedPaths;
+        return Collections.unmodifiableList(selectedPaths);
     }
 
     public Set<AliasDefinition> getAliasDefinitions(Node node) {
@@ -86,7 +86,7 @@ public class JpqlCompiler {
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(aliasVisitor, aliasDefinitions);
         }
-        return aliasDefinitions;
+        return Collections.unmodifiableSet(aliasDefinitions);
     }
 
     public Set<String> getNamedParameters(Node node) {
@@ -97,7 +97,7 @@ public class JpqlCompiler {
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(namedParameterVisitor, namedParameters);
         }
-        return namedParameters;
+        return Collections.unmodifiableSet(namedParameters);
     }
 
     public Set<String> getPositionalParameters(Node node) {
@@ -108,7 +108,7 @@ public class JpqlCompiler {
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(positionalParameterVisitor, positionalParameters);
         }
-        return positionalParameters;
+        return Collections.unmodifiableSet(positionalParameters);
     }
 
     private class SelectVisitor extends JpqlVisitorAdapter<List<String>> {
