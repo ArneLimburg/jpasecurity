@@ -17,6 +17,11 @@ package net.sf.jpasecurity.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This implementation of the {@link java.lang.reflect.InvocationHandler} interface
@@ -31,11 +36,12 @@ public class ProxyInvocationHandler<T> extends AbstractInvocationHandler {
     public ProxyInvocationHandler(T target) {
         this.target = target;
     }
-
-    protected T getTarget() {
-        return target;
+    
+    public T createProxy() {
+        Class<?> targetClass = getTarget().getClass();
+        return (T)Proxy.newProxyInstance(targetClass.getClassLoader(), getImplementingInterfaces(targetClass), this);
     }
-
+    
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (canInvoke(method)) {
             return super.invoke(proxy, method, args);
@@ -46,5 +52,25 @@ public class ProxyInvocationHandler<T> extends AbstractInvocationHandler {
                 throw e.getCause();
             }
         }
+    }
+
+    protected T getTarget() {
+        return target;
+    }
+
+    protected Collection<Class<?>> getImplementingInterfaces() {
+        return Collections.EMPTY_SET;
+    }
+
+    private Class<?>[] getImplementingInterfaces(Class<?> type) {
+        Set<Class<?>> interfaces = new HashSet<Class<?>>();
+        interfaces.addAll(getImplementingInterfaces());
+        while (type != null) {
+            for (Class<?> iface: type.getInterfaces()) {
+                interfaces.add(iface);
+            }
+            type = type.getSuperclass();
+        }
+        return interfaces.toArray(new Class<?>[interfaces.size()]);
     }
 }
