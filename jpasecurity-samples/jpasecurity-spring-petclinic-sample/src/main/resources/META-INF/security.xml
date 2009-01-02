@@ -9,8 +9,8 @@
     <access-rule>GRANT        READ        ACCESS TO Vet vet</access-rule>    
     <access-rule>GRANT CREATE READ UPDATE ACCESS TO Pet pet WHERE pet.owner.credential = CURRENT_USER</access-rule>    
     <access-rule>GRANT        READ        ACCESS TO Pet pet WHERE EXISTS (SELECT visit FROM Visit visit WHERE visit.pet = pet AND visit.vet.credential = CURRENT_USER)</access-rule>
-    <access-rule>GRANT                    ACCESS TO Owner owner WHERE owner = CURRENT_USER</access-rule>
-    <access-rule>GRANT        READ        ACCESS TO Owner owner WHERE owner IN (SELECT visit.pet.owner FROM Visit visit WHERE visit.vet.credential = CURRENT_USER)</access-rule>
+    <access-rule>GRANT                    ACCESS TO Owner owner WHERE owner.credential = CURRENT_USER</access-rule>
+    <access-rule>GRANT        READ        ACCESS TO Owner owner WHERE owner.id IN (SELECT visit.pet.owner.id FROM Visit visit WHERE visit.vet.credential = CURRENT_USER)</access-rule>
     <access-rule>GRANT CREATE READ        ACCESS TO Visit visit WHERE visit.pet.owner.credential = CURRENT_USER</access-rule>
     <access-rule>GRANT        READ UPDATE ACCESS TO Visit visit WHERE visit.vet.credential = CURRENT_USER</access-rule>
   </persistence-unit>
