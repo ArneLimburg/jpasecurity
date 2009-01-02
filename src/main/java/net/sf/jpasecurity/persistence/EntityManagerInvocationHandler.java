@@ -18,8 +18,6 @@ package net.sf.jpasecurity.persistence;
 import static net.sf.jpasecurity.AccessType.CREATE;
 import static net.sf.jpasecurity.AccessType.READ;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,6 +33,7 @@ import javax.persistence.Query;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.entity.DefaultSecureCollection;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
 import net.sf.jpasecurity.entity.SecureCollection;
@@ -169,15 +168,13 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                     query.setParameter(roleParameter.getKey(), roleParameter.getValue());
                 }
             }
-            InvocationHandler queryInvocationHandler
+            QueryInvocationHandler queryInvocationHandler
                 = new QueryInvocationHandler(this,
                                              query,
                                              filterResult.getSelectedPaths(),
                                              filterResult.getAliasDefinitions(),
                                              new MappedPathEvaluator(mappingInformation));
-            return (Query)Proxy.newProxyInstance(query.getClass().getClassLoader(),
-                                                 new Class[] {Query.class},
-                                                 queryInvocationHandler);
+            return queryInvocationHandler.createProxy();
         }
     }
 
@@ -241,6 +238,10 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         }
         SecureEntity secureEntity = (SecureEntity)entity;
         return secureEntity.isRemoved();
+    }
+    
+    protected Collection<Class<?>> getImplementingInterfaces() {
+        return (Collection)Collections.singleton((Class<?>)SecureEntityManager.class);
     }
 
     private Object getCurrentUser() {
