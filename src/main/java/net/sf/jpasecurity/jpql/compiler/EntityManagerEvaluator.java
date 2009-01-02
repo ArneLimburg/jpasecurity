@@ -15,12 +15,18 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
+import net.sf.jpasecurity.mapping.AliasDefinition;
+import net.sf.jpasecurity.security.QueryPreparator;
 
 /**
  * This class evaluates JPQL queries. If in-memory-evaluation
@@ -29,12 +35,13 @@ import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
  */
 public class EntityManagerEvaluator extends InMemoryEvaluator {
 
-    private EntityManager entityManager;
-    private JpqlCompiler compiler;
-
-    public EntityManagerEvaluator(EntityManager entityManager, JpqlCompiler compiler) {
+    private final EntityManager entityManager;
+    private final QueryPreparator queryPreparator;
+    
+    public EntityManagerEvaluator(EntityManager entityManager, JpqlCompiler compiler, PathEvaluator pathEvaluator) {
+        super(compiler, pathEvaluator);
         this.entityManager = entityManager;
-        this.compiler = compiler;
+        this.queryPreparator = new QueryPreparator();
     }
 
     public boolean visit(JpqlSubselect node, InMemoryEvaluationParameters data) {
@@ -47,10 +54,30 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
             return false;
         }
         try {
-            Set<String> namedParameters = compiler.getNamedParameters(node);
-            Query query = entityManager.createQuery(node.toString());
-            for (String namedParameter: namedParameters) {
+            JpqlCompiledStatement statement = compiler.compile(node).clone();
+            Set<String> aliases = getAliases(statement.getAliasDefinitions());
+            Set<String> namedParameters = new HashSet<String>(statement.getNamedParameters());
+            Map<String, String> namedPathParameters = new HashMap<String, String>();
+            Map<String, Object> namedParameterValues = new HashMap<String, Object>();
+            for (JpqlPath jpqlPath: statement.getWhereClausePaths()) {
+                String path = jpqlPath.toString();
+                String alias = getAlias(path);
+                if (!aliases.contains(alias)) {
+                    String namedParameter = namedPathParameters.get(path);
+                    if (namedParameter == null) {
+                        namedParameter = createNamedParameter(namedParameters);
+                        namedPathParameters.put(path, namedParameter);
+                        namedParameterValues.put(namedParameter, getPathValue(path, data.getAliasValues()));
+                    }
+                    queryPreparator.replace(jpqlPath, queryPreparator.createNamedParameter(namedParameter));                    
+                }
+            }
+            Query query = entityManager.createQuery(statement.getStatement().toString());
+            for (String namedParameter: statement.getNamedParameters()) {
                 query.setParameter(namedParameter, data.getNamedParameterValue(namedParameter));
+            }
+            for (Map.Entry<String, Object> namedParameter: namedParameterValues.entrySet()) {
+                query.setParameter(namedParameter.getKey(), namedParameter.getValue());
             }
             data.setResult(query.getResultList());
             return false;
@@ -58,5 +85,23 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
             data.setResultUndefined();
             return false;
         }
+    }
+    
+    private Set<String> getAliases(Set<AliasDefinition> aliasDefinitions) {
+        Set<String> aliases = new HashSet<String>();
+        for (AliasDefinition aliasDefinition: aliasDefinitions) {
+            aliases.add(aliasDefinition.getAlias());
+        }
+        return aliases;
+    }
+    
+    private String createNamedParameter(Set<String> namedParameters) {
+        int i = 0;
+        String namedParameter;
+        do {
+            namedParameter =  "path" + i++;
+        } while (namedParameters.contains(namedParameter));
+        namedParameters.add(namedParameter);
+        return namedParameter;
     }
 }
