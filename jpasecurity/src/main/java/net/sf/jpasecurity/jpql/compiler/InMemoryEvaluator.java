@@ -95,11 +95,24 @@ import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.mapping.AliasDefinition;
+import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
  * @author Arne Limburg
  */
 public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationParameters> {
+
+    protected final JpqlCompiler compiler;
+    protected final PathEvaluator pathEvaluator;
+
+    public InMemoryEvaluator(MappingInformation mappingInformation) {
+        this(new JpqlCompiler(mappingInformation), new MappedPathEvaluator(mappingInformation));
+    }
+    
+    public InMemoryEvaluator(JpqlCompiler compiler, PathEvaluator pathEvaluator) {
+        this.compiler = compiler;
+        this.pathEvaluator = pathEvaluator;
+    }
 
     public boolean canEvaluate(Node node, InMemoryEvaluationParameters parameters) {
         try {
@@ -694,7 +707,8 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
     public boolean visit(JpqlBrackets node, InMemoryEvaluationParameters data) {
         assert node.jjtGetNumChildren() == 1;
-        return visit(node.jjtGetChild(0), data);
+        node.jjtGetChild(0).visit(this, data);
+        return false;
     }
 
     public boolean visit(JpqlCurrentDate node, InMemoryEvaluationParameters data) {
@@ -809,14 +823,13 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             return false;
         }
         try {
-            PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMappingInformation());
             SecureObjectManager objectManager = data.getObjectManager();
-            JpqlCompiler compiler = new JpqlCompiler(data.getMappingInformation());
             JpqlCompiledStatement subselect = compiler.compile(node);
             Map<String, List<Object>> aliasValues
                 = evaluateAliasValues(subselect.getAliasDefinitions(), objectManager);
             for (Iterator<Map<String, Object>> i = new ValueIterator(aliasValues); i.hasNext();) {
-                Map<String, Object> aliases = i.next();
+                Map<String, Object> aliases = new HashMap<String, Object>(data.getAliasValues());
+                aliases.putAll(i.next());
                 try {
                     addJoinAliases(subselect.getAliasDefinitions(), aliases, pathEvaluator);
                     InMemoryEvaluationParameters<Boolean> parameters
@@ -829,16 +842,8 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                         if (subselect.getSelectedPaths().size() != 1) {
                             throw new IllegalStateException("Illegal number of select-pathes: expected 1, but was " + subselect.getSelectedPaths().size());
                         }
-                        Object result = null;
                         String selectedPath = subselect.getSelectedPaths().get(0);
-                        int index = selectedPath.indexOf('.');
-                        if (index == -1) {
-                            result = aliases.get(selectedPath);
-                        } else {
-                            String rootAlias = selectedPath.substring(0, index);
-                            Object root = aliases.get(rootAlias);
-                            result = pathEvaluator.evaluate(root, selectedPath.substring(index + 1));
-                        }
+                        Object result = getPathValue(selectedPath, aliases);
                         if (result != null) {
                             data.setResult(Collections.singleton(result));
                             return false;
@@ -853,6 +858,20 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         }
         data.setResultUndefined();
         return false;
+    }
+    
+    protected Object getPathValue(String path, Map<String, Object> aliases) {
+        String alias = getAlias(path);
+        Object aliasValue = aliases.get(alias);
+        if (path.length() == alias.length()) {
+            return aliasValue;
+        }
+        return pathEvaluator.evaluate(aliasValue, path.substring(alias.length() + 1));
+    }
+    
+    protected String getAlias(String path) {
+        int index = path.indexOf('.');
+        return index == -1? path: path.substring(0, index);
     }
 
     private Map<String, List<Object>> evaluateAliasValues(Set<AliasDefinition> aliasDefinitions,

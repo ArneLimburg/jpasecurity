@@ -34,7 +34,9 @@ import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluationParameters;
 import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluator;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
+import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
+import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentUser;
@@ -65,7 +67,7 @@ public class EntityFilter {
     private final JpqlCompiler compiler;
     private final SecureObjectManager objectManager;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
-    private final InMemoryEvaluator queryEvaluator = new InMemoryEvaluator();
+    private final InMemoryEvaluator queryEvaluator;
     private final EntityManagerEvaluator entityManagerEvaluator;
     private final QueryPreparator queryPreparator = new QueryPreparator();
     private final CurrentUserReplacer currentUserReplacer = new CurrentUserReplacer();
@@ -75,11 +77,24 @@ public class EntityFilter {
                         SecureObjectManager objectManager,
                         MappingInformation mappingInformation,
                         List<AccessRule> accessRules) {
+        this(entityManager,
+             objectManager,
+             mappingInformation,
+             new MappedPathEvaluator(mappingInformation),
+             accessRules);
+    }
+
+    public EntityFilter(EntityManager entityManager,
+                        SecureObjectManager objectManager,
+                        MappingInformation mappingInformation,
+                        PathEvaluator pathEvaluator,
+                        List<AccessRule> accessRules) {
         this.mappingInformation = mappingInformation;
         this.parser = new JpqlParser();
         this.compiler = new JpqlCompiler(mappingInformation);
         this.objectManager = objectManager;
-        this.entityManagerEvaluator = new EntityManagerEvaluator(entityManager, compiler);
+        this.queryEvaluator = new InMemoryEvaluator(compiler, pathEvaluator);
+        this.entityManagerEvaluator = new EntityManagerEvaluator(entityManager, compiler, pathEvaluator);
         this.accessRules = accessRules;
     }
 
@@ -167,6 +182,7 @@ public class EntityFilter {
                                                       Collections.EMPTY_MAP,
                                                       parameters,
                                                       Collections.EMPTY_MAP,
+                                                      queryEvaluator,
                                                       objectManager);
         optimizer.optimize(accessRules);
         Set<String> parameterNames = compiler.getNamedParameters(accessRules);
@@ -291,7 +307,7 @@ public class EntityFilter {
     private Set<String> createRoleParameterNames(Set<String> namedParameters,
                                                  String userParameterName,
                                                  Node accessRules) {
-        Set<String> roleParameterNames = compiler.getNamedParameters(accessRules);
+        Set<String> roleParameterNames = new HashSet<String>(compiler.getNamedParameters(accessRules));
         roleParameterNames.remove(userParameterName);
         Set<String> duplicateParameterNames = new HashSet<String>(roleParameterNames);
         duplicateParameterNames.retainAll(namedParameters);
@@ -357,7 +373,7 @@ public class EntityFilter {
     private class CurrentUserReplacer extends JpqlVisitorAdapter<ReplacementParameters> {
 
         public boolean visit(JpqlCurrentUser node, ReplacementParameters replacement) {
-            queryPreparator.replace(node, queryPreparator.createInputParameter(replacement.getNamedParameter()));
+            queryPreparator.replace(node, queryPreparator.createNamedParameter(replacement.getNamedParameter()));
             replacement.incrementReplacementCount();
             return true;
         }
