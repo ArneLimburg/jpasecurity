@@ -36,7 +36,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
  */
 public class QueryOptimizer {
 
-    private final InMemoryEvaluator evaluator = new InMemoryEvaluator();
+    private final InMemoryEvaluator evaluator;
     private final InMemoryEvaluationParameters<Boolean> parameters;
     private final NodeOptimizer nodeOptimizer = new NodeOptimizer();
     private final QueryPreparator queryPreparator = new QueryPreparator();
@@ -45,7 +45,9 @@ public class QueryOptimizer {
                           Map<String, Object> aliases,
                           Map<String, Object> namedParameters,
                           Map<Integer, Object> positionalParameters,
+                          InMemoryEvaluator evaluator,
                           SecureObjectManager objectManager) {
+        this.evaluator = evaluator;
         this.parameters = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
                                                                     aliases,
                                                                     namedParameters,
