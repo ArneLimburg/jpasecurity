@@ -27,6 +27,7 @@ import javax.persistence.Embedded;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Lob;
@@ -141,6 +142,27 @@ public class JpaAnnotationParser extends AbstractMappingParser {
         } else {
             return annotatedProperty.getAnnotation(EmbeddedId.class) != null;
         }
+    }
+
+    protected FetchType getFetchType(Member property) {
+        AnnotatedElement annotatedProperty = (AnnotatedElement)property;
+        ManyToMany manyToMany = annotatedProperty.getAnnotation(ManyToMany.class);
+        if (manyToMany != null) {
+            return manyToMany.fetch();
+        }
+        ManyToOne manyToOne = annotatedProperty.getAnnotation(ManyToOne.class);
+        if (manyToOne != null) {
+            return manyToOne.fetch();
+        }
+        OneToMany oneToMany = annotatedProperty.getAnnotation(OneToMany.class);
+        if (oneToMany != null) {
+            return oneToMany.fetch();
+        }
+        OneToOne oneToOne = annotatedProperty.getAnnotation(OneToOne.class);
+        if (oneToOne != null) {
+            return oneToOne.fetch();
+        }
+        return super.getFetchType(property);
     }
 
     protected CascadeType[] getCascadeTypes(Member property) {

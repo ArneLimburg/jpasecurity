@@ -20,6 +20,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -58,7 +59,7 @@ public class MethodAccessAnnotationTestBean {
         beanName = name;
     }
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parentBean")
     public MethodAccessAnnotationTestBean getParent() {
         return parentBean;
@@ -69,6 +70,7 @@ public class MethodAccessAnnotationTestBean {
     }
     
     @OneToMany(mappedBy = "parent",
+    		   fetch = FetchType.EAGER,
                cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH})
     public List<MethodAccessAnnotationTestBean> getChildren() {
         return childBeans;

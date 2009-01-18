@@ -19,8 +19,8 @@
     <attributes>
       <id name="id"/>
       <basic name="name"/>
-      <many-to-one name="parent"/>
-      <one-to-many name="children">
+      <many-to-one name="parent" fetch="LAZY"/>
+      <one-to-many name="children" fetch="EAGER">
         <cascade>
           <cascade-persist/>
           <cascade-merge/>
@@ -34,8 +34,8 @@
     <attributes>
       <id name="id"/>
       <basic name="name"/>
-      <many-to-one name="parent"/>
-      <one-to-many name="children">
+      <many-to-one name="parent" fetch="LAZY"/>
+      <one-to-many name="children" fetch="EAGER">
         <cascade>
           <cascade-all/>
         </cascade>

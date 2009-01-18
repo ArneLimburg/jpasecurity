@@ -25,7 +25,7 @@ import javax.persistence.Query;
 
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
-import net.sf.jpasecurity.mapping.AliasDefinition;
+import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.security.QueryPreparator;
 
 /**
@@ -55,7 +55,7 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
         }
         try {
             JpqlCompiledStatement statement = compiler.compile(node).clone();
-            Set<String> aliases = getAliases(statement.getAliasDefinitions());
+            Set<String> aliases = getAliases(statement.getTypeDefinitions());
             Set<String> namedParameters = new HashSet<String>(statement.getNamedParameters());
             Map<String, String> namedPathParameters = new HashMap<String, String>();
             Map<String, Object> namedParameterValues = new HashMap<String, Object>();
@@ -87,10 +87,12 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
         }
     }
     
-    private Set<String> getAliases(Set<AliasDefinition> aliasDefinitions) {
+    private Set<String> getAliases(Set<TypeDefinition> typeDefinitions) {
         Set<String> aliases = new HashSet<String>();
-        for (AliasDefinition aliasDefinition: aliasDefinitions) {
-            aliases.add(aliasDefinition.getAlias());
+        for (TypeDefinition typeDefinition: typeDefinitions) {
+        	if (typeDefinition.getAlias() != null) {
+        		aliases.add(typeDefinition.getAlias());
+        	}
         }
         return aliases;
     }

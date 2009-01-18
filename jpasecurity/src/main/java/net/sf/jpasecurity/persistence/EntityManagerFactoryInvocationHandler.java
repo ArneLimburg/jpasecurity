@@ -23,6 +23,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.parser.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.parser.OrmXmlParser;
@@ -38,6 +39,7 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
     private MappingInformation mappingInformation;
     private AuthenticationProvider authenticationProvider;
     private AccessRulesProvider accessRulesProvider;
+    private int maxFetchDepth;
 
     EntityManagerFactoryInvocationHandler(EntityManagerFactory entityManagerFactory,
                                           PersistenceUnitInfo persistenceUnitInfo,
@@ -66,15 +68,16 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
         if (properties != null) {
             persistenceProperties.putAll(properties);
         }
+        setMaximumFetchDepth(persistenceProperties);
         injectPersistenceInformation(persistenceProperties);
     }
 
     public EntityManager createEntityManager() {
-        return createSecureEntityManager(getTarget().createEntityManager());
+        return createSecureEntityManager(getTarget().createEntityManager(), Collections.EMPTY_MAP);
     }
 
     public EntityManager createEntityManager(Map map) {
-        return createSecureEntityManager(getTarget().createEntityManager(map));
+        return createSecureEntityManager(getTarget().createEntityManager(map), map);
     }
 
     public void close() {
@@ -84,13 +87,28 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
         getTarget().close();
     }
 
-    private EntityManager createSecureEntityManager(EntityManager entityManager) {
-        EntityManagerInvocationHandler invocationHandler
+    private EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, String> properties) {
+    	int entityManagerFetchDepth = this.maxFetchDepth;
+    	String maxFetchDepth = properties.get(FetchManager.MAX_FETCH_DEPTH);
+    	if (maxFetchDepth != null) {
+    		entityManagerFetchDepth = Integer.parseInt(maxFetchDepth);
+    	}
+    	EntityManagerInvocationHandler invocationHandler
             = new EntityManagerInvocationHandler(entityManager,
                                                  mappingInformation,
                                                  authenticationProvider,
-                                                 accessRulesProvider.getAccessRules());
+                                                 accessRulesProvider.getAccessRules(),
+                                                 entityManagerFetchDepth);
         return invocationHandler.createProxy();
+    }
+    
+    private void setMaximumFetchDepth(Map<String, String> persistenceProperties) {
+    	String maxFetchDepth = persistenceProperties.get(FetchManager.MAX_FETCH_DEPTH);
+    	if (maxFetchDepth != null) {
+    		this.maxFetchDepth = Integer.parseInt(maxFetchDepth);
+    	} else {
+    		this.maxFetchDepth = 0;
+    	}
     }
 
     private void injectPersistenceInformation(Map<String, String> persistenceProperties) {

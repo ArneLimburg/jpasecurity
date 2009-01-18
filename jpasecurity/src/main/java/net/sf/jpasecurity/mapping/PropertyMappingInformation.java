@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
 
 /**
@@ -49,6 +50,10 @@ public abstract class PropertyMappingInformation {
         containingClassMapping = classMapping;
         idProperty = isIdProperty;
     }
+    
+    public boolean isRelationshipMapping() {
+    	return false;
+    }
 
     public boolean isIdProperty() {
         return idProperty;
@@ -59,6 +64,10 @@ public abstract class PropertyMappingInformation {
     }
 
     public abstract Class<?> getProperyType();
+
+    public FetchType getFetchType() {
+        return FetchType.EAGER;
+    }
 
     public Set<CascadeType> getCascadeTypes() {
         return Collections.EMPTY_SET;

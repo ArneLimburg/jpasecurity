@@ -18,7 +18,7 @@ package net.sf.jpasecurity.mapping;
 /**
  * @author Arne Limburg
  */
-public class AliasDefinition {
+public class TypeDefinition {
 
     private String alias;
     private Class<?> type;
@@ -26,12 +26,16 @@ public class AliasDefinition {
     private boolean innerJoin;
     private boolean fetchJoin;
 
-    public AliasDefinition(String alias, Class<?> type) {
+    public TypeDefinition(String alias, Class<?> type) {
         this.alias = alias;
         this.type = type;
     }
 
-    public AliasDefinition(String alias, Class<?> type, String joinPath, boolean innerJoin, boolean fetchJoin) {
+    public TypeDefinition(Class<?> type, String joinPath, boolean innerJoin, boolean fetchJoin) {
+    	this(null, type, joinPath, innerJoin, fetchJoin);
+    }
+
+    public TypeDefinition(String alias, Class<?> type, String joinPath, boolean innerJoin, boolean fetchJoin) {
         this(alias, type);
         if (joinPath == null) {
             throw new IllegalArgumentException("joinPath may not be null");
