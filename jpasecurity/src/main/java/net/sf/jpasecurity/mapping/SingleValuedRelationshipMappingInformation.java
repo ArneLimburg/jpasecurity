@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.mapping;
 
 import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 
 /**
  * @author Arne Limburg
@@ -26,7 +27,8 @@ public final class SingleValuedRelationshipMappingInformation extends Relationsh
                                                       ClassMappingInformation relatedClassMapping,
                                                       ClassMappingInformation declaringClassMapping,
                                                       boolean isIdProperty,
+                                                      FetchType fetchType,
                                                       CascadeType... cascadeTypes) {
-        super(propertyName, relatedClassMapping, declaringClassMapping, isIdProperty, cascadeTypes);
+        super(propertyName, relatedClassMapping, declaringClassMapping, isIdProperty, fetchType, cascadeTypes);
     }
 }

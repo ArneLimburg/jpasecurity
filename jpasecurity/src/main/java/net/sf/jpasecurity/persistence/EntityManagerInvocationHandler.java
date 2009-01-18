@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import javax.persistence.EntityManager;
+import javax.persistence.FetchType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
@@ -36,6 +37,7 @@ import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.entity.DefaultSecureCollection;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
+import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.entity.SecureCollection;
 import net.sf.jpasecurity.entity.SecureEntity;
 import net.sf.jpasecurity.entity.SecureList;
@@ -47,35 +49,44 @@ import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.security.AccessRule;
 import net.sf.jpasecurity.security.AuthenticationProvider;
 import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * An invocation handler to handle invocations on entity managers.
  * @author Arne Limburg
  */
 public class EntityManagerInvocationHandler extends ProxyInvocationHandler<EntityManager>
-                                            implements SecureObjectManager {
+                                            implements FetchManager, SecureObjectManager {
 
+	private static final Log LOG = LogFactory.getLog(EntityManagerInvocationHandler.class); 
+	
     private AuthenticationProvider authenticationProvider;
     private MappingInformation mappingInformation;
     private EntityFilter entityFilter;
     private Map<Class, Map<Object, SecureEntity>> secureEntities;
     private Map<Integer, SecureCollection<?>> secureCollections;
+    private int maxFetchDepth;
 
     EntityManagerInvocationHandler(EntityManager entityManager,
                                    MappingInformation mappingInformation,
                                    AuthenticationProvider authenticationProvider,
-                                   List<AccessRule> accessRules) {
+                                   List<AccessRule> accessRules,
+                                   int maxFetchDepth) {
         super(entityManager);
         this.authenticationProvider = authenticationProvider;
         this.mappingInformation = mappingInformation;
         this.entityFilter = new EntityFilter(entityManager, this, mappingInformation, accessRules);
         this.secureEntities = new HashMap<Class, Map<Object, SecureEntity>>();
         this.secureCollections = new HashMap<Integer, SecureCollection<?>>();
+        this.maxFetchDepth = maxFetchDepth;
     }
 
     public void persist(Object entity) {
@@ -97,7 +108,9 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         if (!isAccessible(entity, READ)) {
             throw new SecurityException();
         }
-        return (T)getSecureObject(entity);
+        entity = (T)getSecureObject(entity);
+        fetch(entity, getMaximumFetchDepth());
+        return entity;
     }
 
     public void refresh(Object entity) {
@@ -170,12 +183,49 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             }
             QueryInvocationHandler queryInvocationHandler
                 = new QueryInvocationHandler(this,
+                		                     this,
                                              query,
                                              filterResult.getSelectedPaths(),
-                                             filterResult.getAliasDefinitions(),
+                                             filterResult.getTypeDefinitions(),
                                              new MappedPathEvaluator(mappingInformation));
             return queryInvocationHandler.createProxy();
         }
+    }
+    
+    public int getMaximumFetchDepth() {
+    	return maxFetchDepth;
+    }
+    
+    public void fetch(Object entity, int depth) {
+    	if (entity == null || depth == 0) {
+    		return;
+    	}
+    	depth = Math.min(depth, getMaximumFetchDepth());
+    	ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
+    	if (mapping == null) {
+    		LOG.debug("No class mapping found for entity " + entity);
+    		return;
+    	}
+    	for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
+    		if (propertyMapping.isRelationshipMapping()) {
+    			if (propertyMapping.getFetchType() == FetchType.EAGER) {
+    				Object value = propertyMapping.getPropertyValue(entity);
+    				if (value instanceof Collection) {
+    					Collection<Object> collection = (Collection<Object>)value;
+    					for (Object entry: collection) {
+    						fetch(entry, depth - 1);
+    					}
+    				} else if (value instanceof Map) {
+    					Map<Object, Object> map = (Map<Object, Object>)value;
+    					for (Object entry: map.values()) {
+    						fetch(entry, depth - 1);
+    					}
+    				} else {
+    					fetch(value, depth - 1);
+    				}
+    			}
+    		}
+    	}
     }
 
     public boolean isAccessible(Object entity, AccessType accessType) {

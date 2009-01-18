@@ -30,7 +30,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlDelete;
 import net.sf.jpasecurity.jpql.parser.JpqlRead;
 import net.sf.jpasecurity.jpql.parser.JpqlUpdate;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
-import net.sf.jpasecurity.mapping.AliasDefinition;
+import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
@@ -46,10 +46,10 @@ public class AccessRule extends JpqlCompiledStatement {
 
     private Set<AccessType> access;
 
-    public AccessRule(JpqlAccessRule rule, AliasDefinition aliasDefinition, Set<String> namedParameters) {
+    public AccessRule(JpqlAccessRule rule, TypeDefinition typeDefinition, Set<String> namedParameters) {
         super(rule,
-              Collections.singletonList(aliasDefinition.getAlias()),
-              Collections.singleton(aliasDefinition),
+              Collections.singletonList(typeDefinition.getAlias()),
+              Collections.singleton(typeDefinition),
               namedParameters);
     }
 

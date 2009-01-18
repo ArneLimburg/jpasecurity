@@ -197,7 +197,7 @@ public class EntityFilter {
                                 userParameterName,
                                 parameters.size() > 0? parameters: null,
                                 statement.getSelectedPaths(),
-                                statement.getAliasDefinitions());
+                                statement.getTypeDefinitions());
     }
 
     private Node createAccessRuleNode(JpqlCompiledStatement statement, AccessType accessType, int roleCount) {
@@ -356,7 +356,7 @@ public class EntityFilter {
     private Map<String, Class<?>> getSelectedTypes(JpqlCompiledStatement statement) {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: statement.getSelectedPaths()) {
-            selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, statement.getAliasDefinitions()));
+            selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, statement.getTypeDefinitions()));
         }
         return selectedTypes;
     }

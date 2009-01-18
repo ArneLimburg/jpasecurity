@@ -25,7 +25,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
-import net.sf.jpasecurity.mapping.AliasDefinition;
+import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
@@ -37,7 +37,7 @@ import net.sf.jpasecurity.mapping.SimplePropertyMappingInformation;
  * that are contained in the specified mapping.
  * @author Arne Limburg
  */
-public class MappingEvaluator extends JpqlVisitorAdapter<Set<AliasDefinition>> {
+public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
 
     private MappingInformation mappingInformation;
 
@@ -48,16 +48,16 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<AliasDefinition>> {
     /**
      * Checks whether the mapping is consistent for the specified node.
      */
-    public void evaluate(Node node, Set<AliasDefinition> aliasDefinitions) {
-        node.visit(this, aliasDefinitions);
+    public void evaluate(Node node, Set<TypeDefinition> typeDefinitions) {
+        node.visit(this, typeDefinitions);
     }
 
-    public boolean visit(JpqlPath node, Set<AliasDefinition> aliasDefinitions) {
+    public boolean visit(JpqlPath node, Set<TypeDefinition> typeDefinitions) {
         String alias = node.jjtGetChild(0).getValue();
         Class<?> type = null;
-        for (AliasDefinition aliasDefinition: aliasDefinitions) {
-            if (aliasDefinition.getAlias().equals(alias)) {
-                type = aliasDefinition.getType();
+        for (TypeDefinition typeDefinition: typeDefinitions) {
+            if (alias.equals(typeDefinition.getAlias())) {
+                type = typeDefinition.getType();
             }
         }
         if (type == null) {
@@ -81,8 +81,8 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<AliasDefinition>> {
         return false;
     }
 
-    public boolean visit(JpqlSubselect node, Set<AliasDefinition> aliasDefinitions) {
-        Set<AliasDefinition> subselectDefinitions = new HashSet<AliasDefinition>(aliasDefinitions);
+    public boolean visit(JpqlSubselect node, Set<TypeDefinition> typeDefinitions) {
+        Set<TypeDefinition> subselectDefinitions = new HashSet<TypeDefinition>(typeDefinitions);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(this, subselectDefinitions);
         }
@@ -91,10 +91,10 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<AliasDefinition>> {
         return false;
     }
 
-    public boolean visit(JpqlFromItem node, Set<AliasDefinition> aliasDefinitions) {
+    public boolean visit(JpqlFromItem node, Set<TypeDefinition> typeDefinitions) {
         String typeName = node.jjtGetChild(0).toString().trim();
         String alias = node.jjtGetChild(1).toString().trim();
-        aliasDefinitions.add(new AliasDefinition(alias, mappingInformation.getClassMapping(typeName).getEntityType()));
+        typeDefinitions.add(new TypeDefinition(alias, mappingInformation.getClassMapping(typeName).getEntityType()));
         return false;
     }
 }

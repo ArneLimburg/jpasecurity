@@ -94,7 +94,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
-import net.sf.jpasecurity.mapping.AliasDefinition;
+import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
@@ -826,12 +826,12 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             SecureObjectManager objectManager = data.getObjectManager();
             JpqlCompiledStatement subselect = compiler.compile(node);
             Map<String, List<Object>> aliasValues
-                = evaluateAliasValues(subselect.getAliasDefinitions(), objectManager);
+                = evaluateAliasValues(subselect.getTypeDefinitions(), objectManager);
             for (Iterator<Map<String, Object>> i = new ValueIterator(aliasValues); i.hasNext();) {
                 Map<String, Object> aliases = new HashMap<String, Object>(data.getAliasValues());
                 aliases.putAll(i.next());
                 try {
-                    addJoinAliases(subselect.getAliasDefinitions(), aliases, pathEvaluator);
+                    addJoinAliases(subselect.getTypeDefinitions(), aliases, pathEvaluator);
                     InMemoryEvaluationParameters<Boolean> parameters
                         = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
                                                                     aliases,
@@ -874,25 +874,25 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         return index == -1? path: path.substring(0, index);
     }
 
-    private Map<String, List<Object>> evaluateAliasValues(Set<AliasDefinition> aliasDefinitions,
+    private Map<String, List<Object>> evaluateAliasValues(Set<TypeDefinition> typeDefinitions,
                                                           SecureObjectManager objectManager) {
         Map<String, List<Object>> aliasValues = new LinkedHashMap<String, List<Object>>();
-        for (AliasDefinition aliasDefinition: aliasDefinitions) {
-            if (!aliasDefinition.isJoin()) {
-                aliasValues.put(aliasDefinition.getAlias(),
-                                new ArrayList<Object>(objectManager.getSecureObjects(aliasDefinition.getType())));
+        for (TypeDefinition typeDefinition: typeDefinitions) {
+            if (!typeDefinition.isJoin() && typeDefinition.getAlias() != null) {
+                aliasValues.put(typeDefinition.getAlias(),
+                                new ArrayList<Object>(objectManager.getSecureObjects(typeDefinition.getType())));
             }
         }
         return aliasValues;
     }
 
-    private void addJoinAliases(Set<AliasDefinition> aliasDefinitions,
+    private void addJoinAliases(Set<TypeDefinition> typeDefinitions,
                                 Map<String, Object> aliases,
                                 PathEvaluator pathEvaluator) throws NotEvaluatableException {
-        Set<AliasDefinition> joinAliasDefinitions = new HashSet<AliasDefinition>();
-        for (AliasDefinition aliasDefinition: aliasDefinitions) {
-            if (aliasDefinition.isJoin()) {
-                joinAliasDefinitions.add(aliasDefinition);
+        Set<TypeDefinition> joinAliasDefinitions = new HashSet<TypeDefinition>();
+        for (TypeDefinition typeDefinition: typeDefinitions) {
+            if (typeDefinition.isJoin()) {
+                joinAliasDefinitions.add(typeDefinition);
             }
         }
         //We cannot be sure about the order of the aliasDefinitions.
@@ -900,19 +900,21 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         //and do so until all aliases are processed
         while (!joinAliasDefinitions.isEmpty()) {
             int count = joinAliasDefinitions.size();
-            for (Iterator<AliasDefinition> i = joinAliasDefinitions.iterator(); i.hasNext();) {
-                AliasDefinition aliasDefinition = i.next();
-                String joinPath = aliasDefinition.getJoinPath();
-                int index = joinPath.indexOf('.');
-                String rootAlias = joinPath.substring(0, index);
-                Object root = aliases.get(rootAlias);
-                if (root != null) {
-                    Object value = pathEvaluator.evaluate(root, joinPath);
-                    if (aliasDefinition.isInnerJoin() && value == null) {
-                        throw new NoResultException();
-                    }
-                    aliases.put(aliasDefinition.getAlias(), value);
-                    i.remove();
+            for (Iterator<TypeDefinition> i = joinAliasDefinitions.iterator(); i.hasNext();) {
+                TypeDefinition typeDefinition = i.next();
+                if (typeDefinition.getAlias() != null) {
+                	String joinPath = typeDefinition.getJoinPath();
+                	int index = joinPath.indexOf('.');
+                	String rootAlias = joinPath.substring(0, index);
+                	Object root = aliases.get(rootAlias);
+                	if (root != null) {
+                		Object value = pathEvaluator.evaluate(root, joinPath);
+                		if (typeDefinition.isInnerJoin() && value == null) {
+                			throw new NoResultException();
+                		}
+                		aliases.put(typeDefinition.getAlias(), value);
+                		i.remove();
+                	}
                 }
             }
             if (joinAliasDefinitions.size() == count) {
