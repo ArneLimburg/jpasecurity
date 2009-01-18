@@ -71,6 +71,7 @@ public class Vet extends Person {
 
     public void addVisit(Visit visit) {
         getVisitsInternal().add(visit);
+        visit.setVet(this);
     }
     
     public String toString() {
