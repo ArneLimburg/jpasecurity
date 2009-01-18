@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
 
 /**
@@ -30,6 +31,7 @@ import javax.persistence.PersistenceException;
 public abstract class RelationshipMappingInformation extends PropertyMappingInformation {
 
     private ClassMappingInformation relatedClassMapping;
+    private FetchType fetchType;
     private Set<CascadeType> cascadeTypes;
 
     /**
@@ -46,13 +48,22 @@ public abstract class RelationshipMappingInformation extends PropertyMappingInfo
                                    ClassMappingInformation relatedClassMapping,
                                    ClassMappingInformation declaringClassMapping,
                                    boolean isIdProperty,
+                                   FetchType fetchType,
                                    CascadeType... cascadeTypes) {
         super(propertyName, declaringClassMapping, isIdProperty);
         if (relatedClassMapping == null) {
             throw new PersistenceException("could not determine target class for property \"" + propertyName + "\" of class " + declaringClassMapping.getEntityName());
         }
+        if (fetchType == null) {
+        	throw new IllegalArgumentException("fetchType may not be null");
+        }
         this.relatedClassMapping = relatedClassMapping;
+        this.fetchType = fetchType;
         this.cascadeTypes = Collections.unmodifiableSet(new HashSet<CascadeType>(Arrays.asList(cascadeTypes)));
+    }
+
+    public boolean isRelationshipMapping() {
+    	return true;
     }
 
     public ClassMappingInformation getRelatedClassMapping() {
@@ -61,6 +72,10 @@ public abstract class RelationshipMappingInformation extends PropertyMappingInfo
 
     public Class<?> getProperyType() {
         return relatedClassMapping.getEntityType();
+    }
+    
+    public FetchType getFetchType() {
+    	return fetchType;
     }
 
     public Set<CascadeType> getCascadeTypes() {

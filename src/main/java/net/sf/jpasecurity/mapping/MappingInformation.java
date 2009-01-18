@@ -85,10 +85,10 @@ public class MappingInformation {
         return classMapping;
     }
 
-    public Class<?> getType(String path, Set<AliasDefinition> aliasDefinitions) {
+    public Class<?> getType(String path, Set<TypeDefinition> typeDefinitions) {
         try {
             String[] entries = path.split("\\.");
-            Class<?> type = getAliasType(entries[0], aliasDefinitions);
+            Class<?> type = getAliasType(entries[0], typeDefinitions);
             for (int i = 1; i < entries.length; i++) {
                 type = getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
             }
@@ -106,10 +106,10 @@ public class MappingInformation {
         }
     }
 
-    private Class<?> getAliasType(String alias, Set<AliasDefinition> aliasDefinitions) {
-        for (AliasDefinition aliasDefinition: aliasDefinitions) {
-            if (aliasDefinition.getAlias().equals(alias)) {
-                return aliasDefinition.getType();
+    private Class<?> getAliasType(String alias, Set<TypeDefinition> typeDefinitions) {
+        for (TypeDefinition typeDefinition: typeDefinitions) {
+            if (alias.equals(typeDefinition.getAlias())) {
+                return typeDefinition.getType();
             }
         }
         return null;

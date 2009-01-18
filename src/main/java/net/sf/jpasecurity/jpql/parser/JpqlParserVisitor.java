@@ -103,6 +103,14 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlIdentificationVariableDeclaration node, T data);
 
     /**
+     * Called when visiting a <tt>JpqlInCollection</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlInCollection node, T data);
+
+    /**
      * Called when visiting a <tt>JpqlInnerJoin</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor

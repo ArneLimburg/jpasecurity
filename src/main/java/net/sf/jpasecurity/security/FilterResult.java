@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.jpasecurity.mapping.AliasDefinition;
+import net.sf.jpasecurity.mapping.TypeDefinition;
 
 /**
  * @author Arne Limburg
@@ -30,7 +30,7 @@ public class FilterResult {
     private String userParameterName;
     private Map<String, Object> roleParameters;
     private List<String> selectedPaths;
-    private Set<AliasDefinition> aliases;
+    private Set<TypeDefinition> types;
 
     public FilterResult() {
     }
@@ -43,12 +43,12 @@ public class FilterResult {
                         String userParameterName,
                         Map<String, Object> roleParameters,
                         List<String> selectedPaths,
-                        Set<AliasDefinition> aliases) {
+                        Set<TypeDefinition> types) {
         this(query);
         this.userParameterName = userParameterName;
         this.roleParameters = roleParameters;
         this.selectedPaths = selectedPaths;
-        this.aliases = aliases;
+        this.types = types;
     }
 
     public String getQuery() {
@@ -67,7 +67,7 @@ public class FilterResult {
         return selectedPaths;
     }
 
-    public Set<AliasDefinition> getAliasDefinitions() {
-        return aliases;
+    public Set<TypeDefinition> getTypeDefinitions() {
+        return types;
     }
 }

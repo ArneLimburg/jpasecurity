@@ -33,6 +33,7 @@ import java.net.URL;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
 
@@ -190,6 +192,7 @@ public abstract class AbstractMappingParser {
                                                                   typeMapping,
                                                                   classMapping,
                                                                   isIdProperty,
+                                                                  getFetchType(property),
                                                                   getCascadeTypes(property));
         } else if (isCollectionValuedRelationshipProperty(property)) {
             ClassMappingInformation targetMapping = parse(getTargetType(property));
@@ -198,6 +201,7 @@ public abstract class AbstractMappingParser {
                                                                       targetMapping,
                                                                       classMapping,
                                                                       isIdProperty,
+                                                                      getFetchType(property),
                                                                       getCascadeTypes(property));
         } else if (isSimplePropertyType(type)) {
             return new SimplePropertyMappingInformation(name, type, classMapping, isIdProperty);
@@ -334,6 +338,14 @@ public abstract class AbstractMappingParser {
 
     protected abstract boolean isIdProperty(Member property);
 
+    protected FetchType getFetchType(Member property) {
+        Class<?> type = getType(property);
+        if (Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type)) {
+        	return FetchType.LAZY;
+        }
+        return FetchType.EAGER;
+    }
+    
     protected abstract CascadeType[] getCascadeTypes(Member property);
 
     protected boolean isRelationshipProperty(Member property) {

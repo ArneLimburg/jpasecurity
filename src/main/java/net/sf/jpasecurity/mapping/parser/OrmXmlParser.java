@@ -25,6 +25,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.xml.namespace.QName;
@@ -61,6 +62,8 @@ public class OrmXmlParser extends AbstractMappingParser {
 
     public static final String NAMED_QUERY_XPATH
         = "//named-query";
+    public static final String FETCH_TYPE_XPATH
+    	= "//*[@class=''{0}'']//*[@name=''{1}'']/@fetch";
     public static final String CASCADE_TYPE_XPATH
         = "//entity[@class=''{0}'']//*[@name=''{1}'']/cascade/*";
     public static final String PACKAGE_XPATH
@@ -216,6 +219,14 @@ public class OrmXmlParser extends AbstractMappingParser {
         }
     }
 
+    protected FetchType getFetchType(Member property) {
+    	Node node = evaluateNode(FETCH_TYPE_XPATH, property.getDeclaringClass(), getName(property));
+    	if (node == null) {
+    		return super.getFetchType(property);
+    	}
+    	return FetchType.valueOf(node.getTextContent());
+    }
+    
     protected CascadeType[] getCascadeTypes(Member property) {
         XmlNodeList list
             = evaluateNodes(CASCADE_TYPE_XPATH, property.getDeclaringClass().getName(), getName(property));

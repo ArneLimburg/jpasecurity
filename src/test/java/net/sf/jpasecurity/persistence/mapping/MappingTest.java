@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.persistence.mapping;
 
 import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import javax.persistence.Persistence;
 
 import junit.framework.TestCase;
@@ -81,6 +82,8 @@ public class MappingTest extends TestCase {
         assertEquals(String.class, classMapping.getPropertyMapping("name").getProperyType());
         assertEquals(entityType, classMapping.getPropertyMapping("parent").getProperyType());
         assertEquals(entityType, classMapping.getPropertyMapping("children").getProperyType());        
+        assertEquals(FetchType.LAZY, classMapping.getPropertyMapping("parent").getFetchType());
+        assertEquals(FetchType.EAGER, classMapping.getPropertyMapping("children").getFetchType());        
         assertEquals(0, classMapping.getPropertyMapping("id").getCascadeTypes().size());
         assertEquals(0, classMapping.getPropertyMapping("name").getCascadeTypes().size());
         assertEquals(0, classMapping.getPropertyMapping("parent").getCascadeTypes().size());

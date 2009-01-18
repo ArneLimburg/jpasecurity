@@ -30,7 +30,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.SimpleNode;
-import net.sf.jpasecurity.mapping.AliasDefinition;
+import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.util.ValueHolder;
 
@@ -43,7 +43,7 @@ public class JpqlCompiledStatement implements Cloneable {
 
     private Node statement;
     private List<String> selectedPaths;
-    private Set<AliasDefinition> aliasDefinitions;
+    private Set<TypeDefinition> typeDefinitions;
     private Set<String> namedParameters;
     private JpqlFrom fromClause;
     private JpqlWhere whereClause;
@@ -51,11 +51,11 @@ public class JpqlCompiledStatement implements Cloneable {
 
     public JpqlCompiledStatement(Node statement,
                                  List<String> selectedPathes,
-                                 Set<AliasDefinition> aliasDefinitions,
+                                 Set<TypeDefinition> typeDefinitions,
                                  Set<String> namedParameters) {
         this.statement = statement;
         this.selectedPaths = selectedPathes;
-        this.aliasDefinitions = aliasDefinitions;
+        this.typeDefinitions = typeDefinitions;
         this.namedParameters = namedParameters;
     }
 
@@ -70,13 +70,13 @@ public class JpqlCompiledStatement implements Cloneable {
     public Map<String, Class<?>> getSelectedTypes(MappingInformation mappingInformation) {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: getSelectedPaths()) {
-            selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, getAliasDefinitions()));
+            selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, getTypeDefinitions()));
         }
         return selectedTypes;
     }
 
-    public Set<AliasDefinition> getAliasDefinitions() {
-        return aliasDefinitions;
+    public Set<TypeDefinition> getTypeDefinitions() {
+        return typeDefinitions;
     }
 
     public Set<String> getNamedParameters() {

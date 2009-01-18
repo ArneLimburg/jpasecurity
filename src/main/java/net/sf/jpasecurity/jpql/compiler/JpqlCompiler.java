@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
+import net.sf.jpasecurity.jpql.parser.JpqlInCollection;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
@@ -34,8 +35,8 @@ import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ToStringVisitor;
-import net.sf.jpasecurity.mapping.AliasDefinition;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.TypeDefinition;
 
 /**
  * @author Arne Limburg
@@ -62,9 +63,9 @@ public class JpqlCompiler {
 
     private JpqlCompiledStatement compile(Node statement) {
         List<String> selectedPathes = getSelectedPaths(statement);
-        Set<AliasDefinition> aliasDefinitions = getAliasDefinitions(statement);
+        Set<TypeDefinition> typeDefinitions = getAliasDefinitions(statement);
         Set<String> namedParameters = getNamedParameters(statement);
-        return new JpqlCompiledStatement(statement, selectedPathes, aliasDefinitions, namedParameters);
+        return new JpqlCompiledStatement(statement, selectedPathes, typeDefinitions, namedParameters);
     }
 
     public List<String> getSelectedPaths(Node node) {
@@ -78,15 +79,15 @@ public class JpqlCompiler {
         return Collections.unmodifiableList(selectedPaths);
     }
 
-    public Set<AliasDefinition> getAliasDefinitions(Node node) {
+    public Set<TypeDefinition> getAliasDefinitions(Node node) {
         if (node == null) {
             return Collections.EMPTY_SET;
         }
-        Set<AliasDefinition> aliasDefinitions = new HashSet<AliasDefinition>();
+        Set<TypeDefinition> typeDefinitions = new HashSet<TypeDefinition>();
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(aliasVisitor, aliasDefinitions);
+            node.jjtGetChild(i).visit(aliasVisitor, typeDefinitions);
         }
-        return Collections.unmodifiableSet(aliasDefinitions);
+        return Collections.unmodifiableSet(typeDefinitions);
     }
 
     public Set<String> getNamedParameters(Node node) {
@@ -127,46 +128,52 @@ public class JpqlCompiler {
         }
     }
 
-    private class AliasVisitor extends JpqlVisitorAdapter<Set<AliasDefinition>> {
+    private class AliasVisitor extends JpqlVisitorAdapter<Set<TypeDefinition>> {
 
-        public boolean visit(JpqlFromItem node, Set<AliasDefinition> aliasDefinitions) {
+        public boolean visit(JpqlFromItem node, Set<TypeDefinition> typeDefinitions) {
             String abstractSchemaName = node.jjtGetChild(0).toString();
             String alias = node.jjtGetChild(1).toString();
             Class<?> type = mappingInformation.getClassMapping(abstractSchemaName.trim()).getEntityType();
-            aliasDefinitions.add(new AliasDefinition(alias, type));
+            typeDefinitions.add(new TypeDefinition(alias, type));
             return false;
         }
 
-        public boolean visit(JpqlInnerJoin node, Set<AliasDefinition> aliasDefinitions) {
-            return visitJoin(node, aliasDefinitions, true, false);
+        public boolean visit(JpqlInCollection node, Set<TypeDefinition> typeDefinitions) {
+            return visitJoin(node, typeDefinitions, true, false);
         }
 
-        public boolean visit(JpqlOuterJoin node, Set<AliasDefinition> aliasDefinitions) {
-            return visitJoin(node, aliasDefinitions, false, false);
+        public boolean visit(JpqlInnerJoin node, Set<TypeDefinition> typeDefinitions) {
+            return visitJoin(node, typeDefinitions, true, false);
         }
 
-        public boolean visit(JpqlOuterFetchJoin node, Set<AliasDefinition> aliasDefinitions) {
-            return visitJoin(node, aliasDefinitions, false, true);
+        public boolean visit(JpqlOuterJoin node, Set<TypeDefinition> typeDefinitions) {
+            return visitJoin(node, typeDefinitions, false, false);
         }
 
-        public boolean visit(JpqlInnerFetchJoin node, Set<AliasDefinition> aliasDefinitions) {
-            return visitJoin(node, aliasDefinitions, true, true);
+        public boolean visit(JpqlOuterFetchJoin node, Set<TypeDefinition> typeDefinitions) {
+            return visitJoin(node, typeDefinitions, false, true);
+        }
+
+        public boolean visit(JpqlInnerFetchJoin node, Set<TypeDefinition> typeDefinitions) {
+            return visitJoin(node, typeDefinitions, true, true);
         }
 
         private boolean visitJoin(Node node,
-                                  Set<AliasDefinition> aliasDefinitions,
+                                  Set<TypeDefinition> typeDefinitions,
                                   boolean innerJoin,
                                   boolean fetchJoin) {
-            if (node.jjtGetNumChildren() > 1) {
-                String fetchPath = node.jjtGetChild(0).toString();
-                String alias = node.jjtGetChild(1).toString();
-                Class type = mappingInformation.getType(fetchPath, aliasDefinitions);
-                aliasDefinitions.add(new AliasDefinition(alias, type, fetchPath, innerJoin, fetchJoin));
-            }
+        	String fetchPath = node.jjtGetChild(0).toString();
+        	Class type = mappingInformation.getType(fetchPath, typeDefinitions);
+        	if (node.jjtGetNumChildren() == 1) {
+            	typeDefinitions.add(new TypeDefinition(type, fetchPath, innerJoin, fetchJoin));
+        	} else {
+        		String alias = node.jjtGetChild(1).toString();
+            	typeDefinitions.add(new TypeDefinition(alias, type, fetchPath, innerJoin, fetchJoin));
+        	}
             return false;
         }
 
-        public boolean visit(JpqlSubselect node, Set<AliasDefinition> aliasDefinitions) {
+        public boolean visit(JpqlSubselect node, Set<TypeDefinition> typeDefinitions) {
             return false;
         }
     }
