@@ -37,10 +37,7 @@ public class EntityManagerClinic implements Clinic {
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public Collection<Vet> getVets() {
-		Query query = this.em.createQuery("SELECT DISTINCT vet FROM Vet vet "
-                                        + "LEFT OUTER JOIN FETCH vet.specialtiesInternal "
-                                        + "LEFT OUTER JOIN FETCH vet.visitsInternal "
-                                        + "ORDER BY vet.lastName, vet.firstName");
+		Query query = this.em.createQuery("SELECT vet FROM Vet vet ORDER BY vet.lastName, vet.firstName");
 		return query.getResultList();
 	}
 
@@ -56,66 +53,29 @@ public class EntityManagerClinic implements Clinic {
 	@SuppressWarnings("unchecked")
 	public Collection<Owner> findOwners(String lastName) {
 		Query query = this.em.createQuery("SELECT owner FROM Owner owner "
-                                        + "LEFT OUTER JOIN FETCH owner.petsInternal "
                                         + "WHERE owner.lastName LIKE :lastName");
-		query.setParameter("lastName", lastName + "%");
+		query.setParameter("lastName", lastName.trim().toLowerCase() + "%");
 		return query.getResultList();
 	}
 
 	@Transactional(readOnly = true)
 	public Owner loadOwner(int id) {
-		Query query = this.em.createQuery("SELECT owner FROM Owner owner "
-                                        + "LEFT OUTER JOIN FETCH owner.petsInternal "
-//                                        + "LEFT OUTER JOIN FETCH pets.visitsInternal "
-//                                        + "LEFT OUTER JOIN FETCH visits.vet "
-                                        + "WHERE owner.id = :id");
-        query.setParameter("id", id);
-        Owner owner = (Owner)query.getSingleResult();
-        for (Pet pet: owner.getPets()) {
-            for (Visit visit: pet.getVisits()) {
-                visit.getVet().getId();
-            }
-        }
-        return owner;
+		return this.em.find(Owner.class, id);
 	}
 
 	@Transactional(readOnly = true)
 	public Pet loadPet(int id) {
-        Query query = this.em.createQuery("SELECT pet FROM Pet pet "
-//                                        + "LEFT OUTER JOIN FETCH pet.owner owner "
-                                        + "LEFT OUTER JOIN FETCH pet.visitsInternal "
-                                        + "WHERE pet.id = :id");
-        query.setParameter("id", id);
-        return (Pet)query.getSingleResult();
+		return this.em.find(Pet.class, id);
 	}
 
     @Transactional(readOnly = true)
     public Vet loadVet(int id) {
-        Query query = this.em.createQuery("SELECT vet FROM Vet vet "
-                                        + "LEFT OUTER JOIN FETCH vet.specialtiesInternal "
-                                        + "LEFT OUTER JOIN FETCH vet.visitsInternal "
-//                                        + "LEFT OUTER JOIN FETCH visit.pet pet "
-//                                        + "LEFT OUTER JOIN FETCH pet.owner owner "
-//                                        + "LEFT OUTER JOIN FETCH pet.type petType "
-                                        + "WHERE vet.id = :id");
-        query.setParameter("id", id);
-        Vet vet = (Vet)query.getSingleResult();
-        for (Visit visit: vet.getVisits()) {
-            visit.getPet().getOwner().getId();
-        }
-        return vet;
+    	return this.em.find(Vet.class, id);
     }
 
     @Transactional(readOnly = true)
     public Visit loadVisit(int id) {
-        Query query = this.em.createQuery("SELECT visit FROM Visit visit "
-                                        + "LEFT OUTER JOIN FETCH visit.vet.specialtiesInternal "
-                                        + "LEFT OUTER JOIN FETCH visit.pet.owner "
-                                        + "LEFT OUTER JOIN FETCH visit.pet.type "
-//                                        + "LEFT OUTER JOIN FETCH visit.pet.visitsInternal visits "
-                                        + "WHERE visit.id = :id");
-        query.setParameter("id", id);
-        return (Visit)query.getSingleResult();
+    	return this.em.find(Visit.class, id);
     }
 
 	public void storeOwner(Owner owner) {

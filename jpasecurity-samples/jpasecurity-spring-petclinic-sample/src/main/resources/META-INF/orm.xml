@@ -75,12 +75,12 @@
 	<entity class="Vet">
 		<table name="VETS"/>
 		<attributes>
-			<one-to-many name="visitsInternal" target-entity="Visit" mapped-by="vet" fetch="LAZY">
+			<one-to-many name="visitsInternal" target-entity="Visit" mapped-by="vet" fetch="EAGER">
 				<cascade>
 					<cascade-all/>
 				</cascade>
 			</one-to-many>
-			<many-to-many name="specialtiesInternal" target-entity="Specialty" fetch="LAZY">
+			<many-to-many name="specialtiesInternal" target-entity="Specialty" fetch="EAGER">
 				<join-table name="VET_SPECIALTIES">
 					<join-column name="VET_ID"/>
 					<inverse-join-column name="SPECIALTY_ID"/>
@@ -103,7 +103,7 @@
 			<basic name="address"/>
 			<basic name="city"/>
 			<basic name="telephone"/>
-			<one-to-many name="petsInternal" target-entity="Pet" mapped-by="owner" fetch="LAZY">
+			<one-to-many name="petsInternal" target-entity="Pet" mapped-by="owner" fetch="EAGER">
 				<cascade>
 					<cascade-all/>
 				</cascade>

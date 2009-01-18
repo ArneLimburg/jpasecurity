@@ -12,7 +12,8 @@
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
         
         <properties>
-            <property name="hibernate.max_fetch_depth" value="4" />
+            <property name="net.sf.jpasecurity.maxFetchDepth" value="3" />
+            <property name="openjpa.MaxFetchDepth" value="3" />
         </properties>
 	</persistence-unit>
 
