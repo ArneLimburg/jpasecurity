@@ -370,7 +370,7 @@ void innerJoin() #InnerJoin: {} {
     [<INNER>] <JOIN> joinPath() [<AS>] identificationVariable()
 }
 
-void collectionMemberDeclaration() #InnerJoin: {} {
+void collectionMemberDeclaration() #InCollection: {} {
     // synonymous with "INNER JOIN path AS identifier" (InnerJoin)
     <IN> "(" joinPath() ")" [LOOKAHEAD(1) <AS>] identificationVariable()
 }
