@@ -16,7 +16,6 @@
 package net.sf.jpasecurity.acl;
 
 import javax.persistence.Basic;
-import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
