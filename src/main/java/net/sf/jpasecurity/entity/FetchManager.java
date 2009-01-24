@@ -20,7 +20,7 @@ package net.sf.jpasecurity.entity;
  */
 public interface FetchManager {
 
-    final String MAX_FETCH_DEPTH = "net.sf.jpasecurity.maxFetchDepth";
+    String MAX_FETCH_DEPTH = "net.sf.jpasecurity.maxFetchDepth";
 
     int getMaximumFetchDepth();
 
