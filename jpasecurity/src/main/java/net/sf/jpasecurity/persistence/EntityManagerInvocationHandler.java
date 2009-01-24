@@ -60,14 +60,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * An invocation handler to handle invocations on entity managers.
+ * This class handles invocations on proxies of entity managers.
  * @author Arne Limburg
  */
 public class EntityManagerInvocationHandler extends ProxyInvocationHandler<EntityManager>
                                             implements FetchManager, SecureObjectManager {
 
-	private static final Log LOG = LogFactory.getLog(EntityManagerInvocationHandler.class); 
-	
+    private static final Log LOG = LogFactory.getLog(EntityManagerInvocationHandler.class);
+
     private AuthenticationProvider authenticationProvider;
     private MappingInformation mappingInformation;
     private EntityFilter entityFilter;
@@ -183,7 +183,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             }
             QueryInvocationHandler queryInvocationHandler
                 = new QueryInvocationHandler(this,
-                		                     this,
+                                             this,
                                              query,
                                              filterResult.getSelectedPaths(),
                                              filterResult.getTypeDefinitions(),
@@ -191,41 +191,41 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             return queryInvocationHandler.createProxy();
         }
     }
-    
+
     public int getMaximumFetchDepth() {
-    	return maxFetchDepth;
+        return maxFetchDepth;
     }
-    
+
     public void fetch(Object entity, int depth) {
-    	if (entity == null || depth == 0) {
-    		return;
-    	}
-    	depth = Math.min(depth, getMaximumFetchDepth());
-    	ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-    	if (mapping == null) {
-    		LOG.debug("No class mapping found for entity " + entity);
-    		return;
-    	}
-    	for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
-    		if (propertyMapping.isRelationshipMapping()) {
-    			if (propertyMapping.getFetchType() == FetchType.EAGER) {
-    				Object value = propertyMapping.getPropertyValue(entity);
-    				if (value instanceof Collection) {
-    					Collection<Object> collection = (Collection<Object>)value;
-    					for (Object entry: collection) {
-    						fetch(entry, depth - 1);
-    					}
-    				} else if (value instanceof Map) {
-    					Map<Object, Object> map = (Map<Object, Object>)value;
-    					for (Object entry: map.values()) {
-    						fetch(entry, depth - 1);
-    					}
-    				} else {
-    					fetch(value, depth - 1);
-    				}
-    			}
-    		}
-    	}
+        if (entity == null || depth == 0) {
+            return;
+        }
+        depth = Math.min(depth, getMaximumFetchDepth());
+        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
+        if (mapping == null) {
+            LOG.debug("No class mapping found for entity " + entity);
+            return;
+        }
+        for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
+            if (propertyMapping.isRelationshipMapping()) {
+                if (propertyMapping.getFetchType() == FetchType.EAGER) {
+                    Object value = propertyMapping.getPropertyValue(entity);
+                    if (value instanceof Collection) {
+                        Collection<Object> collection = (Collection<Object>)value;
+                        for (Object entry: collection) {
+                            fetch(entry, depth - 1);
+                        }
+                    } else if (value instanceof Map) {
+                        Map<Object, Object> map = (Map<Object, Object>)value;
+                        for (Object entry: map.values()) {
+                            fetch(entry, depth - 1);
+                        }
+                    } else {
+                        fetch(value, depth - 1);
+                    }
+                }
+            }
+        }
     }
 
     public boolean isAccessible(Object entity, AccessType accessType) {
@@ -289,7 +289,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         SecureEntity secureEntity = (SecureEntity)entity;
         return secureEntity.isRemoved();
     }
-    
+
     protected Collection<Class<?>> getImplementingInterfaces() {
         return (Collection)Collections.singleton((Class<?>)SecureEntityManager.class);
     }

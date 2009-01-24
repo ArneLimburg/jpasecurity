@@ -15,8 +15,9 @@
  */
 package net.sf.jpasecurity;
 
-
 /**
+ * Implementations of this interface may be used to check whether an
+ * entity is accessible given a specific access type.
  * @author Arne Limburg
  */
 public interface AccessChecker {

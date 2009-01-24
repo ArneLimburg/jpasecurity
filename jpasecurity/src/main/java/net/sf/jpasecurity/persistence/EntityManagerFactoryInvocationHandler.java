@@ -32,6 +32,7 @@ import net.sf.jpasecurity.security.AuthenticationProvider;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 /**
+ * This class handles invocations on proxies of entity-manager factories.
  * @author Arne Limburg
  */
 public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandler<EntityManagerFactory> {
@@ -88,12 +89,12 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
     }
 
     private EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, String> properties) {
-    	int entityManagerFetchDepth = this.maxFetchDepth;
-    	String maxFetchDepth = properties.get(FetchManager.MAX_FETCH_DEPTH);
-    	if (maxFetchDepth != null) {
-    		entityManagerFetchDepth = Integer.parseInt(maxFetchDepth);
-    	}
-    	EntityManagerInvocationHandler invocationHandler
+        int entityManagerFetchDepth = this.maxFetchDepth;
+        String maxFetchDepth = properties.get(FetchManager.MAX_FETCH_DEPTH);
+        if (maxFetchDepth != null) {
+            entityManagerFetchDepth = Integer.parseInt(maxFetchDepth);
+        }
+        EntityManagerInvocationHandler invocationHandler
             = new EntityManagerInvocationHandler(entityManager,
                                                  mappingInformation,
                                                  authenticationProvider,
@@ -101,14 +102,14 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
                                                  entityManagerFetchDepth);
         return invocationHandler.createProxy();
     }
-    
+
     private void setMaximumFetchDepth(Map<String, String> persistenceProperties) {
-    	String maxFetchDepth = persistenceProperties.get(FetchManager.MAX_FETCH_DEPTH);
-    	if (maxFetchDepth != null) {
-    		this.maxFetchDepth = Integer.parseInt(maxFetchDepth);
-    	} else {
-    		this.maxFetchDepth = 0;
-    	}
+        String maxFetchDepth = persistenceProperties.get(FetchManager.MAX_FETCH_DEPTH);
+        if (maxFetchDepth != null) {
+            this.maxFetchDepth = Integer.parseInt(maxFetchDepth);
+        } else {
+            this.maxFetchDepth = 0;
+        }
     }
 
     private void injectPersistenceInformation(Map<String, String> persistenceProperties) {

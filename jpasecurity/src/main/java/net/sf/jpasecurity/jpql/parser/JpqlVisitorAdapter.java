@@ -97,8 +97,11 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
         return visit(node);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean visit(JpqlInCollection node, T data) {
-    	return visit(node);
+        return visit(node);
     }
 
     /**
@@ -773,8 +776,11 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
         return true;
     }
 
+    /**
+     * @see #visit(JpqlInCollection, Object)
+     */
     public boolean visit(JpqlInCollection node) {
-    	return true;
+        return true;
     }
 
     /**

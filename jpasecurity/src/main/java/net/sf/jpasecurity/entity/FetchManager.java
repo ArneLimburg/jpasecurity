@@ -20,8 +20,15 @@ package net.sf.jpasecurity.entity;
  */
 public interface FetchManager {
 
-	public static final String MAX_FETCH_DEPTH = "net.sf.jpasecurity.maxFetchDepth";
-	
-	int getMaximumFetchDepth();
-	void fetch(Object entity, int depth);
+    final String MAX_FETCH_DEPTH = "net.sf.jpasecurity.maxFetchDepth";
+
+    int getMaximumFetchDepth();
+
+    /**
+     * Fetches the object-graph of the specified entity up to the specified fetch depth.
+     * @param entity the entity to fetch
+     * @param depth the depth up to which to fetch
+     */
+    void fetch(Object entity, int depth);
+
 }
