@@ -36,12 +36,12 @@ public class ProxyInvocationHandler<T> extends AbstractInvocationHandler {
     public ProxyInvocationHandler(T target) {
         this.target = target;
     }
-    
+
     public T createProxy() {
         Class<?> targetClass = getTarget().getClass();
         return (T)Proxy.newProxyInstance(targetClass.getClassLoader(), getImplementingInterfaces(targetClass), this);
     }
-    
+
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (canInvoke(method)) {
             return super.invoke(proxy, method, args);
@@ -58,6 +58,10 @@ public class ProxyInvocationHandler<T> extends AbstractInvocationHandler {
         return target;
     }
 
+    /**
+     * This method returns an empty set.
+     * Subclasses may override this method to specify interfaces to implement.
+     */
     protected Collection<Class<?>> getImplementingInterfaces() {
         return Collections.EMPTY_SET;
     }

@@ -63,7 +63,7 @@ public class OrmXmlParser extends AbstractMappingParser {
     public static final String NAMED_QUERY_XPATH
         = "//named-query";
     public static final String FETCH_TYPE_XPATH
-    	= "//*[@class=''{0}'']//*[@name=''{1}'']/@fetch";
+        = "//*[@class=''{0}'']//*[@name=''{1}'']/@fetch";
     public static final String CASCADE_TYPE_XPATH
         = "//entity[@class=''{0}'']//*[@name=''{1}'']/cascade/*";
     public static final String PACKAGE_XPATH
@@ -161,6 +161,9 @@ public class OrmXmlParser extends AbstractMappingParser {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected Class<?> getIdClass(Class<?> entityClass, boolean useFieldAccess) {
         Node idClassNode = evaluateNode(ID_CLASS_XPATH, entityClass.getName());
         return idClassNode == null? null: getClass(idClassNode.getTextContent());
@@ -210,6 +213,9 @@ public class OrmXmlParser extends AbstractMappingParser {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected boolean isIdProperty(Member property) {
         String name = getName(property);
         if (evaluateNode(ID_PROPERTY_XPATH, property.getDeclaringClass(), name) != null) {
@@ -219,14 +225,20 @@ public class OrmXmlParser extends AbstractMappingParser {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected FetchType getFetchType(Member property) {
-    	Node node = evaluateNode(FETCH_TYPE_XPATH, property.getDeclaringClass(), getName(property));
-    	if (node == null) {
-    		return super.getFetchType(property);
-    	}
-    	return FetchType.valueOf(node.getTextContent());
+        Node node = evaluateNode(FETCH_TYPE_XPATH, property.getDeclaringClass(), getName(property));
+        if (node == null) {
+            return super.getFetchType(property);
+        }
+        return FetchType.valueOf(node.getTextContent());
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     protected CascadeType[] getCascadeTypes(Member property) {
         XmlNodeList list
             = evaluateNodes(CASCADE_TYPE_XPATH, property.getDeclaringClass().getName(), getName(property));
@@ -238,6 +250,9 @@ public class OrmXmlParser extends AbstractMappingParser {
         return cascadeTypes.toArray(new CascadeType[cascadeTypes.size()]);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected boolean isSingleValuedRelationshipProperty(Member property) {
         String name = getName(property);
         Node classNode = getMappedClassNode(property.getDeclaringClass());
@@ -274,6 +289,9 @@ public class OrmXmlParser extends AbstractMappingParser {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected boolean isMappable(Member property) {
         if (evaluateNode(TRANSIENT_PROPERTY_XPATH, property.getDeclaringClass(), getName(property)) != null) {
             return false;

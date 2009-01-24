@@ -39,6 +39,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
 /**
+ * Compiles a {@link JpqlStatement} into a {@link JpqlCompiledStatement}.
  * @author Arne Limburg
  */
 public class JpqlCompiler {
@@ -162,14 +163,14 @@ public class JpqlCompiler {
                                   Set<TypeDefinition> typeDefinitions,
                                   boolean innerJoin,
                                   boolean fetchJoin) {
-        	String fetchPath = node.jjtGetChild(0).toString();
-        	Class type = mappingInformation.getType(fetchPath, typeDefinitions);
-        	if (node.jjtGetNumChildren() == 1) {
-            	typeDefinitions.add(new TypeDefinition(type, fetchPath, innerJoin, fetchJoin));
-        	} else {
-        		String alias = node.jjtGetChild(1).toString();
-            	typeDefinitions.add(new TypeDefinition(alias, type, fetchPath, innerJoin, fetchJoin));
-        	}
+            String fetchPath = node.jjtGetChild(0).toString();
+            Class type = mappingInformation.getType(fetchPath, typeDefinitions);
+            if (node.jjtGetNumChildren() == 1) {
+                typeDefinitions.add(new TypeDefinition(type, fetchPath, innerJoin, fetchJoin));
+            } else {
+                String alias = node.jjtGetChild(1).toString();
+                typeDefinitions.add(new TypeDefinition(alias, type, fetchPath, innerJoin, fetchJoin));
+            }
             return false;
         }
 

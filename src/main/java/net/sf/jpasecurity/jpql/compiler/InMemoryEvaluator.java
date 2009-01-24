@@ -98,6 +98,9 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
+ * This implementation of the {@link JpqlVisitorAdapter} evaluates queries in memory,
+ * storing the result in the specified {@link InMemoryEvaluationParameters}.
+ * If the evaluation cannot be performed due to missing information the result is set to <quote>undefined</quote>.
  * @author Arne Limburg
  */
 public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationParameters> {
@@ -108,7 +111,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     public InMemoryEvaluator(MappingInformation mappingInformation) {
         this(new JpqlCompiler(mappingInformation), new MappedPathEvaluator(mappingInformation));
     }
-    
+
     public InMemoryEvaluator(JpqlCompiler compiler, PathEvaluator pathEvaluator) {
         this.compiler = compiler;
         this.pathEvaluator = pathEvaluator;
@@ -859,7 +862,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         data.setResultUndefined();
         return false;
     }
-    
+
     protected Object getPathValue(String path, Map<String, Object> aliases) {
         String alias = getAlias(path);
         Object aliasValue = aliases.get(alias);
@@ -868,7 +871,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         }
         return pathEvaluator.evaluate(aliasValue, path.substring(alias.length() + 1));
     }
-    
+
     protected String getAlias(String path) {
         int index = path.indexOf('.');
         return index == -1? path: path.substring(0, index);
@@ -903,18 +906,18 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             for (Iterator<TypeDefinition> i = joinAliasDefinitions.iterator(); i.hasNext();) {
                 TypeDefinition typeDefinition = i.next();
                 if (typeDefinition.getAlias() != null) {
-                	String joinPath = typeDefinition.getJoinPath();
-                	int index = joinPath.indexOf('.');
-                	String rootAlias = joinPath.substring(0, index);
-                	Object root = aliases.get(rootAlias);
-                	if (root != null) {
-                		Object value = pathEvaluator.evaluate(root, joinPath);
-                		if (typeDefinition.isInnerJoin() && value == null) {
-                			throw new NoResultException();
-                		}
-                		aliases.put(typeDefinition.getAlias(), value);
-                		i.remove();
-                	}
+                    String joinPath = typeDefinition.getJoinPath();
+                    int index = joinPath.indexOf('.');
+                    String rootAlias = joinPath.substring(0, index);
+                    Object root = aliases.get(rootAlias);
+                    if (root != null) {
+                        Object value = pathEvaluator.evaluate(root, joinPath);
+                        if (typeDefinition.isInnerJoin() && value == null) {
+                            throw new NoResultException();
+                        }
+                        aliases.put(typeDefinition.getAlias(), value);
+                        i.remove();
+                    }
                 }
             }
             if (joinAliasDefinitions.size() == count) {

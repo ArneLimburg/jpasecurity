@@ -30,7 +30,7 @@ import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 
 /**
- * An invocation handler to handle invocations on queries.
+ * This class handles invocations on queries.
  * @author Arne Limburg
  */
 public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
@@ -43,7 +43,7 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
 
     public QueryInvocationHandler(SecureObjectManager objectManager,
                                   FetchManager fetchManager,
-    		                      Query query,
+                                  Query query,
                                   List<String> selectedPaths,
                                   Set<TypeDefinition> types,
                                   PathEvaluator pathEvaluator) {
@@ -93,13 +93,13 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
 
     private void executeFetchPlan(Object entity, String selectedPath) {
         selectedPath = resolveAliases(selectedPath);
-    	fetchManager.fetch(entity, fetchManager.getMaximumFetchDepth() - getPathLength(selectedPath) + 1);
+        fetchManager.fetch(entity, fetchManager.getMaximumFetchDepth() - getPathLength(selectedPath) + 1);
         for (TypeDefinition typeDefinition: types) {
             if (typeDefinition.isFetchJoin()) {
                 String fetchPath = resolveAliases(typeDefinition.getJoinPath());
                 if (fetchPath.startsWith(selectedPath)) {
-                	Object result = pathEvaluator.evaluate(entity, fetchPath.substring(selectedPath.length() + 1));
-                	fetchManager.fetch(result, fetchManager.getMaximumFetchDepth() - getPathLength(fetchPath) + 1);
+                    Object result = pathEvaluator.evaluate(entity, fetchPath.substring(selectedPath.length() + 1));
+                    fetchManager.fetch(result, fetchManager.getMaximumFetchDepth() - getPathLength(fetchPath) + 1);
                 }
             }
         }
@@ -125,12 +125,12 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
         }
         throw new IllegalStateException("alias '" + alias + "' not found in type definitions");
     }
-    
+
     private int getPathLength(String path) {
-    	int pathLength = 1;
-    	for (int index = path.indexOf('.'); index != -1; index = path.indexOf('.', index + 1)) {
-    		pathLength++;
-    	}
-    	return pathLength;
+        int pathLength = 1;
+        for (int index = path.indexOf('.'); index != -1; index = path.indexOf('.', index + 1)) {
+            pathLength++;
+        }
+        return pathLength;
     }
 }

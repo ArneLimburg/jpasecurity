@@ -16,6 +16,8 @@
 package net.sf.jpasecurity.mapping;
 
 /**
+ * This class holds type-definitions of JPQL statements.
+ * Types may be defined either in the from-clause or in join-clauses.
  * @author Arne Limburg
  */
 public class TypeDefinition {
@@ -32,7 +34,7 @@ public class TypeDefinition {
     }
 
     public TypeDefinition(Class<?> type, String joinPath, boolean innerJoin, boolean fetchJoin) {
-    	this(null, type, joinPath, innerJoin, fetchJoin);
+        this(null, type, joinPath, innerJoin, fetchJoin);
     }
 
     public TypeDefinition(String alias, Class<?> type, String joinPath, boolean innerJoin, boolean fetchJoin) {
