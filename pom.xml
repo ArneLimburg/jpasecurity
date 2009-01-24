@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><project>
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.sf.jpasecurity</groupId>
   <artifactId>jpasecurity</artifactId>
@@ -133,6 +134,24 @@
             <goals>
               <goal>jjtree-javacc</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <executions>
+          <execution>
+          	<id>compile</id>
+          	<phase>compile</phase>
+            <configuration>
+              <configLocation>src/checkstyle/configuration.xml</configLocation>
+              <encoding>UTF-8</encoding>
+              <includeTestSourceDirectory>true</includeTestSourceDirectory>
+            </configuration>
+          	<goals>
+          	  <goal>check</goal>
+          	</goals>
           </execution>
         </executions>
       </plugin>
