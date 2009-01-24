@@ -29,9 +29,8 @@ import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
-import net.sf.jpasecurity.jpql.parser.SimpleNode;
-import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.util.ValueHolder;
 
 /**
@@ -59,14 +58,26 @@ public class JpqlCompiledStatement implements Cloneable {
         this.namedParameters = namedParameters;
     }
 
+    /**
+     * Returns the node representing this statement.
+     */
     public Node getStatement() {
         return statement;
     }
 
+    /**
+     * Returns the paths of the select-clause.
+     */
     public List<String> getSelectedPaths() {
         return selectedPaths;
     }
 
+    /**
+     * Returns the types of the selected paths.
+     * @param mappingInformation the mapping information to determine the types
+     * @return the types
+     * @see #getSelectedPaths()
+     */
     public Map<String, Class<?>> getSelectedTypes(MappingInformation mappingInformation) {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: getSelectedPaths()) {
@@ -75,6 +86,9 @@ public class JpqlCompiledStatement implements Cloneable {
         return selectedTypes;
     }
 
+    /**
+     * Returns the type-definitions of the from-clause and join-clauses.
+     */
     public Set<TypeDefinition> getTypeDefinitions() {
         return typeDefinitions;
     }
@@ -102,7 +116,7 @@ public class JpqlCompiledStatement implements Cloneable {
         }
         return whereClause;
     }
-    
+
     public List<JpqlPath> getWhereClausePaths() {
         if (whereClausePaths == null) {
             PathVisitor visitor = new PathVisitor();
@@ -119,7 +133,7 @@ public class JpqlCompiledStatement implements Cloneable {
     public JpqlCompiledStatement clone() {
         try {
             JpqlCompiledStatement statement = (JpqlCompiledStatement)super.clone();
-            statement.statement = (SimpleNode)statement.statement.clone();
+            statement.statement = statement.statement.clone();
             statement.fromClause = null;
             statement.whereClause = null;
             statement.whereClausePaths = null;
@@ -157,7 +171,7 @@ public class JpqlCompiledStatement implements Cloneable {
             return false;
         }
     }
-    
+
     private class PathVisitor extends JpqlVisitorAdapter<List<JpqlPath>> {
 
         public boolean visit(JpqlPath path, List<JpqlPath> paths) {

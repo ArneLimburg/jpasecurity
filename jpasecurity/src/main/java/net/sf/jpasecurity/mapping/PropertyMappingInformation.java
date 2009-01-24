@@ -50,9 +50,9 @@ public abstract class PropertyMappingInformation {
         containingClassMapping = classMapping;
         idProperty = isIdProperty;
     }
-    
+
     public boolean isRelationshipMapping() {
-    	return false;
+        return false;
     }
 
     public boolean isIdProperty() {
@@ -73,6 +73,14 @@ public abstract class PropertyMappingInformation {
         return Collections.EMPTY_SET;
     }
 
+    /**
+     * Returns the property value respecting the
+     * access-type of the containing class-mapping.
+     * @param target the target to get the property value from
+     * @return the property value
+     * @see ClassMappingInformation#usesFieldAccess()
+     * @see ClassMappingInformation#usesPropertyAccess()
+     */
     public Object getPropertyValue(Object target) {
         try {
             if (getContainingClassMapping().usesFieldAccess()) {
@@ -85,6 +93,14 @@ public abstract class PropertyMappingInformation {
         }
     }
 
+    /**
+     * Sets the property value respecting the
+     * access-type of the containing class-mapping.
+     * @param target the target to set the property value to
+     * @param value the property value
+     * @see ClassMappingInformation#usesFieldAccess()
+     * @see ClassMappingInformation#usesPropertyAccess()
+     */
     public void setPropertyValue(Object target, Object value) {
         try {
             if (getContainingClassMapping().usesFieldAccess()) {
