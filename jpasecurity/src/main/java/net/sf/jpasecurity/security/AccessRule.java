@@ -16,22 +16,26 @@
 
 package net.sf.jpasecurity.security;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlCreate;
+import net.sf.jpasecurity.jpql.parser.JpqlCurrentRoles;
 import net.sf.jpasecurity.jpql.parser.JpqlDelete;
+import net.sf.jpasecurity.jpql.parser.JpqlIn;
 import net.sf.jpasecurity.jpql.parser.JpqlRead;
 import net.sf.jpasecurity.jpql.parser.JpqlUpdate;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
-import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.TypeDefinition;
 
 /**
  * This class represents compiled JPA Security access rules.
@@ -44,6 +48,7 @@ public class AccessRule extends JpqlCompiledStatement {
     public static final String DEFAULT_ROLE_PARAMETER_NAME = "roles";
     public static final String DEFAULT_ROLES_PARAMETER_NAME = "roles";
 
+    private final CurrentRolesVisitor currentRolesVisitor = new CurrentRolesVisitor();
     private Set<AccessType> access;
 
     public AccessRule(JpqlAccessRule rule, TypeDefinition typeDefinition, Set<String> namedParameters) {
@@ -59,6 +64,12 @@ public class AccessRule extends JpqlCompiledStatement {
 
     public Class<?> getSelectedType(MappingInformation mappingInformation) {
         return getSelectedTypes(mappingInformation).values().iterator().next();
+    }
+
+    public List<JpqlIn> getInRolesNodes() {
+        List<JpqlIn> inRoles = new ArrayList<JpqlIn>();
+        visit(currentRolesVisitor, inRoles);
+        return Collections.unmodifiableList(inRoles);
     }
 
     public boolean isAssignable(Class<?> type, MappingInformation mappingInformation) {
@@ -126,6 +137,14 @@ public class AccessRule extends JpqlCompiledStatement {
 
         public boolean visit(JpqlDelete node, Collection<AccessType> access) {
             access.add(AccessType.DELETE);
+            return true;
+        }
+    }
+
+    private class CurrentRolesVisitor extends JpqlVisitorAdapter<List<JpqlIn>> {
+
+        public boolean visit(JpqlCurrentRoles node, List<JpqlIn> inRoles) {
+            inRoles.add((JpqlIn)node.jjtGetParent());
             return true;
         }
     }
