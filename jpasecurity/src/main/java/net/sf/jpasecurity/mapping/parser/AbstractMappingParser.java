@@ -341,11 +341,11 @@ public abstract class AbstractMappingParser {
     protected FetchType getFetchType(Member property) {
         Class<?> type = getType(property);
         if (Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type)) {
-        	return FetchType.LAZY;
+            return FetchType.LAZY;
         }
         return FetchType.EAGER;
     }
-    
+
     protected abstract CascadeType[] getCascadeTypes(Member property);
 
     protected boolean isRelationshipProperty(Member property) {
@@ -369,10 +369,10 @@ public abstract class AbstractMappingParser {
             = SET_PROPERTY_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
         Class<?> entityClass = method.getDeclaringClass();
         Class<?> propertyType = method.getReturnType();
-        return hasSetter(entityClass, propertySetterName, propertyType);
+        return hasPropertySetter(entityClass, propertySetterName, propertyType);
     }
 
-    private boolean hasSetter(Class<?> entityClass, String propertySetterName, Class<?> propertyType) {
+    private boolean hasPropertySetter(Class<?> entityClass, String propertySetterName, Class<?> propertyType) {
         if (entityClass == null) {
             return false;
         }
@@ -383,7 +383,7 @@ public abstract class AbstractMappingParser {
                 return method.getParameterTypes()[0].isAssignableFrom(propertyType);
             }
         }
-        return hasSetter(entityClass.getSuperclass(), propertySetterName, propertyType);
+        return hasPropertySetter(entityClass.getSuperclass(), propertySetterName, propertyType);
     }
 
     private ClassLoader findClassLoader(PersistenceUnitInfo persistenceUnit) {
