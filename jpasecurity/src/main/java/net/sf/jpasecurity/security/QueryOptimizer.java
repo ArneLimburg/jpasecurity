@@ -22,6 +22,7 @@ import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluationParameters;
 import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluator;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
+import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlOr;

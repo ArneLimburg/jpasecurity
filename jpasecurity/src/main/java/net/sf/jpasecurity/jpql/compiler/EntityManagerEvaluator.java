@@ -26,7 +26,6 @@ import javax.persistence.Query;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.mapping.TypeDefinition;
-import net.sf.jpasecurity.security.QueryPreparator;
 
 /**
  * This class evaluates JPQL queries. If in-memory-evaluation
@@ -37,13 +36,19 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
 
     private final EntityManager entityManager;
     private final QueryPreparator queryPreparator;
-    
+
     public EntityManagerEvaluator(EntityManager entityManager, JpqlCompiler compiler, PathEvaluator pathEvaluator) {
         super(compiler, pathEvaluator);
         this.entityManager = entityManager;
         this.queryPreparator = new QueryPreparator();
     }
 
+    /**
+     * This method first tries to evaluate the specified subselect in memory by
+     * invoking the super-implementation. If the result of this invocation is <quote>undefined</quote>,
+     * a query is performed via the entity-manager of this evaluator. If this evaluator
+     * is already closed, the result of the evaluation is set to <quote>undefined</quote>.
+     */
     public boolean visit(JpqlSubselect node, InMemoryEvaluationParameters data) {
         boolean visitChildren = super.visit(node, data);
         if (!data.isResultUndefined()) {
@@ -69,7 +74,7 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
                         namedPathParameters.put(path, namedParameter);
                         namedParameterValues.put(namedParameter, getPathValue(path, data.getAliasValues()));
                     }
-                    queryPreparator.replace(jpqlPath, queryPreparator.createNamedParameter(namedParameter));                    
+                    queryPreparator.replace(jpqlPath, queryPreparator.createNamedParameter(namedParameter));
                 }
             }
             Query query = entityManager.createQuery(statement.getStatement().toString());
@@ -86,17 +91,17 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
             return false;
         }
     }
-    
+
     private Set<String> getAliases(Set<TypeDefinition> typeDefinitions) {
         Set<String> aliases = new HashSet<String>();
         for (TypeDefinition typeDefinition: typeDefinitions) {
-        	if (typeDefinition.getAlias() != null) {
-        		aliases.add(typeDefinition.getAlias());
-        	}
+            if (typeDefinition.getAlias() != null) {
+                aliases.add(typeDefinition.getAlias());
+            }
         }
         return aliases;
     }
-    
+
     private String createNamedParameter(Set<String> namedParameters) {
         int i = 0;
         String namedParameter;

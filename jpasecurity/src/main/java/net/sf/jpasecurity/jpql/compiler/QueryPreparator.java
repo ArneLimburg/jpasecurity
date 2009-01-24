@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.security;
-
-import java.util.ArrayList;
-import java.util.List;
+package net.sf.jpasecurity.jpql.compiler;
 
 import net.sf.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
-import net.sf.jpasecurity.jpql.parser.JpqlCurrentRoles;
 import net.sf.jpasecurity.jpql.parser.JpqlEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlExists;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
@@ -53,7 +49,6 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
  */
 public class QueryPreparator {
 
-    private final CurrentRolesVisitor currentRolesVisitor = new CurrentRolesVisitor();
     private final PathReplacer pathReplacer = new PathReplacer();
 
     /**
@@ -76,11 +71,11 @@ public class QueryPreparator {
      * Appends the specified access rule to the specified node with <tt>or</tt>.
      * @param node the node
      * @param alias the alias to be selected from the access rule
-     * @param rule the access rule
+     * @param statement the access rule
      * @return the <tt>Or</tt>-node.
      */
-    public Node append(Node node, String alias, AccessRule rule) {
-        Node in = createBrackets(createIn(alias, rule));
+    public Node append(Node node, String alias, JpqlCompiledStatement statement) {
+        Node in = createBrackets(createIn(alias, statement));
         Node or = createOr(node, in);
         return or;
     }
@@ -97,25 +92,6 @@ public class QueryPreparator {
         }
         path.jjtAddChild(createVariable(alias), 0);
         return path;
-    }
-
-    public AccessRule expand(AccessRule accessRule, int roleCount) {
-        accessRule = (AccessRule)accessRule.clone();
-        List<JpqlIn> inRoles = new ArrayList<JpqlIn>();
-        accessRule.getStatement().visit(currentRolesVisitor, inRoles);
-        for (JpqlIn inRole: inRoles) {
-            if (roleCount == 0) {
-                replace(inRole, createNotEquals(createNumber(1), createNumber(1)));
-            } else {
-                Node parent = createEquals(inRole.jjtGetChild(0), createNamedParameter("role0"));
-                for (int i = 1; i < roleCount; i++) {
-                    Node node = createEquals(inRole.jjtGetChild(0), createNamedParameter("role" + i));
-                    parent = createOr(parent, node);
-                }
-                replace(inRole, createBrackets(parent));
-            }
-        }
-        return accessRule;
     }
 
     /**
@@ -208,12 +184,12 @@ public class QueryPreparator {
     /**
      * Creates an <tt>JpqlIn</tt> subtree for the specified access rule.
      */
-    public Node createIn(String alias, AccessRule rule) {
+    public Node createIn(String alias, JpqlCompiledStatement statement) {
         JpqlIn in = new JpqlIn(JpqlParserTreeConstants.JJTIN);
         Node path = createPath(alias);
         path.jjtSetParent(in);
         in.jjtAddChild(path, 0);
-        Node subselect = createSubselect(rule);
+        Node subselect = createSubselect(statement);
         subselect.jjtSetParent(in);
         in.jjtAddChild(subselect, 1);
         return createBrackets(in);
@@ -249,10 +225,13 @@ public class QueryPreparator {
     /**
      * Creates a <tt>JpqlSubselect</tt> node for the specified access rule.
      */
-    public Node createSubselect(AccessRule rule) {
-        Node select = createSelectClause(rule.getSelectedPath());
-        Node from = rule.getFromClause();
-        Node where = rule.getWhereClause();
+    public Node createSubselect(JpqlCompiledStatement statement) {
+        if (statement.getSelectedPaths().size() > 1) {
+            throw new IllegalArgumentException("Cannot create subselect from statements with scalar select-clause");
+        }
+        Node select = createSelectClause(statement.getSelectedPaths().get(0));
+        Node from = statement.getFromClause();
+        Node where = statement.getWhereClause();
         return appendChildren(new JpqlSubselect(JpqlParserTreeConstants.JJTSUBSELECT), select, from, where);
     }
 
@@ -336,14 +315,6 @@ public class QueryPreparator {
             }
         }
         return -1;
-    }
-
-    private class CurrentRolesVisitor extends JpqlVisitorAdapter<List<JpqlIn>> {
-
-        public boolean visit(JpqlCurrentRoles node, List<JpqlIn> inRoles) {
-            inRoles.add((JpqlIn)node.jjtGetParent());
-            return true;
-        }
     }
 
     private class PathReplacer extends JpqlVisitorAdapter<ReplaceParameters> {
