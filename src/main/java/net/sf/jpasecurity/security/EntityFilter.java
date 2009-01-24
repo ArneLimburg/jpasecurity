@@ -37,9 +37,11 @@ import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
 import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
+import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentUser;
+import net.sf.jpasecurity.jpql.parser.JpqlIn;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
@@ -273,7 +275,7 @@ public class EntityFilter {
         if (accessRule.getWhereClause() == null) {
             return queryPreparator.createBoolean(true);
         }
-        accessRule = queryPreparator.expand(accessRule, roleCount);
+        accessRule = expand(accessRule, roleCount);
         Node preparedAccessRule = queryPreparator.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
         queryPreparator.replace(preparedAccessRule, accessRule.getSelectedPath(), selectedAlias);
         return preparedAccessRule;
@@ -351,6 +353,28 @@ public class EntityFilter {
             }
         }
         return compiledStatement.clone();
+    }
+
+    private AccessRule expand(AccessRule accessRule, int roleCount) {
+        accessRule = (AccessRule)accessRule.clone();
+        List<JpqlIn> inRoles = accessRule.getInRolesNodes();
+        for (JpqlIn inRole: inRoles) {
+            if (roleCount == 0) {
+                Node notEquals = queryPreparator.createNotEquals(queryPreparator.createNumber(1),
+                                                                 queryPreparator.createNumber(1));
+                queryPreparator.replace(inRole, notEquals);
+            } else {
+                Node role = queryPreparator.createNamedParameter("role0");
+                Node parent = queryPreparator.createEquals(inRole.jjtGetChild(0), role);
+                for (int i = 1; i < roleCount; i++) {
+                    role = queryPreparator.createNamedParameter("role" + i);
+                    Node node = queryPreparator.createEquals(inRole.jjtGetChild(0), role);
+                    parent = queryPreparator.createOr(parent, node);
+                }
+                queryPreparator.replace(inRole, queryPreparator.createBrackets(parent));
+            }
+        }
+        return accessRule;
     }
 
     private Map<String, Class<?>> getSelectedTypes(JpqlCompiledStatement statement) {
