@@ -1,4 +1,4 @@
-package net.sf.jpasecurity.contacts.model;
+package net.sf.jpasecurity.contacts.acl;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,10 +16,14 @@ public class ContactAclEntry extends AclEntry<Contact, User> {
 	}
 	
 	public ContactAclEntry(Contact contact) {
-		super(contact, contact.getOwner());
-		setRead(true);
+		this(contact, contact.getOwner());
 	}
 	
+    public ContactAclEntry(Contact contact, User user) {
+        super(contact, user);
+        setRead(true);
+    }
+    
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	public int getId() {
