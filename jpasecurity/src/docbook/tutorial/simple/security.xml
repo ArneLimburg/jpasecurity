@@ -8,20 +8,7 @@
   <section>
     <title>Integrating JPA Security</title>
     <para>
-      In order to integrate JPA Security in our application we need three things to be configured:
-      <itemizedlist>
-        <listitem>a persistence provider</listitem>
-        <listitem>an authentication provider and</listitem>
-        <listitem>a rules provider</listitem>
-      </itemizedlist>
-      The persistence provider is a JPA persistence provider that does the real work for us.
-      In our application this will be Hibernate with its <code>org.hibernate.ejb.HibernatePersistence</code> provider.
-      The authentication provider is needed to provide information about the currently authenticated user
-      to JPA Security. Read more about this in the appropriate chapter of the reference manual.
-      In our case a <code>net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider</code> suffices.
-      A rules provider provides the access rules on which our security depends. We want to define them in a security.xml
-      in our META-INF folder, so we use the <code>net.sf.jpasecurity.security.rules.XmlAccessRulesProvider</code>.
-      We change the persistence.xml as follows:
+      Integrating JPA Security is as simple as configuring the persistence provider:
     </para>
     <programlisting>
       <![CDATA[
@@ -34,10 +21,6 @@
 
   <properties>
     <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
-    <property name="net.sf.jpasecurity.security.authentication.provider"
-              value="net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider" />
-    <property name="net.sf.jpasecurity.security.rules.provider"
-              value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider" />
     <property name="hibernate.hbm2ddl.auto" value="create-drop" />
     <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
     <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -58,15 +41,11 @@
       ]]>
     </programlisting>
     <para>
-      The following lines are added to specify persistence provider, authentication provider and rules provider:
+      The following line is added to specify the persistence provider:
     </para>
     <programlisting>
       <![CDATA[
     <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
-    <property name="net.sf.jpasecurity.security.authentication.provider"
-              value="net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider" />
-    <property name="net.sf.jpasecurity.security.rules.provider"
-              value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider" />
       ]]>
     </programlisting>
     <para>
@@ -81,30 +60,62 @@
   <section>
     <title>Defining access rules</title>
     <para>
-      We define access rules by creating a security.xml in the META-INF folder:
+      We define access rules by annotating our domain objects:
     </para>
     <programlisting>
       <![CDATA[
-<security xmlns="http://jpasecurity.sf.net/xml/ns/security"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://jpasecurity.sf.net/xml/ns/security
-                              http://jpasecurity.sf.net/xml/ns/security/security_1_0.xsd"
-          version="1.0">
-
-  <persistence-unit name="contacts">
-    <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.owner.name = :user</access-rule>
-    <access-rule>GRANT READ ACCESS TO Contact contact WHERE 'admin' IN (:roles)</access-rule>
-    <access-rule>GRANT READ ACCESS TO User user WHERE 'admin' IN (:roles)</access-rule>
-  </persistence-unit>
-
-</security>
+@Entity
+@DeclareRoles({"admin", "user"})
+@RolesAllowed("admin")
+@PermitWhere(value = "name = CURRENT_PRINCIPAL")
+public class User {
+    ...
+}
+      ]]>
+    </programlisting>
+    <programlisting>
+      <![CDATA[
+@Entity
+@RolesAllowed("admin")
+@PermitWhere("owner.name = CURRENT_PRINCIPAL")
+public class Contact {
+    ...
+}
       ]]>
     </programlisting>
     <para>
-      These are three access rules that show the capability of JPA Security.
-      The first rule says that contacts can be accessed by the users they belong to.
-      The second rule says that contacts can be accessed by users that are in the role of an administrator.
-      The third rule says that users can be accessed by users that are in the role of an administrator.
+      We have added three annotations to <code>User</code> and two annotations to <code>Contact</code>:
+      <itemizedlist>
+        <listitem>
+          <code>@DeclareRoles({"admin", "user"})</code>
+          This annotation tells JPA Security that we are going to use the roles "admin" and "user".
+          We must declare these roles at least at one entity.
+        </listitem>
+        <listitem>
+          <code>@RolesAllowed("admin")</code>
+          This annotation was added to both classes. With it we specify that every user
+          that is in the role admin may create, read, update or delete entities of the types
+          <code>User</code> and <code>Contact</code>.
+        </listitem>
+        <listitem>
+          <code>@PermitWhere(value = "name = CURRENT_PRINCIPAL")</code>
+          We annotated only the <code>User</code> class with this annotation. It specifies,
+          that access to a <code>User</code> is permitted when the name of the user is the
+          same as the current principal. In other words: Every user may access its own
+          <code>User</code> object.
+        </listitem>
+        <listitem>
+          <code>@PermitWhere(value = "owner.name = CURRENT_PRINCIPAL")</code>
+          This annotation was added only to the <code>Contact</code> class.
+          We specify, that access to a <code>Contact</code> is permitted when the name
+          of the owner is the same as the current principal. In other words: Every user
+          may access its own <code>Contact</code> objects.
+        </listitem>
+      </itemizedlist>      
+      These access rules that show the capability of JPA Security. We have specified,
+      that a <code>User</user> object may be accessed either by an admin or by the user
+      represented by that object. For the <code>Contact</user> objects we have specified
+      that they may be accessed by admins, too and that they may be accessed by their owners.
     </para>
     <para>
       Let's try our program now and see what happens...
@@ -183,15 +194,14 @@
   }
     </programlisting>
     <para>
-      Now the output says that we get no user and 2 contacts (that are Johns contacts). We get no
-      user because only users with the role "admin" are allowed to get users.
+      Now the output says that we get no user and 2 contacts (that are Johns contacts). We get only one
+      user because we are only allowed to retrieve our own <code>User</code> object.
       Obviously JPA Security works: It filters out the users and contacts we are not allowed to see.
       We may authenticate as "Mary" and see that it works, too.
     </para>
     <para>
       Congratulations, you have successfully set up and worked with JPA Security.
-      It remains as an exercise to the reader to add an access rule to let every user retrieve itself
-      from the database. Next steps may be to read the manual or take a look at the API-Documentation.
+      Next steps may be to read the manual, try the petclinic tutorial or take a look at the API-Documentation.
     </para>
   </section>
 </section>
