@@ -53,7 +53,7 @@ public class EntityFilterTest extends TestCase {
         mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
         JpqlParser parser = new JpqlParser();
         JpqlAccessRule rule
-            = parser.parseRule("GRANT READ ACCESS TO Contact contact WHERE contact.owner = CURRENT_USER");
+            = parser.parseRule("GRANT READ ACCESS TO Contact contact WHERE contact.owner = CURRENT_PRINCIPAL");
         AccessRulesCompiler compiler = new AccessRulesCompiler(mappingInformation);
         accessRules = Collections.singletonList(compiler.compile(rule));
     }

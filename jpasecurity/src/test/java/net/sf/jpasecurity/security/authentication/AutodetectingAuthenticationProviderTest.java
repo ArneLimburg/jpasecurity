@@ -71,11 +71,11 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         };
         
         Object user = new Object();
-        expect(mock.getUser()).andReturn(user);
+        expect(mock.getPrincipal()).andReturn(user);
         expect(mock.getRoles()).andReturn(Collections.EMPTY_SET);
         replay(mock);
         
-        assertSame(user, authenticationProvider.getUser());
+        assertSame(user, authenticationProvider.getPrincipal());
         assertSame(Collections.EMPTY_SET, authenticationProvider.getRoles());
         
         verify(mock);

@@ -24,7 +24,7 @@ import net.sf.jpasecurity.security.PermitWhere;
  * @author Arne Limburg
  */
 @Entity
-@PermitWhere("owner = CURRENT_USER")
+@PermitWhere("owner = CURRENT_PRINCIPAL")
 public class TestBeanSubclass extends TestBean {
 
     @Basic

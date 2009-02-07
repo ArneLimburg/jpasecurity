@@ -30,52 +30,53 @@ import net.sf.jpasecurity.security.AuthenticationProvider;
  */
 public class StaticAuthenticationProvider implements AuthenticationProvider {
 
-    private static Object user;
+    private static Object principal;
     private static Collection<?> roles;
 
     /**
-     * Sets the current authenticated user to the specified user, assigning the specified roles.
-     * @param user the user
+     * Sets the current authenticated principal to the specified principal, assigning the specified roles.
+     * @param principal the principal
      * @param roles the roles
      */
-    public static void authenticate(Object user, Object... roles) {
-        authenticate(user, Arrays.asList(roles));
+    public static void authenticate(Object principal, Object... roles) {
+        authenticate(principal, Arrays.asList(roles));
     }
 
     /**
      * Sets the current authenticated user to the specified user, assigning the specified roles.
-     * @param user the user
+     * @param principal the user
      * @param roles the roles
      */
-    public static void authenticate(Object user, Collection<?> roles) {
-        StaticAuthenticationProvider.user = user;
+    public static void authenticate(Object principal, Collection<?> roles) {
+        StaticAuthenticationProvider.principal = principal;
         StaticAuthenticationProvider.roles = roles;
     }
 
-    public static <R> R runAs(Object user, Collection<?> roles, PrivilegedExceptionAction<R> action) throws Exception {
-        Object currentUser = StaticAuthenticationProvider.user;
+    public static <R> R runAs(Object principal, Collection<?> roles, PrivilegedExceptionAction<R> action)
+            throws Exception {
+        Object currentPrincipal = StaticAuthenticationProvider.principal;
         Collection<?> currentRoles = StaticAuthenticationProvider.roles;
         try {
-            authenticate(user, roles);
+            authenticate(principal, roles);
+            return action.run();
+        } finally {
+            authenticate(currentPrincipal, currentRoles);
+        }
+    }
+
+    public static <R> R runAs(Object principal, Collection<?> roles, PrivilegedAction<R> action) {
+        Object currentUser = StaticAuthenticationProvider.principal;
+        Collection<?> currentRoles = StaticAuthenticationProvider.roles;
+        try {
+            authenticate(principal, roles);
             return action.run();
         } finally {
             authenticate(currentUser, currentRoles);
         }
     }
 
-    public static <R> R runAs(Object user, Collection<?> roles, PrivilegedAction<R> action) {
-        Object currentUser = StaticAuthenticationProvider.user;
-        Collection<?> currentRoles = StaticAuthenticationProvider.roles;
-        try {
-            authenticate(user, roles);
-            return action.run();
-        } finally {
-            authenticate(currentUser, currentRoles);
-        }
-    }
-
-    public Object getUser() {
-        return user;
+    public Object getPrincipal() {
+        return principal;
     }
 
     public Collection<?> getRoles() {
