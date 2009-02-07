@@ -29,65 +29,66 @@ import net.sf.jpasecurity.security.AuthenticationProvider;
  */
 public class DefaultAuthenticationProvider implements AuthenticationProvider {
 
-    private static ThreadLocal<Object> user = new ThreadLocal<Object>();
+    private static ThreadLocal<Object> principal = new ThreadLocal<Object>();
     private static ThreadLocal<Collection<?>> roles = new ThreadLocal<Collection<?>>();
 
     /**
-     * Sets the current authenticated user to the specified user, assigning the specified roles.
-     * @param user the user
+     * Sets the current authenticated principal to the specified principal, assigning the specified roles.
+     * @param principal the principal
      * @param roles the roles
      */
-    public void authenticate(Object user, Object... roles) {
-        authenticate(user, Arrays.asList(roles));
+    public void authenticate(Object principal, Object... roles) {
+        authenticate(principal, Arrays.asList(roles));
     }
 
     /**
-     * Sets the current authenticated user to the specified user, assigning the specified roles.
-     * @param user the user
+     * Sets the current authenticated principal to the specified principal, assigning the specified roles.
+     * @param principal the principal
      * @param roles the roles
      */
-    public void authenticate(Object user, Collection<?> roles) {
-        DefaultAuthenticationProvider.user.set(user);
+    public void authenticate(Object principal, Collection<?> roles) {
+        DefaultAuthenticationProvider.principal.set(principal);
         DefaultAuthenticationProvider.roles.set(roles);
     }
 
     /**
-     * Clears the current authenticated user and its roles.
+     * Clears the current authenticated principal and its roles.
      */
     public void unauthenticate() {
-        DefaultAuthenticationProvider.user.remove();
+        DefaultAuthenticationProvider.principal.remove();
         DefaultAuthenticationProvider.roles.remove();
     }
 
-    public Object getUser() {
-        return user.get();
+    public Object getPrincipal() {
+        return principal.get();
     }
 
     public Collection<?> getRoles() {
         return roles.get();
     }
 
-    public static <R> R runAs(Object user, Collection<?> roles, PrivilegedExceptionAction<R> action) throws Exception {
+    public static <R> R runAs(Object principal, Collection<?> roles, PrivilegedExceptionAction<R> action)
+            throws Exception {
         DefaultAuthenticationProvider authenticationProvider = new DefaultAuthenticationProvider();
-        Object currentUser = authenticationProvider.getUser();
+        Object currentPrincipal = authenticationProvider.getPrincipal();
         Collection<?> currentRoles = authenticationProvider.getRoles();
         try {
-            authenticationProvider.authenticate(user, roles);
+            authenticationProvider.authenticate(principal, roles);
             return action.run();
         } finally {
-            authenticationProvider.authenticate(currentUser, currentRoles);
+            authenticationProvider.authenticate(currentPrincipal, currentRoles);
         }
     }
 
-    public static <R> R runAs(Object user, Collection<?> roles, PrivilegedAction<R> action) {
+    public static <R> R runAs(Object principal, Collection<?> roles, PrivilegedAction<R> action) {
         DefaultAuthenticationProvider authenticationProvider = new DefaultAuthenticationProvider();
-        Object currentUser = authenticationProvider.getUser();
+        Object currentPrincipal = authenticationProvider.getPrincipal();
         Collection<?> currentRoles = authenticationProvider.getRoles();
         try {
-            authenticationProvider.authenticate(user, roles);
+            authenticationProvider.authenticate(principal, roles);
             return action.run();
         } finally {
-            authenticationProvider.authenticate(currentUser, currentRoles);
+            authenticationProvider.authenticate(currentPrincipal, currentRoles);
         }
     }
 }

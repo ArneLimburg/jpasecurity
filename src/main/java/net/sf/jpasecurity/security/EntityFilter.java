@@ -40,7 +40,7 @@ import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
-import net.sf.jpasecurity.jpql.parser.JpqlCurrentUser;
+import net.sf.jpasecurity.jpql.parser.JpqlCurrentPrincipal;
 import net.sf.jpasecurity.jpql.parser.JpqlIn;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
@@ -396,7 +396,7 @@ public class EntityFilter {
 
     private class CurrentUserReplacer extends JpqlVisitorAdapter<ReplacementParameters> {
 
-        public boolean visit(JpqlCurrentUser node, ReplacementParameters replacement) {
+        public boolean visit(JpqlCurrentPrincipal node, ReplacementParameters replacement) {
             queryPreparator.replace(node, queryPreparator.createNamedParameter(replacement.getNamedParameter()));
             replacement.incrementReplacementCount();
             return true;

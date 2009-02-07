@@ -31,7 +31,7 @@ import org.springframework.security.context.SecurityContextHolder;
  */
 public class SpringAuthenticationProvider implements AuthenticationProvider {
 
-    public Object getUser() {
+    public Object getPrincipal() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             return null;

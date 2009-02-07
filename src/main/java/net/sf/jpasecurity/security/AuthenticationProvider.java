@@ -31,9 +31,9 @@ import java.util.Collection;
 public interface AuthenticationProvider {
 
     /**
-     * Returns the authenticated user.
+     * Returns the authenticated principal.
      */
-    Object getUser();
+    Object getPrincipal();
 
     /**
      * Returns the roles of the authenticated user.

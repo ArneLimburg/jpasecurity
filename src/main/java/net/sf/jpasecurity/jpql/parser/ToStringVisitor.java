@@ -841,8 +841,8 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlCurrentUser node, StringBuilder query) {
-        query.append("CURRENT_USER");
+    public boolean visit(JpqlCurrentPrincipal node, StringBuilder query) {
+        query.append("CURRENT_PRINCIPAL");
         return true;
     }
 
