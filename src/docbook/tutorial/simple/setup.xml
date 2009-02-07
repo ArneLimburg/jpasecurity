@@ -10,7 +10,7 @@
   </para>
   <programlisting>
     <![CDATA[
-mvn archetype:create -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity-simple-sample -Dversion=0.1.0
+mvn archetype:create -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity-simple-sample -Dversion=0.2.0
     ]]>
   </programlisting>
   <para>
@@ -92,7 +92,7 @@ mvn package
   </para>
   <programlisting>
     <![CDATA[
-java -jar jpasecurity-simple-sample-0.1.0.jar
+java -jar jpasecurity-simple-sample-0.2.0.jar
     ]]>
   </programlisting>
   <para>

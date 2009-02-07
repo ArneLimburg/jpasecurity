@@ -3,7 +3,7 @@
 <section id="test-data">
   <title>Test Data</title>
   <para>
-    Now we can go and create some users and contacts. For this we change the App.java file we created during setup.
+    Now we can create some users and contacts. For this we change the App.java file we created during setup.
     First we must import the following classes:
   </para>
   <programlisting>
@@ -109,7 +109,7 @@ import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
   }
   </programlisting>
   <para>
-    Again let's add the method to our main and see the output:
+    Again we add the method to our main and see the output:
   </para>
   <programlisting>
   public static void main(String[] args) {
