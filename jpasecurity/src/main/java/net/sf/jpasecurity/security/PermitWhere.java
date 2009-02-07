@@ -31,7 +31,7 @@ import net.sf.jpasecurity.AccessType;
  * Example:
  * <code>
  * @Entity
- * @PermitWhere("owner = CURRENT_USER")
+ * @PermitWhere("owner = CURRENT_PRINCIPAL")
  * public class ExampleEntity {
  *   ...
  * }

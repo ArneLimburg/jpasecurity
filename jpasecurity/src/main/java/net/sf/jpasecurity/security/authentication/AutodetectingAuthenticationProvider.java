@@ -85,8 +85,8 @@ public class AutodetectingAuthenticationProvider implements AuthenticationProvid
         }
     }
 
-    public Object getUser() {
-        return authenticationProvider.getUser();
+    public Object getPrincipal() {
+        return authenticationProvider.getPrincipal();
     }
 
     public Collection<?> getRoles() {

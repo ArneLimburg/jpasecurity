@@ -41,7 +41,7 @@ public class EjbAuthenticationProvider implements AuthenticationProvider, Persis
         roles = new DeclareRolesParser().parseDeclaredRoles(persistenceMapping.getPersistentClasses());
     }
 
-    public Object getUser() {
+    public Object getPrincipal() {
         return getContext().getCallerPrincipal().getName();
     }
 

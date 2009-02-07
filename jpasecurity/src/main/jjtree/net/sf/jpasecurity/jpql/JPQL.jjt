@@ -196,7 +196,7 @@ TOKEN[IGNORE_CASE]: {
 }
 
 TOKEN[IGNORE_CASE]: {
-    <CURRENT_USER: "CURRENT_USER">
+    <CURRENT_PRINCIPAL: "CURRENT_PRINCIPAL">
   | <CURRENT_ROLES: "CURRENT_ROLES">
 }
 
@@ -430,7 +430,7 @@ void newValue() #UpdateValue: {} {
 }
 
 void simpleEntityExpression(): {} {
-    identificationVariable() | inputParameter() | currentUser()
+    identificationVariable() | inputParameter() | currentPrincipal()
 }
 
 void selectClause() #SelectClause: {} {
@@ -644,7 +644,7 @@ void literalOrParam(): {} {
     | stringLiteral()
     | booleanLiteral()
     | inputParameter()
-    | currentUser())
+    | currentPrincipal())
 }
 
 void likeExpression(): {} {
@@ -666,11 +666,11 @@ void nullComparisonExpression(): {} {
 }
 
 void positiveNullComparisionExpression() #IsNull: {} {
-    (inputParameter() | path() | currentUser()) <IS> <NULL> 
+    (inputParameter() | path() | currentPrincipal()) <IS> <NULL> 
 }
 
 void negativeNullComparisionExpression() #IsNull: {} {
-    (inputParameter() | path() | currentUser()) <IS> <NOT> <NULL> 
+    (inputParameter() | path() | currentPrincipal()) <IS> <NOT> <NULL> 
 }
 
 void emptyCollectionComparisonExpression(): {} {
@@ -692,11 +692,11 @@ void collectionMemberExpression(): {} {
 }
 
 void positiveCollectionMemberExpression() #MemberOf: {} {
-    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent() | currentUser()) <MEMBER> [<OF>] path()
+    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent() | currentPrincipal()) <MEMBER> [<OF>] path()
 }
 
 void negativeCollectionMemberExpression() #MemberOf: {} {
-    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent() | currentUser()) <NOT> <MEMBER> [<OF>] path()
+    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent() | currentPrincipal()) <NOT> <MEMBER> [<OF>] path()
 }
 
 void existsExpression(): {} {
@@ -906,11 +906,11 @@ void entityBeanValue(): {} {
 }
 
 void entityBeanExpression(): {} {
-    inputParameter() | entityBeanValue() | currentUser()
+    inputParameter() | entityBeanValue() | currentPrincipal()
 }
 
-void currentUser() #CurrentUser: {} {
-    <CURRENT_USER>
+void currentPrincipal() #CurrentPrincipal: {} {
+    <CURRENT_PRINCIPAL>
 }
 
 void currentRoles() #CurrentRoles: {} {
