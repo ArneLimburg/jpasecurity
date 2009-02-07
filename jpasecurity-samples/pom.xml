@@ -8,5 +8,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>jpasecurity-simple-sample</module>
+    <module>jpasecurity-spring-petclinic-sample</module>
   </modules>
 </project>
