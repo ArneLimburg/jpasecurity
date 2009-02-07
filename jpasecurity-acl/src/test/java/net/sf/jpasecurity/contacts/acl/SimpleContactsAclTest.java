@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.contacts.simple;
+package net.sf.jpasecurity.contacts.acl;
 
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.contacts.AclContactsTestData;
-import net.sf.jpasecurity.contacts.ContactsTestData;
-import net.sf.jpasecurity.contacts.model.Contact;
-import net.sf.jpasecurity.contacts.model.User;
-import net.sf.jpasecurity.persistence.SecureEntityTester;
 import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
 
 /**
@@ -36,7 +31,7 @@ import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
 public class SimpleContactsAclTest extends TestCase {
 
     private EntityManagerFactory entityManagerFactory;
-    private ContactsTestData testData;
+    private AclContactsTestData testData;
 
     public void setUp() {
         entityManagerFactory = Persistence.createEntityManagerFactory("simple-acl-contacts");
@@ -52,42 +47,16 @@ public class SimpleContactsAclTest extends TestCase {
     }
     
     public void testUnauthenticated() {
-        assertEquals(0, getAllUsers().size());
-        try {
-            getUser("John");
-            fail("expected NoResultException");
-        } catch (NoResultException e) {
-            //expected...
-        }
-        try {
-            getUser("Mary");
-            fail("expected NoResultException");
-        } catch (NoResultException e) {
-            //expected...
-        }
         assertEquals(0, getAllContacts().size());
     }
     
     public void testAuthenticatedAsAdmin() {
-        StaticAuthenticationProvider.authenticate(null, "admin");
-        assertEquals(2, getAllUsers().size());
-        assertEquals(testData.getJohn(), getUser("John"));
-        assertEquals(testData.getMary(), getUser("Mary"));
+        StaticAuthenticationProvider.authenticate(testData.getAdmin(), "admin");
         assertEquals(4, getAllContacts().size());
     }
     
     public void testAuthenticatedAsJohn() {
         StaticAuthenticationProvider.authenticate(testData.getJohn(), "user");
-        List<User> allUsers = getAllUsers();
-        assertEquals(1, allUsers.size());
-        assertEquals(testData.getJohn(), allUsers.get(0));
-        assertEquals(testData.getJohn(), getUser("John"));
-        try {
-            getUser("Mary");
-            fail("expected NoResultException");
-        } catch (NoResultException e) {
-            //expected...
-        }
         List<Contact> contacts = getAllContacts();
         System.out.println(entityManagerFactory.createEntityManager().createQuery("select entry from ContactAclEntry entry").getResultList());
         assertEquals(2, contacts.size());
@@ -97,57 +66,10 @@ public class SimpleContactsAclTest extends TestCase {
     
     public void testAuthenticatedAsMary() {
         StaticAuthenticationProvider.authenticate(testData.getMary(), "user");
-        List<User> allUsers = getAllUsers();
-        assertEquals(1, allUsers.size());
-        assertEquals(testData.getMary(), allUsers.get(0));
-        try {
-            getUser("John");
-            fail("expected NoResultException");
-        } catch (NoResultException e) {
-            //expected...
-        }
-        assertEquals(testData.getMary(), getUser("Mary"));
         List<Contact> contacts = getAllContacts();
         assertEquals(2, contacts.size());
         assertTrue(contacts.contains(testData.getMarysContact1()));
         assertTrue(contacts.contains(testData.getMarysContact2()));
-    }
-    
-    public void testProxying() throws Exception {
-        StaticAuthenticationProvider.authenticate(null, "admin");
-        assertTrue(SecureEntityTester.isSecureEntity(getAllUsers().get(0)));        
-    }
-    
-    public List<User> getAllUsers() {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
-            entityManager.getTransaction().begin();
-            List<User> users = entityManager.createQuery("SELECT user FROM User user").getResultList();
-            entityManager.getTransaction().commit();
-            return users;
-        } catch (RuntimeException e) {
-            entityManager.getTransaction().rollback();
-            throw e;
-        } finally {
-            entityManager.close();
-        }
-    }
-    
-    public User getUser(String name) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
-            entityManager.getTransaction().begin();
-            User user = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = :name")
-                                           .setParameter("name", name)
-                                           .getSingleResult();
-            entityManager.getTransaction().commit();
-            return user;
-        } catch (RuntimeException e) {
-            entityManager.getTransaction().rollback();
-            throw e;
-        } finally {
-            entityManager.close();
-        }
     }
     
     public List<Contact> getAllContacts() {
