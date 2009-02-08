@@ -15,13 +15,14 @@
  */
 package net.sf.jpasecurity.security.rules;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.security.RoleAllowed;
 import net.sf.jpasecurity.security.RolesAllowed;
 import net.sf.jpasecurity.util.AbstractAnnotationParser;
+import net.sf.jpasecurity.util.SetHashMap;
+import net.sf.jpasecurity.util.SetMap;
 
 /**
  * <strong>This class is not thread-safe.</strong>
@@ -29,13 +30,13 @@ import net.sf.jpasecurity.util.AbstractAnnotationParser;
  */
 public class RolesAllowedParser extends AbstractAnnotationParser<RolesAllowed> {
 
-    private Map<String, AccessType[]> rolesAllowed = new HashMap<String, AccessType[]>();
+    private SetMap<String, AccessType> rolesAllowed = new SetHashMap<String, AccessType>();
 
-    public Map<String, AccessType[]> parseAllowedRoles(Class<?>... classes) {
+    public SetMap<String, AccessType> parseAllowedRoles(Class<?>... classes) {
         rolesAllowed.clear();
         EjbRolesAllowedParser rolesAllowedParser = new EjbRolesAllowedParser();
         for (String role: rolesAllowedParser.parseAllowedRoles(classes)) {
-            rolesAllowed.put(role, AccessType.ALL);
+            rolesAllowed.addAll(role, Arrays.asList(AccessType.ALL));
         }
         RoleAllowedParser roleAllowedParser = new RoleAllowedParser();
         rolesAllowed.putAll(roleAllowedParser.parseAllowedRoles(classes));
@@ -45,10 +46,10 @@ public class RolesAllowedParser extends AbstractAnnotationParser<RolesAllowed> {
 
     protected void process(RolesAllowed annotation) {
         for (RoleAllowed roleAllowed: annotation.value()) {
-            rolesAllowed.put(roleAllowed.role(), roleAllowed.access());
+            rolesAllowed.addAll(roleAllowed.role(), Arrays.asList(roleAllowed.access()));
         }
         for (String role: annotation.roles()) {
-            rolesAllowed.put(role, annotation.access());
+            rolesAllowed.addAll(role, Arrays.asList(annotation.access()));
         }
     }
 }
