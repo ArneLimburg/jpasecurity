@@ -38,7 +38,9 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
      * {@inheritDoc}
      */
     public void addAll(K key, Collection<? extends V> values) {
-        getNotNull(key).addAll(values);
+        if (!values.isEmpty()) {
+            getNotNull(key).addAll(values);
+        }
     }
 
     /**
