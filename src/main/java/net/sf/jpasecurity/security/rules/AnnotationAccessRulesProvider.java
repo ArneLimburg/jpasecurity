@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008, 2009 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ import net.sf.jpasecurity.security.PermitWhere;
  */
 public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
 
-    private RolesAllowedParser rolesAllowedParser;
+    private EjbRolesAllowedParser rolesAllowedParser;
     private PermissionParser permissionParser;
     private JpqlParser whereClauseParser;
     private PathVisitor pathVisitor;
@@ -55,7 +55,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
      */
     protected void initializeAccessRules() {
         if (rolesAllowedParser == null && permissionParser == null) {
-            rolesAllowedParser = new RolesAllowedParser();
+            rolesAllowedParser = new EjbRolesAllowedParser();
             permissionParser = new PermissionParser();
             Set<String> rules = new HashSet<String>();
             for (Class<?> annotatedClass: getPersistenceMapping().getPersistentClasses()) {
@@ -71,7 +71,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
         Set<String> roles = rolesAllowedParser.parseAllowedRoles(annotatedClass);
         if (roles.size() > 0) {
             String name = annotatedClass.getSimpleName();
-            StringBuilder rule = new StringBuilder("GRANT READ ACCESS TO ");
+            StringBuilder rule = new StringBuilder("GRANT CREATE READ UPDATE DELETE ACCESS TO ");
             rule.append(annotatedClass.getName()).append(' ');
             rule.append(Character.toLowerCase(name.charAt(0))).append(name.substring(1)).append(' ');
             Iterator<String> roleIterator = roles.iterator();
