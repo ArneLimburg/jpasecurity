@@ -15,6 +15,10 @@
  */
 package net.sf.jpasecurity.security.rules;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.security.RoleAllowed;
 import net.sf.jpasecurity.util.AbstractAnnotationParser;
@@ -22,22 +26,17 @@ import net.sf.jpasecurity.util.SetHashMap;
 import net.sf.jpasecurity.util.SetMap;
 
 /**
- * <strong>This class is not thread-safe.</strong>
  * @author Arne Limburg
  */
-public class RoleAllowedParser extends AbstractAnnotationParser<RoleAllowed> {
+public class RoleAllowedParser extends AbstractAnnotationParser<RoleAllowed, SetMap<Set<AccessType>, String>> {
 
-    private SetMap<String, AccessType> rolesAllowed = new SetHashMap<String, AccessType>();
-
-    public SetMap<String, AccessType> parseAllowedRoles(Class<?>... classes) {
-        rolesAllowed.clear();
-        parse(classes);
+    public SetMap<Set<AccessType>, String> parseAllowedRoles(Class<?> annotatedClass) {
+        SetMap<Set<AccessType>, String> rolesAllowed = new SetHashMap<Set<AccessType>, String>();
+        parse(annotatedClass, rolesAllowed);
         return rolesAllowed;
     }
 
-    protected void process(RoleAllowed roleAllowed) {
-        for (AccessType access: roleAllowed.access()) {
-            rolesAllowed.add(roleAllowed.role(), access);
-        }
+    protected void process(RoleAllowed roleAllowed, SetMap<Set<AccessType>, String> rolesAllowed) {
+        rolesAllowed.add(new HashSet<AccessType>(Arrays.asList(roleAllowed.access())), roleAllowed.role());
     }
 }

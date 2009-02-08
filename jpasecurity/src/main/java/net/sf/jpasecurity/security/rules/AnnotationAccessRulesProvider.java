@@ -15,6 +15,11 @@
  */
 package net.sf.jpasecurity.security.rules;
 
+import static net.sf.jpasecurity.AccessType.CREATE;
+import static net.sf.jpasecurity.AccessType.DELETE;
+import static net.sf.jpasecurity.AccessType.READ;
+import static net.sf.jpasecurity.AccessType.UPDATE;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -34,7 +39,6 @@ import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.security.PermitWhere;
 import net.sf.jpasecurity.util.ListMap;
-import net.sf.jpasecurity.util.SetHashMap;
 import net.sf.jpasecurity.util.SetMap;
 
 /**
@@ -47,49 +51,41 @@ import net.sf.jpasecurity.util.SetMap;
  */
 public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
 
-    private RolesAllowedParser rolesAllowedParser;
-    private PermissionParser permissionParser;
-    private JpqlParser whereClauseParser;
-    private PathVisitor pathVisitor;
+    private final RolesAllowedParser rolesAllowedParser = new RolesAllowedParser();
+    private final PermissionParser permissionParser = new PermissionParser();
+    private final JpqlParser whereClauseParser = new JpqlParser();
+    private final PathVisitor pathVisitor = new PathVisitor();
 
     /**
      * Initializes the access rules by parsing the persistent classes
      * for the {@link javax.annotation.security.RolesAllowed} annotation.
      */
     protected void initializeAccessRules() {
-        if (rolesAllowedParser == null && permissionParser == null) {
-            rolesAllowedParser = new RolesAllowedParser();
-            permissionParser = new PermissionParser();
-            Set<String> rules = new HashSet<String>();
-            for (Class<?> annotatedClass: getPersistenceMapping().getPersistentClasses()) {
-                rules.addAll(parseAllowedRoles(annotatedClass));
-                rules.addAll(parsePermissions(annotatedClass));
-            }
-            rules.remove(null);
-            compileRules(rules);
+        Set<String> rules = new HashSet<String>();
+        for (Class<?> annotatedClass: getPersistenceMapping().getPersistentClasses()) {
+            rules.addAll(parseAllowedRoles(annotatedClass));
+            rules.addAll(parsePermissions(annotatedClass));
         }
+        rules.remove(null);
+        compileRules(rules);
     }
 
     private Collection<String> parseAllowedRoles(Class<?> annotatedClass) {
-        SetMap<String, AccessType> allowedRoles = rolesAllowedParser.parseAllowedRoles(annotatedClass);
-        SetMap<Set<AccessType>, String> accessTypes = new SetHashMap<Set<AccessType>, String>();
-        for (Map.Entry<String, Set<AccessType>> role: allowedRoles.entrySet()) {
-            accessTypes.add(role.getValue(), role.getKey());
-        }
+        SetMap<Set<AccessType>, String> accessTypes = rolesAllowedParser.parseAllowedRoles(annotatedClass);
         Set<String> rules = new HashSet<String>();
         for (Map.Entry<Set<AccessType>, Set<String>> roles: accessTypes.entrySet()) {
             String name = annotatedClass.getSimpleName();
             StringBuilder rule = new StringBuilder("GRANT ");
-            if (roles.getKey().contains(AccessType.CREATE)) {
+            if (roles.getKey().contains(CREATE)) {
                 rule.append("CREATE ");
             }
-            if (roles.getKey().contains(AccessType.READ)) {
+            if (roles.getKey().contains(READ)) {
                 rule.append("READ ");
             }
-            if (roles.getKey().contains(AccessType.UPDATE)) {
+            if (roles.getKey().contains(UPDATE)) {
                 rule.append("UPDATE ");
             }
-            if (roles.getKey().contains(AccessType.DELETE)) {
+            if (roles.getKey().contains(DELETE)) {
                 rule.append("DELETE ");
             }
             rule.append("ACCESS TO ");
@@ -114,8 +110,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
             for (Map.Entry<Class<?>, List<PermitWhere>> annotations: permissions.entrySet()) {
                 String name = annotatedClass.getSimpleName();
                 for (PermitWhere permission: annotations.getValue()) {
-                    JpqlWhere whereClause
-                        = getWhereClauseParser().parseWhereClause("WHERE " + permission.value());
+                    JpqlWhere whereClause = whereClauseParser.parseWhereClause("WHERE " + permission.value());
                     String alias = Character.toLowerCase(name.charAt(0)) + name.substring(1);
                     appendAlias(whereClause, alias);
                     StringBuilder rule = new StringBuilder("GRANT ");
@@ -146,21 +141,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
     }
 
     private void appendAlias(JpqlWhere whereClause, String alias) {
-        whereClause.visit(getPathVisitor(), alias);
-    }
-
-    private JpqlParser getWhereClauseParser() {
-        if (whereClauseParser == null) {
-            whereClauseParser = new JpqlParser();
-        }
-        return whereClauseParser;
-    }
-
-    private PathVisitor getPathVisitor() {
-        if (pathVisitor == null) {
-            pathVisitor = new PathVisitor();
-        }
-        return pathVisitor;
+        whereClause.visit(pathVisitor, alias);
     }
 
     private class PathVisitor extends JpqlVisitorAdapter<String> {
