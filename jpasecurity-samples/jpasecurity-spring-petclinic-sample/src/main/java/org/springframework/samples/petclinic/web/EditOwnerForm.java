@@ -24,7 +24,7 @@ import org.springframework.web.bind.WebDataBinder;
  */
 @Controller
 @RequestMapping("/editOwner.do")
-@SessionAttributes(types = Owner.class)
+@SessionAttributes("owner")
 public class EditOwnerForm {
 
 	private final Clinic clinic;
