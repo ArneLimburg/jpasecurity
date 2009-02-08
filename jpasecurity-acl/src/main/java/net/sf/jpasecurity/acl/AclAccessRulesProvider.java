@@ -29,16 +29,17 @@ import net.sf.jpasecurity.util.AbstractAnnotationParser;
 
 /**
  * This access-rules provider scans the entity classes for the {@link AclClass} annotation
- * and provides access rules based on {@link AclEntry}s. 
+ * and provides access rules based on {@link AclEntry}s.
  * @author Arne Limburg
  */
 public class AclAccessRulesProvider extends AbstractAccessRulesProvider implements AccessRulesProvider,
                                                                                    PersistenceInformationReceiver {
-    
+
+    private final AclClassAnnotationParser parser = new AclClassAnnotationParser();
+
     protected void initializeAccessRules() {
         MappingInformation persistenceMapping = getPersistenceMapping();
-        Map<Class<?>, AclClass> aclClasses
-            = new AclClassAnnotationParser().parseAclClasses(persistenceMapping.getPersistentClasses());
+        Map<Class<?>, AclClass> aclClasses = parser.parseAclClasses(persistenceMapping.getPersistentClasses());
         Set<String> accessRules = new HashSet<String>();
         for (Map.Entry<Class<?>, AclClass> entry: aclClasses.entrySet()) {
             String className = persistenceMapping.getClassMapping(entry.getKey()).getEntityName();
@@ -66,18 +67,16 @@ public class AclAccessRulesProvider extends AbstractAccessRulesProvider implemen
         }
         compileRules(accessRules);
     }
-    
-    private class AclClassAnnotationParser extends AbstractAnnotationParser<AclClass> {
 
-        private Map<Class<?>, AclClass> aclClasses;
-        
+    private class AclClassAnnotationParser extends AbstractAnnotationParser<AclClass, Map<Class<?>, AclClass>> {
+
         public Map<Class<?>, AclClass> parseAclClasses(Collection<Class<?>> classes) {
-            aclClasses = new HashMap<Class<?>, AclClass>();
-            parse(classes);
+            Map<Class<?>, AclClass> aclClasses = new HashMap<Class<?>, AclClass>();
+            parse(classes, aclClasses);
             return aclClasses;
         }
-        
-        protected void process(Class<?> annotatedClass, AclClass annotation) {
+
+        protected void process(Class<?> annotatedClass, AclClass annotation, Map<Class<?>, AclClass> aclClasses) {
             aclClasses.put(annotatedClass, annotation);
         }
     }
