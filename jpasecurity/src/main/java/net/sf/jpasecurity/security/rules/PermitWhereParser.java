@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008, 2009 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,7 @@ import net.sf.jpasecurity.util.AbstractAnnotationParser;
  * This class parses classes for the {@link PermitWhere} annotation.
  * @author Arne Limburg
  */
-public class PermitWhereParser extends AbstractAnnotationParser<PermitWhere> {
-
-    private Map<Class<?>, PermitWhere> permissions = new HashMap<Class<?>, PermitWhere>();
+public class PermitWhereParser extends AbstractAnnotationParser<PermitWhere, Map<Class<?>, PermitWhere>> {
 
     /**
      * Parses the specified classes for the {@link PermitWhere} annotation.
@@ -35,11 +33,12 @@ public class PermitWhereParser extends AbstractAnnotationParser<PermitWhere> {
      * @return a map containing the {@link PermitWhere} annotations for the specified classes
      */
     public Map<Class<?>, PermitWhere> parsePermissions(Class<?>... classes) {
-        parse(classes);
+        Map<Class<?>, PermitWhere> permissions = new HashMap<Class<?>, PermitWhere>();
+        parse(classes, permissions);
         return permissions;
     }
 
-    protected void process(Class<?> annotatedClass, PermitWhere permitWhere) {
+    protected void process(Class<?> annotatedClass, PermitWhere permitWhere, Map<Class<?>, PermitWhere> permissions) {
         permissions.put(annotatedClass, permitWhere);
     }
 }

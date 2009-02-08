@@ -23,20 +23,17 @@ import javax.annotation.security.RolesAllowed;
 import net.sf.jpasecurity.util.AbstractAnnotationParser;
 
 /**
- * <strong>This class is not thread-safe.</strong>
  * @author Arne Limburg
  */
-public class EjbRolesAllowedParser extends AbstractAnnotationParser<RolesAllowed> {
+public class EjbRolesAllowedParser extends AbstractAnnotationParser<RolesAllowed, Set<String>> {
 
-    private Set<String> rolesAllowed = new HashSet<String>();
-
-    public Set<String> parseAllowedRoles(Class<?>... classes) {
-        rolesAllowed.clear();
-        parse(classes);
+    public Set<String> parseAllowedRoles(Class<?> annotatedClass) {
+        Set<String> rolesAllowed = new HashSet<String>();
+        parse(annotatedClass, rolesAllowed);
         return rolesAllowed;
     }
 
-    protected void process(RolesAllowed annotation) {
+    protected void process(RolesAllowed annotation, Set<String> rolesAllowed) {
         for (String role: annotation.value()) {
             rolesAllowed.add(role);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008, 2009 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,20 +24,17 @@ import javax.annotation.security.DeclareRoles;
 import net.sf.jpasecurity.util.AbstractAnnotationParser;
 
 /**
- * <strong>This class is not thread-safe.</strong>
  * @author Arne Limburg
  */
-public class DeclareRolesParser extends AbstractAnnotationParser<DeclareRoles> {
-
-    private Set<String> declaredRoles = new HashSet<String>();
+public class DeclareRolesParser extends AbstractAnnotationParser<DeclareRoles, Set<String>> {
 
     public Set<String> parseDeclaredRoles(Collection<Class<?>> classes) {
-        declaredRoles.clear();
-        parse(classes);
+        Set<String> declaredRoles = new HashSet<String>();
+        parse(classes, declaredRoles);
         return declaredRoles;
     }
 
-    protected void process(DeclareRoles annotation) {
+    protected void process(DeclareRoles annotation, Set<String> declaredRoles) {
         for (String role: annotation.value()) {
             declaredRoles.add(role);
         }

@@ -16,6 +16,8 @@
 package net.sf.jpasecurity.security.rules;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.security.RoleAllowed;
@@ -25,31 +27,29 @@ import net.sf.jpasecurity.util.SetHashMap;
 import net.sf.jpasecurity.util.SetMap;
 
 /**
- * <strong>This class is not thread-safe.</strong>
  * @author Arne Limburg
  */
-public class RolesAllowedParser extends AbstractAnnotationParser<RolesAllowed> {
+public class RolesAllowedParser extends AbstractAnnotationParser<RolesAllowed, SetMap<Set<AccessType>, String>> {
 
-    private SetMap<String, AccessType> rolesAllowed = new SetHashMap<String, AccessType>();
+    private final EjbRolesAllowedParser rolesAllowedParser = new EjbRolesAllowedParser();
+    private final RoleAllowedParser roleAllowedParser = new RoleAllowedParser();
 
-    public SetMap<String, AccessType> parseAllowedRoles(Class<?>... classes) {
-        rolesAllowed.clear();
-        EjbRolesAllowedParser rolesAllowedParser = new EjbRolesAllowedParser();
-        for (String role: rolesAllowedParser.parseAllowedRoles(classes)) {
-            rolesAllowed.addAll(role, Arrays.asList(AccessType.ALL));
-        }
-        RoleAllowedParser roleAllowedParser = new RoleAllowedParser();
-        rolesAllowed.putAll(roleAllowedParser.parseAllowedRoles(classes));
-        parse(classes);
+    public SetMap<Set<AccessType>, String> parseAllowedRoles(Class<?> annotatedClass) {
+        SetMap<Set<AccessType>, String> rolesAllowed = new SetHashMap<Set<AccessType>, String>();
+        rolesAllowed.addAll(asSet(AccessType.ALL), rolesAllowedParser.parseAllowedRoles(annotatedClass));
+        rolesAllowed.putAll(roleAllowedParser.parseAllowedRoles(annotatedClass));
+        parse(annotatedClass, rolesAllowed);
         return rolesAllowed;
     }
 
-    protected void process(RolesAllowed annotation) {
+    protected void process(RolesAllowed annotation, SetMap<Set<AccessType>, String> rolesAllowed) {
         for (RoleAllowed roleAllowed: annotation.value()) {
-            rolesAllowed.addAll(roleAllowed.role(), Arrays.asList(roleAllowed.access()));
+            rolesAllowed.add(asSet(roleAllowed.access()), roleAllowed.role());
         }
-        for (String role: annotation.roles()) {
-            rolesAllowed.addAll(role, Arrays.asList(annotation.access()));
-        }
+        rolesAllowed.addAll(asSet(annotation.access()), Arrays.asList(annotation.roles()));
+    }
+
+    private <T> Set<T> asSet(T[] array) {
+        return new HashSet<T>(Arrays.asList(array));
     }
 }
