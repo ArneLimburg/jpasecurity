@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -94,8 +93,10 @@ import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
-import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.TypeDefinition;
+import net.sf.jpasecurity.util.ListHashMap;
+import net.sf.jpasecurity.util.ListMap;
 
 /**
  * This implementation of the {@link JpqlVisitorAdapter} evaluates queries in memory,
@@ -828,8 +829,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         try {
             SecureObjectManager objectManager = data.getObjectManager();
             JpqlCompiledStatement subselect = compiler.compile(node);
-            Map<String, List<Object>> aliasValues
-                = evaluateAliasValues(subselect.getTypeDefinitions(), objectManager);
+            ListMap<String, Object> aliasValues = evaluateAliasValues(subselect.getTypeDefinitions(), objectManager);
             for (Iterator<Map<String, Object>> i = new ValueIterator(aliasValues); i.hasNext();) {
                 Map<String, Object> aliases = new HashMap<String, Object>(data.getAliasValues());
                 aliases.putAll(i.next());
@@ -877,13 +877,13 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         return index == -1? path: path.substring(0, index);
     }
 
-    private Map<String, List<Object>> evaluateAliasValues(Set<TypeDefinition> typeDefinitions,
-                                                          SecureObjectManager objectManager) {
-        Map<String, List<Object>> aliasValues = new LinkedHashMap<String, List<Object>>();
+    private ListMap<String, Object> evaluateAliasValues(Set<TypeDefinition> typeDefinitions,
+                                                        SecureObjectManager objectManager) {
+        ListMap<String, Object> aliasValues = new ListHashMap<String, Object>();
         for (TypeDefinition typeDefinition: typeDefinitions) {
-            if (!typeDefinition.isJoin() && typeDefinition.getAlias() != null) {
-                aliasValues.put(typeDefinition.getAlias(),
-                                new ArrayList<Object>(objectManager.getSecureObjects(typeDefinition.getType())));
+            String alias = typeDefinition.getAlias();
+            if (alias != null && !typeDefinition.isJoin()) {
+                aliasValues.addAll(alias, objectManager.getSecureObjects(typeDefinition.getType()));
             }
         }
         return aliasValues;
@@ -929,18 +929,19 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
     private static class ValueIterator implements Iterator<Map<String, Object>> {
 
-        private Map<String, List<Object>> possibleValues;
+        private List<String> possibleKeys;
+        private ListMap<String, Object> possibleValues;
         private Map<String, Object> currentValue;
 
-        public ValueIterator(Map<String, List<Object>> possibleValues) {
+        public ValueIterator(ListMap<String, Object> possibleValues) {
+            this.possibleKeys = new ArrayList<String>(possibleValues.keySet());
             this.possibleValues = possibleValues;
             this.currentValue = new HashMap<String, Object>();
         }
 
         public boolean hasNext() {
-            for (String key: possibleValues.keySet()) {
-                List<Object> list = possibleValues.get(key);
-                if (list.indexOf(currentValue.get(key)) < list.size() - 1) {
+            for (String key: possibleKeys) {
+                if (possibleValues.indexOf(key, currentValue.get(key)) < possibleValues.size(key) - 1) {
                     return true;
                 }
             }
@@ -948,14 +949,13 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         }
 
         public Map<String, Object> next() {
-            for (String key: possibleValues.keySet()) {
-                List<Object> list = possibleValues.get(key);
+            for (String key: possibleKeys) {
                 Object current = currentValue.get(key);
-                int index = list.indexOf(current);
-                if (index == list.size() - 1) {
-                    currentValue.put(key, list.get(0));
+                int index = possibleValues.indexOf(key, current);
+                if (index == possibleValues.size(key) - 1) {
+                    currentValue.put(key, possibleValues.get(key, 0));
                 } else {
-                    currentValue.put(key, list.get(index + 1));
+                    currentValue.put(key, possibleValues.get(key, index + 1));
                     return new HashMap(currentValue);
                 }
             }
