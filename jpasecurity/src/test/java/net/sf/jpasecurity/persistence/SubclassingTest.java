@@ -35,6 +35,7 @@ public class SubclassingTest extends TestCase {
     private EntityManagerFactory factory;
     
     public void setUp() {
+        TestAuthenticationProvider.authenticate(USER);
         factory = Persistence.createEntityManagerFactory("test");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -42,6 +43,7 @@ public class SubclassingTest extends TestCase {
         entityManager.persist(new TestBeanSubclass(USER));
         entityManager.getTransaction().commit();
         entityManager.close();
+        TestAuthenticationProvider.authenticate(null);
     }
     
     public void tearDown() {
