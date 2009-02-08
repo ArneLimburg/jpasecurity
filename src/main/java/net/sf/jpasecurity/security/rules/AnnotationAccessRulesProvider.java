@@ -33,6 +33,9 @@ import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.security.PermitWhere;
+import net.sf.jpasecurity.util.ListMap;
+import net.sf.jpasecurity.util.SetHashMap;
+import net.sf.jpasecurity.util.SetMap;
 
 /**
  * This class parses the persistent classes for the annotations
@@ -44,7 +47,7 @@ import net.sf.jpasecurity.security.PermitWhere;
  */
 public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
 
-    private EjbRolesAllowedParser rolesAllowedParser;
+    private RolesAllowedParser rolesAllowedParser;
     private PermissionParser permissionParser;
     private JpqlParser whereClauseParser;
     private PathVisitor pathVisitor;
@@ -55,11 +58,11 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
      */
     protected void initializeAccessRules() {
         if (rolesAllowedParser == null && permissionParser == null) {
-            rolesAllowedParser = new EjbRolesAllowedParser();
+            rolesAllowedParser = new RolesAllowedParser();
             permissionParser = new PermissionParser();
             Set<String> rules = new HashSet<String>();
             for (Class<?> annotatedClass: getPersistenceMapping().getPersistentClasses()) {
-                rules.add(parseAllowedRoles(annotatedClass));
+                rules.addAll(parseAllowedRoles(annotatedClass));
                 rules.addAll(parsePermissions(annotatedClass));
             }
             rules.remove(null);
@@ -67,30 +70,47 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
         }
     }
 
-    private String parseAllowedRoles(Class<?> annotatedClass) {
-        Set<String> roles = rolesAllowedParser.parseAllowedRoles(annotatedClass);
-        if (roles.size() > 0) {
+    private Collection<String> parseAllowedRoles(Class<?> annotatedClass) {
+        SetMap<String, AccessType> allowedRoles = rolesAllowedParser.parseAllowedRoles(annotatedClass);
+        SetMap<Set<AccessType>, String> accessTypes = new SetHashMap<Set<AccessType>, String>();
+        for (Map.Entry<String, Set<AccessType>> role: allowedRoles.entrySet()) {
+            accessTypes.add(role.getValue(), role.getKey());
+        }
+        Set<String> rules = new HashSet<String>();
+        for (Map.Entry<Set<AccessType>, Set<String>> roles: accessTypes.entrySet()) {
             String name = annotatedClass.getSimpleName();
-            StringBuilder rule = new StringBuilder("GRANT CREATE READ UPDATE DELETE ACCESS TO ");
+            StringBuilder rule = new StringBuilder("GRANT ");
+            if (roles.getKey().contains(AccessType.CREATE)) {
+                rule.append("CREATE ");
+            }
+            if (roles.getKey().contains(AccessType.READ)) {
+                rule.append("READ ");
+            }
+            if (roles.getKey().contains(AccessType.UPDATE)) {
+                rule.append("UPDATE ");
+            }
+            if (roles.getKey().contains(AccessType.DELETE)) {
+                rule.append("DELETE ");
+            }
+            rule.append("ACCESS TO ");
             rule.append(annotatedClass.getName()).append(' ');
             rule.append(Character.toLowerCase(name.charAt(0))).append(name.substring(1)).append(' ');
-            Iterator<String> roleIterator = roles.iterator();
+            Iterator<String> roleIterator = roles.getValue().iterator();
             rule.append("WHERE '").append(roleIterator.next()).append("' IN (CURRENT_ROLES)");
             if (roleIterator.hasNext()) {
                 for (String role = roleIterator.next(); roleIterator.hasNext(); role = roleIterator.next()) {
                     rule.append(" OR '").append(role).append("' IN (CURRENT_ROLES)");
                 }
             }
-            return rule.toString();
-        } else {
-            return null;
+            rules.add(rule.toString());
         }
+        return rules;
     }
 
     private Collection<String> parsePermissions(Class<?> annotatedClass) {
         try {
             Set<String> rules = new HashSet<String>();
-            Map<Class<?>, List<PermitWhere>> permissions = permissionParser.parsePermissions(annotatedClass);
+            ListMap<Class<?>, PermitWhere> permissions = permissionParser.parsePermissions(annotatedClass);
             for (Map.Entry<Class<?>, List<PermitWhere>> annotations: permissions.entrySet()) {
                 String name = annotatedClass.getSimpleName();
                 for (PermitWhere permission: annotations.getValue()) {

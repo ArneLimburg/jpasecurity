@@ -18,14 +18,13 @@ package net.sf.jpasecurity.security.rules;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.PersistenceException;
 
+import net.sf.jpasecurity.util.ListHashMap;
+import net.sf.jpasecurity.util.ListMap;
 import net.sf.jpasecurity.xml.AbstractXmlParser;
 
 import org.xml.sax.Attributes;
@@ -74,19 +73,14 @@ public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
 
             private static final String ACCESS_RULE_TAG = "access-rule";
 
-            private Map<String, List<String>> accessRules = new HashMap<String, List<String>>();
+            private ListMap<String, String> accessRules = new ListHashMap<String, String>();
 
             private String persistenceUnit;
 
             private StringBuilder accessRule = new StringBuilder();
 
             public List<String> getAccessRules(String persistenceUnit) {
-                List<String> rules = accessRules.get(persistenceUnit);
-                if (rules == null) {
-                    rules = new ArrayList<String>();
-                    accessRules.put(persistenceUnit, rules);
-                }
-                return rules;
+                return accessRules.getNotNull(persistenceUnit);
             }
 
             public void startElement(String uri, String tag, String qualified, Attributes attributes)
@@ -106,7 +100,7 @@ public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
             public void endElement(String uri, String tag, String qualified)
                     throws SAXException {
                 if (ACCESS_RULE_TAG.equals(qualified)) {
-                    getAccessRules(persistenceUnit).add(accessRule.toString());
+                    accessRules.add(persistenceUnit, accessRule.toString());
                 }
             }
         }

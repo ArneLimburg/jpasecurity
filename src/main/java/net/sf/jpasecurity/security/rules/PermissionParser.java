@@ -16,14 +16,13 @@
 
 package net.sf.jpasecurity.security.rules;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.sf.jpasecurity.security.PermitAny;
 import net.sf.jpasecurity.security.PermitWhere;
 import net.sf.jpasecurity.util.AbstractAnnotationParser;
+import net.sf.jpasecurity.util.ListHashMap;
+import net.sf.jpasecurity.util.ListMap;
 
 /**
  * This class parses classes for the {@link PermitWhere} and {@link PermitAny} annotations.
@@ -31,28 +30,21 @@ import net.sf.jpasecurity.util.AbstractAnnotationParser;
  */
 public class PermissionParser extends AbstractAnnotationParser<PermitAny> {
 
-    private Map<Class<?>, List<PermitWhere>> permissions;
+    private ListMap<Class<?>, PermitWhere> permissions;
 
-    public Map<Class<?>, List<PermitWhere>> parsePermissions(Class<?>... classes) {
+    public ListMap<Class<?>, PermitWhere> parsePermissions(Class<?>... classes) {
         PermitWhereParser permitWhereParser = new PermitWhereParser();
-        permissions = new HashMap<Class<?>, List<PermitWhere>>();
+        permissions = new ListHashMap<Class<?>, PermitWhere>();
         parse(classes);
         for (Map.Entry<Class<?>, PermitWhere> annotation: permitWhereParser.parsePermissions(classes).entrySet()) {
-            List<PermitWhere> annotations = permissions.get(annotation.getKey());
-            if (annotations == null) {
-                annotations = new ArrayList<PermitWhere>();
-                permissions.put(annotation.getKey(), annotations);
-            }
-            annotations.add(annotation.getValue());
+            permissions.add(annotation.getKey(), annotation.getValue());
         }
         return permissions;
     }
 
     protected void process(Class<?> annotatedClass, PermitAny permitAny) {
-        List<PermitWhere> annotations = new ArrayList<PermitWhere>();
-        permissions.put(annotatedClass, annotations);
         for (PermitWhere permitWhere: permitAny.value()) {
-            annotations.add(permitWhere);
+            permissions.add(annotatedClass, permitWhere);
         }
     }
 }

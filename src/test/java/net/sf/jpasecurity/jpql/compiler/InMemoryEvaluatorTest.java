@@ -15,6 +15,12 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.getCurrentArguments;
+import static org.easymock.EasyMock.replay;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,10 +28,6 @@ import java.util.Map;
 
 import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
-
-import org.easymock.IAnswer;
-
-import static org.easymock.EasyMock.*;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.entity.SecureObjectManager;
@@ -44,6 +46,10 @@ import net.sf.jpasecurity.mapping.parser.JpaAnnotationParser;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
+import net.sf.jpasecurity.util.SetHashMap;
+import net.sf.jpasecurity.util.SetMap;
+
+import org.easymock.IAnswer;
 
 public class InMemoryEvaluatorTest extends TestCase {
 
@@ -57,7 +63,7 @@ public class InMemoryEvaluatorTest extends TestCase {
     private Map<String, Object> aliases = new HashMap<String, Object>();
     private Map<String, Object> namedParameters = new HashMap<String, Object>();
     private Map<Integer, Object> positionalParameters = new HashMap<Integer, Object>();
-    private Map<Class<?>, Collection<?>> entities = new HashMap<Class<?>, Collection<?>>();
+    private SetMap<Class<?>, Object> entities = new SetHashMap<Class<?>, Object>();
     
     public void setUp() {
         SecureObjectManager objectManager = createMock(SecureObjectManager.class);
@@ -490,7 +496,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         child.setParentBean(parent);
         
         aliases.put("bean", parent);
-        entities.put(FieldAccessAnnotationTestBean.class, Collections.EMPTY_SET);
+        entities.getNotNull(FieldAccessAnnotationTestBean.class).clear();
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
@@ -498,7 +504,7 @@ public class InMemoryEvaluatorTest extends TestCase {
             //expected
         }
         
-        entities.put(FieldAccessAnnotationTestBean.class, Collections.singleton(child));
+        entities.add(FieldAccessAnnotationTestBean.class, child);
         assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
     }
     
