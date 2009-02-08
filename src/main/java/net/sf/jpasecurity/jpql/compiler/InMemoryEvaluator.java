@@ -92,6 +92,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlTrimLeading;
 import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
+import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
@@ -108,6 +109,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
     protected final JpqlCompiler compiler;
     protected final PathEvaluator pathEvaluator;
+    private final ReplacementVisitor replacementVisitor = new ReplacementVisitor();
 
     public InMemoryEvaluator(MappingInformation mappingInformation) {
         this(new JpqlCompiler(mappingInformation), new MappedPathEvaluator(mappingInformation));
@@ -826,41 +828,83 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             data.setResultUndefined();
             return false;
         }
+
+        JpqlCompiledStatement subselect = compiler.compile(node);
+
         try {
-            SecureObjectManager objectManager = data.getObjectManager();
-            JpqlCompiledStatement subselect = compiler.compile(node);
-            ListMap<String, Object> aliasValues = evaluateAliasValues(subselect.getTypeDefinitions(), objectManager);
-            for (Iterator<Map<String, Object>> i = new ValueIterator(aliasValues); i.hasNext();) {
-                Map<String, Object> aliases = new HashMap<String, Object>(data.getAliasValues());
-                aliases.putAll(i.next());
-                try {
-                    addJoinAliases(subselect.getTypeDefinitions(), aliases, pathEvaluator);
-                    InMemoryEvaluationParameters<Boolean> parameters
-                        = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
-                                                                    aliases,
-                                                                    data.getNamedParameters(),
-                                                                    data.getPositionalParameters(),
-                                                                    objectManager);
-                    if (subselect.getWhereClause() == null || evaluate(subselect.getWhereClause(), parameters)) {
-                        if (subselect.getSelectedPaths().size() != 1) {
-                            throw new IllegalStateException("Illegal number of select-pathes: expected 1, but was " + subselect.getSelectedPaths().size());
-                        }
-                        String selectedPath = subselect.getSelectedPaths().get(0);
-                        Object result = getPathValue(selectedPath, aliases);
-                        if (result != null) {
-                            data.setResult(Collections.singleton(result));
-                            return false;
-                        }
-                    }
-                } catch (NoResultException e) {
-                    //Removed by inner join
+            Set<Replacement> replacements
+                = getReplacements(subselect.getTypeDefinitions(), subselect.getWhereClause());
+            Map<String, Object> aliases = new HashMap<String, Object>();
+            for (Replacement replacement: replacements) {
+                if (replacement.getReplacement() == null) {
+                    throw new NotEvaluatableException();
+                }
+                InMemoryEvaluationParameters parameters = new InMemoryEvaluationParameters(data);
+                replacement.getReplacement().visit(this, parameters);
+                Object result = parameters.getResult();
+                if (replacement.getTypeDefinition().getType().isAssignableFrom(result.getClass())) {
+                    aliases.put(replacement.getTypeDefinition().getAlias(), result);
+                } else {
+                    //Value is of wrong type then so the inner join rules out everything
+                    data.setResult(Collections.EMPTY_SET);
+                    return false;
                 }
             }
-        } catch (NotEvaluatableException e) {
-            //result is undefined then
+            aliases.putAll(data.getAliasValues());
+            InMemoryEvaluationParameters<Boolean> whereClauseEvaluation
+                = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
+                                                            aliases,
+                                                            data.getNamedParameters(),
+                                                            data.getPositionalParameters(),
+                                                            data.getObjectManager());
+            if (evaluate(subselect.getWhereClause(), whereClauseEvaluation)) {
+                try {
+                    data.setResult(Collections.singleton(getPathValue(subselect.getSelectedPaths().get(0), aliases)));
+                } catch (RuntimeException e) {
+                    throw new NotEvaluatableException(e);
+                }
+            } else {
+                data.setResult(Collections.EMPTY_SET);
+            }
+            return false;
+        } catch (NotEvaluatableException notEvaluatableException) {
+            //we try to evaluate with the session-data from the objectManager
+            SecureObjectManager objectManager = data.getObjectManager();
+            try {
+                ListMap<String, Object> aliasValues
+                    = evaluateAliasValues(subselect.getTypeDefinitions(), objectManager);
+                for (Iterator<Map<String, Object>> i = new ValueIterator(aliasValues); i.hasNext();) {
+                    Map<String, Object> aliases = new HashMap<String, Object>(data.getAliasValues());
+                    aliases.putAll(i.next());
+                    try {
+                        addJoinAliases(subselect.getTypeDefinitions(), aliases, pathEvaluator);
+                        InMemoryEvaluationParameters<Boolean> parameters
+                            = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
+                                                                        aliases,
+                                                                        data.getNamedParameters(),
+                                                                        data.getPositionalParameters(),
+                                                                        objectManager);
+                        if (subselect.getWhereClause() == null || evaluate(subselect.getWhereClause(), parameters)) {
+                            if (subselect.getSelectedPaths().size() != 1) {
+                                throw new IllegalStateException("Illegal number of select-pathes: expected 1, but was " + subselect.getSelectedPaths().size());
+                            }
+                            String selectedPath = subselect.getSelectedPaths().get(0);
+                            Object result = getPathValue(selectedPath, aliases);
+                            if (result != null) {
+                                data.setResult(Collections.singleton(result));
+                                return false;
+                            }
+                        }
+                    } catch (NoResultException e) {
+                        //Removed by inner join
+                    }
+                }
+            } catch (NotEvaluatableException e) {
+                //result is undefined then
+            }
+            data.setResultUndefined();
+            return false;
         }
-        data.setResultUndefined();
-        return false;
     }
 
     protected Object getPathValue(String path, Map<String, Object> aliases) {
@@ -875,6 +919,15 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     protected String getAlias(String path) {
         int index = path.indexOf('.');
         return index == -1? path: path.substring(0, index);
+    }
+
+    private Set<Replacement> getReplacements(Set<TypeDefinition> types, JpqlWhere whereClause) {
+        Set<Replacement> replacements = new HashSet<Replacement>();
+        for (TypeDefinition type: types) {
+            replacements.add(new Replacement(type));
+        }
+        whereClause.visit(replacementVisitor, replacements);
+        return replacements;
     }
 
     private ListMap<String, Object> evaluateAliasValues(Set<TypeDefinition> typeDefinitions,
@@ -924,6 +977,42 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                 //No alias removed. This would be an endless loop, if we would not throw an exception here
                 throw new NotEvaluatableException();
             }
+        }
+    }
+
+    private class Replacement {
+
+        private TypeDefinition type;
+        private Node replacement;
+
+        public Replacement(TypeDefinition type) {
+            this.type = type;
+        }
+
+        public TypeDefinition getTypeDefinition() {
+            return type;
+        }
+
+        public Node getReplacement() {
+            return replacement;
+        }
+
+        public void setReplacement(Node replacement) {
+            this.replacement = replacement;
+        }
+    }
+
+    private class ReplacementVisitor extends JpqlVisitorAdapter<Set<Replacement>> {
+
+        public boolean visit(JpqlEquals node, Set<Replacement> replacements) {
+            for (Replacement replacement: replacements) {
+                if (node.jjtGetChild(0).toString().equals(replacement.getTypeDefinition().getAlias())) {
+                    replacement.setReplacement(node.jjtGetChild(1));
+                } else if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias())) {
+                    replacement.setReplacement(node.jjtGetChild(0));
+                }
+            }
+            return false;
         }
     }
 
