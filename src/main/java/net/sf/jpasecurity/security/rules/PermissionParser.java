@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008, 2009 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,21 +28,20 @@ import net.sf.jpasecurity.util.ListMap;
  * This class parses classes for the {@link PermitWhere} and {@link PermitAny} annotations.
  * @author Arne Limburg
  */
-public class PermissionParser extends AbstractAnnotationParser<PermitAny> {
+public class PermissionParser extends AbstractAnnotationParser<PermitAny, ListMap<Class<?>, PermitWhere>> {
 
-    private ListMap<Class<?>, PermitWhere> permissions;
+    private final PermitWhereParser permitWhereParser = new PermitWhereParser();
 
     public ListMap<Class<?>, PermitWhere> parsePermissions(Class<?>... classes) {
-        PermitWhereParser permitWhereParser = new PermitWhereParser();
-        permissions = new ListHashMap<Class<?>, PermitWhere>();
-        parse(classes);
+        ListMap<Class<?>, PermitWhere> permissions = new ListHashMap<Class<?>, PermitWhere>();
+        parse(classes, permissions);
         for (Map.Entry<Class<?>, PermitWhere> annotation: permitWhereParser.parsePermissions(classes).entrySet()) {
             permissions.add(annotation.getKey(), annotation.getValue());
         }
         return permissions;
     }
 
-    protected void process(Class<?> annotatedClass, PermitAny permitAny) {
+    protected void process(Class<?> annotatedClass, PermitAny permitAny, ListMap<Class<?>, PermitWhere> permissions) {
         for (PermitWhere permitWhere: permitAny.value()) {
             permissions.add(annotatedClass, permitWhere);
         }

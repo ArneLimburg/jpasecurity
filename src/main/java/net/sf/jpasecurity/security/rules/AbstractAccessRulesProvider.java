@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008, 2009 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
     public final List<AccessRule> getAccessRules() {
         if (accessRules == null) {
             initializeAccessRules();
-            checkRules();
+            checkAccessRules();
         }
         return accessRules;
     }
@@ -111,7 +111,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
     /**
      * Check whether the mapping is consistent with the rules
      */
-    private void checkRules() {
+    private void checkAccessRules() {
         MappingEvaluator evaluator = new MappingEvaluator(persistenceMapping);
         QueryPreparator preparator = new QueryPreparator();
         for (AccessRule accessRule: accessRules) {
