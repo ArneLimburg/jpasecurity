@@ -27,7 +27,7 @@ public interface CollectionMap<K, C extends Collection<V>, V> extends Map<K, C> 
 
     /**
      * Adds the specified value to the collection of the specified key.
-     * If no collection is assigned to the specified key, it is created.
+     * If no collection is mapped to the specified key, it is created.
      * @param key the key of the collection to add the value to
      * @param value the value to add
      */
@@ -36,7 +36,8 @@ public interface CollectionMap<K, C extends Collection<V>, V> extends Map<K, C> 
     /**
      * Adds all elements of the specified collection to the collection
      * of the specified key.
-     * If no collection is assigned to the specified key, it is created.
+     * If no collection is mapped to the specified key and the specified collection is not empty,
+     * a new collection is mapped to the specified key.
      * @param key the key of the collection to add the values to
      * @param values the values to add
      */
@@ -51,7 +52,7 @@ public interface CollectionMap<K, C extends Collection<V>, V> extends Map<K, C> 
 
     /**
      * Returns the collection of the specified key.
-     * If no collection is assigned to the specified key, it is created.
+     * If no collection is mapped to the specified key, it is created.
      * That means, this method will never return <tt>null</tt>.
      * @param key the key of the collection to return
      * @return the collection, which will never be <tt>null</tt>
@@ -60,7 +61,7 @@ public interface CollectionMap<K, C extends Collection<V>, V> extends Map<K, C> 
 
     /**
      * Returns the size of the collection of the specified key.
-     * If no collection is assigned to the specified key, <tt>0</tt> is returned.
+     * If no collection is mapped to the specified key, <tt>0</tt> is returned.
      * @param key the key of the collection to return the size of
      * @return the size
      */
