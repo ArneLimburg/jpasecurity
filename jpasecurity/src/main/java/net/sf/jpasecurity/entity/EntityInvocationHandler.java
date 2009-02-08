@@ -140,7 +140,8 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
                              AccessType accessType,
                              CascadeType cascadeType,
                              Set<Object> checkedEntities) {
-        if (checkedEntities.contains(object) || !objectManager.getSecureObject(object).isInitialized()) {
+        if (checkedEntities.contains(object)
+            || (object instanceof SecureObject && !((SecureObject)object).isInitialized())) {
             return;
         }
         if (object instanceof Collection) {
