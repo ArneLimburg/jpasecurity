@@ -18,6 +18,7 @@ package net.sf.jpasecurity.persistence;
 import static net.sf.jpasecurity.AccessType.CREATE;
 import static net.sf.jpasecurity.AccessType.READ;
 
+import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,6 +56,7 @@ import net.sf.jpasecurity.security.AuthenticationProvider;
 import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
+import net.sf.jpasecurity.util.ReflectionUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -225,6 +227,17 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                     }
                 }
             }
+        }
+    }
+
+    public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
+        ClassMappingInformation classMapping = mappingInformation.getClassMapping(entityName);
+        try {
+            Constructor<?> constructor = ReflectionUtils.getConstructor(classMapping.getEntityType(), parameters);
+            constructor.setAccessible(true);
+            return isAccessible(constructor.newInstance(parameters), accessType);
+        } catch (Exception e) {
+            throw new SecurityException(e);
         }
     }
 
