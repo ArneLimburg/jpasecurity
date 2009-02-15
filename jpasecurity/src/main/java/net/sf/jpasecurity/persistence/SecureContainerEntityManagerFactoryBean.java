@@ -18,6 +18,7 @@ package net.sf.jpasecurity.persistence;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 
+import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
 
@@ -30,6 +31,10 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
 
     private AuthenticationProvider authenticationProvider;
     private AccessRulesProvider accessRulesProvider;
+
+    public SecureContainerEntityManagerFactoryBean() {
+        setEntityManagerInterface(SecureEntityManager.class);
+    }
 
     public AuthenticationProvider getAuthenticationProvider() {
         if (authenticationProvider == null) {
