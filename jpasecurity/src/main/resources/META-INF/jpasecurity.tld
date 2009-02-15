@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee web-jsptaglibrary_2_0.xsd"
+        version="2.0">
+    <tlib-version>1.0</tlib-version>
+    <short-name>access</short-name>
+    <uri>http://jpasecurity.sf.net/access</uri>
+    <function>
+        <name>canCreate</name>
+        <function-class>
+            net.sf.jpasecurity.util.AccessUtils
+        </function-class>
+        <function-signature>
+            boolean canCreate(net.sf.jpasecurity.AccessChecker, java.lang.String, java.lang.Object[])
+        </function-signature>
+    </function>
+    <function>
+        <name>canRead</name>
+        <function-class>
+            net.sf.jpasecurity.util.AccessUtils
+        </function-class>
+        <function-signature>
+            boolean canRead(net.sf.jpasecurity.AccessChecker, java.lang.Object)
+        </function-signature>
+    </function>
+    <function>
+        <name>canUpdate</name>
+        <function-class>
+            net.sf.jpasecurity.util.AccessUtils
+        </function-class>
+        <function-signature>
+            boolean canUpdate(net.sf.jpasecurity.AccessChecker, java.lang.Object)
+        </function-signature>
+    </function>
+    <function>
+        <name>canDelete</name>
+        <function-class>
+            net.sf.jpasecurity.util.AccessUtils
+        </function-class>
+        <function-signature>
+            boolean canDelete(net.sf.jpasecurity.AccessChecker, java.lang.Object)
+        </function-signature>
+    </function>
+</taglib>
