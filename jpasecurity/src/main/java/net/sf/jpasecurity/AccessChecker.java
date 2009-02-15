@@ -22,6 +22,7 @@ package net.sf.jpasecurity;
  */
 public interface AccessChecker {
 
+    boolean isAccessible(AccessType accessType, String entityName, Object... parameters);
     boolean isAccessible(Object entity, AccessType accessType);
 
 }
