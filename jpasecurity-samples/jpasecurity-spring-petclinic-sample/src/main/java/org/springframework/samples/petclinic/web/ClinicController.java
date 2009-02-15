@@ -1,6 +1,10 @@
 
 package org.springframework.samples.petclinic.web;
 
+import javax.persistence.PersistenceContext;
+
+import net.sf.jpasecurity.SecureEntityManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.Clinic;
 import org.springframework.samples.petclinic.Credential;
@@ -24,7 +28,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class ClinicController {
 
 	private final Clinic clinic;
-
+    @PersistenceContext
+    private SecureEntityManager accessChecker;
 
 	@Autowired
 	public ClinicController(Clinic clinic) {
@@ -75,7 +80,7 @@ public class ClinicController {
 	 */
 	@RequestMapping("/owner.do")
 	public ModelMap ownerHandler(@RequestParam("ownerId") int ownerId) {
-		return new ModelMap(this.clinic.loadOwner(ownerId));
+		return new ModelMap(this.clinic.loadOwner(ownerId)).addAttribute("checker", accessChecker);
 	}
 
     /**

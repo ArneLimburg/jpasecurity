@@ -23,18 +23,22 @@
   </table>
   <table class="table-buttons">
     <tr>
-      <td colspan="2" align="center">
-        <form method="GET" action="<c:url value="/editOwner.do"/>">
-          <input type="hidden" name="ownerId" value="${owner.id}"/>
-          <p class="submit"><input type="submit" value="Edit Owner"/></p>
-        </form>
-      </td>
-      <td>
-        <form method="GET" action="<c:url value="/addPet.do"/>" name="formAddPet">
-          <input type="hidden" name="ownerId" value="${owner.id}"/>
-          <p class="submit"><input type="submit" value="Add New Pet"/></p>
-        </form>
-      </td>
+      <c:if test="${access:canUpdate(checker, owner)}">
+        <td colspan="2" align="center">
+          <form method="GET" action="<c:url value="/editOwner.do"/>">
+            <input type="hidden" name="ownerId" value="${owner.id}"/>
+            <p class="submit"><input type="submit" value="Edit Owner"/></p>
+          </form>
+        </td>
+      </c:if>
+      <c:if test="${access:canCreate(checker, 'Pet')}">
+        <td>
+          <form method="GET" action="<c:url value="/addPet.do"/>" name="formAddPet">
+            <input type="hidden" name="ownerId" value="${owner.id}"/>
+            <p class="submit"><input type="submit" value="Add New Pet"/></p>
+          </form>
+        </td>
+      </c:if>
     </tr>
   </table>
 
