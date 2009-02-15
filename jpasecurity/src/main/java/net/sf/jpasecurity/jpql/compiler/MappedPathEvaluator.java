@@ -37,6 +37,9 @@ public class MappedPathEvaluator implements PathEvaluator {
     }
 
     public Object evaluate(Object root, String path) {
+        if (root == null) {
+            return null;
+        }
         Collection<Object> result = evaluateAll(Collections.singleton(root), path);
         if (result.size() > 1) {
             throw new PersistenceException("path '" + path + "' is not single-valued");
@@ -59,7 +62,10 @@ public class MappedPathEvaluator implements PathEvaluator {
                 if (propertyMapping == null) {
                     throw new PersistenceException("property '" + property + "' of class '" + rootObject.getClass().getName() + "' is not mapped");
                 }
-                resultCollection.add(propertyMapping.getPropertyValue(rootObject));
+                Object result = propertyMapping.getPropertyValue(rootObject);
+                if (result != null) {
+                    resultCollection.add(result);
+                }
             }
             rootCollection.clear();
             for (Object resultObject: resultCollection) {
