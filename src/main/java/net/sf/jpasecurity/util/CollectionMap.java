@@ -48,7 +48,7 @@ public interface CollectionMap<K, C extends Collection<V>, V> extends Map<K, C> 
      * to the collections of their keys.
      * @param map the map with the collections that contain the elements to add
      */
-    void putAll(CollectionMap<? extends K, ? extends C, ? extends V> map);
+    void putAll(Map<? extends K, ? extends C> map);
 
     /**
      * Returns the collection of the specified key.
