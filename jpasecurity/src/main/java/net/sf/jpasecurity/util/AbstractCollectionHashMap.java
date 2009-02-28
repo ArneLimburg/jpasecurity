@@ -46,7 +46,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
     /**
      * {@inheritDoc}
      */
-    public void putAll(CollectionMap<? extends K, ? extends C, ? extends V> map) {
+    public void putAll(Map<? extends K, ? extends C> map) {
         for (Map.Entry<? extends K, ? extends C> entry: map.entrySet()) {
             addAll(entry.getKey(), entry.getValue());
         }
