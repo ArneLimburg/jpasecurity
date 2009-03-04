@@ -150,7 +150,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     //public Query createNativeQuery(String sqlString, String resultSetMapping);
 
     public Object getDelegate() {
-        return getTarget();
+        return getTarget().getDelegate();
     }
 
     public void clear() {
