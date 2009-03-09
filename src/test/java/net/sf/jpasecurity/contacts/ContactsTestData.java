@@ -36,7 +36,7 @@ public class ContactsTestData extends TestCase {
     
     public ContactsTestData(EntityManager entityManager) {
         entityManager.getTransaction().begin();
-        createTestData((EntityManager)entityManager.getDelegate());
+        createTestData(entityManager);
         entityManager.getTransaction().commit();
         entityManager.close();
     }
