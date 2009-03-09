@@ -5,9 +5,9 @@
 
   <persistence-unit name="simple-contacts">
     <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.owner = CURRENT_PRINCIPAL</access-rule>
-    <access-rule>GRANT READ ACCESS TO Contact contact WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
+    <access-rule>GRANT ACCESS TO Contact contact WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
     <access-rule>GRANT READ ACCESS TO User user WHERE user = CURRENT_PRINCIPAL</access-rule>
-    <access-rule>GRANT READ ACCESS TO User user WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
+    <access-rule>GRANT ACCESS TO User user WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
   </persistence-unit>
 
   <persistence-unit name="spring-contacts">

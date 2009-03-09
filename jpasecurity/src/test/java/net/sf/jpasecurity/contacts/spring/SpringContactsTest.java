@@ -49,7 +49,9 @@ public class SpringContactsTest extends TestCase {
         contactsDao = (ContactsDao)applicationContext.getBean("contactsDao");
         authenticationManager = (AuthenticationManager)applicationContext.getBean("authenticationManager");
         EntityManager entityManager = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory")).createEntityManager();
+        authenticate("admin");
         testData = new ContactsTestData(entityManager);
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
     
     public void tearDown() {
