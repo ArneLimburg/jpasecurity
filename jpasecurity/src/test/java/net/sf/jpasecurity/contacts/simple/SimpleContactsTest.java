@@ -40,7 +40,9 @@ public class SimpleContactsTest extends TestCase {
     public void setUp() {
         entityManagerFactory = Persistence.createEntityManagerFactory("simple-contacts");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
+        StaticAuthenticationProvider.authenticate(null, "admin");
         testData = new ContactsTestData(entityManager);
+        StaticAuthenticationProvider.authenticate(null);
     }
     
     public void tearDown() {

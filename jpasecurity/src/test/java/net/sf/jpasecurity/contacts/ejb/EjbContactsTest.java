@@ -83,7 +83,11 @@ public class EjbContactsTest extends TestCase {
         entityManagerField.setAccessible(true);
         entityManagerField.set(contactsDaoBean, entityManagerFactory.createEntityManager());
         EntityManager entityManager = entityManagerFactory.createEntityManager();
+        System.setProperty(Context.SECURITY_PRINCIPAL, "admin");
+        System.setProperty(Context.SECURITY_CREDENTIALS, "admin");
         testData = new ContactsTestData(entityManager);
+        System.clearProperty(Context.SECURITY_PRINCIPAL);
+        System.clearProperty(Context.SECURITY_CREDENTIALS);
     }
     
     public void tearDown() throws Exception {
