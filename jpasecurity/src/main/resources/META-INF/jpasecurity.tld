@@ -3,43 +3,117 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee web-jsptaglibrary_2_0.xsd"
         version="2.0">
-    <tlib-version>1.0</tlib-version>
-    <short-name>access</short-name>
-    <uri>http://jpasecurity.sf.net/access</uri>
+
+	<tlib-version>2.5</tlib-version>
+	<jsp-version>1.2</jsp-version>
+	<short-name>access</short-name>
+	<uri>http://jpasecurity.sf.net/access</uri>
+	<description>JPA Security Tag Library</description>
     <function>
         <name>canCreate</name>
-        <function-class>
-            net.sf.jpasecurity.util.AccessUtils
-        </function-class>
-        <function-signature>
-            boolean canCreate(net.sf.jpasecurity.AccessChecker, java.lang.String, java.lang.Object[])
-        </function-signature>
+        <function-class>net.sf.jpasecurity.util.AccessUtils</function-class>
+        <function-signature>boolean canRead(net.sf.jpasecurity.AccessChecker, java.lang.Object)</function-signature>
     </function>
     <function>
         <name>canRead</name>
-        <function-class>
-            net.sf.jpasecurity.util.AccessUtils
-        </function-class>
-        <function-signature>
-            boolean canRead(net.sf.jpasecurity.AccessChecker, java.lang.Object)
-        </function-signature>
+        <function-class>net.sf.jpasecurity.util.AccessUtils</function-class>
+        <function-signature>boolean canRead(net.sf.jpasecurity.AccessChecker, java.lang.Object)</function-signature>
     </function>
     <function>
         <name>canUpdate</name>
-        <function-class>
-            net.sf.jpasecurity.util.AccessUtils
-        </function-class>
-        <function-signature>
-            boolean canUpdate(net.sf.jpasecurity.AccessChecker, java.lang.Object)
-        </function-signature>
+        <function-class>net.sf.jpasecurity.util.AccessUtils</function-class>
+        <function-signature>boolean canUpdate(net.sf.jpasecurity.AccessChecker, java.lang.Object)</function-signature>
     </function>
     <function>
         <name>canDelete</name>
-        <function-class>
-            net.sf.jpasecurity.util.AccessUtils
-        </function-class>
-        <function-signature>
-            boolean canDelete(net.sf.jpasecurity.AccessChecker, java.lang.Object)
-        </function-signature>
+        <function-class>net.sf.jpasecurity.util.AccessUtils</function-class>
+        <function-signature>boolean canDelete(net.sf.jpasecurity.AccessChecker, java.lang.Object)</function-signature>
     </function>
+	<tag>
+		<name>creation</name>
+		<tag-class>net.sf.jpasecurity.tags.CreationTag</tag-class>
+		<body-content>JSP</body-content>
+		<description>
+		  Renders the inner JSP code only when the current user may create an entity
+		  of the specified type with the specified constructor arguments
+		</description>
+		<attribute>
+			<name>type</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>Entity class or name</description>
+		</attribute>
+		<attribute>
+			<name>parameters</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>Comma-seperated list of model-attributes, which are the constructor-arguments</description>
+		</attribute>
+		<attribute>
+			<name>accessChecker</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>Name of the model attribute under which the access checker object is exposed.</description>
+		</attribute>
+	</tag>
+	<tag>
+		<name>reading</name>
+		<tag-class>net.sf.jpasecurity.tags.ReadingTag</tag-class>
+		<body-content>JSP</body-content>
+		<description>
+		  Renders the inner JSP code only when the current user may read the specified entity
+		</description>
+		<attribute>
+			<name>entity</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>Entity which is checked to be readable</description>
+		</attribute>
+		<attribute>
+			<name>accessChecker</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>Name of the model attribute under which the access checker object is exposed.</description>
+		</attribute>
+	</tag>
+	<tag>
+		<name>updating</name>
+		<tag-class>net.sf.jpasecurity.tags.UpdatingTag</tag-class>
+		<body-content>JSP</body-content>
+		<description>
+		  Renders the inner JSP code only when the current user may update the specified entity
+		</description>
+		<attribute>
+			<name>entity</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>Entity which is checked to be updatable</description>
+		</attribute>
+		<attribute>
+			<name>accessChecker</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>Name of the model attribute under which the access checker object is exposed.</description>
+		</attribute>
+	</tag>
+	<tag>
+		<name>deletion</name>
+		<tag-class>net.sf.jpasecurity.tags.DeletionTag</tag-class>
+		<body-content>JSP</body-content>
+		<description>
+		  Renders the inner JSP code only when the current user may delete the specified entity
+		</description>
+		<attribute>
+			<name>entity</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>Entity which is checked to be deletable</description>
+		</attribute>
+		<attribute>
+			<name>accessChecker</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>Name of the model attribute under which the access checker object is exposed.</description>
+		</attribute>
+	</tag>
 </taglib>
