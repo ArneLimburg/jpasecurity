@@ -27,6 +27,12 @@ public class Pet extends NamedEntity {
 
 	private Set<Visit> visits;
 
+	protected Pet() {
+	}
+	
+	public Pet(Owner owner) {
+	    this.owner = owner;
+	}
 
 	public void setBirthDate(Date birthDate) {
 		this.birthDate = birthDate;
