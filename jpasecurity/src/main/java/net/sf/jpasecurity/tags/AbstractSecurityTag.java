@@ -32,25 +32,29 @@ public abstract class AbstractSecurityTag extends TagSupport {
     private AccessChecker accessChecker;
 
     public AccessChecker getAccessChecker() {
-        if (accessChecker == null) {
-            accessChecker = getAccessChecker(PageContext.PAGE_SCOPE);
+        if (accessChecker != null) {
+            return accessChecker;
         }
-        if (accessChecker == null) {
-            accessChecker = getAccessChecker(PageContext.REQUEST_SCOPE);
+        accessChecker = resolveAccessChecker(PageContext.PAGE_SCOPE);
+        if (accessChecker != null) {
+            return accessChecker;
         }
-        if (accessChecker == null) {
-            accessChecker = getAccessChecker(PageContext.SESSION_SCOPE);
+        accessChecker = resolveAccessChecker(PageContext.REQUEST_SCOPE);
+        if (accessChecker != null) {
+            return accessChecker;
         }
-        if (accessChecker == null) {
-            accessChecker = getAccessChecker(PageContext.APPLICATION_SCOPE);
+        accessChecker = resolveAccessChecker(PageContext.SESSION_SCOPE);
+        if (accessChecker != null) {
+            return accessChecker;
         }
-        if (accessChecker == null) {
-            throw new IllegalStateException("No access checker defined for this page");
+        accessChecker = resolveAccessChecker(PageContext.APPLICATION_SCOPE);
+        if (accessChecker != null) {
+            return accessChecker;
         }
-        return accessChecker;
+        throw new IllegalStateException("No access checker defined for this page");
     }
 
-    private AccessChecker getAccessChecker(int scope) {
+    private AccessChecker resolveAccessChecker(int scope) {
         for (Enumeration<String> names = pageContext.getAttributeNamesInScope(scope); names.hasMoreElements();) {
             Object object = pageContext.getAttribute(names.nextElement(), scope);
             if (object instanceof AccessChecker) {
