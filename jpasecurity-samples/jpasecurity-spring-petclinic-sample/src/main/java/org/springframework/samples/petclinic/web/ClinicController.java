@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
 
 /**
  * Annotation-driven <em>MultiActionController</em> that handles all non-form
@@ -25,11 +26,12 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author Ken Krebs
  */
 @Controller
+@SessionAttributes("checker")
 public class ClinicController {
 
 	private final Clinic clinic;
-    @PersistenceContext
-    private SecureEntityManager accessChecker;
+	@PersistenceContext
+    private SecureEntityManager checker;
 
 	@Autowired
 	public ClinicController(Clinic clinic) {
@@ -49,6 +51,7 @@ public class ClinicController {
         ModelMap model = new ModelMap("person", credential.getUser());
         model.addAttribute("vet", credential.getUser() instanceof Vet);
         model.addAttribute("owner", credential.getUser() instanceof Owner);
+        model.addAttribute("checker", checker);
         return model;
 	}
 
@@ -64,7 +67,7 @@ public class ClinicController {
 	 */
 	@RequestMapping("/vets.do")
 	public ModelMap vetsHandler() {
-		return new ModelMap(this.clinic.getVets());
+		return new ModelMap(this.clinic.getVets()).addAttribute("checker", checker);
 	}
 
 	/**
@@ -80,7 +83,7 @@ public class ClinicController {
 	 */
 	@RequestMapping("/owner.do")
 	public ModelMap ownerHandler(@RequestParam("ownerId") int ownerId) {
-		return new ModelMap(this.clinic.loadOwner(ownerId)).addAttribute("checker", accessChecker);
+		return new ModelMap(this.clinic.loadOwner(ownerId)).addAttribute("checker", checker);
 	}
 
     /**
@@ -96,6 +99,6 @@ public class ClinicController {
      */
     @RequestMapping("/vet.do")
     public ModelMap vetHandler(@RequestParam("vetId") int vetId) {
-        return new ModelMap(this.clinic.loadVet(vetId));
+        return new ModelMap(this.clinic.loadVet(vetId)).addAttribute("checker", checker);
     }
 }
