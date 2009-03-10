@@ -23,22 +23,22 @@
   </table>
   <table class="table-buttons">
     <tr>
-      <c:if test="${access:canUpdate(checker, owner)}">
+      <access:updating entity="owner">
         <td colspan="2" align="center">
           <form method="GET" action="<c:url value="/editOwner.do"/>">
             <input type="hidden" name="ownerId" value="${owner.id}"/>
             <p class="submit"><input type="submit" value="Edit Owner"/></p>
           </form>
         </td>
-      </c:if>
-      <c:if test="${access:canCreate(checker, 'Pet')}">
+      </access:updating>
+      <access:creation type="Pet" parameters="owner">
         <td>
           <form method="GET" action="<c:url value="/addPet.do"/>" name="formAddPet">
             <input type="hidden" name="ownerId" value="${owner.id}"/>
             <p class="submit"><input type="submit" value="Add New Pet"/></p>
           </form>
         </td>
-      </c:if>
+      </access:creation>
     </tr>
   </table>
 
@@ -85,18 +85,22 @@
     </table>
     <table class="table-buttons">
       <tr>
-        <td>
-          <form method="GET" action="<c:url value="/editPet.do"/>" name="formEditPet${pet.id}">
-            <input type="hidden" name="petId" value="${pet.id}"/>
-            <p class="submit"><input type="submit" value="Edit Pet"/></p>
-          </form>
-        </td>
-        <td>
-          <form method="GET" action="<c:url value="/addVisit.do"/>" name="formVisitPet${pet.id}">
-            <input type="hidden" name="petId" value="${pet.id}"/>
-            <p class="submit"><input type="submit" value="Add Visit"/></p>
-          </form>
-        </td>
+        <access:updating entity="pet">
+          <td>
+            <form method="GET" action="<c:url value="/editPet.do"/>" name="formEditPet${pet.id}">
+              <input type="hidden" name="petId" value="${pet.id}"/>
+              <p class="submit"><input type="submit" value="Edit Pet"/></p>
+            </form>
+          </td>
+        </access:updating>
+        <access:creation type="Visit" parameters="pet">
+          <td>
+            <form method="GET" action="<c:url value="/addVisit.do"/>" name="formVisitPet${pet.id}">
+              <input type="hidden" name="petId" value="${pet.id}"/>
+              <p class="submit"><input type="submit" value="Add Visit"/></p>
+            </form>
+          </td>
+        </access:creation>
       </tr>
     </table>
   </c:forEach>
