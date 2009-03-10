@@ -26,6 +26,11 @@ public class Visit extends BaseEntity {
 	public Visit() {
 		this.date = new Date();
 	}
+	
+	public Visit(Pet pet) {
+	    this();
+	    setPet(pet);
+	}
 
 	/** Getter for property date.
 	 * @return Value of property date.
