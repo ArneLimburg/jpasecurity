@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.tags;
 
+import javax.servlet.jsp.PageContext;
+
 import net.sf.jpasecurity.AccessType;
 
 /**
@@ -23,19 +25,43 @@ import net.sf.jpasecurity.AccessType;
  */
 public abstract class AbstractEntityTag extends AbstractSecurityTag {
 
+    private String entityName;
     private Object entity;
 
-    public Object getEntity() {
-        return entity;
+    public String getEntity() {
+        return entityName;
     }
 
-    public void setEntity(Object entity) {
-        this.entity = entity;
+    public void setEntity(String entity) {
+        this.entityName = entity;
     }
 
     protected boolean isAccessible() {
-        return getAccessChecker().isAccessible(getEntity(), getAccessType());
+        return getAccessChecker().isAccessible(resolveEntity(), getAccessType());
     }
 
     protected abstract AccessType getAccessType();
+
+    private Object resolveEntity() {
+        if (entity != null) {
+            return entity;
+        }
+        entity = pageContext.getAttribute(entityName, PageContext.PAGE_SCOPE);
+        if (entity != null) {
+            return entity;
+        }
+        entity = pageContext.getAttribute(entityName, PageContext.REQUEST_SCOPE);
+        if (entity != null) {
+            return entity;
+        }
+        entity = pageContext.getAttribute(entityName, PageContext.SESSION_SCOPE);
+        if (entity != null) {
+            return entity;
+        }
+        entity = pageContext.getAttribute(entityName, PageContext.APPLICATION_SCOPE);
+        if (entity != null) {
+            return entity;
+        }
+        throw new IllegalStateException("entity '" + entityName + "' could not be resolved");
+    }
 }
