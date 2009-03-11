@@ -75,6 +75,10 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         return initialized;
     }
 
+    public boolean isAccessible(AccessType accessType) {
+        return objectManager.isAccessible(entity, accessType);
+    }
+
     /**
      * Returns <tt>true</tt>, if the entity of this invocation handler
      * is contained in the specified <tt>EntityManager</tt>.
