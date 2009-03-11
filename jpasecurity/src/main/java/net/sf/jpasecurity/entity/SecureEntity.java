@@ -18,6 +18,8 @@ package net.sf.jpasecurity.entity;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
+import net.sf.jpasecurity.AccessType;
+
 /**
  * This is an interface implemented by every entity
  * that is managed by JPA Security.
@@ -25,6 +27,7 @@ import javax.persistence.LockModeType;
  */
 public interface SecureEntity extends SecureObject {
 
+    boolean isAccessible(AccessType accessType);
     boolean isContained(EntityManager entityManager);
     boolean isRemoved();
     SecureEntity merge(EntityManager entityManager);
