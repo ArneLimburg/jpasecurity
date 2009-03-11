@@ -52,7 +52,7 @@ public class AddPetForm {
     @RequestMapping(method = RequestMethod.GET)
 	public String setupForm(@RequestParam("ownerId") int ownerId, Model model) {
 		Owner owner = this.clinic.loadOwner(ownerId);
-		Pet pet = new Pet();
+		Pet pet = new Pet(owner);
 		owner.addPet(pet);
 		model.addAttribute("pet", pet);
 		return "petForm";
