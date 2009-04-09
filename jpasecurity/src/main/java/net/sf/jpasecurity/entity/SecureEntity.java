@@ -30,7 +30,7 @@ public interface SecureEntity extends SecureObject {
     boolean isAccessible(AccessType accessType);
     boolean isContained(EntityManager entityManager);
     boolean isRemoved();
-    SecureEntity merge(EntityManager entityManager);
+    SecureEntity merge(EntityManager entityManager, SecureObjectManager objectManager);
     void persist(EntityManager entityManager);
     void refresh(EntityManager entityManager);
     void lock(EntityManager entityManager, LockModeType lockMode);
