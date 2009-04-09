@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2009 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package net.sf.jpasecurity.entity;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +26,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.jpasecurity.AccessType;
@@ -34,20 +35,21 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.mapping.RelationshipMappingInformation;
 import net.sf.jpasecurity.util.AbstractInvocationHandler;
+import net.sf.jpasecurity.util.ReflectionUtils;
 
 /**
  * An invocation handler to handle invocations on entities.
  * @author Arne Limburg
  */
-public class EntityInvocationHandler extends AbstractInvocationHandler implements MethodInterceptor {
+public class EntityInvocationHandler extends AbstractInvocationHandler implements SecureEntity, MethodInterceptor {
 
     private ClassMappingInformation mapping;
     private SecureObjectManager objectManager;
     private boolean initialized;
     private boolean deleted;
-    private ThreadLocal<Boolean> updating = new ThreadLocal<Boolean>();
     private Object entity;
     private Map<String, Object> propertyValues = new HashMap<String, Object>();
+    private transient ThreadLocal<Boolean> updating;
 
     public EntityInvocationHandler(ClassMappingInformation mapping,
                                    SecureObjectManager objectManager,
@@ -55,14 +57,21 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         this.mapping = mapping;
         this.objectManager = objectManager;
         this.entity = entity;
+        unwrapSecureObjects(); //Make sure that our entity does not contain any secure objects
+    }
+
+    public SecureEntity createSecureEntity() {
+        return (SecureEntity)Enhancer.create(mapping.getEntityType(),
+                                             new Class[] {SecureEntity.class},
+                                             this);
     }
 
     public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-        if (canInvoke(method)) {
-            return invoke(object, method, args);
-        }
         if (!isInitialized() && !isUpdating()) {
             initialize(object);
+        }
+        if (canInvoke(method)) {
+            return invoke(object, method, args);
         }
         Object result = methodProxy.invokeSuper(object, args);
         if (!isUpdating()) {
@@ -98,23 +107,36 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
      * @throws SecurityException when the current user is not allowed to persist the entity of this invocation handler
      */
     public void persist(EntityManager entityManager) {
-        checkAccess(entity, AccessType.CREATE, CascadeType.PERSIST, new HashSet<Object>());
+        try {
+            checkAccess(entity, AccessType.CREATE, CascadeType.PERSIST, new HashSet<Object>());
+        } catch (PropertyAccessException e) {
+            throw new SecurityException(e.getMessage());
+        }
         entityManager.persist(entity);
     }
 
     /**
      * @throws SecurityException when the current user is not allowed to merge the entity of this invocation handler
      */
-    public SecureEntity merge(EntityManager entityManager) {
-        checkAccess(entity, AccessType.UPDATE, CascadeType.MERGE, new HashSet<Object>());
-        return (SecureEntity)objectManager.getSecureObject(entityManager.merge(entity));
+    public SecureEntity merge(EntityManager entityManager, SecureObjectManager objectManager) {
+        try {
+            checkAccess(entity, AccessType.UPDATE, CascadeType.MERGE, new HashSet<Object>());
+        } catch (PropertyAccessException e) {
+            throw new SecurityException(e.getMessage());
+        }
+        Object mergedEntity = entityManager.merge(entity);
+        return (SecureEntity)objectManager.getSecureObject(mergedEntity);
     }
 
     /**
      * @throws SecurityException when the current user is not allowed to remove the entity of this invocation handler
      */
     public void remove(EntityManager entityManager) {
-        checkAccess(entity, AccessType.DELETE, CascadeType.REMOVE, new HashSet<Object>());
+        try {
+            checkAccess(entity, AccessType.DELETE, CascadeType.REMOVE, new HashSet<Object>());
+        } catch (PropertyAccessException e) {
+            throw new SecurityException(e.getMessage());
+        }
         entityManager.remove(entity);
         deleted = true;
     }
@@ -123,7 +145,11 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
      * @throws SecurityException when the current user is not allowed to refresh the entity of this invocation handler
      */
     public void refresh(EntityManager entityManager) {
-        checkAccess(entity, AccessType.READ, CascadeType.REFRESH, new HashSet<Object>());
+        try {
+            checkAccess(entity, AccessType.READ, CascadeType.REFRESH, new HashSet<Object>());
+        } catch (PropertyAccessException e) {
+            throw new SecurityException(e.getMessage());
+        }
         entityManager.refresh(entity);
         initialized = false;
     }
@@ -152,13 +178,19 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             checkAccess((Collection)object, accessType, cascadeType, checkedEntities);
         } else {
             if (!objectManager.isAccessible(object, accessType)) {
-                throw new SecurityException();
+                throw new SecurityException("The current user is not permitted to access the specified object");
             }
             checkedEntities.add(object);
             for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
                 if (propertyMapping.getCascadeTypes().contains(cascadeType)
                         || propertyMapping.getCascadeTypes().contains(CascadeType.ALL)) {
-                    checkAccess(propertyMapping.getPropertyValue(object), accessType, cascadeType, checkedEntities);
+                    try {
+                        checkAccess(propertyMapping.getPropertyValue(object), accessType, cascadeType, checkedEntities);
+                    } catch (PropertyAccessException e) {
+                        throw new PropertyAccessException(propertyMapping.getPropertyName() + "." + e.getPropertyName());
+                    } catch (SecurityException e) {
+                        throw new PropertyAccessException(propertyMapping.getPropertyName());
+                    }
                 }
             }
         }
@@ -174,14 +206,25 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     private boolean isUpdating() {
-        return updating.get() != null && updating.get();
+        return updating != null && updating.get() != null && updating.get();
+    }
+
+    private void setUpdating(boolean isUpdating) {
+        if (updating == null) {
+            updating = new ThreadLocal<Boolean>();
+        }
+        if (isUpdating) {
+            updating.set(true);
+        } else {
+            updating.remove();
+        }
     }
 
     private void initialize(Object object) {
-        updating.set(true);
+        setUpdating(true);
         entity = unproxy(entity);
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
-            Object value = propertyMapping.getPropertyValue(entity);
+            Object value = getUnsecureObject(propertyMapping.getPropertyValue(entity));
             if (propertyMapping instanceof RelationshipMappingInformation) {
                 value = objectManager.getSecureObject(value);
             }
@@ -189,11 +232,11 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             propertyValues.put(propertyMapping.getPropertyName(), value);
         }
         initialized = true;
-        updating.remove();
+        setUpdating(false);
     }
 
     private void updatedChangedProperties(Object object) {
-        updating.set(true);
+        setUpdating(true);
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
             Object value = propertyMapping.getPropertyValue(object);
             if (value != propertyValues.get(propertyMapping.getPropertyName())) {
@@ -205,12 +248,27 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
                 propertyValues.put(propertyMapping.getPropertyName(), value);
             }
         }
-        updating.remove();
+        setUpdating(false);
+    }
+
+    private void unwrapSecureObjects() {
+        for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
+            propertyMapping.setPropertyValue(entity, getUnsecureObject(propertyMapping.getPropertyValue(entity)));
+        }
     }
 
     private <T> T getUnsecureObject(T object) {
         if (object instanceof SecureEntity) {
-            return (T)((EntityInvocationHandler)Proxy.getInvocationHandler(object)).entity;
+            try {
+                for (Callback callback: (Callback[])ReflectionUtils.invokeMethod(object, "getCallbacks")) {
+                    if (callback instanceof EntityInvocationHandler) {
+                        return (T)((EntityInvocationHandler)callback).entity;
+                    }
+                }
+            } catch (SecurityException e) {
+                //ignore
+            }
+            return object;
         } else if (object instanceof AbstractSecureCollection) {
             return (T)((AbstractSecureCollection)object).getOriginal();
         } else if (object instanceof SecureList) {

@@ -30,9 +30,10 @@ public class PropertyAccessTest extends TestCase {
 
     public static final String USER1 = "user1";
     public static final String USER2 = "user2";
+    private static final String ADMIN = "admin";
     
     public void testOneToManyNavigation() {
-        TestAuthenticationProvider.authenticate(USER1);
+        TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -42,6 +43,7 @@ public class PropertyAccessTest extends TestCase {
         bean = entityManager.merge(bean);
         entityManager.getTransaction().commit();
         entityManager.close();
+        TestAuthenticationProvider.authenticate(USER1);
         assertEquals(1, bean.getChildBeans().size());
         assertEquals(USER1, bean.getChildBeans().get(0).getBeanName());
         assertEquals(2, ((SecureList<FieldAccessAnnotationTestBean>)bean.getChildBeans()).getOriginal().size());
