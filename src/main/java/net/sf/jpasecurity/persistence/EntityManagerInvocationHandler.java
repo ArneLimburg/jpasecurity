@@ -16,9 +16,9 @@
 package net.sf.jpasecurity.persistence;
 
 import static net.sf.jpasecurity.AccessType.CREATE;
+import static net.sf.jpasecurity.AccessType.UPDATE;
 import static net.sf.jpasecurity.AccessType.READ;
 
-import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +33,6 @@ import javax.persistence.FetchType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
-import net.sf.cglib.proxy.Enhancer;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.entity.DefaultSecureCollection;
@@ -92,23 +91,33 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public void persist(Object entity) {
-        SecureEntity secureEntity = createSecureEntity(mappingInformation.getClassMapping(entity.getClass()), entity);
-        secureEntity.persist(getTarget());
+        if (!isAccessible(entity, CREATE)) {
+            throw new SecurityException("The current user is not permitted to merge the specified entity");
+        }
+        getTarget().persist(entity);
+        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
+        SecureEntity secureEntity = createSecureEntity(mapping, entity);
+        putSecureEntity(mapping.getId(secureEntity), mapping.getEntityType(), secureEntity);
     }
 
     public <T> T merge(T entity) {
-        if (entity instanceof SecureEntity) {
-            return (T)((SecureEntity)entity).merge(getTarget());
-        } else if (!isAccessible(entity, CREATE)) {
-            throw new SecurityException();
+        if (isNewEntity(entity)) {
+            if (!isAccessible(entity, CREATE)) {
+                throw new SecurityException("The current user is not permitted to merge the specified entity");
+            }
+            return (T)getSecureEntity(getTarget().merge(entity));
+        } else {
+            if (!isAccessible(entity, UPDATE)) {
+                throw new SecurityException("The current user is not permitted to merge the specified entity");
+            }
+            return (T)((SecureEntity)entity).merge(getTarget(), this);
         }
-        return (T)getSecureObject(entity);
     }
 
     public <T> T find(Class<T> type, Object id) {
         T entity = getTarget().find(type, id);
         if (!isAccessible(entity, READ)) {
-            throw new SecurityException();
+            throw new SecurityException("The current user is not permitted to find the specified entity");
         }
         entity = (T)getSecureObject(entity);
         fetch(entity, getMaximumFetchDepth());
@@ -232,13 +241,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
         ClassMappingInformation classMapping = mappingInformation.getClassMapping(entityName);
-        try {
-            Constructor<?> constructor = ReflectionUtils.getConstructor(classMapping.getEntityType(), parameters);
-            constructor.setAccessible(true);
-            return isAccessible(constructor.newInstance(parameters), accessType);
-        } catch (Exception e) {
-            throw new SecurityException(e);
-        }
+        return isAccessible(ReflectionUtils.invokeConstructor(classMapping.getEntityType(), parameters), accessType);
     }
 
     public boolean isAccessible(Object entity, AccessType accessType) {
@@ -342,25 +345,39 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             throw new IllegalArgumentException(entity.getClass() + " is not mapped");
         }
         Object id = mapping.getId(entity);
-        Map<Object, SecureEntity> entities = secureEntities.get(mapping.getEntityType());
-        if (entities != null) {
-            SecureEntity secureEntity = entities.get(id);
-            if (secureEntity != null) {
-                return secureEntity;
-            }
-        } else {
-            entities = new HashMap<Object, SecureEntity>();
-            secureEntities.put(mapping.getEntityType(), entities);
+        SecureEntity secureEntity = getSecureEntity(id, mapping.getEntityType());
+        if (secureEntity == null) {
+            secureEntity = createSecureEntity(mapping, entity);
+            putSecureEntity(id, mapping.getEntityType(), secureEntity);
         }
-        SecureEntity secureEntity = createSecureEntity(mapping, entity);
-        entities.put(id, secureEntity);
         return secureEntity;
     }
 
+    private SecureEntity getSecureEntity(Object id, Class<?> type) {
+        Map<Object, SecureEntity> entities = getSecureEntities(type);
+        if (entities == null) {
+            return null;
+        } else {
+            return entities.get(id);
+        }
+    }
+
+    private Map<Object, SecureEntity> getSecureEntities(Class<?> type) {
+        return secureEntities.get(type);
+    }
+
+    private void putSecureEntity(Object id, Class<?> type, SecureEntity entity) {
+        Map<Object, SecureEntity> entities = getSecureEntities(type);
+        if (entities == null) {
+            entities = new HashMap<Object, SecureEntity>();
+            secureEntities.put(type, entities);
+        }
+        entities.put(id, entity);
+    }
+
     private SecureEntity createSecureEntity(ClassMappingInformation mapping, Object entity) {
-        return (SecureEntity)Enhancer.create(mapping.getEntityType(),
-                                             new Class[] {SecureEntity.class},
-                                             new EntityInvocationHandler(mapping, this, entity));
+        EntityInvocationHandler handler = new EntityInvocationHandler(mapping, this, entity);
+        return handler.createSecureEntity();
     }
 
     private SecureCollection<?> getSecureCollection(Collection<?> collection) {
@@ -375,11 +392,11 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     private SecureCollection<?> createSecureCollection(Collection<?> collection) {
         if (collection instanceof List) {
-            return new SecureList((List)collection, this);
+            return new SecureList((List<?>)collection, this);
         } else if (collection instanceof SortedSet) {
-            return new SecureSortedSet((SortedSet)collection, this);
+            return new SecureSortedSet((SortedSet<?>)collection, this);
         } else if (collection instanceof Set) {
-            return new SecureSet((Set)collection, this);
+            return new SecureSet((Set<?>)collection, this);
         } else {
             return new DefaultSecureCollection(collection, this);
         }
