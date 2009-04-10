@@ -16,7 +16,6 @@
 package net.sf.jpasecurity.persistence;
 
 import static net.sf.jpasecurity.AccessType.CREATE;
-import static net.sf.jpasecurity.AccessType.UPDATE;
 import static net.sf.jpasecurity.AccessType.READ;
 
 import java.util.Collection;
@@ -91,12 +90,9 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public void persist(Object entity) {
-        if (!isAccessible(entity, CREATE)) {
-            throw new SecurityException("The current user is not permitted to merge the specified entity");
-        }
-        getTarget().persist(entity);
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         SecureEntity secureEntity = createSecureEntity(mapping, entity);
+        secureEntity.persist(getTarget());
         putSecureEntity(mapping.getId(secureEntity), mapping.getEntityType(), secureEntity);
     }
 
@@ -105,11 +101,10 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             if (!isAccessible(entity, CREATE)) {
                 throw new SecurityException("The current user is not permitted to merge the specified entity");
             }
-            return (T)getSecureEntity(getTarget().merge(entity));
+            entity = getTarget().merge(entity);
+            getTarget().flush();
+            return (T)getSecureEntity(entity);
         } else {
-            if (!isAccessible(entity, UPDATE)) {
-                throw new SecurityException("The current user is not permitted to merge the specified entity");
-            }
             return (T)((SecureEntity)entity).merge(getTarget(), this);
         }
     }
