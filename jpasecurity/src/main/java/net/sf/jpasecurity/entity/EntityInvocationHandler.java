@@ -47,6 +47,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     private SecureObjectManager objectManager;
     private boolean initialized;
     private boolean deleted;
+    private SecureEntity secureEntity;
     private Object entity;
     private Map<String, Object> propertyValues = new HashMap<String, Object>();
     private transient ThreadLocal<Boolean> updating;
@@ -61,21 +62,28 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     public SecureEntity createSecureEntity() {
-        return (SecureEntity)Enhancer.create(mapping.getEntityType(),
-                                             new Class[] {SecureEntity.class},
-                                             this);
+        secureEntity = (SecureEntity)Enhancer.create(mapping.getEntityType(),
+                                                     new Class[] {SecureEntity.class},
+                                                     this);
+        return secureEntity;
     }
 
     public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+        if (secureEntity == null) {
+            throw new IllegalStateException("EntityInvocationHandler not initialized properly");
+        }
+        if (object != secureEntity) {
+            throw new IllegalStateException("unexpected object " + object + ", expected " + secureEntity);
+        }
         if (!isInitialized() && !isUpdating()) {
-            initialize(object);
+            initialize();
         }
         if (canInvoke(method)) {
             return invoke(object, method, args);
         }
         Object result = methodProxy.invokeSuper(object, args);
         if (!isUpdating()) {
-            updatedChangedProperties(object);
+            updatedChangedProperties();
         }
         return result;
     }
@@ -113,6 +121,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             throw new SecurityException(e.getMessage());
         }
         entityManager.persist(entity);
+        initialize();
     }
 
     /**
@@ -220,7 +229,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         }
     }
 
-    private void initialize(Object object) {
+    private void initialize() {
         setUpdating(true);
         entity = unproxy(entity);
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
@@ -228,22 +237,22 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             if (propertyMapping instanceof RelationshipMappingInformation) {
                 value = objectManager.getSecureObject(value);
             }
-            propertyMapping.setPropertyValue(object, value);
+            propertyMapping.setPropertyValue(secureEntity, value);
             propertyValues.put(propertyMapping.getPropertyName(), value);
         }
         initialized = true;
         setUpdating(false);
     }
 
-    private void updatedChangedProperties(Object object) {
+    private void updatedChangedProperties() {
         setUpdating(true);
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
-            Object value = propertyMapping.getPropertyValue(object);
+            Object value = propertyMapping.getPropertyValue(secureEntity);
             if (value != propertyValues.get(propertyMapping.getPropertyName())) {
                 propertyMapping.setPropertyValue(entity, getUnsecureObject(value));
                 if (propertyMapping instanceof RelationshipMappingInformation) {
-                    value = objectManager.getSecureObject(object);
-                    propertyMapping.setPropertyValue(object, value);
+                    value = objectManager.getSecureObject(value);
+                    propertyMapping.setPropertyValue(secureEntity, value);
                 }
                 propertyValues.put(propertyMapping.getPropertyName(), value);
             }
