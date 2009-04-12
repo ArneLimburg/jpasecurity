@@ -121,19 +121,26 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             throw new SecurityException(e.getMessage());
         }
         entityManager.persist(entity);
+        entityManager.flush(); //This is necessary for OpenJPA
         initialize();
     }
 
     /**
      * @throws SecurityException when the current user is not allowed to merge the entity of this invocation handler
      */
-    public SecureEntity merge(EntityManager entityManager, SecureObjectManager objectManager) {
+    public SecureEntity merge(EntityManager entityManager, SecureObjectManager objectManager, AccessType access) {
+        if (access == AccessType.READ || access == AccessType.DELETE) {
+            throw new IllegalArgumentException("Only AccessType.CREATE and AccessType.UPDATE are allowed for merge");
+        }
         try {
-            checkAccess(entity, AccessType.UPDATE, CascadeType.MERGE, new HashSet<Object>());
+            checkAccess(entity, access, CascadeType.MERGE, objectManager, new HashSet<Object>());
         } catch (PropertyAccessException e) {
             throw new SecurityException(e.getMessage());
         }
         Object mergedEntity = entityManager.merge(entity);
+        if (access == AccessType.CREATE) {
+            entityManager.flush(); //This is necessary for some persistence providers like OpenJPA
+        }
         return (SecureEntity)objectManager.getSecureObject(mergedEntity);
     }
 
@@ -179,12 +186,20 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
                              AccessType accessType,
                              CascadeType cascadeType,
                              Set<Object> checkedEntities) {
+        checkAccess(object, accessType, cascadeType, objectManager, checkedEntities);
+    }
+
+    private void checkAccess(Object object,
+                             AccessType accessType,
+                             CascadeType cascadeType,
+                             SecureObjectManager objectManager,
+                             Set<Object> checkedEntities) {
         if (checkedEntities.contains(object)
             || (object instanceof SecureObject && !((SecureObject)object).isInitialized())) {
             return;
         }
         if (object instanceof Collection) {
-            checkAccess((Collection)object, accessType, cascadeType, checkedEntities);
+            checkAccess((Collection)object, accessType, cascadeType, objectManager, checkedEntities);
         } else {
             if (!objectManager.isAccessible(object, accessType)) {
                 throw new SecurityException("The current user is not permitted to access the specified object");
@@ -194,7 +209,8 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
                 if (propertyMapping.getCascadeTypes().contains(cascadeType)
                         || propertyMapping.getCascadeTypes().contains(CascadeType.ALL)) {
                     try {
-                        checkAccess(propertyMapping.getPropertyValue(object), accessType, cascadeType, checkedEntities);
+                        Object value = propertyMapping.getPropertyValue(object);
+                        checkAccess(value, accessType, cascadeType, objectManager, checkedEntities);
                     } catch (PropertyAccessException e) {
                         throw new PropertyAccessException(propertyMapping.getPropertyName() + "." + e.getPropertyName());
                     } catch (SecurityException e) {
@@ -208,9 +224,10 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     private void checkAccess(Collection<?> collection,
                              AccessType accessType,
                              CascadeType cascadeType,
+                             SecureObjectManager objectManager,
                              Set<Object> checkedEntities) {
         for (Object object: collection) {
-            checkAccess(object, accessType, cascadeType, checkedEntities);
+            checkAccess(object, accessType, cascadeType, objectManager, checkedEntities);
         }
     }
 
