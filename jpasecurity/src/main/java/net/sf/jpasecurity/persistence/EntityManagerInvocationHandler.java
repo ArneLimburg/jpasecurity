@@ -234,7 +234,19 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
         ClassMappingInformation classMapping = mappingInformation.getClassMapping(entityName);
-        return isAccessible(ReflectionUtils.invokeConstructor(classMapping.getEntityType(), parameters), accessType);
+        Object[] transientParameters = new Object[parameters.length];
+        for (int i = 0; i < transientParameters.length; i++) {
+            ClassMappingInformation parameterMapping = mappingInformation.getClassMapping(parameters[i].getClass());
+            if (parameterMapping == null) {
+                transientParameters[i] = parameters[i];
+            } else {
+                EntityInvocationHandler transientInvocationHandler
+                    = new EntityInvocationHandler(parameterMapping, this, parameters[i], true);
+                transientParameters[i] = transientInvocationHandler.createSecureEntity();
+            }
+        }
+        Object entity = ReflectionUtils.invokeConstructor(classMapping.getEntityType(), transientParameters);
+        return isAccessible(entity, accessType);
     }
 
     public boolean isAccessible(Object entity, AccessType accessType) {
