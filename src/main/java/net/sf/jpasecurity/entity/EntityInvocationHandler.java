@@ -49,15 +49,24 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     private boolean deleted;
     private SecureEntity secureEntity;
     private Object entity;
+    private boolean isTransient;
     private Map<String, Object> propertyValues = new HashMap<String, Object>();
     private transient ThreadLocal<Boolean> updating;
 
     public EntityInvocationHandler(ClassMappingInformation mapping,
                                    SecureObjectManager objectManager,
                                    Object entity) {
+        this(mapping, objectManager, entity, false);
+    }
+
+    public EntityInvocationHandler(ClassMappingInformation mapping,
+                                   SecureObjectManager objectManager,
+                                   Object entity,
+                                   boolean isTransient) {
         this.mapping = mapping;
         this.objectManager = objectManager;
         this.entity = entity;
+        this.isTransient = isTransient;
         unwrapSecureObjects(); //Make sure that our entity does not contain any secure objects
     }
 
@@ -82,7 +91,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             return invoke(object, method, args);
         }
         Object result = methodProxy.invokeSuper(object, args);
-        if (!isUpdating()) {
+        if (!isReadOnly() && !isUpdating()) {
             updatedChangedProperties();
         }
         return result;
@@ -121,7 +130,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             throw new SecurityException(e.getMessage());
         }
         entityManager.persist(entity);
-        entityManager.flush(); //This is necessary for OpenJPA
+        entityManager.flush(); //This is necessary for id-generation strategy IDENTITY
         initialize();
     }
 
@@ -139,7 +148,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         }
         Object mergedEntity = entityManager.merge(entity);
         if (access == AccessType.CREATE) {
-            entityManager.flush(); //This is necessary for some persistence providers like OpenJPA
+            entityManager.flush(); //This is necessary for id-generation strategy IDENTITY
         }
         return (SecureEntity)objectManager.getSecureObject(mergedEntity);
     }
@@ -229,6 +238,10 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         for (Object object: collection) {
             checkAccess(object, accessType, cascadeType, objectManager, checkedEntities);
         }
+    }
+
+    private boolean isReadOnly() {
+        return isTransient;
     }
 
     private boolean isUpdating() {
