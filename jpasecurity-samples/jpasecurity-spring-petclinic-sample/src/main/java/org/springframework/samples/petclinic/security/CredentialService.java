@@ -4,7 +4,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import net.sf.jpasecurity.AccessChecker;
+import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntityManager;
 
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class CredentialService implements UserDetailsService, AccessChecker {
+public class CredentialService implements UserDetailsService, AccessManager {
 
     @PersistenceContext
     private SecureEntityManager em;
@@ -35,8 +35,8 @@ public class CredentialService implements UserDetailsService, AccessChecker {
         }
     }
 
-    public boolean isAccessible(Object entity, AccessType type) {
-        return em.isAccessible(entity, type);
+    public boolean isAccessible(AccessType type, Object entity) {
+        return em.isAccessible(type, entity);
     }
 
     public boolean isAccessible(AccessType type, String name, Object... parameters) {
