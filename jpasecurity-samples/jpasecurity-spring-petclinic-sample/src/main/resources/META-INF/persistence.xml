@@ -5,9 +5,6 @@
 
 	<persistence-unit name="PetClinic" transaction-type="RESOURCE_LOCAL">
 
-		<!-- Explicitly define mapping file path, else Hibernate won't find the default -->
-		<mapping-file>META-INF/orm.xml</mapping-file>
-
 		<!-- Prevent annotation scanning. In this app we are purely driven by orm.xml -->
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
         
