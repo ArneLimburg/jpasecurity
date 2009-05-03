@@ -20,7 +20,7 @@ import org.springframework.beans.support.PropertyComparator;
 public class Vet extends Person {
 
 	private Set<Specialty> specialties;
-	private Set<Visit> visits;
+
 
 	protected void setSpecialtiesInternal(Set<Specialty> specialties) {
 		this.specialties = specialties;
@@ -46,33 +46,6 @@ public class Vet extends Person {
 	public void addSpecialty(Specialty specialty) {
 		getSpecialtiesInternal().add(specialty);
 	}
-
-
-    protected void setVisitsInternal(Set<Visit> visits) {
-        this.visits = visits;
-    }
-
-    protected Set<Visit> getVisitsInternal() {
-        if (this.visits == null) {
-            this.visits = new HashSet<Visit>();
-        }
-        return this.visits;
-    }
-
-    public List<Visit> getVisits() {
-        List<Visit> sortedVisits = new ArrayList<Visit>(getVisitsInternal());
-        PropertyComparator.sort(sortedVisits, new MutableSortDefinition("date", true, true));
-        return Collections.unmodifiableList(sortedVisits);
-    }
-
-    public int getNrOfVisits() {
-        return getVisitsInternal().size();
-    }
-
-    public void addVisit(Visit visit) {
-        getVisitsInternal().add(visit);
-        visit.setVet(this);
-    }
     
     public String toString() {
         StringBuilder specialties = new StringBuilder();

@@ -66,7 +66,6 @@ public class AddVisitForm {
 			return "visitForm";
 		}
 		else {
-            visit.getVet().addVisit(visit);
 			this.clinic.storeVisit(visit);
 			status.setComplete();
 			return "redirect:owner.do?ownerId=" + visit.getPet().getOwner().getId();
