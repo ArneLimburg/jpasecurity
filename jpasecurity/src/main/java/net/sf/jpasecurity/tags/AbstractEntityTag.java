@@ -42,7 +42,7 @@ public abstract class AbstractEntityTag extends AbstractSecurityTag {
         if (entity instanceof SecureEntity) {
             return ((SecureEntity)entity).isAccessible(getAccessType());
         } else {
-            return getAccessChecker().isAccessible(entity, getAccessType());
+            return getAccessManager().isAccessible(getAccessType(), entity);
         }
     }
 

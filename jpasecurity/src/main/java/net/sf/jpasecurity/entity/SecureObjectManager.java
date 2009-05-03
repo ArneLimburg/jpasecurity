@@ -17,12 +17,12 @@ package net.sf.jpasecurity.entity;
 
 import java.util.Collection;
 
-import net.sf.jpasecurity.AccessChecker;
+import net.sf.jpasecurity.AccessManager;
 
 /**
  * @author Arne Limburg
  */
-public interface SecureObjectManager extends AccessChecker {
+public interface SecureObjectManager extends AccessManager {
 
     <E> SecureObject getSecureObject(E object);
     <E> SecureObject getSecureObject(Object parent, E object);

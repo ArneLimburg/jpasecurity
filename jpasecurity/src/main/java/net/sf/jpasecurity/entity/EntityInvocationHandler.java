@@ -103,7 +103,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     public boolean isAccessible(AccessType accessType) {
-        return objectManager.isAccessible(entity, accessType);
+        return objectManager.isAccessible(accessType, entity);
     }
 
     /**
@@ -184,9 +184,9 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
      * @throws SecurityException when the current user is not allowed to lock the entity of this invocation handler
      */
     public void lock(EntityManager entityManager, LockModeType lockMode) {
-        if (lockMode == LockModeType.READ && !objectManager.isAccessible(entity, AccessType.READ)) {
+        if (lockMode == LockModeType.READ && !objectManager.isAccessible(AccessType.READ, entity)) {
             throw new SecurityException();
-        } else if (lockMode == LockModeType.WRITE && !objectManager.isAccessible(entity, AccessType.UPDATE)) {
+        } else if (lockMode == LockModeType.WRITE && !objectManager.isAccessible(AccessType.UPDATE, entity)) {
             throw new SecurityException();
         }
         entityManager.lock(entity, lockMode);
@@ -219,7 +219,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         if (object instanceof Collection) {
             checkAccess((Collection)object, accessType, cascadeType, objectManager, checkedEntities);
         } else {
-            if (!objectManager.isAccessible(object, accessType)) {
+            if (!objectManager.isAccessible(accessType, object)) {
                 throw new SecurityException("The current user is not permitted to access the specified object");
             }
             checkedEntities.add(object);

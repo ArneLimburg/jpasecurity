@@ -138,11 +138,11 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
     }
 
     boolean isReadable(Object entity) {
-        return objectManager.isAccessible(entity, READ);
+        return objectManager.isAccessible(READ, entity);
     }
 
     boolean isUpdatable() {
-        return objectManager.isAccessible(owner, UPDATE);
+        return objectManager.isAccessible(UPDATE, owner);
     }
 
     Collection<? extends E> filterAll(Collection<? extends E> collection) {

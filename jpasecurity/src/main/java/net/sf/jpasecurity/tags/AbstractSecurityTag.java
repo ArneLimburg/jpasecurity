@@ -21,7 +21,7 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
 
-import net.sf.jpasecurity.AccessChecker;
+import net.sf.jpasecurity.AccessManager;
 
 /**
  * Baseclass for tags that do access-checks.
@@ -29,43 +29,43 @@ import net.sf.jpasecurity.AccessChecker;
  */
 public abstract class AbstractSecurityTag extends TagSupport {
 
-    private AccessChecker accessChecker;
+    private AccessManager accessManager;
 
-    public AccessChecker getAccessChecker() {
-        if (accessChecker != null) {
-            return accessChecker;
+    public AccessManager getAccessManager() {
+        if (accessManager != null) {
+            return accessManager;
         }
-        accessChecker = resolveAccessChecker(PageContext.PAGE_SCOPE);
-        if (accessChecker != null) {
-            return accessChecker;
+        accessManager = resolveAccessManager(PageContext.PAGE_SCOPE);
+        if (accessManager != null) {
+            return accessManager;
         }
-        accessChecker = resolveAccessChecker(PageContext.REQUEST_SCOPE);
-        if (accessChecker != null) {
-            return accessChecker;
+        accessManager = resolveAccessManager(PageContext.REQUEST_SCOPE);
+        if (accessManager != null) {
+            return accessManager;
         }
-        accessChecker = resolveAccessChecker(PageContext.SESSION_SCOPE);
-        if (accessChecker != null) {
-            return accessChecker;
+        accessManager = resolveAccessManager(PageContext.SESSION_SCOPE);
+        if (accessManager != null) {
+            return accessManager;
         }
-        accessChecker = resolveAccessChecker(PageContext.APPLICATION_SCOPE);
-        if (accessChecker != null) {
-            return accessChecker;
+        accessManager = resolveAccessManager(PageContext.APPLICATION_SCOPE);
+        if (accessManager != null) {
+            return accessManager;
         }
         throw new IllegalStateException("No access checker defined for this page");
     }
 
-    private AccessChecker resolveAccessChecker(int scope) {
+    private AccessManager resolveAccessManager(int scope) {
         for (Enumeration<String> names = pageContext.getAttributeNamesInScope(scope); names.hasMoreElements();) {
             Object object = pageContext.getAttribute(names.nextElement(), scope);
-            if (object instanceof AccessChecker) {
-                return (AccessChecker)object;
+            if (object instanceof AccessManager) {
+                return (AccessManager)object;
             }
         }
         return null;
     }
 
-    public void setAccessChecker(AccessChecker accessChecker) {
-        this.accessChecker = accessChecker;
+    public void setAccessChecker(AccessManager accessManager) {
+        this.accessManager = accessManager;
     }
 
     public int doStartTag() {
