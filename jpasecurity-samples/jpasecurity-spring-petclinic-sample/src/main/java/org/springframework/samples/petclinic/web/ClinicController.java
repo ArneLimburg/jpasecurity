@@ -1,7 +1,7 @@
 
 package org.springframework.samples.petclinic.web;
 
-import net.sf.jpasecurity.AccessChecker;
+import net.sf.jpasecurity.AccessManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.Clinic;
@@ -27,12 +27,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class ClinicController {
 
     private final Clinic clinic;
-    private final AccessChecker securityController;
+    private final AccessManager accessManager;
     
     @Autowired
-    public ClinicController(Clinic clinic, AccessChecker securityController) {
+    public ClinicController(Clinic clinic, AccessManager accessManager) {
         this.clinic = clinic;
-        this.securityController = securityController;
+        this.accessManager = accessManager;
     }
 
     /**
@@ -79,7 +79,7 @@ public class ClinicController {
      */
     @RequestMapping("/owner.do")
     public ModelMap ownerHandler(@RequestParam("ownerId") int ownerId) {
-        return new ModelMap(this.clinic.loadOwner(ownerId)).addAttribute(securityController);
+        return new ModelMap(this.clinic.loadOwner(ownerId)).addAttribute(accessManager);
     }
 
     /**
