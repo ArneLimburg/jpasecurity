@@ -99,6 +99,7 @@ public class ClinicController {
      */
     @RequestMapping("/vet.do")
     public ModelMap vetHandler(@RequestParam("vetId") int vetId) {
-        return new ModelMap(this.clinic.loadVet(vetId)).addAttribute("checker", checker);
+        Vet vet = this.clinic.loadVet(vetId);
+        return new ModelMap(vet).addAttribute("visits", this.clinic.findVisits(vet));
     }
 }

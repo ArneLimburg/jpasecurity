@@ -74,6 +74,14 @@ public class EntityManagerClinic implements Clinic {
     }
 
     @Transactional(readOnly = true)
+    public Collection<Visit> findVisits(Vet vet) {
+        Query query = this.em.createQuery("SELECT visit FROM Visit visit "
+                                        + "WHERE visit.vet = :vet");
+        query.setParameter("vet", vet);
+        return query.getResultList();
+    }
+
+    @Transactional(readOnly = true)
     public Visit loadVisit(int id) {
     	return this.em.find(Visit.class, id);
     }

@@ -21,7 +21,7 @@
 
   <h2>Visits</h2>
 
-  <c:forEach var="visit" items="${vet.visits}">
+  <c:forEach var="visit" items="${visits}">
     <table width="94%">
       <tr>
         <th>Date</th>

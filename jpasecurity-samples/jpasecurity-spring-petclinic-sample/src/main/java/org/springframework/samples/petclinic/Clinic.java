@@ -63,6 +63,15 @@ public interface Clinic {
     Vet loadVet(int id) throws DataAccessException;
 
     /**
+     * Retrieve <code>Visit</code>s from the data store,
+     * returning all visits at a given vet.
+     * @param vet the visited vet
+     * @return a <code>Collection</code> of matching <code>Visit</code>s
+     * (or an empty <code>Collection</code> if none found)
+     */
+    Collection<Visit> findVisits(Vet vet) throws DataAccessException;
+
+    /**
      * Retrieve a <code>Visit</code> from the data store by id.
      * @param id the id to search for
      * @return the <code>Visit</code> if found

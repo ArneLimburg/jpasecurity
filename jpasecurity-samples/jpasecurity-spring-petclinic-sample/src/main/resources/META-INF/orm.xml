@@ -75,11 +75,6 @@
 	<entity class="Vet">
 		<table name="VETS"/>
 		<attributes>
-			<one-to-many name="visitsInternal" target-entity="Visit" mapped-by="vet" fetch="EAGER">
-				<cascade>
-					<cascade-all/>
-				</cascade>
-			</one-to-many>
 			<many-to-many name="specialtiesInternal" target-entity="Specialty" fetch="EAGER">
 				<join-table name="VET_SPECIALTIES">
 					<join-column name="VET_ID"/>
@@ -88,8 +83,6 @@
 			</many-to-many>
 			<transient name="specialties"/>
 			<transient name="nrOfSpecialties"/>
-			<transient name="visits"/>
-			<transient name="nrOfVisits"/>
 		</attributes>
 	</entity>
 
