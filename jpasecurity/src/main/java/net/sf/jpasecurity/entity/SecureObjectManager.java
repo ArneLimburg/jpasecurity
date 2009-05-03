@@ -25,5 +25,6 @@ import net.sf.jpasecurity.AccessChecker;
 public interface SecureObjectManager extends AccessChecker {
 
     <E> SecureObject getSecureObject(E object);
+    <E> SecureObject getSecureObject(Object parent, E object);
     <E> Collection<E> getSecureObjects(Class<E> type);
 }

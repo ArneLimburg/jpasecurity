@@ -25,12 +25,12 @@ import java.util.TreeSet;
  */
 public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>> implements SortedSet<E> {
 
-    public SecureSortedSet(SortedSet<E> sortedSet, SecureObjectManager objectManager) {
-        super(sortedSet, objectManager);
+    public SecureSortedSet(Object owner, SortedSet<E> sortedSet, SecureObjectManager objectManager) {
+        super(owner, sortedSet, objectManager);
     }
 
-    SecureSortedSet(SortedSet<E> original, SortedSet<E> filtered, SecureObjectManager objectManager) {
-        super(original, filtered, objectManager);
+    SecureSortedSet(Object owner, SortedSet<E> original, SortedSet<E> filtered, SecureObjectManager objectManager) {
+        super(owner, original, filtered, objectManager);
     }
 
     protected SortedSet<E> createFiltered() {

@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
+import javax.persistence.Query;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
@@ -191,6 +192,14 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         entityManager.lock(entity, lockMode);
     }
 
+    public Query setParameter(Query query, int index) {
+        return query.setParameter(index, entity);
+    }
+
+    public Query setParameter(Query query, String name) {
+        return query.setParameter(name, entity);
+    }
+
     private void checkAccess(Object object,
                              AccessType accessType,
                              CascadeType cascadeType,
@@ -265,7 +274,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
             Object value = getUnsecureObject(propertyMapping.getPropertyValue(entity));
             if (propertyMapping instanceof RelationshipMappingInformation) {
-                value = objectManager.getSecureObject(value);
+                value = objectManager.getSecureObject(secureEntity, value);
             }
             propertyMapping.setPropertyValue(secureEntity, value);
             propertyValues.put(propertyMapping.getPropertyName(), value);
@@ -281,7 +290,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             if (value != propertyValues.get(propertyMapping.getPropertyName())) {
                 propertyMapping.setPropertyValue(entity, getUnsecureObject(value));
                 if (propertyMapping instanceof RelationshipMappingInformation) {
-                    value = objectManager.getSecureObject(value);
+                    value = objectManager.getSecureObject(secureEntity, value);
                     propertyMapping.setPropertyValue(secureEntity, value);
                 }
                 propertyValues.put(propertyMapping.getPropertyName(), value);

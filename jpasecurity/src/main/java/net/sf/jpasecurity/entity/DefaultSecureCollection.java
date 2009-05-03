@@ -24,8 +24,8 @@ import java.util.Collection;
  */
 public class DefaultSecureCollection<E, T extends Collection<E>> extends AbstractSecureCollection<E, T> {
 
-    public DefaultSecureCollection(T collection, SecureObjectManager objectManager) {
-        super(collection, objectManager);
+    public DefaultSecureCollection(Object owner, T collection, SecureObjectManager objectManager) {
+        super(owner, collection, objectManager);
     }
 
     protected T createFiltered() {
