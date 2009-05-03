@@ -24,8 +24,8 @@ import java.util.Set;
  */
 public class SecureSet<E> extends AbstractSecureCollection<E, Set<E>> implements Set<E> {
 
-    public SecureSet(Set<E> set, SecureObjectManager objectManager) {
-        super(set, objectManager);
+    public SecureSet(Object owner, Set<E> set, SecureObjectManager objectManager) {
+        super(owner, set, objectManager);
     }
 
     protected Set<E> createFiltered() {

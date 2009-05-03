@@ -43,15 +43,17 @@ public class ProxyInvocationHandler<T> extends AbstractInvocationHandler {
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        Object result;
         if (canInvoke(method)) {
-            return super.invoke(proxy, method, args);
+            result = super.invoke(proxy, method, args);
         } else {
             try {
-                return method.invoke(target, args);
+                result = method.invoke(target, args);
             } catch (InvocationTargetException e) {
                 throw e.getCause();
             }
         }
+        return getTarget().equals(result)? proxy: result;
     }
 
     protected T getTarget() {
