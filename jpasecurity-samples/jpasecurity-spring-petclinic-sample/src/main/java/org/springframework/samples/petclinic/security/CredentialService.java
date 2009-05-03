@@ -1,9 +1,12 @@
 package org.springframework.samples.petclinic.security;
 
-import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+
+import net.sf.jpasecurity.AccessChecker;
+import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.SecureEntityManager;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.userdetails.UserDetails;
@@ -17,10 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class CredentialService implements UserDetailsService {
+public class CredentialService implements UserDetailsService, AccessChecker {
 
     @PersistenceContext
-    private EntityManager em;    
+    private SecureEntityManager em;
     
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
         try {
@@ -30,5 +33,13 @@ public class CredentialService implements UserDetailsService {
         } catch (NoResultException e) {
             throw new UsernameNotFoundException(username, e);
         }
+    }
+
+    public boolean isAccessible(Object entity, AccessType type) {
+        return em.isAccessible(entity, type);
+    }
+
+    public boolean isAccessible(AccessType type, String name, Object... parameters) {
+        return em.isAccessible(type, name, parameters);
     }
 }
