@@ -17,6 +17,7 @@ package net.sf.jpasecurity.entity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
+import javax.persistence.Query;
 
 import net.sf.jpasecurity.AccessType;
 
@@ -35,4 +36,6 @@ public interface SecureEntity extends SecureObject {
     void refresh(EntityManager entityManager);
     void lock(EntityManager entityManager, LockModeType lockMode);
     void remove(EntityManager entityManager);
+    Query setParameter(Query query, int index);
+    Query setParameter(Query query, String name);
 }

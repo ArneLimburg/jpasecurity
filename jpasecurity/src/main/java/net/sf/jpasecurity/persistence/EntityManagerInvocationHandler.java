@@ -112,7 +112,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         if (!isAccessible(entity, READ)) {
             throw new SecurityException("The current user is not permitted to find the specified entity");
         }
-        entity = (T)getSecureObject(entity);
+        entity = (T)getSecureEntity(entity);
         fetch(entity, getMaximumFetchDepth());
         return entity;
     }
@@ -176,7 +176,14 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         if (filterResult.getQuery() == null) {
             return new EmptyResultQuery();
         } else {
-            Query query = getTarget().createQuery(filterResult.getQuery());
+            QueryInvocationHandler queryInvocationHandler
+                = new QueryInvocationHandler(this,
+                                             this,
+                                             getTarget().createQuery(filterResult.getQuery()),
+                                             filterResult.getSelectedPaths(),
+                                             filterResult.getTypeDefinitions(),
+                                             new MappedPathEvaluator(mappingInformation));
+            Query query = queryInvocationHandler.createProxy();
             if (filterResult.getUserParameterName() != null) {
                 query.setParameter(filterResult.getUserParameterName(), user);
             }
@@ -185,14 +192,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                     query.setParameter(roleParameter.getKey(), roleParameter.getValue());
                 }
             }
-            QueryInvocationHandler queryInvocationHandler
-                = new QueryInvocationHandler(this,
-                                             this,
-                                             query,
-                                             filterResult.getSelectedPaths(),
-                                             filterResult.getTypeDefinitions(),
-                                             new MappedPathEvaluator(mappingInformation));
-            return queryInvocationHandler.createProxy();
+            return query;
         }
     }
 
@@ -258,6 +258,10 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public <T> SecureObject getSecureObject(T object) {
+        return getSecureObject(null, object);
+    }
+
+    public <T> SecureObject getSecureObject(Object parent, T object) {
         if (object instanceof SecureObject) {
             return (SecureObject)object;
         }
@@ -265,7 +269,10 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             return null;
         }
         if (object instanceof Collection) {
-            return getSecureCollection((Collection)object);
+            if (parent == null) {
+                throw new IllegalArgumentException("Cannot create secure collection with no parent");
+            }
+            return getSecureCollection(parent, (Collection)object);
         } else {
             return getSecureEntity(object);
         }
@@ -385,25 +392,25 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         return handler.createSecureEntity();
     }
 
-    private SecureCollection<?> getSecureCollection(Collection<?> collection) {
+    private SecureCollection<?> getSecureCollection(Object owner, Collection<?> collection) {
         int hashCode = System.identityHashCode(collection);
         SecureCollection<?> secureCollection = secureCollections.get(hashCode);
         if (secureCollection == null) {
-            secureCollection = createSecureCollection(collection);
+            secureCollection = createSecureCollection(owner, collection);
             secureCollections.put(hashCode, secureCollection);
         }
         return secureCollection;
     }
 
-    private SecureCollection<?> createSecureCollection(Collection<?> collection) {
+    private SecureCollection<?> createSecureCollection(Object owner, Collection<?> collection) {
         if (collection instanceof List) {
-            return new SecureList((List<?>)collection, this);
+            return new SecureList(owner, (List<?>)collection, this);
         } else if (collection instanceof SortedSet) {
-            return new SecureSortedSet((SortedSet<?>)collection, this);
+            return new SecureSortedSet(owner, (SortedSet<?>)collection, this);
         } else if (collection instanceof Set) {
-            return new SecureSet((Set<?>)collection, this);
+            return new SecureSet(owner, (Set<?>)collection, this);
         } else {
-            return new DefaultSecureCollection(collection, this);
+            return new DefaultSecureCollection(owner, collection, this);
         }
     }
 }

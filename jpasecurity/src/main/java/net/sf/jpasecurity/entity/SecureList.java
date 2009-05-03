@@ -15,8 +15,6 @@
  */
 package net.sf.jpasecurity.entity;
 
-import static net.sf.jpasecurity.AccessType.UPDATE;
-
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.List;
@@ -30,8 +28,8 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
 
     private AbstractSecureCollection<E, List<E>> secureList;
 
-    public SecureList(List<E> list, SecureObjectManager objectManager) {
-        secureList = new DefaultSecureCollection<E, List<E>>(list, objectManager);
+    public SecureList(Object owner, List<E> list, SecureObjectManager objectManager) {
+        secureList = new DefaultSecureCollection<E, List<E>>(owner, list, objectManager);
     }
 
     /**
@@ -49,7 +47,7 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
      * though the same element is replaced.
      */
     public E set(int index, E element) {
-        secureList.checkAccessible(element, UPDATE); //TODO CREATE?
+        secureList.checkUpdatable();
         E old = secureList.getFiltered().set(index, element);
         index = secureList.getOriginal().indexOf(old);
         secureList.getOriginal().set(index, element);
@@ -64,7 +62,7 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
      * the element is added at the end of both collections.
      */
     public void add(int index, E element) {
-        secureList.checkAccessible(element, UPDATE); //TODO CREATE?
+        secureList.checkUpdatable();
         if (index == secureList.getFiltered().size()) {
             secureList.getFiltered().add(element);
             secureList.getOriginal().add(element);
@@ -82,6 +80,7 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
      * though the same element is removed in the original collection.
      */
     public E remove(int index) {
+        secureList.checkUpdatable();
         E old = secureList.getFiltered().remove(index);
         secureList.getOriginal().remove(old);
         return old;

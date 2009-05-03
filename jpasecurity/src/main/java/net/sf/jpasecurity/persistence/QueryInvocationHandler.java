@@ -15,7 +15,6 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +22,7 @@ import java.util.Set;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.entity.FetchManager;
+import net.sf.jpasecurity.entity.SecureEntity;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.mapping.TypeDefinition;
@@ -55,9 +55,20 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
         this.pathEvaluator = pathEvaluator;
     }
 
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object result = super.invoke(proxy, method, args);
-        return getTarget().equals(result)? proxy: result;
+    public Query setParameter(int index, Object parameter) {
+        if (parameter instanceof SecureEntity) {
+            return ((SecureEntity)parameter).setParameter(getTarget(), index);
+        } else {
+            return getTarget().setParameter(index, parameter);
+        }
+    }
+
+    public Query setParameter(String name, Object parameter) {
+        if (parameter instanceof SecureEntity) {
+            return ((SecureEntity)parameter).setParameter(getTarget(), name);
+        } else {
+            return getTarget().setParameter(name, parameter);
+        }
     }
 
     public Object getSingleResult() {
