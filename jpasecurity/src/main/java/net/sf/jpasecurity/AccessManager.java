@@ -20,9 +20,9 @@ package net.sf.jpasecurity;
  * entity is accessible given a specific access type.
  * @author Arne Limburg
  */
-public interface AccessChecker {
+public interface AccessManager {
 
     boolean isAccessible(AccessType accessType, String entityName, Object... parameters);
-    boolean isAccessible(Object entity, AccessType accessType);
+    boolean isAccessible(AccessType accessType, Object entity);
 
 }

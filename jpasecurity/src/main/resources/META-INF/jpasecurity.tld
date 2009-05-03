@@ -12,22 +12,22 @@
     <function>
         <name>canCreate</name>
         <function-class>net.sf.jpasecurity.util.AccessUtils</function-class>
-        <function-signature>boolean canRead(net.sf.jpasecurity.AccessChecker, java.lang.Object)</function-signature>
+        <function-signature>boolean canRead(net.sf.jpasecurity.AccessManager, java.lang.Object)</function-signature>
     </function>
     <function>
         <name>canRead</name>
         <function-class>net.sf.jpasecurity.util.AccessUtils</function-class>
-        <function-signature>boolean canRead(net.sf.jpasecurity.AccessChecker, java.lang.Object)</function-signature>
+        <function-signature>boolean canRead(net.sf.jpasecurity.AccessManager, java.lang.Object)</function-signature>
     </function>
     <function>
         <name>canUpdate</name>
         <function-class>net.sf.jpasecurity.util.AccessUtils</function-class>
-        <function-signature>boolean canUpdate(net.sf.jpasecurity.AccessChecker, java.lang.Object)</function-signature>
+        <function-signature>boolean canUpdate(net.sf.jpasecurity.AccessManager, java.lang.Object)</function-signature>
     </function>
     <function>
         <name>canDelete</name>
         <function-class>net.sf.jpasecurity.util.AccessUtils</function-class>
-        <function-signature>boolean canDelete(net.sf.jpasecurity.AccessChecker, java.lang.Object)</function-signature>
+        <function-signature>boolean canDelete(net.sf.jpasecurity.AccessManager, java.lang.Object)</function-signature>
     </function>
 	<tag>
 		<name>creation</name>

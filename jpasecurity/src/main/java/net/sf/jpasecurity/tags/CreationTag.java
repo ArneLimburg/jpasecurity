@@ -59,6 +59,6 @@ public class CreationTag extends AbstractSecurityTag {
     }
 
     protected boolean isAccessible() {
-        return getAccessChecker().isAccessible(AccessType.CREATE, getType(), resolveParameters());
+        return getAccessManager().isAccessible(AccessType.CREATE, getType(), resolveParameters());
     }
 }

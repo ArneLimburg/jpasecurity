@@ -20,5 +20,5 @@ import javax.persistence.EntityManager;
 /**
  * @author Arne Limburg
  */
-public interface SecureEntityManager extends EntityManager, AccessChecker {
+public interface SecureEntityManager extends EntityManager, AccessManager {
 }
