@@ -17,7 +17,7 @@ package net.sf.jpasecurity.util;
 
 import javax.servlet.jsp.tagext.TagSupport;
 
-import net.sf.jpasecurity.AccessChecker;
+import net.sf.jpasecurity.AccessManager;
 import static net.sf.jpasecurity.AccessType.*;
 
 /**
@@ -25,19 +25,19 @@ import static net.sf.jpasecurity.AccessType.*;
  */
 public abstract class AccessUtils extends TagSupport {
 
-    public static boolean canCreate(AccessChecker accessChecker, Object entity) {
-        return accessChecker.isAccessible(entity, CREATE);
+    public static boolean canCreate(AccessManager accessManager, Object entity) {
+        return accessManager.isAccessible(CREATE, entity);
     }
 
-    public static boolean canRead(AccessChecker accessChecker, Object entity) {
-        return accessChecker.isAccessible(entity, READ);
+    public static boolean canRead(AccessManager accessManager, Object entity) {
+        return accessManager.isAccessible(READ, entity);
     }
 
-    public static boolean canUpdate(AccessChecker accessChecker, Object entity) {
-        return accessChecker.isAccessible(entity, UPDATE);
+    public static boolean canUpdate(AccessManager accessManager, Object entity) {
+        return accessManager.isAccessible(UPDATE, entity);
     }
 
-    public static boolean canDelete(AccessChecker accessChecker, Object entity) {
-        return accessChecker.isAccessible(entity, DELETE);
+    public static boolean canDelete(AccessManager accessManager, Object entity) {
+        return accessManager.isAccessible(DELETE, entity);
     }
 }

@@ -109,7 +109,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     public <T> T find(Class<T> type, Object id) {
         T entity = getTarget().find(type, id);
-        if (!isAccessible(entity, READ)) {
+        if (!isAccessible(READ, entity)) {
             throw new SecurityException("The current user is not permitted to find the specified entity");
         }
         entity = (T)getSecureEntity(entity);
@@ -246,10 +246,10 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             }
         }
         Object entity = ReflectionUtils.invokeConstructor(classMapping.getEntityType(), transientParameters);
-        return isAccessible(entity, accessType);
+        return isAccessible(accessType, entity);
     }
 
-    public boolean isAccessible(Object entity, AccessType accessType) {
+    public boolean isAccessible(AccessType accessType, Object entity) {
         try {
             return entityFilter.isAccessible(entity, accessType, getCurrentUser(), getCurrentRoles());
         } catch (NotEvaluatableException e) {
