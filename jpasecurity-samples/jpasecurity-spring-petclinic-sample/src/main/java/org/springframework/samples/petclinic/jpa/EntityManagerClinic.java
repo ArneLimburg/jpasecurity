@@ -52,9 +52,8 @@ public class EntityManagerClinic implements Clinic {
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public Collection<Owner> findOwners(String lastName) {
-		Query query = this.em.createQuery("SELECT owner FROM Owner owner "
-                                        + "WHERE owner.lastName LIKE :lastName");
-		query.setParameter("lastName", lastName.trim().toLowerCase() + "%");
+		Query query = this.em.createQuery("SELECT owner FROM Owner owner WHERE owner.lastName LIKE :lastName");
+		query.setParameter("lastName", lastName + "%");
 		return query.getResultList();
 	}
 
