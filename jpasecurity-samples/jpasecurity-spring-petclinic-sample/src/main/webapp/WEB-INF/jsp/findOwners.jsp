@@ -19,6 +19,5 @@
 </form:form>
 
 <br/>
-<a href="<c:url value="/addOwner.do"/>">Add Owner</a>
 
 <%@ include file="/WEB-INF/jsp/footer.jsp" %>
