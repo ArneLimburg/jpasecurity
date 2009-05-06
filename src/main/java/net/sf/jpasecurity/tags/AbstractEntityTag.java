@@ -27,7 +27,6 @@ import net.sf.jpasecurity.entity.SecureEntity;
 public abstract class AbstractEntityTag extends AbstractSecurityTag {
 
     private String entityName;
-    private Object entity;
 
     public String getEntity() {
         return entityName;
@@ -35,6 +34,11 @@ public abstract class AbstractEntityTag extends AbstractSecurityTag {
 
     public void setEntity(String entity) {
         this.entityName = entity;
+    }
+
+    public void release() {
+        entityName = null;
+        super.release();
     }
 
     protected boolean isAccessible() {
@@ -49,9 +53,9 @@ public abstract class AbstractEntityTag extends AbstractSecurityTag {
     protected abstract AccessType getAccessType();
 
     private Object resolveEntity() {
-        if (entity != null) {
-            return entity;
-        }
+
+        Object entity;
+
         entity = pageContext.getAttribute(entityName, PageContext.PAGE_SCOPE);
         if (entity != null) {
             return entity;
