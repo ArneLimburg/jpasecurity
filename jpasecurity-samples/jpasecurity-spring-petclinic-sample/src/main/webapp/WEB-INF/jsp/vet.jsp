@@ -44,16 +44,18 @@
         <td>${visit.description}</td>
       </tr>
     </table>
-    <table class="table-buttons">
-      <tr>
-        <td>
-          <form method="GET" action="<c:url value="/editVisit.do"/>" name="formEditVisit${visit.id}">
-            <input type="hidden" name="visitId" value="${visit.id}"/>
-            <p class="submit"><input type="submit" value="Edit Visit"/></p>
-          </form>
-        </td>
-      </tr>
-    </table>
+    <access:updating entity="visit">
+      <table class="table-buttons">
+        <tr>
+          <td>
+            <form method="GET" action="<c:url value="/editVisit.do"/>" name="formEditVisit${visit.id}">
+              <input type="hidden" name="visitId" value="${visit.id}"/>
+              <p class="submit"><input type="submit" value="Edit Visit"/></p>
+            </form>
+          </td>
+        </tr>
+      </table>
+    </access:updating>
   </c:forEach>
   
 <%@ include file="/WEB-INF/jsp/footer.jsp" %>
