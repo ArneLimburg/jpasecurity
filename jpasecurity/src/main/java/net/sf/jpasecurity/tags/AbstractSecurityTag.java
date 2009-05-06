@@ -29,12 +29,10 @@ import net.sf.jpasecurity.AccessManager;
  */
 public abstract class AbstractSecurityTag extends TagSupport {
 
-    private AccessManager accessManager;
-
     public AccessManager getAccessManager() {
-        if (accessManager != null) {
-            return accessManager;
-        }
+
+        AccessManager accessManager;
+
         accessManager = resolveAccessManager(PageContext.PAGE_SCOPE);
         if (accessManager != null) {
             return accessManager;
@@ -54,20 +52,6 @@ public abstract class AbstractSecurityTag extends TagSupport {
         throw new IllegalStateException("No access checker defined for this page");
     }
 
-    private AccessManager resolveAccessManager(int scope) {
-        for (Enumeration<String> names = pageContext.getAttributeNamesInScope(scope); names.hasMoreElements();) {
-            Object object = pageContext.getAttribute(names.nextElement(), scope);
-            if (object instanceof AccessManager) {
-                return (AccessManager)object;
-            }
-        }
-        return null;
-    }
-
-    public void setAccessChecker(AccessManager accessManager) {
-        this.accessManager = accessManager;
-    }
-
     public int doStartTag() {
         if (!isAccessible()) {
             return Tag.SKIP_BODY;
@@ -77,4 +61,14 @@ public abstract class AbstractSecurityTag extends TagSupport {
     }
 
     protected abstract boolean isAccessible();
+
+    private AccessManager resolveAccessManager(int scope) {
+        for (Enumeration<String> names = pageContext.getAttributeNamesInScope(scope); names.hasMoreElements();) {
+            Object object = pageContext.getAttribute(names.nextElement(), scope);
+            if (object instanceof AccessManager) {
+                return (AccessManager)object;
+            }
+        }
+        return null;
+    }
 }
