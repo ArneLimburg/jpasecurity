@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="introduction">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<article id="introduction">
   <title>Introduction</title>
   <para>
     This Tutorial describes the development of a simple contacts application.
@@ -12,4 +12,4 @@
     is used to build this sample so you should have installed Maven 2
     before you start.
   </para>
-</section>
+</article>

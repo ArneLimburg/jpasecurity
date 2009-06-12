@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<article id="setup">
+  <title>Setup</title>
+  <para>
+    The application developed in this tutorial is based on the petclinic-sample of the Spring Framework.
+    Please download spring-framework-2.5.6-with-docs.zip <ulink url="http://www.springsource.com/download/community?project=Spring%20Framework">from here</ulink>.
+    This tutorial was written with the sample delivered with version 2.5.6 of the Spring Framework
+    and may or may not work with other versions. In the zip-file under the base-folder spring-framework-2.5.6
+    you find a folder named samples. Within that folder there is a folder named petclinic. Please unpack this folder.
+    It is the only folder we need from that zip.
+  </para>
+  <para>
+    Like in the simple-tutorial we want to use maven 2 to build and deploy our application.
+    So the first step is to put a pom.xml file into the folder petclinic with the following content.
+  </para>
+  <programlisting>
+    <![CDATA[
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.sf.jpasecurity</groupId>
+  <artifactId>jpasecurity-spring-petclinic-sample</artifactId>
+  <packaging>war</packaging>
+  <version>0.2.0</version>
+  <name>JPA Security Spring Petclinic Sample</name>
+  <url>http://jpasecurity.sf.net</url>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>process-classes</phase>
+            <configuration>
+              <tasks>
+                <java classname="org.apache.openjpa.enhance.PCEnhancer"
+                      classpathref="maven.runtime.classpath"
+                      dir="target/classes" fork="true" />
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>maven-jetty-plugin</artifactId>
+        <version>6.1.10</version>
+        <configuration>
+          <stopKey>petclinic</stopKey>
+          <stopPort>1199</stopPort>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>net.sf.jpasecurity</groupId>
+      <artifactId>jpasecurity</artifactId>
+      <version>0.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+      <version>2.5.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>2.5.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-core</artifactId>
+      <version>2.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+      <version>1.2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openjpa</groupId>
+      <artifactId>openjpa</artifactId>
+      <version>1.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.7</version>
+    </dependency>
+  </dependencies>
+</project>
+    ]]>
+  </programlisting>
+  <para>
+    To be conform with maven, we have to change the directory-structure:
+    <itemizedlist>
+      <listitem>Move the content of the folder src into the folder src/main/java (which you have to create first)</listitem>
+      <listitem>
+        Now create src/main/resources and move all non-java-files from src/main/java into it
+        (it mainly is the subfolder META-INF and the file jdbc.properties, all other files you may delete)
+      </listitem>
+      <listitem>Move the content of the folder war into the folder src/main/webapp (which you have to create first)</listitem>
+      <listitem>Move the file db/hsqldb/petclinic.script directly into the main folder (which is named petclinic)</listitem>
+    </itemizedlist>
+    We don't need the rest of the content of the folder db, so you may safely delete it.
+    The same applies to the folder test and the ant build-files (namely build.bat, build.properties, build.xml and warfile.bat).
+  </para>
+</article>

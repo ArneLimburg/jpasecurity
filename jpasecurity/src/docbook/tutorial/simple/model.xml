@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="model">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<article id="model">
   <title>Object Model</title>
   <para>
     We want to write a simple applications where users can store contacts.
@@ -148,4 +148,4 @@ public class Contact {
     </dependency>
     ]]>
   </programlisting>
-</section>
+</article>

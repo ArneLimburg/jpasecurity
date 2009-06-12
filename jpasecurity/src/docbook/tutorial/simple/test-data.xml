@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="test-data">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<article id="test-data">
   <title>Test Data</title>
   <para>
     Now we can create some users and contacts. For this we change the App.java file we created during setup.
@@ -123,4 +123,4 @@ import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
   <para>
     As we can see from the output: All contacts are persisted. Now it's time for some security.
   </para>
-</section>
+</article>

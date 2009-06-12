@@ -7,11 +7,12 @@
   <version>${version}</version>
   <description>
     JPA Security is an Access Control Solution for the Java Persistence API. 
+    JPA Security supports model-driven authorization leading to domain-driven access control.
+    It enables you to completely separate access-control-logic from business-logic,
+    improving performance and maintainability.
     JPA Security provides an interface to define security requirements of your
-    Data Access Layer via configuration (Annotations or XML). Thus JPA Security
-    enables you to completely remove security-related code from your code-base,
-    improving development and maintainability.
-    JPA Security is designed to extend current security solutions like J2EE Security
+    Data Access Layer via configuration (Annotations or XML).
+	It is designed to extend current security solutions like J2EE Security
     and Spring Security (formerly known as Acegi-Security),
     but may be used on its own, too. It enables you to configure access control
     to your JPA Entity Beans based on the currently authenticated user
@@ -163,58 +164,9 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>com.agilejava.docbkx</groupId>
-        <artifactId>docbkx-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>generate-html</goal>
-              <goal>generate-pdf</goal>
-            </goals>
-            <phase>pre-site</phase>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.docbook</groupId>
-            <artifactId>docbook-xml</artifactId>
-            <version>4.4</version>
-            <scope>runtime</scope>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <entities>
-            <entity>
-             <name>version</name>
-             <value>${version}</value>
-            </entity>
-          </entities>
-          <xincludeSupported>true</xincludeSupported>
-          <sourceDirectory>${basedir}/src/docbook/</sourceDirectory>
-          <targetDirectory>${basedir}/target/docbook/</targetDirectory>
-          <encoding>UTF-8</encoding>
-          <postProcess>
-            <copy todir="target/site/reference">
-              <fileset dir="target/docbook">
-                <include name="**/*.html"/>
-                <include name="**/*.pdf"/>
-              </fileset>
-            </copy>
-            <!--copy todir="target/site/reference/html">
-              <fileset dir="src/docbook/resources">
-                <include name="**/*.css" />
-                <include name="**/*.png" />
-                <include name="**/*.gif" />
-                <include name="**/*.jpg" />
-              </fileset>
-            </copy-->
-          </postProcess>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.doxia</groupId>
         <artifactId>doxia-maven-plugin</artifactId>
-        <version>1.0-alpha-11</version>
+        <version>1.1.1-SNAPSHOT</version>
         <executions>
           <execution>
             <phase>pre-site</phase>
@@ -233,11 +185,26 @@
                 <format>
                   <id>xdoc</id>
                 </format>
+                <format>
+                  <id>xhtml</id>
+                </format>
+                <format>
+                  <id>pdf</id>
+                </format>
               </formats>
             </book>
             <book>
               <directory>src/docbook/tutorial/simple</directory>
               <descriptor>src/site/simple-tutorial.xml</descriptor>
+              <formats>
+                <format>
+                  <id>xdoc</id>
+                </format>
+              </formats>
+            </book>
+            <book>
+              <directory>src/docbook/tutorial/petclinic</directory>
+              <descriptor>src/site/petclinic-tutorial.xml</descriptor>
               <formats>
                 <format>
                   <id>xdoc</id>

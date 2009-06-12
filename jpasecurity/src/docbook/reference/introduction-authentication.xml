@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<article>
   <title>Authentication</title>
   <para>
     Authentication is the process of determining and verifying
@@ -14,4 +14,4 @@
     username/password authentication there are other methods like
     public-key-authentication with a digital certificate, to name just one.
   </para>
-</section>
+</article>
