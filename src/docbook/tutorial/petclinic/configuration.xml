@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<article id="configuration">
+  <title>Configuration</title>
+  <para>
+    Our application uses JPA as data-access-layer. We configure this in the web.xml (in src/main/webapp/WEB-INF) by changing the following lines
+    <programlisting>
+      <![CDATA[
+		<param-value>/WEB-INF/applicationContext-jdbc.xml</param-value>
+		<!--
+		<param-value>/WEB-INF/applicationContext-hibernate.xml</param-value>
+		<param-value>/WEB-INF/applicationContext-jpa.xml</param-value>
+		-->
+      ]]>
+    </programlisting>
+    into
+    <programlisting>
+      <![CDATA[
+		<!--
+		<param-value>/WEB-INF/applicationContext-jdbc.xml</param-value>
+		<param-value>/WEB-INF/applicationContext-hibernate.xml</param-value>
+		-->
+		<param-value>/WEB-INF/applicationContext-jpa.xml</param-value>
+      ]]>
+    </programlisting>
+    We now have to delete the packages org.springframework.samples.petclinic.aspects, org.springframework.samples.petclinic.jdbc,
+    org.springframework.samples.petclinic.hibernate and org.springframework.samples.petclinic.toplink
+    as we want to use OpenJPA as persistence provider and don't have the other dependencies in our pom. 
+  </para>
+  <para>
+    We don't need any load-time-weaving so we disable AspectJ in the file applicationContext-jpa.xml (in the folder src/main/webapp/WEB-INF/)
+    by commenting out the following three lines (that are spread over the file):
+    <programlisting>
+      <![CDATA[
+    <context:load-time-weaver/>
+      ]]>
+    </programlisting>
+    <programlisting>
+      <![CDATA[
+    <tx:annotation-driven mode="aspectj"/>
+      ]]>
+    </programlisting>
+    <programlisting>
+      <![CDATA[
+    <bean class="org.springframework.samples.petclinic.aspects.UsageLogAspect" p:historySize="300"/>
+      ]]>
+    </programlisting>
+    like this
+    <programlisting>
+      <![CDATA[
+    <!--
+    <context:load-time-weaver/>
+	-->
+      ]]>
+    </programlisting>
+    <programlisting>
+      <![CDATA[
+    <!--
+    <tx:annotation-driven mode="aspectj"/>
+	-->
+      ]]>
+    </programlisting>
+    <programlisting>
+      <![CDATA[
+    <!--
+    <bean class="org.springframework.samples.petclinic.aspects.UsageLogAspect" p:historySize="300"/>
+	-->
+      ]]>
+    </programlisting>
+  </para>
+  <para>
+    As mentioned above, we want to use OpenJPA as persistence provider.
+    We enable it by changing the following lines in applicationContext-jpa.xml (in the folder src/main/webapp/WEB-INF/)
+    <programlisting>
+      <![CDATA[
+			<bean class="org.springframework.orm.jpa.vendor.TopLinkJpaVendorAdapter"
+					p:databasePlatform="${jpa.databasePlatform}" p:showSql="${jpa.showSql}"/>
+			<!--
+			<bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"
+					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+			-->
+      ]]>
+    </programlisting>
+	into 
+    <programlisting>
+      <![CDATA[
+			<!--
+			<bean class="org.springframework.orm.jpa.vendor.TopLinkJpaVendorAdapter"
+					p:databasePlatform="${jpa.databasePlatform}" p:showSql="${jpa.showSql}"/>
+			-->
+			<bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"
+					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+      ]]>
+    </programlisting>
+  </para>
+  <para>
+    If we have done all this configuration we should be able to start an embedded jetty-server with maven running the petclinic-application:
+    <programlisting>
+mvn jetty:run
+    </programlisting>
+    If everything works all right, jetty started successfully and you can visit the spring-petclinic sample-application 
+    <ulink url="http://localhost:8080/jpasecurity-spring-petclinic-sample">here</ulink>.
+  </para>
+</article>

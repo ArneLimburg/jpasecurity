@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="setup">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<article id="setup">
   <title>Basic Setup</title>
   <para>
     We want to use Maven 2 to build and run our application.
@@ -87,7 +87,7 @@ mvn package
   <para>
     If everything is configured correctly this command should end with
     something like "BUILD SUCCESSFUL" and you can start our application
-    by changing into the subdirectory <code>target</code> and issueing
+    by changing into the subdirectory <programlisting>target</programlisting> and issueing
     the following command:
   </para>
   <programlisting>
@@ -98,4 +98,4 @@ java -jar jpasecurity-simple-sample-0.2.0.jar
   <para>
     If you now see the output "Hello World!" you have successfully set up this sample.
   </para>
-</section>
+</article>

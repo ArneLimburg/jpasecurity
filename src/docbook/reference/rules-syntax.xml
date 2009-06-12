@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="syntax">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<article id="rules-syntax">
   <title>The syntax of access rules</title>
   <para>
-    An access rule of JPA Security always starts with <code>GRANT READ ACCESS TO</code>,
+    An access rule of JPA Security always starts with <programlisting>GRANT READ ACCESS TO</programlisting>,
     followed by the entity name (according to the JPA Specification,
     defaults to the class name if not otherwise specified)
     and an alias for that entity.
@@ -12,10 +12,10 @@
     The GRANT clause is optionally followed by a WHERE clause,
     thats syntax is derived from the syntax of WHERE clauses of JPQL, the query
     language of JPA. Within the WHERE clause there are two special input parameters
-    that may be used, which are <code>:user</code> and <code>:roles</code>.
-    The <code>:user</code> parameters will be evaluated to the currently authenticated
-    user during runtime and the <code>:roles</code> parameter will be expanded to a list
+    that may be used, which are <programlisting>:user</programlisting> and <programlisting>:roles</programlisting>.
+    The <programlisting>:user</programlisting> parameters will be evaluated to the currently authenticated
+    user during runtime and the <programlisting>:roles</programlisting> parameter will be expanded to a list
     of roles that the current user belongs to. No other input parameters may be used in
     the WHERE clause of access rules.
   </para>
-</section>
+</article>

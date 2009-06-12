@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<article>
   <title>Integration with Spring Security</title>
   <para>
     If you are using the Springframework with Acegi Security or Spring Security,
-    you don't have to follow the chapter <emphasize>Getting started with JPA Security</emphasize>
+    you don't have to follow the chapter <emphasis>Getting started with JPA Security</emphasis>
     (also you can do and specify the
-    <code>net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider</code> or
-    <code>net.sf.jpasecurity.security.authentication.SpringAuthenticationProvider</code> in your
+    <programlisting>net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider</programlisting> or
+    <programlisting>net.sf.jpasecurity.security.authentication.SpringAuthenticationProvider</programlisting> in your
     persistence.properties).
   </para>
   <para>
 	The easiest way to integrate Spring-Security is to simply replace your
-    <code>LocalEntityManagerFactoryBean</code> or <code>LocalContainerEntityManagerFactoryBean</code>
+    <programlisting>LocalEntityManagerFactoryBean</programlisting> or <programlisting>LocalContainerEntityManagerFactoryBean</programlisting>
     in your Spring configuration with the appropriate counterpart in the
-    <code>net.sf.jpasecurity.persistence</code> package (which are <code>SecureLocalEntityManagerFactoryBean</code>
-    and <code>SecureContainerEntityManagerFactoryBean</code>).
+    <programlisting>net.sf.jpasecurity.persistence</programlisting> package (which are <programlisting>SecureLocalEntityManagerFactoryBean</programlisting>
+    and <programlisting>SecureContainerEntityManagerFactoryBean</programlisting>).
   </para>
   <para>
     If you are using Acegi-Security instead of Spring-Security you have to set the
-    <code>net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider</code> into the
-    <code>authenticationProvider</code> property of your <code>SecureEntityManagerFactoryBean</code>
+    <programlisting>net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider</programlisting> into the
+    <programlisting>authenticationProvider</programlisting> property of your <programlisting>SecureEntityManagerFactoryBean</programlisting>
     in your application context.
   </para>
-</section>
+</article>

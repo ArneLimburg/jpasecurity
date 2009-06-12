@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="persistence.xml">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<article id="persistence.xml">
   <title>Modifying your persistence.xml</title>
   <para>
     In order to use JPA Security you have to modify your <quote>persistence.xml</quote>
@@ -9,18 +9,18 @@
   </para>
   <itemizedlist>
     <listitem>
-      <code>net.sf.jpasecurity.persistence.provider</code>
+      <programlisting>net.sf.jpasecurity.persistence.provider</programlisting>
       - The value of this property may be your original persistence provider
     </listitem>
     <listitem>
-      <code>net.sf.jpasecurity.security.authentication.provider</code>
+      <programlisting>net.sf.jpasecurity.security.authentication.provider</programlisting>
       - The value of this property may be an implementation of
-      <code>net.sf.jpasecurity.security.authentication.AuthenticationProvider</code>
+      <programlisting>net.sf.jpasecurity.security.authentication.AuthenticationProvider</programlisting>
     </listitem>
     <listitem>
-      <code>net.sf.jpasecurity.security.rules.provider</code>
+      <programlisting>net.sf.jpasecurity.security.rules.provider</programlisting>
       - The value of this property may be an implementation of
-      <code>net.sf.jpasecurity.security.rules.AccessRulesProvider</code>
+      <programlisting>net.sf.jpasecurity.security.rules.AccessRulesProvider</programlisting>
     </listitem>
   </itemizedlist>
   <example>
@@ -119,8 +119,8 @@
     </programlisting>
     <para>
       We changed the &lt;provider&gt; tag to point to JPA Security's
-      implementation of the <code>PersistenceProvider</code> interface
+      implementation of the <programlisting>PersistenceProvider</programlisting> interface
       and added the three properties needed to configure JPA Security.
     </para>
   </example>
-</section>
+</article>
