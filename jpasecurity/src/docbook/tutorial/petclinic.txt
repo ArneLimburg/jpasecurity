@@ -1,0 +1,36 @@
+Schritt 1:
+
+1. Move src to src/main/java
+2. Move test to src/test/java
+3. Move war to src/main/webapp
+4. Create pom.xml
+5. Remove package org.springframework.samples.petclinic.eclipselink
+6. Remove package org.springframework.samples.petclinic.jdbc
+7. Enable use of applicationContext-jpa.xml in web.xml
+8. Disable use of EclipseLinkJpaVendorAdapter in applicationContext-jpa.xml
+9. Enable use of OpenJpaVendorAdapter in applicationContext-jpa.xml
+
+Schritt 2: Adding Vet to Visit
+
+1. Add attribute vet to Visit
+2. Update orm.xml
+3. Update Clinic and EntityManagerClinic
+4. Update JSPs
+
+Schritt 3: Adding Spring-Security
+
+1. Add class Credential
+2. Add attribute credential to Person
+3. Update orm.xml
+4. Update petclinic.script
+5. Add CredentialService
+6. Add Spring-Security to applicationContext-jpa.xml
+7. Add Spring-Security to web.xml
+8. Update JSPs
+
+Schritt 4: Integrating JPA-Security
+
+1. Create security.xml
+2. Update applicationContext-jpa.xml
+3. Update CredentialService
+4. Update JSPs

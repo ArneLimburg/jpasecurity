@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="rules">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<article id="rules">
   <title>Providing access rules</title>
   <para>
     With JPA Security there are two predefined ways to provide access rules:
     via XML configuration or via Annotations. You may implement your own way
     of providing access rules (i.e. via JDBC) by implementing the interface
-    <code>net.sf.jpasecurity.security.rules.AccessRulesProvider</code>.
+    <programlisting>net.sf.jpasecurity.security.rules.AccessRulesProvider</programlisting>.
     Take a look at its javadoc documentation for further reference.
   </para>
   <section id="rules:xml">
@@ -30,8 +30,8 @@
 &lt;/security&gt;
     </programlisting>
     <para>
-      You have to specify <code>net.sf.jpasecurity.security.rules.provider</code>
-      with the value <code>net.sf.jpasecurity.security.rules.XmlAccessRulesProvider</code>
+      You have to specify <programlisting>net.sf.jpasecurity.security.rules.provider</programlisting>
+      with the value <programlisting>net.sf.jpasecurity.security.rules.XmlAccessRulesProvider</programlisting>
       within your persistence properties in order to provide your access rules this way.
     </para>
   </section>
@@ -40,28 +40,28 @@
     <para>
       The other predefined way to provide access rules in JPA Security is via Annotations.
       You may annotate your entity classes with one of the following two annotations:
-      <code>javax.annotation.security.RolesAllowed</code> and
-      <code>net.sf.jpasecurity.security.rules.Permit</code>.
+      <programlisting>javax.annotation.security.RolesAllowed</programlisting> and
+      <programlisting>net.sf.jpasecurity.security.rules.Permit</programlisting>.
     </para>
     <para>
-      Note that the semantics of the <code>@RolesAllowed</code> annotation slightly differs
+      Note that the semantics of the <programlisting>@RolesAllowed</programlisting> annotation slightly differs
       between the EJB Specification and JPA Security: If you annotate a class with the
-      <code>@RolesAllowed</code> annotation this means for EJB any access to any method
-      of an instance of that class will cause a <code>SecurityException</code>, if the
+      <programlisting>@RolesAllowed</programlisting> annotation this means for EJB any access to any method
+      of an instance of that class will cause a <programlisting>SecurityException</programlisting>, if the
       current user is not in one of the roles allowed. JPA Security goes a step further:
       The current user will not retrieve this object from database if he is not in one of
-      the roles allowed. JPA Security does not support the <code>@RolesAllowed</code>
+      the roles allowed. JPA Security does not support the <programlisting>@RolesAllowed</programlisting>
       annotation at method-level.
     </para>
     <para>
-      The <code>Permit</code> annotation has an optional parameter <code>where</code>.
+      The <programlisting>Permit</programlisting> annotation has an optional parameter <programlisting>where</programlisting>.
       With this parameter you can specify your restrictions for entities
       of the annotated class.
     </para>
     <para>
-      You have to specify <code>net.sf.jpasecurity.security.rules.provider</code>
-      with the value <code>net.sf.jpasecurity.security.rules.AnnotationAccessRulesProvider</code>
+      You have to specify <programlisting>net.sf.jpasecurity.security.rules.provider</programlisting>
+      with the value <programlisting>net.sf.jpasecurity.security.rules.AnnotationAccessRulesProvider</programlisting>
       within your persistence properties in order to provide your access rules via annotations.
     </para>
   </section>
-</section>
+</article>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<section id="introduction:authorization">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<article id="introduction:authorization">
   <title>Authorization</title>
   <para>
     Authorization is the process of giving someone permission to do or see something.
@@ -132,4 +132,4 @@
       </itemizedlist>
     </para>
   </section>
-</section>
+</article>
