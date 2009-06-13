@@ -8,10 +8,10 @@
   <description>
     JPA Security is an Access Control Solution for the Java Persistence API. 
     JPA Security supports model-driven authorization leading to domain-driven access control.
-    It enables you to completely separate access-control-logic from business-logic,
+    It enables you to completely separate access-control logic from business logic,
     improving performance and maintainability.
     JPA Security provides an interface to define security requirements of your
-    Data Access Layer via configuration (Annotations or XML).
+    domain model via configuration (Annotations or XML).
 	It is designed to extend current security solutions like J2EE Security
     and Spring Security (formerly known as Acegi-Security),
     but may be used on its own, too. It enables you to configure access control
@@ -111,7 +111,7 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
-            <id>generate-parser</id>
+            <id>clean-parser-output</id>
             <phase>process-sources</phase>
             <configuration>
               <tasks>
@@ -127,12 +127,12 @@
             </goals>
           </execution>
           <execution>
-            <id>generate-manual</id>
-            <phase>post-site</phase>
+            <id>copy-manual</id>
+            <phase>site</phase>
             <configuration>
               <tasks>
-                <copy file="target/generated-site/pdf/reference/reference.pdf" todir="target/site/reference/manual.pdf"/>
-                <copy file="target/generated-site/xhtml/reference/reference.xhtml" todir="target/site/reference/manual.html"/>
+                <copy file="target/generated-site/pdf/reference/reference.pdf" tofile="target/site/reference/manual.pdf"/>
+                <copy file="target/generated-site/xhtml/reference/reference.xhtml" tofile="target/site/reference/manual.html"/>
               </tasks>
             </configuration>
             <goals>

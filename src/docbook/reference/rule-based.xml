@@ -3,35 +3,28 @@
 <article id="rule-based">
   <title>Basics</title>
   <para>
-    In JPA Security the access to entities is defined by access rules.
-    There is one set of access rules per application. This set of access rules
-    applies to every JPA query you perform. Every rule may be restricted to be valid
+    In JPA Security the access to entities and embeddables is defined by access rules.
+    There is one set of access rules per persistence unit. This set of access rules
+    applies to every JPA query and every entity and embeddable you get out of your
+    <systemitem>EntityManager</systemitem>. Every rule may be restricted to be valid
     for just one user or role or a group of users or roles.
   </para>
   <example>
+    <title>Access Rule</title>
     <para>
       The following rule restricts the read access to accounts,
       where the owner is equal to the current user. In other words:
       every user can read only its own accounts.
     </para>
     <programlisting>
-      GRANT READ ACCESS TO Account account WHERE account.owner = :user
+      GRANT READ ACCESS TO Account account WHERE account.owner = CURRENT_PRINCIPAL
     </programlisting>
   </example>
   <para>
-    The current version of JPA Security only allows the definition of rules that
-    grant read access. Currently there is no explicit way to deny read access.
-    Although this is not needed,
-    since every entity to which no read access is granted may not be accessed.
-    An exception from this behaviour are entity-classes for which
-    no access rule exists at all.
-    Entities of such class may be accessed without any restriction.
-  </para>
-  <para>
-    In the current version of JPA Security only read access may be restricted.
-    The ability to restrict create, update or delete operations is planned for
-    later versions. Until then you have to use other security frameworks like
-    JavaEE Security or Spring Security which provide such ability and integrate
-    smooth with JPA Security.
+    JPA Security allows the definition of rules that grant create, read, update and/or delete access.
+    Currently there is no explicit way to deny access. Although this is not needed,
+    since every entity or embeddable to which no read access is granted may not be accessed.
+    An exception from this behaviour are classes for which no access rule exists at all.
+    Objects of such class may be accessed without any restriction.
   </para>
 </article>
