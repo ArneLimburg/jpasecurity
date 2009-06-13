@@ -3,19 +3,18 @@
 <article id="rules-syntax">
   <title>The syntax of access rules</title>
   <para>
-    An access rule of JPA Security always starts with <programlisting>GRANT READ ACCESS TO</programlisting>,
-    followed by the entity name (according to the JPA Specification,
-    defaults to the class name if not otherwise specified)
-    and an alias for that entity.
+    The general syntax of an access rule of JPA Security looks like <command>GRANT [CREATE] [READ] [UPDATE] [DELETE] ACCESS TO</command>
+    <replaceable>entity_name</replaceable><replaceable>alias</replaceable><command>[</command><replaceable>where_clause</replaceable><command>]</command>,
+	where <replaceable>entity_name</replaceable> must be an entity or embeddable of the persistence unit (according to the JPA Specification,
+    defaults to the class name if not otherwise specified) and the <replaceable>alias</replaceable> is an alias for that entity or embeddable
+    that may be used in the where clause.
   </para>
   <para>
-    The GRANT clause is optionally followed by a WHERE clause,
-    thats syntax is derived from the syntax of WHERE clauses of JPQL, the query
-    language of JPA. Within the WHERE clause there are two special input parameters
-    that may be used, which are <programlisting>:user</programlisting> and <programlisting>:roles</programlisting>.
-    The <programlisting>:user</programlisting> parameters will be evaluated to the currently authenticated
-    user during runtime and the <programlisting>:roles</programlisting> parameter will be expanded to a list
-    of roles that the current user belongs to. No other input parameters may be used in
-    the WHERE clause of access rules.
+	The syntax of the <replaceable>where_clause</replaceable> is derived from the syntax of <command>WHERE</command> clauses of JPQL, the query
+    language of JPA. Within the clause there are two functions that are not specified by JPA but may be used in JPA Security access rules, 
+    which are <command>CURRENT_PRINCIPAL</command> and <command>CURRENT_ROLES</command>.
+    The <command>CURRENT_PRINCIPAL</command> function will be evaluated to the currently authenticated
+    principal during runtime and the <command>CURRENT_ROLES</command> function will be expanded to a list
+    of roles that the current principal belongs to. No input parameters may be used in the <command>WHERE</command> clause of access rules.
   </para>
 </article>
