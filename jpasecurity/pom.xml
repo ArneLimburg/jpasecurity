@@ -125,6 +125,18 @@
               <goal>run</goal>
             </goals>
           </execution>
+          <execution>
+            <phase>post-site</phase>
+            <configuration>
+              <tasks>
+                <copy file="target/generated-site/pdf/reference/reference.pdf" todir="target/site/reference/manual.pdf"/>
+                <copy file="target/generated-site/xhtml/reference/reference.xhtml" todir="target/site/reference/manual.html"/>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
         </executions>
       </plugin>
       <plugin>
