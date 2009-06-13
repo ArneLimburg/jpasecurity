@@ -111,6 +111,7 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
+            <id>generate-parser</id>
             <phase>process-sources</phase>
             <configuration>
               <tasks>
@@ -126,6 +127,7 @@
             </goals>
           </execution>
           <execution>
+            <id>generate-manual</id>
             <phase>post-site</phase>
             <configuration>
               <tasks>
