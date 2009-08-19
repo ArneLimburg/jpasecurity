@@ -77,6 +77,15 @@ public class JpaAnnotationParser extends AbstractMappingParser {
         }
     }
 
+    protected String getEntityName(Class<?> entityClass) {
+        Entity entity = entityClass.getAnnotation(Entity.class);
+        if (entity == null || entity.name().length() == 0) {
+            return super.getEntityName(entityClass);
+        } else {
+            return entity.name();
+        }
+    }
+
     protected Class<?> getIdClass(Class<?> entityClass, boolean usesFieldAccess) {
         IdClass idClass = entityClass.getAnnotation(IdClass.class);
         if (idClass == null) {
