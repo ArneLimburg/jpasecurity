@@ -161,11 +161,20 @@ public class OrmXmlParser extends AbstractMappingParser {
         }
     }
 
+    protected String getEntityName(Class<?> entityClass) {
+        Node entityNode = evaluateNode(ENTITY_XPATH, entityClass);
+        if (entityNode == null) {
+            return super.getEntityName(entityClass);
+        }
+        Node entityName = entityNode.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME);
+        return entityName == null? super.getEntityName(entityClass): entityName.getNodeValue();
+    }
+
     /**
      * {@inheritDoc}
      */
     protected Class<?> getIdClass(Class<?> entityClass, boolean useFieldAccess) {
-        Node idClassNode = evaluateNode(ID_CLASS_XPATH, entityClass.getName());
+        Node idClassNode = evaluateNode(ID_CLASS_XPATH, entityClass);
         return idClassNode == null? null: getClass(idClassNode.getTextContent());
     }
 

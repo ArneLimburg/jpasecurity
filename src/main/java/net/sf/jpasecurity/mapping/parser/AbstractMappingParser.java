@@ -136,8 +136,8 @@ public abstract class AbstractMappingParser {
                 if (superclassMapping == null || superclassMapping.getIdClass() == null) {
                     idClass = getIdClass(mappedClass, usesFieldAccess);
                 }
-                //TODO add extracting of the entity name here
-                classMapping = new ClassMappingInformation(mappedClass.getSimpleName(),
+                String entityName = getEntityName(mappedClass);
+                classMapping = new ClassMappingInformation(entityName,
                                                            mappedClass,
                                                            superclassMapping,
                                                            idClass,
@@ -214,6 +214,10 @@ public abstract class AbstractMappingParser {
 
     protected ClassMappingInformation getMapping(Class<?> type) {
         return classMappings.get(type);
+    }
+
+    protected String getEntityName(Class<?> entityClass) {
+        return entityClass.getSimpleName();
     }
 
     protected String getName(Member property) {
