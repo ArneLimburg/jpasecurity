@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
 <article id="setup">
   <title>Setup</title>
   <para>
@@ -108,15 +108,25 @@
   </programlisting>
   <para>
     To be conform with maven, we have to change the directory-structure:
-    <itemizedlist>
-      <listitem>Move the content of the folder src into the folder src/main/java (which you have to create first)</listitem>
-      <listitem>
+  </para>
+  <itemizedlist>
+    <listitem>
+      <para>Move the content of the folder src into the folder src/main/java (which you have to create first)</para>
+    </listitem>
+    <listitem>
+      <para>
         Now create src/main/resources and move all non-java-files from src/main/java into it
         (it mainly is the subfolder META-INF and the file jdbc.properties, all other files you may delete)
-      </listitem>
-      <listitem>Move the content of the folder war into the folder src/main/webapp (which you have to create first)</listitem>
-      <listitem>Move the file db/hsqldb/petclinic.script directly into the main folder (which is named petclinic)</listitem>
-    </itemizedlist>
+      </para>
+    </listitem>
+    <listitem>
+      <para>Move the content of the folder war into the folder src/main/webapp (which you have to create first)</para>
+    </listitem>
+    <listitem>
+      <para>Move the file db/hsqldb/petclinic.script directly into the main folder (which is named petclinic)</para>
+    </listitem>
+  </itemizedlist>
+  <para>
     We don't need the rest of the content of the folder db, so you may safely delete it.
     The same applies to the folder test and the ant build-files (namely build.bat, build.properties, build.xml and warfile.bat).
   </para>

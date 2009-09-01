@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "file://../../dtd/docbook/xml/simple/1.1/sdocbook.dtd">
 <article id="preface">
   <title>Preface</title>
   <para>
@@ -10,8 +10,8 @@
   </para>
   <para>
     With model-driven development business logic should be expressed in the objects of your domain model.
-    When working with JPA Security this objects normally are Entity Beans or Embeddables.
-    As for now there is no convenient way to express access control requirements through your domain model, too.
+    When working with JPA this objects normally are Entity Beans or Embeddables.
+    As for now there is no convenient way to express access control requirements through your domain model.
     Hence access control-code is normally written into the service layer or data-access layer.
   </para>
   <para>

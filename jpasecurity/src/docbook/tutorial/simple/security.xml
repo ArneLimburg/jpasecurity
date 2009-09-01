@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
 <article id="security">
   <title>Adding Security</title>
   <para>
@@ -84,56 +84,66 @@ public class Contact {
       ]]>
     </programlisting>
     <para>
-      We have added three annotations to <programlisting>User</programlisting> and two annotations to <programlisting>Contact</programlisting>:
-      <itemizedlist>
-        <listitem>
-          <programlisting>@DeclareRoles({"admin", "user"})</programlisting>
+      We have added three annotations to <systemitem>User</systemitem> and two annotations to <systemitem>Contact</systemitem>:
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          <systemitem>@DeclareRoles({"admin", "user"})</systemitem>
           This annotation tells JPA Security that we are going to use the roles "admin" and "user".
           We must declare these roles at least at one entity.
-        </listitem>
-        <listitem>
-          <programlisting>@RolesAllowed("admin")</programlisting>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <systemitem>@RolesAllowed("admin")</systemitem>
           This annotation was added to both classes. With it we specify that every user
           that is in the role admin may create, read, update or delete entities of the types
-          <programlisting>User</programlisting> and <programlisting>Contact</programlisting>.
-        </listitem>
-        <listitem>
-          <programlisting>@PermitWhere(value = "name = CURRENT_PRINCIPAL")</programlisting>
-          We annotated only the <programlisting>User</programlisting> class with this annotation. It specifies,
-          that access to a <programlisting>User</programlisting> is permitted when the name of the user is the
+          <systemitem>User</systemitem> and <systemitem>Contact</systemitem>.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <systemitem>@PermitWhere(value = "name = CURRENT_PRINCIPAL")</systemitem>
+          We annotated only the <systemitem>User</systemitem> class with this annotation. It specifies,
+          that access to a <systemitem>User</systemitem> is permitted when the name of the user is the
           same as the current principal. In other words: Every user may access its own
-          <programlisting>User</programlisting> object.
-        </listitem>
-        <listitem>
-          <programlisting>@PermitWhere(value = "owner.name = CURRENT_PRINCIPAL")</programlisting>
-          This annotation was added only to the <programlisting>Contact</programlisting> class.
-          We specify, that access to a <programlisting>Contact</programlisting> is permitted when the name
+          <systemitem>User</systemitem> object.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <systemitem>@PermitWhere(value = "owner.name = CURRENT_PRINCIPAL")</systemitem>
+          This annotation was added only to the <systemitem>Contact</systemitem> class.
+          We specify, that access to a <systemitem>Contact</systemitem> is permitted when the name
           of the owner is the same as the current principal. In other words: Every user
-          may access its own <programlisting>Contact</programlisting> objects.
-        </listitem>
-      </itemizedlist>      
+          may access its own <systemitem>Contact</systemitem> objects.
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para>      
       These access rules that show the capability of JPA Security. We have specified,
-      that a <programlisting>User</programlisting> object may be accessed either by an admin or by the user
-      represented by that object. For the <programlisting>Contact</programlisting> objects we have specified
+      that a <systemitem>User</systemitem> object may be accessed either by an admin or by the user
+      represented by that object. For the <systemitem>Contact</systemitem> objects we have specified
       that they may be accessed by admins, too and that they may be accessed by their owners.
     </para>
     <para>
       Let's try our program now and see what happens...
     </para>
     <para>
-      As we can see an exception is thrown, a <programlisting>javax.persistence.NoResultException</programlisting>
+      As we can see an exception is thrown, a <systemitem>javax.persistence.NoResultException</systemitem>
       at the line where we try to select john from the database. That's great. We should have expected this,
       as we are not authenticated and thus not permitted to select john from the database.
 	  An additional output proves this, as we can see the number of users we get displayed
-	  by our <programlisting>displayUserCount</programlisting> method is actually 0.
+	  by our <systemitem>displayUserCount</systemitem> method is actually 0.
     </para>
   </section>
   <section>
     <title>Using runAs</title>
     <para>
       Apparently we need admin rights to create contacts (to access all users), that means we must
-      run the <programlisting>createContacts</programlisting> method as admin. We can to this by using the <programlisting>runAs</programlisting>
-      method of the <programlisting>StaticAuthenticationProvider</programlisting>. We change the method <programlisting>createContacts</programlisting>
+      run the <systemitem>createContacts</systemitem> method as admin. We can to this by using the <systemitem>runAs</systemitem>
+      method of the <systemitem>StaticAuthenticationProvider</systemitem>. We change the method <systemitem>createContacts</systemitem>
       to run as user "root" with the role "admin":
     </para>
     <programlisting>
@@ -162,9 +172,9 @@ public class Contact {
     <title>Authentication</title>
     <para>
       When we now run the application, we see that the exception is gone away, but when we take a look at
-      the output of our <programlisting>displayUserCount</programlisting> and <programlisting>displayContactCount</programlisting> method is actually 0.
-      This is because we just authenticated for the <programlisting>createContacts</programlisting> method. Let's authenticate
-      as "root" with the role admin at the beginning of the <programlisting>main</programlisting> method:
+      the output of our <systemitem>displayUserCount</systemitem> and <systemitem>displayContactCount</systemitem> method is actually 0.
+      This is because we just authenticated for the <systemitem>createContacts</systemitem> method. Let's authenticate
+      as "root" with the role admin at the beginning of the <systemitem>main</systemitem> method:
     </para>
     <programlisting>
   public static void main(String[] args) {
@@ -195,7 +205,7 @@ public class Contact {
     </programlisting>
     <para>
       Now the output says that we get no user and 2 contacts (that are Johns contacts). We get only one
-      user because we are only allowed to retrieve our own <programlisting>User</programlisting> object.
+      user because we are only allowed to retrieve our own <systemitem>User</systemitem> object.
       Obviously JPA Security works: It filters out the users and contacts we are not allowed to see.
       We may authenticate as "Mary" and see that it works, too.
     </para>
