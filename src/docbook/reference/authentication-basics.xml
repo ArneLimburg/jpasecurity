@@ -1,11 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<article id="authentication-basics" xmlns:xi="http://www.w3.org/2001/XInclude">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
+<article id="authentication-basics">
   <title>Authentication Basics</title>
   <para>
-    JPA Security uses an implementation of the <programlisting>net.sf.jpasecurity.authentication.AuthenticationProvider</programlisting>
-    interface to be aware of the currently authenticated user and/or it's roles at runtime. The chapter about
-    integrating JPA Security will show how to configure this and the chapter about authentication will show which
-    authentication provider to use.
+    JPA Security uses an implementation of the <systemitem>net.sf.jpasecurity.authentication.AuthenticationProvider</systemitem>
+    interface to be aware of the currently authenticated user and/or it's roles at runtime.
   </para>
+  <section>
+    <title>Default-Configuration for Authentication</title>
+    <para>
+      By default JPA Security will try to auto-detect your authentication provider.
+      The detection follows the following rules (The first matching rule is taken): 
+    </para>
+    <orderedlist>
+      <listitem>
+        <para>
+          When acegi-security is in the classpath, the <systemitem>AcegiAuthenticationProvider</systemitem> is used.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          When spring-security is in the classpath, the <systemitem>SpringAuthenticationProvider</systemitem> is used.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          When <systemitem>java:comp/EJBContext</systemitem> is available in the JNDI-context,
+          the <systemitem>EJBAuthenticationProvider</systemitem> is used.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Otherwise the <systemitem>DefaultAuthenticationProvider</systemitem> is used.
+        </para>
+      </listitem>
+    </orderedlist>
+  </section>
+  <section>
+    <title>Customizing Authentication</title>
+    <para>
+      When the described auto-detection strategy does not work for you, you may specify any implementation of the
+      <systemitem>net.sf.jpasecurity.security.AuthenticationProvider</systemitem> interface as value
+      of the persistence-property <systemitem>net.sf.jpasecurity.security.authentication.provider</systemitem>
+      in your <filename>persistence.xml</filename>.
+      You may use any of the above described authentication providers or implement your own.
+    </para>
+  </section>
 </article>

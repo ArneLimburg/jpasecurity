@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
 <article>
   <title>Integration with Spring Security</title>
   <para>
     If you are using the Springframework with Acegi Security or Spring Security,
     you don't have to follow the chapter <emphasis>Getting started with JPA Security</emphasis>
     (also you can do and specify the
-    <programlisting>net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider</programlisting> or
-    <programlisting>net.sf.jpasecurity.security.authentication.SpringAuthenticationProvider</programlisting> in your
+    <systemitem>net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider</systemitem> or
+    <systemitem>net.sf.jpasecurity.security.authentication.SpringAuthenticationProvider</systemitem> in your
     persistence.properties).
   </para>
   <para>
 	The easiest way to integrate Spring-Security is to simply replace your
-    <programlisting>LocalEntityManagerFactoryBean</programlisting> or <programlisting>LocalContainerEntityManagerFactoryBean</programlisting>
+    <systemitem>LocalEntityManagerFactoryBean</systemitem> or <systemitem>LocalContainerEntityManagerFactoryBean</systemitem>
     in your Spring configuration with the appropriate counterpart in the
-    <programlisting>net.sf.jpasecurity.persistence</programlisting> package (which are <programlisting>SecureLocalEntityManagerFactoryBean</programlisting>
-    and <programlisting>SecureContainerEntityManagerFactoryBean</programlisting>).
+    <systemitem>net.sf.jpasecurity.persistence</systemitem> package (which are <systemitem>SecureLocalEntityManagerFactoryBean</systemitem>
+    and <systemitem>SecureContainerEntityManagerFactoryBean</systemitem>).
   </para>
   <para>
     If you are using Acegi-Security instead of Spring-Security you have to set the
-    <programlisting>net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider</programlisting> into the
-    <programlisting>authenticationProvider</programlisting> property of your <programlisting>SecureEntityManagerFactoryBean</programlisting>
+    <systemitem>net.sf.jpasecurity.security.authentication.AcegiAuthenticationProvider</systemitem> into the
+    <systemitem>authenticationProvider</systemitem> property of your <systemitem>SecureEntityManagerFactoryBean</systemitem>
     in your application context.
   </para>
 </article>

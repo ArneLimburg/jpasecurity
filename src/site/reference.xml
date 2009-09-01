@@ -17,6 +17,10 @@
       <title>Basics - Rules, Users and Roles</title>
       <sections>
         <section>
+          <id>introduction-authorization</id>
+          <title>Authorization</title>
+        </section>
+        <section>
           <id>rule-based</id>
           <title>Basics</title>
         </section>
@@ -29,8 +33,12 @@
           <title>Providing access rules</title>
         </section>
         <section>
+          <id>introduction-authentication</id>
+          <title>Authentication</title>
+        </section>
+        <section>
           <id>authentication-basics</id>
-          <title>Authentication Basics</title>
+          <title>Authentication in JPA Security</title>
         </section>
       </sections>
     </chapter>
@@ -42,12 +50,6 @@
           <id>persistence</id>
           <title>Modifying your persistence.xml</title>
         </section>
-      </sections>
-    </chapter>
-    <chapter>
-      <id>authentication</id>
-      <title>Authentication</title>
-      <sections>
         <section>
           <id>javaee-security</id>
           <title>Integration with JavaEE Security</title>
@@ -59,6 +61,28 @@
         <section>
           <id>build-in-authentication</id>
           <title>Build-in Authentication</title>
+        </section>
+      </sections>
+    </chapter>
+    <chapter>
+      <id>customization</id>
+      <title>Customization</title>
+      <sections>
+        <section>
+          <id>configuration</id>
+          <title>Configuration of JPA Security</title>
+        </section>
+        <section>
+          <id>custom-access-rules-provider</id>
+          <title>Implementing a custom Access Rules Provider</title>
+        </section>
+        <section>
+          <id>custom-authentication-provider</id>
+          <title>Custom Authentication Provider</title>
+        </section>
+        <section>
+          <id>custom-properties</id>
+          <title>Custom Properties</title>
         </section>
       </sections>
     </chapter>

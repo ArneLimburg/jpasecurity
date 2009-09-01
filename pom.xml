@@ -21,7 +21,7 @@
   <url>http://jpasecurity.sf.net</url>
 
   <prerequisites>
-    <maven>2.0.8</maven>
+    <maven>2.1.0</maven>
   </prerequisites>
   <issueManagement>
     <system>Sourceforge Tracker</system>
@@ -36,8 +36,8 @@
       <roles>
         <role>Project Lead</role>
         <role>Java Developer</role>
-        <timezone>+1</timezone>
       </roles>
+      <timezone>+1</timezone>
     </developer>
     <developer>
       <id>jsiemer</id>
@@ -45,8 +45,8 @@
       <email>jsiemer(a)users.sourceforge.net</email>
       <roles>
         <role>Java Developer</role>
-        <timezone>+1</timezone>
       </roles>
+      <timezone>+1</timezone>
     </developer>
   </developers>
   <licenses>
@@ -180,7 +180,7 @@
       <plugin>
         <groupId>org.apache.maven.doxia</groupId>
         <artifactId>doxia-maven-plugin</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.1.1</version>
         <executions>
           <execution>
             <phase>pre-site</phase>
