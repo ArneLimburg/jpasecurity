@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
 <article id="rule-based">
   <title>Basics</title>
   <para>
@@ -9,8 +9,8 @@
     <systemitem>EntityManager</systemitem>. Every rule may be restricted to be valid
     for just one user or role or a group of users or roles.
   </para>
-  <example>
-    <title>Access Rule</title>
+  <section>
+    <title>Example: Access Rule</title>
     <para>
       The following rule restricts the read access to accounts,
       where the owner is equal to the current user. In other words:
@@ -19,12 +19,15 @@
     <programlisting>
       GRANT READ ACCESS TO Account account WHERE account.owner = CURRENT_PRINCIPAL
     </programlisting>
-  </example>
-  <para>
-    JPA Security allows the definition of rules that grant create, read, update and/or delete access.
-    Currently there is no explicit way to deny access. Although this is not needed,
-    since every entity or embeddable to which no read access is granted may not be accessed.
-    An exception from this behaviour are classes for which no access rule exists at all.
-    Objects of such class may be accessed without any restriction.
-  </para>
+  </section>
+  <section>
+    <title>Access Rules in JPA Security</title>
+    <para>
+      JPA Security allows the definition of rules that grant create, read, update and/or delete access.
+      Currently there is no explicit way to deny access. Although this is not needed,
+      since every entity or embeddable to which no access is granted may not be accessed.
+      An exception from this behaviour are classes for which no access rule exists at all.
+      Objects of such class may be accessed without any restriction.
+    </para>
+  </section>
 </article>
