@@ -134,7 +134,8 @@
           Property level access control - A step further from instance level
           access control is property level access control, where you can define
           access restrictions on a property base. JPA Security currently only supports
-          property level access control for properties of type <systemitem>@Embeddable</systemitem>.
+          property level access control for properties of type <systemitem>@Embeddable</systemitem>
+          by providing instance level access control for embeddables.
         </para>
       </listitem>
     </itemizedlist>
