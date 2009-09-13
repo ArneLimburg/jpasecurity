@@ -17,28 +17,12 @@
       <title>Basics - Rules, Users and Roles</title>
       <sections>
         <section>
-          <id>introduction-authorization</id>
+          <id>authorization</id>
           <title>Authorization</title>
         </section>
         <section>
-          <id>rule-based</id>
-          <title>Basics</title>
-        </section>
-        <section>
-          <id>rules-syntax</id>
-          <title>The syntax of access rules</title>
-        </section>
-        <section>
-          <id>rules</id>
-          <title>Providing access rules</title>
-        </section>
-        <section>
-          <id>introduction-authentication</id>
+          <id>authentication</id>
           <title>Authentication</title>
-        </section>
-        <section>
-          <id>authentication-basics</id>
-          <title>Authentication in JPA Security</title>
         </section>
       </sections>
     </chapter>
