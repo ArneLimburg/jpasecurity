@@ -64,10 +64,6 @@
           <id>custom-authentication-provider</id>
           <title>Custom Authentication Provider</title>
         </section>
-        <section>
-          <id>custom-properties</id>
-          <title>Custom Properties</title>
-        </section>
       </sections>
     </chapter>
   </chapters>
