@@ -4,7 +4,7 @@
   <title>Modifying your persistence.xml</title>
   <para>
     In order to use JPA Security you have to modify your <quote>persistence.xml</quote>
-    to point to JPA Security. Additional you have to configure JPA Security to use your
+    to point to JPA Security. Additionally you have to configure JPA Security to use your
     original persistence provider.
   </para>
 <!--  <itemizedlist>-->
@@ -47,16 +47,16 @@
 
     <provider>your.persistence.provider.ClassName</provider>
 
-    <class>your.persistence.ClassName</class>
-      <!-- More class-mappings go here -->
-      ...
+    <class>your.persistent.ClassName</class>
+    <!-- More class-mappings go here -->
+    ...
                 
-      <properties>
-        <!-- persistence-provider-specific properties go here -->
-        ...
-      </properties>
+    <properties>
+      <!-- persistence-provider-specific properties go here -->
+      ...
+    </properties>
 
-    </persistence-unit>
+  </persistence-unit>
 </persistence>
       ]]>          
     </programlisting>
@@ -76,18 +76,18 @@
 
     <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-    <class>your.persistence.ClassName</class>
-      <!-- More class-mappings go here -->
-      ...
+    <class>your.persistent.ClassName</class>
+    <!-- More class-mappings go here -->
+    ...
                 
-      <properties>
-        <property name="net.sf.jpasecurity.persistence.provider"
-                  value="your.persistence.provider.ClassName" />
-        <!-- persistence-provider-specific properties go here -->
-        ...
-      </properties>
+    <properties>
+      <property name="net.sf.jpasecurity.persistence.provider"
+                value="your.persistence.provider.ClassName" />
+      <!-- persistence-provider-specific properties go here -->
+      ...
+    </properties>
 
-    </persistence-unit>
+  </persistence-unit>
 </persistence>
       ]]>          
     </programlisting>
@@ -95,7 +95,7 @@
       We changed the &lt;provider&gt; tag to point to JPA Security's
       implementation of the <systemitem>PersistenceProvider</systemitem> interface
       and added the property <systemitem>net.sf.jpasecurity.persistence.provider</systemitem>
-      to point to your original persistence provider. That is all you need to do to integrate JPA Security.
+      to point to your original persistence provider. That is all you need to integrate JPA Security.
     </para>
   </example>
 </article>

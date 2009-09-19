@@ -11,4 +11,9 @@
     with the <systemitem>@DeclareRoles</systemitem> annotation at at least one of your entity beans
     in order to make the <systemitem>EjbAuthenticationProvider</systemitem> to work correctly.
   </para>
+  <para>
+    If you do not have one of <filename>acegi-security.jar</filename> or <filename>spring-security.jar</filename>
+    in your classpath usually you do not need to define your own authentication provider as the auto-detection
+    mechanism of JPA Security should automatically install the <systemitem>EjbAuthenticationProvider</systemitem>.
+  </para>
 </article>
