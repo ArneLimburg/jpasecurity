@@ -3,6 +3,27 @@
 <article>
   <title>Configuration of JPA Security</title>
   <para>
-    This chapter is still to be written...
+    JPA Security is configured via the persistence properties in your <filename>persistence.xml</filename>.
+    Below is a list of persistence properties that are supported out of the box by JPA Security.
   </para>
+  <itemizedlist>
+    <listitem>
+      <para><systemitem>net.sf.jpasecurity.persistence.provider</systemitem></para>
+    </listitem>
+    <listitem>
+      <para><systemitem>net.sf.jpasecurity.security.authentication.provider</systemitem></para>
+    </listitem>
+    <listitem>
+      <para><systemitem>net.sf.jpasecurity.security.rules.provider</systemitem></para>
+    </listitem>
+    <listitem>
+      <para>
+        <systemitem>net.sf.jpasecurity.maxFetchDepth</systemitem> - This property specifies up to which depth
+        the object graph of secure entities shall be prefetched (that means, up to which depth secure entities
+        are initialized as they come out of the entity manager). Secure entities that are not prefetched will
+        be initialized on the fly (that means as they are retrieved by a property access of another secure entity).
+        The default-value is <computeroutput>0</computeroutput>. 
+      </para>
+    </listitem>
+  </itemizedlist>
 </article>
