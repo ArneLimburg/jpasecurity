@@ -38,7 +38,10 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
 
     public AuthenticationProvider getAuthenticationProvider() {
         if (authenticationProvider == null) {
-            authenticationProvider = createProvider(SecurePersistenceProvider.DEFAULT_AUTHENTICATION_PROVIDER_CLASS);
+            String providerName
+                = (String)getJpaPropertyMap().get(SecurePersistenceProvider.AUTHENTICATION_PROVIDER_PROPERTY);
+            authenticationProvider
+                = createProvider(providerName, SecurePersistenceProvider.DEFAULT_AUTHENTICATION_PROVIDER_CLASS);
         }
         return authenticationProvider;
     }
@@ -49,7 +52,10 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
 
     public AccessRulesProvider getAccessRulesProvider() {
         if (accessRulesProvider == null) {
-            accessRulesProvider = createProvider(SecurePersistenceProvider.DEFAULT_ACCESS_RULES_PROVIDER_CLASS);
+            String providerName
+                = (String)getJpaPropertyMap().get(SecurePersistenceProvider.ACCESS_RULES_PROVIDER_PROPERTY);
+            accessRulesProvider
+                = createProvider(providerName, SecurePersistenceProvider.DEFAULT_ACCESS_RULES_PROVIDER_CLASS);
         }
         return accessRulesProvider;
     }
@@ -58,7 +64,13 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
         this.accessRulesProvider = accessRulesProvider;
     }
 
-    protected <P> P createProvider(String className) {
+    protected <P> P createProvider(String className, String defaultClassName) {
+        if (className == null) {
+            className = defaultClassName;
+        }
+        if (className == null) {
+            throw new IllegalArgumentException("defaultClassName must not be null");
+        }
         try {
             return (P)getClass().getClassLoader().loadClass(className).newInstance();
         } catch (ClassNotFoundException e) {
