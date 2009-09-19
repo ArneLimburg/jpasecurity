@@ -54,7 +54,7 @@
       <title>Customizing Authentication</title>
       <para>
         When the described auto-detection strategy does not work for your environment,
-        you may specify any implementation of the
+        you may specify the class name of any implementation of the
         <systemitem>net.sf.jpasecurity.security.AuthenticationProvider</systemitem> interface as value
         of the persistence-property <systemitem>net.sf.jpasecurity.security.authentication.provider</systemitem>
         in your <filename>persistence.xml</filename>.
