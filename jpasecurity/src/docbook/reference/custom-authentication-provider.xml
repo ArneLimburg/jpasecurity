@@ -73,7 +73,53 @@ public class AuthenticationFilter implements AuthenticationProvider, Filter {
         ]]>          
       </programlisting>
       <para>
-        You now have to specify this class as web filter in your <filename>web.xml</filename>.
+        You even can shorten your implementation by subclassing <systemitem>DefaultAuthenticationProvider</systemitem>.
+      </para>
+      <programlisting>
+        <![CDATA[
+public class AuthenticationFilter extends DefaultAuthenticationProvider implements AuthenticationProvider, Filter {
+
+    private static final String PRINCIPAL_ATTRIBUTE = "principal";
+    private static final String ROLES_ATTRIBUTE = "roles";
+
+    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
+        if (request instanceof HttpServletRequest) {
+            HttpServletRequest httpRequest = (HttpServletRequest)request;
+            Object principal = httpRequest.getAttribute(PRINCIPAL_ATTRIBUTE);
+            Collection<?> roles = (Collection<?>)httpRequest.getAttribute(ROLES_ATTRIBUTE);
+            runAs(principal, roles, new PrivilegedExceptionAction<Object>() {
+                public Object run() throws Exception {
+                    chain.doFilter(request, response);
+                    return null;
+                }
+            });
+        } else {
+            chain.doFilter(request, response);
+        }
+    }
+
+    public void init(FilterConfig config) throws ServletException {
+    }
+
+    public void destroy() {
+    }
+    
+    private void runAs(Object principal, Collection<?> roles, PrivilegedExceptionAction<Object> action) throws IOException, ServletException {
+        try {
+            DefaultAuthenticationProvider.runAs(principal, roles, action);
+        } catch (IOException e) {
+            throw e;
+        } catch (ServletException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
+}
+        ]]>          
+      </programlisting>
+      <para>
+        For both implementations you now have to specify the class as web filter in your <filename>web.xml</filename>.
       </para>
       <programlisting>
         <![CDATA[
