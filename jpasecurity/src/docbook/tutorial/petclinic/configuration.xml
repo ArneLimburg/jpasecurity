@@ -33,8 +33,9 @@
     as we want to use OpenJPA as persistence provider and don't have the other dependencies in our pom. 
   </para>
   <para>
-    We don't need any load-time-weaving so we disable AspectJ in the file applicationContext-jpa.xml (in the folder src/main/webapp/WEB-INF/)
-    by commenting out the following three lines (that are spread over the file):
+    We don't need any load-time-weaving so we disable AspectJ in the file <filename>applicationContext-jpa.xml</filename>
+    (in the folder <filename>src/main/webapp/WEB-INF/</filename>) by commenting out the following three lines
+    (that are spread over the file):
   </para>
   <programlisting>
     <![CDATA[
@@ -63,19 +64,20 @@
     <![CDATA[
     <!--
     <tx:annotation-driven mode="aspectj"/>
-	-->
+    -->
       ]]>
   </programlisting>
   <programlisting>
     <![CDATA[
     <!--
     <bean class="org.springframework.samples.petclinic.aspects.UsageLogAspect" p:historySize="300"/>
-	-->
+    -->
     ]]>
   </programlisting>
   <para>
     As mentioned above, we want to use OpenJPA as persistence provider.
-    We enable it by changing the following lines in applicationContext-jpa.xml (in the folder src/main/webapp/WEB-INF/)
+    We enable it by changing the following lines in <filename>applicationContext-jpa.xml</filename>
+    (in the folder <filename>src/main/webapp/WEB-INF/</filename>)
   </para>
   <programlisting>
     <![CDATA[
