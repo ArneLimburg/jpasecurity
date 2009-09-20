@@ -39,7 +39,7 @@ public class User {
         return id;
     }
     
-    public void setId(int id) {
+    protected void setId(int id) {
         this.id = id;
     }
     
@@ -98,7 +98,7 @@ public class Contact {
         return id;
     }
     
-    public void setId(int id) {
+    protected void setId(int id) {
         this.id = id;
     }
     
@@ -143,7 +143,7 @@ public class Contact {
     <dependency>
       <groupId>net.sf.jpasecurity</groupId>
       <artifactId>jpasecurity</artifactId>
-      <version>0.1.0</version>
+      <version>0.2.0</version>
       <classifier>tests</classifier>
     </dependency>
     ]]>
