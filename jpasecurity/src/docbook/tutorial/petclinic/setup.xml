@@ -111,23 +111,34 @@
   </para>
   <itemizedlist>
     <listitem>
-      <para>Move the content of the folder src into the folder src/main/java (which you have to create first)</para>
-    </listitem>
-    <listitem>
       <para>
-        Now create src/main/resources and move all non-java-files from src/main/java into it
-        (it mainly is the subfolder META-INF and the file jdbc.properties, all other files you may delete)
+        Move the content of the folder <filename>src</filename> into the folder <filename>src/main/java</filename>
+        (which you have to create first)
       </para>
     </listitem>
     <listitem>
-      <para>Move the content of the folder war into the folder src/main/webapp (which you have to create first)</para>
+      <para>
+        Now create <filename>src/main/resources</filename> and move all non-java-files from <filename>src/main/java</filename>
+        into it (it mainly is the subfolder <filename>META-INF</filename> and the file <filename>jdbc.properties</filename>,
+        all other files may safely be deleted)
+      </para>
     </listitem>
     <listitem>
-      <para>Move the file db/hsqldb/petclinic.script directly into the main folder (which is named petclinic)</para>
+      <para>
+        Move the content of the folder <filename>war</filename> into the folder <filename>src/main/webapp</filename>
+        (which you have to create first)
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Move the file <filename>db/hsqldb/petclinic.script</filename> directly into the main folder
+        (which is named <filename>petclinic</filename>)
+      </para>
     </listitem>
   </itemizedlist>
   <para>
-    We don't need the rest of the content of the folder db, so you may safely delete it.
-    The same applies to the folder test and the ant build-files (namely build.bat, build.properties, build.xml and warfile.bat).
+    We don't need the rest of the content of the folder <filename>db</filename>, so you may safely delete it.
+    The same applies to the folder <filename>test</filename> and the ant build-files (namely <filename>build.bat</filename>,
+    <filename>build.properties</filename>, <filename>build.xml</filename> and <filename>warfile.bat</filename>).
   </para>
 </article>
