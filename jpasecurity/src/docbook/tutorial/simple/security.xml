@@ -67,7 +67,7 @@
 @Entity
 @DeclareRoles({"admin", "user"})
 @RolesAllowed("admin")
-@PermitWhere(value = "name = CURRENT_PRINCIPAL")
+@PermitWhere("name = CURRENT_PRINCIPAL")
 public class User {
     ...
 }
@@ -204,7 +204,7 @@ public class Contact {
   }
     </programlisting>
     <para>
-      Now the output says that we get no user and 2 contacts (that are Johns contacts). We get only one
+      Now the output says that we get 1 user and 2 contacts (that are Johns contacts). We get only one
       user because we are only allowed to retrieve our own <systemitem>User</systemitem> object.
       Obviously JPA Security works: It filters out the users and contacts we are not allowed to see.
       We may authenticate as "Mary" and see that it works, too.
