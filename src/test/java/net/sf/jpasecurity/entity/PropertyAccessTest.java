@@ -21,6 +21,8 @@ import javax.persistence.Persistence;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
+import net.sf.jpasecurity.model.ParentTestBean;
+import net.sf.jpasecurity.model.ChildTestBean;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 /**
@@ -48,7 +50,24 @@ public class PropertyAccessTest extends TestCase {
         assertEquals(USER1, bean.getChildBeans().get(0).getBeanName());
         assertEquals(2, ((SecureList<FieldAccessAnnotationTestBean>)bean.getChildBeans()).getOriginal().size());
     }
-    
+
+   //TODO fixme
+    public void offtestOneToManyMapping() {
+        TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("parent-child");
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        ParentTestBean bean = new ParentTestBean(USER1);
+        bean.getChildren().add(new ChildTestBean(USER1));
+        bean.getChildren().add(new ChildTestBean(USER2));
+        bean = entityManager.merge(bean);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        TestAuthenticationProvider.authenticate(USER1);
+        assertEquals(1, bean.getChildren().size());
+        assertEquals(USER1, bean.getChildren().get(0).getName());
+    }
+
     public void testUpdate() {
         TestAuthenticationProvider.authenticate(USER1);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");

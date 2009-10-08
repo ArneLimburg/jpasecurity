@@ -48,6 +48,15 @@
       </roles>
       <timezone>+1</timezone>
     </developer>
+    <developer>
+      <id>bigsteff</id>
+      <name>Stefan Hildebrandt</name>
+      <email>bigsteff(a)users.sourceforge.net</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
   </developers>
   <licenses>
     <license>
@@ -300,7 +309,7 @@
     <dependency>
       <groupId>org.acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.7</version>
       <optional>true</optional>
       <exclusions>
         <exclusion>

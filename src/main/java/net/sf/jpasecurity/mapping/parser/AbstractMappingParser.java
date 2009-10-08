@@ -390,6 +390,7 @@ public abstract class AbstractMappingParser {
         return hasPropertySetter(entityClass.getSuperclass(), propertySetterName, propertyType);
     }
 
+   //TODO newTempClassLoader seams to create problems with different instances of one class in mapper.
     private ClassLoader findClassLoader(PersistenceUnitInfo persistenceUnit) {
         ClassLoader classLoader = persistenceUnit.getNewTempClassLoader();
         if (classLoader != null) {
