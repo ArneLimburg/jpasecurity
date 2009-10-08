@@ -22,4 +22,11 @@
     <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
   </persistence-unit>
 
+  <persistence-unit name="parent-child">
+    <access-rule>GRANT ACCESS TO ParentTestBean bean WHERE bean.name = CURRENT_PRINCIPAL</access-rule>
+    <access-rule>GRANT ACCESS TO ParentTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
+    <access-rule>GRANT ACCESS TO ChildTestBean bean WHERE bean.name = CURRENT_PRINCIPAL</access-rule>
+    <access-rule>GRANT ACCESS TO ChildTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
+  </persistence-unit>
+
 </security>
