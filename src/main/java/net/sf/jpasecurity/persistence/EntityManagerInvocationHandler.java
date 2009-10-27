@@ -92,15 +92,14 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     public void persist(Object entity) {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-        SecureEntity secureEntity = createSecureEntity(mapping, entity);
+        SecureEntity secureEntity = createSecureEntity(entity);
         secureEntity.persist(getTarget());
         putSecureEntity(mapping.getId(secureEntity), mapping.getEntityType(), secureEntity);
     }
 
     public <T> T merge(T entity) {
         if (isNewEntity(entity)) {
-            ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-            SecureEntity secureEntity = createSecureEntity(mapping, entity);
+            SecureEntity secureEntity = createSecureEntity(entity);
             return (T)secureEntity.merge(getTarget(), this, CREATE);
         } else {
             return (T)((SecureEntity)entity).merge(getTarget(), this, UPDATE);
@@ -241,7 +240,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                 transientParameters[i] = parameters[i];
             } else {
                 EntityInvocationHandler transientInvocationHandler
-                    = new EntityInvocationHandler(parameterMapping, this, parameters[i], true);
+                    = new EntityInvocationHandler(mappingInformation, this, parameters[i], true);
                 transientParameters[i] = transientInvocationHandler.createSecureEntity();
             }
         }
@@ -359,7 +358,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         Object id = mapping.getId(entity);
         SecureEntity secureEntity = getSecureEntity(id, mapping.getEntityType());
         if (secureEntity == null) {
-            secureEntity = createSecureEntity(mapping, entity);
+            secureEntity = createSecureEntity(entity);
             putSecureEntity(id, mapping.getEntityType(), secureEntity);
         }
         return secureEntity;
@@ -387,8 +386,8 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         entities.put(id, entity);
     }
 
-    private SecureEntity createSecureEntity(ClassMappingInformation mapping, Object entity) {
-        EntityInvocationHandler handler = new EntityInvocationHandler(mapping, this, entity);
+    private SecureEntity createSecureEntity(Object entity) {
+        EntityInvocationHandler handler = new EntityInvocationHandler(mappingInformation, this, entity);
         return handler.createSecureEntity();
     }
 

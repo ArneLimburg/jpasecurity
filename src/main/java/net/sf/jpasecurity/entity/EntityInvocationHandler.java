@@ -33,6 +33,7 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.mapping.RelationshipMappingInformation;
 import net.sf.jpasecurity.util.AbstractInvocationHandler;
@@ -44,7 +45,8 @@ import net.sf.jpasecurity.util.ReflectionUtils;
  */
 public class EntityInvocationHandler extends AbstractInvocationHandler implements SecureEntity, MethodInterceptor {
 
-    private ClassMappingInformation mapping;
+    private MappingInformation mapping;
+    private ClassMappingInformation entityMapping;
     private SecureObjectManager objectManager;
     private boolean initialized;
     private boolean deleted;
@@ -54,17 +56,18 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     private Map<String, Object> propertyValues = new HashMap<String, Object>();
     private transient ThreadLocal<Boolean> updating;
 
-    public EntityInvocationHandler(ClassMappingInformation mapping,
+    public EntityInvocationHandler(MappingInformation mapping,
                                    SecureObjectManager objectManager,
                                    Object entity) {
         this(mapping, objectManager, entity, false);
     }
 
-    public EntityInvocationHandler(ClassMappingInformation mapping,
+    public EntityInvocationHandler(MappingInformation mapping,
                                    SecureObjectManager objectManager,
                                    Object entity,
                                    boolean isTransient) {
         this.mapping = mapping;
+        this.entityMapping = mapping.getClassMapping(entity.getClass());
         this.objectManager = objectManager;
         this.entity = entity;
         this.isTransient = isTransient;
@@ -72,7 +75,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     public SecureEntity createSecureEntity() {
-        secureEntity = (SecureEntity)Enhancer.create(mapping.getEntityType(),
+        secureEntity = (SecureEntity)Enhancer.create(entityMapping.getEntityType(),
                                                      new Class[] {SecureEntity.class},
                                                      this);
         return secureEntity;
@@ -223,7 +226,8 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
                 throw new SecurityException("The current user is not permitted to access the specified object");
             }
             checkedEntities.add(object);
-            for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
+            ClassMappingInformation classMapping = mapping.getClassMapping(object.getClass());
+            for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
                 if (propertyMapping.getCascadeTypes().contains(cascadeType)
                         || propertyMapping.getCascadeTypes().contains(CascadeType.ALL)) {
                     try {
@@ -271,7 +275,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     private void initialize() {
         setUpdating(true);
         entity = unproxy(entity);
-        for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
+        for (PropertyMappingInformation propertyMapping: entityMapping.getPropertyMappings()) {
             Object value = getUnsecureObject(propertyMapping.getPropertyValue(entity));
             if (propertyMapping instanceof RelationshipMappingInformation) {
                 value = objectManager.getSecureObject(secureEntity, value);
@@ -285,7 +289,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
 
     private void updatedChangedProperties() {
         setUpdating(true);
-        for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
+        for (PropertyMappingInformation propertyMapping: entityMapping.getPropertyMappings()) {
             Object value = propertyMapping.getPropertyValue(secureEntity);
             if (value != propertyValues.get(propertyMapping.getPropertyName())) {
                 propertyMapping.setPropertyValue(entity, getUnsecureObject(value));
@@ -300,7 +304,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     private void unwrapSecureObjects() {
-        for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
+        for (PropertyMappingInformation propertyMapping: entityMapping.getPropertyMappings()) {
             propertyMapping.setPropertyValue(entity, getUnsecureObject(propertyMapping.getPropertyValue(entity)));
         }
     }
