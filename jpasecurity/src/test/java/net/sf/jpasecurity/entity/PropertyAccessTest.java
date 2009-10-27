@@ -51,8 +51,7 @@ public class PropertyAccessTest extends TestCase {
         assertEquals(2, ((SecureList<FieldAccessAnnotationTestBean>)bean.getChildBeans()).getOriginal().size());
     }
 
-   //TODO fixme
-    public void offtestOneToManyMapping() {
+    public void testOneToManyMapping() {
         TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("parent-child");
         EntityManager entityManager = factory.createEntityManager();
