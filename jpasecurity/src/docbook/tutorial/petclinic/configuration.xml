@@ -34,17 +34,12 @@
   </para>
   <para>
     We don't need any load-time-weaving so we disable AspectJ in the file <filename>applicationContext-jpa.xml</filename>
-    (in the folder <filename>src/main/webapp/WEB-INF/</filename>) by commenting out the following three lines
-    (that are spread over the file):
+    (in the folder <filename>src/main/webapp/WEB-INF/</filename>) by commenting out the following two lines
+    (that are spread over the file): 
   </para>
   <programlisting>
     <![CDATA[
     <context:load-time-weaver/>
-    ]]>
-  </programlisting>
-  <programlisting>
-    <![CDATA[
-    <tx:annotation-driven mode="aspectj"/>
     ]]>
   </programlisting>
   <programlisting>
@@ -63,15 +58,24 @@
   <programlisting>
     <![CDATA[
     <!--
-    <tx:annotation-driven mode="aspectj"/>
-    -->
-      ]]>
-  </programlisting>
-  <programlisting>
-    <![CDATA[
-    <!--
     <bean class="org.springframework.samples.petclinic.aspects.UsageLogAspect" p:historySize="300"/>
     -->
+    ]]>
+  </programlisting>
+  <para>
+    Additionally we have to configure Springs annotation support not to use aspectj by changing the following line
+  </para>
+  <programlisting>
+    <![CDATA[
+    <tx:annotation-driven mode="aspectj"/>
+    ]]>
+  </programlisting>
+  <para>
+    into
+  </para>
+  <programlisting>
+    <![CDATA[
+    <tx:annotation-driven/>
     ]]>
   </programlisting>
   <para>
@@ -98,6 +102,23 @@
             -->
             <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"
                   p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+    ]]>
+  </programlisting>
+  <para>
+    The last step to do is to configure our database connection. This can be done in the file <filename>jdbc.properties</filename>
+    (in the folder <filename>src/main/resources</filename>). Please change the following line
+  </para>
+  <programlisting>
+    <![CDATA[
+jdbc.url=jdbc:hsqldb:hsql://localhost:9001
+    ]]>
+  </programlisting>
+  <para>
+    into
+  </para>
+  <programlisting>
+    <![CDATA[
+jdbc.url=jdbc:hsqldb:file:petclinic
     ]]>
   </programlisting>
   <para>
