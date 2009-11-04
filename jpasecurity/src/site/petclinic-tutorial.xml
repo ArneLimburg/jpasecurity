@@ -20,9 +20,19 @@
         </section>
       </sections>
     </chapter>
-<!--    <chapter>-->
-<!--      <id>tutorial</id>-->
-<!--      <title>Tutorial</title>-->
-<!--    </chapter>-->
+    <chapter>
+      <id>tutorial</id>
+      <title>Tutorial</title>
+      <sections>
+        <section>
+          <id>model</id>
+          <title>Domain Model</title>
+        </section>
+        <section>
+          <id>authentication</id>
+          <title>Authentication</title>
+        </section>
+      </sections>
+    </chapter>
   </chapters>
 </book>
