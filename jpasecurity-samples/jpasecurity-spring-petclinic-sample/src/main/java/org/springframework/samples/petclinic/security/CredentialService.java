@@ -25,6 +25,7 @@ public class CredentialService implements UserDetailsService, AccessManager {
     @PersistenceContext
     private SecureEntityManager em;
     
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
         try {
             Query query = this.em.createQuery("SELECT credential FROM Credential credential INNER JOIN FETCH credential.user WHERE credential.username = :username");
