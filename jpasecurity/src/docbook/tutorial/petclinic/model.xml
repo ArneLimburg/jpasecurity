@@ -242,7 +242,7 @@ INSERT INTO VISITS VALUES(4,7,3,'1996-09-04','spayed')
       ]]>
     </programlisting>
     <para>
-      Second we add a page to display a single vet with her/his list of visits.
+      Second we add a page to display a single vet with the list of visits.
       We name this file <filename>vet.jsp</filename>
       and put it into <filename>src/main/webapp/WEB-INF/jsp</filename>.
       This is the content of the file:
@@ -343,7 +343,8 @@ INSERT INTO VISITS VALUES(4,7,3,'1996-09-04','spayed')
     </programlisting>
     <para>
       Last we have to add the following code to <filename>ClinicController.java</filename>
-      (in <filename>src/main/java/org/springframework/samples/petclinic/web/</filename>
+      (in <filename>src/main/java/org/springframework/samples/petclinic/web/)</filename>.
+      And don't forget to add the <systemitem>import</systemitem>-statement for the <systemitem>Vet</systemitem>.
     </para>
     <programlisting>
       <![CDATA[
@@ -367,7 +368,176 @@ INSERT INTO VISITS VALUES(4,7,3,'1996-09-04','spayed')
     </programlisting>
     <para>
       There is one thing more to do in order to establish the relation between visits and vets:
-      An owner must be able to select a vet when he/she is making an appointment.
+      An owner must be able to select a vet when making an appointment.
+    </para>
+    <para>
+      We achieve this by adding the following lines of code to <filename>AddVisitForm.java</filename>
+      (in <filename>src/main/java/org/springframework/samples/petclinic/web/)</filename>.
+      Again don't forget the <systemitem>import</systemitem>-statements.
+    </para>
+    <programlisting>
+      <![CDATA[
+    @ModelAttribute("vets")
+    public Collection<Vet> populateVets() {
+        return this.clinic.getVets();
+    }
+      ]]>
+    </programlisting>
+    <para>
+      Now we can put a vet-selector into <filename>visitForm.jsp</filename>
+      (in <filename>src/main/webapp/WEB-INF/jsp/</filename>
+    </para>
+    <para>
+      Change
+    </para>
+    <programlisting>
+      <![CDATA[
+    <tr>
+      <th>
+        Date:
+        <br/><form:errors path="date" cssClass="errors"/>
+      </th>
+      <td>
+        <form:input path="date" size="10" maxlength="10"/> (yyyy-mm-dd)
+      </td>
+    <tr/>
+    <tr>
+      <th valign="top">
+        Description:
+        <br/><form:errors path="description" cssClass="errors"/>
+      </th>
+      <td>
+        <form:textarea path="description" rows="10" cols="25"/>
+      </td>
+    </tr>
+      ]]>
+    </programlisting>
+    <para>
+      into
+    </para>
+    <programlisting>
+      <![CDATA[
+    <tr>
+      <th>
+        Date:
+        <br/><form:errors path="date" cssClass="errors"/>
+      </th>
+      <td>
+        <form:input path="date" size="10" maxlength="10"/> (yyyy-mm-dd)
+      </td>
+    <tr/>
+    <tr>
+      <th>
+        Vet:
+        <br/><form:errors path="vet" cssClass="errors"/>
+      </th>
+      <td>
+        <form:select path="vet" items="${vets}"/>
+      </td>
+    </tr>
+    <tr>
+      <th valign="top">
+        Description:
+        <br/><form:errors path="description" cssClass="errors"/>
+      </th>
+      <td>
+        <form:textarea path="description" rows="10" cols="25"/>
+      </td>
+    </tr>
+      ]]>
+    </programlisting>
+    <para>
+      Adding the vet to the list of previous visits remains as an exercise to you.
+    </para>
+    <para>
+      In order to display a meaningful text in our vet-selector, we have to override
+      the <systemitem>toString()</systemitem>-method in the class <systemitem>Vet</systemitem>.
+    </para>
+    <para>
+      Add the following code to <filename>Person.java</filename>
+      (in <filename>src/main/java/org/springframework/samples/petclinic/</filename>).
+    </para>
+    <programlisting>
+      <![CDATA[
+	public String toString() {
+	    return this.getLastName() + ", " + this.getFirstName();
+    }
+      ]]>
+    </programlisting>
+    <para>
+      Additionally add the following code to <filename>Vet.java</filename>
+      (in <filename>src/main/java/org/springframework/samples/petclinic/</filename>).
+    </para>
+    <programlisting>
+      <![CDATA[
+    public String toString() {
+        StringBuilder specialties = new StringBuilder();
+        for (Specialty specialty: getSpecialties()) {
+            specialties.append(' ').append(specialty.getName()).append(',');
+        }
+        if (getNrOfSpecialties() == 0) {
+            specialties.append("(none)");
+        } else {
+            specialties.setCharAt(0, '(');
+            specialties.setCharAt(specialties.length() - 1, ')');
+        }
+        return super.toString() + " " + specialties.toString();
+    }
+      ]]>
+    </programlisting>
+    <para>
+      The vet is now displayed human-readable in the drop-down-box,
+      but we have to ensure that the displayed text properly can be reverted
+      to a vet. We do this by adding a vet-editor.
+    </para>
+    <para>
+      Create the file <filename>VetEditor.java</filename>
+      in <filename>src/main/java/org/springframework/samples/petclinic/web/</filename>
+      and fill it with the following content.
+    </para>
+    <programlisting>
+      <![CDATA[
+package org.springframework.samples.petclinic.web;
+
+import java.beans.PropertyEditorSupport;
+
+import org.springframework.samples.petclinic.Clinic;
+import org.springframework.samples.petclinic.Vet;
+
+public class VetEditor extends PropertyEditorSupport {
+
+	private final Clinic clinic;
+
+	public VetEditor(Clinic clinic) {
+		this.clinic = clinic;
+	}
+
+	@Override
+	public void setAsText(String text) throws IllegalArgumentException {
+		for (Vet vet: this.clinic.getVets()) {
+			if (vet.toString().equals(text)) {
+				setValue(vet);
+			}
+		}
+	}
+}
+      ]]>
+    </programlisting>
+    <para>
+      We register the new editor in <filename>ClinicBindingInitializer.java</filename>
+      (in <filename>src/main/java/org/springframework/samples/petclinic/web/</filename>)
+      by adding the following line below of the registration of the other custom editors.
+    </para>
+    <programlisting>
+      <![CDATA[
+        binder.registerCustomEditor(Vet.class, new VetEditor(this.clinic));
+      ]]>
+    </programlisting>
+    <para>
+      Now we can start our server again and see, if our new relation between visits and vets works.
+      (Navigate to
+      <ulink url="http://localhost:8080/jpasecurity-spring-petclinic-sample/owner.do?ownerId=6">Jean Coleman</ulink>
+      as there are already added some visits.)
     </para>
   </section>
 </article>
