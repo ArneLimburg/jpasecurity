@@ -217,7 +217,7 @@ INSERT INTO USERS VALUES(16,'carlos','dc599a9972fde3045dab59dbd1ae170b',16)
       in <filename>src/main/java/org/springframework/samples/petclinic/</filename>
       with the following content.
       We implement the <systemitem>org.springframework.security.userdetails.UserDetails</systemitem>
-      interface as later we will use Spring Security for login.
+      interface as later we will use Spring-Security for login.
     </para>
     <programlisting>
       <![CDATA[
@@ -367,5 +367,152 @@ public class Credential extends BaseEntity implements UserDetails {
 	</entity>
       ]]>
     </programlisting>
+  </section>
+  <section>
+    <title>Integrating Spring Security</title>
+    <para>
+      We now need a simple login mechanism. Since we want to use Spring-Security,
+      we create a credential-service that implements the
+      <systemitem>org.springframework.security.userdetails.UserDetailsService</systemitem>
+      interface.
+    </para>
+    <para>
+      We create a package <systemitem>security</systemitem> (by creating the folder
+      <filename>src/main/java/org/springframework/samples/petclinic/security/</filename>)
+      and put <filename>CredentialService.java</filename> into it.
+    </para>
+    <para>
+      The content of <filename>CredentialService.java</filename> looks as follows.
+    </para>
+    <programlisting>
+      <![CDATA[
+package org.springframework.samples.petclinic.security;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+@Repository
+@Transactional
+public class CredentialService implements UserDetailsService {
+
+    @PersistenceContext
+    private EntityManager em;
+    
+	@Transactional(readOnly = true)
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
+        try {
+            Query query = this.em.createQuery("SELECT credential FROM Credential credential "
+                                            + "INNER JOIN FETCH credential.user "
+                                            + "WHERE credential.username = :username");
+            query.setParameter("username", username);
+            return (UserDetails)query.getSingleResult();
+        } catch (NoResultException e) {
+            throw new UsernameNotFoundException(username, e);
+        }
+    }
+}
+      ]]>
+    </programlisting>
+    <para>
+      We add the security configuration to the Spring application context
+      (<filename>src/main/webapp/WEB-INF/applicationContext.xml</filename>).
+    </para>
+    <para>
+      Add
+    </para>
+    <programlisting>
+      <![CDATA[
+    <sec:http auto-config="true">
+        <sec:intercept-url pattern="/addOwner.do" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <sec:intercept-url pattern="/login.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <sec:intercept-url pattern="/**" access="ROLE_USER" />
+        <sec:form-login login-page="/login.jsp"/>
+        <sec:logout />
+    </sec:http>
+
+	<sec:authentication-provider user-service-ref="userService">
+        <sec:password-encoder hash="md5"/>
+    </sec:authentication-provider>
+	
+	<bean id="userService" class="org.springframework.samples.petclinic.security.CredentialService"/>
+      ]]>
+    </programlisting>
+    <para>
+      With this configuration access to our pages is allowed
+      only for users with the role <systemitem>ROLE_USER</systemitem> (which are all owners and vets).
+      Only access to our login page and to our page to add owners is allowed for everyone.
+      The last is needed to enable new users to register.
+    </para>
+    <para>
+      Now we need a login page. We create the file <filename>login.jsp</filename> in
+      <filename>src/main/webapp/</filename> with the following content.
+    </para>
+    <programlisting>
+      <![CDATA[
+<%@ page import="org.springframework.security.ui.AbstractProcessingFilter" %>
+<%@ page import="org.springframework.security.ui.webapp.AuthenticationProcessingFilter" %>
+<%@ page import="org.springframework.security.AuthenticationException" %>
+<%@ include file="/WEB-INF/jsp/includes.jsp" %>
+<%@ include file="/WEB-INF/jsp/header.jsp" %>
+
+    <form name="f" action="<c:url value='j_spring_security_check'/>" method="POST">
+      <table>
+        <tr><td>User:</td><td><input type='text' name='j_username' value='<c:if test="${not empty param.login_error}"><c:out value="${SPRING_SECURITY_LAST_USERNAME}"/></c:if>'/></td></tr>
+        <tr><td>Password:</td><td><input type='password' name='j_password'></td></tr>
+        <tr><td><input type="checkbox" name="_spring_security_remember_me"></td><td>Don't ask for my password for two weeks</td></tr>
+
+        <tr><td colspan='2'><p class="submit"><input name="submit" type="submit"></p></td></tr>
+        <tr><td colspan='2'><p class="submit"><input name="reset" type="reset"></p></td></tr>
+      </table>
+
+    </form>
+
+  <table class="footer">
+    <tr>
+      <td><a href="<c:url value="/addOwner.do"/>">Register</a></td>
+    </tr>
+  </table>
+
+  </div>
+</body>
+
+</html>
+      ]]>
+    </programlisting>
+    <para>
+      The last thing we have to do is add the Spring-Security filter to our
+      <filename>web.xml</filename> (in <filename>src/main/webapp/WEB-INF/</filename>). 
+    </para>
+    <para>
+      Add
+    </para>
+    <programlisting>
+      <![CDATA[
+    <filter>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+
+    <filter-mapping>
+      <filter-name>springSecurityFilterChain</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+      ]]>
+    </programlisting>
+    <para>
+      When you now start the application you have to login to access the pages.
+      Remember the login data we have put into the database or use the
+      <ulink url="http://localhost:8080/jpasecurity-spring-petclinic-sample/addOwner.do">Register</ulink>
+      link from the login-page to register a new owner.
+    </para>
   </section>
 </article>
