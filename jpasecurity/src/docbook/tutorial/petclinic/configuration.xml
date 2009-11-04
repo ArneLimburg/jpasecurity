@@ -4,7 +4,7 @@
   <title>Configuration</title>
   <para>
     Our application uses JPA as data-access-layer. We configure this in the <filename>web.xml</filename>
-    (in <filename>src/main/webapp/WEB-INF</filename>) by changing the following lines
+    (in <filename>src/main/webapp/WEB-INF/</filename>) by changing the following lines
   </para>
   <programlisting>
     <![CDATA[
@@ -118,7 +118,7 @@ jdbc.url=jdbc:hsqldb:hsql://localhost:9001
   </para>
   <programlisting>
     <![CDATA[
-jdbc.url=jdbc:hsqldb:file:petclinic
+jdbc.url=jdbc:hsqldb:file:petclinic;shutdown=true
     ]]>
   </programlisting>
   <para>
