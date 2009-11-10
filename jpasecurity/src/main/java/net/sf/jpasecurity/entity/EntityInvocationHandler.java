@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.entity;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
@@ -275,6 +276,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     private void initialize() {
         setUpdating(true);
         entity = unproxy(entity);
+        copyState(entity, secureEntity);
         for (PropertyMappingInformation propertyMapping: entityMapping.getPropertyMappings()) {
             Object value = getUnsecureObject(propertyMapping.getPropertyValue(entity));
             if (propertyMapping instanceof RelationshipMappingInformation) {
@@ -344,5 +346,19 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         } catch (Exception e) {
             return object;
         }
+    }
+
+    private void copyState(Object source, Object target) {
+        copyState(entityMapping.getEntityType(), source, target);
+    }
+
+    private void copyState(Class<?> type, Object source, Object target) {
+        if (type == null) {
+            return;
+        }
+        for (Field field: type.getDeclaredFields()) {
+            ReflectionUtils.setFieldValue(field, target, ReflectionUtils.getFieldValue(field, source));
+        }
+        copyState(type.getSuperclass(), source, target);
     }
 }
