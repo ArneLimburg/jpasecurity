@@ -17,6 +17,7 @@
 package net.sf.jpasecurity.util;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -104,6 +105,24 @@ public abstract class ReflectionUtils {
             throw new NoSuchMethodException(name + "(" + Arrays.toString(parameterTypes) + ") of " + classType.getName());
         }
         return result;
+    }
+
+    public static Object getFieldValue(Field field, Object target) {
+        try {
+            field.setAccessible(true);
+            return field.get(target);
+        } catch (Exception e) {
+            return throwThrowable(e);
+        }
+    }
+
+    public static void setFieldValue(Field field, Object target, Object value) {
+        try {
+            field.setAccessible(true);
+            field.set(target, value);
+        } catch (Exception e) {
+            throwThrowable(e);
+        }
     }
 
     private static Class<?>[] getTypes(Object[] parameters) {
