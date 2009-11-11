@@ -317,6 +317,9 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             return;
         }
         ClassMappingInformation entityMapping = mapping.getClassMapping(entity.getClass());
+        if (entityMapping == null) {
+            return;
+        }
         for (PropertyMappingInformation propertyMapping: entityMapping.getPropertyMappings()) {
             Object propertyValue = propertyMapping.getPropertyValue(entity);
             Object unsecurePropertyValue = getUnsecureObject(propertyValue);
