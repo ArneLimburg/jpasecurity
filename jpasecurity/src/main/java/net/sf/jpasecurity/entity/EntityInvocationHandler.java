@@ -216,8 +216,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
                              CascadeType cascadeType,
                              SecureObjectManager objectManager,
                              Set<Object> checkedEntities) {
-        if (checkedEntities.contains(object)
-            || (object instanceof SecureObject && !((SecureObject)object).isInitialized())) {
+        if (checkedEntities.contains(object) || !isInitialized(object)) {
             return;
         }
         if (object instanceof Collection) {
@@ -253,7 +252,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             checkAccess(object, accessType, cascadeType, objectManager, checkedEntities);
         }
     }
-
+    
     private boolean isReadOnly() {
         return isTransient;
     }
@@ -271,6 +270,10 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         } else {
             updating.remove();
         }
+    }
+    
+    private boolean isInitialized(Object entity) {
+        return !(entity instanceof SecureEntity) || ((SecureEntity)entity).isInitialized(); 
     }
 
     private void initialize() {
@@ -306,8 +309,21 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     private void unwrapSecureObjects() {
+        unwrapSecureObjects(entity);
+    }
+    
+    private void unwrapSecureObjects(Object entity) {
+        if (entity == null) {
+            return;
+        }
+        ClassMappingInformation entityMapping = mapping.getClassMapping(entity.getClass());
         for (PropertyMappingInformation propertyMapping: entityMapping.getPropertyMappings()) {
-            propertyMapping.setPropertyValue(entity, getUnsecureObject(propertyMapping.getPropertyValue(entity)));
+            Object propertyValue = propertyMapping.getPropertyValue(entity);
+            Object unsecurePropertyValue = getUnsecureObject(propertyValue);
+            propertyMapping.setPropertyValue(entity, unsecurePropertyValue);
+            if (propertyMapping.isRelationshipMapping() && isInitialized(propertyValue)) {
+                unwrapSecureObjects(unsecurePropertyValue);
+            }
         }
     }
 
