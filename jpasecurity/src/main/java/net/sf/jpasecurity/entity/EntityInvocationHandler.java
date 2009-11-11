@@ -252,7 +252,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             checkAccess(object, accessType, cascadeType, objectManager, checkedEntities);
         }
     }
-    
+
     private boolean isReadOnly() {
         return isTransient;
     }
@@ -271,9 +271,9 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             updating.remove();
         }
     }
-    
+
     private boolean isInitialized(Object entity) {
-        return !(entity instanceof SecureEntity) || ((SecureEntity)entity).isInitialized(); 
+        return !(entity instanceof SecureEntity) || ((SecureEntity)entity).isInitialized();
     }
 
     private void initialize() {
@@ -311,7 +311,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     private void unwrapSecureObjects() {
         unwrapSecureObjects(entity);
     }
-    
+
     private void unwrapSecureObjects(Object entity) {
         if (entity == null) {
             return;
