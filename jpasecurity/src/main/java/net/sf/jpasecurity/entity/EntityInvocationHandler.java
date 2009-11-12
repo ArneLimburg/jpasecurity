@@ -21,6 +21,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -312,13 +313,33 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     private void unwrapSecureObjects() {
-        unwrapSecureObjects(entity);
+        unwrapSecureObjects(entity, new HashSet<Object>());
     }
 
-    private void unwrapSecureObjects(Object entity) {
-        if (entity == null) {
+    private void unwrapSecureObjects(Object entity, Set<Object> alreadyUnwrappedObjects) {
+        if (entity == null || alreadyUnwrappedObjects.contains(entity)) {
             return;
         }
+        if (entity instanceof List) {
+            List<Object> list = (List<Object>)entity;
+            for (int i = 0; i < list.size(); i++) {
+                Object unsecureObject = getUnsecureObject(list.get(i));
+                list.set(i, unsecureObject);
+                unwrapSecureObjects(unsecureObject, alreadyUnwrappedObjects);
+            }
+            return;
+        } else if (entity instanceof Collection) {
+            Collection<Object> collection = (Collection<Object>)entity;
+            for (Object object: collection.toArray()) {
+                Object unsecureObject = getUnsecureObject(object);
+                if (unsecureObject != object) {
+                    collection.remove(object);
+                    collection.add(unsecureObject);
+                }
+                unwrapSecureObjects(unsecureObject, alreadyUnwrappedObjects);
+            }
+        }
+        alreadyUnwrappedObjects.add(entity);
         ClassMappingInformation entityMapping = mapping.getClassMapping(entity.getClass());
         if (entityMapping == null) {
             return;
@@ -328,7 +349,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             Object unsecurePropertyValue = getUnsecureObject(propertyValue);
             propertyMapping.setPropertyValue(entity, unsecurePropertyValue);
             if (propertyMapping.isRelationshipMapping() && isInitialized(propertyValue)) {
-                unwrapSecureObjects(unsecurePropertyValue);
+                unwrapSecureObjects(unsecurePropertyValue, alreadyUnwrappedObjects);
             }
         }
     }
@@ -379,8 +400,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             return;
         }
         for (Field field: type.getDeclaredFields()) {
-            if ((field.getModifiers() & Modifier.FINAL) == 0
-               && (field.getModifiers() & Modifier.STATIC) == 0) {
+            if (!Modifier.isFinal(field.getModifiers()) && !Modifier.isStatic(field.getModifiers())) {
                 ReflectionUtils.setFieldValue(field, target, ReflectionUtils.getFieldValue(field, source));
             }
         }
