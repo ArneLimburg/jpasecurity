@@ -4,7 +4,7 @@
   <groupId>net.sf.jpasecurity</groupId>
   <artifactId>jpasecurity</artifactId>
   <name>JPA Security</name>
-  <version>${version}</version>
+  <version>0.2.0-SNAPSHOT</version>
   <description>
     JPA Security is an Access Control Solution for the Java Persistence API. 
     JPA Security supports model-driven authorization leading to domain-driven access control.
@@ -20,9 +20,9 @@
   </description>
   <url>http://jpasecurity.sf.net</url>
 
-  <prerequisites>
-    <maven>2.1.0</maven>
-  </prerequisites>
+  <!--<prerequisites>-->
+    <!--<maven>2.1.0</maven>-->
+  <!--</prerequisites>-->
   <issueManagement>
     <system>Sourceforge Tracker</system>
     <url>http://sourceforge.net/tracker/?group_id=219346</url>
@@ -448,8 +448,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  
-  <properties>
-    <version>0.2.0-SNAPSHOT</version>
-  </properties>
 </project>
