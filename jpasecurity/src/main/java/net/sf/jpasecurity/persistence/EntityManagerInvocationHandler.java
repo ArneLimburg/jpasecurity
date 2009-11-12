@@ -98,11 +98,11 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public <T> T merge(T entity) {
-        if (isNewEntity(entity)) {
-            SecureEntity secureEntity = createSecureEntity(entity);
-            return (T)secureEntity.merge(getTarget(), this, CREATE);
-        } else {
+        if (entity instanceof SecureEntity) {
             return (T)((SecureEntity)entity).merge(getTarget(), this, UPDATE);
+        } else {
+            SecureEntity secureEntity = createSecureEntity(entity);
+            return (T)secureEntity.merge(getTarget(), this, isNewEntity(entity)? CREATE: UPDATE);
         }
     }
 
