@@ -17,6 +17,7 @@ package net.sf.jpasecurity.entity;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,7 +77,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     public SecureEntity createSecureEntity() {
-        secureEntity = (SecureEntity)Enhancer.create(entityMapping.getEntityType(),
+        secureEntity = (SecureEntity)Enhancer.create(entity.getClass(),
                                                      new Class[] {SecureEntity.class},
                                                      this);
         return secureEntity;
@@ -232,7 +233,9 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
                         || propertyMapping.getCascadeTypes().contains(CascadeType.ALL)) {
                     try {
                         Object value = propertyMapping.getPropertyValue(object);
-                        checkAccess(value, accessType, cascadeType, objectManager, checkedEntities);
+                        if (value != null) {
+                            checkAccess(value, accessType, cascadeType, objectManager, checkedEntities);
+                        }
                     } catch (PropertyAccessException e) {
                         throw new PropertyAccessException(propertyMapping.getPropertyName() + "." + e.getPropertyName());
                     } catch (SecurityException e) {
@@ -278,8 +281,8 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
 
     private void initialize() {
         setUpdating(true);
-        entity = unproxy(entity);
         copyState(entity, secureEntity);
+        entity = unproxy(entity);
         for (PropertyMappingInformation propertyMapping: entityMapping.getPropertyMappings()) {
             Object value = getUnsecureObject(propertyMapping.getPropertyValue(entity));
             if (propertyMapping instanceof RelationshipMappingInformation) {
@@ -368,7 +371,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     private void copyState(Object source, Object target) {
-        copyState(entityMapping.getEntityType(), source, target);
+        copyState(source.getClass(), source, target);
     }
 
     private void copyState(Class<?> type, Object source, Object target) {
@@ -376,7 +379,10 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             return;
         }
         for (Field field: type.getDeclaredFields()) {
-            ReflectionUtils.setFieldValue(field, target, ReflectionUtils.getFieldValue(field, source));
+            if ((field.getModifiers() & Modifier.FINAL) == 0
+               && (field.getModifiers() & Modifier.STATIC) == 0) {
+                ReflectionUtils.setFieldValue(field, target, ReflectionUtils.getFieldValue(field, source));
+            }
         }
         copyState(type.getSuperclass(), source, target);
     }
