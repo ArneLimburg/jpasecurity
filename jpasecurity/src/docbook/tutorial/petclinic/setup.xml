@@ -4,15 +4,16 @@
   <title>Setup</title>
   <para>
     The application developed in this tutorial is based on the petclinic-sample of the Spring Framework.
-    Please download spring-framework-2.5.6-with-docs.zip <ulink url="http://www.springsource.com/download/community?project=Spring%20Framework">from here</ulink>.
+    Please download <systemitem>spring-framework-2.5.6-with-docs.zip</systemitem>
+    <ulink url="http://www.springsource.com/download/community?project=Spring%20Framework">from here</ulink>.
     This tutorial was written with the sample delivered with version 2.5.6 of the Spring Framework
-    and may or may not work with other versions. In the zip-file under the base-folder spring-framework-2.5.6
-    you find a folder named samples. Within that folder there is a folder named petclinic. Please unpack this folder.
-    It is the only folder we need from that zip.
+    and may or may not work with other versions. In the zip-file within the base-folder <filename>spring-framework-2.5.6/</filename>
+    you find a folder named <filename>samples</filename>. Within that folder there is a folder named <filename>petclinic</filename>.
+    Please unpack this folder. It is the only folder we need from that zip.
   </para>
   <para>
     Like in the simple-tutorial we want to use maven 2 to build and deploy our application.
-    So the first step is to put a pom.xml file into the folder petclinic with the following content.
+    So the first step is to put a <filename>pom.xml</filename> file into the folder <filename>petclinic</filename> with the following content.
   </para>
   <programlisting>
     <![CDATA[
@@ -112,20 +113,20 @@
   <itemizedlist>
     <listitem>
       <para>
-        Move the content of the folder <filename>src</filename> into the folder <filename>src/main/java</filename>
+        Move the content of the folder <filename>src/</filename> into the folder <filename>src/main/java/</filename>
         (which you have to create first)
       </para>
     </listitem>
     <listitem>
       <para>
-        Now create <filename>src/main/resources</filename> and move all non-java-files from <filename>src/main/java</filename>
-        into it (it mainly is the subfolder <filename>META-INF</filename> and the file <filename>jdbc.properties</filename>,
+        Now create <filename>src/main/resources/</filename> and move all non-java-files from <filename>src/main/java/</filename>
+        into it (it mainly is the subfolder <filename>META-INF/</filename> and the file <filename>jdbc.properties</filename>,
         all other files may safely be deleted)
       </para>
     </listitem>
     <listitem>
       <para>
-        Move the content of the folder <filename>war</filename> into the folder <filename>src/main/webapp</filename>
+        Move the content of the folder <filename>war/</filename> into the folder <filename>src/main/webapp/</filename>
         (which you have to create first)
       </para>
     </listitem>
@@ -137,8 +138,8 @@
     </listitem>
   </itemizedlist>
   <para>
-    We don't need the rest of the content of the folder <filename>db</filename>, so you may safely delete it.
-    The same applies to the folder <filename>test</filename> and the ant build-files (namely <filename>build.bat</filename>,
+    We don't need the rest of the content of the folder <filename>db/</filename>, so you may safely delete it.
+    The same applies to the folder <filename>test/</filename> and the ant build-files (namely <filename>build.bat</filename>,
     <filename>build.properties</filename>, <filename>build.xml</filename> and <filename>warfile.bat</filename>).
   </para>
 </article>

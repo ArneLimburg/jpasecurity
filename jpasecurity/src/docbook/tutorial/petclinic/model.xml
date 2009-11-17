@@ -311,6 +311,27 @@ INSERT INTO VISITS VALUES(4,7,3,'1996-09-04','spayed')
       ]]>
     </programlisting>
     <para>
+      We also may modify <filename>vets.jsp</filename>
+      in <filename>src/main/webapp/WEB-INF/jsp</filename>
+      to add links to our newly created vet-page.
+    </para>
+    <para>
+      Change
+    </para>
+    <programlisting>
+      <![CDATA[
+      <td>${vet.firstName} ${vet.lastName}</td>
+      ]]>
+    </programlisting>
+    <para>
+      into
+    </para>
+    <programlisting>
+      <![CDATA[
+      <td><a href="vet.do?vetId=${vet.id}">${vet.firstName} ${vet.lastName}</a></td>
+      ]]>
+    </programlisting>
+    <para>
       To make the model available for the new vet-view, we add a method to load a vet to
       the <systemitem>Clinic</systemitem> interface.
     </para>
