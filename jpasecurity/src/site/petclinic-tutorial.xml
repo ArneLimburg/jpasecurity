@@ -32,6 +32,10 @@
           <id>authentication</id>
           <title>Authentication</title>
         </section>
+        <section>
+          <id>authorization</id>
+          <title>Authorization</title>
+        </section>
       </sections>
     </chapter>
   </chapters>

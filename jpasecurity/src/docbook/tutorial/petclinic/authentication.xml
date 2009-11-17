@@ -298,6 +298,25 @@ public class Credential extends BaseEntity implements UserDetails {
       ]]>
     </programlisting>
     <para>
+      We change <filename>Person.java</filename>
+      in <filename>src/main/java/org/springframework/samples/petclinic/</filename>
+      to link to the credentials.
+    </para>
+    <para>
+      Add
+    </para>
+    <programlisting>
+    private Credential credential;
+
+    public Credential getCredential() {
+        return credential;
+    }
+    
+    public void setCredential(Credential credential) {
+        this.credential = credential;
+    }
+    </programlisting>
+    <para>
       We have added the table <systemitem>PERSONS</systemitem> and <systemitem>USERS</systemitem>
       and added the class <systemitem>Credential</systemitem>. Now we must reflect this in our
       O/R-Mapping.
@@ -407,7 +426,7 @@ public class CredentialService implements UserDetailsService {
     @PersistenceContext
     private EntityManager em;
     
-	@Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
         try {
             Query query = this.em.createQuery("SELECT credential FROM Credential credential "
@@ -424,17 +443,56 @@ public class CredentialService implements UserDetailsService {
     </programlisting>
     <para>
       We add the security configuration to the Spring application context
-      (<filename>src/main/webapp/WEB-INF/applicationContext.xml</filename>).
+      (<filename>src/main/webapp/WEB-INF/applicationContext-jpa.xml</filename>).
     </para>
     <para>
-      Add
+      First change
+    </para>
+    <programlisting>
+      <![CDATA[
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:context="http://www.springframework.org/schema/context" xmlns:jee="http://www.springframework.org/schema/jee"
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+      ]]>
+    </programlisting>
+    <para>
+      into
+    </para>
+    <programlisting>
+      <![CDATA[
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:sec="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+			http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
+      ]]>
+    </programlisting>
+    <para>
+      Now add the following configuration at the end of <filename>applicationContext-jpa.xml</filename>.
     </para>
     <programlisting>
       <![CDATA[
     <sec:http auto-config="true">
         <sec:intercept-url pattern="/addOwner.do" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-        <sec:intercept-url pattern="/login.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-        <sec:intercept-url pattern="/**" access="ROLE_USER" />
+        <sec:intercept-url pattern="/*.do" access="ROLE_USER" />
+        <sec:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
         <sec:form-login login-page="/login.jsp"/>
         <sec:logout />
     </sec:http>
@@ -443,14 +501,14 @@ public class CredentialService implements UserDetailsService {
         <sec:password-encoder hash="md5"/>
     </sec:authentication-provider>
 	
-	<bean id="userService" class="org.springframework.samples.petclinic.security.CredentialService"/>
+    <bean id="userService" class="org.springframework.samples.petclinic.security.CredentialService"/>
       ]]>
     </programlisting>
     <para>
       With this configuration access to our pages is allowed
       only for users with the role <systemitem>ROLE_USER</systemitem> (which are all owners and vets).
       Only access to our login page and to our page to add owners is allowed for everyone.
-      The last is needed to enable new users to register.
+      The latter is needed to enable new users to register.
     </para>
     <para>
       Now we need a login page. We create the file <filename>login.jsp</filename> in
@@ -489,7 +547,94 @@ public class CredentialService implements UserDetailsService {
       ]]>
     </programlisting>
     <para>
-      The last thing we have to do is add the Spring-Security filter to our
+      When we are logged in we would expect a personal greeting
+      and a direct link to our pets.
+    </para>
+    <para>
+      For this we add the required data to the model in <filename>ClinicController.java</filename>
+      in (<filename>src/main/java/org/springframework/samples/petclinic/web/</filename>).
+    </para>
+    <para>
+      Add
+    </para>
+    <programlisting>
+      <![CDATA[
+    /**
+     * Custom handler for the welcome view.
+     * <p>
+     * Note that this handler relies on the RequestToViewNameTranslator to
+     * determine the logical view name based on the request URL: "/welcome.do"
+     * -&gt; "welcome".
+     */
+    @RequestMapping("/welcome.do")
+    public ModelMap welcomeHandler() {
+        Credential credential = (Credential)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ModelMap model = new ModelMap("person", credential.getUser());
+        model.addAttribute("vet", credential.getUser() instanceof Vet);
+        model.addAttribute("owner", credential.getUser() instanceof Owner);
+        return model;
+    }
+      ]]>
+    </programlisting>
+    <para>
+      And we add the data to <filename>welcome.jsp</filename>
+      (from <filename>src/main/webapp/WEB-INF/jsp/</filename>).
+    </para>
+    <para>
+      Change
+    </para>
+    <programlisting>
+      <![CDATA[
+<ul>
+  <li><a href="<c:url value="/findOwners.do"/>">Find owner</a></li>
+  <li><a href="<c:url value="/vets.do"/>">Display all veterinarians</a></li>
+  <li><a href="<c:url value="/html/petclinic.html"/>">Tutorial</a></li>
+  <li><a href="<c:url value="/docs/index.html"/>">Documentation</a></li>
+</ul>
+      ]]>
+    </programlisting>
+    <para>
+      into
+    </para>
+    <programlisting>
+      <![CDATA[
+<ul>
+  <c:choose>
+    <c:when test="${vet}">
+      <li><a href="<c:url value="/vet.do?vetId=${person.id}"/>">Personal information</a></li>
+      <li><a href="<c:url value="/findOwners.do"/>">Find owner</a></li>
+    </c:when>
+    <c:when test="${owner}">
+      <p>&nbsp;</p>
+      <li><a href="<c:url value="/owner.do?ownerId=${person.id}"/>">Personal information</a></li>
+    </c:when>
+  </c:choose>
+  <li><a href="<c:url value="/vets.do"/>">All veterinarians</a></li>
+</ul>
+      ]]>
+    </programlisting>
+    <para>
+      You also may add a logout-link to every page by modifying <filename>footer.jsp</filename>
+      (from <filename>src/main/webapp/WEB-INF/jsp/</filename>).
+    </para>
+    <para>
+      Change
+    </para>
+    <programlisting>
+      <![CDATA[
+      <td align="right"><img src="<c:url value="/images/springsource-logo.png"/>"/></td>
+      ]]>
+    </programlisting>
+    <para>
+      into      
+    </para>
+    <programlisting>
+      <![CDATA[
+      <td align="right"><a href='<c:url value="j_spring_security_logout"/>'>Logout</a></td>
+      ]]>
+    </programlisting>
+    <para>
+      The last thing we have to do is to add the Spring-Security filter to our
       <filename>web.xml</filename> (in <filename>src/main/webapp/WEB-INF/</filename>). 
     </para>
     <para>
