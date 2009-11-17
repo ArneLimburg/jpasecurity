@@ -200,10 +200,15 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public void fetch(Object entity, int depth) {
-        if (entity == null || depth == 0) {
+        fetch(entity, depth, new HashSet<Object>());
+    }
+
+    private void fetch(Object entity, int depth, Set<Object> alreadyFetchedEntities) {
+        if (entity == null || depth == 0 || alreadyFetchedEntities.contains(entity)) {
             return;
         }
         depth = Math.min(depth, getMaximumFetchDepth());
+        alreadyFetchedEntities.add(entity);
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         if (mapping == null) {
             LOG.debug("No class mapping found for entity " + entity);
@@ -216,15 +221,15 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                     if (value instanceof Collection) {
                         Collection<Object> collection = (Collection<Object>)value;
                         for (Object entry: collection) {
-                            fetch(entry, depth - 1);
+                            fetch(entry, depth - 1, alreadyFetchedEntities);
                         }
                     } else if (value instanceof Map) {
                         Map<Object, Object> map = (Map<Object, Object>)value;
                         for (Object entry: map.values()) {
-                            fetch(entry, depth - 1);
+                            fetch(entry, depth - 1, alreadyFetchedEntities);
                         }
                     } else {
-                        fetch(value, depth - 1);
+                        fetch(value, depth - 1, alreadyFetchedEntities);
                     }
                 }
             }
