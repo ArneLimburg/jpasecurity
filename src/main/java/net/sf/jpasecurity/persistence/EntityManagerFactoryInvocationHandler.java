@@ -108,7 +108,7 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
         if (maxFetchDepth != null) {
             this.maxFetchDepth = Integer.parseInt(maxFetchDepth);
         } else {
-            this.maxFetchDepth = 0;
+            this.maxFetchDepth = Integer.MAX_VALUE;
         }
     }
 
