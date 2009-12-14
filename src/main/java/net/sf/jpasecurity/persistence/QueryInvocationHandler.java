@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.persistence;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -85,6 +86,10 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
     }
 
     private Object getSecureResult(Object result) {
+        if (result instanceof String || result instanceof Long || result instanceof Integer
+            || result instanceof Double || result instanceof Float || result instanceof Date) {
+            return result;
+        }
         if (!(result instanceof Object[])) {
             result = objectManager.getSecureObject(result);
             if (selectedPaths != null) {

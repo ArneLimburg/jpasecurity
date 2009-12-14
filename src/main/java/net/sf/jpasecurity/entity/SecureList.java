@@ -65,12 +65,24 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
         secureList.checkUpdatable();
         if (index == secureList.getFiltered().size()) {
             secureList.getFiltered().add(element);
-            secureList.getOriginal().add(element);
+            if (element instanceof SecureEntity) {
+                final SecureEntity secureEntity = (SecureEntity)element;
+                secureEntity.unwrapSecureObjects();
+                secureList.getOriginal().add((E)secureEntity.getEntity());
+            } else {
+                 secureList.getOriginal().add(element);
+            }
         } else {
             E old = secureList.getFiltered().get(index);
             secureList.getFiltered().add(index, element);
             index = secureList.getOriginal().indexOf(old);
-            secureList.getOriginal().add(index, element);
+            if (element instanceof SecureEntity) {
+               final SecureEntity secureEntity = (SecureEntity)element;
+               secureEntity.unwrapSecureObjects();
+               secureList.getOriginal().add(index, (E)secureEntity.getEntity());
+            } else {
+               secureList.getOriginal().add(index, element);
+            }
         }
     }
 
@@ -117,7 +129,7 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
         return secureList.isInitialized();
     }
 
-    List<E> getOriginal() {
+    public List<E> getOriginal() {
         return secureList.getOriginal();
     }
 }

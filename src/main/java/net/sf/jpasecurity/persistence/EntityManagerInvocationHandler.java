@@ -15,10 +15,6 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import static net.sf.jpasecurity.AccessType.CREATE;
-import static net.sf.jpasecurity.AccessType.READ;
-import static net.sf.jpasecurity.AccessType.UPDATE;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +29,13 @@ import javax.persistence.FetchType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import net.sf.jpasecurity.AccessType;
+import static net.sf.jpasecurity.AccessType.CREATE;
+import static net.sf.jpasecurity.AccessType.READ;
+import static net.sf.jpasecurity.AccessType.UPDATE;
 import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.entity.DefaultSecureCollection;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
@@ -56,9 +58,6 @@ import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 import net.sf.jpasecurity.util.ReflectionUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * This class handles invocations on proxies of entity managers.
@@ -94,7 +93,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         SecureEntity secureEntity = createSecureEntity(entity);
         secureEntity.persist(getTarget());
-        putSecureEntity(mapping.getId(secureEntity), mapping.getEntityType(), secureEntity);
+        //putSecureEntity(mapping.getId(secureEntity), mapping.getEntityType(), secureEntity);
     }
 
     public <T> T merge(T entity) {
@@ -370,6 +369,9 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     private SecureEntity getSecureEntity(Object id, Class<?> type) {
+        if (id == null) {
+            return null;
+        }
         Map<Object, SecureEntity> entities = getSecureEntities(type);
         if (entities == null) {
             return null;
@@ -383,12 +385,14 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     private void putSecureEntity(Object id, Class<?> type, SecureEntity entity) {
-        Map<Object, SecureEntity> entities = getSecureEntities(type);
-        if (entities == null) {
-            entities = new HashMap<Object, SecureEntity>();
-            secureEntities.put(type, entities);
+        if (id != null) {
+            Map<Object, SecureEntity> entities = getSecureEntities(type);
+            if (entities == null) {
+                entities = new HashMap<Object, SecureEntity>();
+                secureEntities.put(type, entities);
+           }
+           entities.put(id, entity);
         }
-        entities.put(id, entity);
     }
 
     private SecureEntity createSecureEntity(Object entity) {
@@ -417,4 +421,17 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             return new DefaultSecureCollection(owner, collection, this);
         }
     }
+
+//    public EntityTransaction getTransaction() {
+//       final EntityManager manager = super.getTarget();
+//       final EntityTransaction transaction = manager.getTransaction();
+//       final EntityTransactionInvocationHandler transactionInvocationHandler =
+//          new EntityTransactionInvocationHandler(transaction, this);
+//       return transactionInvocationHandler.createProxy();
+//    }
+//
+//   void clearSecureObjects() {
+//      secureEntities.clear();
+//      secureCollections.clear();
+//   }
 }

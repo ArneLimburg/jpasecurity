@@ -78,6 +78,9 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     public SecureEntity createSecureEntity() {
+        if (entity instanceof SecureEntity) {
+            return (SecureEntity)entity;
+        }
         secureEntity = (SecureEntity)Enhancer.create(entity.getClass(),
                                                      new Class[] {SecureEntity.class},
                                                      this);
@@ -137,7 +140,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             throw new SecurityException(e.getMessage());
         }
         entityManager.persist(entity);
-        entityManager.flush(); //This is necessary for id-generation strategy IDENTITY
+        //entityManager.flush(); //This is necessary for id-generation strategy IDENTITY
         initialize();
     }
 
@@ -154,9 +157,9 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             throw new SecurityException(e.getMessage());
         }
         Object mergedEntity = entityManager.merge(entity);
-        if (access == AccessType.CREATE) {
-            entityManager.flush(); //This is necessary for id-generation strategy IDENTITY
-        }
+        //if (access == AccessType.CREATE) {
+            //entityManager.flush(); //This is necessary for id-generation strategy IDENTITY
+        //}
         return (SecureEntity)objectManager.getSecureObject(mergedEntity);
     }
 
@@ -204,6 +207,10 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
 
     public Query setParameter(Query query, String name) {
         return query.setParameter(name, entity);
+    }
+
+    public Object getEntity() {
+        return entity;
     }
 
     private void checkAccess(Object object,
@@ -312,7 +319,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         setUpdating(false);
     }
 
-    private void unwrapSecureObjects() {
+    public void unwrapSecureObjects() {
         unwrapSecureObjects(entity, new HashSet<Object>());
     }
 
@@ -323,8 +330,11 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         if (entity instanceof List) {
             List<Object> list = (List<Object>)entity;
             for (int i = 0; i < list.size(); i++) {
-                Object unsecureObject = getUnsecureObject(list.get(i));
-                list.set(i, unsecureObject);
+               final Object object = list.get(i);
+                Object unsecureObject = getUnsecureObject(object);
+                if (unsecureObject != object) {
+                    list.set(i, unsecureObject);
+                }
                 unwrapSecureObjects(unsecureObject, alreadyUnwrappedObjects);
             }
             return;
