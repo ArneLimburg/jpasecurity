@@ -20,9 +20,10 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import junit.framework.TestCase;
-import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
-import net.sf.jpasecurity.model.ParentTestBean;
 import net.sf.jpasecurity.model.ChildTestBean;
+import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
+import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
+import net.sf.jpasecurity.model.ParentTestBean;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 /**
@@ -51,6 +52,27 @@ public class PropertyAccessTest extends TestCase {
         assertEquals(2, ((SecureList<FieldAccessAnnotationTestBean>)bean.getChildBeans()).getOriginal().size());
     }
 
+    public void testMethodBasedMapping() {
+        TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-method-access");
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        MethodAccessAnnotationTestBean bean = new MethodAccessAnnotationTestBean();
+        bean.getChildren().add(new MethodAccessAnnotationTestBean());
+        bean.getChildren().add(new MethodAccessAnnotationTestBean());
+        entityManager.persist(bean);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        EntityManager entityManager2 = factory.createEntityManager();
+        entityManager2.getTransaction().begin();
+        final MethodAccessAnnotationTestBean bean2 =
+            entityManager2.find(MethodAccessAnnotationTestBean.class, bean.getId());
+        for (MethodAccessAnnotationTestBean methodAccessAnnotationTestBean : bean2.getChildren()) {
+            methodAccessAnnotationTestBean.getId();
+        }
+        entityManager2.getTransaction().commit();
+    }
+
     public void testOneToManyMapping() {
         TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("parent-child");
@@ -65,6 +87,36 @@ public class PropertyAccessTest extends TestCase {
         TestAuthenticationProvider.authenticate(USER1);
         assertEquals(1, bean.getChildren().size());
         assertEquals(USER1, bean.getChildren().get(0).getName());
+    }
+
+    public void testIdentityMapping() {
+        TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("parent-child");
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        ParentTestBean bean = new ParentTestBean(USER1);
+        bean.getChildren().add(new ChildTestBean(USER1));
+        bean.getChildren().add(new ChildTestBean(USER2));
+        entityManager.persist(bean);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        final EntityManager entityManager2 = factory.createEntityManager();
+        entityManager2.getTransaction().begin();
+        final ParentTestBean bean2 = entityManager2.find(ParentTestBean.class, bean.getId());
+        bean2.setId(bean2.getId());
+        bean2.setName(bean2.getName());
+        bean2.setChildren(bean2.getChildren());
+        for(ChildTestBean child : bean2.getChildren()){
+           child.setName(child.getName());
+        }
+        entityManager2.getTransaction().commit();
+        entityManager2.close();
+        final EntityManager entityManager3 = factory.createEntityManager();
+        entityManager3.getTransaction().begin();
+        final ParentTestBean bean3 = entityManager3.find(ParentTestBean.class, bean.getId());
+        assertEquals(0, bean3.getVersion());
+        entityManager3.getTransaction().commit();
+        entityManager3.close();
     }
 
     public void testUpdate() {
