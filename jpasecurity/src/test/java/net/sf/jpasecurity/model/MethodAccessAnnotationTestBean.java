@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -37,7 +38,7 @@ public class MethodAccessAnnotationTestBean {
     private int identifier;
     private String beanName;
     private MethodAccessAnnotationTestBean parentBean;
-    private List<MethodAccessAnnotationTestBean> childBeans;
+    private List<MethodAccessAnnotationTestBean> childBeans = new ArrayList<MethodAccessAnnotationTestBean>();
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -29,12 +29,12 @@ import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
-import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ToStringVisitor;
+import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
@@ -117,7 +117,7 @@ public class JpqlCompiler {
 
         private final ToStringVisitor toStringVisitor = new ToStringVisitor();
 
-        public boolean visit(JpqlSelectClause node, List<String> selectedPaths) {
+        public boolean visit(JpqlSelectExpression node, List<String> selectedPaths) {
             StringBuilder path = new StringBuilder();
             node.visit(toStringVisitor, path);
             selectedPaths.add(path.toString());

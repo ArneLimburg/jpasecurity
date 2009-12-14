@@ -24,6 +24,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Version;
 
 /**
  * @author Stefan Hildebrandt
@@ -36,6 +37,9 @@ public class ParentTestBean {
     private int id;
 
     private String name;
+
+    @Version
+    private int version;
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<ChildTestBean> children = new ArrayList<ChildTestBean>();
@@ -63,11 +67,19 @@ public class ParentTestBean {
         this.children = children;
     }
 
-   public String getName() {
-      return name;
-   }
+    public String getName() {
+        return name;
+    }
 
-   public void setName(String name) {
-      this.name = name;
-   }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
 }
