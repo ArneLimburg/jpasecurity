@@ -69,6 +69,36 @@ INSERT INTO VISITS VALUES(4,7,3,'1996-09-04','spayed')
   <section>
     <title>Modifying the Domain Model</title>
     <para>
+      The base-class of all our entities is <systemitem>BaseEntity</systemitem>
+      (in <filename>src/main/java/org/springframework/samples/petclinic/BaseEntity.java</filename>).
+      For proper object-handling we add two methods here: <systemitem>equals</systemitem> and <systemitem>hashCode</systemitem>.
+    </para>
+    <para>
+      Add
+    </para>
+    <programlisting>
+      <![CDATA[
+    public int hashCode() {
+        if (isNew()) {
+            return System.identityHashCode(this);
+        } else {
+            return id;
+        }
+    }
+
+    public boolean equals(Object object) {
+        if (!(object instanceof BaseEntity)) {
+            return false;
+        }
+        if (isNew()) {
+            return this == object;
+        }
+        return getId().equals(((BaseEntity)object).getId());
+    }
+      ]]>
+    </programlisting>
+    <para>
+      Now we can modify our model to reflect the relation between visits and vets.
       We add the following code to the file <filename>Visit.java</filename>
       (in <filename>src/main/java/org/springframework/samples/petclinic/</filename>)
     </para>
