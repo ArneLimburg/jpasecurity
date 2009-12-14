@@ -19,7 +19,7 @@
     </tr>
   </table>
 
-  <h2>Visits</h2>
+<h2>Visits</h2>
 
   <c:forEach var="visit" items="${visits}">
     <table width="94%">
