@@ -22,19 +22,21 @@ import java.util.List;
 import java.util.Set;
 
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
+import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlInCollection;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
+import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
+import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ToStringVisitor;
-import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
@@ -115,16 +117,34 @@ public class JpqlCompiler {
 
     private class SelectVisitor extends JpqlVisitorAdapter<List<String>> {
 
-        private final ToStringVisitor toStringVisitor = new ToStringVisitor();
+        private final SelectPathVisitor selectPathVisitor = new SelectPathVisitor();
 
         public boolean visit(JpqlSelectExpression node, List<String> selectedPaths) {
-            StringBuilder path = new StringBuilder();
-            node.visit(toStringVisitor, path);
-            selectedPaths.add(path.toString());
+            node.visit(selectPathVisitor, selectedPaths);
             return false;
         }
 
         public boolean visit(JpqlSubselect node, List<String> selectedPaths) {
+            return false;
+        }
+    }
+
+    private class SelectPathVisitor extends JpqlVisitorAdapter<List<String>> {
+
+        private final ToStringVisitor toStringVisitor = new ToStringVisitor();
+
+        public boolean visit(JpqlPath node, List<String> selectedPaths) {
+            return extractSelectedPath(node, selectedPaths);
+        }
+
+        public boolean visit(JpqlIdentificationVariable node, List<String> selectedPaths) {
+            return extractSelectedPath(node, selectedPaths);
+        }
+
+        private boolean extractSelectedPath(Node node, List<String> selectedPaths) {
+            StringBuilder path = new StringBuilder();
+            node.visit(toStringVisitor, path);
+            selectedPaths.add(path.toString());
             return false;
         }
     }
