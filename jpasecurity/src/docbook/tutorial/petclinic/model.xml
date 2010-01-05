@@ -585,8 +585,76 @@ public class VetEditor extends PropertyEditorSupport {
       ]]>
     </programlisting>
     <para>
-      Now we can start our server again and see, if our new relation between visits and vets works.
-      (Navigate to
+      Now we are able to add visits for pets and select the vet to visit. Another requirement of our application was
+      that the vet is able to modify an existing visit. We need a form for it. 
+    </para>
+    <para>
+      Create <filename>src/main/java/org/springframework/samples/petclinic/web/EditVisitForm.java</filename>
+      with the following content.
+    </para>
+    <programlisting>
+      <![CDATA[
+package org.springframework.samples.petclinic.web;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.Clinic;
+import org.springframework.samples.petclinic.Visit;
+import org.springframework.samples.petclinic.validation.VisitValidator;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
+
+@Controller
+@RequestMapping("/editVisit.do")
+@SessionAttributes("visit")
+public class EditVisitForm {
+
+	private final Clinic clinic;
+
+	@Autowired
+	public EditVisitForm(Clinic clinic) {
+		this.clinic = clinic;
+	}
+
+    @InitBinder
+    public void setAllowedFields(WebDataBinder dataBinder) {
+        dataBinder.setDisallowedFields(new String[] {"id"});
+    }
+
+	@RequestMapping(method = RequestMethod.GET)
+	public String setupForm(@RequestParam("visitId") int visitId, Model model) {
+		Visit visit = this.clinic.loadVisit(visitId);
+		model.addAttribute("visit", visit);
+		return "visitForm";
+	}
+
+	@RequestMapping(method = RequestMethod.POST)
+	public String processSubmit(@ModelAttribute("visit") Visit visit, BindingResult result, SessionStatus status) {
+		new VisitValidator().validate(visit, result);
+		if (result.hasErrors()) {
+			return "visitForm";
+		}
+		else {
+			this.clinic.storeVisit(visit);
+			status.setComplete();
+			return "redirect:vet.do?vetId=" + visit.getVet().getId();
+		}
+	}
+}
+      ]]>
+    </programlisting>
+    <para>
+      As we already added a button to edit a visit to <filename>vet.jsp</filename>, we do not need any more to do
+      to integrate the visit-editor. We can start our server again and see,
+      if our new relation between visits and vets works. (Navigate to
       <ulink url="http://localhost:8080/jpasecurity-spring-petclinic-sample/owner.do?ownerId=6">Jean Coleman</ulink>
       as there are already added some visits.)
     </para>
