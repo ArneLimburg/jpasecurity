@@ -35,12 +35,12 @@ public class JpqlQueryParserTest extends TestCase {
     }
 
     public void testDistinct() {
-        executeQuery("SELECT DISTINCT tb FROM FieldAccessAnnotationTestBean tb");
+        executeQuery("SELECT DISTINCT tb1, tb2 FROM FieldAccessAnnotationTestBean tb1, FieldAccessAnnotationTestBean tb2");
     }
 
     public void testExists() {
-        executeQuery(
-            "SELECT tb FROM FieldAccessAnnotationTestBean tb WHERE EXISTS(SELECT tb2 FROM FieldAccessAnnotationTestBean tb2)");
+        executeQuery("SELECT tb FROM FieldAccessAnnotationTestBean tb "
+                   + "WHERE EXISTS(SELECT tb2 FROM FieldAccessAnnotationTestBean tb2)");
     }
 
     private void executeQuery(String query) {
