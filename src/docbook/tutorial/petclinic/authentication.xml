@@ -388,6 +388,14 @@ public class Credential extends BaseEntity implements UserDetails {
     </programlisting>
   </section>
   <section>
+    <title>Change the password</title>
+    <para>
+      Our application is now able to store usernames and passwords, but there is no possibility to change it.
+      We modify <filename>EditOwnerForm.java</filename> (in <filename>src/main/java/org/springframework/samples/petclinic/web/</filename>)
+      to achieve this.
+    </para>
+  </section>
+  <section>
     <title>Integrating Spring Security</title>
     <para>
       We now need a simple login mechanism. Since we want to use Spring-Security,
@@ -655,8 +663,8 @@ public class CredentialService implements UserDetailsService {
     </programlisting>
     <para>
       When you now start the application you have to login to access the pages.
-      Remember the login data we have put into the database or use the
-      <ulink url="http://localhost:8080/jpasecurity-spring-petclinic-sample/addOwner.do">Register</ulink>
+      Remember the login data we have put into the database (the password was the same as the username)
+      or use the <ulink url="http://localhost:8080/jpasecurity-spring-petclinic-sample/addOwner.do">Register</ulink>
       link from the login-page to register a new owner.
     </para>
   </section>
