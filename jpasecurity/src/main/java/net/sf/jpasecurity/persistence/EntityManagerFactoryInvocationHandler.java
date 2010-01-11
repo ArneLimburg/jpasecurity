@@ -42,7 +42,7 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
     private AccessRulesProvider accessRulesProvider;
     private int maxFetchDepth;
 
-    EntityManagerFactoryInvocationHandler(EntityManagerFactory entityManagerFactory,
+    protected EntityManagerFactoryInvocationHandler(EntityManagerFactory entityManagerFactory,
                                           PersistenceUnitInfo persistenceUnitInfo,
                                           Map<String, String> properties,
                                           AuthenticationProvider authenticationProvider,
@@ -88,7 +88,7 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
         getTarget().close();
     }
 
-    private EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, String> properties) {
+    protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, String> properties) {
         int entityManagerFetchDepth = this.maxFetchDepth;
         String maxFetchDepth = properties.get(FetchManager.MAX_FETCH_DEPTH);
         if (maxFetchDepth != null) {
@@ -126,5 +126,21 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
             persistenceInformationReceiver.setPersistenceProperties(persistenceProperties);
             persistenceInformationReceiver.setPersistenceMapping(mappingInformation);
         }
+    }
+
+    protected MappingInformation getMappingInformation() {
+        return mappingInformation;
+    }
+
+    protected AuthenticationProvider getAuthenticationProvider() {
+        return authenticationProvider;
+    }
+
+    protected AccessRulesProvider getAccessRulesProvider() {
+        return accessRulesProvider;
+    }
+
+    protected int getMaxFetchDepth() {
+        return maxFetchDepth;
     }
 }

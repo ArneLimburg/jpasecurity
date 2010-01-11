@@ -104,7 +104,7 @@ public abstract class AbstractMappingParser {
                 ZipInputStream zipStream = new ZipInputStream(in);
                 for (ZipEntry entry = zipStream.getNextEntry(); entry != null; entry = zipStream.getNextEntry()) {
                     if (entry.getName().endsWith(CLASS_ENTRY_SUFFIX)) {
-                        parse(getClass(entry.getName()));
+                        parse(getClass(convertFileToClassname(entry.getName())));
                     }
                     zipStream.closeEntry();
                 }
@@ -114,6 +114,10 @@ public abstract class AbstractMappingParser {
         } catch (IOException e) {
             throw new PersistenceException(e);
         }
+    }
+
+    private String convertFileToClassname(String name) {
+        return name.substring(0, name.length() - CLASS_ENTRY_SUFFIX.length()).replace('/', '.');
     }
 
     protected ClassMappingInformation parse(Class<?> mappedClass) {

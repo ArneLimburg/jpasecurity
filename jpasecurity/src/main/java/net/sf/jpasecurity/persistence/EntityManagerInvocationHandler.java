@@ -75,7 +75,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     private Map<Integer, SecureCollection<?>> secureCollections;
     private int maxFetchDepth;
 
-    EntityManagerInvocationHandler(EntityManager entityManager,
+    protected EntityManagerInvocationHandler(EntityManager entityManager,
                                    MappingInformation mappingInformation,
                                    AuthenticationProvider authenticationProvider,
                                    List<AccessRule> accessRules,
