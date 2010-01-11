@@ -15,12 +15,6 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.getCurrentArguments;
-import static org.easymock.EasyMock.replay;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,6 +22,13 @@ import java.util.Map;
 
 import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
+
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.getCurrentArguments;
+import static org.easymock.EasyMock.replay;
+import org.easymock.IAnswer;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.entity.SecureObjectManager;
@@ -48,8 +49,6 @@ import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
 import net.sf.jpasecurity.util.SetHashMap;
 import net.sf.jpasecurity.util.SetMap;
-
-import org.easymock.IAnswer;
 
 public class InMemoryEvaluatorTest extends TestCase {
 
@@ -164,7 +163,51 @@ public class InMemoryEvaluatorTest extends TestCase {
         assertTrue(inMemoryEvaluator.canEvaluate(whereClause, parameters));
         assertFalse(inMemoryEvaluator.evaluate(whereClause, parameters));
     }
-    
+    public void testCanEvaluateCount() throws Exception {
+        JpqlCompiledStatement statement = compile("SELECT COUNT(bean) "
+                                                + "FROM FieldAccessAnnotationTestBean bean "
+                                                + "WHERE bean.name = :name "
+                                                );
+        JpqlSelect selectStatement = (JpqlSelect)statement.getStatement().jjtGetChild(0);
+        JpqlSelectClause selectClause = (JpqlSelectClause)selectStatement.jjtGetChild(0);
+        JpqlFrom fromClause = (JpqlFrom)selectStatement.jjtGetChild(1);
+        JpqlWhere whereClause = (JpqlWhere)selectStatement.jjtGetChild(2);
+
+        //InMemoryEvaluator may only evaluate whereClause when alias and named parameter are set
+        assertFalse(inMemoryEvaluator.canEvaluate(selectStatement, parameters));
+        assertFalse(inMemoryEvaluator.canEvaluate(selectClause, parameters));
+        assertFalse(inMemoryEvaluator.canEvaluate(fromClause, parameters));
+        assertFalse(inMemoryEvaluator.canEvaluate(whereClause, parameters));
+        try {
+            inMemoryEvaluator.evaluate(selectStatement, parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+        try {
+            inMemoryEvaluator.evaluate(selectClause, parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+        try {
+            inMemoryEvaluator.evaluate(fromClause, parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+        try {
+            inMemoryEvaluator.evaluate(whereClause, parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        namedParameters.put("name", "test2");
+        assertTrue(inMemoryEvaluator.canEvaluate(whereClause, parameters));
+        assertFalse(inMemoryEvaluator.evaluate(whereClause, parameters));
+    }
+
     public void testClassMappingNotFound() throws Exception {
         JpqlCompiledStatement statement
             = compile("SELECT bean FROM FieldAccessAnnotationTestBean bean WHERE bean.name = :name");

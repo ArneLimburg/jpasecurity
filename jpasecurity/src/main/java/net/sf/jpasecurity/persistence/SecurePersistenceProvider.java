@@ -27,22 +27,27 @@ import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import net.sf.jpasecurity.persistence.listener.LightEntityManagerFactoryInvocationHandler;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-/**
- * @author Arne Limburg
- */
+/** @author Arne Limburg */
 public class SecurePersistenceProvider implements PersistenceProvider {
 
     public static final String PERSISTENCE_PROVIDER_PROPERTY
         = "javax.persistence.provider";
     public static final String NATIVE_PERSISTENCE_PROVIDER_PROPERTY
         = "net.sf.jpasecurity.persistence.provider";
+    public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY
+        = "net.sf.jpasecurity.persistence.provider.type";
+    public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_LIGHT
+        = "light";
+    public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT
+        = "default";
     public static final String AUTHENTICATION_PROVIDER_PROPERTY
         = "net.sf.jpasecurity.security.authentication.provider";
     public static final String DEFAULT_AUTHENTICATION_PROVIDER_CLASS
@@ -59,7 +64,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         map = createPersistenceProviderProperty(map, persistenceProvider);
         EntityManagerFactory nativeEntityManagerFactory
             = persistenceProvider.createContainerEntityManagerFactory(info, map);
-        return createSecureEntityManagerFactory(nativeEntityManagerFactory, info, map);
+       return createSecureEntityManagerFactory(nativeEntityManagerFactory, info, map);
     }
 
     public EntityManagerFactory createEntityManagerFactory(String persistenceUnitName, Map map) {
@@ -85,10 +90,10 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         AuthenticationProvider authenticationProvider = createAuthenticationProvider(info, properties);
         AccessRulesProvider accessRulesProvider = createAccessRulesProvider(info, properties);
         return createSecureEntityManagerFactory(nativeEntityManagerFactory,
-                                                info,
-                                                properties,
-                                                authenticationProvider,
-                                                accessRulesProvider);
+            info,
+            properties,
+            authenticationProvider,
+            accessRulesProvider);
     }
 
     public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
@@ -101,23 +106,34 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             return null;
         }
         return createSecureEntityManagerFactory(nativeEntityManagerFactory,
-                                                info,
-                                                properties,
-                                                authenticationProvider,
-                                                accessRulesProvider);
+            info,
+            properties,
+            authenticationProvider,
+            accessRulesProvider);
     }
 
     public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
-                                                                 PersistenceUnitInfo info,
+                                                                 PersistenceUnitInfo persistenceUnitInfo,
                                                                  Map<String, String> properties,
                                                                  AuthenticationProvider authenticationProvider,
                                                                  AccessRulesProvider accessRulesProvider) {
-        ProxyInvocationHandler<EntityManagerFactory> invocationHandler
-            = new EntityManagerFactoryInvocationHandler(nativeEntityManagerFactory,
-                                                        info,
-                                                        properties,
-                                                        authenticationProvider,
-                                                        accessRulesProvider);
+        final String persistenceUnitType =
+            persistenceUnitInfo.getProperties().getProperty(SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY,
+                SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT);
+        ProxyInvocationHandler<EntityManagerFactory> invocationHandler = null;
+        if (SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT.equals(persistenceUnitType)) {
+            invocationHandler = new EntityManagerFactoryInvocationHandler(nativeEntityManagerFactory,
+                persistenceUnitInfo,
+                properties,
+                authenticationProvider,
+                accessRulesProvider);
+        } else {
+            invocationHandler = new LightEntityManagerFactoryInvocationHandler(nativeEntityManagerFactory,
+                persistenceUnitInfo,
+                properties,
+                authenticationProvider,
+                accessRulesProvider);
+        }
         return invocationHandler.createProxy();
     }
 
@@ -125,12 +141,14 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         try {
             PersistenceXmlParser persistenceXmlParser = new PersistenceXmlParser();
             for (Enumeration<URL> persistenceFiles
-                     = Thread.currentThread().getContextClassLoader().getResources("META-INF/persistence.xml");
+                = Thread.currentThread().getContextClassLoader().getResources("META-INF/persistence.xml");
                  persistenceFiles.hasMoreElements();) {
                 URL persistenceFile = persistenceFiles.nextElement();
                 persistenceXmlParser.parse(persistenceFile.openStream());
                 if (persistenceXmlParser.containsPersistenceUnitInfo(persistenceUnitName)) {
-                    return persistenceXmlParser.getPersistenceUnitInfo(persistenceUnitName);
+                   final PersistenceUnitInfo persistenceUnitInfo =
+                      persistenceXmlParser.getPersistenceUnitInfo(persistenceUnitName);
+                   return persistenceUnitInfo;
                 }
             }
             return null;
@@ -166,7 +184,9 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             }
             if (persistenceProviderClassName == null
                 || persistenceProviderClassName.equals(SecurePersistenceProvider.class.getName())) {
-                throw new PersistenceException("No persistence provider specified for net.sf.jpasecurity.persistence.SecureEntityManagerFactory. Specify its class name via property \"" + NATIVE_PERSISTENCE_PROVIDER_PROPERTY + "\"");
+                throw new PersistenceException(
+                    "No persistence provider specified for net.sf.jpasecurity.persistence.SecureEntityManagerFactory. "
+                        + "Specify its class name via property \"" + NATIVE_PERSISTENCE_PROVIDER_PROPERTY + "\"");
             }
             Class<?> persistenceProviderClass
                 = getClassLoader(persistenceUnitInfo).loadClass(persistenceProviderClassName);
@@ -190,7 +210,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             if (authenticationProviderClassName == null) {
                 authenticationProviderClassName
                     = persistenceUnitInfo.getProperties().getProperty(AUTHENTICATION_PROVIDER_PROPERTY,
-                                                                      DEFAULT_AUTHENTICATION_PROVIDER_CLASS);
+                    DEFAULT_AUTHENTICATION_PROVIDER_CLASS);
             }
             LOG.info("using " + authenticationProviderClassName + " as authentication provider");
             Class<?> authenticationProviderClass
@@ -215,7 +235,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             if (accessRulesProviderClassName == null) {
                 accessRulesProviderClassName
                     = persistenceUnitInfo.getProperties().getProperty(ACCESS_RULES_PROVIDER_PROPERTY,
-                                                                      DEFAULT_ACCESS_RULES_PROVIDER_CLASS);
+                    DEFAULT_ACCESS_RULES_PROVIDER_CLASS);
             }
             LOG.info("using " + accessRulesProviderClassName + " as access rules provider");
             Class<?> accessRulesProviderClass
