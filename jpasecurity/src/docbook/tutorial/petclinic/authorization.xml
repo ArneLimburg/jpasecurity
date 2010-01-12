@@ -23,22 +23,22 @@
     </para>
     <programlisting>
       <![CDATA[
-	<!-- JPA EntityManagerFactory -->
-	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
-			p:dataSource-ref="dataSource">
-		<property name="jpaVendorAdapter">
-		    <!--
-			<bean class="org.springframework.orm.jpa.vendor.TopLinkJpaVendorAdapter"
-					p:databasePlatform="${jpa.databasePlatform}" p:showSql="${jpa.showSql}"/>
-            -->
-			<bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"
-					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+    <!-- JPA EntityManagerFactory -->
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+            p:dataSource-ref="dataSource">
+        <property name="jpaVendorAdapter">
             <!--
-			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
-					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
-			-->
-		</property>
-	</bean>
+            <bean class="org.springframework.orm.jpa.vendor.TopLinkJpaVendorAdapter"
+                    p:databasePlatform="${jpa.databasePlatform}" p:showSql="${jpa.showSql}"/>
+            -->
+            <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"
+                    p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+            <!--
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+                    p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+            -->
+        </property>
+    </bean>
       ]]>
     </programlisting>
     <para>
@@ -46,23 +46,23 @@
     </para>
     <programlisting>
       <![CDATA[
-	<!-- JPA EntityManagerFactory -->
-	<bean id="entityManagerFactory" class="net.sf.jpasecurity.persistence.SecureContainerEntityManagerFactoryBean"
-			p:dataSource-ref="dataSource">
+    <!-- JPA EntityManagerFactory -->
+    <bean id="entityManagerFactory" class="net.sf.jpasecurity.persistence.SecureContainerEntityManagerFactoryBean"
+            p:dataSource-ref="dataSource">
         <property name="persistenceUnitName" value="PetClinic" />
-  		<property name="jpaVendorAdapter">
-		    <!--
-			<bean class="org.springframework.orm.jpa.vendor.TopLinkJpaVendorAdapter"
-					p:databasePlatform="${jpa.databasePlatform}" p:showSql="${jpa.showSql}"/>
-            -->
-			<bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"
-					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+        <property name="jpaVendorAdapter">
             <!--
-			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
-					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
-			-->
-		</property>
-	</bean>
+            <bean class="org.springframework.orm.jpa.vendor.TopLinkJpaVendorAdapter"
+                    p:databasePlatform="${jpa.databasePlatform}" p:showSql="${jpa.showSql}"/>
+            -->
+            <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"
+                    p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+            <!--
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+                    p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+            -->
+        </property>
+    </bean>
 	  ]]>
     </programlisting>
     <para>
@@ -136,10 +136,12 @@
       When you log in as <systemitem>james</systemitem> (who is a vet) and click on a visit of Jean
       to display Jean's pets, you see a button to create a pet and update the owner information.
       This should not be allowed for vets since only owners may do this.
-      Well, with JPA Security it isn't: When you click on one of the links, you get a security exception.
-      But this is not very nice. We would expect not to see the buttons,
-      when we are not allowed to use them - and JPA Security can do this. We have to change
-      <filename>owner.jsp</filename> in <filename>src/main/webapp/WEB-INF/jsp/</filename>.
+      Well, with JPA Security it isn't: When you click on one of the links for adding a pet or a visit,
+      you get a security exception. When you click on a link to edit the owner or a pet,
+      you get the form to edit it, but the security exception arises when you try to save your changes.
+      On a security point of view this is OK, but from the users perspective this is not very nice.
+      We would expect not to see the buttons, when we are not allowed to use them - and JPA Security can do this.
+      We have to change <filename>owner.jsp</filename> in <filename>src/main/webapp/WEB-INF/jsp/</filename>.
     </para>
     <para>
       Change
@@ -243,10 +245,21 @@
     </programlisting>
     <para>
       and you will see, the buttons only appear when you are allowed to click on it
-      (that is, when you are logged in as an owner). You now may configure every link like this,
-      but this is not covered by this tutorial. This tutorial ends here you are now able to
-      integrate JPA Security in your spring-managed application and know how to customize
-      your JSPs to reflect the current security context.
+      (that is, when you are logged in as an owner).
+      You now may configure every link like this (especially the links on the vet-view),
+      but this is not covered by this tutorial.
+    </para>
+  </section>
+  <section>
+    <title>Conclusion</title>
+    <para>
+      You are now able to integrate JPA Security in your spring-managed application
+      and know to customize your JSPs to reflect the current security context.
+    </para>
+    <para> 
+      As you could see, when walking through the tutorial, we focused on business-logic and authentication.
+      Due to the integration of JPA Security the authorization-logic within your domain-model
+      took just a very little part at the end of the tutorial.
     </para>
     <para>
       For further questions and suggestions please e-mail me at <email>arnelim@users.sourceforge.net</email>.
