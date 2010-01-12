@@ -322,7 +322,7 @@ public class Credential extends BaseEntity implements UserDetails {
       O/R-Mapping.
     </para>
     <para>
-      Change
+      Change <filename>orm.xml</filename> (in <filename>src/main/resources/META-INF/</filename>)
     </para>
     <programlisting>
       <![CDATA[
@@ -390,10 +390,187 @@ public class Credential extends BaseEntity implements UserDetails {
   <section>
     <title>Change the password</title>
     <para>
-      Our application is now able to store usernames and passwords, but there is no possibility to change it.
-      We modify <filename>EditOwnerForm.java</filename> (in <filename>src/main/java/org/springframework/samples/petclinic/web/</filename>)
-      to achieve this.
+      Our application is now able to store usernames and passwords, but there is no possibility to input or change it.
     </para>
+    <para>
+      We modify the <filename>ownerForm.jsp</filename> (in <filename>src/main/webapp/WEB-INF/jsp/</filename>) to achive both.
+      We add the fields for username and password between the phone number and the buttons.
+    </para>
+    <para>
+      Change
+    </para>
+    <programlisting>
+      <![CDATA[
+    <tr>
+      <th>
+        Telephone: <form:errors path="telephone" cssClass="errors"/>
+        <br/>
+        <form:input path="telephone" size="20" maxlength="20"/>
+      </th>
+    </tr>
+    <tr>
+      <td>
+        <c:choose>
+          <c:when test="${owner.new}">
+            <p class="submit"><input type="submit" value="Add Owner"/></p>
+          </c:when>
+          <c:otherwise>
+            <p class="submit"><input type="submit" value="Update Owner"/></p>
+          </c:otherwise>
+        </c:choose>
+      </td>
+    </tr>
+      ]]>
+    </programlisting>
+    <para>
+      into
+    </para>
+    <programlisting>
+      <![CDATA[
+    <tr>
+      <th>
+        Telephone: <form:errors path="telephone" cssClass="errors"/>
+        <br/>
+        <form:input path="telephone" size="20" maxlength="20"/>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        <c:choose>
+          <c:when test="${owner.new}">
+            Username: <form:errors path="credential.username" cssClass="errors"/>
+            <br/>
+            <form:input path="credential.username" size="20" maxlength="20"/>
+          </c:when>
+          <c:otherwise>
+            Username: ${owner.credential.username}
+          </c:otherwise>
+        </c:choose>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        Password: <form:errors path="credential.newPassword" cssClass="errors"/>
+        <br/>
+        <form:password path="credential.newPassword" size="20" maxlength="20"/>
+      </th>
+    </tr>
+    <tr>
+      <td>
+        <c:choose>
+          <c:when test="${owner.new}">
+            <p class="submit"><input type="submit" value="Register User"/></p>
+          </c:when>
+          <c:otherwise>
+            <p class="submit"><input type="submit" value="Update Owner"/></p>
+          </c:otherwise>
+        </c:choose>
+      </td>
+    </tr>
+      ]]>
+    </programlisting>
+    <para>
+      Now we modify <filename>AddOwnerForm.java</filename> and <filename>EditOwnerForm.java</filename>
+      (in <filename>src/main/java/org/springframework/samples/petclinic/web/</filename>)
+      to actually store username and password.
+    </para>
+    <para>
+      In <filename>AddOwnerForm.java</filename> change
+    </para>
+    <programlisting>
+      <![CDATA[
+    @RequestMapping(method = RequestMethod.GET)
+    public String setupForm(Model model) {
+        Owner owner = new Owner();
+        model.addAttribute(owner);
+        return "ownerForm";
+    }
+      ]]>
+    </programlisting>
+    <para>
+      into
+    </para>
+    <programlisting>
+      <![CDATA[
+    @RequestMapping(method = RequestMethod.GET)
+    public String setupForm(Model model) {
+        Owner owner = new Owner();
+        Credential credential = new Credential();
+        owner.setCredential(credential);
+        credential.setUser(owner);
+        model.addAttribute(owner);
+        model.addAttribute(credential); //This is for the pre-authentication filter later
+        return "ownerForm";
+    }
+      ]]>
+    </programlisting>
+    <para>
+      In <filename>EditOwnerForm.java</filename> change
+    </para>
+    <programlisting>
+      <![CDATA[
+@Controller
+@RequestMapping("/editOwner.do")
+@SessionAttributes(types = Owner.class)
+public class EditOwnerForm {
+    ...
+}
+      ]]>
+    </programlisting>
+    <para>
+      into
+    </para>
+    <programlisting>
+      <![CDATA[
+@Controller
+@RequestMapping("/editOwner.do")
+@SessionAttributes("owner")
+public class EditOwnerForm {
+    ...
+}
+      ]]>
+    </programlisting>
+    <para>
+      and
+    </para>
+    <programlisting>
+      <![CDATA[
+    @InitBinder
+    public void setAllowedFields(WebDataBinder dataBinder) {
+        dataBinder.setDisallowedFields(new String[] {"id"});
+    }
+      ]]>
+    </programlisting>
+    <para>
+      into
+    </para>
+    <programlisting>
+      <![CDATA[
+    @InitBinder
+    public void setAllowedFields(WebDataBinder dataBinder) {
+        dataBinder.setDisallowedFields(new String[] {"id", "username"});
+    }
+      ]]>
+    </programlisting>
+    <para>
+      Additionally we want to check that the user did not input an empty password
+      (especially when the user is created, otherwise the current password can be taken),
+      so we have to change the <filename>OwnerValidator.java</filename>
+      (in <filename>src/main/java/org/springframework/samples/petclinic/validation</filename>).
+    </para>
+    <para>
+      Add the following checks to the end of the validate method.
+    </para>
+    <programlisting>
+      <![CDATA[
+        if (!StringUtils.hasLength(owner.getCredential().getUsername())) {
+            errors.rejectValue("credential.username", "required", "required");
+        }
+        if (owner.getCredential().isNew() && !StringUtils.hasLength(owner.getCredential().getPassword())) {
+            errors.rejectValue("credential.newPassword", "required", "required");
+        }
+      ]]>
+    </programlisting>
   </section>
   <section>
     <title>Integrating Spring Security</title>
@@ -459,10 +636,10 @@ public class CredentialService implements UserDetailsService {
     <programlisting>
       <![CDATA[
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop"
-		xmlns:context="http://www.springframework.org/schema/context" xmlns:jee="http://www.springframework.org/schema/jee"
-		xmlns:tx="http://www.springframework.org/schema/tx"
-		xsi:schemaLocation="
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
 			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
 			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
@@ -555,6 +732,98 @@ public class CredentialService implements UserDetailsService {
       ]]>
     </programlisting>
     <para>
+      With this changes we now are able to log in any user. We now also can improve the creation
+      of users: We are now able to check whether a username does already exist and we can
+      automatically log in a newly created user.
+      We have to inject the <systemitem>UserDetailsService</systemitem> we just created into the
+      <systemitem>AddOwnerForm</systemitem>
+      (in <filename>src/main/java/org/springframework/samples/petclinic/web/AddOwnerForm.java</filename>)
+    </para>
+    <para>
+      First we add an attribute <systemitem>UserDetailsService</systemitem> and inject it via the constructor.
+      Change
+    </para>
+    <programlisting>
+      <![CDATA[
+    @Autowired
+    public AddOwnerForm(Clinic clinic) {
+        this.clinic = clinic;
+    }
+      ]]>
+    </programlisting>
+    <para>
+      into
+    </para>
+    <programlisting>
+      <![CDATA[
+    private final UserDetailsService userDetailsService;
+
+    @Autowired
+    public AddOwnerForm(Clinic clinic,
+                        UserDetailsService userDetailsService) {
+        this.clinic = clinic;
+        this.userDetailsService = userDetailsService;
+    }
+      ]]>
+    </programlisting>
+    <para>
+      Now we can check, whether the username does already exist.
+      In <systemitem>processSubmit</systemitem> after
+    </para>
+    <programlisting>
+      <![CDATA[
+        new OwnerValidator().validate(owner, result);
+      ]]>
+    </programlisting>
+    <para>
+      add
+    </para>
+    <programlisting>
+      <![CDATA[
+        try {
+            userDetailsService.loadUserByUsername(owner.getCredential().getUsername());
+            result.rejectValue("credential.username", "alreadyExists", "already exists");
+        } catch (UsernameNotFoundException e) {
+            //all right, the user does not already exist
+        }
+      ]]>
+    </programlisting>
+    <para>
+      To automatically log in the new user, modify the <systemitem>else</systemitem> block
+      in <systemitem>processSubmit</systemitem>.
+    </para>
+    <para>
+      Change
+    </para>
+    <programlisting>
+      <![CDATA[
+        else {
+            this.clinic.storeOwner(owner);
+            status.setComplete();
+            return "redirect:owner.do?ownerId=" + owner.getId();
+        }
+      ]]>
+    </programlisting>
+    <para>
+      into
+    </para>
+    <programlisting>
+      <![CDATA[
+        else {
+            this.clinic.storeOwner(owner);
+            Credential credential = owner.getCredential();
+            Authentication authentication
+                = new UsernamePasswordAuthenticationToken(credential, credential, credential.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            status.setComplete();
+            return "redirect:welcome.do";
+        }
+      ]]>
+    </programlisting>
+    <para>
+      Don't forget to add the required imports.
+    </para>
+    <para>
       When we are logged in we would expect a personal greeting
       and a direct link to our pets.
     </para>
@@ -563,17 +832,20 @@ public class CredentialService implements UserDetailsService {
       in (<filename>src/main/java/org/springframework/samples/petclinic/web/</filename>).
     </para>
     <para>
-      Add
+      Change
     </para>
     <programlisting>
       <![CDATA[
-    /**
-     * Custom handler for the welcome view.
-     * <p>
-     * Note that this handler relies on the RequestToViewNameTranslator to
-     * determine the logical view name based on the request URL: "/welcome.do"
-     * -&gt; "welcome".
-     */
+	@RequestMapping("/welcome.do")
+	public void welcomeHandler() {
+	}
+      ]]>
+    </programlisting>
+    <para>
+      into
+    </para>
+    <programlisting>
+      <![CDATA[
     @RequestMapping("/welcome.do")
     public ModelMap welcomeHandler() {
         Credential credential = (Credential)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -593,6 +865,8 @@ public class CredentialService implements UserDetailsService {
     </para>
     <programlisting>
       <![CDATA[
+<h2><fmt:message key="welcome"/></h2>
+
 <ul>
   <li><a href="<c:url value="/findOwners.do"/>">Find owner</a></li>
   <li><a href="<c:url value="/vets.do"/>">Display all veterinarians</a></li>
@@ -606,6 +880,8 @@ public class CredentialService implements UserDetailsService {
     </para>
     <programlisting>
       <![CDATA[
+<h2><fmt:message key="welcome"/> ${person.firstName} ${person.lastName}</h2>
+
 <ul>
   <c:choose>
     <c:when test="${vet}">
