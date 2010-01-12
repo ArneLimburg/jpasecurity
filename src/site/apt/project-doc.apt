@@ -2,7 +2,8 @@ Documentation
 
 * Tutorials
 
-  A simple tutorial can be found {{{simple-tutorial/introduction.html}here}}.
+  A simple tutorial can be found {{{simple-tutorial/introduction.html}here}}
+  and a more complex tutorial based on the Springframework's petclinic sample can be found {{{petclinic-tutorial/introduction.html}here}}
     
 * Manual
 
