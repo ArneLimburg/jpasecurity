@@ -209,6 +209,10 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         return query.setParameter(name, entity);
     }
 
+    public void flush() {
+        updatedChangedProperties();
+    }
+
     public Object getEntity() {
         return entity;
     }

@@ -15,6 +15,10 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import static net.sf.jpasecurity.AccessType.CREATE;
+import static net.sf.jpasecurity.AccessType.READ;
+import static net.sf.jpasecurity.AccessType.UPDATE;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,17 +29,12 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.FetchType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import net.sf.jpasecurity.AccessType;
-import static net.sf.jpasecurity.AccessType.CREATE;
-import static net.sf.jpasecurity.AccessType.READ;
-import static net.sf.jpasecurity.AccessType.UPDATE;
 import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.entity.DefaultSecureCollection;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
@@ -58,6 +57,9 @@ import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 import net.sf.jpasecurity.util.ReflectionUtils;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * This class handles invocations on proxies of entity managers.
@@ -194,6 +196,10 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         }
     }
 
+    public EntityTransaction getTransaction() {
+        return new SecureTransactionInvocationHandler(getTarget().getTransaction(), this).createProxy();
+    }
+
     public int getMaximumFetchDepth() {
         return maxFetchDepth;
     }
@@ -231,6 +237,19 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                         fetch(value, depth - 1, alreadyFetchedEntities);
                     }
                 }
+            }
+        }
+    }
+
+    public void flush() {
+        checkAccess();
+        getTarget().flush();
+    }
+
+    public void checkAccess() {
+        for (Map<Object, SecureEntity> secureEntities: this.secureEntities.values()) {
+            for (SecureEntity secureEntity: secureEntities.values()) {
+                secureEntity.flush();
             }
         }
     }
@@ -421,17 +440,4 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             return new DefaultSecureCollection(owner, collection, this);
         }
     }
-
-//    public EntityTransaction getTransaction() {
-//       final EntityManager manager = super.getTarget();
-//       final EntityTransaction transaction = manager.getTransaction();
-//       final EntityTransactionInvocationHandler transactionInvocationHandler =
-//          new EntityTransactionInvocationHandler(transaction, this);
-//       return transactionInvocationHandler.createProxy();
-//    }
-//
-//   void clearSecureObjects() {
-//      secureEntities.clear();
-//      secureCollections.clear();
-//   }
 }
