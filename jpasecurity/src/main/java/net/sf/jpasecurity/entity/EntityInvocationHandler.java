@@ -371,11 +371,14 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     private <T> T getUnsecureObject(T object) {
+        if (object instanceof EntityProxy) {
+            object = (T)((EntityProxy)object).getEntity();
+        }
         if (object instanceof SecureEntity) {
             try {
                 for (Callback callback: (Callback[])ReflectionUtils.invokeMethod(object, "getCallbacks")) {
                     if (callback instanceof EntityInvocationHandler) {
-                        return (T)((EntityInvocationHandler)callback).entity;
+                        return getUnsecureObject((T)((EntityInvocationHandler)callback).entity);
                     }
                 }
             } catch (SecurityException e) {
