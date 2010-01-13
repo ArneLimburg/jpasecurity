@@ -40,4 +40,5 @@ public interface SecureEntity extends SecureObject {
     Query setParameter(Query query, String name);
     Object getEntity();
     void unwrapSecureObjects();
+    void flush();
 }

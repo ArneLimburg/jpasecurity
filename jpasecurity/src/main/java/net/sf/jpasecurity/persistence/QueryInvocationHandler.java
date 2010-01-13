@@ -73,10 +73,12 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
     }
 
     public Object getSingleResult() {
+        objectManager.checkAccess();
         return getSecureResult(getTarget().getSingleResult());
     }
 
     public List getResultList() {
+        objectManager.checkAccess();
         List targetResult = getTarget().getResultList();
         List proxyResult = new ArrayList();
         for (Object entity: targetResult) {
