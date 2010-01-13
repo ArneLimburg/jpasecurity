@@ -305,9 +305,15 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
 
     private void updatedChangedProperties() {
         setUpdating(true);
+        boolean updateabilityChecked = false;
         for (PropertyMappingInformation propertyMapping: entityMapping.getPropertyMappings()) {
             Object value = propertyMapping.getPropertyValue(secureEntity);
-            if (value != propertyValues.get(propertyMapping.getPropertyName())) {
+            Object oldPropertyValue = propertyValues.get(propertyMapping.getPropertyName());
+            if (value != oldPropertyValue && (value == null || !value.equals(oldPropertyValue))) {
+                if (!updateabilityChecked) {
+                    checkAccess(entity, AccessType.UPDATE, CascadeType.MERGE, new HashSet<Object>());
+                    updateabilityChecked = true;
+                }
                 propertyMapping.setPropertyValue(entity, getUnsecureObject(value));
                 if (propertyMapping instanceof RelationshipMappingInformation) {
                     value = objectManager.getSecureObject(secureEntity, value);
