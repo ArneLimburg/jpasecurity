@@ -246,8 +246,8 @@
     <para>
       and you will see, the buttons only appear when you are allowed to click on it
       (that is, when you are logged in as an owner).
-      You now may configure every link like this (especially the links on the vet-view),
-      but this is not covered by this tutorial.
+      Configuring the <filename>vet.jsp</filename> the same way remains as an exercise to you.
+      And so we are at the end of this tutorial. Our application fulfills the requirements from the first page.
     </para>
   </section>
   <section>
@@ -258,8 +258,8 @@
     </para>
     <para> 
       As you could see, when walking through the tutorial, we focused on business-logic and authentication.
-      Due to the integration of JPA Security the authorization-logic within your domain-model
-      took just a very little part at the end of the tutorial.
+      Due to the integration of JPA Security we needed not to implement much authorization-logic within our domain-model.
+      That code was just a very little part at the end of the tutorial.
     </para>
     <para>
       For further questions and suggestions please e-mail me at <email>arnelim@users.sourceforge.net</email>.
