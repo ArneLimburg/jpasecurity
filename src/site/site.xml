@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
   <bannerLeft>
-    <name>Hosted on SourceForge.net</name>
-    <src>http://sflogo.sourceforge.net/sflogo.php?group_id=219346&amp;type=4</src>
-    <href>http://sourceforge.net</href>
+    <name/>
   </bannerLeft>
   <bannerRight>
     <src>images/logo.png</src>
@@ -16,6 +14,9 @@
     <logo name="Donate"
           href="http://sourceforge.net/donate/index.php?group_id=219346"
           img="http://images.sourceforge.net/images/project-support.jpg"/>
+    <logo name="Hosted on SourceForge.net"
+          href="http://sourceforge.net"
+          img="http://sflogo.sourceforge.net/sflogo.php?group_id=219346&amp;type=9"/>
   </poweredBy>
   
   <skin>

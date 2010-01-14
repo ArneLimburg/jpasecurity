@@ -17,9 +17,9 @@
       This table needs a reference to the corresponding owner or vet.
       Unfortunately we currently have no common table for owners and vets.
       Owners and vets already have some data in common, so it seems naturally to create
-      a common base-table. We name it <systemitem>PERSON</systemitem> and we put the
+      a common base-table. We name it <systemitem>PERSONS</systemitem> and we put the
       <systemitem>FIRST_NAME</systemitem> and <systemitem>LAST_NAME</systemitem> into it.
-      The <systemitem>USERS</systemitem> table then can reference the table <systemitem>PERSON</systemitem>. 
+      The <systemitem>USERS</systemitem> table then can reference the table <systemitem>PERSONS</systemitem>. 
     </para>
     <para>
       Again we change the database schema in the file <filename>petclinic.script</filename>
@@ -586,7 +586,7 @@ public class EditOwnerForm {
       and put <filename>CredentialService.java</filename> into it.
     </para>
     <para>
-      The content of <filename>CredentialService.java</filename> looks as follows.
+      The content of <filename>CredentialService.java</filename> follows:
     </para>
     <programlisting>
       <![CDATA[
@@ -932,8 +932,8 @@ public class CredentialService implements UserDetailsService {
     </filter>
 
     <filter-mapping>
-      <filter-name>springSecurityFilterChain</filter-name>
-      <url-pattern>/*</url-pattern>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
       ]]>
     </programlisting>
