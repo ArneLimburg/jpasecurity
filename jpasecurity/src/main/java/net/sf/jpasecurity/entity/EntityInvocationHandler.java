@@ -293,6 +293,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
 
     private void initialize() {
         setUpdating(true);
+        checkAccess(entity, AccessType.READ, CascadeType.REFRESH, new HashSet<Object>());
         copyState(entity, secureEntity);
         entity = unproxy(entity);
         for (PropertyMappingInformation propertyMapping: entityMapping.getPropertyMappings()) {
