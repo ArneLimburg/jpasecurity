@@ -18,7 +18,7 @@
     your access control paradigm (but maybe you want to, when you see the great
     capability of JPA Security). You even can mix access control paradigms easily.
     JPA Security is not designed to replace current security solutions, but to extend them.
-    It integrates smoothly into J2EE Security or Spring Security, but may be used on its own, too.
+    It integrates smoothly into JavaEE Security or Spring Security, but may be used on its own, too.
     With the extensibility of JPA Security it is easy to provide
     your own access control paradigm, access rules storage or login mechanism.
   </description>
