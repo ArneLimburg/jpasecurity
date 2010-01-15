@@ -66,5 +66,15 @@
         </section>
       </sections>
     </chapter>
+    <chapter>
+      <id>details</id>
+      <title>One Step deeper</title>
+      <sections>
+        <section>
+          <id>internal</id>
+          <title>How does JPA Security work internally?</title>
+        </section>
+      </sections>
+    </chapter>
   </chapters>
 </book>
