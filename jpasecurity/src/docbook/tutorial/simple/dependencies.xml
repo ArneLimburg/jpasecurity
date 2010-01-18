@@ -34,11 +34,11 @@
   </programlisting>
   <para>
     Hibernate needs the Transaction-API from sun.
-    Download it <ulink url="http://repository.jboss.com/maven2/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar">here</ulink>
+    Download the classes of version 1.0.1B <ulink url="http://java.sun.com/products/jta">here</ulink>
     and install it to your local Maven repository with the following command:
   </para>
   <programlisting>
-mvn install:install-file -DgroupId=javax.transaction -DartifactId=jta -Dversion=1.0.1B -Dpackaging=jar -Dfile=/path/to/jta.jar
+mvn install:install-file -DgroupId=javax.transaction -DartifactId=jta -Dversion=1.0.1B -Dpackaging=jar -Dfile=/path/to/jta-1_0_1B-classes.zip
   </programlisting>
   <para>
     Note that you have to provide the absolute path to the <systemitem>jta.jar</systemitem>.
