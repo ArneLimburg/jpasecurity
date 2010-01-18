@@ -239,19 +239,21 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
                 throw new SecurityException("The current user is not permitted to access the specified object");
             }
             checkedEntities.add(object);
-            ClassMappingInformation classMapping = mapping.getClassMapping(object.getClass());
-            for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
-                if (propertyMapping.getCascadeTypes().contains(cascadeType)
-                        || propertyMapping.getCascadeTypes().contains(CascadeType.ALL)) {
-                    try {
-                        Object value = propertyMapping.getPropertyValue(object);
-                        if (value != null) {
-                            checkAccess(value, accessType, cascadeType, objectManager, checkedEntities);
+            if (cascadeType != null) {
+                ClassMappingInformation classMapping = mapping.getClassMapping(object.getClass());
+                for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
+                    if (propertyMapping.getCascadeTypes().contains(cascadeType)
+                            || propertyMapping.getCascadeTypes().contains(CascadeType.ALL)) {
+                        try {
+                            Object value = propertyMapping.getPropertyValue(object);
+                            if (value != null) {
+                                checkAccess(value, accessType, cascadeType, objectManager, checkedEntities);
+                            }
+                        } catch (PropertyAccessException e) {
+                            throw new PropertyAccessException(propertyMapping.getPropertyName() + "." + e.getPropertyName());
+                        } catch (SecurityException e) {
+                            throw new PropertyAccessException(propertyMapping.getPropertyName());
                         }
-                    } catch (PropertyAccessException e) {
-                        throw new PropertyAccessException(propertyMapping.getPropertyName() + "." + e.getPropertyName());
-                    } catch (SecurityException e) {
-                        throw new PropertyAccessException(propertyMapping.getPropertyName());
                     }
                 }
             }
@@ -293,7 +295,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
 
     private void initialize() {
         setUpdating(true);
-        checkAccess(entity, AccessType.READ, CascadeType.REFRESH, new HashSet<Object>());
+        checkAccess(entity, AccessType.READ, null, new HashSet<Object>());
         copyState(entity, secureEntity);
         entity = unproxy(entity);
         for (PropertyMappingInformation propertyMapping: entityMapping.getPropertyMappings()) {
