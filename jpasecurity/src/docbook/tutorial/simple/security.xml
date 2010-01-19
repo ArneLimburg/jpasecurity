@@ -64,6 +64,10 @@
     </para>
     <programlisting>
       <![CDATA[
+import javax.annotation.security.DeclareRoles;
+import javax.annotation.security.RolesAllowed;
+import net.sf.jpasecurity.security.PermitWhere;
+      
 @Entity
 @DeclareRoles({"admin", "user"})
 @RolesAllowed("admin")
@@ -75,6 +79,9 @@ public class User {
     </programlisting>
     <programlisting>
       <![CDATA[
+import javax.annotation.security.RolesAllowed;
+import net.sf.jpasecurity.security.PermitWhere;
+
 @Entity
 @RolesAllowed("admin")
 @PermitWhere("owner.name = CURRENT_PRINCIPAL")
