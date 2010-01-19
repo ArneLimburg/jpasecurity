@@ -90,10 +90,6 @@ import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
   }
   </programlisting>
   <para>
-    As we can see, the two contacts are really John and Mary.
-    Otherwise the call to getSingleResult() would have thrown a NoResultException.
-  </para>
-  <para>
     Let's see if all four contacts are there:
   </para>
   <programlisting>
