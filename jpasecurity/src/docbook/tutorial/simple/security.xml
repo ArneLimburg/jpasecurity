@@ -154,6 +154,7 @@ public class Contact {
       to run as user "root" with the role "admin":
     </para>
     <programlisting>
+      <![CDATA[
   public static void createUsers(final EntityManagerFactory entityManagerFactory) {
     StaticAuthenticationProvider.runAs("root", Arrays.asList("admin"), new PrivilegedAction() {
       public Object run() {
@@ -169,6 +170,7 @@ public class Contact {
       }
     });
   }
+      ]]>
     </programlisting>
     <para>
       Now let's try our program again and see what happens now...
@@ -185,6 +187,7 @@ public class Contact {
       We are using <systemitem>runAs</systemitem> to create the contacts, too:
     </para>
     <programlisting>
+      <![CDATA[
   public static void createContacts(final EntityManagerFactory entityManagerFactory) {
     StaticAuthenticationProvider.runAs("root", Arrays.asList("admin"), new PrivilegedAction() {
       public Object run() {
@@ -204,6 +207,7 @@ public class Contact {
       }
     });
   }
+      ]]>
     </programlisting>
   </section>
   <section>
@@ -216,6 +220,7 @@ public class Contact {
       as "root" with the role admin at the beginning of the <systemitem>main</systemitem> method:
     </para>
     <programlisting>
+      <![CDATA[
   public static void main(String[] args) {
     StaticAuthenticationProvider.authenticate("root", "admin");
     EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("contacts");
@@ -224,6 +229,7 @@ public class Contact {
     createContacts(entityManagerFactory);
     displayContactCount(entityManagerFactory);
   }
+      ]]>
     </programlisting>
     <para>
       When we now run our program we can see from the output, that we get 2 users and 4 contacts.
@@ -233,6 +239,7 @@ public class Contact {
       But what is, when we authenticate as "John"? Let's try...
     </para>
     <programlisting>
+      <![CDATA[
   public static void main(String[] args) {
     StaticAuthenticationProvider.authenticate("John");
     EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("contacts");
@@ -241,6 +248,7 @@ public class Contact {
     createContacts(entityManagerFactory);
     displayContactCount(entityManagerFactory);
   }
+      ]]>
     </programlisting>
     <para>
       Now the output says that we get 1 user and 2 contacts (that are Johns contacts). We get only one
