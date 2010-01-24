@@ -41,15 +41,20 @@ public class App {
         displayContactCount(entityManagerFactory);
     }
 
-    public static void createUsers(EntityManagerFactory entityManagerFactory) {
-        EntityManager entityManager;
+    public static void createUsers(final EntityManagerFactory entityManagerFactory) {
+        StaticAuthenticationProvider.runAs("root", Arrays.asList("admin"), new PrivilegedAction() {
+            public Object run() {
+                EntityManager entityManager;
 
-        entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
-        entityManager.persist(new User("John"));
-        entityManager.persist(new User("Mary"));
-        entityManager.getTransaction().commit();
-        entityManager.close();
+                entityManager = entityManagerFactory.createEntityManager();
+                entityManager.getTransaction().begin();
+                entityManager.persist(new User("John"));
+                entityManager.persist(new User("Mary"));
+                entityManager.getTransaction().commit();
+                entityManager.close();
+                return null;
+            }
+        });
     }
 
     public static void displayUserCount(EntityManagerFactory entityManagerFactory) {
