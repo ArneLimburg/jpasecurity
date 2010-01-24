@@ -137,7 +137,7 @@ public class Contact {
       that they may be accessed by admins, too and that they may be accessed by their owners.
     </para>
     <para>
-      Let's try our program now and see what happens...
+      Let's execute our program now and see what happens...
     </para>
     <para>
       As we can see an exception is thrown, a <systemitem>java.lang.SecurityException</systemitem>
@@ -173,18 +173,19 @@ public class Contact {
       ]]>
     </programlisting>
     <para>
-      Now let's try our program again and see what happens now...
+      Now let's execute our program again and see what happens now...
     </para>
     <para>
       Another exception is thrown, this time it is a <systemitem>javax.persistence.NoResultException</systemitem>
-      at the line where we try to select john from the database.
-      OK, we just authenticated to create users using <systemitem>runAs</systemitem>.
-      When we try to create contacts, we are not authenticated thus not permitted to select john from the database.
-	  An additional output proves this, as we can see the number of users we get displayed
+      at the line where we try to select john from the database. That's good news.
+      We are just authenticated during the method <systemitem>createUsers</systemitem>.
+      So when we try to create the contacts, we are not authenticated thus not permitted to select john from the database.
+      This means, JPA Security works. An additional output proves this, as we can see the number of users we get displayed
 	  by our <systemitem>displayUserCount</systemitem> method is actually 0.
+	  JPA Security filters out the users we are not permitted to see (which are all). 
     </para>
     <para>
-      We are using <systemitem>runAs</systemitem> to create the contacts, too:
+      We are now using <systemitem>runAs</systemitem> to create the contacts, too:
     </para>
     <programlisting>
       <![CDATA[
@@ -213,11 +214,11 @@ public class Contact {
   <section>
     <title>Authentication</title>
     <para>
-      When we now run the application, we see that the exceptions are gone away, but when we take a look at
+      When we now run the application, we see that the exceptions are gone away. When we take a look at
       the output of our <systemitem>displayUserCount</systemitem> and <systemitem>displayContactCount</systemitem> methods,
       we see that it is actually 0.
-      This is because we just authenticated for the <systemitem>createXXX</systemitem> methods. Let's authenticate
-      as "root" with the role admin at the beginning of the <systemitem>main</systemitem> method:
+      We should have expected this since we just authenticated for the <systemitem>createXXX</systemitem> methods.
+      Let's authenticate as "root" with the role admin at the beginning of the <systemitem>main</systemitem> method:
     </para>
     <programlisting>
       <![CDATA[
@@ -232,7 +233,7 @@ public class Contact {
       ]]>
     </programlisting>
     <para>
-      When we now run our program we can see from the output, that we get 2 users and 4 contacts.
+      When we now execute our program we can see from the output, that we get 2 users and 4 contacts.
       This is what we expected, as we are permitted to select all data with the role "admin".
     </para>
     <para>
