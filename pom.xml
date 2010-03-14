@@ -175,7 +175,7 @@
         <configuration>
           <consoleOutput>true</consoleOutput>
           <encoding>UTF-8</encoding>
-          <configLocation>src/checkstyle/configuration.xml</configLocation>
+          <configLocation>${basedir}/src/checkstyle/configuration.xml</configLocation>
         </configuration>
         <executions>
           <execution>
@@ -266,7 +266,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <configLocation>src/checkstyle/configuration.xml</configLocation>
+          <configLocation>${basedir}/src/checkstyle/configuration.xml</configLocation>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
