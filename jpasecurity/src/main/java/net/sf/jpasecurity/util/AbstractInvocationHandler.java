@@ -18,6 +18,8 @@ package net.sf.jpasecurity.util;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This implementation of the {@link InvocationHandler} interface delegates invocations
@@ -26,20 +28,31 @@ import java.lang.reflect.Method;
  */
 public abstract class AbstractInvocationHandler implements InvocationHandler {
 
+    private Map<Method, Method> methodCache = new HashMap<Method, Method>();
+
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
-            return getClass().getDeclaredMethod(method.getName(), method.getParameterTypes()).invoke(this, args);
+            return methodCache.get(method).invoke(this, args);
         } catch (InvocationTargetException e) {
             throw e.getCause();
         }
     }
 
     protected boolean canInvoke(Method method) {
+        if (methodCache.containsKey(method)) {
+            return methodCache.get(method) != null;
+        }
         try {
             Method targetMethod = getClass().getDeclaredMethod(method.getName(), method.getParameterTypes());
-            return method.getReturnType().isAssignableFrom(targetMethod.getReturnType())
-                || targetMethod.getReturnType().isAssignableFrom(method.getReturnType());
+            if (!method.getReturnType().isAssignableFrom(targetMethod.getReturnType())
+                && !targetMethod.getReturnType().isAssignableFrom(method.getReturnType())) {
+                methodCache.put(method, null);
+                return false;
+            }
+            methodCache.put(method, targetMethod);
+            return true;
         } catch (NoSuchMethodException e) {
+            methodCache.put(method, null);
             return false;
         }
     }
