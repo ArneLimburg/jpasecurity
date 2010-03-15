@@ -34,9 +34,8 @@ public class UnwrapSecureObjectsTest extends TestCase {
         
         entityManager.persist(bean);
         
-        assertFalse("grandChild must be unwrapped", bean.getChildBeans().get(0).getChildBeans().get(0) instanceof SecureEntity);
+        assertTrue("grandChild must be wrapped", bean.getChildBeans().get(0).getChildBeans().get(0) instanceof SecureEntity);
         bean = entityManager.merge(bean);
-        assertTrue("bean must be wrapped", bean instanceof SecureEntity);
         assertEquals(grandChild.getIdentifier(), bean.getChildBeans().get(0).getChildBeans().get(0).getIdentifier());
         grandChild = bean.getChildBeans().get(0).getChildBeans().get(0);
         assertTrue("grandChild must be wrapped", grandChild instanceof SecureEntity);

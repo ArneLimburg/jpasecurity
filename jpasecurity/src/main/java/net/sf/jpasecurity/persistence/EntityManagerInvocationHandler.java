@@ -15,18 +15,14 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import static net.sf.jpasecurity.AccessType.CREATE;
 import static net.sf.jpasecurity.AccessType.READ;
-import static net.sf.jpasecurity.AccessType.UPDATE;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -34,18 +30,15 @@ import javax.persistence.FetchType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
+import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntityManager;
-import net.sf.jpasecurity.entity.DefaultSecureCollection;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
+import net.sf.jpasecurity.entity.EntityPersister;
 import net.sf.jpasecurity.entity.FetchManager;
-import net.sf.jpasecurity.entity.SecureCollection;
 import net.sf.jpasecurity.entity.SecureEntity;
-import net.sf.jpasecurity.entity.SecureList;
-import net.sf.jpasecurity.entity.SecureObject;
+import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.entity.SecureObjectManager;
-import net.sf.jpasecurity.entity.SecureSet;
-import net.sf.jpasecurity.entity.SecureSortedSet;
 import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
@@ -66,53 +59,65 @@ import org.apache.commons.logging.LogFactory;
  * @author Arne Limburg
  */
 public class EntityManagerInvocationHandler extends ProxyInvocationHandler<EntityManager>
-                                            implements FetchManager, SecureObjectManager {
+                                            implements FetchManager, AccessManager {
 
     private static final Log LOG = LogFactory.getLog(EntityManagerInvocationHandler.class);
 
     private AuthenticationProvider authenticationProvider;
     private MappingInformation mappingInformation;
+    private SecureObjectManager secureObjectManager;
+    private EntityPersister entityPersister;
     private EntityFilter entityFilter;
-    private Map<Class, Map<Object, SecureEntity>> secureEntities;
-    private Map<Integer, SecureCollection<?>> secureCollections;
     private int maxFetchDepth;
 
     protected EntityManagerInvocationHandler(EntityManager entityManager,
-                                   MappingInformation mappingInformation,
-                                   AuthenticationProvider authenticationProvider,
-                                   List<AccessRule> accessRules,
-                                   int maxFetchDepth) {
+                                             MappingInformation mappingInformation,
+                                             AuthenticationProvider authenticationProvider,
+                                             List<AccessRule> accessRules,
+                                             int maxFetchDepth) {
+        this(entityManager, mappingInformation, authenticationProvider, null, null, accessRules, maxFetchDepth);
+    }
+
+    protected EntityManagerInvocationHandler(EntityManager entityManager,
+                                             MappingInformation mappingInformation,
+                                             AuthenticationProvider authenticationProvider,
+                                             SecureObjectManager secureObjectManager,
+                                             EntityPersister entityPersister,
+                                             List<AccessRule> accessRules,
+                                             int maxFetchDepth) {
         super(entityManager);
+        if (entityPersister == null) {
+            entityPersister = new SecureObjectCache(mappingInformation, entityManager, this);
+        }
+        if (secureObjectManager == null) {
+            secureObjectManager = entityPersister;
+        }
         this.authenticationProvider = authenticationProvider;
         this.mappingInformation = mappingInformation;
-        this.entityFilter = new EntityFilter(entityManager, this, mappingInformation, accessRules);
-        this.secureEntities = new HashMap<Class, Map<Object, SecureEntity>>();
-        this.secureCollections = new HashMap<Integer, SecureCollection<?>>();
+        this.secureObjectManager = secureObjectManager;
+        this.entityPersister = entityPersister;
+        this.entityFilter = new EntityFilter(entityManager, secureObjectManager, mappingInformation, accessRules);
         this.maxFetchDepth = maxFetchDepth;
     }
 
     public void persist(Object entity) {
-        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-        SecureEntity secureEntity = createSecureEntity(entity);
-        secureEntity.persist(getTarget());
-        //putSecureEntity(mapping.getId(secureEntity), mapping.getEntityType(), secureEntity);
+        entityPersister.persist(entity);
     }
 
     public <T> T merge(T entity) {
         if (entity instanceof SecureEntity) {
-            return (T)((SecureEntity)entity).merge(getTarget(), this, UPDATE);
+            return (T)((SecureEntity)entity).merge(getTarget(), secureObjectManager);
         } else {
-            SecureEntity secureEntity = createSecureEntity(entity);
-            return (T)secureEntity.merge(getTarget(), this, isNewEntity(entity)? CREATE: UPDATE);
+            return entityPersister.mergeNew(entity);
         }
     }
 
     public <T> T find(Class<T> type, Object id) {
         T entity = getTarget().find(type, id);
         if (!isAccessible(READ, entity)) {
-            throw new SecurityException("The current user is not permitted to find the specified entity");
+            throw new SecurityException("The current user is not permitted to find the specified entity of type " + entity.getClass());
         }
-        entity = (T)getSecureEntity(entity);
+        entity = secureObjectManager.getSecureObject(entity);
         fetch(entity, getMaximumFetchDepth());
         return entity;
     }
@@ -155,14 +160,15 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         return getTarget().getDelegate();
     }
 
-    public void clear() {
-        secureEntities.clear();
-        getTarget().clear();
+    public void flush() {
+        secureObjectManager.preFlush();
+        getTarget().flush();
+        secureObjectManager.postFlush();
     }
 
-    public void close() {
-        secureEntities.clear();
-        getTarget().close();
+    public void clear() {
+        secureObjectManager.clear();
+        getTarget().clear();
     }
 
     /**
@@ -177,12 +183,13 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             return new EmptyResultQuery();
         } else {
             QueryInvocationHandler queryInvocationHandler
-                = new QueryInvocationHandler(this,
+                = new QueryInvocationHandler(secureObjectManager,
                                              this,
                                              getTarget().createQuery(filterResult.getQuery()),
                                              filterResult.getSelectedPaths(),
                                              filterResult.getTypeDefinitions(),
-                                             new MappedPathEvaluator(mappingInformation));
+                                             new MappedPathEvaluator(mappingInformation),
+                                             getTarget().getFlushMode());
             Query query = queryInvocationHandler.createProxy();
             if (filterResult.getUserParameterName() != null) {
                 query.setParameter(filterResult.getUserParameterName(), user);
@@ -197,7 +204,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public EntityTransaction getTransaction() {
-        return new SecureTransactionInvocationHandler(getTarget().getTransaction(), this).createProxy();
+        return new SecureTransactionInvocationHandler(getTarget().getTransaction(), secureObjectManager).createProxy();
     }
 
     public int getMaximumFetchDepth() {
@@ -241,19 +248,6 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         }
     }
 
-    public void flush() {
-        checkAccess();
-        getTarget().flush();
-    }
-
-    public void checkAccess() {
-        for (Map<Object, SecureEntity> secureEntities: this.secureEntities.values()) {
-            for (SecureEntity secureEntity: secureEntities.values()) {
-                secureEntity.flush();
-            }
-        }
-    }
-
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
         ClassMappingInformation classMapping = mappingInformation.getClassMapping(entityName);
         Object[] transientParameters = new Object[parameters.length];
@@ -263,7 +257,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                 transientParameters[i] = parameters[i];
             } else {
                 EntityInvocationHandler transientInvocationHandler
-                    = new EntityInvocationHandler(mappingInformation, this, parameters[i], true);
+                    = new EntityInvocationHandler(mappingInformation, this, entityPersister, parameters[i], true);
                 transientParameters[i] = transientInvocationHandler.createSecureEntity();
             }
         }
@@ -276,36 +270,6 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             return entityFilter.isAccessible(entity, accessType, getCurrentUser(), getCurrentRoles());
         } catch (NotEvaluatableException e) {
             throw new SecurityException(e);
-        }
-    }
-
-    public <T> SecureObject getSecureObject(T object) {
-        return getSecureObject(null, object);
-    }
-
-    public <T> SecureObject getSecureObject(Object parent, T object) {
-        if (object instanceof SecureObject) {
-            return (SecureObject)object;
-        }
-        if (object == null) {
-            return null;
-        }
-        if (object instanceof Collection) {
-            if (parent == null) {
-                throw new IllegalArgumentException("Cannot create secure collection with no parent");
-            }
-            return getSecureCollection(parent, (Collection)object);
-        } else {
-            return getSecureEntity(object);
-        }
-    }
-
-    public <E> Collection<E> getSecureObjects(Class<E> type) {
-        Map<Object, SecureEntity> entities = secureEntities.get(type);
-        if (entities == null) {
-            return Collections.EMPTY_SET;
-        } else {
-            return (Collection<E>)Collections.unmodifiableCollection(entities.values());
         }
     }
 
@@ -371,73 +335,5 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             }
         }
         return roles;
-    }
-
-    private SecureEntity getSecureEntity(Object entity) {
-        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-        if (mapping == null) {
-            throw new IllegalArgumentException(entity.getClass() + " is not mapped");
-        }
-        Object id = mapping.getId(entity);
-        SecureEntity secureEntity = getSecureEntity(id, mapping.getEntityType());
-        if (secureEntity == null) {
-            secureEntity = createSecureEntity(entity);
-            putSecureEntity(id, mapping.getEntityType(), secureEntity);
-        }
-        return secureEntity;
-    }
-
-    private SecureEntity getSecureEntity(Object id, Class<?> type) {
-        if (id == null) {
-            return null;
-        }
-        Map<Object, SecureEntity> entities = getSecureEntities(type);
-        if (entities == null) {
-            return null;
-        } else {
-            return entities.get(id);
-        }
-    }
-
-    private Map<Object, SecureEntity> getSecureEntities(Class<?> type) {
-        return secureEntities.get(type);
-    }
-
-    private void putSecureEntity(Object id, Class<?> type, SecureEntity entity) {
-        if (id != null) {
-            Map<Object, SecureEntity> entities = getSecureEntities(type);
-            if (entities == null) {
-                entities = new HashMap<Object, SecureEntity>();
-                secureEntities.put(type, entities);
-           }
-           entities.put(id, entity);
-        }
-    }
-
-    private SecureEntity createSecureEntity(Object entity) {
-        EntityInvocationHandler handler = new EntityInvocationHandler(mappingInformation, this, entity);
-        return handler.createSecureEntity();
-    }
-
-    private SecureCollection<?> getSecureCollection(Object owner, Collection<?> collection) {
-        int hashCode = System.identityHashCode(collection);
-        SecureCollection<?> secureCollection = secureCollections.get(hashCode);
-        if (secureCollection == null) {
-            secureCollection = createSecureCollection(owner, collection);
-            secureCollections.put(hashCode, secureCollection);
-        }
-        return secureCollection;
-    }
-
-    private SecureCollection<?> createSecureCollection(Object owner, Collection<?> collection) {
-        if (collection instanceof List) {
-            return new SecureList(owner, (List<?>)collection, this);
-        } else if (collection instanceof SortedSet) {
-            return new SecureSortedSet(owner, (SortedSet<?>)collection, this);
-        } else if (collection instanceof Set) {
-            return new SecureSet(owner, (Set<?>)collection, this);
-        } else {
-            return new DefaultSecureCollection(owner, collection, this);
-        }
     }
 }

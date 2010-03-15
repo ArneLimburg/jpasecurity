@@ -18,14 +18,16 @@ package net.sf.jpasecurity.entity;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import net.sf.jpasecurity.AccessManager;
+
 
 /**
  * @author Arne Limburg
  */
 public class DefaultSecureCollection<E, T extends Collection<E>> extends AbstractSecureCollection<E, T> {
 
-    public DefaultSecureCollection(Object owner, T collection, SecureObjectManager objectManager) {
-        super(owner, collection, objectManager);
+    public DefaultSecureCollection(T target, AbstractSecureObjectManager objectManager, AccessManager accessManager) {
+        super(target, objectManager, accessManager);
     }
 
     protected T createFiltered() {

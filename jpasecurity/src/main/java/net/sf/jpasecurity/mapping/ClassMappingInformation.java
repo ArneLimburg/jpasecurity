@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.mapping;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -113,6 +115,23 @@ public final class ClassMappingInformation {
             return superclassMapping.getIdPropertyMappings();
         } else {
             return Collections.EMPTY_LIST;
+        }
+    }
+
+    public Object newInstance() {
+        Constructor<?> constructor;
+        try {
+            constructor = getEntityType().getDeclaredConstructor();
+            constructor.setAccessible(true);
+            return constructor.newInstance();
+        } catch (NoSuchMethodException e) {
+            throw new PersistenceException("No default constructor found for entity-type " + getEntityType().getName());
+        } catch (InstantiationException e) {
+            throw new PersistenceException(e);
+        } catch (IllegalAccessException e) {
+            throw new PersistenceException(e);
+        } catch (InvocationTargetException e) {
+            throw new PersistenceException(e.getTargetException());
         }
     }
 

@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.FlushModeType;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.entity.FetchManager;
@@ -41,19 +42,27 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
     private List<String> selectedPaths;
     private Set<TypeDefinition> types;
     private PathEvaluator pathEvaluator;
+    private FlushModeType flushMode;
 
     public QueryInvocationHandler(SecureObjectManager objectManager,
                                   FetchManager fetchManager,
                                   Query query,
                                   List<String> selectedPaths,
                                   Set<TypeDefinition> types,
-                                  PathEvaluator pathEvaluator) {
+                                  PathEvaluator pathEvaluator,
+                                  FlushModeType flushMode) {
         super(query);
         this.objectManager = objectManager;
         this.fetchManager = fetchManager;
         this.selectedPaths = selectedPaths;
         this.types = types;
         this.pathEvaluator = pathEvaluator;
+        this.flushMode = flushMode;
+    }
+
+    public Query setFlushMode(FlushModeType flushMode) {
+        this.flushMode = flushMode;
+        return getTarget().setFlushMode(flushMode);
     }
 
     public Query setParameter(int index, Object parameter) {
@@ -73,18 +82,33 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
     }
 
     public Object getSingleResult() {
-        objectManager.checkAccess();
-        return getSecureResult(getTarget().getSingleResult());
+        preFlush();
+        Object result = getSecureResult(getTarget().getSingleResult());
+        postFlush();
+        return result;
     }
 
     public List getResultList() {
-        objectManager.checkAccess();
+        preFlush();
         List targetResult = getTarget().getResultList();
+        postFlush();
         List proxyResult = new ArrayList();
         for (Object entity: targetResult) {
             proxyResult.add(getSecureResult(entity));
         }
         return proxyResult;
+    }
+
+    private void preFlush() {
+        if (flushMode == FlushModeType.AUTO) {
+            objectManager.preFlush();
+        }
+    }
+
+    private void postFlush() {
+        if (flushMode == FlushModeType.AUTO) {
+            objectManager.postFlush();
+        }
     }
 
     private Object getSecureResult(Object result) {

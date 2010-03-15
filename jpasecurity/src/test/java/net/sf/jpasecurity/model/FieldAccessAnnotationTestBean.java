@@ -92,4 +92,19 @@ public class FieldAccessAnnotationTestBean {
     public void setChildren(List<FieldAccessAnnotationTestBean> childBeans) {
         children = childBeans;
     }
+
+    public int hashCode() {
+        return id;
+    }
+    
+    public boolean equals(Object object) {
+        if (!(object instanceof FieldAccessAnnotationTestBean)) {
+            return false;
+        }
+        FieldAccessAnnotationTestBean bean = (FieldAccessAnnotationTestBean)object;
+        if (id == 0) {
+            return this == bean;
+        }
+        return id == bean.id;
+    }
 }

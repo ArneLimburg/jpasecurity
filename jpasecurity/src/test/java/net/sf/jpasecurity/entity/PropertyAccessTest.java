@@ -129,18 +129,31 @@ public class PropertyAccessTest extends TestCase {
         entityManager.getTransaction().commit();
         entityManager.close();
 
+        try {
+            entityManager = factory.createEntityManager();
+            entityManager.getTransaction().begin();
+            bean = entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
+            bean.setBeanName(USER2);
+            entityManager.getTransaction().commit();
+            entityManager.close();
+            fail("should have thrown exception, since we are not allowed to see beans with name " + USER2);
+        } catch (SecurityException e) {
+            //expected
+        }
+        
         entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         bean = entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
+        TestAuthenticationProvider.authenticate(USER2);
         bean.setBeanName(USER2);
         entityManager.getTransaction().commit();
         entityManager.close();
-        
+
+        TestAuthenticationProvider.authenticate(USER1);
         entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         try {
             entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
-            fail("should have thrown exception, since we are not allowed to see beans with name " + USER2);
         } catch (SecurityException e) {
             //expected
         }

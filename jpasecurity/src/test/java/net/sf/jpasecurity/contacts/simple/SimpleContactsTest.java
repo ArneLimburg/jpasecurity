@@ -158,7 +158,9 @@ public class SimpleContactsTest extends TestCase {
             entityManager.getTransaction().commit();
             return contacts;
         } catch (RuntimeException e) {
-            entityManager.getTransaction().rollback();
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
             throw e;
         } finally {
             entityManager.close();

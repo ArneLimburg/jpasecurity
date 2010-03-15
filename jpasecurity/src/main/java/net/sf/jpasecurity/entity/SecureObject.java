@@ -23,5 +23,6 @@ package net.sf.jpasecurity.entity;
 public interface SecureObject {
 
     boolean isInitialized();
+    void flush();
 
 }
