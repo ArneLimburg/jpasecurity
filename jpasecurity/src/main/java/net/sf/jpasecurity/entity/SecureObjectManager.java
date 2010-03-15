@@ -17,20 +17,14 @@ package net.sf.jpasecurity.entity;
 
 import java.util.Collection;
 
-import net.sf.jpasecurity.AccessManager;
-
 /**
  * @author Arne Limburg
  */
-public interface SecureObjectManager extends AccessManager {
+public interface SecureObjectManager {
 
-    <E> SecureObject getSecureObject(E object);
-    <E> SecureObject getSecureObject(Object parent, E object);
+    <E> E getSecureObject(E object);
     <E> Collection<E> getSecureObjects(Class<E> type);
-
-    /**
-     * Checks the access for all contained objects.
-     */
-    void checkAccess();
-
+    void preFlush();
+    void postFlush();
+    void clear();
 }

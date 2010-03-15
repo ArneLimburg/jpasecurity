@@ -31,14 +31,10 @@ public interface SecureEntity extends SecureObject {
     boolean isAccessible(AccessType accessType);
     boolean isContained(EntityManager entityManager);
     boolean isRemoved();
-    SecureEntity merge(EntityManager entityManager, SecureObjectManager objectManager, AccessType access);
-    void persist(EntityManager entityManager);
+    Object merge(EntityManager entityManager, SecureObjectManager objectManager);
     void refresh(EntityManager entityManager);
     void lock(EntityManager entityManager, LockModeType lockMode);
     void remove(EntityManager entityManager);
     Query setParameter(Query query, int index);
     Query setParameter(Query query, String name);
-    Object getEntity();
-    void unwrapSecureObjects();
-    void flush();
 }

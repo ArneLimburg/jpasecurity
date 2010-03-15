@@ -37,6 +37,8 @@ import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.persistence.SecureEntityTester;
 
+import org.apache.commons.naming.NamingContext;
+import org.apache.commons.naming.java.javaURLContextFactory;
 import org.easymock.IAnswer;
 import org.hsqldb.jdbc.jdbcDataSource;
 
@@ -51,8 +53,8 @@ public class EjbContactsTest extends TestCase {
     
     public void setUp() throws Exception {
 
-        System.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.commons.naming.java.javaURLContextFactory");
-        System.setProperty(Context.URL_PKG_PREFIXES, "org.apache.commons.naming");            
+        System.setProperty(Context.INITIAL_CONTEXT_FACTORY, javaURLContextFactory.class.getName());
+        System.setProperty(Context.URL_PKG_PREFIXES, NamingContext.class.getPackage().getName());            
 
         InitialContext initialContext = new InitialContext();
         initialContext.createSubcontext("java:");

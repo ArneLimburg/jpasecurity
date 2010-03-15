@@ -47,11 +47,12 @@ public class AccessCheckTest extends TestCase {
         bean = entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
         try {
             bean.setBeanName("new BeanName");
+            entityManager.getTransaction().commit();
             fail("expected security exception");
         } catch (SecurityException e) {
             // expected
+            entityManager.getTransaction().rollback();
         }
-        entityManager.getTransaction().rollback();
         entityManager.close();
     }
 }
