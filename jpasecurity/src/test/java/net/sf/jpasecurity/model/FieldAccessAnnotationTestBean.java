@@ -30,6 +30,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 /**
  * @author Arne Limburg
@@ -53,6 +54,10 @@ public class FieldAccessAnnotationTestBean {
     private FieldAccessAnnotationTestBean parent;
     @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<FieldAccessAnnotationTestBean> children = new ArrayList<FieldAccessAnnotationTestBean>();
+    @Transient
+    private int namePropertyReadCount = 0;
+    @Transient
+    private int namePropertyWriteCount = 0;
     
     protected FieldAccessAnnotationTestBean() {
     }
@@ -70,11 +75,21 @@ public class FieldAccessAnnotationTestBean {
     }
     
     public String getBeanName() {
+        namePropertyReadCount++;
         return name;
     }
     
     public void setBeanName(String beanName) {
+        namePropertyWriteCount++;
         name = beanName;
+    }
+    
+    public int getNamePropertyReadCount() {
+        return namePropertyReadCount;
+    }
+    
+    public int getNamePropertyWriteCount() {
+        return namePropertyWriteCount;
     }
     
     public FieldAccessAnnotationTestBean getParentBean() {
@@ -91,6 +106,9 @@ public class FieldAccessAnnotationTestBean {
     
     public void setChildren(List<FieldAccessAnnotationTestBean> childBeans) {
         children = childBeans;
+    }
+    
+    public void aBusinessMethodThatDoesNothing() {
     }
 
     public int hashCode() {

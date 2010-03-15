@@ -28,6 +28,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 /**
  * @author Arne Limburg
@@ -39,6 +40,8 @@ public class MethodAccessAnnotationTestBean {
     private String beanName;
     private MethodAccessAnnotationTestBean parentBean;
     private List<MethodAccessAnnotationTestBean> childBeans = new ArrayList<MethodAccessAnnotationTestBean>();
+    private int namePropertyReadCount = 0;
+    private int namePropertyWriteCount = 0;
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -53,13 +56,28 @@ public class MethodAccessAnnotationTestBean {
     
     @Column(name = "beanName")
     public String getName() {
+        namePropertyReadCount++;
         return beanName;
     }
     
     public void setName(String name) {
+        namePropertyWriteCount++;
         beanName = name;
     }
+
+    @Transient
+    public int getNamePropertyReadCount() {
+        return namePropertyReadCount;
+    }
+
+    @Transient
+    public int getNamePropertyWriteCount() {
+        return namePropertyWriteCount;
+    }
     
+    public void aBusinessMethodThatDoesNothing() {
+    }
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parentBean")
     public MethodAccessAnnotationTestBean getParent() {
