@@ -169,6 +169,72 @@ public class PropertyAccessTest extends TestCase {
         assertEquals(USER2, bean.getBeanName());
     }
     
+    public void testFieldBasedPropertyAccessCount() {
+        TestAuthenticationProvider.authenticate(USER1);
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean(USER1);
+        entityManager.persist(bean);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+
+        entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        bean = entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
+        
+        assertEquals(0, bean.getNamePropertyReadCount());
+        assertEquals(0, bean.getNamePropertyWriteCount());
+        bean.getBeanName();
+        assertEquals(1, bean.getNamePropertyReadCount());
+        assertEquals(0, bean.getNamePropertyWriteCount());
+        bean.setBeanName(USER1);
+        assertEquals(1, bean.getNamePropertyReadCount());
+        assertEquals(1, bean.getNamePropertyWriteCount());
+        bean.aBusinessMethodThatDoesNothing();
+        assertEquals(1, bean.getNamePropertyReadCount());
+        assertEquals(1, bean.getNamePropertyWriteCount());
+        entityManager.getTransaction().commit();
+        assertEquals(1, bean.getNamePropertyReadCount());
+        assertEquals(1, bean.getNamePropertyWriteCount());
+        entityManager.close();
+    }
+    
+    public void testMethodBasedPropertyAccessCount() {
+        TestAuthenticationProvider.authenticate(USER1);
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-method-access");
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        MethodAccessAnnotationTestBean bean = new MethodAccessAnnotationTestBean();
+        bean.setName(USER1);
+        entityManager.persist(bean);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+
+        entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        bean = entityManager.find(MethodAccessAnnotationTestBean.class, bean.getId());
+        
+        assertEquals(0, bean.getNamePropertyReadCount());
+        assertEquals(2, bean.getNamePropertyWriteCount()); // one write on the target, that state is copied and then another write on the proxy
+        bean.getName();
+        assertEquals(1, bean.getNamePropertyReadCount());
+        assertEquals(2, bean.getNamePropertyWriteCount());
+        bean.setName(USER1);
+        assertEquals(1, bean.getNamePropertyReadCount());
+        assertEquals(3, bean.getNamePropertyWriteCount());
+        bean.aBusinessMethodThatDoesNothing();
+        assertEquals(1, bean.getNamePropertyReadCount());
+        assertEquals(3, bean.getNamePropertyWriteCount());
+        bean.setParent(null);
+        assertEquals(1, bean.getNamePropertyReadCount());
+        assertEquals(3, bean.getNamePropertyWriteCount());
+        entityManager.getTransaction().commit();
+        assertEquals(2, bean.getNamePropertyReadCount());
+        assertEquals(3, bean.getNamePropertyWriteCount());
+        entityManager.close();
+    }
+    
     public void tearDown() {
         TestAuthenticationProvider.authenticate(null);        
     }
