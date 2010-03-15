@@ -22,4 +22,5 @@ import java.util.Collection;
  * @author Arne Limburg
  */
 public interface SecureCollection<E> extends SecureObject, Collection<E> {
+    boolean isDirty();
 }

@@ -18,14 +18,16 @@ package net.sf.jpasecurity.entity;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.jpasecurity.AccessManager;
+
 /**
  * A set-implementation of secure collection.
  * @author Arne Limburg
  */
 public class SecureSet<E> extends AbstractSecureCollection<E, Set<E>> implements Set<E> {
 
-    public SecureSet(Object owner, Set<E> set, SecureObjectManager objectManager) {
-        super(owner, set, objectManager);
+    public SecureSet(Set<E> set, AbstractSecureObjectManager objectManager, AccessManager accessManager) {
+        super(set, objectManager, accessManager);
     }
 
     protected Set<E> createFiltered() {

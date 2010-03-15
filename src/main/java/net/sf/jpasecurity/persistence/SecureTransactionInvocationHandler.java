@@ -33,7 +33,8 @@ public class SecureTransactionInvocationHandler extends ProxyInvocationHandler<E
     }
 
     public void commit() {
-        objectManager.checkAccess();
+        objectManager.preFlush();
         getTarget().commit();
+        objectManager.postFlush();
     }
 }

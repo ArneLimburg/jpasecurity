@@ -30,6 +30,7 @@ import javax.ejb.EJBContext;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
+import org.apache.commons.naming.NamingContext;
 import org.apache.commons.naming.java.javaURLContextFactory;
 
 import junit.framework.TestCase;
@@ -42,8 +43,8 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
 
     public void setUp() throws Exception {
 
-        System.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.commons.naming.java.javaURLContextFactory");
-        System.setProperty(Context.URL_PKG_PREFIXES, "org.apache.commons.naming");            
+        System.setProperty(Context.INITIAL_CONTEXT_FACTORY, javaURLContextFactory.class.getName());
+        System.setProperty(Context.URL_PKG_PREFIXES, NamingContext.class.getPackage().getName());            
 
         InitialContext initialContext = new InitialContext();
         initialContext.createSubcontext("java:comp");
@@ -54,6 +55,7 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
     }
     
     public void tearDown() throws Exception {
+
         InitialContext initialContext = new InitialContext();
         initialContext.unbind("java:comp");        
 
