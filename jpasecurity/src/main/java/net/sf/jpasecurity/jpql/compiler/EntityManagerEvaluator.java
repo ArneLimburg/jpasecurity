@@ -27,12 +27,17 @@ import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * This class evaluates JPQL queries. If in-memory-evaluation
  * cannot be performed a call to a specified <tt>EntityManager</tt> is used.
  * @author Arne Limburg
  */
 public class EntityManagerEvaluator extends InMemoryEvaluator {
+
+    private static final Log LOG = LogFactory.getLog(EntityManagerEvaluator.class);
 
     private final EntityManager entityManager;
     private final QueryPreparator queryPreparator;
@@ -77,7 +82,9 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
                     queryPreparator.replace(jpqlPath, queryPreparator.createNamedParameter(namedParameter));
                 }
             }
-            Query query = entityManager.createQuery(statement.getStatement().toString());
+            String queryString = statement.getStatement().toString();
+            LOG.info("executing query " + queryString);
+            Query query = entityManager.createQuery(queryString);
             for (String namedParameter: statement.getNamedParameters()) {
                 query.setParameter(namedParameter, data.getNamedParameterValue(namedParameter));
             }

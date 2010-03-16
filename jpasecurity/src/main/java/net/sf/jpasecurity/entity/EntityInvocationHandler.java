@@ -77,7 +77,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         if (entity instanceof SecureEntity) {
             return (SecureEntity)entity;
         }
-        secureEntity = (SecureEntity)Enhancer.create(entity.getClass(),
+        secureEntity = (SecureEntity)Enhancer.create(mapping.getClassMapping(entity.getClass()).getEntityType(),
                                                      new Class[] {SecureEntity.class},
                                                      this);
         return secureEntity;
@@ -95,6 +95,18 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         }
         if (canInvoke(method)) {
             return invoke(object, method, args);
+        }
+        if (isHashCode(method)) {
+            new Exception().printStackTrace();
+            return entity.hashCode();
+        } else if (isEquals(method)) {
+            Object value = args[0];
+            if (objectManager.isSecureObject(value)) {
+                value = objectManager.getUnsecureObject(value);
+            }
+            return entity.equals(value);
+        } else if (isToString(method)) {
+            return entity.toString();
         }
         return methodProxy.invokeSuper(object, args);
     }
@@ -280,7 +292,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     private void copyState(Object source, Object target) {
-        copyState(source.getClass(), source, target);
+        copyState(mapping.getClassMapping(source.getClass()).getEntityType(), source, target);
     }
 
     private void copyState(Class<?> type, Object source, Object target) {

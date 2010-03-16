@@ -84,6 +84,10 @@ public class EntityPersister extends AbstractSecureObjectManager {
         unsecureEntities.clear();
     }
 
+    public boolean isSecureObject(Object object) {
+        return super.isSecureObject(object) || unsecureEntities.containsKey(new SystemMapKey(object));
+    }
+
     public <E> Collection<E> getSecureObjects(Class<E> type) {
         List<E> result = new ArrayList<E>();
         for (Object secureEntity: secureEntities.values()) {
