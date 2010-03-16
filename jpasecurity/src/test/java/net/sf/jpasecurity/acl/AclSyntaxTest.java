@@ -5,8 +5,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import junit.framework.TestCase;
-import net.sf.jpasecurity.entity.SecureList;
-import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.acl.AclEntry;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
