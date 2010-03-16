@@ -1,7 +1,11 @@
 package net.sf.jpasecurity.model.acl;
 
 import javax.persistence.Column;
+import javax.persistence.EntityListeners;
 
+@EntityListeners({
+   UpdateTrademarkListener.class
+})
 public class AbstractTrademarkRelatedEntity extends AbstractEntity {
 
    @Column(name = "TRADEMARK_ID", nullable = false)
