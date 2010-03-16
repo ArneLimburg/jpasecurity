@@ -59,8 +59,9 @@ public class NamedQueryTest extends TestCase {
     }
     
     public void testParseNamedQueriesInOrmXml() throws Exception {
-
-        MappingInformation mappingInformation = new OrmXmlParser().parse(new DefaultPersistenceUnitInfo());
+        DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
+        persistenceUnitInfo.getMappingFileNames().add("META-INF/named-queries.xml");
+        MappingInformation mappingInformation = new OrmXmlParser().parse(persistenceUnitInfo);
 
         assertEquals(4, mappingInformation.getNamedQueryNames().size());
     	
