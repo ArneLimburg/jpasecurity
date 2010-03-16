@@ -4,7 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 
 @EntityListeners({
-   UpdateTrademarkListener.class
+   TrademarkListener.class
 })
 public class AbstractTrademarkRelatedEntity extends AbstractEntity {
 
