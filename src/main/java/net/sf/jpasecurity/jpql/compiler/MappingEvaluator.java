@@ -21,15 +21,19 @@ import java.util.Set;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
+import net.sf.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
+import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
+import net.sf.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
+import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
-import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.mapping.SimplePropertyMappingInformation;
+import net.sf.jpasecurity.mapping.TypeDefinition;
 
 /**
  * This evaluator is used to check queries and rules.
@@ -54,15 +58,7 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
 
     public boolean visit(JpqlPath node, Set<TypeDefinition> typeDefinitions) {
         String alias = node.jjtGetChild(0).getValue();
-        Class<?> type = null;
-        for (TypeDefinition typeDefinition: typeDefinitions) {
-            if (alias.equals(typeDefinition.getAlias())) {
-                type = typeDefinition.getType();
-            }
-        }
-        if (type == null) {
-            throw new PersistenceException("Type not found for alias \"" + alias + "\"");
-        }
+        Class<?> type = getType(alias, typeDefinitions);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             ClassMappingInformation classMapping = mappingInformation.getClassMapping(type);
             if (classMapping == null) {
@@ -96,5 +92,48 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
         String alias = node.jjtGetChild(1).toString().trim();
         typeDefinitions.add(new TypeDefinition(alias, mappingInformation.getClassMapping(typeName).getEntityType()));
         return false;
+    }
+
+    public boolean visit(JpqlInnerJoin node, Set<TypeDefinition> typeDefinitions) {
+        return visitJoin(node, typeDefinitions);
+    }
+
+    public boolean visit(JpqlOuterJoin node, Set<TypeDefinition> typeDefinitions) {
+        return visitJoin(node, typeDefinitions);
+    }
+
+    public boolean visit(JpqlInnerFetchJoin node, Set<TypeDefinition> typeDefinitions) {
+        return visitJoin(node, typeDefinitions);
+    }
+
+    public boolean visit(JpqlOuterFetchJoin node, Set<TypeDefinition> typeDefinitions) {
+        return visitJoin(node, typeDefinitions);
+    }
+
+    public boolean visitJoin(Node node, Set<TypeDefinition> typeDefinitions) {
+        if (node.jjtGetNumChildren() != 2) {
+            return false;
+        }
+        Node pathNode = node.jjtGetChild(0);
+        Node aliasNode = node.jjtGetChild(1);
+        String rootAlias = pathNode.jjtGetChild(0).toString();
+        Class<?> rootType = getType(rootAlias, typeDefinitions);
+        ClassMappingInformation classMapping = mappingInformation.getClassMapping(rootType);
+        for (int i = 1; i < pathNode.jjtGetNumChildren(); i++) {
+            Class<?> propertyType
+                = classMapping.getPropertyMapping(pathNode.jjtGetChild(i).toString()).getProperyType();
+            classMapping = mappingInformation.getClassMapping(propertyType);
+        }
+        typeDefinitions.add(new TypeDefinition(aliasNode.toString(), classMapping.getEntityType()));
+        return false;
+    }
+
+    public Class<?> getType(String alias, Set<TypeDefinition> typeDefinitions) {
+        for (TypeDefinition typeDefinition: typeDefinitions) {
+            if (alias.equals(typeDefinition.getAlias())) {
+                return typeDefinition.getType();
+            }
+        }
+        throw new PersistenceException("Type not found for alias \"" + alias + "\"");
     }
 }

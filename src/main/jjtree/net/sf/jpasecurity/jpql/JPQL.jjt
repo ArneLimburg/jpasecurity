@@ -456,6 +456,7 @@ void selectExpression() #SelectExpression: {} {
 void subselectExpressions() #SelectExpressions: {} {
     subselectExpression() (<COMMA> subselectExpression())*
 }
+
 void subselectExpression() #SelectExpression: {} {
     LOOKAHEAD(path()) path() 
         | aggregateSelectExpression()
