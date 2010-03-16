@@ -10,6 +10,8 @@
     <class>net.sf.jpasecurity.model.TestBean</class>
     <class>net.sf.jpasecurity.model.TestBeanSubclass</class>
 
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
     <properties>
       <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
       <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
@@ -30,6 +32,8 @@
 
     <class>net.sf.jpasecurity.model.MethodAccessAnnotationTestBean</class>
 
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
     <properties>
       <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
       <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
@@ -47,6 +51,8 @@
   <persistence-unit name="xml-based-method-access" transaction-type="RESOURCE_LOCAL">
 
     <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>
       <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
@@ -68,6 +74,8 @@
 
     <class>net.sf.jpasecurity.model.FieldAccessAnnotationTestBean</class>
 
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
     <properties>
       <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
       <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
@@ -87,6 +95,8 @@
     <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
     <class>net.sf.jpasecurity.model.FieldAccessAnnotationTestBean</class>
+
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>
       <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
@@ -109,6 +119,8 @@
     <class>net.sf.jpasecurity.model.ChildTestBean</class>
     <class>net.sf.jpasecurity.model.ParentTestBean</class>
 
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
     <properties>
       <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
       <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
@@ -126,6 +138,8 @@
   <persistence-unit name="xml-based-field-access" transaction-type="RESOURCE_LOCAL">
 
     <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>
       <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
@@ -147,6 +161,8 @@
 
     <class>net.sf.jpasecurity.contacts.model.User</class>
     <class>net.sf.jpasecurity.contacts.model.Contact</class>
+
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>
       <property name="net.sf.jpasecurity.persistence.provider" value="org.apache.openjpa.persistence.PersistenceProviderImpl"/>
@@ -173,6 +189,8 @@
 
     <class>net.sf.jpasecurity.contacts.model.User</class>
     <class>net.sf.jpasecurity.contacts.model.Contact</class>
+
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="create-drop" />
