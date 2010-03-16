@@ -57,6 +57,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlHaving;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentifier;
 import net.sf.jpasecurity.jpql.parser.JpqlIn;
+import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlIntegerLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlIsEmpty;
 import net.sf.jpasecurity.jpql.parser.JpqlIsNull;
@@ -75,6 +76,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlNot;
 import net.sf.jpasecurity.jpql.parser.JpqlNotEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlOr;
 import net.sf.jpasecurity.jpql.parser.JpqlOrderBy;
+import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlPatternValue;
 import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
@@ -92,7 +94,6 @@ import net.sf.jpasecurity.jpql.parser.JpqlTrimLeading;
 import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
-import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
@@ -833,7 +834,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
         try {
             Set<Replacement> replacements
-                = getReplacements(subselect.getTypeDefinitions(), subselect.getWhereClause());
+                = getReplacements(subselect.getTypeDefinitions(), subselect.getStatement());
             Map<String, Object> aliases = new HashMap<String, Object>();
             for (Replacement replacement: replacements) {
                 if (replacement.getReplacement() == null) {
@@ -921,13 +922,43 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         return index == -1? path: path.substring(0, index);
     }
 
-    private Set<Replacement> getReplacements(Set<TypeDefinition> types, JpqlWhere whereClause) {
+    private Set<Replacement> getReplacements(Set<TypeDefinition> types, Node statement) {
         Set<Replacement> replacements = new HashSet<Replacement>();
         for (TypeDefinition type: types) {
             replacements.add(new Replacement(type));
         }
-        whereClause.visit(replacementVisitor, replacements);
+        statement.visit(replacementVisitor, replacements);
+        evaluateJoinPathReplacements(replacements);
         return replacements;
+    }
+
+    private void evaluateJoinPathReplacements(Set<Replacement> replacements) {
+        for (Replacement replacement: replacements) {
+            if (replacement.getTypeDefinition().isJoin()) {
+                Node replacementNode = replacement.getReplacement();
+                String rootAlias = replacementNode.jjtGetChild(0).toString();
+                Replacement rootReplacement = getReplacement(rootAlias, replacements);
+                while (rootReplacement != null) {
+                    Node rootNode = rootReplacement.getReplacement().clone();
+                    for (int i = 1; i < replacementNode.jjtGetNumChildren(); i++) {
+                        rootNode.jjtAddChild(replacementNode.jjtGetChild(i), rootNode.jjtGetNumChildren());
+                    }
+                    replacement.setReplacement(rootNode);
+                    String newRootAlias = rootNode.jjtGetChild(0).toString();
+                    rootReplacement = getReplacement(newRootAlias, replacements);
+                    replacementNode = rootNode;
+                }
+            }
+        }
+    }
+
+    private Replacement getReplacement(String alias, Set<Replacement> replacements) {
+        for (Replacement replacement: replacements) {
+            if (replacement.getTypeDefinition().getAlias().equals(alias)) {
+                return replacement;
+            }
+        }
+        return null;
     }
 
     private ListMap<String, Object> evaluateAliasValues(Set<TypeDefinition> typeDefinitions,
@@ -1009,6 +1040,26 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                 if (node.jjtGetChild(0).toString().equals(replacement.getTypeDefinition().getAlias())) {
                     replacement.setReplacement(node.jjtGetChild(1));
                 } else if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias())) {
+                    replacement.setReplacement(node.jjtGetChild(0));
+                }
+            }
+            return false;
+        }
+
+        public boolean visit(JpqlInnerJoin node, Set<Replacement> replacements) {
+            return visitJoin(node, replacements);
+        }
+
+        public boolean visit(JpqlOuterJoin node, Set<Replacement> replacements) {
+            return visitJoin(node, replacements);
+        }
+
+        public boolean visitJoin(Node node, Set<Replacement> replacements) {
+            if (node.jjtGetNumChildren() != 2) {
+                return false;
+            }
+            for (Replacement replacement: replacements) {
+                if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias())) {
                     replacement.setReplacement(node.jjtGetChild(0));
                 }
             }

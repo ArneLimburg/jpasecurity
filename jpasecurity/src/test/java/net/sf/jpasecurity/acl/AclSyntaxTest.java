@@ -14,6 +14,8 @@ import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 public class AclSyntaxTest extends TestCase {
 
+    public static final Long TRADEMARK_ID = 1L;
+    
     private EntityManagerFactory entityManagerFactory;
     
     public void setUp() {
@@ -29,25 +31,33 @@ public class AclSyntaxTest extends TestCase {
        Group group = new Group();
        group.setName("USERS");
        entityManager.persist(group);
-       TestAuthenticationProvider.authenticate(group, privilege1, privilege2);
+       TestAuthenticationProvider.authenticate(group, TRADEMARK_ID);
 
        Acl acl = new Acl();
        entityManager.persist(acl);
        AclEntry entry = new AclEntry();
        entry.setAccessControlList(acl);
+       acl.getEntries().add(entry);
        entry.setPrivilege(privilege1);
        entry.setGroup(group);
        entityManager.persist(entry);
-       AclProtectedEntity entity = new AclProtectedEntity();
-       entity.setAccessControlList(acl);
-       entityManager.persist(entity);
+
+       AclProtectedEntity aclProtectedEntity = new AclProtectedEntity();
+       aclProtectedEntity.setTrademarkId(TRADEMARK_ID);
+       aclProtectedEntity.setAccessControlList(acl);
+       entityManager.persist(aclProtectedEntity);
+
        entityManager.getTransaction().commit();
        entityManager.close();
    }
    
-   public void testAccess() {
+   public void testAclProtectedEntityAccess() {
        EntityManager entityManager = entityManagerFactory.createEntityManager();
        AclProtectedEntity entity = (AclProtectedEntity)entityManager.createQuery("select e from AclProtectedEntity e").getSingleResult();
-       
    }
+
+//   public void testTrademarkProtectedEntityAccess() {
+//       EntityManager entityManager = entityManagerFactory.createEntityManager();
+//       TrademarkProtectedEntity entity = (TrademarkProtectedEntity)entityManager.createQuery("select e from TrademarkProtectedEntity e").getSingleResult();
+//   }
 }
