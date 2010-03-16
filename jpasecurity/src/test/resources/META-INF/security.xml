@@ -36,11 +36,27 @@
 
   <persistence-unit name="acl-model">
     <access-rule>
-      GRANT ACCESS TO AbstractAclProtectedEntity bean
-      WHERE EXISTS (SELECT entry FROM AclEntry entry 
-                    WHERE entry.accessControlList = bean.accessControlList
-                    AND (entry.group = CURRENT_PRINCIPAL OR entry.privilege IN (CURRENT_ROLES)))
+      GRANT ACCESS TO AclProtectedEntity bean
+      WHERE EXISTS (SELECT bean1 FROM AclProtectedEntity bean1
+                                 JOIN bean1.accessControlList acl
+                                 WHERE bean = bean1
+                                  AND bean1.trademarkId IN (CURRENT_ROLES))
     </access-rule>
+<!--    <access-rule>-->
+<!--      GRANT ACCESS TO AclProtectedEntity bean-->
+<!--      WHERE EXISTS (SELECT bean1 FROM AclProtectedEntity bean1-->
+<!--                                 JOIN bean1.accessControlList acl-->
+<!--                                 JOIN acl.entries entry-->
+<!--                                 WHERE bean = bean1-->
+<!--                                  AND bean1.trademarkId IN (CURRENT_ROLES)-->
+<!--                                  AND entry.group = CURRENT_PRINCIPAL)-->
+<!--    </access-rule>-->
+<!--    <access-rule>-->
+<!--      GRANT ACCESS TO AbstractAclProtectedEntity bean-->
+<!--      WHERE EXISTS (SELECT entry FROM AclEntry entry -->
+<!--                    WHERE entry.accessControlList = bean.accessControlList-->
+<!--                    AND (entry.group = CURRENT_PRINCIPAL OR entry.privilege IN (CURRENT_ROLES)))-->
+<!--    </access-rule>-->
   </persistence-unit>
 
 </security>
