@@ -97,7 +97,6 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             return invoke(object, method, args);
         }
         if (isHashCode(method)) {
-            new Exception().printStackTrace();
             return entity.hashCode();
         } else if (isEquals(method)) {
             Object value = args[0];
