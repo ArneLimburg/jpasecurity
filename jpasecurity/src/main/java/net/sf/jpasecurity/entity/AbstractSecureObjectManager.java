@@ -45,6 +45,10 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         this.accessManager = accessManager;
     }
 
+    public boolean isSecureObject(Object object) {
+        return object instanceof SecureObject;
+    }
+
     public <T> T getSecureObject(T object) {
         if (object == null) {
             return null;

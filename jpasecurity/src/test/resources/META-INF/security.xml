@@ -34,4 +34,13 @@
     <access-rule>GRANT ACCESS TO ChildTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
   </persistence-unit>
 
+  <persistence-unit name="acl-model">
+    <access-rule>
+      GRANT ACCESS TO AbstractAclProtectedEntity bean
+      WHERE EXISTS (SELECT entry FROM AclEntry entry 
+                    WHERE entry.accessControlList = bean.accessControlList
+                    AND (entry.group = CURRENT_PRINCIPAL OR entry.privilege IN (CURRENT_ROLES)))
+    </access-rule>
+  </persistence-unit>
+
 </security>

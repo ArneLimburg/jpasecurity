@@ -2,7 +2,7 @@ package net.sf.jpasecurity.model.acl;
 
 import javax.persistence.Entity;
 
-@Entity(name = "Contact")
+@Entity
 public class AclProtectedEntity extends AbstractAclProtectedEntity {
 
    private String someProperty;

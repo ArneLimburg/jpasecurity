@@ -1,8 +1,10 @@
 package net.sf.jpasecurity.model.acl;
 
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "tbl_group")
 public class Group extends AbstractEntity {
    private String name;
 
