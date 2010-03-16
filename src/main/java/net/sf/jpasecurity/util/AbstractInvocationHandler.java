@@ -28,10 +28,18 @@ import java.util.Map;
  */
 public abstract class AbstractInvocationHandler implements InvocationHandler {
 
-    private Map<Method, Method> methodCache = new HashMap<Method, Method>();
+    private final Map<Method, Method> methodCache = new HashMap<Method, Method>();
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
+            Method targetMethod = methodCache.get(method);
+            if (targetMethod == null && canInvoke(method)) {
+                //hopefully canInvoke filled the cache...
+                targetMethod = methodCache.get(method);
+                if (targetMethod == null) {
+                    throw new IllegalStateException("Cannot invoke method " + method.getName());
+                }
+            }
             return methodCache.get(method).invoke(this, args);
         } catch (InvocationTargetException e) {
             throw e.getCause();
@@ -41,6 +49,10 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
     protected boolean canInvoke(Method method) {
         if (methodCache.containsKey(method)) {
             return methodCache.get(method) != null;
+        }
+        if (isEquals(method) || isHashCode(method) || isToString(method)) {
+            methodCache.put(method, null);
+            return false;
         }
         try {
             Method targetMethod = getClass().getDeclaredMethod(method.getName(), method.getParameterTypes());
@@ -55,5 +67,21 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
             methodCache.put(method, null);
             return false;
         }
+    }
+
+    public boolean isEquals(Method method) {
+        return method.getName().equals("equals")
+            && method.getParameterTypes().length == 1
+            && method.getParameterTypes()[0] == Object.class;
+    }
+
+    public boolean isHashCode(Method method) {
+        return method.getName().equals("hashCode")
+            && method.getParameterTypes().length == 0;
+    }
+
+    public boolean isToString(Method method) {
+        return method.getName().equals("toString")
+            && method.getParameterTypes().length == 0;
     }
 }

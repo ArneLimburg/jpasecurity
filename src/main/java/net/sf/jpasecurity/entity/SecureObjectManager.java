@@ -22,6 +22,7 @@ import java.util.Collection;
  */
 public interface SecureObjectManager {
 
+    boolean isSecureObject(Object object);
     <E> E getSecureObject(E object);
     <E> Collection<E> getSecureObjects(Class<E> type);
     void preFlush();
