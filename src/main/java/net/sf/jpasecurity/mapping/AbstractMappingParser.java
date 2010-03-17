@@ -32,10 +32,13 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -60,6 +63,7 @@ public abstract class AbstractMappingParser {
 
     private Map<Class<?>, ClassMappingInformation> classMappings;
     private Map<String, String> namedQueries;
+    private List<EntityListener> defaultEntityListeners;
     private ClassLoader classLoader;
 
     /**
@@ -78,6 +82,7 @@ public abstract class AbstractMappingParser {
     public MappingInformation parse(PersistenceUnitInfo persistenceUnitInfo, MappingInformation mappingInformation) {
         classMappings = new HashMap<Class<?>, ClassMappingInformation>();
         namedQueries = new HashMap<String, String>();
+        defaultEntityListeners = new ArrayList<EntityListener>();
         classLoader = findClassLoader(persistenceUnitInfo);
         if (mappingInformation != null) {
             for (Class<?> type: mappingInformation.getPersistentClasses()) {
@@ -161,6 +166,12 @@ public abstract class AbstractMappingParser {
         if (metadataComplete) {
             classMapping.clearPropertyMappings();
         }
+        if (!excludeDefaultEntityListeners(mappedClass)) {
+            classMapping.setDefaultEntityListeners(Collections.unmodifiableList(this.defaultEntityListeners));
+        }
+        parseEntityListeners(classMapping);
+        classMapping.setSuperclassEntityListenersExcluded(excludeSuperclassEntityListeners(mappedClass));
+        parseEntityLifecycleMethods(classMapping);
         if (usesFieldAccess) {
             for (Field field: mappedClass.getDeclaredFields()) {
                 if (isMappable(field)) {
@@ -338,11 +349,23 @@ public abstract class AbstractMappingParser {
         namedQueries.put(name, query);
     }
 
+    protected void addDefaultEntityListener(EntityListener entityListener) {
+        defaultEntityListeners.add(entityListener);
+    }
+
     protected abstract boolean isMapped(Class<?> mappedClass);
 
     protected abstract boolean isMapped(Member member);
 
     protected abstract boolean isMetadataComplete(Class<?> entityClass);
+
+    protected abstract boolean excludeDefaultEntityListeners(Class<?> entityClass);
+
+    protected abstract boolean excludeSuperclassEntityListeners(Class<?> entityClass);
+
+    protected abstract void parseEntityListeners(ClassMappingInformation classMapping);
+
+    protected abstract void parseEntityLifecycleMethods(ClassMappingInformation classMapping);
 
     protected abstract Class<?> getIdClass(Class<?> entityClass, boolean usesFieldAccess);
 

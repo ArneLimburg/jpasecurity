@@ -40,8 +40,12 @@ public final class ClassMappingInformation {
     private Class<?> idClass;
     private boolean fieldAccess;
     private boolean metadataComplete;
+    private boolean excludeSuperclassEntityListeners;
     private Map<String, PropertyMappingInformation> propertyMappings
         = new HashMap<String, PropertyMappingInformation>();
+    private List<EntityListener> defaultEntityListeners = Collections.EMPTY_LIST;
+    private List<EntityListener> entityListeners = new ArrayList<EntityListener>();
+    private EntityListener entityLifecyleAdapter;
 
     public ClassMappingInformation(String entityName,
                                    Class<?> entityType,
@@ -113,6 +117,14 @@ public final class ClassMappingInformation {
         this.metadataComplete = metadataComplete;
     }
 
+    public boolean areSuperclassEntityListenersExcluded() {
+        return excludeSuperclassEntityListeners;
+    }
+
+    void setSuperclassEntityListenersExcluded(boolean excludeSuperclassEntityListeners) {
+        this.excludeSuperclassEntityListeners = excludeSuperclassEntityListeners;
+    }
+
     void clearPropertyMappings() {
         propertyMappings.clear();
     }
@@ -134,7 +146,7 @@ public final class ClassMappingInformation {
         return Collections.unmodifiableList(propertyMappings);
     }
 
-    public void addPropertyMapping(PropertyMappingInformation propertyMappingInformation) {
+    void addPropertyMapping(PropertyMappingInformation propertyMappingInformation) {
         propertyMappings.put(propertyMappingInformation.getPropertyName(), propertyMappingInformation);
     }
 
@@ -152,6 +164,18 @@ public final class ClassMappingInformation {
         } else {
             return Collections.EMPTY_LIST;
         }
+    }
+
+    void setDefaultEntityListeners(List<EntityListener> defaultEntityListeners) {
+        this.defaultEntityListeners = defaultEntityListeners;
+    }
+
+    void addEntityListener(EntityListener entityListener) {
+        entityListeners.add(entityListener);
+    }
+
+    void setEntityLifecycleMethods(EntityLifecycleMethods entityLifecycleMethods) {
+        entityLifecyleAdapter = new EntityLifecycleAdapter(entityLifecycleMethods);
     }
 
     public Object newInstance() {
@@ -190,5 +214,90 @@ public final class ClassMappingInformation {
                 throw new PersistenceException(e);
             }
         }
+    }
+
+    public void prePersist(final Object entity) {
+        fireLifecycleEvent(entity, new EntityListenerClosure() {
+            public void call(EntityListener entityListener) {
+                entityListener.prePersist(entity);
+            }
+        });
+    }
+
+    public void postPersist(final Object entity) {
+        fireLifecycleEvent(entity, new EntityListenerClosure() {
+            public void call(EntityListener entityListener) {
+                entityListener.postPersist(entity);
+            }
+        });
+    }
+
+    public void preRemove(final Object entity) {
+        fireLifecycleEvent(entity, new EntityListenerClosure() {
+            public void call(EntityListener entityListener) {
+                entityListener.preRemove(entity);
+            }
+        });
+    }
+
+    public void postRemove(final Object entity) {
+        fireLifecycleEvent(entity, new EntityListenerClosure() {
+            public void call(EntityListener entityListener) {
+                entityListener.postRemove(entity);
+            }
+        });
+    }
+
+    public void preUpdate(final Object entity) {
+        fireLifecycleEvent(entity, new EntityListenerClosure() {
+            public void call(EntityListener entityListener) {
+                entityListener.preUpdate(entity);
+            }
+        });
+    }
+
+    public void postUpdate(final Object entity) {
+        fireLifecycleEvent(entity, new EntityListenerClosure() {
+            public void call(EntityListener entityListener) {
+                entityListener.postUpdate(entity);
+            }
+        });
+    }
+
+    public void postLoad(final Object entity) {
+        fireLifecycleEvent(entity, new EntityListenerClosure() {
+            public void call(EntityListener entityListener) {
+                entityListener.postLoad(entity);
+            }
+        });
+    }
+
+    private void fireLifecycleEvent(Object entity, EntityListenerClosure closure) {
+        for (EntityListener entityListener: defaultEntityListeners) {
+            closure.call(entityListener);
+        }
+        if (!excludeSuperclassEntityListeners) {
+            ClassMappingInformation superclassMapping = this.superclassMapping;
+            while (superclassMapping != null && !superclassMapping.excludeSuperclassEntityListeners) {
+                for (EntityListener entityListener: superclassMapping.entityListeners) {
+                    closure.call(entityListener);
+                }
+                superclassMapping = superclassMapping.superclassMapping;
+            }
+        }
+        for (EntityListener entityListener: entityListeners) {
+            closure.call(entityListener);
+        }
+        closure.call(entityLifecyleAdapter);
+        ClassMappingInformation superclassMapping = this.superclassMapping;
+        while (superclassMapping != null && !superclassMapping.excludeSuperclassEntityListeners) {
+            //TODO handle overridden lifecycle methods
+            closure.call(superclassMapping.entityLifecyleAdapter);
+            superclassMapping = superclassMapping.superclassMapping;
+        }
+    }
+
+    private interface EntityListenerClosure {
+        void call(EntityListener entityListener);
     }
 }
