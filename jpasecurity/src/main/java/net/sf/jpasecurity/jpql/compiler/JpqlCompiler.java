@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.PersistenceException;
+
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlInCollection;
@@ -155,6 +157,9 @@ public class JpqlCompiler {
             String abstractSchemaName = node.jjtGetChild(0).toString();
             String alias = node.jjtGetChild(1).toString();
             Class<?> type = mappingInformation.getClassMapping(abstractSchemaName.trim()).getEntityType();
+            if (type == null) {
+                throw new PersistenceException("type not found: " + abstractSchemaName.trim());
+            }
             typeDefinitions.add(new TypeDefinition(alias, type));
             return false;
         }
