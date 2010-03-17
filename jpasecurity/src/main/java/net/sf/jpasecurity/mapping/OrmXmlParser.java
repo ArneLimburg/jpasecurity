@@ -480,24 +480,34 @@ public class OrmXmlParser extends AbstractMappingParser {
         Element classNode = (Element)evaluateNode(CLASS_XPATH, classMapping.getEntityType());
         XmlNodeList entityListeners = new XmlNodeList(classNode.getElementsByTagName("entity-listener"));
         for (Node node: entityListeners) {
-            classMapping.addEntityListener(parseEntityListener(node));
+            Class<?> type = getEntityListenerType(node);
+            EntityLifecycleMethods entityLifecycleMethods
+                = new JpaAnnotationParser().parseEntityLifecycleMethods(type);
+            classMapping.addEntityListener(type, parseEntityListener(node, type, entityLifecycleMethods));
         }
     }
 
     private void parseDefaultEntityListeners() {
         XmlNodeList entityListeners = evaluateNodes(DEFAULT_ENTITY_LISTENER_XPATH);
         for (Node node: entityListeners) {
-            addDefaultEntityListener(parseEntityListener(node));
+            Class<?> type = getEntityListenerType(node);
+            EntityLifecycleMethods entityLifecycleMethods = new EntityLifecycleMethods();
+            addDefaultEntityListener(parseEntityListener(node, type, entityLifecycleMethods));
         }
     }
 
-    private EntityListener parseEntityListener(Node node) {
+    private Class<?> getEntityListenerType(Node node) {
         Element entityListenerElement = (Element)node;
         String listenerClassName = entityListenerElement.getAttribute("class");
-        Class<?> listenerClass = getClass(listenerClassName);
+        return getClass(listenerClassName);
+    }
+
+    private EntityListenerWrapper parseEntityListener(Node node,
+                                                      Class<?> listenerClass,
+                                                      EntityLifecycleMethods entityLifecycleMethods) {
+        Element entityListenerElement = (Element)node;
         try {
             Object listener = listenerClass.newInstance();
-            EntityLifecycleMethods entityLifecycleMethods = new EntityLifecycleMethods();
             NodeList prePersistNodes = entityListenerElement.getElementsByTagName("pre-persist");
             NodeList postPersistNodes = entityListenerElement.getElementsByTagName("post-persist");
             NodeList preRemoveNodes = entityListenerElement.getElementsByTagName("pre-remove");
@@ -505,18 +515,39 @@ public class OrmXmlParser extends AbstractMappingParser {
             NodeList preUpdateNodes = entityListenerElement.getElementsByTagName("pre-update");
             NodeList postUpdateNodes = entityListenerElement.getElementsByTagName("post-update");
             NodeList postLoadNodes = entityListenerElement.getElementsByTagName("post-load");
-            entityLifecycleMethods.setPrePersistMethod(getMethod(listenerClass, prePersistNodes, 1));
-            entityLifecycleMethods.setPostPersistMethod(getMethod(listenerClass, postPersistNodes, 1));
-            entityLifecycleMethods.setPreRemoveMethod(getMethod(listenerClass, preRemoveNodes, 1));
-            entityLifecycleMethods.setPostRemoveMethod(getMethod(listenerClass, postRemoveNodes, 1));
-            entityLifecycleMethods.setPreUpdateMethod(getMethod(listenerClass, preUpdateNodes, 1));
-            entityLifecycleMethods.setPostUpdateMethod(getMethod(listenerClass, postUpdateNodes, 1));
-            entityLifecycleMethods.setPostLoadMethod(getMethod(listenerClass, postLoadNodes, 1));
+            Method prePersistMethod = getMethod(listenerClass, prePersistNodes, 1);
+            Method postPersistMethod = getMethod(listenerClass, postPersistNodes, 1);
+            Method preRemoveMethod = getMethod(listenerClass, preRemoveNodes, 1);
+            Method postRemoveMethod = getMethod(listenerClass, postRemoveNodes, 1);
+            Method preUpdateMethod = getMethod(listenerClass, preUpdateNodes, 1);
+            Method postUpdateMethod = getMethod(listenerClass, postUpdateNodes, 1);
+            Method postLoadMethod = getMethod(listenerClass, postLoadNodes, 1);
+            if (prePersistMethod != null) {
+                entityLifecycleMethods.setPrePersistMethod(prePersistMethod);
+            }
+            if (postPersistMethod != null) {
+                entityLifecycleMethods.setPostPersistMethod(postPersistMethod);
+            }
+            if (preRemoveMethod != null) {
+                entityLifecycleMethods.setPreRemoveMethod(preRemoveMethod);
+            }
+            if (postRemoveMethod != null) {
+                entityLifecycleMethods.setPostRemoveMethod(postRemoveMethod);
+            }
+            if (preUpdateMethod != null) {
+                entityLifecycleMethods.setPreUpdateMethod(preUpdateMethod);
+            }
+            if (postUpdateMethod != null) {
+                entityLifecycleMethods.setPostUpdateMethod(postUpdateMethod);
+            }
+            if (postLoadMethod != null) {
+                entityLifecycleMethods.setPostLoadMethod(postLoadMethod);
+            }
             return new EntityListenerWrapper(listener, entityLifecycleMethods);
         } catch (InstantiationException e) {
-            throw new PersistenceException("could not instantiate default entity-listener of type " + listenerClassName, e);
+            throw new PersistenceException("could not instantiate default entity-listener of type " + listenerClass.getName(), e);
         } catch (IllegalAccessException e) {
-            throw new PersistenceException("could not instantiate default entity-listener of type " + listenerClassName, e);
+            throw new PersistenceException("could not instantiate default entity-listener of type " + listenerClass.getName(), e);
         }
     }
 
