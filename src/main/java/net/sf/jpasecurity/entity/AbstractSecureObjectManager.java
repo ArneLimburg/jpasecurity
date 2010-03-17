@@ -112,8 +112,8 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
         boolean accessChecked = false;
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
-            if (propertyMapping.isIdProperty()) {
-                continue; //don't change id property
+            if (propertyMapping.isIdProperty() || propertyMapping.isVersionProperty()) {
+                continue; //don't change id or version property
             }
             Object secureValue = propertyMapping.getPropertyValue(secureObject);
             if (secureValue instanceof SecureCollection) {
