@@ -158,7 +158,7 @@ public class JpqlCompiler {
             String alias = node.jjtGetChild(1).toString();
             Class<?> type = mappingInformation.getClassMapping(abstractSchemaName.trim()).getEntityType();
             if (type == null) {
-                throw new PersistenceException("type not found: " + abstractSchemaName.trim());
+                throw new PersistenceException("type not found " + abstractSchemaName.trim());
             }
             typeDefinitions.add(new TypeDefinition(alias, type));
             return false;
