@@ -167,6 +167,22 @@ public final class ClassMappingInformation {
         }
     }
 
+    public List<PropertyMappingInformation> getVersionPropertyMappings() {
+        List<PropertyMappingInformation> versionPropertyMappings = new ArrayList<PropertyMappingInformation>();
+        for (PropertyMappingInformation propertyMapping: propertyMappings.values()) {
+            if (propertyMapping.isVersionProperty()) {
+                versionPropertyMappings.add(propertyMapping);
+            }
+        }
+        if (versionPropertyMappings.size() > 0) {
+            return Collections.unmodifiableList(versionPropertyMappings);
+        } else if (superclassMapping != null) {
+            return superclassMapping.getVersionPropertyMappings();
+        } else {
+            return Collections.EMPTY_LIST;
+        }
+    }
+
     void setDefaultEntityListeners(List<EntityListener> defaultEntityListeners) {
         this.defaultEntityListeners = defaultEntityListeners;
     }
