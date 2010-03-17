@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.mapping.parser;
+package net.sf.jpasecurity.mapping;
 
 import java.beans.Introspector;
 import java.io.IOException;
@@ -45,12 +45,6 @@ import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import net.sf.jpasecurity.mapping.ClassMappingInformation;
-import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
-import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.PropertyMappingInformation;
-import net.sf.jpasecurity.mapping.SimplePropertyMappingInformation;
-import net.sf.jpasecurity.mapping.SingleValuedRelationshipMappingInformation;
 
 /**
  * Parses persistence units and created mapping information.
@@ -121,49 +115,63 @@ public abstract class AbstractMappingParser {
     }
 
     protected ClassMappingInformation parse(Class<?> mappedClass) {
+        return parse(mappedClass, false);
+    }
+
+    protected ClassMappingInformation parse(Class<?> mappedClass, boolean override) {
         ClassMappingInformation classMapping = classMappings.get(mappedClass);
+        if (classMapping != null && !override) {
+            return classMapping;
+        }
+        Class<?> superclass = mappedClass.getSuperclass();
+        ClassMappingInformation superclassMapping = null;
+        if (superclass != null) {
+            superclassMapping = parse(mappedClass.getSuperclass());
+        }
+        if (!isMapped(mappedClass)) {
+            return superclassMapping;
+        }
+        parseNamedQueries(mappedClass);
+        boolean usesFieldAccess;
+        if (superclassMapping != null) {
+            usesFieldAccess = superclassMapping.usesFieldAccess();
+        } else {
+            usesFieldAccess = usesFieldAccess(mappedClass);
+        }
+        Class<?> idClass = null;
+        if (superclassMapping == null || superclassMapping.getIdClass() == null) {
+            idClass = getIdClass(mappedClass, usesFieldAccess);
+        }
+        String entityName = getEntityName(mappedClass);
+        boolean metadataComplete = isMetadataComplete(mappedClass);
         if (classMapping == null) {
-            Class<?> superclass = mappedClass.getSuperclass();
-            ClassMappingInformation superclassMapping = null;
-            if (superclass != null) {
-                superclassMapping = parse(mappedClass.getSuperclass());
+            classMapping = new ClassMappingInformation(entityName,
+                                                       mappedClass,
+                                                       superclassMapping,
+                                                       idClass,
+                                                       usesFieldAccess,
+                                                       metadataComplete);
+            classMappings.put(mappedClass, classMapping);
+        } else {
+            classMapping.setEntityName(entityName);
+            classMapping.setIdClass(idClass);
+            classMapping.setFieldAccess(usesFieldAccess);
+            classMapping.setMetadataComplete(metadataComplete);
+        }
+        if (metadataComplete) {
+            classMapping.clearPropertyMappings();
+        }
+        if (usesFieldAccess) {
+            for (Field field: mappedClass.getDeclaredFields()) {
+                if (isMappable(field)) {
+                    parse(classMapping, field);
+                }
             }
-            if (isMapped(mappedClass)) {
-                parseNamedQueries(mappedClass);
-                boolean usesFieldAccess;
-                if (superclassMapping != null) {
-                    usesFieldAccess = superclassMapping.usesFieldAccess();
-                } else {
-                    usesFieldAccess = usesFieldAccess(mappedClass);
+        } else {
+            for (Method method: mappedClass.getDeclaredMethods()) {
+                if (isPropertyGetter(method)) {
+                    parse(classMapping, method);
                 }
-                Class<?> idClass = null;
-                if (superclassMapping == null || superclassMapping.getIdClass() == null) {
-                    idClass = getIdClass(mappedClass, usesFieldAccess);
-                }
-                String entityName = getEntityName(mappedClass);
-                classMapping = new ClassMappingInformation(entityName,
-                                                           mappedClass,
-                                                           superclassMapping,
-                                                           idClass,
-                                                           usesFieldAccess);
-                classMappings.put(mappedClass, classMapping);
-                if (usesFieldAccess) {
-                    for (Field field: mappedClass.getDeclaredFields()) {
-                        if (isMappable(field)) {
-                            PropertyMappingInformation propertyMapping = parse(field);
-                            classMapping.addPropertyMapping(propertyMapping);
-                        }
-                    }
-                } else {
-                    for (Method method: mappedClass.getDeclaredMethods()) {
-                        if (isPropertyGetter(method)) {
-                            PropertyMappingInformation propertyMapping = parse(method);
-                            classMapping.addPropertyMapping(propertyMapping);
-                        }
-                    }
-                }
-            } else {
-                classMapping = superclassMapping;
             }
         }
         return classMapping;
@@ -185,33 +193,58 @@ public abstract class AbstractMappingParser {
         }
     }
 
-    private PropertyMappingInformation parse(Member property) {
+    private void parse(ClassMappingInformation classMapping, Member property) {
         String name = getName(property);
         Class<?> type = getType(property);
-        ClassMappingInformation classMapping = parse(property.getDeclaringClass());
         boolean isIdProperty = isIdProperty(property);
-        if (isSingleValuedRelationshipProperty(property)) {
-            ClassMappingInformation typeMapping = parse(type);
-            return new SingleValuedRelationshipMappingInformation(name,
-                                                                  typeMapping,
-                                                                  classMapping,
-                                                                  isIdProperty,
-                                                                  getFetchType(property),
-                                                                  getCascadeTypes(property));
-        } else if (isCollectionValuedRelationshipProperty(property)) {
-            ClassMappingInformation targetMapping = parse(getTargetType(property));
-            return new CollectionValuedRelationshipMappingInformation(name,
-                                                                      type,
-                                                                      targetMapping,
-                                                                      classMapping,
-                                                                      isIdProperty,
-                                                                      getFetchType(property),
-                                                                      getCascadeTypes(property));
-        } else if (isSimplePropertyType(type)) {
-            return new SimplePropertyMappingInformation(name, type, classMapping, isIdProperty);
-        } else if (classMapping.getPropertyMapping(name) != null) {
-            return classMapping.getPropertyMapping(name);
-        } else {
+        boolean isVersionProperty = isVersionProperty(property);
+        boolean isSingleValuedRelationshipProperty = isSingleValuedRelationshipProperty(property);
+        boolean isCollectionValuedRelationshipProperty = isCollectionValuedRelationshipProperty(property);
+        PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(name);
+        if (propertyMapping != null) {
+            if (isIdProperty) {
+                propertyMapping.setIdProperty(isIdProperty);
+            }
+            if (isVersionProperty) {
+                propertyMapping.setVersionProperty(isVersionProperty);
+            }
+        }
+        if (isSingleValuedRelationshipProperty || isCollectionValuedRelationshipProperty) {
+            if (propertyMapping != null) {
+                RelationshipMappingInformation relationshipMapping = (RelationshipMappingInformation)propertyMapping;
+                if (isFetchTypePresent(property)) {
+                    relationshipMapping.setFetchType(getFetchType(property));
+                }
+                CascadeType[] cascadeTypes = getCascadeTypes(property);
+                if (cascadeTypes.length > 0) {
+                    relationshipMapping.setCascadeTypes(getCascadeTypes(property));
+                }
+            } else {
+                if (isSingleValuedRelationshipProperty) {
+                    ClassMappingInformation typeMapping = parse(type);
+                    propertyMapping = new SingleValuedRelationshipMappingInformation(name,
+                                                                                     typeMapping,
+                                                                                     classMapping,
+                                                                                     isIdProperty,
+                                                                                     getFetchType(property),
+                                                                                     getCascadeTypes(property));
+                } else if (isCollectionValuedRelationshipProperty) {
+                    ClassMappingInformation targetMapping = parse(getTargetType(property));
+                    propertyMapping = new CollectionValuedRelationshipMappingInformation(name,
+                                                                                         type,
+                                                                                         targetMapping,
+                                                                                         classMapping,
+                                                                                         isIdProperty,
+                                                                                         getFetchType(property),
+                                                                                         getCascadeTypes(property));
+                }
+                classMapping.addPropertyMapping(propertyMapping);
+            }
+        } else if (propertyMapping == null && isSimplePropertyType(type)) {
+            propertyMapping
+                = new SimplePropertyMappingInformation(name, type, classMapping, isIdProperty, isVersionProperty);
+            classMapping.addPropertyMapping(propertyMapping);
+        } else if (propertyMapping == null) {
             throw new PersistenceException("could not determine mapping for property \"" + name + "\" of class " + property.getDeclaringClass().getName());
         }
     }
@@ -309,6 +342,8 @@ public abstract class AbstractMappingParser {
 
     protected abstract boolean isMapped(Member member);
 
+    protected abstract boolean isMetadataComplete(Class<?> entityClass);
+
     protected abstract Class<?> getIdClass(Class<?> entityClass, boolean usesFieldAccess);
 
     protected boolean isMappable(Member member) {
@@ -345,6 +380,10 @@ public abstract class AbstractMappingParser {
     protected abstract boolean isEmbeddable(Class<?> type);
 
     protected abstract boolean isIdProperty(Member property);
+
+    protected abstract boolean isVersionProperty(Member property);
+
+    protected abstract boolean isFetchTypePresent(Member property);
 
     protected FetchType getFetchType(Member property) {
         Class<?> type = getType(property);

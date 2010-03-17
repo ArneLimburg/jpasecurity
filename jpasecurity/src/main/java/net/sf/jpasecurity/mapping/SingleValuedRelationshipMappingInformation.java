@@ -29,6 +29,11 @@ public final class SingleValuedRelationshipMappingInformation extends Relationsh
                                                       boolean isIdProperty,
                                                       FetchType fetchType,
                                                       CascadeType... cascadeTypes) {
-        super(propertyName, relatedClassMapping, declaringClassMapping, isIdProperty, fetchType, cascadeTypes);
+        super(propertyName,
+              relatedClassMapping,
+              declaringClassMapping,
+              isIdProperty,
+              fetchType,
+              cascadeTypes);
     }
 }

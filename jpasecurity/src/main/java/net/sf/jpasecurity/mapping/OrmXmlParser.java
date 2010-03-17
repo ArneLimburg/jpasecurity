@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.mapping.parser;
+package net.sf.jpasecurity.mapping;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +37,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.xml.XmlNodeList;
 
 import org.apache.commons.logging.Log;
@@ -52,7 +51,6 @@ import org.xml.sax.SAXException;
 /**
  * Parser to parse orm.xml <strong>This class is not thread-safe</strong>
  *
- * @todo support <xml-mapping-metadata-complete/> tag
  * @author Arne Limburg
  * @author Johannes Siemer
  */
@@ -234,13 +232,40 @@ public class OrmXmlParser extends AbstractMappingParser {
         }
     }
 
+    @Override
+    protected boolean isMetadataComplete(Class<?> entityClass) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    protected boolean isVersionProperty(Member property) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected boolean isFetchTypePresent(Member property) {
+        return getXmlFetchType(property) != null;
+    }
+
     /**
      * {@inheritDoc}
      */
     protected FetchType getFetchType(Member property) {
+        FetchType fetchType = getXmlFetchType(property);
+        if (fetchType != null) {
+            return fetchType;
+        }
+        return super.getFetchType(property);
+    }
+
+    protected FetchType getXmlFetchType(Member property) {
         Node node = evaluateNode(FETCH_TYPE_XPATH, property.getDeclaringClass(), getName(property));
         if (node == null) {
-            return super.getFetchType(property);
+            return null;
         }
         return FetchType.valueOf(node.getTextContent());
     }
@@ -354,11 +379,11 @@ public class OrmXmlParser extends AbstractMappingParser {
         String className = getClassName(node);
         if (defaultPackage != null) {
             try {
-                return parse(getClass(defaultPackage + '.' + className));
+                return parse(getClass(defaultPackage + '.' + className), true);
             } catch (PersistenceException e) {
                 if (e.getCause() instanceof ClassNotFoundException) {
                     try {
-                        return parse(getClass(className));
+                        return parse(getClass(className), true);
                     } catch (PersistenceException c) {
                         if (c.getCause() instanceof ClassNotFoundException) {
                             throw className.indexOf('.') != -1? c: e;
@@ -368,7 +393,7 @@ public class OrmXmlParser extends AbstractMappingParser {
                 throw e;
             }
         } else {
-            return parse(getClass(className));
+            return parse(getClass(className), true);
         }
     }
 
