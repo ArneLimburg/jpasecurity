@@ -32,6 +32,10 @@ public class EntityListenerWrapper extends AbstractEntityListenerAdapter {
         this.entityListener = entityListener;
     }
 
+    public Object getEntityListener() {
+        return entityListener;
+    }
+
     protected void fireEvent(Method method, Object entity) throws IllegalAccessException,
                                                                   InvocationTargetException {
         method.invoke(entityListener, entity);

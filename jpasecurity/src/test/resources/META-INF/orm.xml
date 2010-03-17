@@ -3,6 +3,13 @@
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/orm_1_0.xsd"
                  version="1.0">
+  <persistence-unit-metadata>
+    <persistence-unit-defaults>
+      <entity-listeners>
+        <entity-listener class="net.sf.jpasecurity.model.DefaultEntityListener" />
+      </entity-listeners>
+    </persistence-unit-defaults>
+  </persistence-unit-metadata>
   <entity class="net.sf.jpasecurity.model.MethodAccessXmlTestBean" access="PROPERTY">
     <attributes>
       <id name="id"/>
