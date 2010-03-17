@@ -86,7 +86,7 @@ public class OrmXmlParser extends AbstractMappingParser {
     public static final String POST_LOAD_XPATH
         = "//*[@class=''{0}'']/post-load";
     public static final String ENTITY_LISTENERS_XPATH
-        = "//*[@class=''{0}'']";
+        = "//*[@class=''{0}'']/entity-listeners/entity-listener";
     public static final String FETCH_TYPE_XPATH
         = "//*[@class=''{0}'']//*[@name=''{1}'']/@fetch";
     public static final String CASCADE_TYPE_XPATH
