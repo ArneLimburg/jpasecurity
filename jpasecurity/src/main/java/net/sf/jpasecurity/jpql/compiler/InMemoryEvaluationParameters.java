@@ -41,6 +41,12 @@ public class InMemoryEvaluationParameters<T> {
                                         Map<String, Object> namedParameters,
                                         Map<Integer, Object> positionalParameters,
                                         SecureObjectManager objectManager) {
+        if (mappingInformation == null) {
+            throw new IllegalArgumentException("mappingInformation may not be null");
+        }
+        if (objectManager == null) {
+            throw new IllegalArgumentException("objectManager may not be null");
+        }
         this.mappingInformation = mappingInformation;
         this.aliases = aliases;
         this.namedParameters = namedParameters;
