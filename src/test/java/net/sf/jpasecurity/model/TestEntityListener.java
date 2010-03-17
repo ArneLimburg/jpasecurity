@@ -16,9 +16,6 @@
 package net.sf.jpasecurity.model;
 
 import javax.persistence.PostLoad;
-import javax.persistence.PostPersist;
-import javax.persistence.PostRemove;
-import javax.persistence.PostUpdate;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
@@ -29,25 +26,30 @@ import javax.persistence.PreUpdate;
 public class TestEntityListener {
 
     @PrePersist
-    @PostRemove
     public void publicTestMethod(Object entity) {
-        throw new PublicTestMethodCalledException();
-    }
-    
-    @PostUpdate
-    protected void protectedTestMethod(Object entity) {
-        throw new ProtectedTestMethodCalledException();
-    }
-    
-    @PostPersist
-    @PreUpdate
-    void packageProtectedTestMethod(Object entity) {
-        throw new PackageProtectedTestMethodCalledException();
+        if (entity == null) {
+            throw new PublicTestMethodCalledException();
+        }
     }
     
     @PreRemove
+    protected void protectedTestMethod(Object entity) {
+        if (entity == null) {
+            throw new ProtectedTestMethodCalledException();
+        }
+    }
+    
+    @PreUpdate
+    void packageProtectedTestMethod(Object entity) {
+        if (entity == null) {
+            throw new PackageProtectedTestMethodCalledException();
+        }
+    }
+    
     private void privateTestMethod(Object entity) {
-        throw new PrivateTestMethodCalledException();
+        if (entity == null) {
+            throw new PrivateTestMethodCalledException();
+        }
     }
     
     public static class PublicTestMethodCalledException extends RuntimeException {
