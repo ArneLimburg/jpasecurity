@@ -17,6 +17,7 @@ package net.sf.jpasecurity.mapping;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.net.URL;
 
 import javax.persistence.Basic;
@@ -26,7 +27,10 @@ import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.Enumerated;
+import javax.persistence.ExcludeDefaultListeners;
+import javax.persistence.ExcludeSuperclassListeners;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -38,6 +42,14 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PersistenceException;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostRemove;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreRemove;
+import javax.persistence.PreUpdate;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import javax.persistence.Version;
@@ -74,6 +86,36 @@ public class JpaAnnotationParser extends AbstractMappingParser {
         if (queries != null) {
             for (NamedQuery query: queries.value()) {
                 addNamedQuery(query.name(), query.query());
+            }
+        }
+    }
+
+    protected boolean excludeDefaultEntityListeners(Class<?> entityClass) {
+        return entityClass.getAnnotation(ExcludeDefaultListeners.class) != null;
+    }
+
+    protected boolean excludeSuperclassEntityListeners(Class<?> entityClass) {
+        return entityClass.getAnnotation(ExcludeSuperclassListeners.class) != null;
+    }
+
+    protected void parseEntityLifecycleMethods(ClassMappingInformation classMapping) {
+        classMapping.setEntityLifecycleMethods(parseEntityLifecycleMethods(classMapping.getEntityType()));
+    }
+
+    protected void parseEntityListeners(ClassMappingInformation classMapping) {
+        EntityListeners entityListeners = classMapping.getEntityType().getAnnotation(EntityListeners.class);
+        if (entityListeners == null) {
+            return;
+        }
+        for (Class<?> entityListenerClass: entityListeners.value()) {
+            try {
+                Object entityListener = entityListenerClass.newInstance();
+                EntityLifecycleMethods entityLifecycleMethods = parseEntityLifecycleMethods(entityListenerClass);
+                classMapping.addEntityListener(new EntityListenerWrapper(entityListener, entityLifecycleMethods));
+            } catch (InstantiationException e) {
+                throw new PersistenceException("could not instantiate default entity-listener of type " + entityListenerClass.getName(), e);
+            } catch (IllegalAccessException e) {
+                throw new PersistenceException("could not instantiate default entity-listener of type " + entityListenerClass.getName(), e);
             }
         }
     }
@@ -235,5 +277,40 @@ public class JpaAnnotationParser extends AbstractMappingParser {
         AnnotatedElement annotatedProperty = (AnnotatedElement)property;
         return annotatedProperty.isAnnotationPresent(OneToMany.class)
             || annotatedProperty.isAnnotationPresent(ManyToMany.class);
+    }
+
+    private EntityLifecycleMethods parseEntityLifecycleMethods(Class<?> entityType) {
+        EntityLifecycleMethods entityLifecycleMethods = new EntityLifecycleMethods();
+        for (Method method: entityType.getDeclaredMethods()) {
+            if (method.getAnnotation(PrePersist.class) != null) {
+                method.setAccessible(true);
+                entityLifecycleMethods.setPrePersistMethod(method);
+            }
+            if (method.getAnnotation(PostPersist.class) != null) {
+                method.setAccessible(true);
+                entityLifecycleMethods.setPostPersistMethod(method);
+            }
+            if (method.getAnnotation(PreRemove.class) != null) {
+                method.setAccessible(true);
+                entityLifecycleMethods.setPreRemoveMethod(method);
+            }
+            if (method.getAnnotation(PostRemove.class) != null) {
+                method.setAccessible(true);
+                entityLifecycleMethods.setPostRemoveMethod(method);
+            }
+            if (method.getAnnotation(PreUpdate.class) != null) {
+                method.setAccessible(true);
+                entityLifecycleMethods.setPreUpdateMethod(method);
+            }
+            if (method.getAnnotation(PostUpdate.class) != null) {
+                method.setAccessible(true);
+                entityLifecycleMethods.setPostUpdateMethod(method);
+            }
+            if (method.getAnnotation(PostLoad.class) != null) {
+                method.setAccessible(true);
+                entityLifecycleMethods.setPostLoadMethod(method);
+            }
+        }
+        return entityLifecycleMethods;
     }
 }

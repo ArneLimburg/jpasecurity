@@ -18,6 +18,7 @@ package net.sf.jpasecurity.mapping;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -60,6 +61,32 @@ public class OrmXmlParser extends AbstractMappingParser {
 
     public static final String NAMED_QUERY_XPATH
         = "//named-query";
+    public static final String DEFAULT_ENTITY_LISTENER_XPATH
+        = "//persistence-unit-defaults/entity-listeners/entity-listener";
+    public static final String XML_MAPPING_METADATA_COMPLETE_XPATH
+        = "//persistence-unit-defaults/xml-mapping-metadata-complete";
+    public static final String METADATA_COMPLETE_XPATH
+        = "//*[@class=''{0}'']/@metadata-complete";
+    public static final String EXCLUDE_DEFAULT_LISTENERS_XPATH
+        = "//*[@class=''{0}'']/@exclude-default-listeners";
+    public static final String EXCLUDE_SUPERCLASS_LISTENERS_XPATH
+        = "//*[@class=''{0}'']/@exclude-superclass-listeners";
+    public static final String PRE_PERSIST_XPATH
+        = "//*[@class=''{0}'']/pre-persist";
+    public static final String POST_PERSIST_XPATH
+        = "//*[@class=''{0}'']/post-persist";
+    public static final String PRE_REMOVE_XPATH
+        = "//*[@class=''{0}'']/pre-remove";
+    public static final String POST_REMOVE_XPATH
+        = "//*[@class=''{0}'']/post-remove";
+    public static final String PRE_UPDATE_XPATH
+        = "//*[@class=''{0}'']/pre-update";
+    public static final String POST_UPDATE_XPATH
+        = "//*[@class=''{0}'']/post-update";
+    public static final String POST_LOAD_XPATH
+        = "//*[@class=''{0}'']/post-load";
+    public static final String ENTITY_LISTENERS_XPATH
+        = "//*[@class=''{0}'']";
     public static final String FETCH_TYPE_XPATH
         = "//*[@class=''{0}'']//*[@name=''{1}'']/@fetch";
     public static final String CASCADE_TYPE_XPATH
@@ -90,6 +117,8 @@ public class OrmXmlParser extends AbstractMappingParser {
         = "//*[@class=''{0}'']//id[@name=''{1}'']";
     public static final String EMBEDDED_ID_PROPERTY_XPATH
         = "//*[@class=''{0}'']/attributes/embedded-id[@name=''{1}'']";
+    public static final String VERSION_PROPERTY_XPATH
+        = "//*[@class=''{0}'']//version[@name=''{1}'']";
     public static final String TRANSIENT_PROPERTY_XPATH
         = "//*[@class=''{0}'']/attributes/transient[@name=''{1}'']";
 
@@ -194,6 +223,14 @@ public class OrmXmlParser extends AbstractMappingParser {
         return FIELD_ACCESS.equals(accessNode.getTextContent().toUpperCase());
     }
 
+    protected boolean excludeDefaultEntityListeners(Class<?> entityClass) {
+        return evaluateNode(EXCLUDE_DEFAULT_LISTENERS_XPATH, entityClass) != null;
+    }
+
+    protected boolean excludeSuperclassEntityListeners(Class<?> entityClass) {
+        return evaluateNode(EXCLUDE_SUPERCLASS_LISTENERS_XPATH, entityClass) != null;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -234,14 +271,21 @@ public class OrmXmlParser extends AbstractMappingParser {
 
     @Override
     protected boolean isMetadataComplete(Class<?> entityClass) {
-        // TODO Auto-generated method stub
-        return false;
+        Node metadataCompleteNode = evaluateNode(XML_MAPPING_METADATA_COMPLETE_XPATH);
+        if (metadataCompleteNode != null) {
+            return true;
+        }
+        metadataCompleteNode = evaluateNode(METADATA_COMPLETE_XPATH, entityClass);
+        if (metadataCompleteNode == null) {
+            return false;
+        }
+        return Boolean.valueOf(metadataCompleteNode.getTextContent().trim());
     }
 
     @Override
     protected boolean isVersionProperty(Member property) {
-        // TODO Auto-generated method stub
-        return false;
+        String name = getName(property);
+        return evaluateNode(VERSION_PROPERTY_XPATH, property.getDeclaringClass(), name) != null;
     }
 
     /**
@@ -363,6 +407,7 @@ public class OrmXmlParser extends AbstractMappingParser {
     private void parse(PersistenceUnitInfo persistenceUnit, Document mappingDocument) {
         ormDocument = mappingDocument;
         parseNamedQueries();
+        parseDefaultEntityListeners();
         String packageName = getPackageName();
         for (Node node: evaluateNodes(ENTITIES_XPATH)) {
             parse(node, packageName);
@@ -412,6 +457,96 @@ public class OrmXmlParser extends AbstractMappingParser {
         }
     }
 
+    protected void parseEntityLifecycleMethods(ClassMappingInformation classMapping) {
+        Node prePersistNode = evaluateNode(PRE_PERSIST_XPATH, classMapping.getEntityType());
+        Node postPersistNode = evaluateNode(POST_PERSIST_XPATH, classMapping.getEntityType());
+        Node preRemoveNode = evaluateNode(PRE_REMOVE_XPATH, classMapping.getEntityType());
+        Node postRemoveNode = evaluateNode(POST_REMOVE_XPATH, classMapping.getEntityType());
+        Node preUpdateNode = evaluateNode(PRE_UPDATE_XPATH, classMapping.getEntityType());
+        Node postUpdateNode = evaluateNode(POST_UPDATE_XPATH, classMapping.getEntityType());
+        Node postLoadNode = evaluateNode(POST_LOAD_XPATH, classMapping.getEntityType());
+        EntityLifecycleMethods entityLifecycleMethods = new EntityLifecycleMethods();
+        entityLifecycleMethods.setPrePersistMethod(getMethod(classMapping.getEntityType(), prePersistNode, 0));
+        entityLifecycleMethods.setPostPersistMethod(getMethod(classMapping.getEntityType(), postPersistNode, 0));
+        entityLifecycleMethods.setPreRemoveMethod(getMethod(classMapping.getEntityType(), preRemoveNode, 0));
+        entityLifecycleMethods.setPostRemoveMethod(getMethod(classMapping.getEntityType(), postRemoveNode, 0));
+        entityLifecycleMethods.setPreUpdateMethod(getMethod(classMapping.getEntityType(), preUpdateNode, 0));
+        entityLifecycleMethods.setPostUpdateMethod(getMethod(classMapping.getEntityType(), postUpdateNode, 0));
+        entityLifecycleMethods.setPostLoadMethod(getMethod(classMapping.getEntityType(), postLoadNode, 0));
+        classMapping.setEntityLifecycleMethods(entityLifecycleMethods);
+    }
+
+    protected void parseEntityListeners(ClassMappingInformation classMapping) {
+        Element classNode = (Element)evaluateNode(CLASS_XPATH, classMapping.getEntityType());
+        XmlNodeList entityListeners = new XmlNodeList(classNode.getElementsByTagName("entity-listener"));
+        for (Node node: entityListeners) {
+            classMapping.addEntityListener(parseEntityListener(node));
+        }
+    }
+
+    private void parseDefaultEntityListeners() {
+        XmlNodeList entityListeners = evaluateNodes(DEFAULT_ENTITY_LISTENER_XPATH);
+        for (Node node: entityListeners) {
+            addDefaultEntityListener(parseEntityListener(node));
+        }
+    }
+
+    private EntityListener parseEntityListener(Node node) {
+        Element entityListenerElement = (Element)node;
+        String listenerClassName = entityListenerElement.getAttribute("class");
+        Class<?> listenerClass = getClass(listenerClassName);
+        try {
+            Object listener = listenerClass.newInstance();
+            EntityLifecycleMethods entityLifecycleMethods = new EntityLifecycleMethods();
+            NodeList prePersistNodes = entityListenerElement.getElementsByTagName("pre-persist");
+            NodeList postPersistNodes = entityListenerElement.getElementsByTagName("post-persist");
+            NodeList preRemoveNodes = entityListenerElement.getElementsByTagName("pre-remove");
+            NodeList postRemoveNodes = entityListenerElement.getElementsByTagName("post-remove");
+            NodeList preUpdateNodes = entityListenerElement.getElementsByTagName("pre-update");
+            NodeList postUpdateNodes = entityListenerElement.getElementsByTagName("post-update");
+            NodeList postLoadNodes = entityListenerElement.getElementsByTagName("post-load");
+            entityLifecycleMethods.setPrePersistMethod(getMethod(listenerClass, prePersistNodes, 1));
+            entityLifecycleMethods.setPostPersistMethod(getMethod(listenerClass, postPersistNodes, 1));
+            entityLifecycleMethods.setPreRemoveMethod(getMethod(listenerClass, preRemoveNodes, 1));
+            entityLifecycleMethods.setPostRemoveMethod(getMethod(listenerClass, postRemoveNodes, 1));
+            entityLifecycleMethods.setPreUpdateMethod(getMethod(listenerClass, preUpdateNodes, 1));
+            entityLifecycleMethods.setPostUpdateMethod(getMethod(listenerClass, postUpdateNodes, 1));
+            entityLifecycleMethods.setPostLoadMethod(getMethod(listenerClass, postLoadNodes, 1));
+            return new EntityListenerWrapper(listener, entityLifecycleMethods);
+        } catch (InstantiationException e) {
+            throw new PersistenceException("could not instantiate default entity-listener of type " + listenerClassName, e);
+        } catch (IllegalAccessException e) {
+            throw new PersistenceException("could not instantiate default entity-listener of type " + listenerClassName, e);
+        }
+    }
+
+    private Method getMethod(Class<?> type, NodeList nodes, int parameterCount) {
+        if (nodes.getLength() == 0) {
+            return null;
+        }
+        if (nodes.getLength() > 1) {
+            throw new PersistenceException("Only one method may be specified per lifecycle event");
+        }
+        return getMethod(type, nodes.item(0), parameterCount);
+    }
+
+    private Method getMethod(Class<?> type, Node node, int parameterCount) {
+        if (node == null) {
+            return null;
+        }
+        String methodName = node.getAttributes().getNamedItem("method-name").getTextContent().trim();
+        while (type != null) {
+            for (Method method: type.getDeclaredMethods()) {
+                if (methodName.equals(method.getName()) && method.getParameterTypes().length == parameterCount) {
+                    method.setAccessible(true);
+                    return method;
+                }
+            }
+            type = type.getSuperclass();
+        }
+        return null;
+    }
+
     private String getPackageName() {
         Node packageNode = evaluateNode(PACKAGE_XPATH);
         return packageNode == null? null: packageNode.getTextContent();
@@ -449,9 +584,9 @@ public class OrmXmlParser extends AbstractMappingParser {
         String prefix = packageName + '.';
         if (className.startsWith(prefix)) {
             extendedParameters[0] = className.substring(prefix.length());
-            Node accessNode = evaluateNode(query, extendedParameters);
-            if (accessNode != null) {
-                return accessNode;
+            Node node = evaluateNode(query, extendedParameters);
+            if (node != null) {
+                return node;
             }
         }
         extendedParameters[0] = className;

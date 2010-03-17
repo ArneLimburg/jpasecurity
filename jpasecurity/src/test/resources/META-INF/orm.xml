@@ -19,6 +19,16 @@
     </attributes>
   </entity>
   <entity class="net.sf.jpasecurity.model.FieldAccessXmlTestBean" access="FIELD">
+    <entity-listeners>
+      <entity-listener class="net.sf.jpasecurity.model.TestEntityListener">
+        <pre-persist method-name="publicTestMethod"/>
+        <post-persist method-name="publicTestMethod"/>
+        <pre-remove method-name="publicTestMethod"/>
+        <post-remove method-name="protectedTestMethod"/>
+        <pre-update method-name="packageProtectedTestMethod"/>
+        <post-load method-name="privateTestMethod"/>
+      </entity-listener>
+    </entity-listeners>
     <attributes>
       <id name="id"/>
       <basic name="name"/>
