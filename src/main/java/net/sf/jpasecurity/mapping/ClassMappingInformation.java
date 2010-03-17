@@ -39,6 +39,7 @@ public final class ClassMappingInformation {
     private Set<ClassMappingInformation> subclassMappings = new HashSet<ClassMappingInformation>();
     private Class<?> idClass;
     private boolean fieldAccess;
+    private boolean metadataComplete;
     private Map<String, PropertyMappingInformation> propertyMappings
         = new HashMap<String, PropertyMappingInformation>();
 
@@ -46,7 +47,14 @@ public final class ClassMappingInformation {
                                    Class<?> entityType,
                                    ClassMappingInformation superclassMapping,
                                    Class<?> idClass,
-                                   boolean usesFieldAccess) {
+                                   boolean usesFieldAccess,
+                                   boolean metadataComplete) {
+        if (entityName == null) {
+            throw new IllegalArgumentException("entityName may not be null");
+        }
+        if (entityType == null) {
+            throw new IllegalArgumentException("entityType may not be null");
+        }
         this.entityName = entityName;
         this.entityType = entityType;
         this.superclassMapping = superclassMapping;
@@ -55,10 +63,18 @@ public final class ClassMappingInformation {
         }
         this.idClass = idClass;
         this.fieldAccess = usesFieldAccess;
+        this.metadataComplete = metadataComplete;
     }
 
     public String getEntityName() {
         return entityName;
+    }
+
+    void setEntityName(String entityName) {
+        if (entityName == null) {
+            throw new IllegalArgumentException("entityName may not be null");
+        }
+        this.entityName = entityName;
     }
 
     public Class<?> getEntityType() {
@@ -73,12 +89,32 @@ public final class ClassMappingInformation {
         return idClass;
     }
 
+    void setIdClass(Class<?> idClass) {
+        this.idClass = idClass;
+    }
+
     public boolean usesFieldAccess() {
         return fieldAccess;
     }
 
     public boolean usesPropertyAccess() {
         return !fieldAccess;
+    }
+
+    void setFieldAccess(boolean fieldAccess) {
+        this.fieldAccess = fieldAccess;
+    }
+
+    public boolean isMetadataComplete() {
+        return metadataComplete;
+    }
+
+    void setMetadataComplete(boolean metadataComplete) {
+        this.metadataComplete = metadataComplete;
+    }
+
+    void clearPropertyMappings() {
+        propertyMappings.clear();
     }
 
     public PropertyMappingInformation getPropertyMapping(String propertyName) {

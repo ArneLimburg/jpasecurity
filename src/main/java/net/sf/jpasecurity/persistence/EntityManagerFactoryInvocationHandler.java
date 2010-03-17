@@ -24,9 +24,9 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.entity.FetchManager;
+import net.sf.jpasecurity.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.parser.JpaAnnotationParser;
-import net.sf.jpasecurity.mapping.parser.OrmXmlParser;
+import net.sf.jpasecurity.mapping.OrmXmlParser;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;

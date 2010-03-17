@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.mapping.parser;
+package net.sf.jpasecurity.mapping;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
@@ -42,6 +42,7 @@ import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 import javax.persistence.spi.PersistenceUnitInfo;
+
 
 /**
  * Parses a persistence unit for persistence annotations.
@@ -84,6 +85,10 @@ public class JpaAnnotationParser extends AbstractMappingParser {
         } else {
             return entity.name();
         }
+    }
+
+    protected boolean isMetadataComplete(Class<?> entityClass) {
+        return false;
     }
 
     protected Class<?> getIdClass(Class<?> entityClass, boolean usesFieldAccess) {
@@ -153,7 +158,24 @@ public class JpaAnnotationParser extends AbstractMappingParser {
         }
     }
 
+    protected boolean isVersionProperty(Member property) {
+        AnnotatedElement annotatedProperty = (AnnotatedElement)property;
+        return annotatedProperty.getAnnotation(Version.class) != null;
+    }
+
+    protected boolean isFetchTypePresent(Member property) {
+        return getAnnotationFetchType(property) != null;
+    }
+
     protected FetchType getFetchType(Member property) {
+        FetchType fetchType = getAnnotationFetchType(property);
+        if (fetchType != null) {
+            return fetchType;
+        }
+        return super.getFetchType(property);
+    }
+
+    protected FetchType getAnnotationFetchType(Member property) {
         AnnotatedElement annotatedProperty = (AnnotatedElement)property;
         ManyToMany manyToMany = annotatedProperty.getAnnotation(ManyToMany.class);
         if (manyToMany != null) {
@@ -171,7 +193,7 @@ public class JpaAnnotationParser extends AbstractMappingParser {
         if (oneToOne != null) {
             return oneToOne.fetch();
         }
-        return super.getFetchType(property);
+        return null;
     }
 
     protected CascadeType[] getCascadeTypes(Member property) {
