@@ -33,8 +33,8 @@ import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
+import net.sf.jpasecurity.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.parser.JpaAnnotationParser;
 import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
 import net.sf.jpasecurity.security.rules.AccessRulesCompiler;
 

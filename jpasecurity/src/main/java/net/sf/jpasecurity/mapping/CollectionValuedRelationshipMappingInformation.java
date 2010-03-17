@@ -33,7 +33,12 @@ public final class CollectionValuedRelationshipMappingInformation extends Relati
                                                           boolean isIdProperty,
                                                           FetchType fetchType,
                                                           CascadeType... cascadeTypes) {
-        super(propertyName, relatedClassMapping, declaringClassMapping, isIdProperty, fetchType, cascadeTypes);
+        super(propertyName,
+              relatedClassMapping,
+              declaringClassMapping,
+              isIdProperty,
+              fetchType,
+              cascadeTypes);
         if (collectionType == null) {
             throw new PersistenceException("could not determine collection type of property \"" + propertyName + "\" of class " + declaringClassMapping.getEntityName());
         }

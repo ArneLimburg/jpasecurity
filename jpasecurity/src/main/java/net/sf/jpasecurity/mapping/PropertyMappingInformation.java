@@ -38,8 +38,12 @@ public abstract class PropertyMappingInformation {
     private String name;
     private ClassMappingInformation containingClassMapping;
     private boolean idProperty;
+    private boolean versionProperty;
 
-    PropertyMappingInformation(String propertyName, ClassMappingInformation classMapping, boolean isIdProperty) {
+    PropertyMappingInformation(String propertyName,
+                               ClassMappingInformation classMapping,
+                               boolean isIdProperty,
+                               boolean isVersionProperty) {
         if (propertyName == null) {
             throw new IllegalArgumentException("property name not specified");
         }
@@ -49,6 +53,7 @@ public abstract class PropertyMappingInformation {
         name = propertyName;
         containingClassMapping = classMapping;
         idProperty = isIdProperty;
+        versionProperty = isVersionProperty;
     }
 
     public boolean isRelationshipMapping() {
@@ -57,6 +62,18 @@ public abstract class PropertyMappingInformation {
 
     public boolean isIdProperty() {
         return idProperty;
+    }
+
+    void setIdProperty(boolean idProperty) {
+        this.idProperty = idProperty;
+    }
+
+    public boolean isVersionProperty() {
+        return versionProperty;
+    }
+
+    void setVersionProperty(boolean versionProperty) {
+        this.versionProperty = versionProperty;
     }
 
     public String getPropertyName() {

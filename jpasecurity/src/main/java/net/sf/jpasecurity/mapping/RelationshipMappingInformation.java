@@ -50,7 +50,7 @@ public abstract class RelationshipMappingInformation extends PropertyMappingInfo
                                    boolean isIdProperty,
                                    FetchType fetchType,
                                    CascadeType... cascadeTypes) {
-        super(propertyName, declaringClassMapping, isIdProperty);
+        super(propertyName, declaringClassMapping, isIdProperty, false);
         if (relatedClassMapping == null) {
             throw new PersistenceException("could not determine target class for property \"" + propertyName + "\" of class " + declaringClassMapping.getEntityName());
         }
@@ -81,7 +81,18 @@ public abstract class RelationshipMappingInformation extends PropertyMappingInfo
         return fetchType;
     }
 
+    void setFetchType(FetchType fetchType) {
+        if (fetchType == null) {
+            throw new IllegalArgumentException("fetchType may not be null");
+        }
+        this.fetchType = fetchType;
+    }
+
     public Set<CascadeType> getCascadeTypes() {
         return cascadeTypes;
+    }
+
+    void setCascadeTypes(CascadeType... cascadeTypes) {
+        this.cascadeTypes = Collections.unmodifiableSet(new HashSet<CascadeType>(Arrays.asList(cascadeTypes)));
     }
 }
