@@ -29,6 +29,9 @@ public class TypeDefinition {
     private boolean fetchJoin;
 
     public TypeDefinition(String alias, Class<?> type) {
+        if (type == null) {
+            throw new IllegalArgumentException("type may not be null");
+        }
         this.alias = alias;
         this.type = type;
     }
