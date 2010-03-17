@@ -59,7 +59,7 @@ public class EntityListenerTest extends TestCase {
         mappingInformation.getClassMapping(FieldAccessAnnotationTestBean.class).postLoad(null);
     }
     
-    public void ignoreTestXmlEntityListeners() {
+    public void testXmlEntityListeners() {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
         MappingInformation mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
