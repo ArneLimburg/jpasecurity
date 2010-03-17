@@ -31,7 +31,7 @@ public class AclSyntaxTest extends TestCase {
        Group group = new Group();
        group.setName("USERS");
        entityManager.persist(group);
-       TestAuthenticationProvider.authenticate(group, TRADEMARK_ID);
+       TestAuthenticationProvider.authenticate(TRADEMARK_ID, group, privilege1, privilege2);
 
        Acl acl = new Acl();
        entityManager.persist(acl);
@@ -55,9 +55,4 @@ public class AclSyntaxTest extends TestCase {
        EntityManager entityManager = entityManagerFactory.createEntityManager();
        AclProtectedEntity entity = (AclProtectedEntity)entityManager.createQuery("select e from AclProtectedEntity e").getSingleResult();
    }
-
-//   public void testTrademarkProtectedEntityAccess() {
-//       EntityManager entityManager = entityManagerFactory.createEntityManager();
-//       TrademarkProtectedEntity entity = (TrademarkProtectedEntity)entityManager.createQuery("select e from TrademarkProtectedEntity e").getSingleResult();
-//   }
 }
