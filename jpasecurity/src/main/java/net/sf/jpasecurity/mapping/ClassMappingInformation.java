@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,7 @@ public final class ClassMappingInformation {
     private Map<String, PropertyMappingInformation> propertyMappings
         = new HashMap<String, PropertyMappingInformation>();
     private List<EntityListener> defaultEntityListeners = Collections.EMPTY_LIST;
-    private List<EntityListener> entityListeners = new ArrayList<EntityListener>();
+    private Map<Class<?>, EntityListener> entityListeners = new LinkedHashMap<Class<?>, EntityListener>();
     private EntityListener entityLifecyleAdapter;
 
     public ClassMappingInformation(String entityName,
@@ -170,8 +171,8 @@ public final class ClassMappingInformation {
         this.defaultEntityListeners = defaultEntityListeners;
     }
 
-    void addEntityListener(EntityListener entityListener) {
-        entityListeners.add(entityListener);
+    void addEntityListener(Class<?> type, EntityListener entityListener) {
+        entityListeners.put(type, entityListener);
     }
 
     void setEntityLifecycleMethods(EntityLifecycleMethods entityLifecycleMethods) {
@@ -279,13 +280,13 @@ public final class ClassMappingInformation {
         if (!excludeSuperclassEntityListeners) {
             ClassMappingInformation superclassMapping = this.superclassMapping;
             while (superclassMapping != null && !superclassMapping.excludeSuperclassEntityListeners) {
-                for (EntityListener entityListener: superclassMapping.entityListeners) {
+                for (EntityListener entityListener: superclassMapping.entityListeners.values()) {
                     closure.call(entityListener);
                 }
                 superclassMapping = superclassMapping.superclassMapping;
             }
         }
-        for (EntityListener entityListener: entityListeners) {
+        for (EntityListener entityListener: entityListeners.values()) {
             closure.call(entityListener);
         }
         closure.call(entityLifecyleAdapter);

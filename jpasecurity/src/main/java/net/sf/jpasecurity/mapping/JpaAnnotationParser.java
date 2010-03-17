@@ -111,7 +111,8 @@ public class JpaAnnotationParser extends AbstractMappingParser {
             try {
                 Object entityListener = entityListenerClass.newInstance();
                 EntityLifecycleMethods entityLifecycleMethods = parseEntityLifecycleMethods(entityListenerClass);
-                classMapping.addEntityListener(new EntityListenerWrapper(entityListener, entityLifecycleMethods));
+                classMapping.addEntityListener(entityListenerClass.getClass(),
+                                               new EntityListenerWrapper(entityListener, entityLifecycleMethods));
             } catch (InstantiationException e) {
                 throw new PersistenceException("could not instantiate default entity-listener of type " + entityListenerClass.getName(), e);
             } catch (IllegalAccessException e) {
@@ -279,7 +280,7 @@ public class JpaAnnotationParser extends AbstractMappingParser {
             || annotatedProperty.isAnnotationPresent(ManyToMany.class);
     }
 
-    private EntityLifecycleMethods parseEntityLifecycleMethods(Class<?> entityType) {
+    protected EntityLifecycleMethods parseEntityLifecycleMethods(Class<?> entityType) {
         EntityLifecycleMethods entityLifecycleMethods = new EntityLifecycleMethods();
         for (Method method: entityType.getDeclaredMethods()) {
             if (method.getAnnotation(PrePersist.class) != null) {
