@@ -27,6 +27,7 @@ import net.sf.cglib.proxy.Callback;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.util.ReflectionUtils;
@@ -123,9 +124,9 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         }
     }
 
-    void unsecureCopy(AccessType accessType, Object secureObject, Object unsecureObject) {
+    void unsecureCopy(final AccessType accessType, final Object secureObject, final Object unsecureObject) {
         boolean modified = false;
-        ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
+        final ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
             if (propertyMapping.isIdProperty() || propertyMapping.isVersionProperty()) {
                 continue; //don't change id or version property
@@ -168,13 +169,42 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
                 modified = true;
             }
         }
-        if (modified) {
-            classMapping.postUpdate(secureObject);
+        if (modified && accessType == AccessType.UPDATE) {
+            addPostFlushOperation(new Runnable() {
+                public void run() {
+                    classMapping.postUpdate(secureObject);
+                }
+            });
         }
     }
 
+    boolean isDirty(Object newEntity, Object oldEntity) {
+        final ClassMappingInformation classMapping = getClassMapping(newEntity.getClass());
+        for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
+            if (propertyMapping.isIdProperty() || propertyMapping.isVersionProperty()) {
+                continue; //don't change id or version property
+            }
+            Object newValue = propertyMapping.getPropertyValue(newEntity);
+            Object oldValue = propertyMapping.getPropertyValue(oldEntity);
+            if (isDirty(propertyMapping, newValue, oldValue)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     boolean isDirty(PropertyMappingInformation propertyMapping, Object newValue, Object oldValue) {
-        return propertyMapping.isRelationshipMapping()? newValue != oldValue: !nullSaveEquals(newValue, oldValue);
+        if (propertyMapping instanceof CollectionValuedRelationshipMappingInformation) {
+            Collection<?> oldCollection = (Collection<?>)oldValue;
+            Collection<?> newCollection = (Collection<?>)newValue;
+            return oldCollection.size() != newCollection.size()
+                || !oldCollection.containsAll(newCollection)
+                || !newCollection.containsAll(oldCollection);
+        } else if (propertyMapping.isRelationshipMapping()) {
+            return newValue != oldValue;
+        } else {
+            return !nullSaveEquals(newValue, oldValue);
+        }
     }
 
     ClassMappingInformation getClassMapping(Class<?> type) {

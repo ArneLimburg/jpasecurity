@@ -24,11 +24,13 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 
+import net.sf.cglib.proxy.Callback;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.util.ReflectionUtils;
 import net.sf.jpasecurity.util.SystemMapKey;
 
 /**
@@ -53,11 +55,40 @@ public class EntityPersister extends AbstractSecureObjectManager {
         secureCopy(unsecureEntity, secureEntity);
     }
 
+    public <T> T merge(T entity) {
+        final ClassMappingInformation classMapping = getClassMapping(entity.getClass());
+        Object id = classMapping.getId(entity);
+        Object unsecureEntity = entityManager.find(classMapping.getEntityType(), id);
+        if (unsecureEntity == null) {
+            return mergeNew(entity);
+        }
+        final boolean dirty = isDirty(unsecureEntity, entity);
+        final T mergedEntity = entityManager.merge(entity);
+        final T secureEntity = getSecureObject(mergedEntity);
+        if (dirty) {
+            classMapping.preUpdate(secureEntity);
+            addPostFlushOperation(new Runnable() {
+                public void run() {
+                    classMapping.postUpdate(secureEntity);
+                }
+            });
+        }
+        return secureEntity;
+    }
+
     public <T> T mergeNew(T newEntity) {
         checkAccess(AccessType.CREATE, newEntity);
         T mergedEntity = entityManager.merge(newEntity);
-        T secureEntity = getSecureObject(mergedEntity);
-        unsecureEntities.put(new SystemMapKey(newEntity), mergedEntity);
+        final T secureEntity = getSecureObject(mergedEntity);
+        initialize((SecureEntity)secureEntity);
+        final ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
+        classMapping.prePersist(secureEntity);
+        addPostFlushOperation(new Runnable() {
+            public void run() {
+                classMapping.postPersist(secureEntity);
+            }
+        });
+        unsecureEntities.put(new SystemMapKey(secureEntity), mergedEntity);
         return secureEntity;
     }
 
@@ -155,5 +186,20 @@ public class EntityPersister extends AbstractSecureObjectManager {
         unsecureEntities.put(new SystemMapKey(secureEntity), unsecureEntity);
         unsecureCopy(AccessType.CREATE, secureEntity, unsecureEntity);
         return (T)unsecureEntity;
+    }
+
+    /**
+     * This method initializes the specified secure entity without calling postLoad
+     */
+    private void initialize(SecureEntity secureEntity) {
+        try {
+            for (Callback callback: (Callback[])ReflectionUtils.invokeMethod(secureEntity, "getCallbacks")) {
+                if (callback instanceof EntityInvocationHandler) {
+                    ((EntityInvocationHandler)callback).initialize();
+                }
+            }
+        } catch (SecurityException e) {
+            // ignore
+        }
     }
 }

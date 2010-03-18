@@ -108,7 +108,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         if (entity instanceof SecureEntity) {
             return (T)((SecureEntity)entity).merge(getTarget(), secureObjectManager);
         } else {
-            return entityPersister.mergeNew(entity);
+            return entityPersister.merge(entity);
         }
     }
 
@@ -279,13 +279,6 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         } catch (NotEvaluatableException e) {
             throw new SecurityException(e);
         }
-    }
-
-    public boolean isNewEntity(Object entity) {
-        if (entity instanceof SecureEntity) {
-            return false;
-        }
-        return !getTarget().contains(entity);
     }
 
     public boolean isDetachedEntity(Object entity) {
