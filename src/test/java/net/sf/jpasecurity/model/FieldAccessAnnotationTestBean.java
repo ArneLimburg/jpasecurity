@@ -31,6 +31,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostRemove;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreRemove;
+import javax.persistence.PreUpdate;
 import javax.persistence.Transient;
 
 /**
@@ -42,7 +49,6 @@ import javax.persistence.Transient;
 })
 @NamedQuery(name = "findByName", query = "select bean from FieldAccessAnnotationTestBean bean where bean.name = :name")
 @Entity
-@EntityListeners(TestEntityListener.class)
 public class FieldAccessAnnotationTestBean {
 
     @Id
@@ -60,6 +66,20 @@ public class FieldAccessAnnotationTestBean {
     private int namePropertyReadCount = 0;
     @Transient
     private int namePropertyWriteCount = 0;
+    @Transient
+    private int prePersistCount = 0;
+    @Transient
+    private int postPersistCount = 0;
+    @Transient
+    private int preRemoveCount = 0;
+    @Transient
+    private int postRemoveCount = 0;
+    @Transient
+    private int preUpdateCount = 0;
+    @Transient
+    private int postUpdateCount = 0;
+    @Transient
+    private int postLoadCount = 0;
     
     protected FieldAccessAnnotationTestBean() {
     }
@@ -94,6 +114,34 @@ public class FieldAccessAnnotationTestBean {
         return namePropertyWriteCount;
     }
     
+    public int getPrePersistCount() {
+        return prePersistCount;
+    }
+
+    public int getPostPersistCount() {
+        return postPersistCount;
+    }
+
+    public int getPreRemoveCount() {
+        return preRemoveCount;
+    }
+
+    public int getPostRemoveCount() {
+        return postRemoveCount;
+    }
+
+    public int getPreUpdateCount() {
+        return preUpdateCount;
+    }
+
+    public int getPostUpdateCount() {
+        return postUpdateCount;
+    }
+
+    public int getPostLoadCount() {
+        return postLoadCount;
+    }
+
     public FieldAccessAnnotationTestBean getParentBean() {
         return parent;
     }
@@ -111,6 +159,50 @@ public class FieldAccessAnnotationTestBean {
     }
     
     public void aBusinessMethodThatDoesNothing() {
+    }
+    
+    @PrePersist
+    public void prePersistLifecycleMethod() {
+        prePersistCount++;
+    }
+
+    @PostPersist
+    public void postPersistLifecycleMethod() {
+        postPersistCount++;
+        if (postPersistCount != prePersistCount) {
+            throw new IllegalStateException("postPersistCount != prePersistCount");
+        }
+    }
+
+    @PreRemove
+    public void preRemoveLifecycleMethod() {
+        preRemoveCount++;
+    }
+
+    @PostRemove
+    public void postRemoveLifecycleMethod() {
+        postRemoveCount++;
+        if (postRemoveCount != preRemoveCount) {
+            throw new IllegalStateException("postRemoveCount != preRemoveCount");
+        }
+    }
+
+    @PreUpdate
+    public void preUpdateLifecycleMethod() {
+        preUpdateCount++;
+    }
+
+    @PostUpdate
+    public void postUpdateLifecycleMethod() {
+        postUpdateCount++;
+        if (postUpdateCount != preUpdateCount) {
+            throw new IllegalStateException("postUpdateCount != preUpdateCount");
+        }
+    }
+
+    @PostLoad
+    public void postLoadLifecycleMethod() {
+        postLoadCount++;
     }
 
     public int hashCode() {
