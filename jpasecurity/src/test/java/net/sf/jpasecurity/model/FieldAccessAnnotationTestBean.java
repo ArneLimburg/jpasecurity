@@ -195,9 +195,9 @@ public class FieldAccessAnnotationTestBean {
     @PostUpdate
     public void postUpdateLifecycleMethod() {
         postUpdateCount++;
-        if (postUpdateCount != preUpdateCount) {
-            throw new IllegalStateException("postUpdateCount != preUpdateCount");
-        }
+//        if (postUpdateCount != preUpdateCount) {
+//            throw new IllegalStateException("postUpdateCount != preUpdateCount");
+//        }
     }
 
     @PostLoad

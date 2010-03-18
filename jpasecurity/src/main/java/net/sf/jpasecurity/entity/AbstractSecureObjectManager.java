@@ -127,13 +127,22 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     void unsecureCopy(final AccessType accessType, final Object secureObject, final Object unsecureObject) {
         boolean modified = false;
         final ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
+        if (accessType == AccessType.CREATE) {
+            classMapping.prePersist(secureObject);
+        }
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
             if (propertyMapping.isIdProperty() || propertyMapping.isVersionProperty()) {
                 continue; //don't change id or version property
             }
             Object secureValue = propertyMapping.getPropertyValue(secureObject);
             if (secureValue instanceof SecureCollection) {
-                if (((SecureCollection<?>)secureValue).isDirty()) {
+                Object unsecureCollection = getUnsecureObject(secureValue);
+                SecureCollection<Object> secureCollection
+                    = (SecureCollection<Object>)getSecureObject(unsecureCollection);
+                if (secureValue != secureCollection && ((SecureCollection<?>)secureValue).isDirty()) {
+                    secureCollection = ((SecureCollection<Object>)secureValue).merge(secureCollection);
+                }
+                if (secureCollection.isDirty()) {
                     if (!modified) {
                         checkAccess(accessType, secureObject);
                         if (accessType == AccessType.UPDATE) {
@@ -141,9 +150,12 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
                         }
                     }
                     if (accessType == AccessType.UPDATE) {
-                        ((SecureCollection<?>)secureValue).flush();
+                        secureCollection.flush();
                     }
                     modified = true;
+                }
+                if (secureCollection != secureValue) {
+                    propertyMapping.setPropertyValue(unsecureObject, getUnsecureObject(secureCollection));
                 }
                 continue;
             }
@@ -169,7 +181,13 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
                 modified = true;
             }
         }
-        if (modified && accessType == AccessType.UPDATE) {
+        if (accessType == AccessType.CREATE) {
+            addPostFlushOperation(new Runnable() {
+                public void run() {
+                    classMapping.postPersist(secureObject);
+                }
+            });
+        } else if (modified && accessType == AccessType.UPDATE) {
             addPostFlushOperation(new Runnable() {
                 public void run() {
                     classMapping.postUpdate(secureObject);
@@ -193,24 +211,24 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         return false;
     }
 
-   boolean isDirty(PropertyMappingInformation propertyMapping, Object newValue, Object oldValue) {
-      if (newValue == oldValue) {
-         return false;
-      }
-      if (propertyMapping instanceof CollectionValuedRelationshipMappingInformation) {
-         Collection<?> oldCollection = (Collection<?>)oldValue;
-         Collection<?> newCollection = (Collection<?>)newValue;
-         final boolean oldCollectionIsNull = oldCollection == null;
-         final boolean newCollectionIsNull = newCollection == null;
-         return oldCollectionIsNull || newCollectionIsNull
-            || !oldCollection.containsAll(newCollection)
-            || !newCollection.containsAll(oldCollection);
-      } else if (propertyMapping.isRelationshipMapping()) {
-         return true;
-      } else {
-         return !nullSaveEquals(newValue, oldValue);
-      }
-   }
+    boolean isDirty(PropertyMappingInformation propertyMapping, Object newValue, Object oldValue) {
+        if (newValue == oldValue) {
+            return false;
+        }
+        if (propertyMapping instanceof CollectionValuedRelationshipMappingInformation) {
+            Collection<?> oldCollection = (Collection<?>)oldValue;
+            Collection<?> newCollection = (Collection<?>)newValue;
+            return oldCollection == null
+                || newCollection == null
+                || oldCollection.size() != newCollection.size()
+                || !oldCollection.containsAll(newCollection)
+                || !newCollection.containsAll(oldCollection);
+        } else if (propertyMapping.isRelationshipMapping()) {
+            return true; //because newValue != oldValue
+        } else {
+            return !nullSaveEquals(newValue, oldValue);
+        }
+    }
 
     ClassMappingInformation getClassMapping(Class<?> type) {
         return mappingInformation.getClassMapping(type);

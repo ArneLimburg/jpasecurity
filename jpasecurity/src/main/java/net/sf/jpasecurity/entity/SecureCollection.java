@@ -23,4 +23,5 @@ import java.util.Collection;
  */
 public interface SecureCollection<E> extends SecureObject, Collection<E> {
     boolean isDirty();
+    SecureCollection<E> merge(SecureCollection<E> secureCollection);
 }

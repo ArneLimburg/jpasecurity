@@ -19,17 +19,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.EntityManager;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.mapping.RelationshipMappingInformation;
 import net.sf.jpasecurity.util.ReflectionUtils;
 import net.sf.jpasecurity.util.SystemMapKey;
 
@@ -53,42 +58,31 @@ public class EntityPersister extends AbstractSecureObjectManager {
         Object unsecureEntity = createUnsecureObject(secureEntity);
         entityManager.persist(unsecureEntity);
         secureCopy(unsecureEntity, secureEntity);
+        cascadeMergePersist(secureEntity, new HashSet<Object>());
     }
 
-    public <T> T merge(T entity) {
-        final ClassMappingInformation classMapping = getClassMapping(entity.getClass());
-        Object id = classMapping.getId(entity);
-        Object unsecureEntity = entityManager.find(classMapping.getEntityType(), id);
-        if (unsecureEntity == null) {
-            return mergeNew(entity);
-        }
-        final boolean dirty = isDirty(unsecureEntity, entity);
-        final T mergedEntity = entityManager.merge(entity);
-        final T secureEntity = getSecureObject(mergedEntity);
-        if (dirty) {
-            classMapping.preUpdate(secureEntity);
-            addPostFlushOperation(new Runnable() {
-                public void run() {
-                    classMapping.postUpdate(secureEntity);
-                }
-            });
-        }
-        return secureEntity;
-    }
+//    public <T> T merge(T entity) {
+//        if (isNew(entity)) {
+//            return mergeNew(entity);
+//        }
+//
+//    }
 
-    public <T> T mergeNew(T newEntity) {
-        checkAccess(AccessType.CREATE, newEntity);
-        T mergedEntity = entityManager.merge(newEntity);
-        final T secureEntity = getSecureObject(mergedEntity);
+    public <T> T merge(T newEntity) {
+//        checkAccess(AccessType.CREATE, newEntity);
+        T unsecureEntity = createUnsecureObject(newEntity);
+        T mergedEntity = entityManager.merge(unsecureEntity);
+        T secureEntity = getSecureObject(mergedEntity);
         initialize((SecureEntity)secureEntity);
-        final ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
-        classMapping.prePersist(secureEntity);
-        addPostFlushOperation(new Runnable() {
-            public void run() {
-                classMapping.postPersist(secureEntity);
-            }
-        });
+//        final ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
+//        classMapping.prePersist(secureEntity);
+//        addPostFlushOperation(new Runnable() {
+//            public void run() {
+//                classMapping.postPersist(secureEntity);
+//            }
+//        });
         unsecureEntities.put(new SystemMapKey(secureEntity), mergedEntity);
+        cascadeMergePersist(secureEntity, new HashSet<Object>());
         return secureEntity;
     }
 
@@ -173,19 +167,71 @@ public class EntityPersister extends AbstractSecureObjectManager {
     }
 
     <T> T createUnsecureObject(final T secureEntity) {
-        checkAccess(AccessType.CREATE, secureEntity);
+        AccessType accessType = isNew(secureEntity)? AccessType.CREATE: AccessType.UPDATE;
         final ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
-        classMapping.prePersist(secureEntity);
-        addPostFlushOperation(new Runnable() {
-            public void run() {
-                classMapping.postPersist(secureEntity);
-            }
-        });
+        checkAccess(accessType, secureEntity);
         Object unsecureEntity = classMapping.newInstance();
         secureEntities.put(new SystemMapKey(unsecureEntity), secureEntity);
         unsecureEntities.put(new SystemMapKey(secureEntity), unsecureEntity);
-        unsecureCopy(AccessType.CREATE, secureEntity, unsecureEntity);
+        unsecureCopy(accessType, secureEntity, unsecureEntity);
         return (T)unsecureEntity;
+    }
+
+    private boolean isNew(Object entity) {
+        final ClassMappingInformation classMapping = getClassMapping(entity.getClass());
+        Object id = classMapping.getId(entity);
+        return entityManager.find(classMapping.getEntityType(), id) == null;
+    }
+
+    private void cascadeMergePersist(Object entity, Set<Object> alreadyCascadedEntities) {
+        if (alreadyCascadedEntities.contains(entity)) {
+            return;
+        }
+        alreadyCascadedEntities.add(entity);
+        ClassMappingInformation classMapping = getClassMapping(entity.getClass());
+        for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
+            if (!propertyMapping.isRelationshipMapping()) {
+                continue;
+            }
+            RelationshipMappingInformation relationshipMapping = (RelationshipMappingInformation)propertyMapping;
+            if (relationshipMapping.getCascadeTypes().contains(CascadeType.ALL)
+             || relationshipMapping.getCascadeTypes().contains(CascadeType.MERGE)
+             || relationshipMapping.getCascadeTypes().contains(CascadeType.PERSIST)) {
+                if (relationshipMapping instanceof CollectionValuedRelationshipMappingInformation) {
+                    Collection<Object> collection = (Collection<Object>)relationshipMapping.getPropertyValue(entity);
+                    for (Object entry: collection.toArray()) {
+                        Object mergedEntry = entry;
+                        if (entry instanceof SecureEntity) {
+                            mergedEntry = ((SecureEntity)entry).merge(entityManager, this);
+                        }
+                        if (entry != mergedEntry) {
+                            replace(collection, entry, mergedEntry);
+                        }
+                        cascadeMergePersist(mergedEntry, alreadyCascadedEntities);
+                    }
+                } else {
+                    Object originalValue = relationshipMapping.getPropertyValue(entity);
+                    Object mergedValue = originalValue;
+                    if (originalValue instanceof SecureEntity) {
+                        mergedValue = ((SecureEntity)originalValue).merge(entityManager, this);
+                    }
+                    if (originalValue != mergedValue) {
+                        relationshipMapping.setPropertyValue(entity, mergedValue);
+                    }
+                    cascadeMergePersist(mergedValue, alreadyCascadedEntities);
+                }
+            }
+        }
+    }
+
+    private void replace(Collection<Object> collection, Object oldValue, Object newValue) {
+        if (collection instanceof List) {
+            int index = ((List<Object>)collection).indexOf(oldValue);
+            ((List<Object>)collection).set(index, newValue);
+        } else {
+            collection.remove(oldValue);
+            collection.add(newValue);
+        }
     }
 
     /**

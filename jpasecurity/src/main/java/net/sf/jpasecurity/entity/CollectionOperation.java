@@ -15,10 +15,12 @@
  */
 package net.sf.jpasecurity.entity;
 
+import java.util.Collection;
+
 /**
  * @author Arne Limburg
  */
-public interface CollectionOperation {
+interface CollectionOperation<T, E extends Collection<T>> {
 
-    void flush();
+    void flush(E original, AbstractSecureObjectManager objectManager);
 }

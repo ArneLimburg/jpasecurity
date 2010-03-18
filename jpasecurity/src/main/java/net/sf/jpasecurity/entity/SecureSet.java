@@ -30,6 +30,10 @@ public class SecureSet<E> extends AbstractSecureCollection<E, Set<E>> implements
         super(set, objectManager, accessManager);
     }
 
+    SecureSet(Set<E> original, Set<E> filtered, AbstractSecureObjectManager objectManager) {
+        super(original, filtered, objectManager);
+    }
+
     protected Set<E> createFiltered() {
         return new HashSet<E>();
     }

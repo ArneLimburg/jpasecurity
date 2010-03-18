@@ -35,6 +35,10 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
         secureList = new DefaultSecureCollection<E, List<E>>(list, objectManager, accessManager);
     }
 
+    SecureList(List<E> original, List<E> filtered, AbstractSecureObjectManager objectManager) {
+        secureList = new DefaultSecureCollection<E, List<E>>(original, filtered, objectManager);
+    }
+
     /**
      * Returns the element with the specified index in the filtered collection.
      * This index may differ from the index of that element in the original collection.
@@ -52,9 +56,9 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
     public E set(final int index, final E element) {
         E old = secureList.getFiltered().set(index, element);
         final int originalIndex = getOriginal().indexOf(old);
-        secureList.addOperation(new CollectionOperation() {
-            public void flush() {
-                getOriginal().set(originalIndex, getObjectManager().getUnsecureObject(element));
+        secureList.addOperation(new CollectionOperation<E, List<E>>() {
+            public void flush(List<E> original, AbstractSecureObjectManager objectManager) {
+                original.set(originalIndex, objectManager.getUnsecureObject(element));
             }
         });
         return old;
@@ -73,9 +77,9 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
         } else {
             E old = secureList.getFiltered().get(index);
             final int originalIndex = getOriginal().indexOf(old);
-            secureList.addOperation(new CollectionOperation() {
-                public void flush() {
-                    getOriginal().add(originalIndex, getObjectManager().getUnsecureObject(element));
+            secureList.addOperation(new CollectionOperation<E, List<E>>() {
+                public void flush(List<E> original, AbstractSecureObjectManager objectManager) {
+                    original.add(originalIndex, objectManager.getUnsecureObject(element));
                 }
             });
             secureList.getFiltered().add(index, element);
@@ -107,20 +111,20 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
         } else {
             E old = secureList.getFiltered().get(index);
             final int originalIndex = getOriginal().indexOf(old);
-            secureList.addOperation(new CollectionOperation() {
-                public void flush() {
+            secureList.addOperation(new CollectionOperation<E, List<E>>() {
+                public void flush(List<E> original, AbstractSecureObjectManager objectManager) {
                     if (collection instanceof AbstractSecureCollection) {
                         AbstractSecureCollection<E, Collection<E>> secureCollection
                             = (AbstractSecureCollection<E, Collection<E>>)collection;
-                        getOriginal().addAll(originalIndex, secureCollection.getOriginal());
+                        original.addAll(originalIndex, secureCollection.getOriginal());
                     } else if (collection instanceof SecureList) {
-                        getOriginal().addAll(originalIndex, ((SecureList<E>)collection).getOriginal());
+                        original.addAll(originalIndex, ((SecureList<E>)collection).getOriginal());
                     } else {
                         List<E> list = new ArrayList<E>();
                         for (E entry: collection) {
-                            list.add(getObjectManager().getUnsecureObject(entry));
+                            list.add(objectManager.getUnsecureObject(entry));
                         }
-                        getOriginal().addAll(originalIndex, list);
+                        original.addAll(originalIndex, list);
                     }
                 }
             });
@@ -142,6 +146,15 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
 
     public void flush() {
         secureList.flush();
+    }
+
+    public SecureCollection<E> merge(SecureCollection<E> secureCollection) {
+        if (!(secureCollection instanceof SecureList)) {
+            throw new IllegalArgumentException("cannot merge collection of type " + secureCollection.getClass().getName());
+        }
+        SecureList<E> secureList = (SecureList<E>)secureCollection;
+        this.secureList.merge(secureList.secureList);
+        return secureList;
     }
 
     AbstractSecureObjectManager getObjectManager() {
