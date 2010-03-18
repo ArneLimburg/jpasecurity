@@ -195,7 +195,6 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
 
     public void flush() {
         if (!isReadOnly()) {
-            ClassMappingInformation classMapping = mapping.getClassMapping(secureEntity.getClass());
             objectManager.unsecureCopy(AccessType.UPDATE, secureEntity, entity);
         }
     }

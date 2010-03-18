@@ -36,9 +36,8 @@ public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>
 
     SecureSortedSet(SortedSet<E> original,
                     SortedSet<E> filtered,
-                    AbstractSecureObjectManager objectManager,
-                    AccessManager accessManager) {
-        super(original, filtered, objectManager, accessManager);
+                    AbstractSecureObjectManager objectManager) {
+        super(original, filtered, objectManager);
     }
 
     protected SortedSet<E> createFiltered() {
@@ -99,7 +98,7 @@ public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>
 
         @Override
         public Iterator<E> iterator() {
-            return new FilteredIterator(getFiltered().subSet(from, to).iterator());
+            return new SecureSubSetIterator(getFiltered().subSet(from, to).iterator());
         }
 
         public boolean add(E entry) {
@@ -134,7 +133,7 @@ public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>
         }
 
         public void clear() {
-            for (Iterator i = iterator(); i.hasNext();) {
+            for (Iterator<E> i = iterator(); i.hasNext();) {
                 i.next();
                 i.remove();
             }
