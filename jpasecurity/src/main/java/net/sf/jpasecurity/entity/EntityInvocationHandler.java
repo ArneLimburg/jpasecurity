@@ -15,9 +15,7 @@
  */
 package net.sf.jpasecurity.entity;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,7 +34,6 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.util.AbstractInvocationHandler;
-import net.sf.jpasecurity.util.ReflectionUtils;
 
 /**
  * An invocation handler to handle invocations on entities.
@@ -190,6 +187,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
 
     public void flush() {
         if (!isReadOnly()) {
+            ClassMappingInformation classMapping = mapping.getClassMapping(secureEntity.getClass());
             objectManager.unsecureCopy(AccessType.UPDATE, secureEntity, entity);
         }
     }
@@ -265,9 +263,9 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         try {
             setUpdating(true);
             checkAccess(entity, AccessType.READ, null, new HashSet<Object>());
-            copyState(entity, secureEntity);
             entity = unproxy(entity);
             objectManager.secureCopy(entity, secureEntity);
+            mapping.getClassMapping(entity.getClass()).postLoad(secureEntity);
             initialized = true;
         } finally {
             setUpdating(false);
@@ -288,21 +286,5 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         } catch (Exception e) {
             return object;
         }
-    }
-
-    private void copyState(Object source, Object target) {
-        copyState(mapping.getClassMapping(source.getClass()).getEntityType(), source, target);
-    }
-
-    private void copyState(Class<?> type, Object source, Object target) {
-        if (type == null) {
-            return;
-        }
-        for (Field field: type.getDeclaredFields()) {
-            if (!Modifier.isFinal(field.getModifiers()) && !Modifier.isStatic(field.getModifiers())) {
-                ReflectionUtils.setFieldValue(field, target, ReflectionUtils.getFieldValue(field, source));
-            }
-        }
-        copyState(type.getSuperclass(), source, target);
     }
 }

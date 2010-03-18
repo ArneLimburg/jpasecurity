@@ -216,22 +216,22 @@ public class PropertyAccessTest extends TestCase {
         bean = entityManager.find(MethodAccessAnnotationTestBean.class, bean.getId());
         
         assertEquals(0, bean.getNamePropertyReadCount());
-        assertEquals(2, bean.getNamePropertyWriteCount()); // one write on the target, that state is copied and then another write on the proxy
+        assertEquals(1, bean.getNamePropertyWriteCount()); // one write on the target, that state is copied and then another write on the proxy
         bean.getName();
         assertEquals(1, bean.getNamePropertyReadCount());
-        assertEquals(2, bean.getNamePropertyWriteCount());
+        assertEquals(1, bean.getNamePropertyWriteCount());
         bean.setName(USER1);
         assertEquals(1, bean.getNamePropertyReadCount());
-        assertEquals(3, bean.getNamePropertyWriteCount());
+        assertEquals(2, bean.getNamePropertyWriteCount());
         bean.aBusinessMethodThatDoesNothing();
         assertEquals(1, bean.getNamePropertyReadCount());
-        assertEquals(3, bean.getNamePropertyWriteCount());
+        assertEquals(2, bean.getNamePropertyWriteCount());
         bean.setParent(null);
         assertEquals(1, bean.getNamePropertyReadCount());
-        assertEquals(3, bean.getNamePropertyWriteCount());
+        assertEquals(2, bean.getNamePropertyWriteCount());
         entityManager.getTransaction().commit();
         assertEquals(2, bean.getNamePropertyReadCount());
-        assertEquals(3, bean.getNamePropertyWriteCount());
+        assertEquals(2, bean.getNamePropertyWriteCount());
         entityManager.close();
     }
     
