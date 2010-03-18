@@ -111,7 +111,7 @@ public class JpaAnnotationParser extends AbstractMappingParser {
             try {
                 Object entityListener = entityListenerClass.newInstance();
                 EntityLifecycleMethods entityLifecycleMethods = parseEntityLifecycleMethods(entityListenerClass);
-                classMapping.addEntityListener(entityListenerClass.getClass(),
+                classMapping.addEntityListener(entityListenerClass,
                                                new EntityListenerWrapper(entityListener, entityLifecycleMethods));
             } catch (InstantiationException e) {
                 throw new PersistenceException("could not instantiate default entity-listener of type " + entityListenerClass.getName(), e);
