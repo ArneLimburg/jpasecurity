@@ -89,6 +89,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         }
         if (!isInitialized() && !isUpdating()) {
             initialize();
+            mapping.getClassMapping(entity.getClass()).postLoad(secureEntity);
         }
         if (canInvoke(method)) {
             return invoke(object, method, args);
@@ -148,6 +149,13 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         } catch (PropertyAccessException e) {
             throw new SecurityException(e.getMessage());
         }
+        final ClassMappingInformation classMapping = mapping.getClassMapping(secureEntity.getClass());
+        classMapping.preRemove(secureEntity);
+        objectManager.addPostFlushOperation(new Runnable() {
+            public void run() {
+                classMapping.postRemove(secureEntity);
+            }
+        });
         entityManager.remove(entity);
         deleted = true;
     }
@@ -240,6 +248,18 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         return isTransient;
     }
 
+    void initialize() {
+        try {
+            setUpdating(true);
+            checkAccess(entity, AccessType.READ, null, new HashSet<Object>());
+            entity = unproxy(entity);
+            objectManager.secureCopy(entity, secureEntity);
+            initialized = true;
+        } finally {
+            setUpdating(false);
+        }
+    }
+
     private boolean isUpdating() {
         return updating != null && updating.get() != null && updating.get();
     }
@@ -257,19 +277,6 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
 
     private boolean isInitialized(Object entity) {
         return !(entity instanceof SecureEntity) || ((SecureEntity)entity).isInitialized();
-    }
-
-    private void initialize() {
-        try {
-            setUpdating(true);
-            checkAccess(entity, AccessType.READ, null, new HashSet<Object>());
-            entity = unproxy(entity);
-            objectManager.secureCopy(entity, secureEntity);
-            mapping.getClassMapping(entity.getClass()).postLoad(secureEntity);
-            initialized = true;
-        } finally {
-            setUpdating(false);
-        }
     }
 
     private Object unproxy(Object object) {

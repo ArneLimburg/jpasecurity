@@ -21,6 +21,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.OrmXmlParser;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.FieldAccessXmlTestBean;
+import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.TestEntityListener.PackageProtectedTestMethodCalledException;
 import net.sf.jpasecurity.model.TestEntityListener.PrivateTestMethodCalledException;
 import net.sf.jpasecurity.model.TestEntityListener.ProtectedTestMethodCalledException;
@@ -33,30 +34,30 @@ public class EntityListenerTest extends TestCase {
 
     public void testParseEntityListenerAnnotations() {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
-        persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
+        persistenceUnitInfo.getManagedClassNames().add(MethodAccessAnnotationTestBean.class.getName());
         MappingInformation mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
         try {
-            mappingInformation.getClassMapping(FieldAccessAnnotationTestBean.class).prePersist(null);
+            mappingInformation.getClassMapping(MethodAccessAnnotationTestBean.class).prePersist(null);
             fail("expected call to publicTestMethod");
         } catch (PublicTestMethodCalledException e) {
             //expected
         }
-        mappingInformation.getClassMapping(FieldAccessAnnotationTestBean.class).postPersist(null);
+        mappingInformation.getClassMapping(MethodAccessAnnotationTestBean.class).postPersist(null);
         try {
-            mappingInformation.getClassMapping(FieldAccessAnnotationTestBean.class).preRemove(null);
+            mappingInformation.getClassMapping(MethodAccessAnnotationTestBean.class).preRemove(null);
             fail("expected call to protectedTestMethod");
         } catch (ProtectedTestMethodCalledException e) {
             //expected
         }
-        mappingInformation.getClassMapping(FieldAccessAnnotationTestBean.class).postRemove(null);
+        mappingInformation.getClassMapping(MethodAccessAnnotationTestBean.class).postRemove(null);
         try {
-            mappingInformation.getClassMapping(FieldAccessAnnotationTestBean.class).preUpdate(null);
+            mappingInformation.getClassMapping(MethodAccessAnnotationTestBean.class).preUpdate(null);
             fail("expected call to packageProtectedTestMethod");
         } catch (PackageProtectedTestMethodCalledException e) {
             //expected
         }
-        mappingInformation.getClassMapping(FieldAccessAnnotationTestBean.class).postUpdate(null);
-        mappingInformation.getClassMapping(FieldAccessAnnotationTestBean.class).postLoad(null);
+        mappingInformation.getClassMapping(MethodAccessAnnotationTestBean.class).postUpdate(null);
+        mappingInformation.getClassMapping(MethodAccessAnnotationTestBean.class).postLoad(null);
     }
     
     public void testXmlEntityListeners() {
