@@ -112,6 +112,14 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         }
     }
 
+    public void remove(Object entity) {
+        if (entity instanceof SecureEntity) {
+            ((SecureEntity)entity).remove(getTarget());
+        } else {
+            entityPersister.removeNew(entity);
+        }
+    }
+
     public <T> T find(Class<T> type, Object id) {
         T entity = getTarget().find(type, id);
         if (!isAccessible(READ, entity)) {
