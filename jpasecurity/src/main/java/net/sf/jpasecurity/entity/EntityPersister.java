@@ -180,11 +180,14 @@ public class EntityPersister extends AbstractSecureObjectManager {
     private boolean isNew(Object entity) {
         final ClassMappingInformation classMapping = getClassMapping(entity.getClass());
         Object id = classMapping.getId(entity);
+        if (id == null) {
+            return true;
+        }
         return entityManager.find(classMapping.getEntityType(), id) == null;
     }
 
     private void cascadeMergePersist(Object entity, Set<Object> alreadyCascadedEntities) {
-        if (alreadyCascadedEntities.contains(entity)) {
+        if (entity == null || alreadyCascadedEntities.contains(entity)) {
             return;
         }
         alreadyCascadedEntities.add(entity);
@@ -199,8 +202,9 @@ public class EntityPersister extends AbstractSecureObjectManager {
              || relationshipMapping.getCascadeTypes().contains(CascadeType.PERSIST)) {
                 if (relationshipMapping instanceof CollectionValuedRelationshipMappingInformation) {
                     Collection<Object> collection = (Collection<Object>)relationshipMapping.getPropertyValue(entity);
-                    for (Object entry: collection.toArray()) {
-                        Object mergedEntry = entry;
+                    if (collection != null) {
+                        for (Object entry: collection.toArray()) {
+                            Object mergedEntry = entry;
                         if (entry instanceof SecureEntity) {
                             mergedEntry = ((SecureEntity)entry).merge(entityManager, this);
                         }
@@ -208,6 +212,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
                             replace(collection, entry, mergedEntry);
                         }
                         cascadeMergePersist(mergedEntry, alreadyCascadedEntities);
+                    }
                     }
                 } else {
                     Object originalValue = relationshipMapping.getPropertyValue(entity);

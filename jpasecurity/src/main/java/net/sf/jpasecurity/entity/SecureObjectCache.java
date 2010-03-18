@@ -96,8 +96,8 @@ public class SecureObjectCache extends EntityPersister {
 
     public void preFlush() {
         super.preFlush();
-        for (Map<Object, SecureEntity> entities: secureEntities.values()) {
-            for (SecureEntity entity: entities.values()) {
+        for (Map<Object, SecureEntity> entities: secureEntities.values().toArray(new Map[secureEntities.size()])) {
+            for (SecureEntity entity: entities.values().toArray(new SecureEntity[entities.size()])) {
                 entity.flush();
             }
         }
