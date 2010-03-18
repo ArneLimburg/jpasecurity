@@ -30,6 +30,10 @@ public class DefaultSecureCollection<E, T extends Collection<E>> extends Abstrac
         super(target, objectManager, accessManager);
     }
 
+    DefaultSecureCollection(T target, T filtered, AbstractSecureObjectManager objectManager) {
+        super(target, filtered, objectManager);
+    }
+
     protected T createFiltered() {
         return (T)new ArrayList<E>();
     }
