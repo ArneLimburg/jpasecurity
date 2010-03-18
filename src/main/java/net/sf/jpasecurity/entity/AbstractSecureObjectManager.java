@@ -193,19 +193,24 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         return false;
     }
 
-    boolean isDirty(PropertyMappingInformation propertyMapping, Object newValue, Object oldValue) {
-        if (propertyMapping instanceof CollectionValuedRelationshipMappingInformation) {
-            Collection<?> oldCollection = (Collection<?>)oldValue;
-            Collection<?> newCollection = (Collection<?>)newValue;
-            return oldCollection.size() != newCollection.size()
-                || !oldCollection.containsAll(newCollection)
-                || !newCollection.containsAll(oldCollection);
-        } else if (propertyMapping.isRelationshipMapping()) {
-            return newValue != oldValue;
-        } else {
-            return !nullSaveEquals(newValue, oldValue);
-        }
-    }
+   boolean isDirty(PropertyMappingInformation propertyMapping, Object newValue, Object oldValue) {
+      if (newValue == oldValue) {
+         return false;
+      }
+      if (propertyMapping instanceof CollectionValuedRelationshipMappingInformation) {
+         Collection<?> oldCollection = (Collection<?>)oldValue;
+         Collection<?> newCollection = (Collection<?>)newValue;
+         final boolean oldCollectionIsNull = oldCollection == null;
+         final boolean newCollectionIsNull = newCollection == null;
+         return oldCollectionIsNull || newCollectionIsNull
+            || !oldCollection.containsAll(newCollection)
+            || !newCollection.containsAll(oldCollection);
+      } else if (propertyMapping.isRelationshipMapping()) {
+         return true;
+      } else {
+         return !nullSaveEquals(newValue, oldValue);
+      }
+   }
 
     ClassMappingInformation getClassMapping(Class<?> type) {
         return mappingInformation.getClassMapping(type);

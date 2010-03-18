@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.persistence.listener;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import static net.sf.jpasecurity.AccessType.READ;
+
+import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
@@ -48,7 +51,29 @@ public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<
         super(entityManager);
         this.mappingInformation = mappingInformation;
         this.authenticationProvider = authenticationProvider;
-        this.entityFilter = new EntityFilter(entityManager, null, mappingInformation, accessRules);
+        this.entityFilter = new EntityFilter(entityManager, new SecureObjectManager() {
+
+           public boolean isSecureObject(Object object) {
+              return false;
+           }
+
+           public <E> E getSecureObject(E object) {
+              return object;
+           }
+
+           public <E> Collection<E> getSecureObjects(Class<E> type) {
+              return Collections.emptyList();
+           }
+
+           public void preFlush() {
+           }
+
+           public void postFlush() {
+           }
+
+           public void clear() {
+           }
+        }, mappingInformation, accessRules);
         this.accessRules = accessRules;
         this.maxFetchDepth = maxFetchDepth;
     }
