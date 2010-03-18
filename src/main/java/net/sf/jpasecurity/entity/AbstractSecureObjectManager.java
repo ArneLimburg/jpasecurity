@@ -38,11 +38,26 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
 
     private MappingInformation mappingInformation;
     private AccessManager accessManager;
+    private final List<Runnable> postFlushOperations = new ArrayList<Runnable>();
 
     public AbstractSecureObjectManager(MappingInformation mappingInformation,
             AccessManager accessManager) {
         this.mappingInformation = mappingInformation;
         this.accessManager = accessManager;
+    }
+
+    protected void addPostFlushOperation(Runnable operation) {
+        postFlushOperations.add(operation);
+    }
+
+    public void postFlush() {
+        try {
+            for (Runnable operation: postFlushOperations) {
+                operation.run();
+            }
+        } finally {
+            postFlushOperations.clear();
+        }
     }
 
     public boolean isSecureObject(Object object) {
@@ -109,8 +124,8 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     }
 
     void unsecureCopy(AccessType accessType, Object secureObject, Object unsecureObject) {
+        boolean modified = false;
         ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
-        boolean accessChecked = false;
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
             if (propertyMapping.isIdProperty() || propertyMapping.isVersionProperty()) {
                 continue; //don't change id or version property
@@ -118,13 +133,16 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             Object secureValue = propertyMapping.getPropertyValue(secureObject);
             if (secureValue instanceof SecureCollection) {
                 if (((SecureCollection<?>)secureValue).isDirty()) {
-                    if (!accessChecked) {
+                    if (!modified) {
                         checkAccess(accessType, secureObject);
-                        accessChecked = true;
+                        if (accessType == AccessType.UPDATE) {
+                            classMapping.preUpdate(secureObject);
+                        }
                     }
                     if (accessType == AccessType.UPDATE) {
                         ((SecureCollection<?>)secureValue).flush();
                     }
+                    modified = true;
                 }
                 continue;
             }
@@ -140,12 +158,18 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             }
             Object oldValue = propertyMapping.getPropertyValue(unsecureObject);
             if (isDirty(propertyMapping, newValue, oldValue)) {
-                if (!accessChecked) {
+                if (!modified) {
                     checkAccess(accessType, secureObject);
-                    accessChecked = true;
+                    if (accessType == AccessType.UPDATE) {
+                        classMapping.preUpdate(secureObject);
+                    }
                 }
                 propertyMapping.setPropertyValue(unsecureObject, newValue);
+                modified = true;
             }
+        }
+        if (modified) {
+            classMapping.postUpdate(secureObject);
         }
     }
 

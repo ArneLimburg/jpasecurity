@@ -61,6 +61,22 @@ public class EntityPersister extends AbstractSecureObjectManager {
         return secureEntity;
     }
 
+    public void removeNew(final Object newEntity) {
+        checkAccess(AccessType.DELETE, newEntity);
+        final ClassMappingInformation classMapping = getClassMapping(newEntity.getClass());
+        classMapping.preRemove(newEntity);
+        Object unsecureEntity = getUnsecureObject(newEntity);
+        entityManager.remove(unsecureEntity);
+        secureEntities.remove(new SystemMapKey(unsecureEntity));
+        unsecureEntities.remove(new SystemMapKey(newEntity));
+        addPostFlushOperation(new Runnable() {
+            public void run() {
+                classMapping.postRemove(newEntity);
+            }
+        });
+        //TODO cascade remove
+    }
+
     public void preFlush() {
         Collection<Map.Entry<SystemMapKey, Object>> entities = unsecureEntities.entrySet();
         for (Map.Entry<SystemMapKey, Object> unsecureEntity: entities.toArray(new Map.Entry[entities.size()])) {
@@ -69,14 +85,19 @@ public class EntityPersister extends AbstractSecureObjectManager {
     }
 
     public void postFlush() {
-        //copy over ids
+        //copy over ids and version ids
         for (Map.Entry<SystemMapKey, Object> secureEntity: secureEntities.entrySet()) {
             ClassMappingInformation classMapping = getClassMapping(secureEntity.getValue().getClass());
             for (PropertyMappingInformation propertyMapping: classMapping.getIdPropertyMappings()) {
                 Object newId = propertyMapping.getPropertyValue(secureEntity.getKey().getObject());
                 propertyMapping.setPropertyValue(secureEntity.getValue(), newId);
             }
+            for (PropertyMappingInformation propertyMapping: classMapping.getVersionPropertyMappings()) {
+                Object newVersion = propertyMapping.getPropertyValue(secureEntity.getKey().getObject());
+                propertyMapping.setPropertyValue(secureEntity.getValue(), newVersion);
+            }
         }
+        super.postFlush();
     }
 
     public void clear() {
@@ -120,9 +141,15 @@ public class EntityPersister extends AbstractSecureObjectManager {
         return super.getUnsecureObject(secureObject);
     }
 
-    <T> T createUnsecureObject(T secureEntity) {
+    <T> T createUnsecureObject(final T secureEntity) {
         checkAccess(AccessType.CREATE, secureEntity);
-        ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
+        final ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
+        classMapping.prePersist(secureEntity);
+        addPostFlushOperation(new Runnable() {
+            public void run() {
+                classMapping.postPersist(secureEntity);
+            }
+        });
         Object unsecureEntity = classMapping.newInstance();
         secureEntities.put(new SystemMapKey(unsecureEntity), secureEntity);
         unsecureEntities.put(new SystemMapKey(secureEntity), unsecureEntity);
