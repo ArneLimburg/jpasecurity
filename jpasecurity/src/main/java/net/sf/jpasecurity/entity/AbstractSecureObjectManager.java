@@ -23,14 +23,14 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import net.sf.cglib.proxy.Callback;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
-import net.sf.jpasecurity.util.ReflectionUtils;
+import net.sf.jpasecurity.proxy.MethodInterceptor;
+import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 
 /**
  * @author Arne Limburg
@@ -39,12 +39,15 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
 
     private MappingInformation mappingInformation;
     private AccessManager accessManager;
+    private SecureEntityProxyFactory proxyFactory;
     private final List<Runnable> postFlushOperations = new ArrayList<Runnable>();
 
     public AbstractSecureObjectManager(MappingInformation mappingInformation,
-            AccessManager accessManager) {
+                                       AccessManager accessManager,
+                                       SecureEntityProxyFactory proxyFactory) {
         this.mappingInformation = mappingInformation;
         this.accessManager = accessManager;
+        this.proxyFactory = proxyFactory;
     }
 
     protected void addPostFlushOperation(Runnable operation) {
@@ -92,16 +95,9 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             secureObject = (T)((EntityProxy)secureObject).getEntity();
         }
         if (secureObject instanceof SecureEntity) {
-            try {
-                for (Callback callback: (Callback[])ReflectionUtils.invokeMethod(secureObject, "getCallbacks")) {
-                    if (callback instanceof EntityInvocationHandler) {
-                        return (T)((EntityInvocationHandler)callback).entity;
-                    }
-                }
-            } catch (SecurityException e) {
-                // ignore
-            }
-            return secureObject;
+            EntityInvocationHandler entityInvocationHandler
+                = (EntityInvocationHandler)proxyFactory.getMethodInterceptor((SecureEntity)secureObject);
+            return (T)entityInvocationHandler.entity;
         } else if (secureObject instanceof AbstractSecureCollection) {
             return (T)((AbstractSecureCollection<?, Collection<?>>)secureObject).getOriginal();
         } else if (secureObject instanceof SecureList) {
@@ -226,7 +222,7 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             throw new SecurityException("The current user is not permitted to " + accessType.toString().toLowerCase() + " the specified object of type " + getClassMapping(entity.getClass()).getEntityType().getName());
         }
     }
-    
+
     void firePersist(final ClassMappingInformation classMapping, final Object entity) {
         classMapping.prePersist(entity);
         addPostFlushOperation(new Runnable() {
@@ -243,6 +239,10 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
                 classMapping.postUpdate(entity);
             }
         });
+    }
+
+    SecureEntity createSecureEntity(Class<?> type, MethodInterceptor interceptor) {
+        return proxyFactory.createSecureEntityProxy(type, interceptor);
     }
 
     private Collection<Object> createCollection(Object original) {

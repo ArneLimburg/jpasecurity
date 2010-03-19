@@ -19,6 +19,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.SecureEntityManager;
+import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
 
@@ -31,6 +32,7 @@ public class SecureLocalEntityManagerFactoryBean extends LocalEntityManagerFacto
 
     private AuthenticationProvider authenticationProvider;
     private AccessRulesProvider accessRulesProvider;
+    private SecureEntityProxyFactory secureEntityProxyFactory;
 
     public SecureLocalEntityManagerFactoryBean() {
         setEntityManagerInterface(SecureEntityManager.class);
@@ -41,7 +43,7 @@ public class SecureLocalEntityManagerFactoryBean extends LocalEntityManagerFacto
             String providerName
                 = (String)getJpaPropertyMap().get(SecurePersistenceProvider.AUTHENTICATION_PROVIDER_PROPERTY);
             authenticationProvider
-                = createProvider(providerName, SecurePersistenceProvider.DEFAULT_AUTHENTICATION_PROVIDER_CLASS);
+                = createObject(providerName, SecurePersistenceProvider.DEFAULT_AUTHENTICATION_PROVIDER_CLASS);
         }
         return authenticationProvider;
     }
@@ -55,7 +57,7 @@ public class SecureLocalEntityManagerFactoryBean extends LocalEntityManagerFacto
             String providerName
                 = (String)getJpaPropertyMap().get(SecurePersistenceProvider.ACCESS_RULES_PROVIDER_PROPERTY);
             accessRulesProvider
-                = createProvider(providerName, SecurePersistenceProvider.DEFAULT_ACCESS_RULES_PROVIDER_CLASS);
+                = createObject(providerName, SecurePersistenceProvider.DEFAULT_ACCESS_RULES_PROVIDER_CLASS);
         }
         return accessRulesProvider;
     }
@@ -64,7 +66,21 @@ public class SecureLocalEntityManagerFactoryBean extends LocalEntityManagerFacto
         this.accessRulesProvider = accessRulesProvider;
     }
 
-    protected <P> P createProvider(String className, String defaultClassName) {
+    public SecureEntityProxyFactory getSecureEntityProxyFactory() {
+        if (secureEntityProxyFactory == null) {
+            String factoryName
+                = (String)getJpaPropertyMap().get(SecurePersistenceProvider.SECURE_ENTITY_PROXY_FACTORY_PROPERTY);
+            secureEntityProxyFactory
+                = createObject(factoryName, SecurePersistenceProvider.DEFAULT_SECURE_ENTITY_PROXY_FACTORY_CLASS);
+        }
+        return secureEntityProxyFactory;
+    }
+
+    public void setSecureEntityProxyFactory(SecureEntityProxyFactory secureEntityProxyFactory) {
+        this.secureEntityProxyFactory = secureEntityProxyFactory;
+    }
+
+    protected <O> O createObject(String className, String defaultClassName) {
         if (className == null) {
             className = defaultClassName;
         }
@@ -72,7 +88,7 @@ public class SecureLocalEntityManagerFactoryBean extends LocalEntityManagerFacto
             throw new IllegalArgumentException("defaultClassName must not be null");
         }
         try {
-            return (P)getClass().getClassLoader().loadClass(className).newInstance();
+            return (O)getClass().getClassLoader().loadClass(className).newInstance();
         } catch (ClassNotFoundException e) {
             throw new PersistenceException(e);
         } catch (InstantiationException e) {
@@ -89,6 +105,7 @@ public class SecureLocalEntityManagerFactoryBean extends LocalEntityManagerFacto
                                                                     getPersistenceUnitName(),
                                                                     getJpaPropertyMap(),
                                                                     getAuthenticationProvider(),
-                                                                    getAccessRulesProvider());
+                                                                    getAccessRulesProvider(),
+                                                                    getSecureEntityProxyFactory());
     }
 }

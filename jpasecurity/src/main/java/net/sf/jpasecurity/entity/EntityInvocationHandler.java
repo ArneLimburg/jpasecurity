@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.entity;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,14 +26,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.proxy.MethodInterceptor;
+import net.sf.jpasecurity.proxy.SuperMethod;
 import net.sf.jpasecurity.util.AbstractInvocationHandler;
 
 /**
@@ -71,18 +71,15 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     public SecureEntity createSecureEntity() {
-        if (entity instanceof SecureEntity) {
-            return (SecureEntity)entity;
-        }
-        secureEntity = (SecureEntity)Enhancer.create(mapping.getClassMapping(entity.getClass()).getEntityType(),
-                                                     new Class[] {SecureEntity.class},
-                                                     this);
-        return secureEntity;
+        return objectManager.createSecureEntity(mapping.getClassMapping(entity.getClass()).getEntityType(), this);
     }
 
-    public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+    public Object intercept(Object object, Method method, SuperMethod superMethod, Object... args) throws Throwable {
         if (secureEntity == null) {
-            throw new IllegalStateException("EntityInvocationHandler not initialized properly");
+            if (!(object instanceof SecureEntity)) {
+                throw new IllegalStateException("intercepted object must be of type SecureEntity");
+            }
+            secureEntity = (SecureEntity)object;
         }
         if (object != secureEntity) {
             throw new IllegalStateException("unexpected object " + object + ", expected " + secureEntity);
@@ -105,7 +102,11 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         } else if (isToString(method)) {
             return entity.toString();
         }
-        return methodProxy.invokeSuper(object, args);
+        try {
+            return superMethod.invoke(object, args);
+        } catch (InvocationTargetException e) {
+            throw e.getTargetException();
+        }
     }
 
     public boolean isInitialized() {
