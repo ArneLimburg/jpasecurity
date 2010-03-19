@@ -32,6 +32,7 @@ public interface SecureEntity extends SecureObject {
     boolean isContained(EntityManager entityManager);
     boolean isRemoved();
     Object merge(EntityManager entityManager, SecureObjectManager objectManager);
+    void flush();
     void refresh(EntityManager entityManager);
     void lock(EntityManager entityManager, LockModeType lockMode);
     void remove(EntityManager entityManager);

@@ -146,7 +146,13 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
                         }
                     }
                     if (accessType == AccessType.UPDATE) {
-                        secureCollection.flush();
+                        if (secureCollection instanceof AbstractSecureCollection) {
+                            ((AbstractSecureCollection<?, Collection<?>>)secureCollection).flush();
+                        } else if (secureCollection instanceof SecureList) {
+                            ((SecureList<?>)secureCollection).flush();
+                        } else {
+                            throw new IllegalStateException("unsupported secure collection type: " + secureCollection.getClass());
+                        }
                     }
                     modified = true;
                 }
