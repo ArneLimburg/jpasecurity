@@ -45,6 +45,13 @@ public class MethodAccessAnnotationTestBean {
     private int namePropertyReadCount = 0;
     private int namePropertyWriteCount = 0;
     
+    public MethodAccessAnnotationTestBean() {
+    }
+    
+    public MethodAccessAnnotationTestBean(String name) {
+        beanName = name;
+    }
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "identifier")
@@ -99,5 +106,20 @@ public class MethodAccessAnnotationTestBean {
     
     public void setChildren(List<MethodAccessAnnotationTestBean> children) {
         childBeans = children;
+    }
+
+    public int hashCode() {
+        return getId();
+    }
+    
+    public boolean equals(Object object) {
+        if (!(object instanceof MethodAccessAnnotationTestBean)) {
+            return false;
+        }
+        MethodAccessAnnotationTestBean bean = (MethodAccessAnnotationTestBean)object;
+        if (getId() == 0) {
+            return this == bean;
+        }
+        return getId() == bean.getId();
     }
 }

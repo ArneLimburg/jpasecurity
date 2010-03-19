@@ -22,6 +22,11 @@
     <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
   </persistence-unit>
 
+  <persistence-unit name="annotation-based-method-access">
+    <access-rule>GRANT ACCESS TO MethodAccessAnnotationTestBean bean WHERE bean.name = CURRENT_PRINCIPAL</access-rule>
+    <access-rule>GRANT ACCESS TO MethodAccessAnnotationTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
+  </persistence-unit>
+
   <persistence-unit name="access-check">
     <access-rule>GRANT READ ACCESS TO FieldAccessAnnotationTestBean bean WHERE bean.name = CURRENT_PRINCIPAL</access-rule>
     <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
