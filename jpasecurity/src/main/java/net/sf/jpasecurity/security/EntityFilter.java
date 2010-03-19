@@ -16,6 +16,8 @@
 
 package net.sf.jpasecurity.security;
 
+import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -206,7 +208,7 @@ public class EntityFilter {
     }
 
     private Node createAccessRuleNode(JpqlCompiledStatement statement, AccessType accessType, int roleCount) {
-        return createAccessRuleNode(getSelectedTypes(statement), accessType, roleCount);
+        return createAccessRuleNode(getSelectedEntityTypes(statement), accessType, roleCount);
     }
 
     private Node createAccessRuleNode(String alias, Class<?> type, AccessType accessType, int roleCount) {
@@ -219,11 +221,13 @@ public class EntityFilter {
         Set<Class<?>> restrictedTypes = new HashSet<Class<?>>();
         Node accessRuleNode = null;
         for (Map.Entry<String, Class<?>> selectedType: selectedTypes.entrySet()) {
+            Node typedAccessRuleNode = null;
             for (AccessRule accessRule: accessRules) {
                 if (accessRule.isAssignable(selectedType.getValue(), mappingInformation)) {
                     restrictedTypes.add(selectedType.getValue());
                     if (accessRule.grantsAccess(accessType)) {
-                        accessRuleNode = appendAccessRule(accessRuleNode, accessRule, roleCount, selectedType.getKey());
+                        typedAccessRuleNode
+                            = appendAccessRule(typedAccessRuleNode, accessRule, roleCount, selectedType.getKey());
                     }
                 } else if (accessRule.mayBeAssignable(selectedType.getValue(), mappingInformation)) {
                     restrictedTypes.add(accessRule.getSelectedType(mappingInformation));
@@ -234,8 +238,8 @@ public class EntityFilter {
                             = queryPreparator.createInstanceOf(selectedType.getKey(),
                                                                mappingInformation.getClassMapping(type));
                         Node preparedAccessRule = prepareAccessRule(accessRule, roleCount, selectedType.getKey());
-                        accessRuleNode
-                            = appendNode(accessRuleNode, queryPreparator.createAnd(instanceOf, preparedAccessRule));
+                        typedAccessRuleNode = appendNode(typedAccessRuleNode,
+                                                         queryPreparator.createAnd(instanceOf, preparedAccessRule));
                     }
                 }
             }
@@ -252,7 +256,12 @@ public class EntityFilter {
                                                                    queryPreparator.createNot(instanceOf));
                     }
                 }
-                accessRuleNode = appendNode(accessRuleNode, superclassNode);
+                typedAccessRuleNode = appendNode(accessRuleNode, superclassNode);
+            }
+            if (accessRuleNode == null) {
+                accessRuleNode = typedAccessRuleNode;
+            } else {
+                accessRuleNode = queryPreparator.createAnd(accessRuleNode, typedAccessRuleNode);
             }
         }
         if (accessRuleNode == null) {
@@ -380,10 +389,15 @@ public class EntityFilter {
         return accessRule;
     }
 
-    private Map<String, Class<?>> getSelectedTypes(JpqlCompiledStatement statement) {
+    private Map<String, Class<?>> getSelectedEntityTypes(JpqlCompiledStatement statement) {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: statement.getSelectedPaths()) {
-            selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, statement.getTypeDefinitions()));
+            Class<?> selectedType = mappingInformation.getType(selectedPath, statement.getTypeDefinitions());
+            if (isSimplePropertyType(selectedType)) {
+                selectedPath = selectedPath.substring(0, selectedPath.lastIndexOf('.'));
+                selectedType = mappingInformation.getType(selectedPath, statement.getTypeDefinitions());
+            }
+            selectedTypes.put(selectedPath, selectedType);
         }
         return selectedTypes;
     }

@@ -15,8 +15,9 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -112,8 +113,7 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
     }
 
     private Object getSecureResult(Object result) {
-        if (result instanceof String || result instanceof Long || result instanceof Integer
-            || result instanceof Double || result instanceof Float || result instanceof Date) {
+        if (isSimplePropertyType(result.getClass())) {
             return result;
         }
         if (!(result instanceof Object[])) {
@@ -125,9 +125,11 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
         }
         Object[] scalarResult = (Object[])result;
         for (int i = 0; i < scalarResult.length; i++) {
-            scalarResult[i] = objectManager.getSecureObject(scalarResult[i]);
-            if (selectedPaths != null) {
-                executeFetchPlan(scalarResult[i], selectedPaths.get(i));
+            if (scalarResult[i] != null && !isSimplePropertyType(scalarResult[i].getClass())) {
+                scalarResult[i] = objectManager.getSecureObject(scalarResult[i]);
+                if (selectedPaths != null) {
+                    executeFetchPlan(scalarResult[i], selectedPaths.get(i));
+                }
             }
         }
         return scalarResult;
