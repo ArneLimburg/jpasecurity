@@ -20,6 +20,8 @@ package net.sf.jpasecurity.entity;
  */
 public class PropertyAccessException extends SecurityException {
 
+    private static final long serialVersionUID = -1570325395572179045L;
+
     private String propertyName;
 
     public PropertyAccessException(String propertyName) {
