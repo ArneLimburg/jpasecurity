@@ -61,26 +61,10 @@ public class EntityPersister extends AbstractSecureObjectManager {
         cascadeMergePersist(secureEntity, new HashSet<Object>());
     }
 
-//    public <T> T merge(T entity) {
-//        if (isNew(entity)) {
-//            return mergeNew(entity);
-//        }
-//
-//    }
-
     public <T> T merge(T newEntity) {
-//        checkAccess(AccessType.CREATE, newEntity);
         T unsecureEntity = createUnsecureObject(newEntity);
         T mergedEntity = entityManager.merge(unsecureEntity);
         T secureEntity = getSecureObject(mergedEntity);
-        initialize((SecureEntity)secureEntity);
-//        final ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
-//        classMapping.prePersist(secureEntity);
-//        addPostFlushOperation(new Runnable() {
-//            public void run() {
-//                classMapping.postPersist(secureEntity);
-//            }
-//        });
         unsecureEntities.put(new SystemMapKey(secureEntity), mergedEntity);
         cascadeMergePersist(secureEntity, new HashSet<Object>());
         return secureEntity;

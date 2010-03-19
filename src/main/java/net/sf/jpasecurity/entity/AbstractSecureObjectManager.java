@@ -70,13 +70,13 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             return null;
         }
         if (object instanceof List) {
-            return (T)new SecureList((List)object, this, accessManager);
+            return (T)new SecureList((List<?>)object, this, accessManager);
         } else if (object instanceof SortedSet) {
-            return (T)new SecureSortedSet((SortedSet)object, this, accessManager);
+            return (T)new SecureSortedSet((SortedSet<?>)object, this, accessManager);
         } else if (object instanceof Set) {
-            return (T)new SecureSet((Set)object, this, accessManager);
+            return (T)new SecureSet((Set<?>)object, this, accessManager);
         } else if (object instanceof Collection) {
-            return (T)new DefaultSecureCollection((Collection)object, this, accessManager);
+            return (T)new DefaultSecureCollection((Collection<?>)object, this, accessManager);
         } else {
             EntityInvocationHandler entityInvocationHandler
                 = new EntityInvocationHandler(mappingInformation, accessManager, this, object);
@@ -103,9 +103,9 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             }
             return secureObject;
         } else if (secureObject instanceof AbstractSecureCollection) {
-            return (T)((AbstractSecureCollection)secureObject).getOriginal();
+            return (T)((AbstractSecureCollection<?, Collection<?>>)secureObject).getOriginal();
         } else if (secureObject instanceof SecureList) {
-            return (T)((SecureList)secureObject).getOriginal();
+            return (T)((SecureList<?>)secureObject).getOriginal();
         } else {
             return createUnsecureObject(secureObject);
         }
@@ -128,7 +128,7 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         boolean modified = false;
         final ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
         if (accessType == AccessType.CREATE) {
-            classMapping.prePersist(secureObject);
+            firePersist(classMapping, secureObject);
         }
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
             if (propertyMapping.isIdProperty() || propertyMapping.isVersionProperty()) {
@@ -146,7 +146,7 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
                     if (!modified) {
                         checkAccess(accessType, secureObject);
                         if (accessType == AccessType.UPDATE) {
-                            classMapping.preUpdate(secureObject);
+                            fireUpdate(classMapping, secureObject);
                         }
                     }
                     if (accessType == AccessType.UPDATE) {
@@ -174,25 +174,12 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
                 if (!modified) {
                     checkAccess(accessType, secureObject);
                     if (accessType == AccessType.UPDATE) {
-                        classMapping.preUpdate(secureObject);
+                        fireUpdate(classMapping, secureObject);
                     }
                 }
                 propertyMapping.setPropertyValue(unsecureObject, newValue);
                 modified = true;
             }
-        }
-        if (accessType == AccessType.CREATE) {
-            addPostFlushOperation(new Runnable() {
-                public void run() {
-                    classMapping.postPersist(secureObject);
-                }
-            });
-        } else if (modified && accessType == AccessType.UPDATE) {
-            addPostFlushOperation(new Runnable() {
-                public void run() {
-                    classMapping.postUpdate(secureObject);
-                }
-            });
         }
     }
 
@@ -238,6 +225,24 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         if (!accessManager.isAccessible(accessType, entity)) {
             throw new SecurityException("The current user is not permitted to " + accessType.toString().toLowerCase() + " the specified object of type " + getClassMapping(entity.getClass()).getEntityType().getName());
         }
+    }
+    
+    void firePersist(final ClassMappingInformation classMapping, final Object entity) {
+        classMapping.prePersist(entity);
+        addPostFlushOperation(new Runnable() {
+            public void run() {
+                classMapping.postPersist(entity);
+            }
+        });
+    }
+
+    void fireUpdate(final ClassMappingInformation classMapping, final Object entity) {
+        classMapping.preUpdate(entity);
+        addPostFlushOperation(new Runnable() {
+            public void run() {
+                classMapping.postUpdate(entity);
+            }
+        });
     }
 
     private Collection<Object> createCollection(Object original) {

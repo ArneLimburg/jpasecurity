@@ -21,7 +21,6 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -170,7 +169,7 @@ public class FieldAccessAnnotationTestBean {
     public void postPersistLifecycleMethod() {
         postPersistCount++;
         if (postPersistCount != prePersistCount) {
-            throw new IllegalStateException("postPersistCount != prePersistCount");
+            throw new IllegalStateException("postPersistCount(" + postPersistCount + ") != prePersistCount(" + prePersistCount + ")");
         }
     }
 
@@ -183,7 +182,7 @@ public class FieldAccessAnnotationTestBean {
     public void postRemoveLifecycleMethod() {
         postRemoveCount++;
         if (postRemoveCount != preRemoveCount) {
-            throw new IllegalStateException("postRemoveCount != preRemoveCount");
+            throw new IllegalStateException("postRemoveCount(" + postRemoveCount + ") != preRemoveCount(" + preRemoveCount + ")");
         }
     }
 
@@ -195,9 +194,9 @@ public class FieldAccessAnnotationTestBean {
     @PostUpdate
     public void postUpdateLifecycleMethod() {
         postUpdateCount++;
-//        if (postUpdateCount != preUpdateCount) {
-//            throw new IllegalStateException("postUpdateCount != preUpdateCount");
-//        }
+        if (postUpdateCount != preUpdateCount) {
+            throw new IllegalStateException("postUpdateCount(" + postUpdateCount + ") != preUpdateCount(" + preUpdateCount + ")");
+        }
     }
 
     @PostLoad
