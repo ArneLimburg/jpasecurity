@@ -23,33 +23,27 @@ import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.persistence.EntityManagerFactoryInvocationHandler;
+import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
 
+/**
+ * @author Stefan Hildebrandt
+ */
 public class LightEntityManagerFactoryInvocationHandler extends EntityManagerFactoryInvocationHandler {
 
     public LightEntityManagerFactoryInvocationHandler(EntityManagerFactory entityManagerFactory,
-                                               PersistenceUnitInfo persistenceUnitInfo, Map<String, String> properties,
-                                               AuthenticationProvider authenticationProvider,
-                                               AccessRulesProvider accessRulesProvider) {
-        super(entityManagerFactory, persistenceUnitInfo, properties, authenticationProvider, accessRulesProvider);
-    }
-
-    @Override
-    public EntityManager createEntityManager() {
-        return super
-            .createEntityManager();
-    }
-
-    @Override
-    public EntityManager createEntityManager(Map map) {
-        return super
-            .createEntityManager(map);
-    }
-
-    @Override
-    public void close() {
-        super.close();
+                                                      PersistenceUnitInfo persistenceUnitInfo,
+                                                      Map<String, String> properties,
+                                                      AuthenticationProvider authenticationProvider,
+                                                      AccessRulesProvider accessRulesProvider,
+                                                      SecureEntityProxyFactory proxyFactory) {
+        super(entityManagerFactory,
+              persistenceUnitInfo,
+              properties,
+              authenticationProvider,
+              accessRulesProvider,
+              proxyFactory);
     }
 
     @Override
@@ -61,10 +55,10 @@ public class LightEntityManagerFactoryInvocationHandler extends EntityManagerFac
         }
         LightEntityManagerInvocationHandler invocationHandler
             = new LightEntityManagerInvocationHandler(entityManager,
-            getMappingInformation(),
-            getAuthenticationProvider(),
-            getAccessRulesProvider().getAccessRules(),
-            entityManagerFetchDepth);
+                                                      getMappingInformation(),
+                                                      getAuthenticationProvider(),
+                                                      getAccessRulesProvider().getAccessRules(),
+                                                      entityManagerFetchDepth);
         return invocationHandler.createProxy();
     }
 }

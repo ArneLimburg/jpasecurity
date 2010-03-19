@@ -27,6 +27,7 @@ import javax.persistence.PersistenceException;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.util.SystemMapKey;
 
 /**
@@ -41,8 +42,9 @@ public class SecureObjectCache extends EntityPersister {
 
     public SecureObjectCache(MappingInformation mappingInformation,
                              EntityManager entityManager,
-                             AccessManager accessManager) {
-        super(mappingInformation, entityManager, accessManager);
+                             AccessManager accessManager,
+                             SecureEntityProxyFactory proxyFactory) {
+        super(mappingInformation, entityManager, accessManager, proxyFactory);
     }
 
     public SecureCollection<?> getSecureCollection(Collection<?> unsecureCollection) {
