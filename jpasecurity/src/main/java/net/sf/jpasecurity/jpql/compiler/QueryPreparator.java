@@ -87,10 +87,28 @@ public class QueryPreparator {
      * @return the new path
      */
     public JpqlPath prepend(String alias, JpqlPath path) {
-        for (int i = path.jjtGetNumChildren(); i > 0; i--) {
-            path.jjtAddChild(path.jjtGetChild(i - 1), i);
+        return prepend(new String[] {alias}, path);
+    }
+
+    /**
+     * Prepends the specified path components to the specified path.
+     * @param pathComponents the path components
+     * @param path the path
+     * @return the new path
+     */
+    public JpqlPath prepend(String[] pathComponents, JpqlPath path) {
+        if (pathComponents.length == 0) {
+            return path;
         }
-        path.jjtAddChild(createVariable(alias), 0);
+        for (int i = path.jjtGetNumChildren() - 1; i >= 0; i--) {
+            path.jjtAddChild(path.jjtGetChild(i), i + pathComponents.length);
+        }
+        //Replace first identification variable with identifier
+        path.jjtSetChild(createIdentifier(path.jjtGetChild(pathComponents.length).getValue()), pathComponents.length);
+        path.jjtAddChild(createVariable(pathComponents[0]), 0);
+        for (int i = 1; i < pathComponents.length; i++) {
+            path.jjtAddChild(createIdentifier(pathComponents[i]), i);
+        }
         return path;
     }
 
@@ -339,17 +357,10 @@ public class QueryPreparator {
         }
 
         private void replace(JpqlPath path, ReplaceParameters parameters) {
-            int index = parameters.getOldPath().length - parameters.getNewPath().length;
-            while (index < 0) {
+            for (int i = 0; i < parameters.getOldPath().length; i++) {
                 path.jjtRemoveChild(0);
-                index++;
             }
-            for (int i = 0; i < index; i++) {
-                ((SimpleNode)path.jjtGetChild(i)).setValue(parameters.getNewPath()[i]);
-            }
-            for (; index < parameters.getNewPath().length; index++) {
-                ((SimpleNode)path.jjtGetChild(index)).setValue(parameters.getNewPath()[index]);
-            }
+            prepend(parameters.newPath, path);
         }
     }
 

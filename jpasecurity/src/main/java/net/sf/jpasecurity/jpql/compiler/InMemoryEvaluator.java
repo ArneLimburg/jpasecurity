@@ -748,7 +748,11 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
     public boolean visit(JpqlIdentificationVariable node, InMemoryEvaluationParameters data) {
         assert node.jjtGetNumChildren() == 0;
-        data.setResult(node.getValue());
+        try {
+            data.setResult(data.getAliasValue(node.getValue()));
+        } catch (NotEvaluatableException e) {
+            data.setResultUndefined();
+        }
         return false;
     }
 

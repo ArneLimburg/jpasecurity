@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.mapping;
 
+import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
+
 import java.beans.Introspector;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,13 +29,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.URL;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -251,7 +248,7 @@ public abstract class AbstractMappingParser {
                 }
                 classMapping.addPropertyMapping(propertyMapping);
             }
-        } else if (propertyMapping == null && isSimplePropertyType(type)) {
+        } else if (propertyMapping == null && (isSimplePropertyType(type) || type instanceof Serializable)) {
             propertyMapping
                 = new SimplePropertyMappingInformation(name, type, classMapping, isIdProperty, isVersionProperty);
             classMapping.addPropertyMapping(propertyMapping);
@@ -371,33 +368,6 @@ public abstract class AbstractMappingParser {
 
     protected boolean isMappable(Member member) {
         return !Modifier.isStatic(member.getModifiers()) && !Modifier.isTransient(member.getModifiers());
-    }
-
-    protected boolean isSimplePropertyType(Class<?> type) {
-        return isEmbeddable(type)
-            || type.isPrimitive()
-            || type.equals(Boolean.class)
-            || type.equals(Byte.class)
-            || type.equals(Short.class)
-            || type.equals(Integer.class)
-            || type.equals(Long.class)
-            || type.equals(BigInteger.class)
-            || type.equals(Float.class)
-            || type.equals(Double.class)
-            || type.equals(BigDecimal.class)
-            || type.equals(Character.class)
-            || type.equals(String.class)
-            || type.equals(java.util.Date.class)
-            || type.equals(Calendar.class)
-            || type.equals(java.sql.Date.class)
-            || type.equals(Time.class)
-            || type.equals(Timestamp.class)
-            || type.equals(byte[].class)
-            || type.equals(Byte[].class)
-            || type.equals(char[].class)
-            || type.equals(Character[].class)
-            || Enum.class.isAssignableFrom(type)
-            || Serializable.class.isAssignableFrom(type);
     }
 
     protected abstract boolean isEmbeddable(Class<?> type);
