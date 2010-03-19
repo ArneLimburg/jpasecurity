@@ -98,15 +98,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
     public void postFlush() {
         //copy over ids and version ids
         for (Map.Entry<SystemMapKey, Object> secureEntity: secureEntities.entrySet()) {
-            ClassMappingInformation classMapping = getClassMapping(secureEntity.getValue().getClass());
-            for (PropertyMappingInformation propertyMapping: classMapping.getIdPropertyMappings()) {
-                Object newId = propertyMapping.getPropertyValue(secureEntity.getKey().getObject());
-                propertyMapping.setPropertyValue(secureEntity.getValue(), newId);
-            }
-            for (PropertyMappingInformation propertyMapping: classMapping.getVersionPropertyMappings()) {
-                Object newVersion = propertyMapping.getPropertyValue(secureEntity.getKey().getObject());
-                propertyMapping.setPropertyValue(secureEntity.getValue(), newVersion);
-            }
+            copyIdAndVersion(secureEntity.getKey().getObject(), secureEntity.getValue());
         }
         super.postFlush();
     }
