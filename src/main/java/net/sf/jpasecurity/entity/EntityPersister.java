@@ -35,6 +35,7 @@ import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.mapping.RelationshipMappingInformation;
+import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.util.ReflectionUtils;
 import net.sf.jpasecurity.util.SystemMapKey;
 
@@ -49,8 +50,9 @@ public class EntityPersister extends AbstractSecureObjectManager {
 
     public EntityPersister(MappingInformation mappingInformation,
                            EntityManager entityManager,
-                           AccessManager accessManager) {
-        super(mappingInformation, accessManager);
+                           AccessManager accessManager,
+                           SecureEntityProxyFactory proxyFactory) {
+        super(mappingInformation, accessManager, proxyFactory);
         this.entityManager = entityManager;
     }
 

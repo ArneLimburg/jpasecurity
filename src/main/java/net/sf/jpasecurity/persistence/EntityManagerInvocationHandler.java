@@ -44,6 +44,7 @@ import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRule;
 import net.sf.jpasecurity.security.AuthenticationProvider;
 import net.sf.jpasecurity.security.EntityFilter;
@@ -71,11 +72,12 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     private int maxFetchDepth;
 
     protected EntityManagerInvocationHandler(EntityManager entityManager,
-                                             MappingInformation mappingInformation,
+                                             MappingInformation mapping,
                                              AuthenticationProvider authenticationProvider,
+                                             SecureEntityProxyFactory proxyFactory,
                                              List<AccessRule> accessRules,
                                              int maxFetchDepth) {
-        this(entityManager, mappingInformation, authenticationProvider, null, null, accessRules, maxFetchDepth);
+        this(entityManager, mapping, authenticationProvider, null, null, proxyFactory, accessRules, maxFetchDepth);
     }
 
     protected EntityManagerInvocationHandler(EntityManager entityManager,
@@ -83,11 +85,12 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                                              AuthenticationProvider authenticationProvider,
                                              SecureObjectManager secureObjectManager,
                                              EntityPersister entityPersister,
+                                             SecureEntityProxyFactory secureEntityProxyFactory,
                                              List<AccessRule> accessRules,
                                              int maxFetchDepth) {
         super(entityManager);
         if (entityPersister == null) {
-            entityPersister = new SecureObjectCache(mappingInformation, entityManager, this);
+            entityPersister = new SecureObjectCache(mappingInformation, entityManager, this, secureEntityProxyFactory);
         }
         if (secureObjectManager == null) {
             secureObjectManager = entityPersister;
