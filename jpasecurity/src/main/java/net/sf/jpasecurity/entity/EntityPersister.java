@@ -57,7 +57,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
     }
 
     public void persist(Object secureEntity) {
-        Object unsecureEntity = createUnsecureObject(secureEntity);
+        Object unsecureEntity = getUnsecureObject(secureEntity);
         entityManager.persist(unsecureEntity);
         secureCopy(unsecureEntity, secureEntity);
         cascadeMergePersist(secureEntity, new HashSet<Object>());
