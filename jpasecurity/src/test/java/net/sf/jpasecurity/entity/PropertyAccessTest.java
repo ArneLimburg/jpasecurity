@@ -35,7 +35,7 @@ public class PropertyAccessTest extends TestCase {
     public static final String USER2 = "user2";
     private static final String ADMIN = "admin";
     
-    public void ignoreTestOneToManyNavigation() {
+    public void testOneToManyNavigation() {
         TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = factory.createEntityManager();
@@ -73,7 +73,7 @@ public class PropertyAccessTest extends TestCase {
         entityManager2.getTransaction().commit();
     }
 
-    public void ignoreTestOneToManyMapping() {
+    public void testOneToManyMapping() {
         TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("parent-child");
         EntityManager entityManager = factory.createEntityManager();

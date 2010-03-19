@@ -20,10 +20,7 @@ public class UnwrapSecureObjectsTest extends TestCase {
         entityManager.getTransaction().begin();
     }
     
-    public void testNothing() {
-    }
-    
-    public void ignoreTestWrapAndUnwrap() {
+    public void testWrapAndUnwrap() {
         FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean(USER1);
         FieldAccessAnnotationTestBean child = new FieldAccessAnnotationTestBean(USER1);
         child.setParentBean(bean);
