@@ -106,9 +106,20 @@ public class SecureObjectCache extends EntityPersister {
         //we must not flush collections here, since they are flushed by their owning entities
     }
 
+    public void postFlush() {
+        //copy over ids and version ids
+        for (Map<Object, SecureEntity> entities: secureEntities.values().toArray(new Map[secureEntities.size()])) {
+            for (SecureEntity entity: entities.values().toArray(new SecureEntity[entities.size()])) {
+                Object unsecureObject = getUnsecureObject(entity);
+                copyIdAndVersion(unsecureObject, entity);
+            }
+        }
+        super.postFlush();
+    }
+
     public void clear() {
         super.clear();
         secureEntities.clear();
-        //collections are flushed by their corresponding entities
+        secureCollections.clear();
     }
 }
