@@ -37,7 +37,7 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
     public SecureEntity createSecureEntityProxy(final Class<?> entityType, final MethodInterceptor interceptor) {
         return (SecureEntity)Enhancer.create(entityType,
                                              new Class[] {SecureEntity.class},
-                                             createMethodInterceptor(interceptor));
+                                             new CgLibMethodInterceptor(interceptor));
     }
 
     /**
@@ -45,31 +45,40 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
      */
     public MethodInterceptor getMethodInterceptor(SecureEntity entity) {
         for (Callback callback: (Callback[])ReflectionUtils.invokeMethod(entity, "getCallbacks")) {
-            if (callback instanceof MethodInterceptor) {
-                return (MethodInterceptor)callback;
+            if (callback instanceof CgLibMethodInterceptor) {
+                return ((CgLibMethodInterceptor)callback).interceptor;
             }
         }
         throw new IllegalStateException("No method-interceptor found");
     }
 
-    private net.sf.cglib.proxy.MethodInterceptor createMethodInterceptor(final MethodInterceptor interceptor) {
-        return new net.sf.cglib.proxy.MethodInterceptor() {
-            public Object intercept(Object object, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-                return interceptor.intercept(object, method, createSuperMethod(proxy), args);
-            }
-        };
+    private class CgLibMethodInterceptor implements net.sf.cglib.proxy.MethodInterceptor {
+
+        private MethodInterceptor interceptor;
+
+        public CgLibMethodInterceptor(MethodInterceptor interceptor) {
+            this.interceptor = interceptor;
+        }
+
+        public Object intercept(Object object, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+            return interceptor.intercept(object, method, new CgLibSuperMethod(proxy), args);
+        }
     }
 
-    private SuperMethod createSuperMethod(final MethodProxy methodProxy) {
-        return new SuperMethod() {
-            public Object invoke(Object object, Object... args) throws IllegalAccessException,
-                                                                       InvocationTargetException {
-                try {
-                    return methodProxy.invokeSuper(object, args);
-                } catch (Throwable e) {
-                    throw new InvocationTargetException(e);
-                }
+    private class CgLibSuperMethod implements SuperMethod {
+
+        private MethodProxy proxy;
+
+        public CgLibSuperMethod(MethodProxy proxy) {
+            this.proxy = proxy;
+        }
+
+        public Object invoke(Object object, Object... args) throws IllegalAccessException, InvocationTargetException {
+            try {
+                return proxy.invokeSuper(object, args);
+            } catch (Throwable e) {
+                throw new InvocationTargetException(e);
             }
-        };
+        }
     }
 }
