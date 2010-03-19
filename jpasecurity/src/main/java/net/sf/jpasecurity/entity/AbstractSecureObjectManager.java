@@ -184,7 +184,7 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             }
         }
     }
-    
+
     void copyIdAndVersion(Object unsecureObject, Object secureObject) {
         ClassMappingInformation classMapping = getClassMapping(secureObject.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getIdPropertyMappings()) {

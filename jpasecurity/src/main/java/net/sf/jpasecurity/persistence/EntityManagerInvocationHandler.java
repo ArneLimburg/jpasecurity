@@ -124,7 +124,9 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public <T> T find(Class<T> type, Object id) {
+        secureObjectManager.preFlush();
         T entity = getTarget().find(type, id);
+        secureObjectManager.postFlush();
         if (!isAccessible(READ, entity)) {
             throw new SecurityException("The current user is not permitted to find the specified entity of type " + entity.getClass());
         }
