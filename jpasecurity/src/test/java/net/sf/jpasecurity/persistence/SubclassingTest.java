@@ -50,11 +50,7 @@ public class SubclassingTest extends TestCase {
         factory.close();
     }
     
-    public void testNothing() {
-        
-    }
-    
-    public void ignoreTestAccessRulesOnSubclasses() {
+    public void testAccessRulesOnSubclasses() {
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         assertEquals(1, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
