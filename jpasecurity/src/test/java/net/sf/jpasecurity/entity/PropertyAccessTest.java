@@ -35,21 +35,28 @@ public class PropertyAccessTest extends TestCase {
     public static final String USER2 = "user2";
     private static final String ADMIN = "admin";
     
-    public void ignoreTestOneToManyNavigation() {
+    public void testOneToManyNavigation() {
         TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean(USER1);
-        bean.getChildBeans().add(new FieldAccessAnnotationTestBean(USER1));
-        bean.getChildBeans().add(new FieldAccessAnnotationTestBean(USER2));
-        bean = entityManager.merge(bean);
+        bean.getChildBeans().add(new FieldAccessAnnotationTestBean(USER1, bean));
+        bean.getChildBeans().add(new FieldAccessAnnotationTestBean(USER2, bean));
+        entityManager.persist(bean);
         entityManager.getTransaction().commit();
         entityManager.close();
+        
+        entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
         TestAuthenticationProvider.authenticate(USER1);
+        bean = entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
         assertEquals(1, bean.getChildBeans().size());
         assertEquals(USER1, bean.getChildBeans().get(0).getBeanName());
         assertEquals(2, ((SecureList<FieldAccessAnnotationTestBean>)bean.getChildBeans()).getOriginal().size());
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        factory.close();
     }
 
     public void testMethodBasedMapping() {
@@ -73,7 +80,7 @@ public class PropertyAccessTest extends TestCase {
         entityManager2.getTransaction().commit();
     }
 
-    public void ignoreTestOneToManyMapping() {
+    public void testOneToManyMapping() {
         TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("parent-child");
         EntityManager entityManager = factory.createEntityManager();
@@ -84,9 +91,15 @@ public class PropertyAccessTest extends TestCase {
         bean = entityManager.merge(bean);
         entityManager.getTransaction().commit();
         entityManager.close();
+        
+        entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
         TestAuthenticationProvider.authenticate(USER1);
+        bean = entityManager.find(ParentTestBean.class, bean.getId());
         assertEquals(1, bean.getChildren().size());
         assertEquals(USER1, bean.getChildren().get(0).getName());
+        entityManager.getTransaction().commit();
+        entityManager.close();
     }
 
     public void testIdentityMapping() {
