@@ -45,6 +45,10 @@ public final class CollectionValuedRelationshipMappingInformation extends Relati
         this.collectionType = collectionType;
     }
 
+    public boolean isSingleValued() {
+        return false;
+    }
+
     public Class<?> getCollectionType() {
         return collectionType;
     }
