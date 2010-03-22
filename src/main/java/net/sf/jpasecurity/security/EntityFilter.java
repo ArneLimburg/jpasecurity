@@ -256,7 +256,7 @@ public class EntityFilter {
                                                                    queryPreparator.createNot(instanceOf));
                     }
                 }
-                typedAccessRuleNode = appendNode(accessRuleNode, superclassNode);
+                typedAccessRuleNode = appendNode(typedAccessRuleNode, superclassNode);
             }
             if (accessRuleNode == null) {
                 accessRuleNode = typedAccessRuleNode;
