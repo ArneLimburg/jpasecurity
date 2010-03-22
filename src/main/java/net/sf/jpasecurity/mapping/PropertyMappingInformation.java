@@ -56,6 +56,14 @@ public abstract class PropertyMappingInformation {
         versionProperty = isVersionProperty;
     }
 
+    public boolean isSingleValued() {
+        return true;
+    }
+
+    public boolean isManyValued() {
+        return !isSingleValued();
+    }
+
     public boolean isRelationshipMapping() {
         return false;
     }

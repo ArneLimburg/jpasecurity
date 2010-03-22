@@ -103,8 +103,11 @@ public class QueryPreparator {
         for (int i = path.jjtGetNumChildren() - 1; i >= 0; i--) {
             path.jjtAddChild(path.jjtGetChild(i), i + pathComponents.length);
         }
-        //Replace first identification variable with identifier
-        path.jjtSetChild(createIdentifier(path.jjtGetChild(pathComponents.length).getValue()), pathComponents.length);
+        if (path.jjtGetNumChildren() > pathComponents.length) {
+            //Replace first identification variable with identifier
+            Node oldVariable = path.jjtGetChild(pathComponents.length);
+            path.jjtSetChild(createIdentifier(oldVariable.getValue()), pathComponents.length);
+        }
         path.jjtAddChild(createVariable(pathComponents[0]), 0);
         for (int i = 1; i < pathComponents.length; i++) {
             path.jjtAddChild(createIdentifier(pathComponents[i]), i);
