@@ -170,6 +170,9 @@ public class EntityPersister extends AbstractSecureObjectManager {
         if (alreadyCascadedEntities.contains(secureEntity)) {
             return;
         }
+        if (secureEntity == null && unsecureEntity == null) {
+           return;
+        }
         alreadyCascadedEntities.add(secureEntity);
         AccessType accessType = isNew(secureEntity)? AccessType.CREATE: AccessType.UPDATE;
         unsecureCopy(accessType, secureEntity, unsecureEntity);
@@ -179,12 +182,14 @@ public class EntityPersister extends AbstractSecureObjectManager {
                && (propertyMapping.getCascadeTypes().contains(cascadeType)
                    || propertyMapping.getCascadeTypes().contains(CascadeType.ALL))) {
                Object secureValue = propertyMapping.getPropertyValue(secureEntity);
-               if (propertyMapping.isSingleValued()) {
-                   cascade(secureValue, getUnsecureObject(secureValue), cascadeType, alreadyCascadedEntities);
-               } else {
-                   for (Object secureEntry: ((Collection<Object>)secureValue)) {
-                       cascade(secureEntry, getUnsecureObject(secureEntry), cascadeType, alreadyCascadedEntities);
-                   }
+               if (secureValue != null) {
+                  if (propertyMapping.isSingleValued()) {
+                      cascade(secureValue, getUnsecureObject(secureValue), cascadeType, alreadyCascadedEntities);
+                  } else {
+                      for (Object secureEntry: ((Collection<Object>)secureValue)) {
+                          cascade(secureEntry, getUnsecureObject(secureEntry), cascadeType, alreadyCascadedEntities);
+                      }
+                  }
                }
            }
         }
