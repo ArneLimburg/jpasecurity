@@ -34,6 +34,7 @@ public class AclSyntaxTest extends TestCase {
        TestAuthenticationProvider.authenticate(TRADEMARK_ID, group, privilege1, privilege2);
 
        Acl acl = new Acl();
+       acl.setTrademarkId(TRADEMARK_ID);
        entityManager.persist(acl);
        AclEntry entry = new AclEntry();
        entry.setAccessControlList(acl);
