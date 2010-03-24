@@ -123,9 +123,6 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     void unsecureCopy(final AccessType accessType, final Object secureObject, final Object unsecureObject) {
         boolean modified = false;
         final ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
-        if (accessType == AccessType.CREATE) {
-            firePersist(classMapping, secureObject);
-        }
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
             if (propertyMapping.isIdProperty() || propertyMapping.isVersionProperty()) {
                 continue; //don't change id or version property
@@ -141,9 +138,7 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
                 if (secureCollection.isDirty()) {
                     if (!modified) {
                         checkAccess(accessType, secureObject);
-                        if (accessType == AccessType.UPDATE) {
-                            fireUpdate(classMapping, secureObject);
-                        }
+                        fireLifecycleEvent(accessType, classMapping, secureObject);
                     }
                     if (accessType == AccessType.UPDATE) {
                         if (secureCollection instanceof AbstractSecureCollection) {
@@ -175,9 +170,7 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             if (isDirty(propertyMapping, newValue, oldValue)) {
                 if (!modified) {
                     checkAccess(accessType, secureObject);
-                    if (accessType == AccessType.UPDATE) {
-                        fireUpdate(classMapping, secureObject);
-                    }
+                    fireLifecycleEvent(accessType, classMapping, secureObject);
                 }
                 propertyMapping.setPropertyValue(unsecureObject, newValue);
                 modified = true;
@@ -238,6 +231,16 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     void checkAccess(AccessType accessType, Object entity) {
         if (!accessManager.isAccessible(accessType, entity)) {
             throw new SecurityException("The current user is not permitted to " + accessType.toString().toLowerCase() + " the specified object of type " + getClassMapping(entity.getClass()).getEntityType().getName());
+        }
+    }
+
+    void fireLifecycleEvent(AccessType accessType, ClassMappingInformation classMapping, Object entity) {
+        if (accessType == AccessType.CREATE) {
+            firePersist(classMapping, entity);
+        } else if (accessType == AccessType.UPDATE) {
+            fireUpdate(classMapping, entity);
+        } else {
+            throw new IllegalArgumentException("unsupported accessType " + accessType);
         }
     }
 

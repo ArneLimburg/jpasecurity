@@ -42,7 +42,7 @@ public class EntityLifecycleTest extends TestCase {
         
         closeEntityManager();
 
-//        assertLifecycleCount(bean, 1, 0, 0, 0);
+        assertLifecycleCount(bean, 1, 0, 0, 0);
     }
     
     public void testCascadePersist() {
@@ -55,7 +55,7 @@ public class EntityLifecycleTest extends TestCase {
         
         closeEntityManager();
 
-//        assertLifecycleCount(child, 1, 0, 0, 0);
+        assertLifecycleCount(child, 1, 0, 0, 0);
     }
     
     public void testExistingCascadePersist() {
@@ -86,16 +86,16 @@ public class EntityLifecycleTest extends TestCase {
         parent.getChildBeans().add(child);
         child.setParentBean(parent);
 
-//        assertLifecycleCount(child, 1, 0, 0, 0);
+        assertLifecycleCount(child, 1, 0, 0, 0);
         
         entityManager.persist(parent);
         
         closeEntityManager();
 
-//        assertLifecycleCount(child, 1, 0, 1, 0);
+        assertLifecycleCount(child, 1, 0, 1, 0);
     }
 
-    public void ignoreTestMergeNew() {
+    public void testMergeNew() {
         openEntityManager();
         FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean(USER);
         
@@ -104,10 +104,10 @@ public class EntityLifecycleTest extends TestCase {
         
         closeEntityManager();
 
-        assertLifecycleCount(bean, 0, 0, 0, 0);
+        assertLifecycleCount(bean, 0, 0, 0, 1);
     }
     
-    public void ignoreTestCascadeMergeNew() {
+    public void testCascadeMergeNew() {
         openEntityManager();
         FieldAccessAnnotationTestBean parent = new FieldAccessAnnotationTestBean(USER);
         entityManager.persist(parent);
@@ -153,7 +153,7 @@ public class EntityLifecycleTest extends TestCase {
         
         closeEntityManager();
         
-//        assertLifecycleCount(bean, 1, 1, 0, 0);
+        assertLifecycleCount(bean, 1, 1, 0, 0);
     }
     
     public void testCascadeRemove() {
@@ -172,8 +172,7 @@ public class EntityLifecycleTest extends TestCase {
         
         closeEntityManager();
 
-        //the following fails due to a bug in cascading remove
-//      assertLifecycleCount(child, 0, 1, 0, 1);
+//        assertLifecycleCount(child, 0, 1, 1, 1);
     }
 
     public void testUpdate() {
@@ -192,7 +191,7 @@ public class EntityLifecycleTest extends TestCase {
         assertLifecycleCount(bean, 0, 0, 1, 1);
     }
     
-    public void ignoreTestMerge() {
+    public void testMerge() {
         openEntityManager();
         FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean(USER);
         entityManager.persist(bean);
@@ -201,14 +200,14 @@ public class EntityLifecycleTest extends TestCase {
         openEntityManager();
         
         bean = entityManager.merge(bean);
-        assertLifecycleCount(bean, 0, 0, 0, 0);
+        assertLifecycleCount(bean, 0, 0, 0, 1);
         createChild(bean);
         closeEntityManager();
         
-        assertLifecycleCount(bean, 0, 0, 1, 0);
+        assertLifecycleCount(bean, 0, 0, 1, 1);
     }
 
-    public void ignoreTestMergeModified() {
+    public void testMergeModified() {
         openEntityManager();
         FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean(USER);
         entityManager.persist(bean);
@@ -221,8 +220,7 @@ public class EntityLifecycleTest extends TestCase {
         bean = entityManager.merge(bean);
         closeEntityManager();
        
-        //The following does not work due to a bug in merge
-        assertLifecycleCount(bean, 0, 0, 0, 0);
+        assertLifecycleCount(bean, 0, 0, 0, 1);
     }
 
     public void testFind() {
