@@ -173,9 +173,9 @@ public class FieldAccessAnnotationTestBean {
     @PostPersist
     public void postPersistLifecycleMethod() {
         postPersistCount++;
-//        if (postPersistCount != prePersistCount) {
-//            throw new IllegalStateException("postPersistCount(" + postPersistCount + ") != prePersistCount(" + prePersistCount + ")");
-//        }
+        if (postPersistCount != prePersistCount) {
+            throw new IllegalStateException("postPersistCount(" + postPersistCount + ") != prePersistCount(" + prePersistCount + ")");
+        }
     }
 
     @PreRemove

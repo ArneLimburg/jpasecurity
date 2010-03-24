@@ -167,11 +167,8 @@ public class EntityPersister extends AbstractSecureObjectManager {
                          Object unsecureEntity,
                          CascadeType cascadeType,
                          Set<Object> alreadyCascadedEntities) {
-        if (alreadyCascadedEntities.contains(secureEntity)) {
+        if (secureEntity == null || alreadyCascadedEntities.contains(secureEntity)) {
             return;
-        }
-        if (secureEntity == null && unsecureEntity == null) {
-           return;
         }
         alreadyCascadedEntities.add(secureEntity);
         AccessType accessType = isNew(secureEntity)? AccessType.CREATE: AccessType.UPDATE;
@@ -243,8 +240,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
 //                        for (Object entry: collection.toArray()) {
 //                            Object mergedEntry = entry;
 //                        if (entry instanceof SecureEntity) {
-//                            mergedEntry = ((SecureEntity)entry).merge(entityManager, this);
-//                        }
+//                            mergedEntry = ((SecureEntity)entry).merge(entityManager, this)//                        }
 //                        if (entry != mergedEntry) {
 //                            replace(collection, entry, mergedEntry);
 //                        }
