@@ -45,7 +45,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     private AccessManager accessManager;
     private AbstractSecureObjectManager objectManager;
     private boolean initialized;
-    private boolean deleted;
+    boolean deleted;
     private SecureEntity secureEntity;
     Object entity;
     private boolean isTransient;
@@ -150,13 +150,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         } catch (PropertyAccessException e) {
             throw new SecurityException(e.getMessage());
         }
-        final ClassMappingInformation classMapping = mapping.getClassMapping(secureEntity.getClass());
-        classMapping.preRemove(secureEntity);
-        objectManager.addPostFlushOperation(new Runnable() {
-            public void run() {
-                classMapping.postRemove(secureEntity);
-            }
-        });
+        objectManager.cascade(secureEntity, entity, CascadeType.REMOVE, new HashSet<Object>());
         entityManager.remove(entity);
         deleted = true;
     }

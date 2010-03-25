@@ -289,6 +289,10 @@ public final class ClassMappingInformation {
         });
     }
 
+    public String toString() {
+        return getClass().getSimpleName() + "[entityType=" + entityType.getSimpleName() + "]";
+    }
+
     private void fireLifecycleEvent(Object entity, EntityListenerClosure closure) {
         for (EntityListener entityListener: defaultEntityListeners) {
             closure.call(entityListener);

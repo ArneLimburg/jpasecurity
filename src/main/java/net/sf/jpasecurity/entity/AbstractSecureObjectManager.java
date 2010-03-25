@@ -23,6 +23,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.persistence.CascadeType;
+
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
@@ -190,6 +192,11 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         }
     }
 
+    abstract void cascade(Object secureEntity,
+                          Object unsecureEntity,
+                          CascadeType cascadeType,
+                          Set<Object> alreadyCascadedEntities);
+
     boolean isDirty(Object newEntity, Object oldEntity) {
         final ClassMappingInformation classMapping = getClassMapping(newEntity.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
@@ -235,12 +242,18 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     }
 
     void fireLifecycleEvent(AccessType accessType, ClassMappingInformation classMapping, Object entity) {
-        if (accessType == AccessType.CREATE) {
-            firePersist(classMapping, entity);
-        } else if (accessType == AccessType.UPDATE) {
-            fireUpdate(classMapping, entity);
-        } else {
-            throw new IllegalArgumentException("unsupported accessType " + accessType);
+        switch (accessType) {
+            case CREATE:
+                firePersist(classMapping, entity);
+                break;
+            case UPDATE:
+                fireUpdate(classMapping, entity);
+                break;
+            case DELETE:
+                fireRemove(classMapping, entity);
+                break;
+            default:
+                throw new IllegalArgumentException("unsupported accessType " + accessType);
         }
     }
 
@@ -262,8 +275,23 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         });
     }
 
+    void fireRemove(final ClassMappingInformation classMapping, final Object entity) {
+        classMapping.preRemove(entity);
+        addPostFlushOperation(new Runnable() {
+            public void run() {
+                classMapping.postRemove(entity);
+            }
+        });
+    }
+
     SecureEntity createSecureEntity(Class<?> type, MethodInterceptor interceptor) {
         return proxyFactory.createSecureEntityProxy(type, interceptor);
+    }
+
+    void setRemoved(SecureEntity secureEntity) {
+        EntityInvocationHandler entityInvocationHandler
+            = (EntityInvocationHandler)proxyFactory.getMethodInterceptor(secureEntity);
+        entityInvocationHandler.deleted = true;
     }
 
     private Collection<Object> createCollection(Object original) {

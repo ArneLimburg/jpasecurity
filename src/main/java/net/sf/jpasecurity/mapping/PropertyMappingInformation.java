@@ -142,6 +142,12 @@ public abstract class PropertyMappingInformation {
         return containingClassMapping;
     }
 
+    public String toString() {
+        return getClass().getSimpleName()
+             + "[name=" + name
+             + ",containingClassMapping=" + containingClassMapping.getEntityType().getSimpleName() + "]";
+    }
+
     private Object getFieldValue(Object target) throws IllegalAccessException {
         Field field = getField(target.getClass());
         return field.get(target);
