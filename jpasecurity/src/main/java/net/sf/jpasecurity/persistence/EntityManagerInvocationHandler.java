@@ -116,11 +116,13 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public void remove(Object entity) {
+        entityPersister.preFlush();
         if (entity instanceof SecureEntity) {
             ((SecureEntity)entity).remove(getTarget());
         } else {
             entityPersister.removeNew(entity);
         }
+        entityPersister.postFlush();
     }
 
     public <T> T find(Class<T> type, Object id) {
