@@ -73,18 +73,9 @@ public class EntityPersister extends AbstractSecureObjectManager {
 
     public void removeNew(final Object newEntity) {
         checkAccess(AccessType.DELETE, newEntity);
-        final ClassMappingInformation classMapping = getClassMapping(newEntity.getClass());
-        classMapping.preRemove(newEntity);
         Object unsecureEntity = getUnsecureObject(newEntity);
+        cascadeRemove(newEntity, unsecureEntity, new HashSet<Object>());
         entityManager.remove(unsecureEntity);
-        secureEntities.remove(new SystemMapKey(unsecureEntity));
-        unsecureEntities.remove(new SystemMapKey(newEntity));
-        addPostFlushOperation(new Runnable() {
-            public void run() {
-                classMapping.postRemove(newEntity);
-            }
-        });
-        //TODO cascade remove
     }
 
     public void preFlush() {
@@ -154,7 +145,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
         return (T)unsecureEntity;
     }
 
-    private boolean isNew(Object entity) {
+    boolean isNew(Object entity) {
         final ClassMappingInformation classMapping = getClassMapping(entity.getClass());
         Object id = classMapping.getId(entity);
         if (id == null) {
@@ -163,10 +154,14 @@ public class EntityPersister extends AbstractSecureObjectManager {
         return entityManager.find(classMapping.getEntityType(), id) == null;
     }
 
-    private void cascade(Object secureEntity,
-                         Object unsecureEntity,
-                         CascadeType cascadeType,
-                         Set<Object> alreadyCascadedEntities) {
+    void cascade(Object secureEntity,
+                 Object unsecureEntity,
+                 CascadeType cascadeType,
+                 Set<Object> alreadyCascadedEntities) {
+        if (cascadeType == CascadeType.REMOVE) {
+            cascadeRemove(secureEntity, unsecureEntity, alreadyCascadedEntities);
+            return;
+        }
         if (secureEntity == null || alreadyCascadedEntities.contains(secureEntity)) {
             return;
         }
@@ -189,6 +184,40 @@ public class EntityPersister extends AbstractSecureObjectManager {
                   }
                }
            }
+        }
+    }
+
+    private void cascadeRemove(Object secureEntity, Object unsecureEntity, Set<Object> alreadyCascadedEntities) {
+        if (secureEntity == null || alreadyCascadedEntities.contains(secureEntity)) {
+            return;
+        }
+        alreadyCascadedEntities.add(secureEntity);
+        checkAccess(AccessType.DELETE, secureEntity);
+        fireRemove(getClassMapping(secureEntity.getClass()), secureEntity);
+        secureEntities.remove(new SystemMapKey(unsecureEntity));
+        unsecureEntities.remove(new SystemMapKey(secureEntity));
+        ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
+        for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
+            if (propertyMapping.isRelationshipMapping()
+                && (propertyMapping.getCascadeTypes().contains(CascadeType.REMOVE)
+                    || propertyMapping.getCascadeTypes().contains(CascadeType.ALL))) {
+                Object secureValue = propertyMapping.getPropertyValue(secureEntity);
+                if (secureValue != null) {
+                    if (propertyMapping.isSingleValued()) {
+                        cascadeRemove(secureValue, getUnsecureObject(secureValue), alreadyCascadedEntities);
+                        if (secureValue instanceof SecureEntity) {
+                            setRemoved((SecureEntity)secureValue);
+                        }
+                    } else {
+                        //use the unsecure collection here since the secure may be filtered
+                        Collection<Object> unsecureCollection
+                            = (Collection<Object>)propertyMapping.getPropertyValue(unsecureEntity);
+                        for (Object unsecureEntry: unsecureCollection) {
+                            cascadeRemove(getSecureObject(unsecureEntry), unsecureEntry, alreadyCascadedEntities);
+                        }
+                    }
+                }
+            }
         }
     }
 

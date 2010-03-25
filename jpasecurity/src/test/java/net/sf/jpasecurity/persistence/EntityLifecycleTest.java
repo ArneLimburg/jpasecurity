@@ -156,6 +156,19 @@ public class EntityLifecycleTest extends TestCase {
         assertLifecycleCount(bean, 1, 1, 0, 0);
     }
     
+    public void testCascadeRemoveNew() {
+        openEntityManager();
+        FieldAccessAnnotationTestBean child = createChild();
+        FieldAccessAnnotationTestBean parent = child.getParentBean();
+        entityManager.persist(parent);
+        child = parent.getChildBeans().iterator().next();
+        entityManager.remove(parent);
+
+        closeEntityManager();
+
+        assertLifecycleCount(child, 1, 1, 0, 0);
+    }
+
     public void testCascadeRemove() {
         openEntityManager();
         FieldAccessAnnotationTestBean child = createChild();
@@ -172,7 +185,7 @@ public class EntityLifecycleTest extends TestCase {
         
         closeEntityManager();
 
-//        assertLifecycleCount(child, 0, 1, 1, 1);
+        assertLifecycleCount(child, 0, 1, 0, 1);
     }
 
     public void testUpdate() {
