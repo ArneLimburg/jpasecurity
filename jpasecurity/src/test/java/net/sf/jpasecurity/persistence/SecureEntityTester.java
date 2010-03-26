@@ -15,7 +15,7 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import net.sf.jpasecurity.entity.SecureEntity;
+import net.sf.jpasecurity.SecureEntity;
 
 /**
  * A class to test for the <tt>SecureEntity</tt> interface.

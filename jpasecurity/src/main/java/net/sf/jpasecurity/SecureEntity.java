@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.entity;
+package net.sf.jpasecurity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
-
-import net.sf.jpasecurity.AccessType;
 
 /**
  * This is an interface implemented by every entity
@@ -31,7 +29,6 @@ public interface SecureEntity extends SecureObject {
     boolean isAccessible(AccessType accessType);
     boolean isContained(EntityManager entityManager);
     boolean isRemoved();
-    Object merge(EntityManager entityManager, SecureObjectManager objectManager);
     void flush();
     void refresh(EntityManager entityManager);
     void lock(EntityManager entityManager, LockModeType lockMode);

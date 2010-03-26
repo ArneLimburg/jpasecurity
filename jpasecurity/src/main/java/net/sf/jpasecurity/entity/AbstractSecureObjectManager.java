@@ -27,10 +27,14 @@ import javax.persistence.CascadeType;
 
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.SecureCollection;
+import net.sf.jpasecurity.SecureEntity;
+import net.sf.jpasecurity.SecureObject;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 

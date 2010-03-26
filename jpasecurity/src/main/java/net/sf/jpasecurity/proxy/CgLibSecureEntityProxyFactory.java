@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodProxy;
-import net.sf.jpasecurity.entity.SecureEntity;
+import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.util.ReflectionUtils;
 
 /**

@@ -24,8 +24,8 @@ import java.util.Set;
 import javax.persistence.FlushModeType;
 import javax.persistence.Query;
 
+import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.entity.FetchManager;
-import net.sf.jpasecurity.entity.SecureEntity;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.mapping.TypeDefinition;

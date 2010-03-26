@@ -15,7 +15,7 @@
  */
 package net.sf.jpasecurity.proxy;
 
-import net.sf.jpasecurity.entity.SecureEntity;
+import net.sf.jpasecurity.SecureEntity;
 
 /**
  * <tt>SecureEntityProxyFactory</tt> provides methods to create {@link SecureEntity}-proxies.

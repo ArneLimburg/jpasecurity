@@ -18,7 +18,7 @@ package net.sf.jpasecurity.tags;
 import javax.servlet.jsp.PageContext;
 
 import net.sf.jpasecurity.AccessType;
-import net.sf.jpasecurity.entity.SecureEntity;
+import net.sf.jpasecurity.SecureEntity;
 
 /**
  * A tag that renders the jsp body only if a specified entity is accessible.

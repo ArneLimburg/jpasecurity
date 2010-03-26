@@ -29,6 +29,7 @@ import javax.persistence.EntityManager;
 
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
@@ -57,6 +58,15 @@ public class EntityPersister extends AbstractSecureObjectManager {
         cascade(secureEntity, unsecureEntity, CascadeType.PERSIST, new HashSet<Object>());
         entityManager.persist(unsecureEntity);
         copyIdAndVersion(unsecureEntity, secureEntity);
+    }
+
+    public SecureEntity merge(SecureEntity entity) {
+        checkAccess(AccessType.UPDATE, entity);
+        Object unsecureEntity = entityManager.merge(getUnsecureObject(entity));
+        cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<Object>());
+        SecureEntity secureEntity = (SecureEntity)getSecureObject(unsecureEntity);
+        initialize(secureEntity, unsecureEntity, CascadeType.MERGE, new HashSet<Object>());
+        return secureEntity;
     }
 
     public <T> T merge(T newEntity) {

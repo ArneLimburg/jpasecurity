@@ -27,13 +27,9 @@ import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import net.sf.jpasecurity.persistence.listener.LightEntityManagerFactoryInvocationHandler;
-import net.sf.jpasecurity.proxy.CgLibSecureEntityProxyFactory;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
-import net.sf.jpasecurity.security.authentication.AutodetectingAuthenticationProvider;
-import net.sf.jpasecurity.security.rules.DefaultAccessRulesProvider;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 import org.apache.commons.logging.Log;
@@ -55,15 +51,15 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     public static final String AUTHENTICATION_PROVIDER_PROPERTY
         = "net.sf.jpasecurity.security.authentication.provider";
     public static final String DEFAULT_AUTHENTICATION_PROVIDER_CLASS
-        = AutodetectingAuthenticationProvider.class.getName();
+        = "net.sf.jpasecurity.security.authentication.AutodetectingAuthenticationProvider";
     public static final String ACCESS_RULES_PROVIDER_PROPERTY
         = "net.sf.jpasecurity.security.rules.provider";
     public static final String DEFAULT_ACCESS_RULES_PROVIDER_CLASS
-        = DefaultAccessRulesProvider.class.getName();
+        = "net.sf.jpasecurity.security.rules.DefaultAccessRulesProvider";
     public static final String SECURE_ENTITY_PROXY_FACTORY_PROPERTY
         = "net.sf.jpasecurity.proxy.factory";
     public static final String DEFAULT_SECURE_ENTITY_PROXY_FACTORY_CLASS
-        = CgLibSecureEntityProxyFactory.class.getName();
+        = "net.sf.jpasecurity.proxy.CgLibSecureEntityProxyFactory";
 
     private static final Log LOG = LogFactory.getLog(SecurePersistenceProvider.class);
 
