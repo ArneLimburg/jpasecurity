@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2010 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 package net.sf.jpasecurity.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -27,6 +29,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -61,6 +64,9 @@ public class FieldAccessAnnotationTestBean {
     private FieldAccessAnnotationTestBean parent;
     @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<FieldAccessAnnotationTestBean> children = new ArrayList<FieldAccessAnnotationTestBean>();
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.PERSIST)
+    @MapKey(name = "key")
+    private Map<FieldAccessMapKey, FieldAccessMapValue> map = new HashMap<FieldAccessMapKey, FieldAccessMapValue>();
     @Transient
     private int namePropertyReadCount = 0;
     @Transient
@@ -160,6 +166,10 @@ public class FieldAccessAnnotationTestBean {
     
     public void setChildren(List<FieldAccessAnnotationTestBean> childBeans) {
         children = childBeans;
+    }
+    
+    public Map<FieldAccessMapKey, FieldAccessMapValue> getValues() {
+        return map;
     }
     
     public void aBusinessMethodThatDoesNothing() {
