@@ -27,6 +27,7 @@ import javax.persistence.PersistenceException;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
+import net.sf.jpasecurity.SecureMap;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
@@ -41,6 +42,8 @@ public class SecureObjectCache extends EntityPersister {
         = new HashMap<ClassMappingInformation, Map<Object, SecureEntity>>();
     private Map<SystemMapKey, SecureCollection<?>> secureCollections
         = new HashMap<SystemMapKey, SecureCollection<?>>();
+    private Map<SystemMapKey, SecureMap<?, ?>> secureMaps
+        = new HashMap<SystemMapKey, SecureMap<?, ?>>();
 
     public SecureObjectCache(MappingInformation mappingInformation,
                              EntityManager entityManager,
@@ -59,12 +62,25 @@ public class SecureObjectCache extends EntityPersister {
         return secureCollection;
     }
 
+    public SecureMap<?, ?> getSecureMap(Map<?, ?> unsecureMap) {
+        SecureMap<?, ?> secureMap = secureMaps.get(new SystemMapKey(unsecureMap));
+        if (secureMap != null) {
+            return secureMap;
+        }
+        secureMap = (SecureMap<?, ?>)super.getSecureObject(unsecureMap);
+        secureMaps.put(new SystemMapKey(unsecureMap), secureMap);
+        return secureMap;
+    }
+
     public <E> E getSecureObject(E unsecureObject) {
         if (unsecureObject == null) {
             return null;
         }
         if (unsecureObject instanceof Collection) {
             return (E)getSecureCollection((Collection<?>)unsecureObject);
+        }
+        if (unsecureObject instanceof Map) {
+            return (E)getSecureMap((Map<?, ?>)unsecureObject);
         }
         ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
         if (classMapping == null) {
@@ -123,5 +139,6 @@ public class SecureObjectCache extends EntityPersister {
         super.clear();
         secureEntities.clear();
         secureCollections.clear();
+        secureMaps.clear();
     }
 }
