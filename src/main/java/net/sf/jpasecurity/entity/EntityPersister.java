@@ -27,14 +27,12 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.EntityManager;
 
-import net.sf.cglib.proxy.Callback;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
-import net.sf.jpasecurity.util.ReflectionUtils;
 import net.sf.jpasecurity.util.SystemMapKey;
 
 /**
@@ -246,73 +244,6 @@ public class EntityPersister extends AbstractSecureObjectManager {
                     }
                 }
             }
-        }
-    }
-
-//    private void cascadeMergePersist(Object entity, Set<Object> alreadyCascadedEntities) {
-//        if (entity == null || alreadyCascadedEntities.contains(entity)) {
-//            return;
-//        }
-//        alreadyCascadedEntities.add(entity);
-//        ClassMappingInformation classMapping = getClassMapping(entity.getClass());
-//        for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
-//            if (!propertyMapping.isRelationshipMapping()) {
-//                continue;
-//            }
-//            RelationshipMappingInformation relationshipMapping = (RelationshipMappingInformation)propertyMapping;
-//            if (relationshipMapping.getCascadeTypes().contains(CascadeType.ALL)
-//             || relationshipMapping.getCascadeTypes().contains(CascadeType.MERGE)
-//             || relationshipMapping.getCascadeTypes().contains(CascadeType.PERSIST)) {
-//                if (relationshipMapping instanceof CollectionValuedRelationshipMappingInformation) {
-//                    Collection<Object> collection = (Collection<Object>)relationshipMapping.getPropertyValue(entity);
-//                    if (collection != null) {
-//                        for (Object entry: collection.toArray()) {
-//                            Object mergedEntry = entry;
-//                        if (entry instanceof SecureEntity) {
-//                            mergedEntry = ((SecureEntity)entry).merge(entityManager, this)//                        }
-//                        if (entry != mergedEntry) {
-//                            replace(collection, entry, mergedEntry);
-//                        }
-//                        cascadeMergePersist(mergedEntry, alreadyCascadedEntities);
-//                    }
-//                    }
-//                } else {
-//                    Object originalValue = relationshipMapping.getPropertyValue(entity);
-//                    Object mergedValue = originalValue;
-//                    if (originalValue instanceof SecureEntity) {
-//                        mergedValue = ((SecureEntity)originalValue).merge(entityManager, this);
-//                    }
-//                    if (originalValue != mergedValue) {
-//                        relationshipMapping.setPropertyValue(entity, mergedValue);
-//                    }
-//                    cascadeMergePersist(mergedValue, alreadyCascadedEntities);
-//                }
-//            }
-//        }
-//    }
-
-    private void replace(Collection<Object> collection, Object oldValue, Object newValue) {
-        if (collection instanceof List) {
-            int index = ((List<Object>)collection).indexOf(oldValue);
-            ((List<Object>)collection).set(index, newValue);
-        } else {
-            collection.remove(oldValue);
-            collection.add(newValue);
-        }
-    }
-
-    /**
-     * This method initializes the specified secure entity without calling postLoad
-     */
-    private void initialize(SecureEntity secureEntity) {
-        try {
-            for (Callback callback: (Callback[])ReflectionUtils.invokeMethod(secureEntity, "getCallbacks")) {
-                if (callback instanceof EntityInvocationHandler) {
-                    ((EntityInvocationHandler)callback).initialize();
-                }
-            }
-        } catch (SecurityException e) {
-            // ignore
         }
     }
 }
