@@ -71,7 +71,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
     }
 
     public Iterator<E> iterator() {
-        return new FilteredIterator(filtered.iterator());
+        return new FilteredIterator(getFiltered().iterator());
     }
 
     public boolean add(final E entity) {
