@@ -73,6 +73,8 @@
     <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
     <class>net.sf.jpasecurity.model.FieldAccessAnnotationTestBean</class>
+    <class>net.sf.jpasecurity.model.FieldAccessMapKey</class>
+    <class>net.sf.jpasecurity.model.FieldAccessMapValue</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -95,6 +97,8 @@
     <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
     <class>net.sf.jpasecurity.model.FieldAccessAnnotationTestBean</class>
+    <class>net.sf.jpasecurity.model.FieldAccessMapKey</class>
+    <class>net.sf.jpasecurity.model.FieldAccessMapValue</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

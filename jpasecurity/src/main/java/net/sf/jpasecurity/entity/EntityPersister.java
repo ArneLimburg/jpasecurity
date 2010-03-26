@@ -31,6 +31,7 @@ import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
@@ -186,8 +187,18 @@ public class EntityPersister extends AbstractSecureObjectManager {
                   if (propertyMapping.isSingleValued()) {
                       cascade(secureValue, getUnsecureObject(secureValue), cascadeType, alreadyCascadedEntities);
                   } else {
-                      for (Object secureEntry: ((Collection<Object>)secureValue)) {
-                          cascade(secureEntry, getUnsecureObject(secureEntry), cascadeType, alreadyCascadedEntities);
+                      CollectionValuedRelationshipMappingInformation collectionMapping
+                          = (CollectionValuedRelationshipMappingInformation)propertyMapping;
+                      if (Collection.class.isAssignableFrom(collectionMapping.getCollectionType())) {
+                          for (Object secureEntry: ((Collection<Object>)secureValue)) {
+                              Object unsecureEntry = getUnsecureObject(secureEntry);
+                              cascade(secureEntry, unsecureEntry, cascadeType, alreadyCascadedEntities);
+                          }
+                      } else if (Map.class.isAssignableFrom(collectionMapping.getCollectionType())) {
+                          for (Object secureEntry: ((Map<Object, Object>)secureValue).values()) {
+                              Object unsecureEntry = getUnsecureObject(secureEntry);
+                              cascade(secureEntry, unsecureEntry, cascadeType, alreadyCascadedEntities);
+                          }
                       }
                   }
                }

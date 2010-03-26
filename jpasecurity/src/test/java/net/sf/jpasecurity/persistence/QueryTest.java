@@ -21,10 +21,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import junit.framework.TestCase;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
-
-import junit.framework.TestCase;
 
 /**
  * @author Arne Limburg
