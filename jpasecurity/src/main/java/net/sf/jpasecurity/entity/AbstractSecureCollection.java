@@ -246,6 +246,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
                 throw new IllegalStateException();
             }
             checkRange((E)current);
+            iterator.remove();
             AbstractSecureCollection.this.remove(current);
             current = UNDEFINED;
         }
