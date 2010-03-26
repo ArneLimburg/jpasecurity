@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.persistence.listener;
+package net.sf.jpasecurity.persistence;
 
 import java.util.Map;
 
@@ -22,7 +22,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.entity.FetchManager;
-import net.sf.jpasecurity.persistence.EntityManagerFactoryInvocationHandler;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;

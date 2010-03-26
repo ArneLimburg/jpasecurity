@@ -25,6 +25,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.AccessManager;
+import net.sf.jpasecurity.SecureCollection;
+import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;

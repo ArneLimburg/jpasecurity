@@ -17,6 +17,8 @@ package net.sf.jpasecurity.entity;
 
 import java.util.Collection;
 
+import net.sf.jpasecurity.SecureEntity;
+
 /**
  * @author Arne Limburg
  */
@@ -25,6 +27,7 @@ public interface SecureObjectManager {
     boolean isSecureObject(Object object);
     <E> E getSecureObject(E object);
     <E> Collection<E> getSecureObjects(Class<E> type);
+    SecureEntity merge(SecureEntity entity);
     void preFlush();
     void postFlush();
     void clear();

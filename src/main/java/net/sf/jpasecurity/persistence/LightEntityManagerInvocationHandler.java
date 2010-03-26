@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.persistence.listener;
+package net.sf.jpasecurity.persistence;
+
+import static net.sf.jpasecurity.AccessType.READ;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -25,13 +27,10 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import static net.sf.jpasecurity.AccessType.READ;
-
+import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.entity.SecureObjectManager;
-import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.persistence.EmptyResultQuery;
 import net.sf.jpasecurity.security.AccessRule;
 import net.sf.jpasecurity.security.AuthenticationProvider;
 import net.sf.jpasecurity.security.EntityFilter;
@@ -41,8 +40,6 @@ import net.sf.jpasecurity.util.ProxyInvocationHandler;
 public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<EntityManager> {
     private MappingInformation mappingInformation;
     private AuthenticationProvider authenticationProvider;
-    private List<AccessRule> accessRules;
-    private int maxFetchDepth;
     private EntityFilter entityFilter;
 
     LightEntityManagerInvocationHandler(EntityManager entityManager, MappingInformation mappingInformation,
@@ -53,29 +50,31 @@ public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<
         this.authenticationProvider = authenticationProvider;
         this.entityFilter = new EntityFilter(entityManager, new SecureObjectManager() {
 
-           public boolean isSecureObject(Object object) {
-              return false;
-           }
+            public boolean isSecureObject(Object object) {
+                return false;
+            }
 
-           public <E> E getSecureObject(E object) {
-              return object;
-           }
+            public <E> E getSecureObject(E object) {
+                return object;
+            }
 
-           public <E> Collection<E> getSecureObjects(Class<E> type) {
-              return Collections.emptyList();
-           }
+            public <E> Collection<E> getSecureObjects(Class<E> type) {
+                return Collections.emptyList();
+            }
 
-           public void preFlush() {
-           }
+            public SecureEntity merge(SecureEntity entity) {
+                return entity;
+            }
 
-           public void postFlush() {
-           }
+            public void preFlush() {
+            }
 
-           public void clear() {
-           }
+            public void postFlush() {
+            }
+
+            public void clear() {
+            }
         }, mappingInformation, accessRules);
-        this.accessRules = accessRules;
-        this.maxFetchDepth = maxFetchDepth;
     }
 
     public Query createNamedQuery(String name) {
@@ -93,13 +92,7 @@ public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<
         if (filterResult.getQuery() == null) {
             return new EmptyResultQuery();
         } else {
-            LightQueryInvocationHandler queryInvocationHandler
-                = new LightQueryInvocationHandler(
-                                             getTarget().createQuery(filterResult.getQuery()),
-                                             filterResult.getSelectedPaths(),
-                                             filterResult.getTypeDefinitions(),
-                                             new MappedPathEvaluator(mappingInformation));
-            Query query = queryInvocationHandler.createProxy();
+            Query query = getTarget().createQuery(filterResult.getQuery());
             if (filterResult.getUserParameterName() != null) {
                 query.setParameter(filterResult.getUserParameterName(), user);
             }
@@ -110,8 +103,6 @@ public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<
             }
             return query;
         }
-
-
     }
 
     private Object getCurrentUser() {
@@ -142,6 +133,4 @@ public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<
         }
         return roles;
     }
-
-
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.entity;
+package net.sf.jpasecurity.proxy;
 
 /**
  * This interface may be implemented when having custom proxies around entities.

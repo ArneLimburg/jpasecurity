@@ -28,6 +28,7 @@ import javax.persistence.Query;
 
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
@@ -130,15 +131,6 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
 
     public boolean isRemoved() {
         return deleted;
-    }
-
-    /**
-     * @throws SecurityException when the current user is not allowed to merge the entity of this invocation handler
-     */
-    public Object merge(EntityManager entityManager, SecureObjectManager objectManager) {
-        checkAccess(entity, AccessType.UPDATE, CascadeType.MERGE, new HashSet<Object>());
-        Object mergedEntity = entityManager.merge(entity);
-        return objectManager.getSecureObject(mergedEntity);
     }
 
     /**
