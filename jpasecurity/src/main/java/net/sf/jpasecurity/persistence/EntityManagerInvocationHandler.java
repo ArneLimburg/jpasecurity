@@ -32,11 +32,11 @@ import javax.persistence.Query;
 
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
 import net.sf.jpasecurity.entity.EntityPersister;
 import net.sf.jpasecurity.entity.FetchManager;
-import net.sf.jpasecurity.entity.SecureEntity;
 import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
@@ -109,7 +109,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     public <T> T merge(T entity) {
         if (entity instanceof SecureEntity) {
-            return (T)((SecureEntity)entity).merge(getTarget(), secureObjectManager);
+            return (T)entityPersister.merge((SecureEntity)entity);
         } else {
             return entityPersister.merge(entity);
         }

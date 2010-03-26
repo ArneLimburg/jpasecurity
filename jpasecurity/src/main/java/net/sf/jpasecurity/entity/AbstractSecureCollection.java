@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.sf.jpasecurity.AccessManager;
+import net.sf.jpasecurity.SecureCollection;
 
 /**
  * This is the base class for secure collections.

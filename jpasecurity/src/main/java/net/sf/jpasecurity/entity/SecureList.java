@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 
 import net.sf.jpasecurity.AccessManager;
+import net.sf.jpasecurity.SecureCollection;
 
 /**
  * A list-implementation of a secure collection.
