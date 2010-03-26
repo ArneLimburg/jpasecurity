@@ -11,11 +11,11 @@
   <section>
     <title>Modification of queries</title>
     <para>
-      ...
+      Bla
     </para>
   </section>
   <section>
-    <title><systemitem>SecureEntity</systemitem></title>
+    <title>Secure entities</title>
     <para>
       The proxies that are created around your entities are called <systemitem>SecureEntity</systemitem>
       (actually they implement an interface of the same name). This is how they behave:
@@ -49,13 +49,13 @@
     </itemizedlist>
   </section>
   <section>
-    <title><systemitem>SecureCollection</systemitem></title>
+    <title>Secure collections</title>
     <para>
       ...
     </para>  
   </section>
   <section>
-    <title>Other <systemitem>EntityManager</systemitem> operations</title>
+    <title>Other Operations</title>
     <para>
       ...
     </para>
