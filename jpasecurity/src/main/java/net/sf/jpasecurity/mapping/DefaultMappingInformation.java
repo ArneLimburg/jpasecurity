@@ -42,10 +42,10 @@ public class DefaultMappingInformation implements MappingInformation {
      * @param namedQueries the named queries contained in the persistence unit
      */
     public DefaultMappingInformation(String persistenceUnitName,
-                                     Map<Class<?>, ClassMappingInformation> entityTypeMappings,
+                                     Map<Class<?>, ? extends ClassMappingInformation> entityTypeMappings,
                                      Map<String, String> namedQueries) {
         this.persistenceUnitName = persistenceUnitName;
-        this.entityTypeMappings = entityTypeMappings;
+        this.entityTypeMappings = (Map<Class<?>, ClassMappingInformation>)entityTypeMappings;
         this.namedQueries = namedQueries;
     }
 
