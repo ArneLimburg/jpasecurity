@@ -58,57 +58,14 @@ public class JpqlParser {
         return jpqlStatement();
     }
     
-    public JpqlStatement parseQuery(InputStream query) throws ParseException {
-        ReInit(query);
-        return jpqlStatement();
-    }
-    
     public JpqlAccessRule parseRule(String rule) throws ParseException {
         ReInit(new StringReader(rule));
         return jpqlAccessRule();
     }
     
-    public JpqlAccessRule parseRule(InputStream rule) throws ParseException {
-        ReInit(rule);
-        return jpqlAccessRule();
-    }
-    
-    
     public JpqlWhere parseWhereClause(String whereClause) throws ParseException {
         ReInit(new StringReader(whereClause));
         return whereClause();
-    }
-
-    public JpqlWhere parseWhereClause(InputStream whereClause) throws ParseException {
-        ReInit(whereClause);
-        return whereClause();
-    }
-
-    public static void main(String[] args) throws Exception    {
-        if (args.length > 0) {
-            for (int i = 0; i < args.length; i++) {
-                JpqlParser parser = new JpqlParser();
-                JpqlStatement statement = parser.parseQuery(args[i]);
-                System.out.println(statement);
-            }
-        } else {
-            JpqlParser parser = new JpqlParser();
-            while (true) {
-                System.out.print("Enter Statement: ");
-                System.out.flush();
-                try {
-                    JpqlStatement statement = parser.parseQuery(System.in);
-                    if (statement == null) {
-                        return;
-                    } else {
-                        System.out.println(statement);
-                    }
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                    return;
-                }
-            }
-        }
     }
 }
 PARSER_END(JpqlParser)
