@@ -90,7 +90,8 @@ public abstract class AbstractMappingParser {
             }
         }
         parsePersistenceUnit(persistenceUnitInfo);
-        return new MappingInformation(persistenceUnitInfo.getPersistenceUnitName(), classMappings, namedQueries);
+        String persistenceUnitName = persistenceUnitInfo.getPersistenceUnitName();
+        return new DefaultMappingInformation(persistenceUnitName, classMappings, namedQueries);
     }
 
     protected void parse(URL url) {
