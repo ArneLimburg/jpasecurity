@@ -49,7 +49,7 @@ public abstract class AbstractSecurityTag extends TagSupport {
         if (accessManager != null) {
             return accessManager;
         }
-        throw new IllegalStateException("No access checker defined for this page");
+        throw new IllegalStateException("No access manager defined for this page");
     }
 
     public int doStartTag() {
