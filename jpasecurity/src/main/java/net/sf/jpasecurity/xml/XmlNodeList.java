@@ -17,8 +17,6 @@
 package net.sf.jpasecurity.xml;
 
 import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -36,42 +34,17 @@ public class XmlNodeList extends AbstractList<Node> {
         nodes = nodeList;
     }
 
-    public List<Node> subList(String tagName) {
-        List<Node> nodes = new ArrayList<Node>();
-        for (Node node: this) {
-            if (tagName.equals(node.getNodeName())) {
-                nodes.add(node);
-            }
-        }
-        return nodes;
-    }
-
-    public List<Node> subList(String attributeName, String attributeValue) {
-        List<Node> nodes = new ArrayList<Node>();
-        if (nodes instanceof Node) {
-            Node node = (Node)nodes;
-            NamedNodeMap attributes = node.getAttributes();
-            if (attributes != null) {
-                Node namedItem = attributes.getNamedItem(attributeName);
-                if (namedItem != null && namedItem.getTextContent().equals(attributeValue)) {
-                    nodes.add(node);
-                }
-            }
-        }
-        for (Node node: this) {
-            NamedNodeMap attributes = node.getAttributes();
-            if (attributes != null) {
-                Node namedItem = attributes.getNamedItem(attributeName);
-                if (namedItem != null && namedItem.getTextContent().equals(attributeValue)) {
-                    nodes.add(node);
-                }
-            }
-        }
-        return nodes;
-    }
-
     public boolean containsAttribute(String attributeName, String attributeValue) {
-        return subList(attributeName, attributeValue).size() > 0;
+        for (Node node: this) {
+            NamedNodeMap attributes = node.getAttributes();
+            if (attributes != null) {
+                Node namedItem = attributes.getNamedItem(attributeName);
+                if (namedItem != null && namedItem.getTextContent().equals(attributeValue)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public Node get(int index) {
