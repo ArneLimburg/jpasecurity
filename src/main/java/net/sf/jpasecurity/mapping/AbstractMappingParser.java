@@ -58,7 +58,7 @@ public abstract class AbstractMappingParser {
     private static final String GET_PROPERTY_PREFIX = "get";
     private static final String SET_PROPERTY_PREFIX = "set";
 
-    private Map<Class<?>, ClassMappingInformation> classMappings;
+    private Map<Class<?>, DefaultClassMappingInformation> classMappings;
     private Map<String, String> namedQueries;
     private List<EntityListener> defaultEntityListeners;
     private ClassLoader classLoader;
@@ -77,13 +77,13 @@ public abstract class AbstractMappingParser {
      * @param mappingInformation the mapping information to merge, may be <tt>null</tt>
      */
     public MappingInformation parse(PersistenceUnitInfo persistenceUnitInfo, MappingInformation mappingInformation) {
-        classMappings = new HashMap<Class<?>, ClassMappingInformation>();
+        classMappings = new HashMap<Class<?>, DefaultClassMappingInformation>();
         namedQueries = new HashMap<String, String>();
         defaultEntityListeners = new ArrayList<EntityListener>();
         classLoader = findClassLoader(persistenceUnitInfo);
         if (mappingInformation != null) {
             for (Class<?> type: mappingInformation.getPersistentClasses()) {
-                classMappings.put(type, mappingInformation.getClassMapping(type));
+                classMappings.put(type, (DefaultClassMappingInformation)mappingInformation.getClassMapping(type));
             }
             for (String name: mappingInformation.getNamedQueryNames()) {
                 namedQueries.put(name, mappingInformation.getNamedQuery(name));
@@ -122,7 +122,7 @@ public abstract class AbstractMappingParser {
     }
 
     protected ClassMappingInformation parse(Class<?> mappedClass, boolean override) {
-        ClassMappingInformation classMapping = classMappings.get(mappedClass);
+        DefaultClassMappingInformation classMapping = classMappings.get(mappedClass);
         if (classMapping != null && !override) {
             return classMapping;
         }
@@ -148,12 +148,12 @@ public abstract class AbstractMappingParser {
         String entityName = getEntityName(mappedClass);
         boolean metadataComplete = isMetadataComplete(mappedClass);
         if (classMapping == null) {
-            classMapping = new ClassMappingInformation(entityName,
-                                                       mappedClass,
-                                                       superclassMapping,
-                                                       idClass,
-                                                       usesFieldAccess,
-                                                       metadataComplete);
+            classMapping = new DefaultClassMappingInformation(entityName,
+                                                              mappedClass,
+                                                              (DefaultClassMappingInformation)superclassMapping,
+                                                              idClass,
+                                                              usesFieldAccess,
+                                                              metadataComplete);
             classMappings.put(mappedClass, classMapping);
         } else {
             classMapping.setEntityName(entityName);
@@ -202,7 +202,7 @@ public abstract class AbstractMappingParser {
         }
     }
 
-    private void parse(ClassMappingInformation classMapping, Member property) {
+    private void parse(DefaultClassMappingInformation classMapping, Member property) {
         String name = getName(property);
         Class<?> type = getType(property);
         boolean isIdProperty = isIdProperty(property);
@@ -361,9 +361,9 @@ public abstract class AbstractMappingParser {
 
     protected abstract boolean excludeSuperclassEntityListeners(Class<?> entityClass);
 
-    protected abstract void parseEntityListeners(ClassMappingInformation classMapping);
+    protected abstract void parseEntityListeners(DefaultClassMappingInformation classMapping);
 
-    protected abstract void parseEntityLifecycleMethods(ClassMappingInformation classMapping);
+    protected abstract void parseEntityLifecycleMethods(DefaultClassMappingInformation classMapping);
 
     protected abstract Class<?> getIdClass(Class<?> entityClass, boolean usesFieldAccess);
 
