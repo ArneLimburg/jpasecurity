@@ -249,7 +249,7 @@ public class OrmXmlParser extends AbstractMappingParser {
             Node child = attributesNode.getChildNodes().item(i);
             if (!TRANSIENT_TAG_NAME.equals(child.getNodeName())) {
                 XmlNodeList children = new XmlNodeList(child.getChildNodes());
-                if (!children.subList(NAME_ATTRIBUTE_NAME, name).isEmpty()) {
+                if (children.containsAttribute(NAME_ATTRIBUTE_NAME, name)) {
                     return true;
                 }
             }
