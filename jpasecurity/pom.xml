@@ -275,6 +275,11 @@
         <artifactId>cobertura-maven-plugin</artifactId>
         <configuration>
           <encoding>UTF-8</encoding>
+          <instrumentation>
+            <excludes>
+              <exclude>net/sf/jpasecurity/jpql/parser/*.class</exclude>
+            </excludes>
+          </instrumentation>
         </configuration>
       </plugin>
       <plugin>
