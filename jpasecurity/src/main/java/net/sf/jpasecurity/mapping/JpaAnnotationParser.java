@@ -98,11 +98,11 @@ public class JpaAnnotationParser extends AbstractMappingParser {
         return entityClass.getAnnotation(ExcludeSuperclassListeners.class) != null;
     }
 
-    protected void parseEntityLifecycleMethods(ClassMappingInformation classMapping) {
+    protected void parseEntityLifecycleMethods(DefaultClassMappingInformation classMapping) {
         classMapping.setEntityLifecycleMethods(parseEntityLifecycleMethods(classMapping.getEntityType()));
     }
 
-    protected void parseEntityListeners(ClassMappingInformation classMapping) {
+    protected void parseEntityListeners(DefaultClassMappingInformation classMapping) {
         EntityListeners entityListeners = classMapping.getEntityType().getAnnotation(EntityListeners.class);
         if (entityListeners == null) {
             return;

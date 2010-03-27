@@ -457,7 +457,7 @@ public class OrmXmlParser extends AbstractMappingParser {
         }
     }
 
-    protected void parseEntityLifecycleMethods(ClassMappingInformation classMapping) {
+    protected void parseEntityLifecycleMethods(DefaultClassMappingInformation classMapping) {
         Node prePersistNode = evaluateNode(PRE_PERSIST_XPATH, classMapping.getEntityType());
         Node postPersistNode = evaluateNode(POST_PERSIST_XPATH, classMapping.getEntityType());
         Node preRemoveNode = evaluateNode(PRE_REMOVE_XPATH, classMapping.getEntityType());
@@ -476,7 +476,7 @@ public class OrmXmlParser extends AbstractMappingParser {
         classMapping.setEntityLifecycleMethods(entityLifecycleMethods);
     }
 
-    protected void parseEntityListeners(ClassMappingInformation classMapping) {
+    protected void parseEntityListeners(DefaultClassMappingInformation classMapping) {
         Element classNode = (Element)evaluateNode(CLASS_XPATH, classMapping.getEntityType());
         XmlNodeList entityListeners = new XmlNodeList(classNode.getElementsByTagName("entity-listener"));
         for (Node node: entityListeners) {
