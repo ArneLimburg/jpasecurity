@@ -16,7 +16,6 @@
 package net.sf.jpasecurity.mapping;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
@@ -24,6 +23,8 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
+
+import net.sf.jpasecurity.util.ReflectionUtils;
 
 /**
  * This class holds mapping information for property mappings.
@@ -107,14 +108,10 @@ public abstract class PropertyMappingInformation {
      * @see ClassMappingInformation#usesPropertyAccess()
      */
     public Object getPropertyValue(Object target) {
-        try {
-            if (getContainingClassMapping().usesFieldAccess()) {
-                return getFieldValue(target);
-            } else {
-                return getMethodValue(target);
-            }
-        } catch (IllegalAccessException e) {
-            throw new SecurityException(e);
+        if (getContainingClassMapping().usesFieldAccess()) {
+            return getFieldValue(target);
+        } else {
+            return getMethodValue(target);
         }
     }
 
@@ -127,14 +124,10 @@ public abstract class PropertyMappingInformation {
      * @see ClassMappingInformation#usesPropertyAccess()
      */
     public void setPropertyValue(Object target, Object value) {
-        try {
-            if (getContainingClassMapping().usesFieldAccess()) {
-                setFieldValue(target, value);
-            } else {
-                setMethodValue(target, value);
-            }
-        } catch (IllegalAccessException e) {
-            throw new SecurityException(e);
+        if (getContainingClassMapping().usesFieldAccess()) {
+            setFieldValue(target, value);
+        } else {
+            setMethodValue(target, value);
         }
     }
 
@@ -148,14 +141,14 @@ public abstract class PropertyMappingInformation {
              + ",containingClassMapping=" + containingClassMapping.getEntityType().getSimpleName() + "]";
     }
 
-    private Object getFieldValue(Object target) throws IllegalAccessException {
+    private Object getFieldValue(Object target) {
         Field field = getField(target.getClass());
-        return field.get(target);
+        return ReflectionUtils.getFieldValue(field, target);
     }
 
-    private void setFieldValue(Object target, Object fieldValue) throws IllegalAccessException {
+    private void setFieldValue(Object target, Object fieldValue) {
         Field field = getField(target.getClass());
-        field.set(target, fieldValue);
+        ReflectionUtils.setFieldValue(field, target, fieldValue);
     }
 
     private Field getField(Class type) {
@@ -163,15 +156,13 @@ public abstract class PropertyMappingInformation {
             return null;
         }
         try {
-            Field field = type.getDeclaredField(getPropertyName());
-            field.setAccessible(true);
-            return field;
+            return type.getDeclaredField(getPropertyName());
         } catch (NoSuchFieldException e) {
             return getField(type.getSuperclass());
         }
     }
 
-    private Object getMethodValue(Object target) throws IllegalAccessException {
+    private Object getMethodValue(Object target) {
         String propertyName = getPropertyName();
         String methodName
             = GET_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
@@ -181,31 +172,15 @@ public abstract class PropertyMappingInformation {
                 = IS_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
             method = getMethod(target.getClass(), methodName, 0);
         }
-        try {
-            return method.invoke(target, (Object[])null);
-        } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof RuntimeException) {
-                throw (RuntimeException)e.getCause();
-            } else {
-                throw new PersistenceException(e.getCause());
-            }
-        }
+        return ReflectionUtils.invokeMethod(target, method);
     }
 
-    private void setMethodValue(Object target, Object propertyValue) throws IllegalAccessException {
+    private void setMethodValue(Object target, Object propertyValue) {
         String propertyName = getPropertyName();
         String methodName
             = SET_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
         Method method = getMethod(target.getClass(), methodName, 1);
-        try {
-            method.invoke(target, propertyValue);
-        } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof RuntimeException) {
-                throw (RuntimeException)e.getCause();
-            } else {
-                throw new PersistenceException(e.getCause());
-            }
-        }
+        ReflectionUtils.invokeMethod(target, method, propertyValue);
     }
 
     private Method getMethod(Class type, String name, int parameterCount) {
@@ -214,7 +189,6 @@ public abstract class PropertyMappingInformation {
         }
         for (Method method: type.getDeclaredMethods()) {
             if (name.equals(method.getName()) && method.getParameterTypes().length == parameterCount) {
-                method.setAccessible(true);
                 return method;
             }
         }
