@@ -16,102 +16,20 @@
 package net.sf.jpasecurity.mapping;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.PersistenceException;
-
-
 /**
- * This class holds mapping information for a specific persistence unit.
+ * This interface represents mapping information for a specific persistence unit.
  * @author Arne Limburg
  */
-public class MappingInformation {
+public interface MappingInformation {
 
-    private String persistenceUnitName;
-    private Map<String, String> namedQueries = new HashMap<String, String>();
-    private Map<Class<?>, ClassMappingInformation> entityTypeMappings
-        = new HashMap<Class<?>, ClassMappingInformation>();
-    private Map<String, ClassMappingInformation> entityNameMappings;
+    String getPersistenceUnitName();
+    Set<String> getNamedQueryNames();
+    String getNamedQuery(String name);
+    Collection<Class<?>> getPersistentClasses();
+    ClassMappingInformation getClassMapping(Class<?> entityType);
+    ClassMappingInformation getClassMapping(String entityName);
+    Class<?> getType(String path, Set<TypeDefinition> typeDefinitions);
 
-    /**
-     * @param persistenceUnitName the name of the persistence unit
-     * @param entityTypeMappings the mapping information of the entities contained in the persistence unit
-     * @param namedQueries the named queries contained in the persistence unit
-     */
-    public MappingInformation(String persistenceUnitName,
-                              Map<Class<?>, ClassMappingInformation> entityTypeMappings,
-                              Map<String, String> namedQueries) {
-        this.persistenceUnitName = persistenceUnitName;
-        this.entityTypeMappings = entityTypeMappings;
-        this.namedQueries = namedQueries;
-    }
-
-    public String getPersistenceUnitName() {
-        return persistenceUnitName;
-    }
-
-    public Set<String> getNamedQueryNames() {
-        return Collections.unmodifiableSet(namedQueries.keySet());
-    }
-
-    public String getNamedQuery(String name) {
-        return namedQueries.get(name);
-    }
-
-    public Collection<Class<?>> getPersistentClasses() {
-        return Collections.unmodifiableSet(entityTypeMappings.keySet());
-    }
-
-    public ClassMappingInformation getClassMapping(Class<?> entityType) {
-        ClassMappingInformation classMapping = entityTypeMappings.get(entityType);
-        while (classMapping == null && entityType != null) {
-            entityType = entityType.getSuperclass();
-            classMapping = entityTypeMappings.get(entityType);
-        }
-        return classMapping;
-    }
-
-    public ClassMappingInformation getClassMapping(String entityName) {
-        if (entityNameMappings == null) {
-            initializeEntityNameMappings();
-        }
-        ClassMappingInformation classMapping = entityNameMappings.get(entityName);
-        if (classMapping == null) {
-            throw new PersistenceException("Could not find mapping for entity with name \"" + entityName + '"');
-        }
-        return classMapping;
-    }
-
-    public Class<?> getType(String path, Set<TypeDefinition> typeDefinitions) {
-        try {
-            String[] entries = path.split("\\.");
-            Class<?> type = getAliasType(entries[0], typeDefinitions);
-            for (int i = 1; i < entries.length; i++) {
-                type = getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
-            }
-            return type;
-        } catch (NullPointerException e) {
-            throw new PersistenceException("Could not determine type of alias \"" + path + "\"", e);
-        }
-    }
-
-    private void initializeEntityNameMappings() {
-        entityNameMappings = new HashMap<String, ClassMappingInformation>();
-        for (ClassMappingInformation classMapping: entityTypeMappings.values()) {
-            entityNameMappings.put(classMapping.getEntityName(), classMapping);
-            entityNameMappings.put(classMapping.getEntityType().getName(), classMapping);
-        }
-    }
-
-    private Class<?> getAliasType(String alias, Set<TypeDefinition> typeDefinitions) {
-        for (TypeDefinition typeDefinition: typeDefinitions) {
-            if (alias.equals(typeDefinition.getAlias())) {
-                return typeDefinition.getType();
-            }
-        }
-        return null;
-    }
 }
