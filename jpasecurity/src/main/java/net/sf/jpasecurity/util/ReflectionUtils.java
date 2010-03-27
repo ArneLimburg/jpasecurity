@@ -23,6 +23,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
+import javax.persistence.PersistenceException;
+
 /**
  * @author Arne Limburg
  */
@@ -42,12 +44,19 @@ public abstract class ReflectionUtils {
 
     public static Object invokeMethod(Object target, String methodName, Object... parameters) {
         try {
-            Method method = getMethod(target.getClass(), methodName, parameters);
+            return invokeMethod(target, getMethod(target.getClass(), methodName, parameters), parameters);
+        } catch (NoSuchMethodException e) {
+            return throwThrowable(e);
+        }
+    }
+
+    public static Object invokeMethod(Object target, Method method, Object... parameters) {
+        try {
             method.setAccessible(true);
             return method.invoke(target, parameters);
+        } catch (IllegalAccessException e) {
+            return throwThrowable(e);
         } catch (InvocationTargetException e) {
-            return throwThrowable(e.getCause());
-        } catch (Exception e) {
             return throwThrowable(e);
         }
     }
@@ -59,7 +68,7 @@ public abstract class ReflectionUtils {
     public static Constructor<?> getConstructor(Class<?> type, Class<?>... parameterTypes)
             throws NoSuchMethodException {
         Constructor<?> result = null;
-        for (Constructor<?> constructor: type.getConstructors()) {
+        for (Constructor<?> constructor: type.getDeclaredConstructors()) {
             if (match(constructor.getParameterTypes(), parameterTypes)) {
                 if (result == null || isMoreSpecific(constructor.getParameterTypes(), result.getParameterTypes())) {
                     if (result != null && isMoreSpecific(result.getParameterTypes(), constructor.getParameterTypes())) {
@@ -111,7 +120,7 @@ public abstract class ReflectionUtils {
         try {
             field.setAccessible(true);
             return field.get(target);
-        } catch (Exception e) {
+        } catch (IllegalAccessException e) {
             return throwThrowable(e);
         }
     }
@@ -120,7 +129,7 @@ public abstract class ReflectionUtils {
         try {
             field.setAccessible(true);
             field.set(target, value);
-        } catch (Exception e) {
+        } catch (IllegalAccessException e) {
             throwThrowable(e);
         }
     }
@@ -159,6 +168,8 @@ public abstract class ReflectionUtils {
             throw (Error)throwable;
         } else if (throwable instanceof RuntimeException) {
             throw (RuntimeException)throwable;
+        } else if (throwable instanceof InvocationTargetException) {
+            throw new PersistenceException(((InvocationTargetException)throwable).getTargetException());
         } else {
             throw new SecurityException(throwable);
         }

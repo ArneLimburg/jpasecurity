@@ -37,19 +37,20 @@ public class CreationTag extends AbstractSecurityTag {
         String[] parameterNames = parameters.split(",");
         Object[] resolvedParameters = new Object[parameterNames.length];
         for (int i = 0; i < resolvedParameters.length; i++) {
-            Object parameter = pageContext.findAttribute(parameterNames[i]);
+            Object parameter = pageContext.findAttribute(parameterNames[i].trim());
             if (parameter == null) {
                 try {
-                    resolvedParameters[i] = Integer.parseInt(parameterNames[i]);
+                    resolvedParameters[i] = Integer.parseInt(parameterNames[i].trim());
                 } catch (NumberFormatException n) {
                     try {
-                        resolvedParameters[i] = Float.parseFloat(parameterNames[i]);
+                        resolvedParameters[i] = Float.parseFloat(parameterNames[i].trim());
                     } catch (NumberFormatException e) {
-                        resolvedParameters[i] = parameterNames[i];
+                        resolvedParameters[i] = parameterNames[i].trim();
                     }
                 }
+            } else {
+                resolvedParameters[i] = parameter;
             }
-            resolvedParameters[i] = parameter;
         }
         return resolvedParameters;
     }
