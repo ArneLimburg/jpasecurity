@@ -19,6 +19,7 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import net.sf.jpasecurity.security.AuthenticationProvider;
 
@@ -64,7 +65,8 @@ public class DefaultAuthenticationProvider implements AuthenticationProvider {
     }
 
     public Collection<?> getRoles() {
-        return roles.get();
+        Collection<?> result = roles.get();
+        return result != null? result: Collections.emptySet();
     }
 
     public static <R> R runAs(Object principal, Collection<?> roles, PrivilegedExceptionAction<R> action)
