@@ -19,6 +19,7 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import net.sf.jpasecurity.security.AuthenticationProvider;
 
@@ -31,7 +32,7 @@ import net.sf.jpasecurity.security.AuthenticationProvider;
 public class StaticAuthenticationProvider implements AuthenticationProvider {
 
     private static Object principal;
-    private static Collection<?> roles;
+    private static Collection<?> roles = Collections.emptySet();
 
     /**
      * Sets the current authenticated principal to the specified principal, assigning the specified roles.
@@ -48,6 +49,9 @@ public class StaticAuthenticationProvider implements AuthenticationProvider {
      * @param roles the roles
      */
     public static void authenticate(Object principal, Collection<?> roles) {
+        if (roles == null) {
+            roles = Collections.emptySet();
+        }
         StaticAuthenticationProvider.principal = principal;
         StaticAuthenticationProvider.roles = roles;
     }
@@ -80,6 +84,6 @@ public class StaticAuthenticationProvider implements AuthenticationProvider {
     }
 
     public Collection<?> getRoles() {
-        return roles;
+        return Collections.unmodifiableCollection(roles);
     }
 }

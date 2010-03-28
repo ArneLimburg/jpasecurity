@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2010 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,13 @@ import java.util.Collections;
 import javax.ejb.EJBContext;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-
-import org.apache.commons.naming.NamingContext;
-import org.apache.commons.naming.java.javaURLContextFactory;
+import javax.naming.NameNotFoundException;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.security.AuthenticationProvider;
+
+import org.apache.commons.naming.NamingContext;
+import org.apache.commons.naming.java.javaURLContextFactory;
 
 /**
  * @author Arne Limburg
@@ -56,12 +57,15 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
     
     public void tearDown() throws Exception {
 
-        InitialContext initialContext = new InitialContext();
-        initialContext.unbind("java:comp");        
-
-        System.clearProperty(Context.INITIAL_CONTEXT_FACTORY);
-        System.clearProperty(Context.URL_PKG_PREFIXES);            
-
+        try {
+            InitialContext initialContext = new InitialContext();
+            initialContext.unbind("java:comp");
+        } catch (NameNotFoundException e) {
+            //ignore, don't need to unbind then
+        } finally {
+            System.clearProperty(Context.INITIAL_CONTEXT_FACTORY);
+            System.clearProperty(Context.URL_PKG_PREFIXES);            
+        }
     }
     
     public void testAutodetectAuthenticationProvider() {
@@ -129,6 +133,28 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         setContextClassLoader(testClassLoader);
         AuthenticationProvider authenticationProvider = new AutodetectingAuthenticationProvider().autodetectAuthenticationProvider();
         assertTrue(authenticationProvider instanceof EjbAuthenticationProvider);
+        restoreContextClassLoader();
+
+        verify(testClassLoader);
+    }
+    
+    public void testFallbackToDefaultAuthenticationProvider() throws Exception {
+        InitialContext initialContext = new InitialContext();
+        initialContext.unbind("java:comp");        
+        TestClassLoader testClassLoader = createStrictMock(TestClassLoader.class);
+        Class springSecurityContextHolderClass = org.springframework.security.context.SecurityContextHolder.class;
+        Class acegiSecurityContextHolderClass = org.acegisecurity.context.SecurityContextHolder.class;
+        Class contextFactoryClass = javaURLContextFactory.class;
+        expect(testClassLoader.loadClass(springSecurityContextHolderClass.getName(), false)).andThrow(new ClassNotFoundException()).anyTimes();
+        expect(testClassLoader.loadClass(acegiSecurityContextHolderClass.getName(), false)).andThrow(new ClassNotFoundException()).anyTimes();
+        expect(testClassLoader.loadClass(contextFactoryClass.getName(), false)).andReturn(contextFactoryClass).anyTimes();
+        expect(testClassLoader.loadClass(springSecurityContextHolderClass.getName(), false)).andThrow(new ClassNotFoundException()).anyTimes();
+        expect(testClassLoader.loadClass(acegiSecurityContextHolderClass.getName(), false)).andThrow(new ClassNotFoundException()).anyTimes();
+        replay(testClassLoader);
+
+        setContextClassLoader(testClassLoader);
+        AuthenticationProvider authenticationProvider = new AutodetectingAuthenticationProvider().autodetectAuthenticationProvider();
+        assertTrue(authenticationProvider instanceof DefaultAuthenticationProvider);
         restoreContextClassLoader();
 
         verify(testClassLoader);
