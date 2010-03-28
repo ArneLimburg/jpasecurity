@@ -38,12 +38,11 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import net.sf.jpasecurity.xml.XmlNodeList;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
@@ -245,12 +244,18 @@ public class OrmXmlParser extends AbstractMappingParser {
         String name = getName(member);
         Node classNode = getMappedClassNode(member.getDeclaringClass());
         Node attributesNode = getAttributesNode(classNode);
-        for (int i = 0; i < attributesNode.getChildNodes().getLength(); i++) {
-            Node child = attributesNode.getChildNodes().item(i);
+        for (int index = 0; index < attributesNode.getChildNodes().getLength(); index++) {
+            Node child = attributesNode.getChildNodes().item(index);
             if (!TRANSIENT_TAG_NAME.equals(child.getNodeName())) {
-                XmlNodeList children = new XmlNodeList(child.getChildNodes());
-                if (children.containsAttribute(NAME_ATTRIBUTE_NAME, name)) {
-                    return true;
+                NodeList children = child.getChildNodes();
+                for (int i = 0; i < children.getLength(); i++) {
+                    NamedNodeMap attributes = children.item(i).getAttributes();
+                    if (attributes != null) {
+                        Node namedItem = attributes.getNamedItem(NAME_ATTRIBUTE_NAME);
+                        if (namedItem != null && namedItem.getTextContent().equals(name)) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
@@ -318,11 +323,11 @@ public class OrmXmlParser extends AbstractMappingParser {
      * {@inheritDoc}
      */
     protected CascadeType[] getCascadeTypes(Member property) {
-        XmlNodeList list
+        NodeList list
             = evaluateNodes(CASCADE_TYPE_XPATH, property.getDeclaringClass().getName(), getName(property));
-        List<CascadeType> cascadeTypes = new ArrayList<CascadeType>(list.size());
-        for (Node node: list) {
-            String cascadeType = node.getNodeName().substring(CASCADE_TAG_PREFIX.length());
+        List<CascadeType> cascadeTypes = new ArrayList<CascadeType>(list.getLength());
+        for (int i = 0; i < list.getLength(); i++) {
+            String cascadeType = list.item(i).getNodeName().substring(CASCADE_TAG_PREFIX.length());
             cascadeTypes.add(CascadeType.valueOf(cascadeType.toUpperCase()));
         }
         return cascadeTypes.toArray(new CascadeType[cascadeTypes.size()]);
@@ -409,14 +414,17 @@ public class OrmXmlParser extends AbstractMappingParser {
         parseNamedQueries();
         parseDefaultEntityListeners();
         String packageName = getPackageName();
-        for (Node node: evaluateNodes(ENTITIES_XPATH)) {
-            parse(node, packageName);
+        NodeList list = evaluateNodes(ENTITIES_XPATH);
+        for (int i = 0; i < list.getLength(); i++) {
+            parse(list.item(i), packageName);
         }
-        for (Node node: evaluateNodes(MAPPED_SUPERCLASSES_XPATH)) {
-            parse(node, packageName);
+        list = evaluateNodes(MAPPED_SUPERCLASSES_XPATH);
+        for (int i = 0; i < list.getLength(); i++) {
+            parse(list.item(i), packageName);
         }
-        for (Node node: evaluateNodes(EMBEDDABLES_XPATH)) {
-            parse(node, packageName);
+        list = evaluateNodes(EMBEDDABLES_XPATH);
+        for (int i = 0; i < list.getLength(); i++) {
+            parse(list.item(i), packageName);
         }
     }
 
@@ -443,9 +451,9 @@ public class OrmXmlParser extends AbstractMappingParser {
     }
 
     private void parseNamedQueries() {
-        XmlNodeList entries = evaluateNodes(NAMED_QUERY_XPATH);
-        for (Node node: entries) {
-            Element namedQueryElement = (Element)node;
+        NodeList entries = evaluateNodes(NAMED_QUERY_XPATH);
+        for (int i = 0; i < entries.getLength(); i++) {
+            Element namedQueryElement = (Element)entries.item(i);
             String name = namedQueryElement.getAttribute("name");
             NodeList queryList = namedQueryElement.getElementsByTagName("query");
             String query = ((Text)((Element)queryList.item(0)).getFirstChild()).getData();
@@ -478,21 +486,23 @@ public class OrmXmlParser extends AbstractMappingParser {
 
     protected void parseEntityListeners(DefaultClassMappingInformation classMapping) {
         Element classNode = (Element)evaluateNode(CLASS_XPATH, classMapping.getEntityType());
-        XmlNodeList entityListeners = new XmlNodeList(classNode.getElementsByTagName("entity-listener"));
-        for (Node node: entityListeners) {
-            Class<?> type = getEntityListenerType(node);
+        NodeList entityListeners = classNode.getElementsByTagName("entity-listener");
+        for (int i = 0; i < entityListeners.getLength(); i++) {
+            Class<?> type = getEntityListenerType(entityListeners.item(i));
             EntityLifecycleMethods entityLifecycleMethods
                 = new JpaAnnotationParser().parseEntityLifecycleMethods(type);
-            classMapping.addEntityListener(type, parseEntityListener(node, type, entityLifecycleMethods));
+            EntityListenerWrapper entityListener
+                = parseEntityListener(entityListeners.item(i), type, entityLifecycleMethods);
+            classMapping.addEntityListener(type, entityListener);
         }
     }
 
     private void parseDefaultEntityListeners() {
-        XmlNodeList entityListeners = evaluateNodes(DEFAULT_ENTITY_LISTENER_XPATH);
-        for (Node node: entityListeners) {
-            Class<?> type = getEntityListenerType(node);
+        NodeList entityListeners = evaluateNodes(DEFAULT_ENTITY_LISTENER_XPATH);
+        for (int i = 0; i < entityListeners.getLength(); i++) {
+            Class<?> type = getEntityListenerType(entityListeners.item(i));
             EntityLifecycleMethods entityLifecycleMethods = new EntityLifecycleMethods();
-            addDefaultEntityListener(parseEntityListener(node, type, entityLifecycleMethods));
+            addDefaultEntityListener(parseEntityListener(entityListeners.item(i), type, entityLifecycleMethods));
         }
     }
 
@@ -628,8 +638,8 @@ public class OrmXmlParser extends AbstractMappingParser {
         return (Node)evaluate(query, XPathConstants.NODE, parameters);
     }
 
-    private XmlNodeList evaluateNodes(String query, Object... parameters) {
-        return new XmlNodeList((NodeList)evaluate(query, XPathConstants.NODESET, parameters));
+    private NodeList evaluateNodes(String query, Object... parameters) {
+        return (NodeList)evaluate(query, XPathConstants.NODESET, parameters);
     }
 
     private Object evaluate(String query, QName resultType, Object... parameters) {
