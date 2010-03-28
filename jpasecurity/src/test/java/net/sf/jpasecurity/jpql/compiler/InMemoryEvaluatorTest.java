@@ -163,6 +163,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         assertTrue(inMemoryEvaluator.canEvaluate(whereClause, parameters));
         assertFalse(inMemoryEvaluator.evaluate(whereClause, parameters));
     }
+
     public void testCanEvaluateCount() throws Exception {
         JpqlCompiledStatement statement = compile("SELECT COUNT(bean) "
                                                 + "FROM FieldAccessAnnotationTestBean bean "
@@ -549,6 +550,58 @@ public class InMemoryEvaluatorTest extends TestCase {
         
         entities.add(FieldAccessAnnotationTestBean.class, child);
         assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+    }
+    
+    public void testEvaluateLike() throws Exception {
+        JpqlCompiledStatement statement
+            = compile(SELECT + "WHERE bean.name LIKE '%te\\%st_na\\_e'");
+        FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean("test");
+        
+        aliases.clear();
+        try {
+            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+        aliases.put("bean", bean);
+
+        bean.setBeanName("test1name");
+        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+
+        bean.setBeanName("testname");
+        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+
+        bean.setBeanName("a test1name");
+        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+
+        bean.setBeanName("a test1naaame");
+        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+    }
+    
+    public void testEvaluateArithmeticFunctions() throws Exception {
+        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE 1 + 1 < 3").getWhereClause(), parameters));
+        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE 10 / 3 >= 3.3").getWhereClause(), parameters));
+        try {
+            inMemoryEvaluator.evaluate(compile(SELECT + "WHERE 10 / 0 >= 3.3").getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //division by zero
+        }
+        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE 2 * 13 = (13 + 13)").getWhereClause(), parameters));
+        assertFalse(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE 1 - 2 > -1").getWhereClause(), parameters));
+        assertFalse(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE 25 - 1 <= 17").getWhereClause(), parameters));
+    }
+    
+    public void testEvaluateStringFunctions() throws Exception {
+        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(' test ') = 'test'").getWhereClause(), parameters));
+        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(BOTH '_' FROM '_test__') = 'test'").getWhereClause(), parameters));
+        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(LEADING FROM ' test') = 'test'").getWhereClause(), parameters));
+        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(TRAILING 'a' FROM 'testaaaaaaaa') = 'test'").getWhereClause(), parameters));
+        assertFalse(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(' test ') = ' test '").getWhereClause(), parameters));
+        assertFalse(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(BOTH '_' FROM '_test__') = 'test_'").getWhereClause(), parameters));
+        assertFalse(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(LEADING FROM ' test ') = 'test'").getWhereClause(), parameters));
+        assertFalse(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(TRAILING 'a' FROM 'test ') = 'test'").getWhereClause(), parameters));
     }
     
     protected JpqlCompiledStatement compile(String query) throws ParseException {
