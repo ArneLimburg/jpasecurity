@@ -17,6 +17,7 @@ package net.sf.jpasecurity.jpql.compiler;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -78,7 +79,6 @@ import net.sf.jpasecurity.jpql.parser.JpqlOr;
 import net.sf.jpasecurity.jpql.parser.JpqlOrderBy;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
-import net.sf.jpasecurity.jpql.parser.JpqlPatternValue;
 import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
 import net.sf.jpasecurity.jpql.parser.JpqlSize;
@@ -107,6 +107,9 @@ import net.sf.jpasecurity.util.ListMap;
  * @author Arne Limburg
  */
 public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationParameters> {
+
+    public static final int DECIMAL_PRECISION = 100;
+    public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
 
     protected final JpqlCompiler compiler;
     protected final PathEvaluator pathEvaluator;
@@ -218,7 +221,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlNot node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 1;
+        validateChildCount(node, 1);
         node.jjtGetChild(0).visit(this, data);
         try {
             data.setResult(!((Boolean)data.getResult()));
@@ -229,7 +232,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlBetween node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 3;
+        validateChildCount(node, 3);
         try {
             node.jjtGetChild(0).visit(this, data);
             Comparable value = (Comparable)data.getResult();
@@ -297,7 +300,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlLike node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             String text = (String)data.getResult();
@@ -313,29 +316,14 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     private String createRegularExpression(String pattern) {
         StringBuilder regularExpressionBuilder = new StringBuilder();
         int index = 0;
-        do {
-            int i1 = pattern.indexOf("\\_", index);
-            int i2 = pattern.indexOf("_", index);
-            int i3 = pattern.indexOf("\\%", index);
-            int i4 = pattern.indexOf("%", index);
-            int min = pattern.length();
-            if (i1 > -1 && i1 < min) {
-                min = i1;
-            }
-            if (i2 > -1 && i2 < min) {
-                min = i2;
-            }
-            if (i3 > -1 && i3 < min) {
-                min = i3;
-            }
-            if (i4 > -1 && i4 < min) {
-                min = i4;
-            }
-            regularExpressionBuilder.append("\\Q").append(pattern.substring(index, min)).append("\\E");
+        int specialCharacterIndex = indexOfSpecialCharacter(pattern, index);
+        appendSubPattern(regularExpressionBuilder, pattern, index, specialCharacterIndex);
+        while (specialCharacterIndex < pattern.length()) {
+            index = specialCharacterIndex;
             if (pattern.charAt(index) == '\\') {
-                regularExpressionBuilder.append(pattern.charAt(index + 1));
-                index += 2;
-            } else if (pattern.charAt(index) == '_') {
+                index++;
+            }
+            if (pattern.charAt(index) == '_') {
                 regularExpressionBuilder.append('.');
                 index++;
             } else if (pattern.charAt(index) == '%') {
@@ -344,12 +332,46 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             } else {
                 throw new IllegalStateException();
             }
-        } while (index < pattern.length());
+            specialCharacterIndex = indexOfSpecialCharacter(pattern, index);
+            appendSubPattern(regularExpressionBuilder, pattern, index, specialCharacterIndex);
+        }
         return regularExpressionBuilder.toString();
     }
 
+    /**
+     * Returns the index of the next special character within the specified pattern
+     * starting at the specified index or the length of the pattern, if no special character is present.
+     */
+    private int indexOfSpecialCharacter(String pattern, int startIndex) {
+        int i1 = pattern.indexOf("\\_", startIndex);
+        int i2 = pattern.indexOf("_", startIndex);
+        int i3 = pattern.indexOf("\\%", startIndex);
+        int i4 = pattern.indexOf("%", startIndex);
+        int min = pattern.length();
+        if (i1 > -1 && i1 < min) {
+            min = i1;
+        }
+        if (i2 > -1 && i2 < min) {
+            min = i2;
+        }
+        if (i3 > -1 && i3 < min) {
+            min = i3;
+        }
+        if (i4 > -1 && i4 < min) {
+            min = i4;
+        }
+        return min;
+    }
+
+    private void appendSubPattern(StringBuilder regularExpression, String pattern, int startIndex, int endIndex) {
+        String subpattern = pattern.substring(startIndex, endIndex);
+        if (subpattern.length() > 0) {
+            regularExpression.append("\\Q").append(subpattern).append("\\E");
+        }
+    }
+
     public boolean visit(JpqlIsNull node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 1;
+        validateChildCount(node, 1);
         try {
             node.jjtGetChild(0).visit(this, data);
             data.setResult(data.getResult() == null);
@@ -360,7 +382,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlIsEmpty node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 1;
+        validateChildCount(node, 1);
         try {
             node.jjtGetChild(0).visit(this, data);
             Collection result = (Collection)data.getResult();
@@ -372,7 +394,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlMemberOf node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             Object value = data.getResult();
@@ -385,7 +407,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlEquals node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             Object value1 = data.getResult();
@@ -403,7 +425,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlNotEquals node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             Object value1 = data.getResult();
@@ -417,7 +439,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlGreaterThan node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             Comparable value1 = (Comparable)data.getResult();
@@ -431,7 +453,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlGreaterOrEquals node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             Comparable value1 = (Comparable)data.getResult();
@@ -445,7 +467,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlLessThan node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             Comparable value1 = (Comparable)data.getResult();
@@ -459,7 +481,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlLessOrEquals node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             Comparable value1 = (Comparable)data.getResult();
@@ -473,7 +495,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlAdd node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             BigDecimal value1 = new BigDecimal(data.getResult().toString());
@@ -487,7 +509,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlSubtract node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             BigDecimal value1 = new BigDecimal(data.getResult().toString());
@@ -501,7 +523,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlMultiply node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             BigDecimal value1 = new BigDecimal(data.getResult().toString());
@@ -515,13 +537,15 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlDivide node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             BigDecimal value1 = new BigDecimal(data.getResult().toString());
             node.jjtGetChild(1).visit(this, data);
             BigDecimal value2 = new BigDecimal(data.getResult().toString());
-            data.setResult(value1.divide(value2));
+            data.setResult(value1.divide(value2, DECIMAL_PRECISION, ROUNDING_MODE));
+        } catch (ArithmeticException e) {
+            data.setResultUndefined();
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
         }
@@ -529,7 +553,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlNegative node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 1;
+        validateChildCount(node, 1);
         try {
             node.jjtGetChild(0).visit(this, data);
             BigDecimal value = new BigDecimal(data.getResult().toString());
@@ -541,7 +565,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlConcat node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             String value1 = (String)data.getResult();
@@ -555,7 +579,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlSubstring node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 3;
+        validateChildCount(node, 3);
         try {
             node.jjtGetChild(0).visit(this, data);
             String text = (String)data.getResult();
@@ -571,7 +595,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlTrim node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() >= 1 && node.jjtGetNumChildren() <= 3;
+        validateChildCount(node, 1, 3);
         try {
             boolean leading = true;
             boolean trailing = true;
@@ -614,7 +638,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlLower node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 1;
+        validateChildCount(node, 1);
         try {
             node.jjtGetChild(0).visit(this, data);
             data.setResult(data.getResult().toString().toLowerCase());
@@ -625,7 +649,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlUpper node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 1;
+        validateChildCount(node, 1);
         try {
             node.jjtGetChild(0).visit(this, data);
             data.setResult(data.getResult().toString().toUpperCase());
@@ -636,7 +660,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlLength node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 1;
+        validateChildCount(node, 1);
         try {
             node.jjtGetChild(0).visit(this, data);
             data.setResult(data.getResult().toString().length());
@@ -647,7 +671,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlLocate node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() >= 2 && node.jjtGetNumChildren() <= 3;
+        validateChildCount(node, 2, 3);
         try {
             node.jjtGetChild(0).visit(this, data);
             String text = data.getResult().toString();
@@ -666,7 +690,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlAbs node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 1;
+        validateChildCount(node, 1);
         try {
             node.jjtGetChild(0).visit(this, data);
             data.setResult(new BigDecimal(data.getResult().toString()).abs());
@@ -677,7 +701,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlSqrt node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 1;
+        validateChildCount(node, 1);
         try {
             node.jjtGetChild(0).visit(this, data);
             data.setResult(Math.sqrt(new BigDecimal(data.getResult().toString()).doubleValue()));
@@ -688,7 +712,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlMod node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 2;
+        validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
             int i1 = Integer.parseInt(data.getResult().toString());
@@ -702,7 +726,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlSize node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 1;
+        validateChildCount(node, 1);
         try {
             node.jjtGetChild(0).visit(this, data);
             data.setResult(((Collection)data.getResult()).size());
@@ -713,31 +737,31 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlBrackets node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 1;
+        validateChildCount(node, 1);
         node.jjtGetChild(0).visit(this, data);
         return false;
     }
 
     public boolean visit(JpqlCurrentDate node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
+        validateChildCount(node, 0);
         data.setResult(new java.sql.Date(new Date().getTime()));
         return false;
     }
 
     public boolean visit(JpqlCurrentTime node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
+        validateChildCount(node, 0);
         data.setResult(new Time(new Date().getTime()));
         return false;
     }
 
     public boolean visit(JpqlCurrentTimestamp node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
+        validateChildCount(node, 0);
         data.setResult(new Timestamp(new Date().getTime()));
         return false;
     }
 
     public boolean visit(JpqlIdentifier node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
+        validateChildCount(node, 0);
         try {
             data.setResult(data.getAliasValue(node.getValue()));
         } catch (NotEvaluatableException e) {
@@ -747,7 +771,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlIdentificationVariable node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
+        validateChildCount(node, 0);
         try {
             data.setResult(data.getAliasValue(node.getValue()));
         } catch (NotEvaluatableException e) {
@@ -757,31 +781,31 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlIntegerLiteral node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
-        data.setResult(node.getValue());
+        validateChildCount(node, 0);
+        data.setResult(new BigDecimal(node.getValue()));
         return false;
     }
 
     public boolean visit(JpqlDecimalLiteral node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
-        data.setResult(node.getValue());
+        validateChildCount(node, 0);
+        data.setResult(new BigDecimal(node.getValue()));
         return false;
     }
 
     public boolean visit(JpqlBooleanLiteral node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
+        validateChildCount(node, 0);
         data.setResult(Boolean.valueOf(node.getValue()));
         return false;
     }
 
     public boolean visit(JpqlStringLiteral node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
+        validateChildCount(node, 0);
         data.setResult(node.getValue().substring(1, node.getValue().length() - 1)); //trim quotes
         return false;
     }
 
     public boolean visit(JpqlNamedInputParameter node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
+        validateChildCount(node, 0);
         try {
             data.setResult(data.getNamedParameterValue(node.getValue()));
         } catch (NotEvaluatableException e) {
@@ -791,7 +815,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlPositionalInputParameter node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
+        validateChildCount(node, 0);
         try {
             data.setResult(data.getPositionalParameterValue(Integer.parseInt(node.getValue())));
         } catch (NotEvaluatableException e) {
@@ -800,21 +824,15 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         return false;
     }
 
-    public boolean visit(JpqlPatternValue node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
-        data.setResult(node.getValue());
-        return false;
-    }
-
     public boolean visit(JpqlEscapeCharacter node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
+        validateChildCount(node, 0);
         data.setResult(node.getValue());
         return false;
     }
 
     public boolean visit(JpqlTrimCharacter node, InMemoryEvaluationParameters data) {
-        assert node.jjtGetNumChildren() == 0;
-        data.setResult(node.getValue());
+        validateChildCount(node, 0);
+        data.setResult(node.getValue().substring(1, node.getValue().length() - 1)); //trim quotes
         return false;
     }
 
@@ -1108,6 +1126,20 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
         public void remove() {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    private void validateChildCount(Node node, int childCount) {
+        if (node.jjtGetNumChildren() != childCount) {
+            throw new IllegalStateException("node " + node.getClass().getName() + " must have " + childCount + " children");
+        }
+    }
+
+    private void validateChildCount(Node node, int minChildCount, int maxChildCount) {
+        if (node.jjtGetNumChildren() < minChildCount) {
+            throw new IllegalStateException("node " + node.getClass().getName() + " must have at least " + minChildCount + " children");
+        } else if (node.jjtGetNumChildren() > maxChildCount) {
+            throw new IllegalStateException("node " + node.getClass().getName() + " must have at most " + maxChildCount + " children");
         }
     }
 }
