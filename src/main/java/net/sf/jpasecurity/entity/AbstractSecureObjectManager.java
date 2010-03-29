@@ -43,6 +43,7 @@ import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
+import net.sf.jpasecurity.util.SystemMapKey;
 
 /**
  * @author Arne Limburg
@@ -285,7 +286,7 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     abstract void cascade(Object secureEntity,
                           Object unsecureEntity,
                           CascadeType cascadeType,
-                          Set<Object> alreadyCascadedEntities);
+                          Set<SystemMapKey> alreadyCascadedEntities);
 
     boolean isDirty(Object newEntity, Object oldEntity) {
         final ClassMappingInformation classMapping = getClassMapping(newEntity.getClass());
@@ -337,6 +338,10 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
 
     ClassMappingInformation getClassMapping(Class<?> type) {
         return mappingInformation.getClassMapping(type);
+    }
+
+    boolean isAccessible(AccessType accessType, Object entity) {
+        return accessManager.isAccessible(accessType, entity);
     }
 
     void checkAccess(AccessType accessType, Object entity) {
@@ -396,6 +401,18 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         EntityInvocationHandler entityInvocationHandler
             = (EntityInvocationHandler)proxyFactory.getMethodInterceptor(secureEntity);
         entityInvocationHandler.deleted = true;
+    }
+
+    boolean isInitialized(SecureEntity secureEntity) {
+        EntityInvocationHandler entityInvocationHandler
+            = (EntityInvocationHandler)proxyFactory.getMethodInterceptor(secureEntity);
+        return entityInvocationHandler.isInitialized();
+    }
+
+    void initialize(SecureEntity secureEntity) {
+        EntityInvocationHandler entityInvocationHandler
+            = (EntityInvocationHandler)proxyFactory.getMethodInterceptor(secureEntity);
+        entityInvocationHandler.refresh();
     }
 
     private Collection<Object> createCollection(Object original) {

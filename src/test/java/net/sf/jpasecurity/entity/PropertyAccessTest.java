@@ -229,7 +229,7 @@ public class PropertyAccessTest extends TestCase {
         bean = entityManager.find(MethodAccessAnnotationTestBean.class, bean.getId());
         
         assertEquals(0, bean.getNamePropertyReadCount());
-        assertEquals(1, bean.getNamePropertyWriteCount()); // one write on the target, that state is copied and then another write on the proxy
+        assertEquals(1, bean.getNamePropertyWriteCount());
         bean.getName();
         assertEquals(1, bean.getNamePropertyReadCount());
         assertEquals(1, bean.getNamePropertyWriteCount());

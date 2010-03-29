@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.SecureEntity;
@@ -78,6 +79,38 @@ public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<
             }
 
             public void clear() {
+            }
+
+            public boolean contains(Object entity) {
+                return false;
+            }
+
+            public void lock(Object entity, LockModeType lockMode) {
+            }
+
+            public <E> E merge(E entity) {
+                return entity;
+            }
+
+            public void persist(Object object) {
+            }
+
+            public void refresh(Object entity) {
+            }
+
+            public void remove(Object entity) {
+            }
+
+            public Query setParameter(Query query, int index, Object value) {
+                return query.setParameter(index, value);
+            }
+
+            public Query setParameter(Query query, String name, Object value) {
+                return query.setParameter(name, value);
+            }
+
+            public <E> E getReference(Class<E> type, Object id) {
+                return null;
             }
         }, mappingInformation, accessRules);
     }
