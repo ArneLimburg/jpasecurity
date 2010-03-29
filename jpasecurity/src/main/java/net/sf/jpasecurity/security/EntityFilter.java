@@ -157,9 +157,13 @@ public class EntityFilter {
                                                             parameters,
                                                             Collections.EMPTY_MAP,
                                                             objectManager);
-            if (queryEvaluator.evaluate(accessRules, evaluationParameters)) {
+            boolean result = queryEvaluator.evaluate(accessRules, evaluationParameters);
+            if (result) {
                 LOG.info("Access rules are always true for current user and roles. Returning unfiltered query");
                 return new FilterResult(query);
+            } else {
+                LOG.info("Access rules are always false for current user and roles. Returning empty result");
+                return new FilterResult();
             }
         } catch (NotEvaluatableException e) {
             //access rules need to be applied then
