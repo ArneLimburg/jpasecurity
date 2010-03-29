@@ -24,7 +24,6 @@ import java.util.Set;
 import javax.persistence.FlushModeType;
 import javax.persistence.Query;
 
-import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
@@ -67,18 +66,18 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
     }
 
     public Query setParameter(int index, Object parameter) {
-        if (parameter instanceof SecureEntity) {
-            return ((SecureEntity)parameter).setParameter(getTarget(), index);
-        } else {
+        if (parameter != null && isSimplePropertyType(parameter.getClass())) {
             return getTarget().setParameter(index, parameter);
+        } else {
+            return objectManager.setParameter(getTarget(), index, parameter);
         }
     }
 
     public Query setParameter(String name, Object parameter) {
-        if (parameter instanceof SecureEntity) {
-            return ((SecureEntity)parameter).setParameter(getTarget(), name);
-        } else {
+        if (parameter != null && isSimplePropertyType(parameter.getClass())) {
             return getTarget().setParameter(name, parameter);
+        } else {
+            return objectManager.setParameter(getTarget(), name, parameter);
         }
     }
 

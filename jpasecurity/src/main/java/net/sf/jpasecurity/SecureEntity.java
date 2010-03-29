@@ -15,9 +15,6 @@
  */
 package net.sf.jpasecurity;
 
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.Query;
 
 /**
  * This is an interface implemented by every entity
@@ -27,12 +24,8 @@ import javax.persistence.Query;
 public interface SecureEntity extends SecureObject {
 
     boolean isAccessible(AccessType accessType);
-    boolean isContained(EntityManager entityManager);
     boolean isRemoved();
+    void refresh();
     void flush();
-    void refresh(EntityManager entityManager);
-    void lock(EntityManager entityManager, LockModeType lockMode);
-    void remove(EntityManager entityManager);
-    Query setParameter(Query query, int index);
-    Query setParameter(Query query, String name);
+
 }
