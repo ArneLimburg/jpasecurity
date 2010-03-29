@@ -20,6 +20,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
@@ -32,6 +33,14 @@ public class QueryTest extends TestCase {
 
     public static final String USER1 = "user1";
     public static final String USER2 = "user2";
+    
+    public void testEmptyResult() {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("xml-based-field-access");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        Query query = entityManager.createQuery("select bean from FieldAccessXmlTestBean bean");
+        assertTrue(query instanceof EmptyResultQuery);
+        assertEquals(0, query.getResultList().size());
+    }
     
     public void testScalarResult() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("annotation-based-method-access");
