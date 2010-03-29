@@ -17,7 +17,7 @@ package net.sf.jpasecurity.security;
 
 import java.util.Map;
 
-import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluationParameters;
 import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluator;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiledStatement;
@@ -47,13 +47,13 @@ public class QueryOptimizer {
                           Map<String, Object> namedParameters,
                           Map<Integer, Object> positionalParameters,
                           InMemoryEvaluator evaluator,
-                          SecureObjectManager objectManager) {
+                          SecureObjectCache objectCache) {
         this.evaluator = evaluator;
         this.parameters = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
                                                                     aliases,
                                                                     namedParameters,
                                                                     positionalParameters,
-                                                                    objectManager);
+                                                                    objectCache);
     }
 
     public void optimize(JpqlCompiledStatement compiledStatement) {

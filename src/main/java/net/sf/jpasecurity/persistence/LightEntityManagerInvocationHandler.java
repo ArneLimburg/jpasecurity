@@ -25,11 +25,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
-import net.sf.jpasecurity.SecureEntity;
-import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.security.AccessRule;
@@ -54,63 +52,9 @@ public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<
         super(entityManager);
         this.mappingInformation = mappingInformation;
         this.authenticationProvider = authenticationProvider;
-        this.entityFilter = new EntityFilter(entityManager, new SecureObjectManager() {
-
-            public boolean isSecureObject(Object object) {
-                return false;
-            }
-
-            public <E> E getSecureObject(E object) {
-                return object;
-            }
-
+        this.entityFilter = new EntityFilter(entityManager, new SecureObjectCache() {
             public <E> Collection<E> getSecureObjects(Class<E> type) {
-                return Collections.emptyList();
-            }
-
-            public SecureEntity merge(SecureEntity entity) {
-                return entity;
-            }
-
-            public void preFlush() {
-            }
-
-            public void postFlush() {
-            }
-
-            public void clear() {
-            }
-
-            public boolean contains(Object entity) {
-                return false;
-            }
-
-            public void lock(Object entity, LockModeType lockMode) {
-            }
-
-            public <E> E merge(E entity) {
-                return entity;
-            }
-
-            public void persist(Object object) {
-            }
-
-            public void refresh(Object entity) {
-            }
-
-            public void remove(Object entity) {
-            }
-
-            public Query setParameter(Query query, int index, Object value) {
-                return query.setParameter(index, value);
-            }
-
-            public Query setParameter(Query query, String name, Object value) {
-                return query.setParameter(name, value);
-            }
-
-            public <E> E getReference(Class<E> type, Object id) {
-                return null;
+                return Collections.emptySet();
             }
         }, mappingInformation, accessRules);
     }

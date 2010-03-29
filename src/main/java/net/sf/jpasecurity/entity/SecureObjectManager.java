@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2010 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,16 @@
  */
 package net.sf.jpasecurity.entity;
 
-import java.util.Collection;
-
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
 /**
  * @author Arne Limburg
  */
-public interface SecureObjectManager {
+public interface SecureObjectManager extends SecureObjectCache {
 
     boolean isSecureObject(Object object);
     <E> E getSecureObject(E object);
-    <E> Collection<E> getSecureObjects(Class<E> type);
     <E> E getReference(Class<E> type, Object id);
     void persist(Object object);
     <E> E merge(E entity);
