@@ -34,7 +34,7 @@ import java.util.Set;
 
 import javax.persistence.NoResultException;
 
-import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.parser.JpqlAbs;
 import net.sf.jpasecurity.jpql.parser.JpqlAdd;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
@@ -879,7 +879,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                                                             aliases,
                                                             data.getNamedParameters(),
                                                             data.getPositionalParameters(),
-                                                            data.getObjectManager());
+                                                            data.getObjectCache());
             if (evaluate(subselect.getWhereClause(), whereClauseEvaluation)) {
                 try {
                     data.setResult(Collections.singleton(getPathValue(subselect.getSelectedPaths().get(0), aliases)));
@@ -892,10 +892,10 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             return false;
         } catch (NotEvaluatableException notEvaluatableException) {
             //we try to evaluate with the session-data from the objectManager
-            SecureObjectManager objectManager = data.getObjectManager();
+            SecureObjectCache objectCache = data.getObjectCache();
             try {
                 ListMap<String, Object> aliasValues
-                    = evaluateAliasValues(subselect.getTypeDefinitions(), objectManager);
+                    = evaluateAliasValues(subselect.getTypeDefinitions(), objectCache);
                 for (Iterator<Map<String, Object>> i = new ValueIterator(aliasValues); i.hasNext();) {
                     Map<String, Object> aliases = new HashMap<String, Object>(data.getAliasValues());
                     aliases.putAll(i.next());
@@ -906,7 +906,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                                                                         aliases,
                                                                         data.getNamedParameters(),
                                                                         data.getPositionalParameters(),
-                                                                        objectManager);
+                                                                        objectCache);
                         if (subselect.getWhereClause() == null || evaluate(subselect.getWhereClause(), parameters)) {
                             if (subselect.getSelectedPaths().size() != 1) {
                                 throw new IllegalStateException("Illegal number of select-pathes: expected 1, but was " + subselect.getSelectedPaths().size());
@@ -984,12 +984,12 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     private ListMap<String, Object> evaluateAliasValues(Set<TypeDefinition> typeDefinitions,
-                                                        SecureObjectManager objectManager) {
+                                                        SecureObjectCache objectCache) {
         ListMap<String, Object> aliasValues = new ListHashMap<String, Object>();
         for (TypeDefinition typeDefinition: typeDefinitions) {
             String alias = typeDefinition.getAlias();
             if (alias != null && !typeDefinition.isJoin()) {
-                aliasValues.addAll(alias, objectManager.getSecureObjects(typeDefinition.getType()));
+                aliasValues.addAll(alias, objectCache.getSecureObjects(typeDefinition.getType()));
             }
         }
         return aliasValues;

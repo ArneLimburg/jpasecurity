@@ -30,7 +30,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.AccessType;
-import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.compiler.EntityManagerEvaluator;
 import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluationParameters;
 import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluator;
@@ -69,7 +69,7 @@ public class EntityFilter {
     private final MappingInformation mappingInformation;
     private final JpqlParser parser;
     private final JpqlCompiler compiler;
-    private final SecureObjectManager objectManager;
+    private final SecureObjectCache objectCache;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final InMemoryEvaluator queryEvaluator;
     private final EntityManagerEvaluator entityManagerEvaluator;
@@ -78,25 +78,25 @@ public class EntityFilter {
     private final List<AccessRule> accessRules;
 
     public EntityFilter(EntityManager entityManager,
-                        SecureObjectManager objectManager,
+                        SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
                         List<AccessRule> accessRules) {
         this(entityManager,
-             objectManager,
+             objectCache,
              mappingInformation,
              new MappedPathEvaluator(mappingInformation),
              accessRules);
     }
 
     public EntityFilter(EntityManager entityManager,
-                        SecureObjectManager objectManager,
+                        SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
                         PathEvaluator pathEvaluator,
                         List<AccessRule> accessRules) {
         this.mappingInformation = mappingInformation;
         this.parser = new JpqlParser();
         this.compiler = new JpqlCompiler(mappingInformation);
-        this.objectManager = objectManager;
+        this.objectCache = objectCache;
         this.queryEvaluator = new InMemoryEvaluator(compiler, pathEvaluator);
         this.entityManagerEvaluator = new EntityManagerEvaluator(entityManager, compiler, pathEvaluator);
         this.accessRules = accessRules;
@@ -121,7 +121,7 @@ public class EntityFilter {
                                                         Collections.singletonMap(alias, entity),
                                                         parameters,
                                                         Collections.EMPTY_MAP,
-                                                        objectManager);
+                                                        objectCache);
         return entityManagerEvaluator.evaluate(accessRulesNode, evaluationParameters);
     }
 
@@ -156,7 +156,7 @@ public class EntityFilter {
                                                             Collections.EMPTY_MAP,
                                                             parameters,
                                                             Collections.EMPTY_MAP,
-                                                            objectManager);
+                                                            objectCache);
             boolean result = queryEvaluator.evaluate(accessRules, evaluationParameters);
             if (result) {
                 LOG.info("Access rules are always true for current user and roles. Returning unfiltered query");
@@ -194,7 +194,7 @@ public class EntityFilter {
                                                       parameters,
                                                       Collections.EMPTY_MAP,
                                                       queryEvaluator,
-                                                      objectManager);
+                                                      objectCache);
         optimizer.optimize(accessRules);
         Set<String> parameterNames = compiler.getNamedParameters(accessRules);
         parameters.keySet().retainAll(parameterNames);

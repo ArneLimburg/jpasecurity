@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
@@ -33,25 +33,25 @@ public class InMemoryEvaluationParameters<T> {
     private Map<String, Object> aliases;
     private Map<String, Object> namedParameters;
     private Map<Integer, Object> positionalParameters;
-    private SecureObjectManager objectManager;
+    private SecureObjectCache objectCache;
     private T result = (T)UNDEFINED;
 
     public InMemoryEvaluationParameters(MappingInformation mappingInformation,
                                         Map<String, Object> aliases,
                                         Map<String, Object> namedParameters,
                                         Map<Integer, Object> positionalParameters,
-                                        SecureObjectManager objectManager) {
+                                        SecureObjectCache objectCache) {
         if (mappingInformation == null) {
             throw new IllegalArgumentException("mappingInformation may not be null");
         }
-        if (objectManager == null) {
+        if (objectCache == null) {
             throw new IllegalArgumentException("objectManager may not be null");
         }
         this.mappingInformation = mappingInformation;
         this.aliases = aliases;
         this.namedParameters = namedParameters;
         this.positionalParameters = positionalParameters;
-        this.objectManager = objectManager;
+        this.objectCache = objectCache;
     }
 
     public InMemoryEvaluationParameters(InMemoryEvaluationParameters parameters) {
@@ -59,7 +59,7 @@ public class InMemoryEvaluationParameters<T> {
              parameters.aliases,
              parameters.namedParameters,
              parameters.positionalParameters,
-             parameters.objectManager);
+             parameters.objectCache);
     }
 
     public MappingInformation getMappingInformation() {
@@ -103,8 +103,8 @@ public class InMemoryEvaluationParameters<T> {
         return positionalParameters.get(index);
     }
 
-    public SecureObjectManager getObjectManager() {
-        return objectManager;
+    public SecureObjectCache getObjectCache() {
+        return objectCache;
     }
 
     public boolean isResultUndefined() {
