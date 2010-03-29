@@ -54,18 +54,25 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
             methodCache.put(method, null);
             return false;
         }
+        Method targetMethod = findTargetMethod(getClass(), method);
+        methodCache.put(method, targetMethod);
+        return targetMethod != null;
+    }
+
+    private Method findTargetMethod(Class<?> type, Method method) {
+        if (type == null) {
+            return null;
+        }
         try {
-            Method targetMethod = getClass().getDeclaredMethod(method.getName(), method.getParameterTypes());
-            if (!method.getReturnType().isAssignableFrom(targetMethod.getReturnType())
-                && !targetMethod.getReturnType().isAssignableFrom(method.getReturnType())) {
-                methodCache.put(method, null);
-                return false;
+            Method targetMethod = type.getDeclaredMethod(method.getName(), method.getParameterTypes());
+            if (method.getReturnType().isAssignableFrom(targetMethod.getReturnType())
+                || targetMethod.getReturnType().isAssignableFrom(method.getReturnType())) {
+                return targetMethod;
+            } else {
+                return null;
             }
-            methodCache.put(method, targetMethod);
-            return true;
         } catch (NoSuchMethodException e) {
-            methodCache.put(method, null);
-            return false;
+            return findTargetMethod(type.getSuperclass(), method);
         }
     }
 
