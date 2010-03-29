@@ -35,7 +35,9 @@ import net.sf.jpasecurity.util.ProxyInvocationHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-/** @author Arne Limburg */
+/**
+ * @author Arne Limburg
+ */
 public class SecurePersistenceProvider implements PersistenceProvider {
 
     public static final String PERSISTENCE_PROVIDER_PROPERTY
@@ -126,9 +128,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
                                                                  AuthenticationProvider authenticationProvider,
                                                                  AccessRulesProvider accessRulesProvider,
                                                                  SecureEntityProxyFactory proxyFactory) {
-        final String persistenceUnitType =
-            persistenceUnitInfo.getProperties().getProperty(SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY,
-                SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT);
+        String persistenceUnitType = getPersistenceUnitTypeProperty(persistenceUnitInfo, properties);
         ProxyInvocationHandler<EntityManagerFactory> invocationHandler = null;
         if (SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT.equals(persistenceUnitType)) {
             invocationHandler = new EntityManagerFactoryInvocationHandler(nativeEntityManagerFactory,
@@ -176,6 +176,20 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             properties = new HashMap<String, String>(properties);
             properties.put(PERSISTENCE_PROVIDER_PROPERTY, persistenceProvider.getClass().getName());
             return properties;
+        }
+    }
+
+    private String getPersistenceUnitTypeProperty(PersistenceUnitInfo persistenceUnitInfo,
+                                                            Map<String, String> properties) {
+        String property = properties.get(SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY);
+        if (property != null) {
+            return property;
+        }
+        property = (String)persistenceUnitInfo.getProperties().get(SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY);
+        if (SECURE_PERSISTENCE_PROVIDER_TYPE_LIGHT.equals(property)) {
+            return SECURE_PERSISTENCE_PROVIDER_TYPE_LIGHT;
+        } else {
+            return SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT;
         }
     }
 

@@ -37,7 +37,12 @@ import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
+/**
+ * @author Stefan Hildebrandt
+ * @author Arne Limburg
+ */
 public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<EntityManager> {
+
     private MappingInformation mappingInformation;
     private AuthenticationProvider authenticationProvider;
     private EntityFilter entityFilter;
