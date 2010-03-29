@@ -72,6 +72,10 @@ public class SecureObjectCache extends EntityPersister {
         return secureMap;
     }
 
+    public <E> E getReference(Class<E> type, Object id) {
+        return getSecureEntity(entityManager.getReference(type, id), id);
+    }
+
     public <E> E getSecureObject(E unsecureObject) {
         if (unsecureObject == null) {
             return null;
@@ -86,21 +90,8 @@ public class SecureObjectCache extends EntityPersister {
         if (classMapping == null) {
             throw new PersistenceException("Unknown entity type " + unsecureObject.getClass());
         }
-        Map<Object, SecureEntity> entities = secureEntities.get(classMapping);
-        if (entities == null) {
-            entities = new HashMap<Object, SecureEntity>();
-            secureEntities.put(classMapping, entities);
-        }
         Object id = classMapping.getId(unsecureObject);
-        SecureEntity entity = entities.get(id);
-        if (entity != null) {
-            return (E)entity;
-        }
-        Object secureObject = super.getSecureObject(unsecureObject);
-        if (secureObject instanceof SecureEntity) {
-            entities.put(id, (SecureEntity)secureObject);
-        }
-        return (E)secureObject;
+        return getSecureEntity(unsecureObject, id);
     }
 
     public <E> Collection<E> getSecureObjects(Class<E> type) {
@@ -118,7 +109,9 @@ public class SecureObjectCache extends EntityPersister {
         super.preFlush();
         for (Map<Object, SecureEntity> entities: secureEntities.values().toArray(new Map[secureEntities.size()])) {
             for (SecureEntity entity: entities.values().toArray(new SecureEntity[entities.size()])) {
-                entity.flush();
+                if (isInitialized(entity)) {
+                    entity.flush();
+                }
             }
         }
         //we must not flush collections here, since they are flushed by their owning entities
@@ -140,5 +133,26 @@ public class SecureObjectCache extends EntityPersister {
         secureEntities.clear();
         secureCollections.clear();
         secureMaps.clear();
+    }
+
+    private <E> E getSecureEntity(E unsecureObject, Object id) {
+        ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
+        if (classMapping == null) {
+            throw new PersistenceException("Unknown entity type " + unsecureObject.getClass());
+        }
+        Map<Object, SecureEntity> entities = secureEntities.get(classMapping);
+        if (entities == null) {
+            entities = new HashMap<Object, SecureEntity>();
+            secureEntities.put(classMapping, entities);
+        }
+        SecureEntity entity = entities.get(id);
+        if (entity != null) {
+            return (E)entity;
+        }
+        Object secureObject = super.getSecureObject(unsecureObject);
+        if (secureObject instanceof SecureEntity) {
+            entities.put(id, (SecureEntity)secureObject);
+        }
+        return (E)secureObject;
     }
 }

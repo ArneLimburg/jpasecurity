@@ -17,7 +17,8 @@ package net.sf.jpasecurity.entity;
 
 import java.util.Collection;
 
-import net.sf.jpasecurity.SecureEntity;
+import javax.persistence.LockModeType;
+import javax.persistence.Query;
 
 /**
  * @author Arne Limburg
@@ -27,7 +28,15 @@ public interface SecureObjectManager {
     boolean isSecureObject(Object object);
     <E> E getSecureObject(E object);
     <E> Collection<E> getSecureObjects(Class<E> type);
-    SecureEntity merge(SecureEntity entity);
+    <E> E getReference(Class<E> type, Object id);
+    void persist(Object object);
+    <E> E merge(E entity);
+    boolean contains(Object entity);
+    void refresh(Object entity);
+    void lock(Object entity, LockModeType lockMode);
+    void remove(Object entity);
+    Query setParameter(Query query, int index, Object value);
+    Query setParameter(Query query, String name, Object value);
     void preFlush();
     void postFlush();
     void clear();

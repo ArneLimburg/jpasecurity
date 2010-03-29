@@ -26,6 +26,8 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.Query;
 
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
@@ -42,7 +44,7 @@ import net.sf.jpasecurity.util.SystemMapKey;
  */
 public class EntityPersister extends AbstractSecureObjectManager {
 
-    private EntityManager entityManager;
+    protected final EntityManager entityManager;
     private Map<SystemMapKey, Object> secureEntities = new HashMap<SystemMapKey, Object>();
     private Map<SystemMapKey, Object> unsecureEntities = new HashMap<SystemMapKey, Object>();
 
@@ -56,35 +58,73 @@ public class EntityPersister extends AbstractSecureObjectManager {
 
     public void persist(Object secureEntity) {
         Object unsecureEntity = getUnsecureObject(secureEntity);
-        cascade(secureEntity, unsecureEntity, CascadeType.PERSIST, new HashSet<Object>());
+        cascade(secureEntity, unsecureEntity, CascadeType.PERSIST, new HashSet<SystemMapKey>());
+        preFlush();
         entityManager.persist(unsecureEntity);
-        copyIdAndVersion(unsecureEntity, secureEntity);
+        postFlush();
     }
 
-    public SecureEntity merge(SecureEntity entity) {
-        checkAccess(AccessType.UPDATE, entity);
-        Object unsecureEntity = entityManager.merge(getUnsecureObject(entity));
-        cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<Object>());
-        SecureEntity secureEntity = (SecureEntity)getSecureObject(unsecureEntity);
+    public <T> T merge(T entity) {
+        boolean isNew = isNew(entity);
+        preFlush();
+        T unsecureEntity = getUnsecureObject(entity);
+        if (isNew) {
+            cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<SystemMapKey>());
+        }
+        unsecureEntity = entityManager.merge(unsecureEntity);
+        postFlush();
+        if (!isNew) {
+            cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<SystemMapKey>());
+        }
+        T secureEntity = getSecureObject(unsecureEntity);
         initialize(secureEntity, unsecureEntity, CascadeType.MERGE, new HashSet<Object>());
+        if (isNew) {
+            unsecureEntities.put(new SystemMapKey(secureEntity), unsecureEntity);
+        }
         return secureEntity;
     }
 
-    public <T> T merge(T newEntity) {
-        T unsecureEntity = getUnsecureObject(newEntity);
-        cascade(newEntity, unsecureEntity, CascadeType.MERGE, new HashSet<Object>());
-        T mergedEntity = entityManager.merge(unsecureEntity);
-        T secureEntity = getSecureObject(mergedEntity);
-        initialize(secureEntity, mergedEntity, CascadeType.MERGE, new HashSet<Object>());
-        unsecureEntities.put(new SystemMapKey(secureEntity), mergedEntity);
-        return secureEntity;
+    public boolean contains(Object entity) {
+        return entityManager.contains(getUnsecureObject(entity));
     }
 
-    public void removeNew(final Object newEntity) {
-        checkAccess(AccessType.DELETE, newEntity);
-        Object unsecureEntity = getUnsecureObject(newEntity);
-        cascadeRemove(newEntity, unsecureEntity, new HashSet<Object>());
+    public void refresh(Object entity) {
+        checkAccess(AccessType.READ, entity);
+        Object unsecureEntity = getUnsecureObject(entity);
+        preFlush();
+        entityManager.refresh(unsecureEntity);
+        postFlush();
+        if (entity instanceof SecureEntity) {
+            initialize((SecureEntity)entity);
+        }
+        cascadeRefresh(entity, unsecureEntity, new HashSet<SystemMapKey>());
+    }
+
+    public void lock(Object entity, LockModeType lockMode) {
+        if (lockMode == LockModeType.READ && !isAccessible(AccessType.READ, entity)) {
+            throw new SecurityException("specified entity is not readable for locking");
+        } else if (lockMode == LockModeType.WRITE && !isAccessible(AccessType.UPDATE, entity)) {
+            throw new SecurityException("specified entity is not updateable for locking");
+        }
+        entityManager.lock(getUnsecureObject(entity), lockMode);
+    }
+
+    public void remove(Object entity) {
+        checkAccess(AccessType.DELETE, entity);
+        Object unsecureEntity = getUnsecureObject(entity);
+        cascadeRemove(entity, unsecureEntity, new HashSet<SystemMapKey>());
+        if (entity instanceof SecureEntity) {
+            setRemoved((SecureEntity)entity);
+        }
         entityManager.remove(unsecureEntity);
+    }
+
+    public Query setParameter(Query query, int index, Object value) {
+        return query.setParameter(index, getUnsecureObject(value));
+    }
+
+    public Query setParameter(Query query, String name, Object value) {
+        return query.setParameter(name, getUnsecureObject(value));
     }
 
     public void preFlush() {
@@ -121,6 +161,10 @@ public class EntityPersister extends AbstractSecureObjectManager {
         return Collections.unmodifiableCollection(result);
     }
 
+    public <T> T getReference(Class<T> type, Object id) {
+        return getSecureObject(entityManager.getReference(type, id));
+    }
+
     public <T> T getSecureObject(T unsecureObject) {
         if (unsecureObject == null) {
             return null;
@@ -151,10 +195,14 @@ public class EntityPersister extends AbstractSecureObjectManager {
         secureEntities.put(new SystemMapKey(unsecureEntity), secureEntity);
         unsecureEntities.put(new SystemMapKey(secureEntity), unsecureEntity);
         unsecureCopy(accessType, secureEntity, unsecureEntity);
+        copyIdAndVersion(secureEntity, unsecureEntity);
         return (T)unsecureEntity;
     }
 
     boolean isNew(Object entity) {
+        if (entity instanceof SecureEntity) {
+            return false;
+        }
         final ClassMappingInformation classMapping = getClassMapping(entity.getClass());
         Object id = classMapping.getId(entity);
         if (id == null) {
@@ -166,15 +214,15 @@ public class EntityPersister extends AbstractSecureObjectManager {
     void cascade(Object secureEntity,
                  Object unsecureEntity,
                  CascadeType cascadeType,
-                 Set<Object> alreadyCascadedEntities) {
+                 Set<SystemMapKey> alreadyCascadedEntities) {
         if (cascadeType == CascadeType.REMOVE) {
             cascadeRemove(secureEntity, unsecureEntity, alreadyCascadedEntities);
             return;
         }
-        if (secureEntity == null || alreadyCascadedEntities.contains(secureEntity)) {
+        if (secureEntity == null || alreadyCascadedEntities.contains(new SystemMapKey(secureEntity))) {
             return;
         }
-        alreadyCascadedEntities.add(secureEntity);
+        alreadyCascadedEntities.add(new SystemMapKey(secureEntity));
         AccessType accessType = isNew(secureEntity)? AccessType.CREATE: AccessType.UPDATE;
         unsecureCopy(accessType, secureEntity, unsecureEntity);
         ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
@@ -206,11 +254,11 @@ public class EntityPersister extends AbstractSecureObjectManager {
         }
     }
 
-    private void cascadeRemove(Object secureEntity, Object unsecureEntity, Set<Object> alreadyCascadedEntities) {
-        if (secureEntity == null || alreadyCascadedEntities.contains(secureEntity)) {
+    private void cascadeRemove(Object secureEntity, Object unsecureEntity, Set<SystemMapKey> alreadyCascadedEntities) {
+        if (secureEntity == null || alreadyCascadedEntities.contains(new SystemMapKey(secureEntity))) {
             return;
         }
-        alreadyCascadedEntities.add(secureEntity);
+        alreadyCascadedEntities.add(new SystemMapKey(secureEntity));
         checkAccess(AccessType.DELETE, secureEntity);
         fireRemove(getClassMapping(secureEntity.getClass()), secureEntity);
         secureEntities.remove(new SystemMapKey(unsecureEntity));
@@ -227,6 +275,39 @@ public class EntityPersister extends AbstractSecureObjectManager {
                         if (secureValue instanceof SecureEntity) {
                             setRemoved((SecureEntity)secureValue);
                         }
+                    } else {
+                        //use the unsecure collection here since the secure may be filtered
+                        Collection<Object> unsecureCollection
+                            = (Collection<Object>)propertyMapping.getPropertyValue(unsecureEntity);
+                        for (Object unsecureEntry: unsecureCollection) {
+                            cascadeRemove(getSecureObject(unsecureEntry), unsecureEntry, alreadyCascadedEntities);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void cascadeRefresh(Object secureEntity, Object unsecureEntity, Set<SystemMapKey> alreadyCascadedEntities) {
+        if (secureEntity == null || alreadyCascadedEntities.contains(new SystemMapKey(secureEntity))) {
+            return;
+        }
+        alreadyCascadedEntities.add(new SystemMapKey(secureEntity));
+        ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
+        for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
+            if (propertyMapping.isRelationshipMapping()
+                && (propertyMapping.getCascadeTypes().contains(CascadeType.REFRESH)
+                    || propertyMapping.getCascadeTypes().contains(CascadeType.ALL))) {
+                Object secureValue = propertyMapping.getPropertyValue(secureEntity);
+                if (secureValue != null) {
+                    if (propertyMapping.isSingleValued()) {
+                        Object unsecureValue = getUnsecureObject(secureValue);
+                        if (secureValue instanceof SecureEntity) {
+                            initialize((SecureEntity)secureValue);
+                        } else {
+                            secureCopy(unsecureValue, secureValue);
+                        }
+                        cascadeRefresh(secureValue, unsecureValue, alreadyCascadedEntities);
                     } else {
                         //use the unsecure collection here since the secure may be filtered
                         Collection<Object> unsecureCollection

@@ -23,8 +23,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
-import javax.persistence.PersistenceException;
-
 /**
  * @author Arne Limburg
  */
@@ -169,7 +167,7 @@ public abstract class ReflectionUtils {
         } else if (throwable instanceof RuntimeException) {
             throw (RuntimeException)throwable;
         } else if (throwable instanceof InvocationTargetException) {
-            throw new PersistenceException(((InvocationTargetException)throwable).getTargetException());
+            return throwThrowable(((InvocationTargetException)throwable).getTargetException());
         } else {
             throw new SecurityException(throwable);
         }

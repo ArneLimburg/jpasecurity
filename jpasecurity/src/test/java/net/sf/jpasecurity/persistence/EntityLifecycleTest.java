@@ -82,17 +82,16 @@ public class EntityLifecycleTest extends TestCase {
         closeEntityManager();
 
         openEntityManager();
+        child = entityManager.merge(child);
         FieldAccessAnnotationTestBean parent = new FieldAccessAnnotationTestBean(USER);
         parent.getChildBeans().add(child);
         child.setParentBean(parent);
-
-        assertLifecycleCount(child, 1, 0, 0, 0);
         
         entityManager.persist(parent);
         
         closeEntityManager();
 
-        assertLifecycleCount(child, 1, 0, 1, 0);
+        assertLifecycleCount(child, 0, 0, 1, 1);
     }
 
     public void testMergeNew() {
@@ -123,7 +122,7 @@ public class EntityLifecycleTest extends TestCase {
         
         closeEntityManager();
 
-        assertLifecycleCount(child, 0, 0, 0, 1);
+        assertLifecycleCount(child, 1, 0, 0, 0);
     }
     
     public void testRemove() {

@@ -34,8 +34,8 @@ import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureEntityManager;
+import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
-import net.sf.jpasecurity.entity.EntityPersister;
 import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.entity.SecureObjectManager;
@@ -51,6 +51,7 @@ import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 import net.sf.jpasecurity.util.ReflectionUtils;
+import net.sf.jpasecurity.util.SystemMapKey;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,7 +68,6 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     private AuthenticationProvider authenticationProvider;
     private MappingInformation mappingInformation;
     private SecureObjectManager secureObjectManager;
-    private EntityPersister entityPersister;
     private EntityFilter entityFilter;
     private int maxFetchDepth;
 
@@ -77,52 +77,40 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                                              SecureEntityProxyFactory proxyFactory,
                                              List<AccessRule> accessRules,
                                              int maxFetchDepth) {
-        this(entityManager, mapping, authenticationProvider, null, null, proxyFactory, accessRules, maxFetchDepth);
+        this(entityManager, mapping, authenticationProvider, null, proxyFactory, accessRules, maxFetchDepth);
     }
 
     protected EntityManagerInvocationHandler(EntityManager entityManager,
                                              MappingInformation mappingInformation,
                                              AuthenticationProvider authenticationProvider,
                                              SecureObjectManager secureObjectManager,
-                                             EntityPersister entityPersister,
                                              SecureEntityProxyFactory secureEntityProxyFactory,
                                              List<AccessRule> accessRules,
                                              int maxFetchDepth) {
         super(entityManager);
-        if (entityPersister == null) {
-            entityPersister = new SecureObjectCache(mappingInformation, entityManager, this, secureEntityProxyFactory);
-        }
         if (secureObjectManager == null) {
-            secureObjectManager = entityPersister;
+            secureObjectManager
+                = new SecureObjectCache(mappingInformation, entityManager, this, secureEntityProxyFactory);
         }
         this.authenticationProvider = authenticationProvider;
         this.mappingInformation = mappingInformation;
         this.secureObjectManager = secureObjectManager;
-        this.entityPersister = entityPersister;
         this.entityFilter = new EntityFilter(entityManager, secureObjectManager, mappingInformation, accessRules);
         this.maxFetchDepth = maxFetchDepth;
     }
 
     public void persist(Object entity) {
-        entityPersister.persist(entity);
+        secureObjectManager.persist(entity);
     }
 
     public <T> T merge(T entity) {
-        if (entity instanceof SecureEntity) {
-            return (T)entityPersister.merge((SecureEntity)entity);
-        } else {
-            return entityPersister.merge(entity);
-        }
+        return secureObjectManager.merge(entity);
     }
 
     public void remove(Object entity) {
-        entityPersister.preFlush();
-        if (entity instanceof SecureEntity) {
-            ((SecureEntity)entity).remove(getTarget());
-        } else {
-            entityPersister.removeNew(entity);
-        }
-        entityPersister.postFlush();
+        secureObjectManager.preFlush();
+        secureObjectManager.remove(entity);
+        secureObjectManager.postFlush();
     }
 
     public <T> T find(Class<T> type, Object id) {
@@ -136,32 +124,30 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             throw new SecurityException("The current user is not permitted to find the specified entity of type " + entity.getClass());
         }
         entity = secureObjectManager.getSecureObject(entity);
+        if (entity instanceof SecureEntity) {
+            SecureEntity secureEntity = (SecureEntity)entity;
+            if (!secureEntity.isInitialized()) {
+                secureEntity.refresh();
+            }
+        }
         fetch(entity, getMaximumFetchDepth());
         return entity;
     }
 
     public void refresh(Object entity) {
-        if (entity instanceof SecureEntity) {
-            ((SecureEntity)entity).refresh(getTarget());
-        } else {
-            throw new IllegalArgumentException("entity not managed");
-        }
+        secureObjectManager.refresh(entity);
     }
 
     public <T> T getReference(Class<T> type, Object id) {
-        return find(type, id);
+        return secureObjectManager.getSecureObject(getTarget().getReference(type, id));
     }
 
     public void lock(Object entity, LockModeType lockMode) {
-        if (entity instanceof SecureEntity) {
-            ((SecureEntity)entity).lock(getTarget(), lockMode);
-        } else {
-            throw new IllegalArgumentException("entity is not managed");
-        }
+        secureObjectManager.lock(entity, lockMode);
     }
 
     public boolean contains(Object entity) {
-        return (entity instanceof SecureEntity) && ((SecureEntity)entity).isContained(getTarget());
+        return secureObjectManager.contains(entity);
     }
 
     public Query createNamedQuery(String name) {
@@ -230,15 +216,15 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public void fetch(Object entity, int depth) {
-        fetch(entity, depth, new HashSet<Object>());
+        fetch(entity, depth, new HashSet<SystemMapKey>());
     }
 
-    private void fetch(Object entity, int depth, Set<Object> alreadyFetchedEntities) {
-        if (entity == null || depth == 0 || alreadyFetchedEntities.contains(entity)) {
+    private void fetch(Object entity, int depth, Set<SystemMapKey> alreadyFetchedEntities) {
+        if (entity == null || depth == 0 || alreadyFetchedEntities.contains(new SystemMapKey(entity))) {
             return;
         }
         depth = Math.min(depth, getMaximumFetchDepth());
-        alreadyFetchedEntities.add(entity);
+        alreadyFetchedEntities.add(new SystemMapKey(entity));
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         if (mapping == null) {
             LOG.debug("No class mapping found for entity " + entity);
@@ -275,7 +261,11 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                 transientParameters[i] = parameters[i];
             } else {
                 EntityInvocationHandler transientInvocationHandler
-                    = new EntityInvocationHandler(mappingInformation, this, entityPersister, parameters[i], true);
+                    = new EntityInvocationHandler(mappingInformation,
+                                                  this,
+                                                  (AbstractSecureObjectManager)secureObjectManager,
+                                                  parameters[i],
+                                                  true);
                 transientParameters[i] = transientInvocationHandler.createSecureEntity();
             }
         }
@@ -289,22 +279,6 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         } catch (NotEvaluatableException e) {
             throw new SecurityException(e);
         }
-    }
-
-    public boolean isDetachedEntity(Object entity) {
-        if (!(entity instanceof SecureEntity)) {
-            return false;
-        }
-        SecureEntity secureEntity = (SecureEntity)entity;
-        return !secureEntity.isContained(getTarget());
-    }
-
-    public boolean isManagedEntity(Object entity) {
-        if (!(entity instanceof SecureEntity)) {
-            return false;
-        }
-        SecureEntity secureEntity = (SecureEntity)entity;
-        return secureEntity.isContained(getTarget());
     }
 
     public boolean isDeletedEntity(Object entity) {
@@ -325,7 +299,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             ClassMappingInformation userClassMapping = mappingInformation.getClassMapping(user.getClass());
             if (userClassMapping != null) {
                 Object id = userClassMapping.getId(user);
-                user = getTarget().getReference(userClassMapping.getEntityType(), id);
+                user = getReference(userClassMapping.getEntityType(), id);
             }
         }
         return user;
@@ -341,7 +315,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                     roles.add(role);
                 } else {
                     Object id = roleClassMapping.getId(role);
-                    roles.add(getTarget().getReference(roleClassMapping.getEntityType(), id));
+                    roles.add(getReference(roleClassMapping.getEntityType(), id));
                 }
             }
         }
