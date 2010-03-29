@@ -37,7 +37,7 @@ import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
 import net.sf.jpasecurity.entity.FetchManager;
-import net.sf.jpasecurity.entity.SecureObjectCache;
+import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
@@ -90,7 +90,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         super(entityManager);
         if (secureObjectManager == null) {
             secureObjectManager
-                = new SecureObjectCache(mappingInformation, entityManager, this, secureEntityProxyFactory);
+                = new DefaultSecureObjectCache(mappingInformation, entityManager, this, secureEntityProxyFactory);
         }
         this.authenticationProvider = authenticationProvider;
         this.mappingInformation = mappingInformation;
