@@ -120,6 +120,10 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         } else if (secureObject instanceof DefaultSecureMap) {
             return (T)((DefaultSecureMap<?, ?>)secureObject).getOriginal();
         } else {
+            //TODO bigsteff review
+            if (mappingInformation.getClassMapping(secureObject.getClass()) == null) {
+               return secureObject;
+            }
             return createUnsecureObject(secureObject);
         }
     }
@@ -275,10 +279,18 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         ClassMappingInformation classMapping = getClassMapping(secureObject.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getIdPropertyMappings()) {
             Object newId = propertyMapping.getPropertyValue(unsecureObject);
+            //TODO bigsteff review
+            if (secureObject instanceof EntityProxy) {
+               propertyMapping.setPropertyValue(((EntityProxy)secureObject).getEntity(), newId);
+            }
             propertyMapping.setPropertyValue(secureObject, newId);
         }
         for (PropertyMappingInformation propertyMapping: classMapping.getVersionPropertyMappings()) {
             Object newVersion = propertyMapping.getPropertyValue(unsecureObject);
+            //TODO bigsteff review
+            if (secureObject instanceof EntityProxy) {
+                propertyMapping.setPropertyValue(((EntityProxy)secureObject).getEntity(), newVersion);
+            }
             propertyMapping.setPropertyValue(secureObject, newVersion);
         }
     }

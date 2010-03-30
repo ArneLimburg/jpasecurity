@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -24,6 +25,7 @@ import javax.persistence.Query;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
+import net.sf.jpasecurity.model.acl.PrivilegeType;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 /**
@@ -33,7 +35,7 @@ public class QueryTest extends TestCase {
 
     public static final String USER1 = "user1";
     public static final String USER2 = "user2";
-    
+
     public void testEmptyResult() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("xml-based-field-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -41,7 +43,26 @@ public class QueryTest extends TestCase {
         assertTrue(query instanceof EmptyResultQuery);
         assertEquals(0, query.getResultList().size());
     }
-    
+
+    public void testEnumParameter() {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("acl-model");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        Query query = entityManager.createQuery("select bean from Privilege bean WHERE bean.type=:TYPE");
+        query.setParameter("TYPE", PrivilegeType.DATA);
+       query.getResultList();
+    }
+
+    public void testEnumParameterList() {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("acl-model");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        Query query = entityManager.createQuery("select bean from Privilege bean WHERE bean.type in (:TYPES)");
+        final ArrayList<PrivilegeType> types = new ArrayList<PrivilegeType>();
+        types.add(PrivilegeType.DATA);
+        types.add(PrivilegeType.METHOD);
+        query.setParameter("TYPES", types);
+        query.getResultList();
+    }
+
     public void testScalarResult() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("annotation-based-method-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -65,7 +86,7 @@ public class QueryTest extends TestCase {
         entityManager.persist(parent4);
         entityManager.getTransaction().commit();
         entityManager.close();
-        
+
         TestAuthenticationProvider.authenticate(USER1);
         entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -79,7 +100,7 @@ public class QueryTest extends TestCase {
         entityManagerFactory.close();
         TestAuthenticationProvider.authenticate(null);
     }
-    
+
     private MethodAccessAnnotationTestBean createChild(String parentName, String childName) {
         MethodAccessAnnotationTestBean parent = new MethodAccessAnnotationTestBean(parentName);
         MethodAccessAnnotationTestBean child = new MethodAccessAnnotationTestBean(childName);
