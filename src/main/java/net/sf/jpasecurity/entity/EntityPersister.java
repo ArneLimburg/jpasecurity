@@ -36,6 +36,7 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.util.SystemMapKey;
 
@@ -180,7 +181,10 @@ public class EntityPersister extends AbstractSecureObjectManager {
         if (secureObject == null) {
             return null;
         }
-        Object unsecureEntity = unsecureEntities.get(new SystemMapKey(secureObject));
+        //TODO bigsteff review
+        Object unsecureEntity = unsecureEntities.get(
+           new SystemMapKey(secureObject instanceof EntityProxy ? ((EntityProxy)secureObject).getEntity() :secureObject)
+        );
         if (unsecureEntity != null) {
             return (T)unsecureEntity;
         }
