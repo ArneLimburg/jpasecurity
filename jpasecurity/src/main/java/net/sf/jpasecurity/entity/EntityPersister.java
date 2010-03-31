@@ -38,6 +38,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
+import static net.sf.jpasecurity.util.JpaTypes.*;
 import net.sf.jpasecurity.util.SystemMapKey;
 
 /**
@@ -121,11 +122,39 @@ public class EntityPersister extends AbstractSecureObjectManager {
     }
 
     public Query setParameter(Query query, int index, Object value) {
-        return query.setParameter(index, getUnsecureObject(value));
+        if (value == null || isSimplePropertyType(value.getClass())) {
+            return query.setParameter(index, value);
+        } else if (value instanceof Collection) {
+            Collection<Object> parameter = new ArrayList<Object>();
+            for (Object entry: (Collection<Object>)value) {
+                if (isSimplePropertyType(entry.getClass())) {
+                    parameter.add(entry);
+                } else {
+                    parameter.add(getUnsecureObject(entry));
+                }
+            }
+            return query.setParameter(index, parameter);
+        } else {
+            return query.setParameter(index, getUnsecureObject(value));
+        }
     }
 
     public Query setParameter(Query query, String name, Object value) {
-        return query.setParameter(name, getUnsecureObject(value));
+        if (value == null || isSimplePropertyType(value.getClass())) {
+            return query.setParameter(name, value);
+        } else if (value instanceof Collection) {
+            Collection<Object> parameter = new ArrayList<Object>();
+            for (Object entry: (Collection<Object>)value) {
+                if (isSimplePropertyType(entry.getClass())) {
+                    parameter.add(entry);
+                } else {
+                    parameter.add(getUnsecureObject(entry));
+                }
+            }
+            return query.setParameter(name, parameter);
+        } else {
+            return query.setParameter(name, getUnsecureObject(value));
+        }
     }
 
     public void preFlush() {
@@ -149,7 +178,13 @@ public class EntityPersister extends AbstractSecureObjectManager {
     }
 
     public boolean isSecureObject(Object object) {
-        return super.isSecureObject(object) || unsecureEntities.containsKey(new SystemMapKey(object));
+        if (super.isSecureObject(object)) {
+            return true;
+        }
+        if (object instanceof EntityProxy) {
+            object = ((EntityProxy)object).getEntity();
+        }
+        return unsecureEntities.containsKey(new SystemMapKey(object));
     }
 
     public <E> Collection<E> getSecureObjects(Class<E> type) {
@@ -181,17 +216,20 @@ public class EntityPersister extends AbstractSecureObjectManager {
         if (secureObject == null) {
             return null;
         }
-        //TODO bigsteff review
-        Object unsecureEntity = unsecureEntities.get(
-           new SystemMapKey(secureObject instanceof EntityProxy ? ((EntityProxy)secureObject).getEntity() :secureObject)
-        );
+        if (secureObject instanceof EntityProxy) {
+            secureObject = (T)((EntityProxy)secureObject).getEntity();
+        }
+        Object unsecureEntity = unsecureEntities.get(new SystemMapKey(secureObject));
         if (unsecureEntity != null) {
             return (T)unsecureEntity;
         }
         return super.getUnsecureObject(secureObject);
     }
 
-    <T> T createUnsecureObject(final T secureEntity) {
+    <T> T createUnsecureObject(T secureEntity) {
+        if (secureEntity instanceof EntityProxy) {
+            secureEntity = (T)((EntityProxy)secureEntity).getEntity();
+        }
         AccessType accessType = isNew(secureEntity)? AccessType.CREATE: AccessType.UPDATE;
         final ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
         checkAccess(accessType, secureEntity);
