@@ -66,19 +66,11 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
     }
 
     public Query setParameter(int index, Object parameter) {
-        if (parameter != null && isSimplePropertyType(parameter.getClass())) {
-            return getTarget().setParameter(index, parameter);
-        } else {
-            return objectManager.setParameter(getTarget(), index, parameter);
-        }
+        return objectManager.setParameter(getTarget(), index, parameter);
     }
 
     public Query setParameter(String name, Object parameter) {
-        if (parameter != null && isSimplePropertyType(parameter.getClass())) {
-            return getTarget().setParameter(name, parameter);
-        } else {
-            return objectManager.setParameter(getTarget(), name, parameter);
-        }
+        return objectManager.setParameter(getTarget(), name, parameter);
     }
 
     public Object getSingleResult() {
