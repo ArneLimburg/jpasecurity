@@ -8,6 +8,8 @@ import javax.persistence.OneToOne;
 public class AbstractAclProtectedEntity extends AbstractTrademarkRelatedEntity {
    @OneToOne(fetch = FetchType.EAGER)
    private Acl accessControlList;
+   
+   private boolean switchSecurityOff;
 
    public Acl getAccessControlList() {
       return accessControlList;
