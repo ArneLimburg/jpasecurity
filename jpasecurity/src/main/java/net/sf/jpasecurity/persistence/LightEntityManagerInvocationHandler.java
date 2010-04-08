@@ -18,7 +18,6 @@ package net.sf.jpasecurity.persistence;
 import static net.sf.jpasecurity.AccessType.READ;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,7 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import net.sf.jpasecurity.entity.SecureObjectCache;
+import net.sf.jpasecurity.entity.EmptyObjectCache;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.security.AccessRule;
@@ -52,11 +51,7 @@ public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<
         super(entityManager);
         this.mappingInformation = mappingInformation;
         this.authenticationProvider = authenticationProvider;
-        this.entityFilter = new EntityFilter(entityManager, new SecureObjectCache() {
-            public <E> Collection<E> getSecureObjects(Class<E> type) {
-                return Collections.emptySet();
-            }
-        }, mappingInformation, accessRules);
+        this.entityFilter = new EntityFilter(entityManager, new EmptyObjectCache(), mappingInformation, accessRules);
     }
 
     public Query createNamedQuery(String name) {

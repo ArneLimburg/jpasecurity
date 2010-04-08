@@ -34,6 +34,7 @@ import java.util.Set;
 
 import javax.persistence.NoResultException;
 
+import net.sf.jpasecurity.entity.EmptyObjectCache;
 import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.parser.JpqlAbs;
 import net.sf.jpasecurity.jpql.parser.JpqlAdd;
@@ -891,6 +892,21 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             }
             return false;
         } catch (NotEvaluatableException notEvaluatableException) {
+            try {
+                //Test whether the where-clause is always false
+                InMemoryEvaluationParameters<Boolean> parameters
+                    = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
+                                                                Collections.EMPTY_MAP,
+                                                                data.getNamedParameters(),
+                                                                data.getPositionalParameters(),
+                                                                new EmptyObjectCache());
+                if (!evaluate(subselect.getWhereClause(), parameters)) {
+                    data.setResult(Collections.EMPTY_SET);
+                    return false;
+                }
+            } catch (NotEvaluatableException e) {
+                //ignore and go on
+            }
             //we try to evaluate with the session-data from the objectManager
             SecureObjectCache objectCache = data.getObjectCache();
             try {
