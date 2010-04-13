@@ -95,7 +95,11 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         this.authenticationProvider = authenticationProvider;
         this.mappingInformation = mappingInformation;
         this.secureObjectManager = secureObjectManager;
-        this.entityFilter = new EntityFilter(entityManager, secureObjectManager, mappingInformation, accessRules);
+        this.entityFilter = new EntityFilter(entityManager,
+                                             secureObjectManager,
+                                             secureObjectManager,
+                                             mappingInformation,
+                                             accessRules);
         this.maxFetchDepth = maxFetchDepth;
     }
 

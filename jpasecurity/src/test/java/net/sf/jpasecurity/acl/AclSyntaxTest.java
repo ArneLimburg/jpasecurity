@@ -18,18 +18,21 @@ public class AclSyntaxTest extends TestCase {
     public static final Long TRADEMARK_ID = 1L;
     
     private EntityManagerFactory entityManagerFactory;
+    private Group group;
+    private Privilege privilege1;
+    private Privilege privilege2;
     
     public void setUp() {
        entityManagerFactory = Persistence.createEntityManagerFactory("acl-model");
        EntityManager entityManager = entityManagerFactory.createEntityManager();
        entityManager.getTransaction().begin();
-       Privilege privilege1 = new Privilege();
+       privilege1 = new Privilege();
        privilege1.setName("MODIFY");
        entityManager.persist(privilege1);
-       Privilege privilege2 = new Privilege();
+       privilege2 = new Privilege();
        privilege2.setName("DELETE");
        entityManager.persist(privilege2);
-       Group group = new Group();
+       group = new Group();
        group.setName("USERS");
        entityManager.persist(group);
        TestAuthenticationProvider.authenticate(TRADEMARK_ID, group, privilege1, privilege2);
@@ -72,6 +75,18 @@ public class AclSyntaxTest extends TestCase {
        } catch (NoResultException e) {
            //expected
        }
+       entityManager.close();
+   }
+   
+   public void testAclProtectedEntityAccessWithManyPrivileges() {
+       Object[] roles = new Object[1000];
+       roles[0] = group;
+       for (int i = 1; i < roles.length; i++) {
+           roles[i] = i % 2 == 0? privilege1: privilege2;
+       }
+       TestAuthenticationProvider.authenticate(TRADEMARK_ID, roles);
+       EntityManager entityManager = entityManagerFactory.createEntityManager();
+       AclProtectedEntity entity = (AclProtectedEntity)entityManager.createQuery("select e from AclProtectedEntity e").getSingleResult();
        entityManager.close();
    }
 }

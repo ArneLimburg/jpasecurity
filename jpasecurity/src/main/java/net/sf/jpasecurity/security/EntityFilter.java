@@ -31,6 +31,7 @@ import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.entity.SecureObjectCache;
+import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.EntityManagerEvaluator;
 import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluationParameters;
 import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluator;
@@ -82,6 +83,7 @@ public class EntityFilter {
                         MappingInformation mappingInformation,
                         List<AccessRule> accessRules) {
         this(entityManager,
+             null,
              objectCache,
              mappingInformation,
              new MappedPathEvaluator(mappingInformation),
@@ -89,6 +91,20 @@ public class EntityFilter {
     }
 
     public EntityFilter(EntityManager entityManager,
+                        SecureObjectManager objectManager,
+                        SecureObjectCache objectCache,
+                        MappingInformation mappingInformation,
+                        List<AccessRule> accessRules) {
+        this(entityManager,
+             objectManager,
+             objectCache,
+             mappingInformation,
+             new MappedPathEvaluator(mappingInformation),
+             accessRules);
+    }
+
+    public EntityFilter(EntityManager entityManager,
+                        SecureObjectManager secureObjectManager,
                         SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
                         PathEvaluator pathEvaluator,
@@ -98,7 +114,8 @@ public class EntityFilter {
         this.compiler = new JpqlCompiler(mappingInformation);
         this.objectCache = objectCache;
         this.queryEvaluator = new InMemoryEvaluator(compiler, pathEvaluator);
-        this.entityManagerEvaluator = new EntityManagerEvaluator(entityManager, compiler, pathEvaluator);
+        this.entityManagerEvaluator
+            = new EntityManagerEvaluator(entityManager, secureObjectManager, compiler, pathEvaluator);
         this.accessRules = accessRules;
     }
 
