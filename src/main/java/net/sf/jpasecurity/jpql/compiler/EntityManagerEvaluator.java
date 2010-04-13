@@ -23,6 +23,7 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.mapping.TypeDefinition;
@@ -40,11 +41,20 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
     private static final Log LOG = LogFactory.getLog(EntityManagerEvaluator.class);
 
     private final EntityManager entityManager;
+    private final SecureObjectManager objectManager;
     private final QueryPreparator queryPreparator;
 
-    public EntityManagerEvaluator(EntityManager entityManager, JpqlCompiler compiler, PathEvaluator pathEvaluator) {
+    public EntityManagerEvaluator(JpqlCompiler compiler, PathEvaluator pathEvaluator) {
+        this(null, null, compiler, pathEvaluator);
+    }
+
+    public EntityManagerEvaluator(EntityManager entityManager,
+                                  SecureObjectManager objectManager,
+                                  JpqlCompiler compiler,
+                                  PathEvaluator pathEvaluator) {
         super(compiler, pathEvaluator);
         this.entityManager = entityManager;
+        this.objectManager = objectManager;
         this.queryPreparator = new QueryPreparator();
     }
 
@@ -59,7 +69,7 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
         if (!data.isResultUndefined()) {
             return visitChildren;
         }
-        if (!entityManager.isOpen()) {
+        if (entityManager == null || !entityManager.isOpen()) {
             data.setResultUndefined();
             return false;
         }
@@ -86,10 +96,18 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
             LOG.info("executing query " + queryString);
             Query query = entityManager.createQuery(queryString);
             for (String namedParameter: statement.getNamedParameters()) {
-                query.setParameter(namedParameter, data.getNamedParameterValue(namedParameter));
+                if (objectManager == null) {
+                    query.setParameter(namedParameter, data.getNamedParameterValue(namedParameter));
+                } else {
+                    objectManager.setParameter(query, namedParameter, data.getNamedParameterValue(namedParameter));
+                }
             }
             for (Map.Entry<String, Object> namedParameter: namedParameterValues.entrySet()) {
-                query.setParameter(namedParameter.getKey(), namedParameter.getValue());
+                if (objectManager == null) {
+                    query.setParameter(namedParameter.getKey(), namedParameter.getValue());
+                } else {
+                    objectManager.setParameter(query, namedParameter.getKey(), namedParameter.getValue());
+                }
             }
             data.setResult(query.getResultList());
             return false;
