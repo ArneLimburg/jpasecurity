@@ -121,6 +121,12 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public InMemoryEvaluator(JpqlCompiler compiler, PathEvaluator pathEvaluator) {
+        if (compiler == null) {
+            throw new IllegalArgumentException("compiler may not be null");
+        }
+        if (pathEvaluator == null) {
+            throw new IllegalArgumentException("pathEvaluator may not be null");
+        }
         this.compiler = compiler;
         this.pathEvaluator = pathEvaluator;
     }
