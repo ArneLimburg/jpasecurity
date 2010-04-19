@@ -240,6 +240,79 @@
           of the annotated class.
         </para>
       </section>
+      <section id="access-rules-application">
+        <title>Applying of access rules</title>
+        <para>
+          Read-access rules are applied to every entity or embeddable that is accessed via JPQL
+          or object-navigation. When the object is accessed via JPQL, the access rules are applied
+          directly to the JPQL-query, allowing the filtering to take place within the database.
+          When the object is accessed via object-navigation, JPA Security tries to avoid database-calls
+          and evaluates the rules in memory. When in-memory-evaluation is not applicable and the
+          entity-manager is still open, a query is performed to evaluate the query.
+          In the next section you can read, in which cases in-memory-evaluation is applicable and
+          where not. 
+          When in-memory-evaluation is not applicable and the entity-manager is already closed,
+          a <systemitem>SecurityException</systemitem> will be thrown.
+        </para>
+        <para>
+		  Update-access rules are applied on <systemitem>flush()</systemitem> or <systemitem>commit()</systemitem>.
+		  Again the default-behaviour is in-memory-evaluation then, falling back to a query like described above.
+        </para>
+        <para>
+          Create-access rules and delete-access rules are applied when the appropriate action is performed
+          with the entity-manager (either direct or by cascading). In-memory-evaluation applies like described above.
+        </para>
+        <para>
+          For all cases JPA Security is clever enough to apply the appropriate access rules for sub-
+          and superclasses, too.
+        </para>
+      </section>
+      <section>
+        <title>In-Memory-Evaluation</title>
+        <para>
+          Every access rule that does not contain any sub-select can be evaluated in memory.
+          For queries that contain sub-selects it depends on the kind of the sub-select
+          and the content of the (first-level) entity-manager-cache of JPA Security.
+          Sub-selects where all aliases from within the sub-select can directly replaced with
+          an alias from outside can be evaluated in memory. Thus the following access rule
+          can be evaluated in memory: 
+        </para>
+        <programlisting>
+          <![CDATA[
+GRAND ACCESS TO TestBean bean WHERE EXISTS (SELECT b FROM TestBean b WHERE b = bean AND b.accessControlList = CURRENT_PRINCIPAL)
+          ]]>
+        </programlisting>
+        <para>
+          Sub-selects that contain collection-joins cannot directly evaluated in memory and the
+          result of the evaluation depends on the content of the (first-level) entity-manager-cache.
+          Thus the following query cannot be evaluated in memory:
+        </para>
+        <programlisting>
+          <![CDATA[
+GRAND ACCESS TO TestBean bean WHERE EXISTS (SELECT b FROM TestBean b, IN(b.accessControlList.entries) entry WHERE b = bean AND entry IN (CURRENT_ROLES)
+          ]]>
+        </programlisting>
+        <para>
+          Since the alias from within the sub-select cannot directly replaced by the alias from outside,
+          the following query cannot be evaluated in memory:
+        </para>
+        <programlisting>
+          <![CDATA[
+GRAND ACCESS TO TestBean bean WHERE EXISTS (SELECT entry FROM AccessControlListEntry entry WHERE bean.accessControlList = entry.accessControlList AND entry IN (CURRENT_ROLES)
+          ]]>
+        </programlisting>
+        <para>
+		  Although there can be no guarantee in general that the last two queries can be evaluated in memory,
+		  in-memory-evaluation can still be achieved by ensuring that the entities that are needed to evaluate
+		  the sub-select are contained in the (first-level) entity-manager-cache. For example the last rule
+		  can be evaluated in memory if there exists an <systemitem>AccessContolListEntry</systemitem> in the
+		  cache that meets the specified where-clause. Remember, that on persist the check will be done
+		  before the persist-operation is cascaded. So when you want to persist a <systemitem>TestBean</systemitem>
+		  that contains an <systemitem>accessControlList</systemitem> with entries that match the where-clause,
+		  you have to persist the entries before you persist the <systemitem>TestBean</systemitem> to ensure
+		  the entries are in the cache. 
+        </para>
+      </section>
     </section>
   </section>
 </article>
