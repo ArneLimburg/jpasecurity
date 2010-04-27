@@ -39,6 +39,7 @@ public abstract class PropertyMappingInformation {
     private String name;
     private ClassMappingInformation containingClassMapping;
     private boolean idProperty;
+    private Field field;
     private boolean versionProperty;
 
     PropertyMappingInformation(String propertyName,
@@ -155,12 +156,24 @@ public abstract class PropertyMappingInformation {
         if (type == null) {
             return null;
         }
-        try {
-            return type.getDeclaredField(getPropertyName());
-        } catch (NoSuchFieldException e) {
-            return getField(type.getSuperclass());
+        if (field == null) {
+            field = getFieldWithoutException(type, name);
+            if (field == null) {
+                return getField(type.getSuperclass());
+            }
         }
+        return field;
     }
+
+   private Field getFieldWithoutException(Class type, String fieldname) {
+      String interFieldname = fieldname.intern();
+      for (Field field : type.getDeclaredFields()) {
+         if (field.getName() == interFieldname) {
+            return field;
+         }
+      }
+      return null;
+   }
 
     private Object getMethodValue(Object target) {
         String propertyName = getPropertyName();
