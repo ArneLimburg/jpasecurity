@@ -18,6 +18,7 @@ package net.sf.jpasecurity.util;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +29,18 @@ import java.util.Map;
  */
 public abstract class AbstractInvocationHandler implements InvocationHandler {
 
-    private final Map<Method, Method> methodCache = new HashMap<Method, Method>();
+    private static final Map<Class, Map<Method, Method>> METHODCACHE_CACHE
+       = Collections.synchronizedMap(new HashMap<Class, Map<Method, Method>>());
+    private final Map<Method, Method> methodCache;
+
+   protected AbstractInvocationHandler() {
+      Map<Method, Method> map = METHODCACHE_CACHE.get(getClass());
+      if (map == null) {
+         map = Collections.synchronizedMap(new HashMap<Method, Method>());
+         METHODCACHE_CACHE.put(getClass(), map);
+      }
+      methodCache = map;
+   }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
