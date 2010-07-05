@@ -16,8 +16,6 @@
 
 package net.sf.jpasecurity.security;
 
-import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +26,9 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.entity.SecureObjectCache;
@@ -54,8 +55,7 @@ import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
 
 /**
  * This class handles the access control.
@@ -144,7 +144,7 @@ public class EntityFilter {
 
     public FilterResult filterQuery(String query, AccessType accessType, Object user, Set<Object> roles) {
 
-        LOG.info("Filtering query " + query);
+        LOG.debug("Filtering query " + query);
 
         JpqlCompiledStatement statement = compile(query);
 
@@ -161,7 +161,7 @@ public class EntityFilter {
             }
         }
 
-        LOG.info("Using access rules " + accessRules);
+        LOG.debug("Using access rules " + accessRules);
 
         Set<String> namedParameters = statement.getNamedParameters();
         String userParameterName = createUserParameterName(namedParameters, accessRules);
@@ -176,10 +176,10 @@ public class EntityFilter {
                                                             objectCache);
             boolean result = queryEvaluator.evaluate(accessRules, evaluationParameters);
             if (result) {
-                LOG.info("Access rules are always true for current user and roles. Returning unfiltered query");
+                LOG.debug("Access rules are always true for current user and roles. Returning unfiltered query");
                 return new FilterResult(query);
             } else {
-                LOG.info("Access rules are always false for current user and roles. Returning empty result");
+                LOG.debug("Access rules are always false for current user and roles. Returning empty result");
                 return new FilterResult();
             }
         } catch (NotEvaluatableException e) {
@@ -204,7 +204,7 @@ public class EntityFilter {
             where.jjtSetChild(and, 0);
         }
 
-        LOG.info("Optimizing filtered query " + statement.getStatement());
+        LOG.debug("Optimizing filtered query " + statement.getStatement());
 
         QueryOptimizer optimizer = new QueryOptimizer(mappingInformation,
                                                       Collections.EMPTY_MAP,
@@ -220,7 +220,7 @@ public class EntityFilter {
         } else {
             userParameterName = null;
         }
-        LOG.info("Returning optimized query " + statement.getStatement());
+        LOG.debug("Returning optimized query " + statement.getStatement());
         return new FilterResult(statement.getStatement().toString(),
                                 userParameterName,
                                 parameters.size() > 0? parameters: null,

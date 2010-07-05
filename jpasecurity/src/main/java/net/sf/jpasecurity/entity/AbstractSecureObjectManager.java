@@ -15,8 +15,6 @@
  */
 package net.sf.jpasecurity.entity;
 
-import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,6 +42,8 @@ import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.util.SystemMapKey;
+
+import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
 
 /**
  * @author Arne Limburg
@@ -164,21 +164,9 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             } else {
                 Object newValue;
                 if (secureValue instanceof Collection) {
-                    Collection<Object> unsecureCollection = createCollection(secureValue);
-                    for (Object entry: (Collection<?>)secureValue) {
-                        unsecureCollection.add(getUnsecureObject(entry));
-                    }
-                    newValue = unsecureCollection;
+                   newValue = createUnsecureCollection((Collection)secureValue);
                 } else if (secureValue instanceof Map) {
-                    Map<Object, Object> unsecureMap = new HashMap<Object, Object>();
-                    for (Map.Entry<Object, Object> entry: ((Map<Object, Object>)secureValue).entrySet()) {
-                        Object key = entry.getKey();
-                        if (!isSimplePropertyType(key.getClass())) {
-                            key = getUnsecureObject(key);
-                        }
-                        unsecureMap.put(key, getUnsecureObject(entry.getValue()));
-                    }
-                    newValue = unsecureMap;
+                   newValue = createUnsecureMap((Map)secureValue);
                 } else if (propertyMapping.isRelationshipMapping()) {
                     newValue = getUnsecureObject(secureValue);
                 } else {
@@ -197,7 +185,27 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         }
     }
 
-    /**
+   private Map createUnsecureMap(Map secureValue) {
+      Map<Object, Object> unsecureMap = new HashMap<Object, Object>();
+      for (Map.Entry<Object, Object> entry: ((Map<Object, Object>)secureValue).entrySet()) {
+          Object key = entry.getKey();
+          if (!isSimplePropertyType(key.getClass())) {
+              key = getUnsecureObject(key);
+          }
+          unsecureMap.put(key, getUnsecureObject(entry.getValue()));
+      }
+      return unsecureMap;
+   }
+
+   private Collection createUnsecureCollection(Collection secureValue) {
+      Collection<Object> unsecureCollection = createCollection(secureValue);
+      for (Object entry: (Collection<?>)secureValue) {
+          unsecureCollection.add(getUnsecureObject(entry));
+      }
+      return unsecureCollection;
+   }
+
+   /**
      * @return <tt>true</tt>, if the owner is modified, <tt>false</tt> otherwise.
      */
     boolean secureCopy(ClassMappingInformation classMapping,
