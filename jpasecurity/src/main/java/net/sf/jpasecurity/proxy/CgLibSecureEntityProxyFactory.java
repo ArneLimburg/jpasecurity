@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.util.ReflectionUtils;
@@ -45,7 +46,7 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
      */
     public MethodInterceptor getMethodInterceptor(SecureEntity entity) {
         try {
-            for (Callback callback: (Callback[])ReflectionUtils.invokeMethod(entity, "getCallbacks")) {
+            for (Callback callback: getCallbacks(entity)) {
                 if (callback instanceof CgLibMethodInterceptor) {
                     return ((CgLibMethodInterceptor)callback).interceptor;
                 }
@@ -60,7 +61,14 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
         }
     }
 
-    private class CgLibMethodInterceptor implements net.sf.cglib.proxy.MethodInterceptor {
+   private Callback[] getCallbacks(SecureEntity entity) {
+      if (entity instanceof Factory) {
+         return ((Factory)entity).getCallbacks();
+      }
+      return (Callback[])ReflectionUtils.invokeMethod(entity, "getCallbacks");
+   }
+
+   private class CgLibMethodInterceptor implements net.sf.cglib.proxy.MethodInterceptor {
 
         private MethodInterceptor interceptor;
 

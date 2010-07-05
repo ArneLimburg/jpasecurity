@@ -22,12 +22,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Arne Limburg
  */
 public abstract class ReflectionUtils {
-
+    private static final Map<String, Method> METHOD_CACHE = new HashMap<String, Method>();
     public static Object invokeConstructor(Class<?> type, Object... parameters) {
         try {
             Constructor<?> constructor = getConstructor(type, parameters);
@@ -89,6 +91,11 @@ public abstract class ReflectionUtils {
 
     public static Method getMethod(Class<?> classType, String name, Class<?>... parameterTypes)
             throws NoSuchMethodException {
+        String key = calculateKey(classType, name, parameterTypes);
+        final Method cachedMethod = METHOD_CACHE.get(key);
+        if (cachedMethod != null) {
+            return cachedMethod;
+        }
         Method result = null;
         for (Class<?> type = classType; type != null; type = type.getSuperclass()) {
             for (Method method: type.getDeclaredMethods()) {
@@ -111,10 +118,24 @@ public abstract class ReflectionUtils {
         if (result == null) {
             throw new NoSuchMethodException(name + "(" + Arrays.toString(parameterTypes) + ") of " + classType.getName());
         }
+        METHOD_CACHE.put(key, result);
         return result;
     }
 
-    public static Object getFieldValue(Field field, Object target) {
+   private static String calculateKey(Class<?> classType, String name, Class<?>... parameterTypes) {
+      final StringBuilder builder = new StringBuilder(classType.getSimpleName());
+      builder.append('@');
+      builder.append(System.identityHashCode(classType));
+      builder.append('-');
+      builder.append(name);
+      for (Class parameterType : parameterTypes) {
+         builder.append('-');
+         builder.append(parameterType.getSimpleName());
+      }
+      return builder.toString();
+   }
+
+   public static Object getFieldValue(Field field, Object target) {
         try {
             field.setAccessible(true);
             return field.get(target);
