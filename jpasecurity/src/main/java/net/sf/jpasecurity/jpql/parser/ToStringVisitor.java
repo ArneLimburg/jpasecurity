@@ -330,6 +330,9 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
     public boolean visit(JpqlGroupBy node, StringBuilder query) {
         query.append(" GROUP BY ");
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+           if (i > 0) {
+              query.append(", ");
+           }
             node.jjtGetChild(i).visit(this, query);
         }
         query.append(' ');
