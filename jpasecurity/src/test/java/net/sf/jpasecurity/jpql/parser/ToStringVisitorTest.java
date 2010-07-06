@@ -15,15 +15,10 @@
  */
 package net.sf.jpasecurity.jpql.parser;
 
-import junit.framework.TestCase;
-import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
-import net.sf.jpasecurity.jpql.parser.JpqlParser;
-import net.sf.jpasecurity.jpql.parser.JpqlStatement;
-import net.sf.jpasecurity.jpql.parser.ParseException;
-import net.sf.jpasecurity.jpql.parser.ToStringVisitor;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import junit.framework.TestCase;
 
 public class ToStringVisitorTest extends TestCase {
 
@@ -56,6 +51,8 @@ public class ToStringVisitorTest extends TestCase {
 		assertJpql("SELECT bean.name FROM TestBean bean WHERE ((3 + 2) * 2) >= 10.0");
 		assertJpql("SELECT bean.id FROM TestBean bean WHERE ABS(bean.id) = 1 HAVING bean.id > 0");
         assertJpql("SELECT bean.id FROM TestBean bean WHERE ABS(bean.id) = 1 GROUP BY bean.id HAVING COUNT(bean.id) > 0");
+        assertJpql("SELECT bean.id, bean.name, COUNT(bean.collectionProperty.id) "
+           + "FROM TestBean bean GROUP BY bean.id, bean.name");
 		assertJpql("SELECT bean FROM TestBean bean WHERE TRIM(LEADING ' ' FROM bean.name) = TRIM(TRAILING FROM bean.name)");
 		assertJpql("SELECT bean FROM TestBean bean WHERE TRIM(bean.name) = TRIM(BOTH FROM bean.name)");
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.name = ALL( SELECT bean.collectionProperty.name FROM TestBean bean)");
