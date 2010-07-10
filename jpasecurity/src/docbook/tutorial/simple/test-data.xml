@@ -70,6 +70,18 @@ import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
   }
   </programlisting>
   <para>
+    Again on the command-line issue the following command from within the root-directory of our application:
+  </para>
+  <programlisting>
+mvn package
+  </programlisting>
+  <para>
+    Now again change into the <filename>target</filename> folder and execute our application to see the output:
+  </para>
+  <programlisting>
+java -jar jpasecurity-simple-sample-0.3.0.jar
+  </programlisting>
+  <para>
     As we can see from the output, there are really two users in the database.
     Now we can create contacts for these users:
   </para>
