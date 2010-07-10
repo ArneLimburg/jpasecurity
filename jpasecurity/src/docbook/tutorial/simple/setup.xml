@@ -10,7 +10,7 @@
   </para>
   <programlisting>
     <![CDATA[
-mvn archetype:create -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity-simple-sample -Dversion=0.2.0
+mvn archetype:generate -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity-simple-sample -Dversion=0.3.0 -DarchetypeArtifactId=maven-archetype-quickstart -B    
     ]]>
   </programlisting>
   <para>
@@ -80,9 +80,7 @@ package net.sf.jpasecurity.sample.simple;
     from within the jpasecurity-simple-sample folder:
   </para>
   <programlisting>
-    <![CDATA[
 mvn package
-    ]]>
   </programlisting>
   <para>
     If everything is configured correctly this command should end with
@@ -91,9 +89,7 @@ mvn package
     the following command:
   </para>
   <programlisting>
-    <![CDATA[
-java -jar jpasecurity-simple-sample-0.2.0.jar
-    ]]>
+java -jar jpasecurity-simple-sample-0.3.0.jar
   </programlisting>
   <para>
     If you now see the output "Hello World!" you have successfully set up this sample.
