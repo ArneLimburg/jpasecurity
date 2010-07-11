@@ -89,7 +89,7 @@ public class OrmXmlParser extends AbstractMappingParser {
     public static final String FETCH_TYPE_XPATH
         = "//*[@class=''{0}'']//*[@name=''{1}'']/@fetch";
     public static final String CASCADE_TYPE_XPATH
-        = "//entity[@class=''{0}'']//*[@name=''{1}'']/cascade/*";
+        = "//*[@class=''{0}'']//*[@name=''{1}'']/cascade";
     public static final String PACKAGE_XPATH
         = "//package";
     public static final String ENTITIES_XPATH
@@ -324,11 +324,16 @@ public class OrmXmlParser extends AbstractMappingParser {
      */
     protected CascadeType[] getCascadeTypes(Member property) {
         NodeList list
-            = evaluateNodes(CASCADE_TYPE_XPATH, property.getDeclaringClass().getName(), getName(property));
+            = evaluateNodes(CASCADE_TYPE_XPATH, property.getDeclaringClass(), getName(property));
+        if (list == null) {
+            return new CascadeType[0];
+        }
         List<CascadeType> cascadeTypes = new ArrayList<CascadeType>(list.getLength());
         for (int i = 0; i < list.getLength(); i++) {
+            if (list.item(i).getNodeType() == Node.ELEMENT_NODE) {
             String cascadeType = list.item(i).getNodeName().substring(CASCADE_TAG_PREFIX.length());
             cascadeTypes.add(CascadeType.valueOf(cascadeType.toUpperCase()));
+        }
         }
         return cascadeTypes.toArray(new CascadeType[cascadeTypes.size()]);
     }
@@ -618,19 +623,14 @@ public class OrmXmlParser extends AbstractMappingParser {
     }
 
     private Node evaluateNode(String query, Class<?> mappedClass, Object... parameters) {
-        Object[] extendedParameters = new Object[parameters.length + 1];
-        System.arraycopy(parameters, 0, extendedParameters, 1, parameters.length);
-        String packageName = getPackageName();
-        String className = mappedClass.getName();
-        String prefix = packageName + '.';
-        if (className.startsWith(prefix)) {
-            extendedParameters[0] = className.substring(prefix.length());
+        Object[] extendedParameters = extendParameters(mappedClass, parameters);
+        if (!mappedClass.getName().equals(extendedParameters[0])) {
             Node node = evaluateNode(query, extendedParameters);
             if (node != null) {
                 return node;
             }
         }
-        extendedParameters[0] = className;
+        extendedParameters[0] = mappedClass.getName();
         return evaluateNode(query, extendedParameters);
     }
 
@@ -638,8 +638,34 @@ public class OrmXmlParser extends AbstractMappingParser {
         return (Node)evaluate(query, XPathConstants.NODE, parameters);
     }
 
+    private NodeList evaluateNodes(String query, Class<?> mappedClass, Object... parameters) {
+        Object[] extendedParameters = extendParameters(mappedClass, parameters);
+        if (!mappedClass.getName().equals(extendedParameters[0])) {
+            NodeList node = (NodeList)evaluateNode(query, extendedParameters);
+            if (node != null) {
+                return node;
+            }
+        }
+        extendedParameters[0] = mappedClass.getName();
+        return (NodeList)evaluateNode(query, extendedParameters);
+    }
+
     private NodeList evaluateNodes(String query, Object... parameters) {
         return (NodeList)evaluate(query, XPathConstants.NODESET, parameters);
+    }
+
+    private Object[] extendParameters(Class<?> mappedClass, Object... parameters) {
+        Object[] extendedParameters = new Object[parameters.length + 1];
+        System.arraycopy(parameters, 0, extendedParameters, 1, parameters.length);
+        String packageName = getPackageName();
+        String className = mappedClass.getName();
+        String prefix = packageName + '.';
+        if (className.startsWith(prefix)) {
+            extendedParameters[0] = className.substring(prefix.length());
+        } else {
+            extendedParameters[0] = className;
+        }
+        return extendedParameters;
     }
 
     private Object evaluate(String query, QName resultType, Object... parameters) {
