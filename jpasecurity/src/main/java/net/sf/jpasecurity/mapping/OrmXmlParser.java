@@ -201,7 +201,7 @@ public class OrmXmlParser extends AbstractMappingParser {
      */
     protected Class<?> getIdClass(Class<?> entityClass, boolean useFieldAccess) {
         Node idClassNode = evaluateNode(ID_CLASS_XPATH, entityClass);
-        return idClassNode == null? null: getClass(idClassNode.getNodeValue());
+        return idClassNode == null? null: getClass(idClassNode.getTextContent());
     }
 
     /**
@@ -219,7 +219,7 @@ public class OrmXmlParser extends AbstractMappingParser {
         if (accessNode == null) {
             return super.usesFieldAccess(mappedClass);
         }
-        return FIELD_ACCESS.equals(accessNode.getNodeValue().toUpperCase());
+        return FIELD_ACCESS.equals(accessNode.getTextContent().toUpperCase());
     }
 
     protected boolean excludeDefaultEntityListeners(Class<?> entityClass) {
@@ -252,7 +252,7 @@ public class OrmXmlParser extends AbstractMappingParser {
                     NamedNodeMap attributes = children.item(i).getAttributes();
                     if (attributes != null) {
                         Node namedItem = attributes.getNamedItem(NAME_ATTRIBUTE_NAME);
-                        if (namedItem != null && namedItem.getNodeValue().equals(name)) {
+                        if (namedItem != null && namedItem.getTextContent().equals(name)) {
                             return true;
                         }
                     }
@@ -284,7 +284,7 @@ public class OrmXmlParser extends AbstractMappingParser {
         if (metadataCompleteNode == null) {
             return false;
         }
-        return Boolean.valueOf(metadataCompleteNode.getNodeValue().trim());
+        return Boolean.valueOf(metadataCompleteNode.getTextContent().trim());
     }
 
     @Override
@@ -316,7 +316,7 @@ public class OrmXmlParser extends AbstractMappingParser {
         if (node == null) {
             return null;
         }
-        return FetchType.valueOf(node.getNodeValue());
+        return FetchType.valueOf(node.getTextContent());
     }
 
     /**
@@ -575,7 +575,7 @@ public class OrmXmlParser extends AbstractMappingParser {
         if (node == null) {
             return null;
         }
-        String methodName = node.getAttributes().getNamedItem("method-name").getNodeValue().trim();
+        String methodName = node.getAttributes().getNamedItem("method-name").getTextContent().trim();
         while (type != null) {
             for (Method method: type.getDeclaredMethods()) {
                 if (methodName.equals(method.getName()) && method.getParameterTypes().length == parameterCount) {
@@ -590,7 +590,7 @@ public class OrmXmlParser extends AbstractMappingParser {
 
     private String getPackageName() {
         Node packageNode = evaluateNode(PACKAGE_XPATH);
-        return packageNode == null? null: packageNode.getNodeValue();
+        return packageNode == null? null: packageNode.getTextContent().trim();
     }
 
     private String getClassName(Node classNode) {
