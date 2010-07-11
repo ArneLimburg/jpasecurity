@@ -10,7 +10,8 @@
       </entity-listeners>
     </persistence-unit-defaults>
   </persistence-unit-metadata>
-  <entity class="net.sf.jpasecurity.model.MethodAccessXmlTestBean" access="PROPERTY">
+  <package>net.sf.jpasecurity.model</package>
+  <entity class="MethodAccessXmlTestBean" access="PROPERTY">
     <attributes>
       <id name="id"/>
       <basic name="name"/>
