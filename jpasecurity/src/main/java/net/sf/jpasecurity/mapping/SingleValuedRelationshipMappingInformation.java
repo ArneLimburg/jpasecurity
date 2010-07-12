@@ -26,12 +26,14 @@ public final class SingleValuedRelationshipMappingInformation extends Relationsh
     public SingleValuedRelationshipMappingInformation(String propertyName,
                                                       ClassMappingInformation relatedClassMapping,
                                                       ClassMappingInformation declaringClassMapping,
+                                                      PropertyAccessStrategy propertyAccessStrategy,
                                                       boolean isIdProperty,
                                                       FetchType fetchType,
                                                       CascadeType... cascadeTypes) {
         super(propertyName,
               relatedClassMapping,
               declaringClassMapping,
+              propertyAccessStrategy,
               isIdProperty,
               fetchType,
               cascadeTypes);

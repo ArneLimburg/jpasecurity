@@ -22,6 +22,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.entity.FetchManager;
+import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
@@ -36,13 +37,15 @@ public class LightEntityManagerFactoryInvocationHandler extends EntityManagerFac
                                                       Map<String, String> properties,
                                                       AuthenticationProvider authenticationProvider,
                                                       AccessRulesProvider accessRulesProvider,
-                                                      SecureEntityProxyFactory proxyFactory) {
+                                                      SecureEntityProxyFactory proxyFactory,
+                                                      PropertyAccessStrategyFactory propertyAccessStrategyFactory) {
         super(entityManagerFactory,
               persistenceUnitInfo,
               properties,
               authenticationProvider,
               accessRulesProvider,
-              proxyFactory);
+              proxyFactory,
+              propertyAccessStrategyFactory);
     }
 
     @Override

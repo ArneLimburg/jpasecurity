@@ -180,6 +180,14 @@ public class OrmXmlParser extends AbstractMappingParser {
 
     private Document ormDocument;
 
+    public OrmXmlParser() {
+        this(new DefaultPropertyAccessStrategyFactory());
+    }
+
+    public OrmXmlParser(PropertyAccessStrategyFactory factory) {
+        super(factory);
+    }
+
     public void parsePersistenceUnit(PersistenceUnitInfo persistenceUnit) {
         parse(persistenceUnit, "META-INF/orm.xml");
         for (String mappingFilename: persistenceUnit.getMappingFileNames()) {
@@ -495,7 +503,7 @@ public class OrmXmlParser extends AbstractMappingParser {
         for (int i = 0; i < entityListeners.getLength(); i++) {
             Class<?> type = getEntityListenerType(entityListeners.item(i));
             EntityLifecycleMethods entityLifecycleMethods
-                = new JpaAnnotationParser().parseEntityLifecycleMethods(type);
+                = new JpaAnnotationParser(getPropertyAccessStrategyFactory()).parseEntityLifecycleMethods(type);
             EntityListenerWrapper entityListener
                 = parseEntityListener(entityListeners.item(i), type, entityLifecycleMethods);
             classMapping.addEntityListener(type, entityListener);
