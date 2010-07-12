@@ -66,7 +66,7 @@ public class DefaultPropertyAccessStrategyFactory implements PropertyAccessStrat
         return getMethod(type, SET_METHOD_PREFIX + capitalize(propertyName), 1);
     }
 
-    private Method getMethod(Class type, String name, int parameterCount) {
+    protected Method getMethod(Class type, String name, int parameterCount) {
         if (type == null) {
             return null;
         }
@@ -78,7 +78,7 @@ public class DefaultPropertyAccessStrategyFactory implements PropertyAccessStrat
         return getMethod(type.getSuperclass(), name, parameterCount);
     }
 
-    private String capitalize(String propertyName) {
+    protected String capitalize(String propertyName) {
         return Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
     }
 }

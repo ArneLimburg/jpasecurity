@@ -29,7 +29,17 @@ import java.util.Map;
  * @author Arne Limburg
  */
 public abstract class ReflectionUtils {
+
     private static final Map<String, Method> METHOD_CACHE = new HashMap<String, Method>();
+
+    public static <T> T instantiate(Class<T> type) {
+        try {
+            return type.newInstance();
+        } catch (Exception e) {
+            return (T)throwThrowable(e);
+        }
+    }
+
     public static Object invokeConstructor(Class<?> type, Object... parameters) {
         try {
             Constructor<?> constructor = getConstructor(type, parameters);
