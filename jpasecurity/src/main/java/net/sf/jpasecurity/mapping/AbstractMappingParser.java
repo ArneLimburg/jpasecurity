@@ -58,10 +58,23 @@ public abstract class AbstractMappingParser {
     private static final String GET_PROPERTY_PREFIX = "get";
     private static final String SET_PROPERTY_PREFIX = "set";
 
+    private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
+
     private Map<Class<?>, DefaultClassMappingInformation> classMappings;
     private Map<String, String> namedQueries;
     private List<EntityListener> defaultEntityListeners;
     private ClassLoader classLoader;
+
+    public AbstractMappingParser(PropertyAccessStrategyFactory propertyAccessStrategyFactory) {
+        if (propertyAccessStrategyFactory == null) {
+            throw new IllegalArgumentException("PropertyAccessStrategyFactory may not be null");
+        }
+        this.propertyAccessStrategyFactory = propertyAccessStrategyFactory;
+    }
+
+    protected PropertyAccessStrategyFactory getPropertyAccessStrategyFactory() {
+        return propertyAccessStrategyFactory;
+    }
 
     /**
      * Parses the specified persistence unit information and returns mapping information.
@@ -231,18 +244,24 @@ public abstract class AbstractMappingParser {
             } else {
                 if (isSingleValuedRelationshipProperty) {
                     ClassMappingInformation typeMapping = parse(type);
+                    PropertyAccessStrategy propertyAccessStrategy
+                        = propertyAccessStrategyFactory.createPropertyAccessStrategy(classMapping, name);
                     propertyMapping = new SingleValuedRelationshipMappingInformation(name,
                                                                                      typeMapping,
                                                                                      classMapping,
+                                                                                     propertyAccessStrategy,
                                                                                      isIdProperty,
                                                                                      getFetchType(property),
                                                                                      getCascadeTypes(property));
                 } else if (isCollectionValuedRelationshipProperty) {
                     ClassMappingInformation targetMapping = parse(getTargetType(property));
+                    PropertyAccessStrategy propertyAccessStrategy
+                        = propertyAccessStrategyFactory.createPropertyAccessStrategy(classMapping, name);
                     propertyMapping = new CollectionValuedRelationshipMappingInformation(name,
                                                                                          type,
                                                                                          targetMapping,
                                                                                          classMapping,
+                                                                                         propertyAccessStrategy,
                                                                                          isIdProperty,
                                                                                          getFetchType(property),
                                                                                          getCascadeTypes(property));
@@ -250,8 +269,14 @@ public abstract class AbstractMappingParser {
                 classMapping.addPropertyMapping(propertyMapping);
             }
         } else if (propertyMapping == null && (isSimplePropertyType(type) || type instanceof Serializable)) {
-            propertyMapping
-                = new SimplePropertyMappingInformation(name, type, classMapping, isIdProperty, isVersionProperty);
+            PropertyAccessStrategy propertyAccessStrategy
+                = propertyAccessStrategyFactory.createPropertyAccessStrategy(classMapping, name);
+            propertyMapping = new SimplePropertyMappingInformation(name,
+                                                                   type,
+                                                                   classMapping,
+                                                                   isIdProperty,
+                                                                   isVersionProperty,
+                                                                   propertyAccessStrategy);
             classMapping.addPropertyMapping(propertyMapping);
         } else if (propertyMapping == null) {
             throw new PersistenceException("could not determine mapping for property \"" + name + "\" of class " + property.getDeclaringClass().getName());

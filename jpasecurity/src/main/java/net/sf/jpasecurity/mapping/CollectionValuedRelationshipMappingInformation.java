@@ -30,12 +30,14 @@ public final class CollectionValuedRelationshipMappingInformation extends Relati
                                                           Class<?> collectionType,
                                                           ClassMappingInformation relatedClassMapping,
                                                           ClassMappingInformation declaringClassMapping,
+                                                          PropertyAccessStrategy propertyAccessStrategy,
                                                           boolean isIdProperty,
                                                           FetchType fetchType,
                                                           CascadeType... cascadeTypes) {
         super(propertyName,
               relatedClassMapping,
               declaringClassMapping,
+              propertyAccessStrategy,
               isIdProperty,
               fetchType,
               cascadeTypes);

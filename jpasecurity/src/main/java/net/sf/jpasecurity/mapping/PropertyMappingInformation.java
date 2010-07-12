@@ -15,8 +15,6 @@
  */
 package net.sf.jpasecurity.mapping;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
 
@@ -24,38 +22,37 @@ import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
 
-import net.sf.jpasecurity.util.ReflectionUtils;
-
 /**
  * This class holds mapping information for property mappings.
  * @author Arne Limburg
  */
 public abstract class PropertyMappingInformation {
 
-    private static final String GET_METHOD_PREFIX = "get";
-    private static final String IS_METHOD_PREFIX = "is";
-    private static final String SET_METHOD_PREFIX = "set";
-
     private String name;
     private ClassMappingInformation containingClassMapping;
     private boolean idProperty;
-    private Field field;
     private boolean versionProperty;
+    private PropertyAccessStrategy propertyAccessStrategy;
 
     PropertyMappingInformation(String propertyName,
                                ClassMappingInformation classMapping,
                                boolean isIdProperty,
-                               boolean isVersionProperty) {
+                               boolean isVersionProperty,
+                               PropertyAccessStrategy accessStrategy) {
         if (propertyName == null) {
             throw new IllegalArgumentException("property name not specified");
         }
         if (classMapping == null) {
             throw new PersistenceException("class is no entity class");
         }
+        if (accessStrategy == null) {
+            throw new IllegalArgumentException("PropertyAccessStrategy may not be null");
+        }
         name = propertyName;
         containingClassMapping = classMapping;
         idProperty = isIdProperty;
         versionProperty = isVersionProperty;
+        propertyAccessStrategy = accessStrategy;
     }
 
     public boolean isSingleValued() {
@@ -109,11 +106,7 @@ public abstract class PropertyMappingInformation {
      * @see ClassMappingInformation#usesPropertyAccess()
      */
     public Object getPropertyValue(Object target) {
-        if (getContainingClassMapping().usesFieldAccess()) {
-            return getFieldValue(target);
-        } else {
-            return getMethodValue(target);
-        }
+        return this.propertyAccessStrategy.getPropertyValue(target);
     }
 
     /**
@@ -125,11 +118,7 @@ public abstract class PropertyMappingInformation {
      * @see ClassMappingInformation#usesPropertyAccess()
      */
     public void setPropertyValue(Object target, Object value) {
-        if (getContainingClassMapping().usesFieldAccess()) {
-            setFieldValue(target, value);
-        } else {
-            setMethodValue(target, value);
-        }
+        this.propertyAccessStrategy.setPropertyValue(target, value);
     }
 
     public ClassMappingInformation getContainingClassMapping() {
@@ -140,71 +129,5 @@ public abstract class PropertyMappingInformation {
         return getClass().getSimpleName()
              + "[name=" + name
              + ",containingClassMapping=" + containingClassMapping.getEntityType().getSimpleName() + "]";
-    }
-
-    private Object getFieldValue(Object target) {
-        Field field = getField(target.getClass());
-        return ReflectionUtils.getFieldValue(field, target);
-    }
-
-    private void setFieldValue(Object target, Object fieldValue) {
-        Field field = getField(target.getClass());
-        ReflectionUtils.setFieldValue(field, target, fieldValue);
-    }
-
-    private Field getField(Class type) {
-        if (type == null) {
-            return null;
-        }
-        if (field == null) {
-            field = getFieldWithoutException(type, name);
-            if (field == null) {
-                return getField(type.getSuperclass());
-            }
-        }
-        return field;
-    }
-
-   private Field getFieldWithoutException(Class type, String fieldname) {
-      String interFieldname = fieldname.intern();
-      for (Field field : type.getDeclaredFields()) {
-         if (field.getName() == interFieldname) {
-            return field;
-         }
-      }
-      return null;
-   }
-
-    private Object getMethodValue(Object target) {
-        String propertyName = getPropertyName();
-        String methodName
-            = GET_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
-        Method method = getMethod(target.getClass(), methodName, 0);
-        if (method == null) {
-            methodName
-                = IS_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
-            method = getMethod(target.getClass(), methodName, 0);
-        }
-        return ReflectionUtils.invokeMethod(target, method);
-    }
-
-    private void setMethodValue(Object target, Object propertyValue) {
-        String propertyName = getPropertyName();
-        String methodName
-            = SET_METHOD_PREFIX + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
-        Method method = getMethod(target.getClass(), methodName, 1);
-        ReflectionUtils.invokeMethod(target, method, propertyValue);
-    }
-
-    private Method getMethod(Class type, String name, int parameterCount) {
-        if (type == null) {
-            return null;
-        }
-        for (Method method: type.getDeclaredMethods()) {
-            if (name.equals(method.getName()) && method.getParameterTypes().length == parameterCount) {
-                return method;
-            }
-        }
-        return getMethod(type.getSuperclass(), name, parameterCount);
     }
 }

@@ -47,10 +47,11 @@ public abstract class RelationshipMappingInformation extends PropertyMappingInfo
     RelationshipMappingInformation(String propertyName,
                                    ClassMappingInformation relatedClassMapping,
                                    ClassMappingInformation declaringClassMapping,
+                                   PropertyAccessStrategy propertyAccessStrategy,
                                    boolean isIdProperty,
                                    FetchType fetchType,
                                    CascadeType... cascadeTypes) {
-        super(propertyName, declaringClassMapping, isIdProperty, false);
+        super(propertyName, declaringClassMapping, isIdProperty, false, propertyAccessStrategy);
         if (relatedClassMapping == null) {
             throw new PersistenceException("could not determine target class for property \"" + propertyName + "\" of class " + declaringClassMapping.getEntityName());
         }

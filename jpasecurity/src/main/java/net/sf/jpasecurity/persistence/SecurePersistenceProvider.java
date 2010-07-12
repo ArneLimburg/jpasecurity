@@ -27,6 +27,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
@@ -62,6 +63,10 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         = "net.sf.jpasecurity.proxy.factory";
     public static final String DEFAULT_SECURE_ENTITY_PROXY_FACTORY_CLASS
         = "net.sf.jpasecurity.proxy.CgLibSecureEntityProxyFactory";
+    public static final String PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY
+        = "net.sf.jpasecurity.mapping.property.access.factory";
+    public static final String DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS
+        = "net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory";
 
     private static final Log LOG = LogFactory.getLog(SecurePersistenceProvider.class);
 
@@ -96,12 +101,14 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         AuthenticationProvider authenticationProvider = createAuthenticationProvider(info, properties);
         AccessRulesProvider accessRulesProvider = createAccessRulesProvider(info, properties);
         SecureEntityProxyFactory proxyFactory = createSecureEntityProxyFactory(info, properties);
+        PropertyAccessStrategyFactory accessStrategyFactory = createPropertyAccessStrategyFactory(info, properties);
         return createSecureEntityManagerFactory(nativeEntityManagerFactory,
                                                 info,
                                                 properties,
                                                 authenticationProvider,
                                                 accessRulesProvider,
-                                                proxyFactory);
+                                                proxyFactory,
+                                                accessStrategyFactory);
     }
 
     public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
@@ -109,7 +116,8 @@ public class SecurePersistenceProvider implements PersistenceProvider {
                                                                  Map<String, String> properties,
                                                                  AuthenticationProvider authenticationProvider,
                                                                  AccessRulesProvider accessRulesProvider,
-                                                                 SecureEntityProxyFactory proxyFactory) {
+                                                                 SecureEntityProxyFactory proxyFactory,
+                                                                 PropertyAccessStrategyFactory accessStrategyFactory) {
         PersistenceUnitInfo info = createPersistenceUnitInfo(persistenceUnitName);
         if (info == null) {
             return null;
@@ -119,7 +127,8 @@ public class SecurePersistenceProvider implements PersistenceProvider {
                                                 properties,
                                                 authenticationProvider,
                                                 accessRulesProvider,
-                                                proxyFactory);
+                                                proxyFactory,
+                                                accessStrategyFactory);
     }
 
     public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
@@ -127,7 +136,8 @@ public class SecurePersistenceProvider implements PersistenceProvider {
                                                                  Map<String, String> properties,
                                                                  AuthenticationProvider authenticationProvider,
                                                                  AccessRulesProvider accessRulesProvider,
-                                                                 SecureEntityProxyFactory proxyFactory) {
+                                                                 SecureEntityProxyFactory proxyFactory,
+                                                                 PropertyAccessStrategyFactory accessStrategyFactory) {
         String persistenceUnitType = getPersistenceUnitTypeProperty(persistenceUnitInfo, properties);
         ProxyInvocationHandler<EntityManagerFactory> invocationHandler = null;
         if (SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT.equals(persistenceUnitType)) {
@@ -136,14 +146,16 @@ public class SecurePersistenceProvider implements PersistenceProvider {
                                                                           properties,
                                                                           authenticationProvider,
                                                                           accessRulesProvider,
-                                                                          proxyFactory);
+                                                                          proxyFactory,
+                                                                          accessStrategyFactory);
         } else {
             invocationHandler = new LightEntityManagerFactoryInvocationHandler(nativeEntityManagerFactory,
                                                                                persistenceUnitInfo,
                                                                                properties,
                                                                                authenticationProvider,
                                                                                accessRulesProvider,
-                                                                               proxyFactory);
+                                                                               proxyFactory,
+                                                                               accessStrategyFactory);
         }
         return invocationHandler.createProxy();
     }
@@ -291,6 +303,31 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             Class<?> secureEntityProxyClass
                 = getClassLoader(persistenceUnitInfo).loadClass(secureEntityProxyFactoryClassName);
             return (SecureEntityProxyFactory)secureEntityProxyClass.newInstance();
+        } catch (InstantiationException e) {
+            throw new PersistenceException(e);
+        } catch (IllegalAccessException e) {
+            throw new PersistenceException(e);
+        } catch (ClassNotFoundException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    private PropertyAccessStrategyFactory createPropertyAccessStrategyFactory(PersistenceUnitInfo persistenceUnitInfo,
+                                                                              Map<String, String> properties) {
+        try {
+            String propertyAccessStrategyFactoryClassName = null;
+            if (properties != null) {
+                propertyAccessStrategyFactoryClassName = properties.get(PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY);
+            }
+            if (propertyAccessStrategyFactoryClassName == null) {
+                propertyAccessStrategyFactoryClassName
+                = persistenceUnitInfo.getProperties().getProperty(PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY,
+                                                                  DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS);
+            }
+            LOG.info("using " + propertyAccessStrategyFactoryClassName + " as PropertyAccessStrategy factory");
+            Class<?> propertyAccessStrategyClass
+                = getClassLoader(persistenceUnitInfo).loadClass(propertyAccessStrategyFactoryClassName);
+            return (PropertyAccessStrategyFactory)propertyAccessStrategyClass.newInstance();
         } catch (InstantiationException e) {
             throw new PersistenceException(e);
         } catch (IllegalAccessException e) {

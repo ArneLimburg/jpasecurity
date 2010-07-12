@@ -63,6 +63,14 @@ import javax.persistence.spi.PersistenceUnitInfo;
  */
 public class JpaAnnotationParser extends AbstractMappingParser {
 
+    public JpaAnnotationParser() {
+        this(new DefaultPropertyAccessStrategyFactory());
+    }
+
+    public JpaAnnotationParser(PropertyAccessStrategyFactory factory) {
+        super(factory);
+    }
+
     protected void parsePersistenceUnit(PersistenceUnitInfo persistenceUnit) {
         if (!persistenceUnit.excludeUnlistedClasses()) {
             if (persistenceUnit.getPersistenceUnitRootUrl() != null) {

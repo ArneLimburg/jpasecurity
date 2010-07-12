@@ -19,6 +19,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.SecureEntityManager;
+import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
@@ -33,6 +34,7 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
     private AuthenticationProvider authenticationProvider;
     private AccessRulesProvider accessRulesProvider;
     private SecureEntityProxyFactory secureEntityProxyFactory;
+    private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
 
     public SecureContainerEntityManagerFactoryBean() {
         setEntityManagerInterface(SecureEntityManager.class);
@@ -80,6 +82,20 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
         this.secureEntityProxyFactory = secureEntityProxyFactory;
     }
 
+    public PropertyAccessStrategyFactory getPropertyAccessStrategyFactory() {
+        if (propertyAccessStrategyFactory == null) {
+            String factoryName
+                = (String)getJpaPropertyMap().get(SecurePersistenceProvider.PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY);
+            propertyAccessStrategyFactory
+                = createObject(factoryName, SecurePersistenceProvider.DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS);
+        }
+        return propertyAccessStrategyFactory;
+    }
+
+    public void setPropertyAccsessStrategyFactory(PropertyAccessStrategyFactory propertyAccessStrategyFactory) {
+        this.propertyAccessStrategyFactory = propertyAccessStrategyFactory;
+    }
+
     protected <O> O createObject(String className, String defaultClassName) {
         if (className == null) {
             className = defaultClassName;
@@ -106,6 +122,7 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
                                                                     getJpaPropertyMap(),
                                                                     getAuthenticationProvider(),
                                                                     getAccessRulesProvider(),
-                                                                    getSecureEntityProxyFactory());
+                                                                    getSecureEntityProxyFactory(),
+                                                                    getPropertyAccessStrategyFactory());
     }
 }

@@ -24,9 +24,11 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.entity.FetchManager;
+import net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory;
 import net.sf.jpasecurity.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.OrmXmlParser;
+import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
@@ -49,7 +51,8 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
                                                     Map<String, String> properties,
                                                     AuthenticationProvider authenticationProvider,
                                                     AccessRulesProvider accessRulesProvider,
-                                                    SecureEntityProxyFactory proxyFactory) {
+                                                    SecureEntityProxyFactory proxyFactory,
+                                                    PropertyAccessStrategyFactory propertyAccessStrategyFactory) {
         super(entityManagerFactory);
         if (entityManagerFactory == null) {
             throw new IllegalArgumentException("entityManagerFactory may not be null");
@@ -66,11 +69,16 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
         if (proxyFactory == null) {
             throw new IllegalArgumentException("proxyFactory may not be null");
         }
+        if (propertyAccessStrategyFactory == null) {
+            propertyAccessStrategyFactory = new DefaultPropertyAccessStrategyFactory();
+        }
         this.authenticationProvider = authenticationProvider;
         this.accessRulesProvider = accessRulesProvider;
         this.proxyFactory = proxyFactory;
-        this.mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
-        this.mappingInformation = new OrmXmlParser().parse(persistenceUnitInfo, mappingInformation);
+        JpaAnnotationParser annotationParser = new JpaAnnotationParser(propertyAccessStrategyFactory);
+        OrmXmlParser xmlParser = new OrmXmlParser(propertyAccessStrategyFactory);
+        this.mappingInformation = annotationParser.parse(persistenceUnitInfo);
+        this.mappingInformation = xmlParser.parse(persistenceUnitInfo, mappingInformation);
         Map<String, String> persistenceProperties
             = new HashMap<String, String>((Map)persistenceUnitInfo.getProperties());
         if (properties != null) {
