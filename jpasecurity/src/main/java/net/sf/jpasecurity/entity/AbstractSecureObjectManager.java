@@ -348,7 +348,11 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     }
 
     ClassMappingInformation getClassMapping(Class<?> type) {
-        return mappingInformation.getClassMapping(type);
+        final ClassMappingInformation classMapping = mappingInformation.getClassMapping(type);
+        if (classMapping == null) {
+             throw new PersistenceException("Unknown entity type " + type);
+        }
+        return classMapping;
     }
 
     boolean isAccessible(AccessType accessType, Object entity) {

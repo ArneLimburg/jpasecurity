@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.SecureCollection;
@@ -87,9 +86,6 @@ public class DefaultSecureObjectCache extends EntityPersister {
             return (E)getSecureMap((Map<?, ?>)unsecureObject);
         }
         ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
-        if (classMapping == null) {
-            throw new PersistenceException("Unknown entity type " + unsecureObject.getClass());
-        }
         Object id = classMapping.getId(unsecureObject);
         return getSecureEntity(unsecureObject, id);
     }
@@ -137,9 +133,6 @@ public class DefaultSecureObjectCache extends EntityPersister {
 
     private <E> E getSecureEntity(E unsecureObject, Object id) {
         ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
-        if (classMapping == null) {
-            throw new PersistenceException("Unknown entity type " + unsecureObject.getClass());
-        }
         Map<Object, SecureEntity> entities = secureEntities.get(classMapping);
         if (entities == null) {
             entities = new HashMap<Object, SecureEntity>();
