@@ -302,10 +302,10 @@ public class EntityPersister extends AbstractSecureObjectManager {
         }
         alreadyCascadedEntities.add(new SystemMapKey(secureEntity));
         checkAccess(AccessType.DELETE, secureEntity);
-        fireRemove(getClassMapping(secureEntity.getClass()), secureEntity);
+        ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
+        fireRemove(classMapping, secureEntity);
         secureEntities.remove(new SystemMapKey(unsecureEntity));
         unsecureEntities.remove(new SystemMapKey(secureEntity));
-        ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
             if (propertyMapping.isRelationshipMapping()
                 && (propertyMapping.getCascadeTypes().contains(CascadeType.REMOVE)
