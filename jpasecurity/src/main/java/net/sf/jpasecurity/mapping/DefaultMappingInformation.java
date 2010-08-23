@@ -23,12 +23,16 @@ import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * This class holds mapping information for a specific persistence unit.
  * @author Arne Limburg
  */
 public class DefaultMappingInformation implements MappingInformation {
+
+    private static final Log LOG = LogFactory.getLog(MappingInformation.class);
 
     private String persistenceUnitName;
     private Map<String, String> namedQueries = new HashMap<String, String>();
@@ -75,11 +79,19 @@ public class DefaultMappingInformation implements MappingInformation {
     }
 
     public ClassMappingInformation getClassMapping(String entityName) {
-        if (entityNameMappings == null) {
-            initializeEntityNameMappings();
+        synchronized (entityTypeMappings) {
+            if (entityNameMappings == null) {
+                initializeEntityNameMappings();
+            }
         }
         ClassMappingInformation classMapping = entityNameMappings.get(entityName);
         if (classMapping == null) {
+            LOG.info("Content of entityNameMappings");
+            for (Map.Entry<String, ClassMappingInformation> stringClassMappingInformationEntry : entityNameMappings
+                .entrySet()) {
+                LOG.info(stringClassMappingInformationEntry.getKey()
+                    + ": " + stringClassMappingInformationEntry.getValue().getEntityType());
+            }
             throw new PersistenceException("Could not find mapping for entity with name \"" + entityName + '"');
         }
         return classMapping;
