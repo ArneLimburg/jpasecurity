@@ -50,6 +50,7 @@ public class DefaultMappingInformation implements MappingInformation {
                                      Map<String, String> namedQueries) {
         this.persistenceUnitName = persistenceUnitName;
         this.entityTypeMappings = (Map<Class<?>, ClassMappingInformation>)entityTypeMappings;
+        initializeEntityNameMappings();
         this.namedQueries = namedQueries;
     }
 
@@ -79,25 +80,16 @@ public class DefaultMappingInformation implements MappingInformation {
     }
 
     public ClassMappingInformation getClassMapping(String entityName) {
-        synchronized (entityTypeMappings) {
-            if (entityNameMappings == null) {
-                initializeEntityNameMappings();
-            }
-        }
         ClassMappingInformation classMapping = entityNameMappings.get(entityName);
         if (classMapping == null) {
-            LOG.info("Content of entityNameMappings");
-            for (Map.Entry<String, ClassMappingInformation> stringClassMappingInformationEntry : entityNameMappings
-                .entrySet()) {
-                LOG.info(stringClassMappingInformationEntry.getKey()
-                    + ": " + stringClassMappingInformationEntry.getValue().getEntityType());
-            }
+            LOG.info("Content of entityNameMappings:");
+            logEntityNameMappings();
             throw new PersistenceException("Could not find mapping for entity with name \"" + entityName + '"');
         }
         return classMapping;
     }
 
-    public Class<?> getType(String path, Set<TypeDefinition> typeDefinitions) {
+   public Class<?> getType(String path, Set<TypeDefinition> typeDefinitions) {
         try {
             String[] entries = path.split("\\.");
             Class<?> type = getAliasType(entries[0], typeDefinitions);
@@ -116,6 +108,8 @@ public class DefaultMappingInformation implements MappingInformation {
             entityNameMappings.put(classMapping.getEntityName(), classMapping);
             entityNameMappings.put(classMapping.getEntityType().getName(), classMapping);
         }
+        LOG.info("Content of entityNameMappings after initialization:");
+        logEntityNameMappings();
     }
 
     private Class<?> getAliasType(String alias, Set<TypeDefinition> typeDefinitions) {
@@ -126,4 +120,12 @@ public class DefaultMappingInformation implements MappingInformation {
         }
         return null;
     }
+
+   private void logEntityNameMappings() {
+      for (Map.Entry<String, ClassMappingInformation> stringClassMappingInformationEntry : entityNameMappings
+         .entrySet()) {
+         LOG.info(stringClassMappingInformationEntry.getKey()
+            + ": " + stringClassMappingInformationEntry.getValue().getEntityType());
+      }
+   }
 }
