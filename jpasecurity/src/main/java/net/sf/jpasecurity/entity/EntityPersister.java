@@ -122,38 +122,31 @@ public class EntityPersister extends AbstractSecureObjectManager {
     }
 
     public Query setParameter(Query query, int index, Object value) {
-        if (value == null || isSimplePropertyType(value.getClass())) {
-            return query.setParameter(index, value);
-        } else if (value instanceof Collection) {
-            Collection<Object> parameter = new ArrayList<Object>();
-            for (Object entry: (Collection<Object>)value) {
-                if (isSimplePropertyType(entry.getClass())) {
-                    parameter.add(entry);
-                } else {
-                    parameter.add(getUnsecureObject(entry));
-                }
-            }
-            return query.setParameter(index, parameter);
-        } else {
-            return query.setParameter(index, getUnsecureObject(value));
-        }
+        return query.setParameter(index, convertParameter(value));
     }
 
     public Query setParameter(Query query, String name, Object value) {
+        return query.setParameter(name, convertParameter(value));
+    }
+
+    private Object convertParameter(Object value) {
         if (value == null || isSimplePropertyType(value.getClass())) {
-            return query.setParameter(name, value);
+            return value;
         } else if (value instanceof Collection) {
             Collection<Object> parameter = new ArrayList<Object>();
             for (Object entry: (Collection<Object>)value) {
                 if (isSimplePropertyType(entry.getClass())) {
                     parameter.add(entry);
                 } else {
-                    parameter.add(getUnsecureObject(entry));
+                    parameter.add(convertParameter(entry));
                 }
             }
-            return query.setParameter(name, parameter);
+            return parameter;
+        } else if (containsUnsecureObject(value)) {
+            return getUnsecureObject(value);
         } else {
-            return query.setParameter(name, getUnsecureObject(value));
+            ClassMappingInformation classMapping = getClassMapping(value.getClass());
+            return entityManager.getReference(classMapping.getEntityType(), classMapping.getId(value));
         }
     }
 
@@ -210,6 +203,19 @@ public class EntityPersister extends AbstractSecureObjectManager {
             return secureEntity;
         }
         return (T)super.getSecureObject(unsecureObject);
+    }
+
+    boolean containsUnsecureObject(Object secureObject) {
+        if (secureObject == null) {
+            return true;
+        }
+        if (secureObject instanceof EntityProxy) {
+            secureObject = ((EntityProxy)secureObject).getEntity();
+        }
+        if (unsecureEntities.containsKey(new SystemMapKey(secureObject))) {
+            return true;
+        }
+        return super.containsUnsecureObject(secureObject);
     }
 
     <T> T getUnsecureObject(T secureObject) {
