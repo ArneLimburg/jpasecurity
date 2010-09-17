@@ -42,6 +42,6 @@ import net.sf.jpasecurity.AccessType;
 @Target(TYPE)
 public @interface PermitWhere {
 
-    String value();
+    String value() default "";
     AccessType[] access() default { CREATE, READ, UPDATE, DELETE };
 }
