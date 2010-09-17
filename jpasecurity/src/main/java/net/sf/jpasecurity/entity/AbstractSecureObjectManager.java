@@ -102,6 +102,16 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         }
     }
 
+    boolean containsUnsecureObject(Object secureObject) {
+        if (secureObject == null) {
+            return true;
+        }
+        if (secureObject instanceof EntityProxy) {
+            secureObject = ((EntityProxy)secureObject).getEntity();
+        }
+        return secureObject instanceof SecureObject;
+    }
+
     <T> T getUnsecureObject(T secureObject) {
         if (secureObject == null) {
             return null;
