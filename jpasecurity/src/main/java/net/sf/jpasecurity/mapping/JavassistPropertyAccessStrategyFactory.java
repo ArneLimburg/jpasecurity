@@ -21,6 +21,7 @@ import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
+import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import javassist.NotFoundException;
 import net.sf.jpasecurity.util.ReflectionUtils;
@@ -37,45 +38,76 @@ public class JavassistPropertyAccessStrategyFactory extends DefaultPropertyAcces
         } else {
             Method readMethod = getReadMethod(classMapping.getEntityType(), propertyName);
             Method writeMethod = getWriteMethod(classMapping.getEntityType(), propertyName);
+            Class<?> propertyType = writeMethod.getParameterTypes()[0];
             return ReflectionUtils.instantiate(createMethodAccessStrategyClass(classMapping.getEntityType().getName(),
-                                                                               writeMethod.getParameterTypes()[0].getName(),
+                                                                               propertyType,
                                                                                propertyName,
                                                                                readMethod.getName(),
                                                                                writeMethod.getName()));
         }
     }
-    
+
     private Class<PropertyAccessStrategy> createMethodAccessStrategyClass(String className,
-                                                                          String propertyType,
+                                                                          Class<?> propertyType,
                                                                           String propertyName,
                                                                           String readMethodName,
                                                                           String writeMethodName) {
+        String propertyAccessStrategyClassName = className + capitalize(propertyName) + "PropertyAccessStrategy";
+        ClassPool pool = ClassPool.getDefault();
         try {
-            ClassPool pool = ClassPool.getDefault();
-            CtClass strategy = pool.makeClass(className + capitalize(propertyName) + "PropertyAccessStrategy");
-            strategy.setInterfaces(new CtClass[] {pool.get(PropertyAccessStrategy.class.getName())});
-            CtMethod readMethod = CtNewMethod.make(getReadMethodBody(className, readMethodName), strategy);
-            strategy.addMethod(readMethod);
-            CtMethod writeMethod
-                = CtNewMethod.make(getWriteMethodBody(className, writeMethodName, propertyType), strategy);
-            strategy.addMethod(writeMethod);
-            return strategy.toClass();
+            try {
+                return (Class<PropertyAccessStrategy>)Class.forName(propertyAccessStrategyClassName);
+            } catch (ClassNotFoundException notFoundException) {
+                try {
+                    CtClass strategy = pool.makeClass(propertyAccessStrategyClassName);
+                    strategy.setInterfaces(new CtClass[] {pool.get(PropertyAccessStrategy.class.getName())});
+                    strategy.addConstructor(CtNewConstructor.defaultConstructor(strategy));
+                    CtMethod readMethod = CtNewMethod.make(getReadMethodBody(className, readMethodName), strategy);
+                    strategy.addMethod(readMethod);
+                    CtMethod writeMethod
+                        = CtNewMethod.make(getWriteMethodBody(className, writeMethodName, propertyType), strategy);
+                    strategy.addMethod(writeMethod);
+                    return strategy.toClass();
+                } catch (NotFoundException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
         } catch (CannotCompileException e) {
-            throw new IllegalStateException(e);
-        } catch (NotFoundException e) {
             throw new IllegalStateException(e);
         }
     }
-    
+
     private String getReadMethodBody(String className, String readMethodName) {
         return "public Object getPropertyValue(Object target) {"
-             + "    return ((" + className + ")target)." + readMethodName + "();"
-             + '}';
+             + "    return ($w)((" + className + ")$1)." + readMethodName + "();"
+             + "}";
     }
 
-    private String getWriteMethodBody(String className, String writeMethodName, String propertyTypeName) {
+    private String getWriteMethodBody(String className, String writeMethodName, Class<?> propertyType) {
         return "public void setPropertyValue(Object target, Object value) {"
-             + "    ((" + className + ")target)." + writeMethodName + "((" + propertyTypeName + ")value);"
-             + '}';
+             + "    ((" + className + ")$1)." + writeMethodName + "(" + getCastExpression(propertyType) + ");"
+             + "}";
+    }
+
+    private String getCastExpression(Class<?> propertyType) {
+        if (propertyType.equals(Boolean.TYPE)) {
+            return "((Boolean)$2).booleanValue()";
+        } else if (propertyType.equals(Byte.TYPE)) {
+            return "((Byte)$2).byteValue()";
+        } else if (propertyType.equals(Character.TYPE)) {
+            return "((Character)$2).charValue()";
+        } else if (propertyType.equals(Short.TYPE)) {
+            return "((Short)$2).shortValue()";
+        } else if (propertyType.equals(Integer.TYPE)) {
+            return "((Integer)$2).intValue()";
+        } else if (propertyType.equals(Long.TYPE)) {
+            return "((Long)$2).longValue()";
+        } else if (propertyType.equals(Float.TYPE)) {
+            return "((Float)$2).floatValue()";
+        } else if (propertyType.equals(Double.TYPE)) {
+            return "((Double)$2).doubleValue()";
+        } else {
+            return "(" + propertyType.getName() + ")$2";
+        }
     }
 }
