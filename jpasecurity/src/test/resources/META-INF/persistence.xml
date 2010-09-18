@@ -38,6 +38,7 @@
       <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
       <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
       <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+      <property name="net.sf.jpasecurity.mapping.property.access.factory" value="net.sf.jpasecurity.mapping.JavassistPropertyAccessStrategyFactory"/>
       <property name="hibernate.hbm2ddl.auto" value="create-drop" />
       <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
       <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
