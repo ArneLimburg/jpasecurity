@@ -110,9 +110,12 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
             for (Map.Entry<Class<?>, List<PermitWhere>> annotations: permissions.entrySet()) {
                 String name = annotatedClass.getSimpleName();
                 for (PermitWhere permission: annotations.getValue()) {
-                    JpqlWhere whereClause = whereClauseParser.parseWhereClause("WHERE " + permission.value());
                     String alias = Character.toLowerCase(name.charAt(0)) + name.substring(1);
-                    appendAlias(whereClause, alias);
+                    JpqlWhere whereClause = null;
+                    if (permission.value().trim().length() > 0) {
+                        whereClause = whereClauseParser.parseWhereClause("WHERE " + permission.value());
+                        appendAlias(whereClause, alias);
+                    }
                     StringBuilder rule = new StringBuilder("GRANT ");
                     List<AccessType> access = Arrays.asList(permission.access());
                     if (access.contains(AccessType.CREATE)) {
@@ -129,8 +132,10 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
                     }
                     rule.append("ACCESS TO ");
                     rule.append(annotatedClass.getName()).append(' ');
-                    rule.append(alias).append(' ');
-                    rule.append(whereClause);
+                    rule.append(alias);
+                    if (whereClause != null) {
+                        rule.append(' ').append(whereClause);;
+                    }
                     rules.add(rule.toString());
                 }
             }
