@@ -15,7 +15,10 @@
  */
 package net.sf.jpasecurity.mapping;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -33,60 +36,98 @@ public class JavassistPropertyAccessStrategyFactory extends DefaultPropertyAcces
 
     public PropertyAccessStrategy createPropertyAccessStrategy(ClassMappingInformation classMapping,
                                                                String propertyName) {
-        if (classMapping.usesFieldAccess()) {
-            return super.createPropertyAccessStrategy(classMapping, propertyName);
+        Class<?> entityType = classMapping.getEntityType();
+        String className = entityType.getName();
+        boolean usesFieldAccess = classMapping.usesFieldAccess();
+        Member readMember;
+        Member writeMember;
+        if (usesFieldAccess) {
+            readMember = getField(entityType, propertyName);
+            writeMember = readMember;
         } else {
-            Method readMethod = getReadMethod(classMapping.getEntityType(), propertyName);
-            Method writeMethod = getWriteMethod(classMapping.getEntityType(), propertyName);
-            Class<?> propertyType = writeMethod.getParameterTypes()[0];
-            return ReflectionUtils.instantiate(createMethodAccessStrategyClass(classMapping.getEntityType().getName(),
-                                                                               propertyType,
-                                                                               propertyName,
-                                                                               readMethod.getName(),
-                                                                               writeMethod.getName()));
+            readMember = getReadMethod(entityType, propertyName);
+            writeMember = getWriteMethod(entityType, propertyName);
+        }
+        if (!isAccessible(readMember) || !isAccessible(writeMember)) {
+            return super.createPropertyAccessStrategy(classMapping, propertyName);
+        }
+        PropertyAccessStrategy propertyAccessStrategy = findPropertyAccessStrategy(className, propertyName);
+        if (propertyAccessStrategy != null) {
+            return propertyAccessStrategy;
+        }
+        return createPropertyAccessStrategy(className, propertyName, readMember, writeMember, usesFieldAccess);
+    }
+
+    private boolean isAccessible(Member member) {
+        return !Modifier.isPrivate(member.getModifiers());
+    }
+
+    private String getPropertyAccessStrategyClassName(String className, String propertyName) {
+        return className + capitalize(propertyName) + "PropertyAccessStrategy";
+    }
+
+    private PropertyAccessStrategy findPropertyAccessStrategy(String className, String propertyName) {
+        try {
+            String propertyAccessStrategyClassName = getPropertyAccessStrategyClassName(className, propertyName);
+            Class<PropertyAccessStrategy> propertyAccessStrategyClass
+                = (Class<PropertyAccessStrategy>)Class.forName(propertyAccessStrategyClassName);
+            return ReflectionUtils.instantiate(propertyAccessStrategyClass);
+        } catch (ClassNotFoundException e) {
+            return null;
         }
     }
 
-    private Class<PropertyAccessStrategy> createMethodAccessStrategyClass(String className,
-                                                                          Class<?> propertyType,
-                                                                          String propertyName,
-                                                                          String readMethodName,
-                                                                          String writeMethodName) {
-        String propertyAccessStrategyClassName = className + capitalize(propertyName) + "PropertyAccessStrategy";
-        ClassPool pool = ClassPool.getDefault();
+    private PropertyAccessStrategy createPropertyAccessStrategy(String className,
+                                                                String propertyName,
+                                                                Member readMember,
+                                                                Member writeMember,
+                                                                boolean usesFieldAccess) {
+        return ReflectionUtils.instantiate(createPropertyAccessStrategyClass(className,
+                                                                             propertyName,
+                                                                             readMember,
+                                                                             writeMember,
+                                                                             usesFieldAccess));
+    }
+
+    private Class<PropertyAccessStrategy> createPropertyAccessStrategyClass(String className,
+                                                                            String propertyName,
+                                                                            Member readMember,
+                                                                            Member writeMember,
+                                                                            boolean usesFieldAccess) {
         try {
-            try {
-                return (Class<PropertyAccessStrategy>)Class.forName(propertyAccessStrategyClassName);
-            } catch (ClassNotFoundException notFoundException) {
-                try {
-                    CtClass strategy = pool.makeClass(propertyAccessStrategyClassName);
-                    strategy.setInterfaces(new CtClass[] {pool.get(PropertyAccessStrategy.class.getName())});
-                    strategy.addConstructor(CtNewConstructor.defaultConstructor(strategy));
-                    CtMethod readMethod = CtNewMethod.make(getReadMethodBody(className, readMethodName), strategy);
-                    strategy.addMethod(readMethod);
-                    CtMethod writeMethod
-                        = CtNewMethod.make(getWriteMethodBody(className, writeMethodName, propertyType), strategy);
-                    strategy.addMethod(writeMethod);
-                    return strategy.toClass();
-                } catch (NotFoundException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
+            String propertyAccessStrategyClassName = getPropertyAccessStrategyClassName(className, propertyName);
+            ClassPool pool = ClassPool.getDefault();
+            CtClass strategy = pool.makeClass(propertyAccessStrategyClassName);
+            strategy.setInterfaces(new CtClass[] {pool.get(PropertyAccessStrategy.class.getName())});
+            strategy.addConstructor(CtNewConstructor.defaultConstructor(strategy));
+            CtMethod readMethod = CtNewMethod.make(getReadMethod(className, readMember, usesFieldAccess), strategy);
+            strategy.addMethod(readMethod);
+            CtMethod writeMethod = CtNewMethod.make(getWriteMethod(className, writeMember, usesFieldAccess), strategy);
+            strategy.addMethod(writeMethod);
+            return strategy.toClass();
+        } catch (NotFoundException e) {
+            throw new IllegalStateException(e);
         } catch (CannotCompileException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private String getReadMethodBody(String className, String readMethodName) {
+    private String getReadMethod(String className, Member readMember, boolean usesFieldAccess) {
         return "public Object getPropertyValue(Object target) {"
-             + "    return ($w)((" + className + ")$1)." + readMethodName + "();"
+             + "    return ($w)((" + className + ")$1)." + readMember.getName() + (usesFieldAccess? ";": "();")
              + "}";
     }
 
-    private String getWriteMethodBody(String className, String writeMethodName, Class<?> propertyType) {
+    private String getWriteMethod(String className, Member writeMember, boolean usesFieldAccess) {
+        Class<?> propertyType = getPropertyType(writeMember, usesFieldAccess);
         return "public void setPropertyValue(Object target, Object value) {"
-             + "    ((" + className + ")$1)." + writeMethodName + "(" + getCastExpression(propertyType) + ");"
+             + "    ((" + className + ")$1)." + writeMember.getName()
+             +                              (usesFieldAccess? " = ": "") + "(" + getCastExpression(propertyType) + ");"
              + "}";
+    }
+
+    private Class<?> getPropertyType(Member writeMember, boolean usesFieldAccess) {
+        return usesFieldAccess? ((Field)writeMember).getType(): ((Method)writeMember).getParameterTypes()[0];
     }
 
     private String getCastExpression(Class<?> propertyType) {
