@@ -134,7 +134,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
                     rule.append(annotatedClass.getName()).append(' ');
                     rule.append(alias);
                     if (whereClause != null) {
-                        rule.append(' ').append(whereClause);;
+                        rule.append(' ').append(whereClause);
                     }
                     rules.add(rule.toString());
                 }
