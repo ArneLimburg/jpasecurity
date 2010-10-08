@@ -23,6 +23,8 @@ import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
+import net.sf.jpasecurity.security.AuthenticationProviderSecurityContext;
+import net.sf.jpasecurity.security.SecurityContext;
 
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
@@ -31,7 +33,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
  */
 public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntityManagerFactoryBean {
 
-    private AuthenticationProvider authenticationProvider;
+    private SecurityContext securityContext;
     private AccessRulesProvider accessRulesProvider;
     private SecureEntityProxyFactory secureEntityProxyFactory;
     private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
@@ -40,18 +42,22 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
         setEntityManagerInterface(SecureEntityManager.class);
     }
 
-    public AuthenticationProvider getAuthenticationProvider() {
-        if (authenticationProvider == null) {
+    public SecurityContext getSecurityContext() {
+        if (securityContext == null) {
             String providerName
-                = (String)getJpaPropertyMap().get(SecurePersistenceProvider.AUTHENTICATION_PROVIDER_PROPERTY);
-            authenticationProvider
-                = createObject(providerName, SecurePersistenceProvider.DEFAULT_AUTHENTICATION_PROVIDER_CLASS);
+                = (String)getJpaPropertyMap().get(SecurePersistenceProvider.SECURITY_CONTEXT_PROPERTY);
+            securityContext
+                = createObject(providerName, SecurePersistenceProvider.DEFAULT_SECURITY_CONTEXT_CLASS);
         }
-        return authenticationProvider;
+        return securityContext;
+    }
+
+    public void setSecurityContext(SecurityContext securityContext) {
+        this.securityContext = securityContext;
     }
 
     public void setAuthenticationProvider(AuthenticationProvider authenticationProvider) {
-        this.authenticationProvider = authenticationProvider;
+        this.securityContext = new AuthenticationProviderSecurityContext(authenticationProvider);
     }
 
     public AccessRulesProvider getAccessRulesProvider() {
@@ -120,7 +126,7 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
         return persistenceProvider.createSecureEntityManagerFactory(entityManagerFactory,
                                                                     getPersistenceUnitName(),
                                                                     getJpaPropertyMap(),
-                                                                    getAuthenticationProvider(),
+                                                                    getSecurityContext(),
                                                                     getAccessRulesProvider(),
                                                                     getSecureEntityProxyFactory(),
                                                                     getPropertyAccessStrategyFactory());

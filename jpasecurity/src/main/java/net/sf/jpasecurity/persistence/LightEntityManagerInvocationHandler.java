@@ -17,22 +17,18 @@ package net.sf.jpasecurity.persistence;
 
 import static net.sf.jpasecurity.AccessType.READ;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.entity.EmptyObjectCache;
-import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.security.AccessRule;
-import net.sf.jpasecurity.security.AuthenticationProvider;
 import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
+import net.sf.jpasecurity.security.SecurityContext;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 /**
@@ -42,15 +38,15 @@ import net.sf.jpasecurity.util.ProxyInvocationHandler;
 public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<EntityManager> {
 
     private MappingInformation mappingInformation;
-    private AuthenticationProvider authenticationProvider;
+    private SecurityContext securityContext;
     private EntityFilter entityFilter;
 
     LightEntityManagerInvocationHandler(EntityManager entityManager, MappingInformation mappingInformation,
-                                        AuthenticationProvider authenticationProvider, List<AccessRule> accessRules,
+                                        SecurityContext securityContext, List<AccessRule> accessRules,
                                         int maxFetchDepth) {
         super(entityManager);
         this.mappingInformation = mappingInformation;
-        this.authenticationProvider = authenticationProvider;
+        this.securityContext = securityContext;
         this.entityFilter = new EntityFilter(entityManager, new EmptyObjectCache(), mappingInformation, accessRules);
     }
 
@@ -63,51 +59,17 @@ public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<
      * and the authenticated user and its roles.
      */
     public Query createQuery(String qlString) {
-        Object user = getCurrentUser();
-        Set<Object> roles = getCurrentRoles();
-        FilterResult filterResult = entityFilter.filterQuery(qlString, READ, user, roles);
+        FilterResult filterResult = entityFilter.filterQuery(qlString, READ, securityContext);
         if (filterResult.getQuery() == null) {
             return new EmptyResultQuery();
         } else {
             Query query = getTarget().createQuery(filterResult.getQuery());
-            if (filterResult.getUserParameterName() != null) {
-                query.setParameter(filterResult.getUserParameterName(), user);
-            }
-            if (filterResult.getRoleParameters() != null) {
-                for (Map.Entry<String, Object> roleParameter: filterResult.getRoleParameters().entrySet()) {
+            if (filterResult.getParameters() != null) {
+                for (Map.Entry<String, Object> roleParameter: filterResult.getParameters().entrySet()) {
                     query.setParameter(roleParameter.getKey(), roleParameter.getValue());
                 }
             }
             return query;
         }
-    }
-
-    private Object getCurrentUser() {
-        Object user = authenticationProvider.getPrincipal();
-        if (user != null && getTarget().isOpen()) {
-            ClassMappingInformation userClassMapping = mappingInformation.getClassMapping(user.getClass());
-            if (userClassMapping != null) {
-                Object id = userClassMapping.getId(user);
-                user = getTarget().getReference(userClassMapping.getEntityType(), id);
-            }
-        }
-        return user;
-    }
-
-    private Set<Object> getCurrentRoles() {
-        Collection<?> authorizedRoles = authenticationProvider.getRoles();
-        Set<Object> roles = new HashSet<Object>();
-        if (authorizedRoles != null) {
-            for (Object role: authorizedRoles) {
-                ClassMappingInformation roleClassMapping = mappingInformation.getClassMapping(role.getClass());
-                if (roleClassMapping == null) {
-                    roles.add(role);
-                } else {
-                    Object id = roleClassMapping.getId(role);
-                    roles.add(getTarget().getReference(roleClassMapping.getEntityType(), id));
-                }
-            }
-        }
-        return roles;
     }
 }

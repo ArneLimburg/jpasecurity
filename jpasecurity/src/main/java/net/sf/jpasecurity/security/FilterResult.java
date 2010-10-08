@@ -27,8 +27,7 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
 public class FilterResult {
 
     private String query;
-    private String userParameterName;
-    private Map<String, Object> roleParameters;
+    private Map<String, Object> parameters;
     private List<String> selectedPaths;
     private Set<TypeDefinition> types;
 
@@ -40,13 +39,11 @@ public class FilterResult {
     }
 
     public FilterResult(String query,
-                        String userParameterName,
-                        Map<String, Object> roleParameters,
+                        Map<String, Object> parameters,
                         List<String> selectedPaths,
                         Set<TypeDefinition> types) {
         this(query);
-        this.userParameterName = userParameterName;
-        this.roleParameters = roleParameters;
+        this.parameters = parameters;
         this.selectedPaths = selectedPaths;
         this.types = types;
     }
@@ -55,12 +52,8 @@ public class FilterResult {
         return query;
     }
 
-    public String getUserParameterName() {
-        return userParameterName;
-    }
-
-    public Map<String, Object> getRoleParameters() {
-        return roleParameters;
+    public Map<String, Object> getParameters() {
+        return parameters;
     }
 
     public List<String> getSelectedPaths() {

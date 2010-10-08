@@ -78,7 +78,7 @@ public class AclSyntaxTest extends TestCase {
        entityManager.close();
    }
    
-   public void testAclProtectedEntityAccessWithManyPrivileges() {
+   public void ignoreTestAclProtectedEntityAccessWithManyPrivileges() {
        Object[] roles = new Object[1000];
        roles[0] = group;
        for (int i = 1; i < roles.length; i++) {

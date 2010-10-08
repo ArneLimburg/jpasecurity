@@ -31,6 +31,8 @@ import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRulesProvider;
 import net.sf.jpasecurity.security.AuthenticationProvider;
+import net.sf.jpasecurity.security.AuthenticationProviderSecurityContext;
+import net.sf.jpasecurity.security.SecurityContext;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 import org.apache.commons.logging.Log;
@@ -51,10 +53,12 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         = "light";
     public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT
         = "default";
+    public static final String SECURITY_CONTEXT_PROPERTY
+        = "net.sf.jpasecurity.security.context";
+    public static final String DEFAULT_SECURITY_CONTEXT_CLASS
+        = "net.sf.jpasecurity.security.authentication.AutodetectingSecurityContext";
     public static final String AUTHENTICATION_PROVIDER_PROPERTY
         = "net.sf.jpasecurity.security.authentication.provider";
-    public static final String DEFAULT_AUTHENTICATION_PROVIDER_CLASS
-        = "net.sf.jpasecurity.security.authentication.AutodetectingAuthenticationProvider";
     public static final String ACCESS_RULES_PROVIDER_PROPERTY
         = "net.sf.jpasecurity.security.rules.provider";
     public static final String DEFAULT_ACCESS_RULES_PROVIDER_CLASS
@@ -98,14 +102,14 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
                                                                  PersistenceUnitInfo info,
                                                                  Map<String, String> properties) {
-        AuthenticationProvider authenticationProvider = createAuthenticationProvider(info, properties);
+        SecurityContext securityContext = createSecurityContext(info, properties);
         AccessRulesProvider accessRulesProvider = createAccessRulesProvider(info, properties);
         SecureEntityProxyFactory proxyFactory = createSecureEntityProxyFactory(info, properties);
         PropertyAccessStrategyFactory accessStrategyFactory = createPropertyAccessStrategyFactory(info, properties);
         return createSecureEntityManagerFactory(nativeEntityManagerFactory,
                                                 info,
                                                 properties,
-                                                authenticationProvider,
+                                                securityContext,
                                                 accessRulesProvider,
                                                 proxyFactory,
                                                 accessStrategyFactory);
@@ -114,7 +118,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
                                                                  String persistenceUnitName,
                                                                  Map<String, String> properties,
-                                                                 AuthenticationProvider authenticationProvider,
+                                                                 SecurityContext securityContext,
                                                                  AccessRulesProvider accessRulesProvider,
                                                                  SecureEntityProxyFactory proxyFactory,
                                                                  PropertyAccessStrategyFactory accessStrategyFactory) {
@@ -125,7 +129,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         return createSecureEntityManagerFactory(nativeEntityManagerFactory,
                                                 info,
                                                 properties,
-                                                authenticationProvider,
+                                                securityContext,
                                                 accessRulesProvider,
                                                 proxyFactory,
                                                 accessStrategyFactory);
@@ -134,7 +138,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
                                                                  PersistenceUnitInfo persistenceUnitInfo,
                                                                  Map<String, String> properties,
-                                                                 AuthenticationProvider authenticationProvider,
+                                                                 SecurityContext securityContext,
                                                                  AccessRulesProvider accessRulesProvider,
                                                                  SecureEntityProxyFactory proxyFactory,
                                                                  PropertyAccessStrategyFactory accessStrategyFactory) {
@@ -144,7 +148,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             invocationHandler = new EntityManagerFactoryInvocationHandler(nativeEntityManagerFactory,
                                                                           persistenceUnitInfo,
                                                                           properties,
-                                                                          authenticationProvider,
+                                                                          securityContext,
                                                                           accessRulesProvider,
                                                                           proxyFactory,
                                                                           accessStrategyFactory);
@@ -152,7 +156,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             invocationHandler = new LightEntityManagerFactoryInvocationHandler(nativeEntityManagerFactory,
                                                                                persistenceUnitInfo,
                                                                                properties,
-                                                                               authenticationProvider,
+                                                                               securityContext,
                                                                                accessRulesProvider,
                                                                                proxyFactory,
                                                                                accessStrategyFactory);
@@ -237,6 +241,38 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         }
     }
 
+    private SecurityContext createSecurityContext(PersistenceUnitInfo persistenceUnitInfo,
+                                                  Map<String, String> properties) {
+        try {
+            String securityContextClassName = null;
+            if (properties != null) {
+                securityContextClassName = properties.get(SECURITY_CONTEXT_PROPERTY);
+            }
+            if (securityContextClassName == null) {
+                securityContextClassName
+                    = persistenceUnitInfo.getProperties().getProperty(SECURITY_CONTEXT_PROPERTY);
+            }
+            if (securityContextClassName == null) {
+                AuthenticationProvider authenticationProvider
+                    = createAuthenticationProvider(persistenceUnitInfo, properties);
+                if (authenticationProvider != null) {
+                    return new AuthenticationProviderSecurityContext(authenticationProvider);
+                }
+                securityContextClassName = DEFAULT_SECURITY_CONTEXT_CLASS;
+            }
+            LOG.info("using " + securityContextClassName + " as security context");
+            Class<?> authenticationProviderClass
+                = getClassLoader(persistenceUnitInfo).loadClass(securityContextClassName);
+            return (SecurityContext)authenticationProviderClass.newInstance();
+        } catch (InstantiationException e) {
+            throw new PersistenceException(e);
+        } catch (IllegalAccessException e) {
+            throw new PersistenceException(e);
+        } catch (ClassNotFoundException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
     private AuthenticationProvider createAuthenticationProvider(PersistenceUnitInfo persistenceUnitInfo,
                                                                 Map<String, String> properties) {
         try {
@@ -246,8 +282,10 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             }
             if (authenticationProviderClassName == null) {
                 authenticationProviderClassName
-                    = persistenceUnitInfo.getProperties().getProperty(AUTHENTICATION_PROVIDER_PROPERTY,
-                    DEFAULT_AUTHENTICATION_PROVIDER_CLASS);
+                    = persistenceUnitInfo.getProperties().getProperty(AUTHENTICATION_PROVIDER_PROPERTY);
+            }
+            if (authenticationProviderClassName == null) {
+                return null;
             }
             LOG.info("using " + authenticationProviderClassName + " as authentication provider");
             Class<?> authenticationProviderClass

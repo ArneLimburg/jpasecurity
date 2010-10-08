@@ -34,6 +34,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.mapping.SimplePropertyMappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
+import net.sf.jpasecurity.security.SecurityContext;
 
 /**
  * This evaluator is used to check queries and rules.
@@ -44,9 +45,17 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
 public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
 
     private MappingInformation mappingInformation;
+    private SecurityContext securityContext;
 
-    public MappingEvaluator(MappingInformation mappingInformation) {
+    public MappingEvaluator(MappingInformation mappingInformation, SecurityContext securityContext) {
+        if (mappingInformation == null) {
+            throw new IllegalArgumentException("mappingInformation may not be null");
+        }
+        if (securityContext == null) {
+            throw new IllegalArgumentException("securityContext may not be null");
+        }
         this.mappingInformation = mappingInformation;
+        this.securityContext = securityContext;
     }
 
     /**
@@ -129,6 +138,14 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
     }
 
     public Class<?> getType(String alias, Set<TypeDefinition> typeDefinitions) {
+        if (securityContext.getAliases().contains(alias)) {
+            Object aliasValue = securityContext.getAliasValues(alias);
+            if (aliasValue != null) {
+                return aliasValue.getClass();
+            }
+            aliasValue = securityContext.getAliasValue(alias);
+            return aliasValue == null? Object.class: aliasValue.getClass();
+        }
         for (TypeDefinition typeDefinition: typeDefinitions) {
             if (alias.equals(typeDefinition.getAlias())) {
                 return typeDefinition.getType();

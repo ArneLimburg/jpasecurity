@@ -25,7 +25,7 @@ import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRulesProvider;
-import net.sf.jpasecurity.security.AuthenticationProvider;
+import net.sf.jpasecurity.security.SecurityContext;
 
 /**
  * @author Stefan Hildebrandt
@@ -35,14 +35,14 @@ public class LightEntityManagerFactoryInvocationHandler extends EntityManagerFac
     public LightEntityManagerFactoryInvocationHandler(EntityManagerFactory entityManagerFactory,
                                                       PersistenceUnitInfo persistenceUnitInfo,
                                                       Map<String, String> properties,
-                                                      AuthenticationProvider authenticationProvider,
+                                                      SecurityContext securityContext,
                                                       AccessRulesProvider accessRulesProvider,
                                                       SecureEntityProxyFactory proxyFactory,
                                                       PropertyAccessStrategyFactory propertyAccessStrategyFactory) {
         super(entityManagerFactory,
               persistenceUnitInfo,
               properties,
-              authenticationProvider,
+              securityContext,
               accessRulesProvider,
               proxyFactory,
               propertyAccessStrategyFactory);
@@ -58,7 +58,7 @@ public class LightEntityManagerFactoryInvocationHandler extends EntityManagerFac
         LightEntityManagerInvocationHandler invocationHandler
             = new LightEntityManagerInvocationHandler(entityManager,
                                                       getMappingInformation(),
-                                                      getAuthenticationProvider(),
+                                                      getSecurityContext(),
                                                       getAccessRulesProvider().getAccessRules(),
                                                       entityManagerFetchDepth);
         return invocationHandler.createProxy();
