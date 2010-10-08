@@ -24,18 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
 
-import javax.persistence.NoResultException;
-
-import net.sf.jpasecurity.entity.EmptyObjectCache;
-import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.parser.JpqlAbs;
 import net.sf.jpasecurity.jpql.parser.JpqlAdd;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
@@ -59,7 +48,6 @@ import net.sf.jpasecurity.jpql.parser.JpqlHaving;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentifier;
 import net.sf.jpasecurity.jpql.parser.JpqlIn;
-import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlIntegerLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlIsEmpty;
 import net.sf.jpasecurity.jpql.parser.JpqlIsNull;
@@ -78,7 +66,6 @@ import net.sf.jpasecurity.jpql.parser.JpqlNot;
 import net.sf.jpasecurity.jpql.parser.JpqlNotEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlOr;
 import net.sf.jpasecurity.jpql.parser.JpqlOrderBy;
-import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
@@ -97,9 +84,6 @@ import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.TypeDefinition;
-import net.sf.jpasecurity.util.ListHashMap;
-import net.sf.jpasecurity.util.ListMap;
 
 /**
  * This implementation of the {@link JpqlVisitorAdapter} evaluates queries in memory,
@@ -114,7 +98,6 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
     protected final JpqlCompiler compiler;
     protected final PathEvaluator pathEvaluator;
-    private final ReplacementVisitor replacementVisitor = new ReplacementVisitor();
 
     public InMemoryEvaluator(MappingInformation mappingInformation) {
         this(new JpqlCompiler(mappingInformation), new MappedPathEvaluator(mappingInformation));
@@ -176,8 +159,16 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             String path = node.toString();
             int index = path.indexOf('.');
             if (index != -1) {
+                path = path.substring(index + 1);
                 PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMappingInformation());
-                data.setResult(pathEvaluator.evaluate(data.getResult(), path.substring(index + 1)));
+                Collection<Object> result = pathEvaluator.evaluateAll(Collections.singleton(data.getResult()), path);
+                if (result.size() == 0) {
+                    data.setResult(null);
+                } else if (result.size() == 1) {
+                    data.setResult(result.iterator().next());
+                } else {
+                    data.setResult(result);
+                }
             }
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
@@ -854,301 +845,31 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     }
 
     public boolean visit(JpqlSubselect node, InMemoryEvaluationParameters data) {
-        if (!(node.jjtGetParent() instanceof JpqlExists)) {
-            data.setResultUndefined();
-            return false;
-        }
-
         JpqlCompiledStatement subselect = compiler.compile(node);
-
         try {
-            Set<Replacement> replacements
-                = getReplacements(subselect.getTypeDefinitions(), subselect.getStatement());
-            Map<String, Object> aliases = new HashMap<String, Object>();
-            for (Replacement replacement: replacements) {
-                if (replacement.getReplacement() == null) {
-                    throw new NotEvaluatableException();
-                }
-                InMemoryEvaluationParameters parameters = new InMemoryEvaluationParameters(data);
-                replacement.getReplacement().visit(this, parameters);
-                Object result = parameters.getResult();
-                if (replacement.getTypeDefinition().getType().isAssignableFrom(result.getClass())) {
-                    aliases.put(replacement.getTypeDefinition().getAlias(), result);
-                } else {
-                    //Value is of wrong type then so the inner join rules out everything
-                    data.setResult(Collections.EMPTY_SET);
-                    return false;
-                }
-            }
-            aliases.putAll(data.getAliasValues());
-            InMemoryEvaluationParameters<Boolean> whereClauseEvaluation
-                = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
-                                                            aliases,
-                                                            data.getNamedParameters(),
-                                                            data.getPositionalParameters(),
-                                                            data.getObjectCache());
-            if (evaluate(subselect.getWhereClause(), whereClauseEvaluation)) {
-                try {
-                    data.setResult(Collections.singleton(getPathValue(subselect.getSelectedPaths().get(0), aliases)));
-                } catch (RuntimeException e) {
-                    throw new NotEvaluatableException(e);
-                }
-            } else {
-                data.setResult(Collections.EMPTY_SET);
-            }
-            return false;
-        } catch (NotEvaluatableException notEvaluatableException) {
-            try {
-                //Test whether the where-clause is always false
-                InMemoryEvaluationParameters<Boolean> parameters
-                    = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
-                                                                Collections.EMPTY_MAP,
-                                                                data.getNamedParameters(),
-                                                                data.getPositionalParameters(),
-                                                                new EmptyObjectCache());
-                if (!evaluate(subselect.getWhereClause(), parameters)) {
-                    data.setResult(Collections.EMPTY_SET);
-                    return false;
-                }
-            } catch (NotEvaluatableException e) {
-                //ignore and go on
-            }
-            //we try to evaluate with the session-data from the objectManager
-            SecureObjectCache objectCache = data.getObjectCache();
-            try {
-                ListMap<String, Object> aliasValues
-                    = evaluateAliasValues(subselect.getTypeDefinitions(), objectCache);
-                for (Iterator<Map<String, Object>> i = new ValueIterator(aliasValues); i.hasNext();) {
-                    Map<String, Object> aliases = new HashMap<String, Object>(data.getAliasValues());
-                    aliases.putAll(i.next());
-                    try {
-                        addJoinAliases(subselect.getTypeDefinitions(), aliases, pathEvaluator);
-                        InMemoryEvaluationParameters<Boolean> parameters
-                            = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
-                                                                        aliases,
-                                                                        data.getNamedParameters(),
-                                                                        data.getPositionalParameters(),
-                                                                        objectCache);
-                        if (subselect.getWhereClause() == null || evaluate(subselect.getWhereClause(), parameters)) {
-                            if (subselect.getSelectedPaths().size() != 1) {
-                                throw new IllegalStateException("Illegal number of select-pathes: expected 1, but was " + subselect.getSelectedPaths().size());
-                            }
-                            String selectedPath = subselect.getSelectedPaths().get(0);
-                            Object result = getPathValue(selectedPath, aliases);
-                            if (result != null) {
-                                data.setResult(Collections.singleton(result));
-                                return false;
-                            }
-                        }
-                    } catch (NoResultException e) {
-                        //Removed by inner join
-                    }
-                }
-            } catch (NotEvaluatableException e) {
-                //result is undefined then
-            }
-            data.setResultUndefined();
-            return false;
-        }
-    }
-
-    protected Object getPathValue(String path, Map<String, Object> aliases) {
-        String alias = getAlias(path);
-        Object aliasValue = aliases.get(alias);
-        if (path.length() == alias.length()) {
-            return aliasValue;
-        }
-        return pathEvaluator.evaluate(aliasValue, path.substring(alias.length() + 1));
-    }
-
-    protected String getAlias(String path) {
-        int index = path.indexOf('.');
-        return index == -1? path: path.substring(0, index);
-    }
-
-    private Set<Replacement> getReplacements(Set<TypeDefinition> types, Node statement) {
-        Set<Replacement> replacements = new HashSet<Replacement>();
-        for (TypeDefinition type: types) {
-            replacements.add(new Replacement(type));
-        }
-        statement.visit(replacementVisitor, replacements);
-        evaluateJoinPathReplacements(replacements);
-        return replacements;
-    }
-
-    private void evaluateJoinPathReplacements(Set<Replacement> replacements) {
-        for (Replacement replacement: replacements) {
-            if (replacement.getTypeDefinition().isJoin()) {
-                Node replacementNode = replacement.getReplacement();
-                String rootAlias = replacementNode.jjtGetChild(0).toString();
-                Replacement rootReplacement = getReplacement(rootAlias, replacements);
-                while (rootReplacement != null) {
-                    Node rootNode = rootReplacement.getReplacement().clone();
-                    for (int i = 1; i < replacementNode.jjtGetNumChildren(); i++) {
-                        rootNode.jjtAddChild(replacementNode.jjtGetChild(i), rootNode.jjtGetNumChildren());
-                    }
-                    replacement.setReplacement(rootNode);
-                    String newRootAlias = rootNode.jjtGetChild(0).toString();
-                    rootReplacement = getReplacement(newRootAlias, replacements);
-                    replacementNode = rootNode;
-                }
-            }
-        }
-    }
-
-    private Replacement getReplacement(String alias, Set<Replacement> replacements) {
-        for (Replacement replacement: replacements) {
-            if (replacement.getTypeDefinition().getAlias().equals(alias)) {
-                return replacement;
-            }
-        }
-        return null;
-    }
-
-    private ListMap<String, Object> evaluateAliasValues(Set<TypeDefinition> typeDefinitions,
-                                                        SecureObjectCache objectCache) {
-        ListMap<String, Object> aliasValues = new ListHashMap<String, Object>();
-        for (TypeDefinition typeDefinition: typeDefinitions) {
-            String alias = typeDefinition.getAlias();
-            if (alias != null && !typeDefinition.isJoin()) {
-                aliasValues.addAll(alias, objectCache.getSecureObjects(typeDefinition.getType()));
-            }
-        }
-        return aliasValues;
-    }
-
-    private void addJoinAliases(Set<TypeDefinition> typeDefinitions,
-                                Map<String, Object> aliases,
-                                PathEvaluator pathEvaluator) throws NotEvaluatableException {
-        Set<TypeDefinition> joinAliasDefinitions = new HashSet<TypeDefinition>();
-        for (TypeDefinition typeDefinition: typeDefinitions) {
-            if (typeDefinition.isJoin()) {
-                joinAliasDefinitions.add(typeDefinition);
-            }
-        }
-        //We cannot be sure about the order of the aliasDefinitions.
-        //So we process the aliases where the root alias is already available
-        //and do so until all aliases are processed
-        while (!joinAliasDefinitions.isEmpty()) {
-            int count = joinAliasDefinitions.size();
-            for (Iterator<TypeDefinition> i = joinAliasDefinitions.iterator(); i.hasNext();) {
-                TypeDefinition typeDefinition = i.next();
-                if (typeDefinition.getAlias() != null) {
-                    String joinPath = typeDefinition.getJoinPath();
-                    int index = joinPath.indexOf('.');
-                    String rootAlias = joinPath.substring(0, index);
-                    Object root = aliases.get(rootAlias);
-                    if (root != null) {
-                        Object value = pathEvaluator.evaluate(root, joinPath);
-                        if (typeDefinition.isInnerJoin() && value == null) {
-                            throw new NoResultException();
-                        }
-                        aliases.put(typeDefinition.getAlias(), value);
-                        i.remove();
-                    }
-                }
-            }
-            if (joinAliasDefinitions.size() == count) {
-                //No alias removed. This would be an endless loop, if we would not throw an exception here
-                throw new NotEvaluatableException();
-            }
-        }
-    }
-
-    private class Replacement {
-
-        private TypeDefinition type;
-        private Node replacement;
-
-        public Replacement(TypeDefinition type) {
-            this.type = type;
-        }
-
-        public TypeDefinition getTypeDefinition() {
-            return type;
-        }
-
-        public Node getReplacement() {
-            return replacement;
-        }
-
-        public void setReplacement(Node replacement) {
-            this.replacement = replacement;
-        }
-    }
-
-    private class ReplacementVisitor extends JpqlVisitorAdapter<Set<Replacement>> {
-
-        public boolean visit(JpqlEquals node, Set<Replacement> replacements) {
-            for (Replacement replacement: replacements) {
-                if (node.jjtGetChild(0).toString().equals(replacement.getTypeDefinition().getAlias())) {
-                    replacement.setReplacement(node.jjtGetChild(1));
-                } else if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias())) {
-                    replacement.setReplacement(node.jjtGetChild(0));
-                }
-            }
-            return false;
-        }
-
-        public boolean visit(JpqlInnerJoin node, Set<Replacement> replacements) {
-            return visitJoin(node, replacements);
-        }
-
-        public boolean visit(JpqlOuterJoin node, Set<Replacement> replacements) {
-            return visitJoin(node, replacements);
-        }
-
-        public boolean visitJoin(Node node, Set<Replacement> replacements) {
-            if (node.jjtGetNumChildren() != 2) {
+            SubselectEvaluator subselectEvaluator = new SimpleSubselectEvaluator(this);
+            data.setResult(subselectEvaluator.evaluate(subselect, data));
+        } catch (NotEvaluatableException e) {
+            if (!(node.jjtGetParent() instanceof JpqlExists)) {
+                data.setResultUndefined();
                 return false;
             }
-            for (Replacement replacement: replacements) {
-                if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias())) {
-                    replacement.setReplacement(node.jjtGetChild(0));
-                }
-            }
-            return false;
-        }
-    }
-
-    private static class ValueIterator implements Iterator<Map<String, Object>> {
-
-        private List<String> possibleKeys;
-        private ListMap<String, Object> possibleValues;
-        private Map<String, Object> currentValue;
-
-        public ValueIterator(ListMap<String, Object> possibleValues) {
-            this.possibleKeys = new ArrayList<String>(possibleValues.keySet());
-            this.possibleValues = possibleValues;
-            this.currentValue = new HashMap<String, Object>();
-        }
-
-        public boolean hasNext() {
-            for (String key: possibleKeys) {
-                if (possibleValues.indexOf(key, currentValue.get(key)) < possibleValues.size(key) - 1) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public Map<String, Object> next() {
-            for (String key: possibleKeys) {
-                Object current = currentValue.get(key);
-                int index = possibleValues.indexOf(key, current);
-                if (index == possibleValues.size(key) - 1) {
-                    currentValue.put(key, possibleValues.get(key, 0));
+            try {
+                SubselectEvaluator subselectEvaluator = new ObjectCacheSubselectEvaluator(this);
+                Collection<?> result = subselectEvaluator.evaluate(subselect, data);
+                if (result.size() > 0) {
+                    data.setResult(result);
                 } else {
-                    currentValue.put(key, possibleValues.get(key, index + 1));
-                    return new HashMap(currentValue);
+                    //We cannot know then whether there are objects
+                    //because that no objects could be found in the cache does not mean
+                    //that no object can be found in the database
+                    data.setResultUndefined();
                 }
+            } catch (NotEvaluatableException e1) {
+                data.setResultUndefined();
             }
-            throw new NoSuchElementException();
         }
-
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
+        return false;
     }
 
     private void validateChildCount(Node node, int childCount) {

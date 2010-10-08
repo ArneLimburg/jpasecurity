@@ -59,13 +59,13 @@ public class MappedPathEvaluator implements PathEvaluator {
                     throw new PersistenceException("class '" + rootObject.getClass().getName() + "' is not mapped");
                 }
                 PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(property);
-                if (propertyMapping == null) {
-                    throw new PersistenceException("property '" + property + "' of class '" + rootObject.getClass().getName() + "' is not mapped");
-                }
-                Object result = propertyMapping.getPropertyValue(rootObject);
-                if (result != null) {
-                    resultCollection.add(result);
-                }
+                if (propertyMapping != null) {
+                    Object result = propertyMapping.getPropertyValue(rootObject);
+                    if (result != null) {
+                        resultCollection.add(result);
+                    }
+                } //otherwise it must be a subclass property of another subclass,
+                  //so this rootObject is not part of the current result
             }
             rootCollection.clear();
             for (Object resultObject: resultCollection) {
