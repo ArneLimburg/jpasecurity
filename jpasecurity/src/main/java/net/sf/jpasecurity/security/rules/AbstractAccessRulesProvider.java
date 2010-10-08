@@ -29,8 +29,10 @@ import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
+import net.sf.jpasecurity.persistence.SecurityContextReceiver;
 import net.sf.jpasecurity.security.AccessRule;
 import net.sf.jpasecurity.security.AccessRulesProvider;
+import net.sf.jpasecurity.security.SecurityContext;
 
 /**
  * A base class for implementations of the {@link AccessRulesProvider} interface
@@ -39,10 +41,13 @@ import net.sf.jpasecurity.security.AccessRulesProvider;
  * @see #compileRules(Collection)
  * @author Arne Limburg
  */
-public abstract class AbstractAccessRulesProvider implements AccessRulesProvider, PersistenceInformationReceiver {
+public abstract class AbstractAccessRulesProvider implements AccessRulesProvider,
+                                                             PersistenceInformationReceiver,
+                                                             SecurityContextReceiver {
 
     private MappingInformation persistenceMapping;
     private Map<String, String> persistenceProperties;
+    private SecurityContext securityContext;
     private List<AccessRule> accessRules;
 
     public MappingInformation getPersistenceMapping() {
@@ -59,6 +64,14 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
 
     public final void setPersistenceProperties(Map<String, String> properties) {
         this.persistenceProperties = properties;
+    }
+
+    public SecurityContext getSecurityContext() {
+        return securityContext;
+    }
+
+    public final void setSecurityContext(SecurityContext securityContext) {
+        this.securityContext = securityContext;
     }
 
     /**
@@ -112,7 +125,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
      * Check whether the mapping is consistent with the rules
      */
     private void checkAccessRules() {
-        MappingEvaluator evaluator = new MappingEvaluator(persistenceMapping);
+        MappingEvaluator evaluator = new MappingEvaluator(persistenceMapping, securityContext);
         QueryPreparator preparator = new QueryPreparator();
         for (AccessRule accessRule: accessRules) {
             evaluator.evaluate(preparator.createPath(accessRule.getSelectedPath()), accessRule.getTypeDefinitions());

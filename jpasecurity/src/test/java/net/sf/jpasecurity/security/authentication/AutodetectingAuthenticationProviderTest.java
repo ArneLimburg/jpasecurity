@@ -70,7 +70,7 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
     
     public void testAutodetectAuthenticationProvider() {
         final AuthenticationProvider mock = createMock(AuthenticationProvider.class);
-        AutodetectingAuthenticationProvider authenticationProvider = new AutodetectingAuthenticationProvider() {
+        AutodetectingSecurityContext authenticationProvider = new AutodetectingSecurityContext() {
             protected AuthenticationProvider autodetectAuthenticationProvider() {
                 return mock;
             }
@@ -81,8 +81,8 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         expect(mock.getRoles()).andReturn(Collections.EMPTY_SET);
         replay(mock);
         
-        assertSame(user, authenticationProvider.getPrincipal());
-        assertSame(Collections.EMPTY_SET, authenticationProvider.getRoles());
+        assertSame(user, authenticationProvider.getAliasValue("CURRENT_PRINCIPAL"));
+        assertSame(Collections.EMPTY_SET, authenticationProvider.getAliasValues("CURRENT_ROLES"));
         
         verify(mock);
     }
@@ -95,7 +95,7 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         replay(testClassLoader);
         
         setContextClassLoader(testClassLoader);
-        AuthenticationProvider authenticationProvider = new AutodetectingAuthenticationProvider().autodetectAuthenticationProvider();
+        AuthenticationProvider authenticationProvider = new AutodetectingSecurityContext().autodetectAuthenticationProvider();
         assertTrue(authenticationProvider instanceof SpringAuthenticationProvider);
         restoreContextClassLoader();
         
@@ -111,7 +111,7 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         replay(testClassLoader);
 
         setContextClassLoader(testClassLoader);
-        AuthenticationProvider authenticationProvider = new AutodetectingAuthenticationProvider().autodetectAuthenticationProvider();
+        AuthenticationProvider authenticationProvider = new AutodetectingSecurityContext().autodetectAuthenticationProvider();
         assertTrue(authenticationProvider instanceof AcegiAuthenticationProvider);
         restoreContextClassLoader();
 
@@ -131,7 +131,7 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         replay(testClassLoader);
 
         setContextClassLoader(testClassLoader);
-        AuthenticationProvider authenticationProvider = new AutodetectingAuthenticationProvider().autodetectAuthenticationProvider();
+        AuthenticationProvider authenticationProvider = new AutodetectingSecurityContext().autodetectAuthenticationProvider();
         assertTrue(authenticationProvider instanceof EjbAuthenticationProvider);
         restoreContextClassLoader();
 
@@ -153,7 +153,7 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         replay(testClassLoader);
 
         setContextClassLoader(testClassLoader);
-        AuthenticationProvider authenticationProvider = new AutodetectingAuthenticationProvider().autodetectAuthenticationProvider();
+        AuthenticationProvider authenticationProvider = new AutodetectingSecurityContext().autodetectAuthenticationProvider();
         assertTrue(authenticationProvider instanceof DefaultAuthenticationProvider);
         restoreContextClassLoader();
 

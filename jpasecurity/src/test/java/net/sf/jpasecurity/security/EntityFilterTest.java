@@ -36,6 +36,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
+import net.sf.jpasecurity.security.authentication.DefaultAuthenticationProvider;
 import net.sf.jpasecurity.security.rules.AccessRulesCompiler;
 
 /**
@@ -61,14 +62,18 @@ public class EntityFilterTest extends TestCase {
     public void testIsAccessible() throws Exception {
         EntityManager entityManager = createMock(EntityManager.class);
         SecureObjectManager secureObjectManager = createMock(SecureObjectManager.class);
+        DefaultAuthenticationProvider authenticationProvider = new DefaultAuthenticationProvider();
+        SecurityContext securityContext = new AuthenticationProviderSecurityContext(authenticationProvider);
         expect(secureObjectManager.getSecureObjects((Class<Object>)anyObject()))
             .andReturn((Collection<Object>)Collections.EMPTY_SET).anyTimes();
         replay(entityManager, secureObjectManager);
         EntityFilter filter = new EntityFilter(entityManager, secureObjectManager, mappingInformation, accessRules);
         User john = new User("John");
         Contact contact = new Contact(john, "123456789");
-        assertTrue(filter.isAccessible(contact, AccessType.READ, john, Collections.EMPTY_SET));
-        User mary = new User("Mary");
-        assertFalse(filter.isAccessible(contact, AccessType.READ, mary, Collections.EMPTY_SET));
+        
+        authenticationProvider.authenticate(john);
+        assertTrue(filter.isAccessible(contact, AccessType.READ, securityContext));
+        authenticationProvider.authenticate(new User("Mary"));
+        assertFalse(filter.isAccessible(contact, AccessType.READ, securityContext));
     }
 }

@@ -31,7 +31,7 @@ import net.sf.jpasecurity.mapping.OrmXmlParser;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRulesProvider;
-import net.sf.jpasecurity.security.AuthenticationProvider;
+import net.sf.jpasecurity.security.SecurityContext;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 /**
@@ -41,7 +41,7 @@ import net.sf.jpasecurity.util.ProxyInvocationHandler;
 public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandler<EntityManagerFactory> {
 
     private MappingInformation mappingInformation;
-    private AuthenticationProvider authenticationProvider;
+    private SecurityContext securityContext;
     private AccessRulesProvider accessRulesProvider;
     private SecureEntityProxyFactory proxyFactory;
     private int maxFetchDepth;
@@ -49,7 +49,7 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
     protected EntityManagerFactoryInvocationHandler(EntityManagerFactory entityManagerFactory,
                                                     PersistenceUnitInfo persistenceUnitInfo,
                                                     Map<String, String> properties,
-                                                    AuthenticationProvider authenticationProvider,
+                                                    SecurityContext securityContext,
                                                     AccessRulesProvider accessRulesProvider,
                                                     SecureEntityProxyFactory proxyFactory,
                                                     PropertyAccessStrategyFactory propertyAccessStrategyFactory) {
@@ -60,8 +60,8 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
         if (persistenceUnitInfo == null) {
             throw new IllegalArgumentException("persistenceUnitInfo may not be null");
         }
-        if (authenticationProvider == null) {
-            throw new IllegalArgumentException("authenticationProvider may not be null");
+        if (securityContext == null) {
+            throw new IllegalArgumentException("securityContext may not be null");
         }
         if (accessRulesProvider == null) {
             throw new IllegalArgumentException("accessRulesProvider may not be null");
@@ -72,7 +72,7 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
         if (propertyAccessStrategyFactory == null) {
             propertyAccessStrategyFactory = new DefaultPropertyAccessStrategyFactory();
         }
-        this.authenticationProvider = authenticationProvider;
+        this.securityContext = securityContext;
         this.accessRulesProvider = accessRulesProvider;
         this.proxyFactory = proxyFactory;
         JpaAnnotationParser annotationParser = new JpaAnnotationParser(propertyAccessStrategyFactory);
@@ -98,7 +98,7 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
 
     public void close() {
         mappingInformation = null;
-        authenticationProvider = null;
+        securityContext = null;
         accessRulesProvider = null;
         getTarget().close();
     }
@@ -112,7 +112,7 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
         EntityManagerInvocationHandler invocationHandler
             = new EntityManagerInvocationHandler(entityManager,
                                                  mappingInformation,
-                                                 authenticationProvider,
+                                                 securityContext,
                                                  proxyFactory,
                                                  accessRulesProvider.getAccessRules(),
                                                  entityManagerFetchDepth);
@@ -130,9 +130,9 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
 
     private void injectPersistenceInformation(Map<String, String> persistenceProperties) {
         persistenceProperties = Collections.unmodifiableMap(persistenceProperties);
-        if (authenticationProvider instanceof PersistenceInformationReceiver) {
+        if (securityContext instanceof PersistenceInformationReceiver) {
             PersistenceInformationReceiver persistenceInformationReceiver
-                = (PersistenceInformationReceiver)authenticationProvider;
+                = (PersistenceInformationReceiver)securityContext;
             persistenceInformationReceiver.setPersistenceProperties(persistenceProperties);
             persistenceInformationReceiver.setPersistenceMapping(mappingInformation);
         }
@@ -142,14 +142,19 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
             persistenceInformationReceiver.setPersistenceProperties(persistenceProperties);
             persistenceInformationReceiver.setPersistenceMapping(mappingInformation);
         }
+        if (accessRulesProvider instanceof SecurityContextReceiver) {
+            SecurityContextReceiver securityContextReceiver
+                = (SecurityContextReceiver)accessRulesProvider;
+            securityContextReceiver.setSecurityContext(securityContext);
+        }
     }
 
     protected MappingInformation getMappingInformation() {
         return mappingInformation;
     }
 
-    protected AuthenticationProvider getAuthenticationProvider() {
-        return authenticationProvider;
+    protected SecurityContext getSecurityContext() {
+        return securityContext;
     }
 
     protected AccessRulesProvider getAccessRulesProvider() {

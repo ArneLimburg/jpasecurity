@@ -639,20 +639,12 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlCurrentTimestamp node, T data);
 
     /**
-     * Called when visiting a <tt>JpqlCurrentPrincipal</tt> node.
+     * Called when visiting a <tt>JpqlCollectionIdentifier</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlCurrentPrincipal node, T data);
-
-    /**
-     * Called when visiting a <tt>JpqlCurrentRoles</tt> node.
-     * @param node the current node
-     * @param data that may be needed by the visitor
-     * @return <tt>true</tt>, if the node should go on processing the children
-     */
-    boolean visit(JpqlCurrentRoles node, T data);
+    boolean visit(JpqlCollectionIdentifier node, T data);
 
     /**
      * Called when visiting a <tt>JpqlOrderBy</tt> node.

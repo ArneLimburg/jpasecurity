@@ -569,14 +569,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlCurrentPrincipal node, T data) {
-        return visit(node);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean visit(JpqlCurrentRoles node, T data) {
+    public boolean visit(JpqlCollectionIdentifier node, T data) {
         return visit(node);
     }
 
@@ -1246,16 +1239,9 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     }
 
     /**
-     * @see #visit(JpqlCurrentPrincipal, Object)
+     * @see #visit(JpqlCollectionIdentifier, Object)
      */
-    public boolean visit(JpqlCurrentPrincipal node) {
-        return true;
-    }
-
-    /**
-     * @see #visit(JpqlCurrentRoles, Object)
-     */
-    public boolean visit(JpqlCurrentRoles node) {
+    public boolean visit(JpqlCollectionIdentifier node) {
         return true;
     }
 

@@ -22,14 +22,16 @@ import java.util.Map;
 
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
+import net.sf.jpasecurity.persistence.SecurityContextReceiver;
 import net.sf.jpasecurity.security.AccessRule;
 import net.sf.jpasecurity.security.AccessRulesProvider;
+import net.sf.jpasecurity.security.SecurityContext;
 
 /**
  * This implementation of the {@link AccessRulesProvider} interface.
  * @author Arne Limburg
  */
-public class DefaultAccessRulesProvider implements AccessRulesProvider, PersistenceInformationReceiver {
+public class DefaultAccessRulesProvider implements AccessRulesProvider, PersistenceInformationReceiver, SecurityContextReceiver {
 
     private final AnnotationAccessRulesProvider annotationRulesProvider = new AnnotationAccessRulesProvider();
     private final XmlAccessRulesProvider xmlRulesProvider = new XmlAccessRulesProvider();
@@ -53,5 +55,10 @@ public class DefaultAccessRulesProvider implements AccessRulesProvider, Persiste
     public void setPersistenceProperties(Map<String, String> properties) {
         annotationRulesProvider.setPersistenceProperties(properties);
         xmlRulesProvider.setPersistenceProperties(properties);
+    }
+
+    public void setSecurityContext(SecurityContext securityContext) {
+        annotationRulesProvider.setSecurityContext(securityContext);
+        xmlRulesProvider.setSecurityContext(securityContext);
     }
 }

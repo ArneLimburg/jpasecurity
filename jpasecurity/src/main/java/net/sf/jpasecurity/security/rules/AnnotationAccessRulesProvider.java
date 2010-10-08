@@ -154,7 +154,10 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
         private final QueryPreparator queryPreparator = new QueryPreparator();
 
         public boolean visit(JpqlPath path, String alias) {
-            queryPreparator.prepend(alias, path);
+            if (path.jjtGetNumChildren() > 1
+                || !getSecurityContext().getAliases().contains(path.jjtGetChild(0).getValue())) {
+                queryPreparator.prepend(alias, path);
+            }
             return true;
         }
     }

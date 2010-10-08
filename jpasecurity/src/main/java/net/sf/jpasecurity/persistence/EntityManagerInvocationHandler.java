@@ -35,9 +35,9 @@ import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
+import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
 import net.sf.jpasecurity.entity.FetchManager;
-import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
@@ -46,9 +46,9 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRule;
-import net.sf.jpasecurity.security.AuthenticationProvider;
 import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
+import net.sf.jpasecurity.security.SecurityContext;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 import net.sf.jpasecurity.util.ReflectionUtils;
 import net.sf.jpasecurity.util.SystemMapKey;
@@ -65,7 +65,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     private static final Log LOG = LogFactory.getLog(EntityManagerInvocationHandler.class);
 
-    private AuthenticationProvider authenticationProvider;
+    private SecurityContext securityContext;
     private MappingInformation mappingInformation;
     private SecureObjectManager secureObjectManager;
     private EntityFilter entityFilter;
@@ -73,16 +73,16 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     protected EntityManagerInvocationHandler(EntityManager entityManager,
                                              MappingInformation mapping,
-                                             AuthenticationProvider authenticationProvider,
+                                             SecurityContext securityContext,
                                              SecureEntityProxyFactory proxyFactory,
                                              List<AccessRule> accessRules,
                                              int maxFetchDepth) {
-        this(entityManager, mapping, authenticationProvider, null, proxyFactory, accessRules, maxFetchDepth);
+        this(entityManager, mapping, securityContext, null, proxyFactory, accessRules, maxFetchDepth);
     }
 
     protected EntityManagerInvocationHandler(EntityManager entityManager,
                                              MappingInformation mappingInformation,
-                                             AuthenticationProvider authenticationProvider,
+                                             SecurityContext securityContext,
                                              SecureObjectManager secureObjectManager,
                                              SecureEntityProxyFactory secureEntityProxyFactory,
                                              List<AccessRule> accessRules,
@@ -92,7 +92,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             secureObjectManager
                 = new DefaultSecureObjectCache(mappingInformation, entityManager, this, secureEntityProxyFactory);
         }
-        this.authenticationProvider = authenticationProvider;
+        this.securityContext = securityContext;
         this.mappingInformation = mappingInformation;
         this.secureObjectManager = secureObjectManager;
         this.entityFilter = new EntityFilter(entityManager,
@@ -184,9 +184,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
      * and the authenticated user and its roles.
      */
     public Query createQuery(String qlString) {
-        Object user = getCurrentUser();
-        Set<Object> roles = getCurrentRoles();
-        FilterResult filterResult = entityFilter.filterQuery(qlString, READ, user, roles);
+        FilterResult filterResult = entityFilter.filterQuery(qlString, READ, securityContext);
         if (filterResult.getQuery() == null) {
             return new EmptyResultQuery();
         } else {
@@ -199,12 +197,9 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                                              new MappedPathEvaluator(mappingInformation),
                                              getTarget().getFlushMode());
             Query query = queryInvocationHandler.createProxy();
-            if (filterResult.getUserParameterName() != null) {
-                query.setParameter(filterResult.getUserParameterName(), user);
-            }
-            if (filterResult.getRoleParameters() != null) {
-                for (Map.Entry<String, Object> roleParameter: filterResult.getRoleParameters().entrySet()) {
-                    query.setParameter(roleParameter.getKey(), roleParameter.getValue());
+            if (filterResult.getParameters() != null) {
+                for (Map.Entry<String, Object> parameter: filterResult.getParameters().entrySet()) {
+                    query.setParameter(parameter.getKey(), parameter.getValue());
                 }
             }
             return query;
@@ -279,7 +274,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     public boolean isAccessible(AccessType accessType, Object entity) {
         try {
-            return entityFilter.isAccessible(entity, accessType, getCurrentUser(), getCurrentRoles());
+            return entityFilter.isAccessible(entity, accessType, securityContext);
         } catch (NotEvaluatableException e) {
             throw new SecurityException(e);
         }
@@ -295,34 +290,5 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     protected Collection<Class<?>> getImplementingInterfaces() {
         return (Collection)Collections.singleton((Class<?>)SecureEntityManager.class);
-    }
-
-    private Object getCurrentUser() {
-        Object user = authenticationProvider.getPrincipal();
-        if (user != null && getTarget().isOpen()) {
-            ClassMappingInformation userClassMapping = mappingInformation.getClassMapping(user.getClass());
-            if (userClassMapping != null) {
-                Object id = userClassMapping.getId(user);
-                user = getReference(userClassMapping.getEntityType(), id);
-            }
-        }
-        return user;
-    }
-
-    private Set<Object> getCurrentRoles() {
-        Collection<?> authorizedRoles = authenticationProvider.getRoles();
-        Set<Object> roles = new HashSet<Object>();
-        if (authorizedRoles != null) {
-            for (Object role: authorizedRoles) {
-                ClassMappingInformation roleClassMapping = mappingInformation.getClassMapping(role.getClass());
-                if (roleClassMapping == null) {
-                    roles.add(role);
-                } else {
-                    Object id = roleClassMapping.getId(role);
-                    roles.add(getReference(roleClassMapping.getEntityType(), id));
-                }
-            }
-        }
-        return roles;
     }
 }

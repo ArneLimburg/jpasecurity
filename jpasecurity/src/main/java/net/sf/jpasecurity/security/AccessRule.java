@@ -27,9 +27,10 @@ import java.util.Set;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
+import net.sf.jpasecurity.jpql.parser.JpqlCollectionIdentifier;
 import net.sf.jpasecurity.jpql.parser.JpqlCreate;
-import net.sf.jpasecurity.jpql.parser.JpqlCurrentRoles;
 import net.sf.jpasecurity.jpql.parser.JpqlDelete;
+import net.sf.jpasecurity.jpql.parser.JpqlIdentifier;
 import net.sf.jpasecurity.jpql.parser.JpqlIn;
 import net.sf.jpasecurity.jpql.parser.JpqlRead;
 import net.sf.jpasecurity.jpql.parser.JpqlUpdate;
@@ -48,7 +49,6 @@ public class AccessRule extends JpqlCompiledStatement {
     public static final String DEFAULT_ROLE_PARAMETER_NAME = "roles";
     public static final String DEFAULT_ROLES_PARAMETER_NAME = "roles";
 
-    private final CurrentRolesVisitor currentRolesVisitor = new CurrentRolesVisitor();
     private Set<AccessType> access;
 
     public AccessRule(JpqlAccessRule rule, TypeDefinition typeDefinition, Set<String> namedParameters) {
@@ -66,10 +66,16 @@ public class AccessRule extends JpqlCompiledStatement {
         return getSelectedTypes(mappingInformation).values().iterator().next();
     }
 
-    public List<JpqlIn> getInRolesNodes() {
-        List<JpqlIn> inRoles = new ArrayList<JpqlIn>();
-        visit(currentRolesVisitor, inRoles);
-        return Collections.unmodifiableList(inRoles);
+    public Collection<JpqlIdentifier> getIdentifierNodes(String alias) {
+        List<JpqlIdentifier> identifierNodes = new ArrayList<JpqlIdentifier>();
+        visit(new IdentifierVisitor(alias), identifierNodes);
+        return Collections.unmodifiableCollection(identifierNodes);
+    }
+
+    public Collection<JpqlIn> getInNodes(String alias) {
+        List<JpqlIn> inNodes = new ArrayList<JpqlIn>();
+        visit(new CollectionIdentifierVisitor(alias), inNodes);
+        return Collections.unmodifiableCollection(inNodes);
     }
 
     public boolean isAssignable(Class<?> type, MappingInformation mappingInformation) {
@@ -105,6 +111,10 @@ public class AccessRule extends JpqlCompiledStatement {
         return getAccess().contains(type);
     }
 
+    public AccessRule clone() {
+        return (AccessRule)super.clone();
+    }
+
     private Set<AccessType> getAccess() {
         if (access == null) {
             Set<AccessType> access = new HashSet<AccessType>();
@@ -113,7 +123,7 @@ public class AccessRule extends JpqlCompiledStatement {
             if (access.size() == 0) {
                 access.addAll(Arrays.asList(AccessType.values()));
             }
-            this.access = access;
+            this.access = Collections.unmodifiableSet(access);
         }
         return access;
     }
@@ -141,10 +151,40 @@ public class AccessRule extends JpqlCompiledStatement {
         }
     }
 
-    private class CurrentRolesVisitor extends JpqlVisitorAdapter<List<JpqlIn>> {
+    private class IdentifierVisitor extends JpqlVisitorAdapter<List<JpqlIdentifier>> {
 
-        public boolean visit(JpqlCurrentRoles node, List<JpqlIn> inRoles) {
-            inRoles.add((JpqlIn)node.jjtGetParent());
+        private String identifier;
+
+        public IdentifierVisitor(String identifier) {
+            if (identifier == null) {
+                throw new IllegalArgumentException("identifier may not be null");
+            }
+            this.identifier = identifier.toLowerCase();
+        }
+
+        public boolean visit(JpqlIdentifier node, List<JpqlIdentifier> inRoles) {
+            if (identifier.equals(node.getValue().toLowerCase())) {
+                inRoles.add(node);
+            }
+            return true;
+        }
+    }
+
+    private class CollectionIdentifierVisitor extends JpqlVisitorAdapter<List<JpqlIn>> {
+
+        private String identifier;
+
+        public CollectionIdentifierVisitor(String identifier) {
+            if (identifier == null) {
+                throw new IllegalArgumentException("identifier may not be null");
+            }
+            this.identifier = identifier.toLowerCase();
+        }
+
+        public boolean visit(JpqlCollectionIdentifier node, List<JpqlIn> inRoles) {
+            if (identifier.equals(node.getValue().toLowerCase())) {
+                inRoles.add((JpqlIn)node.jjtGetParent());
+            }
             return true;
         }
     }
