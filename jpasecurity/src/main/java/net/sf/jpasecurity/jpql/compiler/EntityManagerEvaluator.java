@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2010 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,6 +115,20 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
             data.setResultUndefined();
             return false;
         }
+    }
+
+    private Object getPathValue(String path, Map<String, Object> aliases) {
+        String alias = getAlias(path);
+        Object aliasValue = aliases.get(alias);
+        if (path.length() == alias.length()) {
+            return aliasValue;
+        }
+        return pathEvaluator.evaluate(aliasValue, path.substring(alias.length() + 1));
+    }
+
+    private String getAlias(String path) {
+        int index = path.indexOf('.');
+        return index == -1? path: path.substring(0, index);
     }
 
     private Set<String> getAliases(Set<TypeDefinition> typeDefinitions) {

@@ -363,7 +363,7 @@ public class QueryPreparator {
             for (int i = 0; i < parameters.getOldPath().length; i++) {
                 path.jjtRemoveChild(0);
             }
-            prepend(parameters.newPath, path);
+            prepend(parameters.getNewPath(), path);
         }
     }
 

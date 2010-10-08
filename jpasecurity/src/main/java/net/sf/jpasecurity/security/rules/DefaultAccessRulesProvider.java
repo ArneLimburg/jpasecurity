@@ -31,7 +31,9 @@ import net.sf.jpasecurity.security.SecurityContext;
  * This implementation of the {@link AccessRulesProvider} interface.
  * @author Arne Limburg
  */
-public class DefaultAccessRulesProvider implements AccessRulesProvider, PersistenceInformationReceiver, SecurityContextReceiver {
+public class DefaultAccessRulesProvider implements AccessRulesProvider,
+                                                   PersistenceInformationReceiver,
+                                                   SecurityContextReceiver {
 
     private final AnnotationAccessRulesProvider annotationRulesProvider = new AnnotationAccessRulesProvider();
     private final XmlAccessRulesProvider xmlRulesProvider = new XmlAccessRulesProvider();
