@@ -27,8 +27,6 @@ import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import net.sf.jpasecurity.util.ProxyInvocationHandler;
-
 /**
  * @author Arne Limburg
  */
@@ -97,19 +95,17 @@ public class SecurePersistenceProvider implements PersistenceProvider {
                                                                  Map<String, String> properties,
                                                                  Configuration configuration) {
         String persistenceUnitType = getPersistenceUnitTypeProperty(persistenceUnitInfo, properties);
-        ProxyInvocationHandler<EntityManagerFactory> invocationHandler = null;
         if (SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT.equals(persistenceUnitType)) {
-            invocationHandler = new EntityManagerFactoryInvocationHandler(nativeEntityManagerFactory,
-                                                                          persistenceUnitInfo,
-                                                                          properties,
-                                                                          configuration);
+            return new SecureEntityManagerFactory(nativeEntityManagerFactory,
+                                                  persistenceUnitInfo,
+                                                  properties,
+                                                  configuration);
         } else {
-            invocationHandler = new LightEntityManagerFactoryInvocationHandler(nativeEntityManagerFactory,
-                                                                               persistenceUnitInfo,
-                                                                               properties,
-                                                                               configuration);
+            return new LightSecureEntityManagerFactory(nativeEntityManagerFactory,
+                                                       persistenceUnitInfo,
+                                                       properties,
+                                                       configuration);
         }
-        return invocationHandler.createProxy();
     }
 
     private PersistenceUnitInfo createPersistenceUnitInfo(String persistenceUnitName) {
