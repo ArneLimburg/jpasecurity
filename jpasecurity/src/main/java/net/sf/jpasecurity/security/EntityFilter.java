@@ -126,19 +126,18 @@ public class EntityFilter {
             throw new IllegalArgumentException(entity.getClass() + " is no managed entity type");
         }
         String alias = Character.toLowerCase(mapping.getEntityName().charAt(0)) + mapping.getEntityName().substring(1);
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        Node accessRulesNode
-            = createAccessRuleNode(alias, mapping.getEntityType(), accessType, securityContext, parameters);
-        if (accessRulesNode == null) {
+        AccessDefinition accessDefinition
+            = createAccessDefinition(alias, mapping.getEntityType(), accessType, securityContext);
+        if (accessDefinition == null) {
             return true;
         }
         InMemoryEvaluationParameters<Boolean> evaluationParameters
             = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
                                                         Collections.singletonMap(alias, entity),
-                                                        parameters,
+                                                        accessDefinition.getQueryParameters(),
                                                         Collections.EMPTY_MAP,
                                                         objectCache);
-        return entityManagerEvaluator.evaluate(accessRulesNode, evaluationParameters);
+        return entityManagerEvaluator.evaluate(accessDefinition.getAccessRules(), evaluationParameters);
     }
 
     public FilterResult filterQuery(String query, AccessType accessType, SecurityContext securityContext) {
@@ -147,10 +146,9 @@ public class EntityFilter {
 
         JpqlCompiledStatement statement = compile(query);
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        Node accessRules = createAccessRuleNode(statement, accessType, securityContext, parameters);
-        if (accessRules instanceof JpqlBooleanLiteral) {
-            JpqlBooleanLiteral booleanLiteral = (JpqlBooleanLiteral)accessRules;
+        AccessDefinition accessDefinition = createAccessDefinition(statement, accessType, securityContext);
+        if (accessDefinition.getAccessRules() instanceof JpqlBooleanLiteral) {
+            JpqlBooleanLiteral booleanLiteral = (JpqlBooleanLiteral)accessDefinition.getAccessRules();
             boolean accessRestricted = !Boolean.parseBoolean(booleanLiteral.getValue());
             if (accessRestricted) {
                 LOG.info("No access rules defined for access type " + accessType + ". Returning <null> query.");
@@ -161,16 +159,16 @@ public class EntityFilter {
             }
         }
 
-        LOG.debug("Using access rules " + accessRules);
+        LOG.debug("Using access rules " + accessDefinition);
 
         try {
             InMemoryEvaluationParameters<Boolean> evaluationParameters
                 = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
                                                             Collections.EMPTY_MAP,
-                                                            parameters,
+                                                            accessDefinition.getQueryParameters(),
                                                             Collections.EMPTY_MAP,
                                                             objectCache);
-            boolean result = queryEvaluator.evaluate(accessRules, evaluationParameters);
+            boolean result = queryEvaluator.evaluate(accessDefinition.getAccessRules(), evaluationParameters);
             if (result) {
                 LOG.debug("Access rules are always true for current user and roles. Returning unfiltered query");
                 return new FilterResult(query);
@@ -184,7 +182,7 @@ public class EntityFilter {
 
         JpqlWhere where = statement.getWhereClause();
         if (where == null) {
-            where = queryPreparator.createWhere(accessRules);
+            where = queryPreparator.createWhere(accessDefinition.getAccessRules());
             Node parent = statement.getFromClause().jjtGetParent();
             for (int i = parent.jjtGetNumChildren(); i > 2; i--) {
                 parent.jjtAddChild(parent.jjtGetChild(i - 1), i);
@@ -195,7 +193,7 @@ public class EntityFilter {
             if (!(condition instanceof JpqlBrackets)) {
                 condition = queryPreparator.createBrackets(condition);
             }
-            Node and = queryPreparator.createAnd(condition, accessRules);
+            Node and = queryPreparator.createAnd(condition, accessDefinition.getAccessRules());
             and.jjtSetParent(where);
             where.jjtSetChild(and, 0);
         }
@@ -204,12 +202,13 @@ public class EntityFilter {
 
         QueryOptimizer optimizer = new QueryOptimizer(mappingInformation,
                                                       Collections.EMPTY_MAP,
-                                                      parameters,
+                                                      accessDefinition.getQueryParameters(),
                                                       Collections.EMPTY_MAP,
                                                       queryEvaluator,
                                                       objectCache);
-        optimizer.optimize(accessRules);
-        Set<String> parameterNames = compiler.getNamedParameters(accessRules);
+        optimizer.optimize(accessDefinition.getAccessRules());
+        Set<String> parameterNames = compiler.getNamedParameters(accessDefinition.getAccessRules());
+        Map<String, Object> parameters = accessDefinition.getQueryParameters();
         parameters.keySet().retainAll(parameterNames);
         LOG.debug("Returning optimized query " + statement.getStatement());
         return new FilterResult(statement.getStatement().toString(),
@@ -218,44 +217,38 @@ public class EntityFilter {
                                 statement.getTypeDefinitions());
     }
 
-    private Node createAccessRuleNode(JpqlCompiledStatement statement,
-                                      AccessType accessType,
-                                      SecurityContext securityContext,
-                                      Map<String, Object> queryParameters) {
-        return createAccessRuleNode(getSelectedEntityTypes(statement),
+    private AccessDefinition createAccessDefinition(JpqlCompiledStatement statement,
+                                                    AccessType accessType,
+                                                    SecurityContext securityContext) {
+        return createAccessDefinition(getSelectedEntityTypes(statement),
                                     accessType,
-                                    securityContext,
-                                    queryParameters);
+                                    securityContext);
     }
 
-    private Node createAccessRuleNode(String alias,
-                                      Class<?> type,
-                                      AccessType accessType,
-                                      SecurityContext securityContext,
-                                      Map<String, Object> queryParameters) {
-        return createAccessRuleNode((Map)Collections.singletonMap(alias, type),
+    private AccessDefinition createAccessDefinition(String alias,
+                                                    Class<?> type,
+                                                    AccessType accessType,
+                                                    SecurityContext securityContext) {
+        return createAccessDefinition((Map)Collections.singletonMap(alias, type),
                                     accessType,
-                                    securityContext,
-                                    queryParameters);
+                                    securityContext);
     }
 
-    private Node createAccessRuleNode(Map<String, Class<?>> selectedTypes,
-                                      AccessType accessType,
-                                      SecurityContext securityContext,
-                                      Map<String, Object> queryParameters) {
+    private AccessDefinition createAccessDefinition(Map<String, Class<?>> selectedTypes,
+                                                    AccessType accessType,
+                                                    SecurityContext securityContext) {
         Set<Class<?>> restrictedTypes = new HashSet<Class<?>>();
-        Node accessRuleNode = null;
+        AccessDefinition accessDefinition = null;
         for (Map.Entry<String, Class<?>> selectedType: selectedTypes.entrySet()) {
-            Node typedAccessRuleNode = null;
+            AccessDefinition typedAccessDefinition = null;
             for (AccessRule accessRule: accessRules) {
                 if (accessRule.isAssignable(selectedType.getValue(), mappingInformation)) {
                     restrictedTypes.add(selectedType.getValue());
                     if (accessRule.grantsAccess(accessType)) {
-                        typedAccessRuleNode = appendAccessRule(typedAccessRuleNode,
-                                                               accessRule,
-                                                               selectedType.getKey(),
-                                                               securityContext,
-                                                               queryParameters);
+                        typedAccessDefinition = appendAccessDefinition(typedAccessDefinition,
+                                                                       accessRule,
+                                                                       selectedType.getKey(),
+                                                                       securityContext);
                     }
                 } else if (accessRule.mayBeAssignable(selectedType.getValue(), mappingInformation)) {
                     restrictedTypes.add(accessRule.getSelectedType(mappingInformation));
@@ -265,10 +258,10 @@ public class EntityFilter {
                         Node instanceOf
                             = queryPreparator.createInstanceOf(selectedType.getKey(),
                                                                mappingInformation.getClassMapping(type));
-                        Node preparedAccessRule
-                            = prepareAccessRule(accessRule, selectedType.getKey(), securityContext, queryParameters);
-                        typedAccessRuleNode = appendNode(typedAccessRuleNode,
-                                                         queryPreparator.createAnd(instanceOf, preparedAccessRule));
+                        AccessDefinition preparedAccessRule
+                            = prepareAccessRule(accessRule, selectedType.getKey(), securityContext);
+                        preparedAccessRule.mergeNode(instanceOf);
+                        typedAccessDefinition = preparedAccessRule.append(typedAccessDefinition);
                     }
                 }
             }
@@ -285,28 +278,31 @@ public class EntityFilter {
                                                                    queryPreparator.createNot(instanceOf));
                     }
                 }
-                typedAccessRuleNode = appendNode(typedAccessRuleNode, superclassNode);
+                if (typedAccessDefinition == null) {
+                    typedAccessDefinition = new AccessDefinition(superclassNode);
+                } else {
+                    typedAccessDefinition.appendNode(superclassNode);
+                }
             }
-            if (accessRuleNode == null) {
-                accessRuleNode = typedAccessRuleNode;
+            if (accessDefinition == null) {
+                accessDefinition = typedAccessDefinition;
             } else {
-                accessRuleNode = queryPreparator.createAnd(accessRuleNode, typedAccessRuleNode);
+                accessDefinition.merge(typedAccessDefinition);
             }
         }
-        if (accessRuleNode == null) {
-            return queryPreparator.createBoolean(restrictedTypes.size() == 0);
+        if (accessDefinition == null) {
+            return new AccessDefinition(queryPreparator.createBoolean(restrictedTypes.size() == 0));
         } else {
-            return queryPreparator.createBrackets(accessRuleNode);
+            accessDefinition.setAccessRules(queryPreparator.createBrackets(accessDefinition.getAccessRules()));
+            return accessDefinition;
         }
     }
 
-    private Node appendAccessRule(Node accessRuleNode,
-                                  AccessRule accessRule,
-                                  String selectedAlias,
-                                  SecurityContext securityContext,
-                                  Map<String, Object> queryParameters) {
-        return appendNode(accessRuleNode,
-                          prepareAccessRule(accessRule, selectedAlias, securityContext, queryParameters));
+    private AccessDefinition appendAccessDefinition(AccessDefinition accessDefinition,
+                                                    AccessRule accessRule,
+                                                    String selectedAlias,
+                                                    SecurityContext securityContext) {
+        return prepareAccessRule(accessRule, selectedAlias, securityContext).append(accessDefinition);
     }
 
     private Node appendNode(Node accessRules, Node accessRule) {
@@ -317,18 +313,18 @@ public class EntityFilter {
         }
     }
 
-    private Node prepareAccessRule(AccessRule accessRule,
-                                   String selectedAlias,
-                                   SecurityContext securityContext,
-                                   Map<String, Object> queryParameters) {
+    private AccessDefinition prepareAccessRule(AccessRule accessRule,
+                                               String selectedAlias,
+                                               SecurityContext securityContext) {
         if (accessRule.getWhereClause() == null) {
-            return queryPreparator.createBoolean(true);
+            return new AccessDefinition(queryPreparator.createBoolean(true));
         }
         accessRule = accessRule.clone();
+        Map<String, Object> queryParameters = new HashMap<String, Object>();
         expand(accessRule, securityContext, queryParameters);
         Node preparedAccessRule = queryPreparator.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
         queryPreparator.replace(preparedAccessRule, accessRule.getSelectedPath(), selectedAlias);
-        return preparedAccessRule;
+        return new AccessDefinition(preparedAccessRule, queryParameters);
     }
 
     private JpqlCompiledStatement compile(String query) {
@@ -401,5 +397,65 @@ public class EntityFilter {
             selectedTypes.put(selectedPath, selectedType);
         }
         return selectedTypes;
+    }
+
+    private class AccessDefinition {
+
+        private Node accessRules;
+        private Map<String, Object> queryParameters;
+
+        public AccessDefinition(Node accessRules) {
+            this(accessRules, new HashMap<String, Object>());
+        }
+
+        public AccessDefinition(Node accessRules, Map<String, Object> queryParameters) {
+            if (accessRules == null) {
+                throw new IllegalArgumentException("accessRules may not be null");
+            }
+            if (queryParameters == null) {
+                throw new IllegalArgumentException("queryParameters may not be null");
+            }
+            this.accessRules = accessRules;
+            this.queryParameters = queryParameters;
+        }
+
+        public Node getAccessRules() {
+            return accessRules;
+        }
+
+        public void setAccessRules(Node accessRules) {
+            if (accessRules == null) {
+                throw new IllegalArgumentException("accessRules may not be null");
+            }
+            this.accessRules = accessRules;
+        }
+
+        public Map<String, Object> getQueryParameters() {
+            return queryParameters;
+        }
+
+        public AccessDefinition append(AccessDefinition accessDefinition) {
+            if (accessDefinition != null) {
+                queryParameters.putAll(accessDefinition.getQueryParameters());
+                appendNode(accessDefinition.getAccessRules());
+            }
+            return this;
+        }
+
+        public void appendNode(Node node) {
+            accessRules = EntityFilter.this.appendNode(accessRules, node);
+        }
+
+        public AccessDefinition merge(AccessDefinition accessDefinition) {
+            if (accessDefinition != null) {
+                queryParameters.putAll(accessDefinition.getQueryParameters());
+                mergeNode(accessDefinition.getAccessRules());
+            }
+            return this;
+        }
+
+        public void mergeNode(Node node) {
+            accessRules = queryPreparator.createAnd(node, accessRules);
+        }
     }
 }
