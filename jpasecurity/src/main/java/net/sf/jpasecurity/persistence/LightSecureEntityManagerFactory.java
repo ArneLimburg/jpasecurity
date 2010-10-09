@@ -24,12 +24,12 @@ import javax.persistence.spi.PersistenceUnitInfo;
 /**
  * @author Stefan Hildebrandt
  */
-public class LightEntityManagerFactoryInvocationHandler extends EntityManagerFactoryInvocationHandler {
+public class LightSecureEntityManagerFactory extends SecureEntityManagerFactory {
 
-    public LightEntityManagerFactoryInvocationHandler(EntityManagerFactory entityManagerFactory,
-                                                      PersistenceUnitInfo persistenceUnitInfo,
-                                                      Map<String, String> properties,
-                                                      Configuration configuration) {
+    public LightSecureEntityManagerFactory(EntityManagerFactory entityManagerFactory,
+                                           PersistenceUnitInfo persistenceUnitInfo,
+                                           Map<String, String> properties,
+                                           Configuration configuration) {
         super(entityManagerFactory,
               persistenceUnitInfo,
               properties,

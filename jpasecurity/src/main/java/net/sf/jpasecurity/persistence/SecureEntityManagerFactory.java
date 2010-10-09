@@ -26,22 +26,22 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import net.sf.jpasecurity.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.OrmXmlParser;
-import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 /**
  * This class handles invocations on proxies of entity-manager factories.
  * @author Arne Limburg
  */
-public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandler<EntityManagerFactory> {
+public class SecureEntityManagerFactory implements EntityManagerFactory {
 
+    private EntityManagerFactory nativeEntityManagerFactory;
     private MappingInformation mappingInformation;
     private Configuration configuration;
 
-    protected EntityManagerFactoryInvocationHandler(EntityManagerFactory entityManagerFactory,
-                                                    PersistenceUnitInfo persistenceUnitInfo,
-                                                    Map<String, String> properties,
-                                                    Configuration configuration) {
-        super(entityManagerFactory);
+    protected SecureEntityManagerFactory(EntityManagerFactory entityManagerFactory,
+                                         PersistenceUnitInfo persistenceUnitInfo,
+                                         Map<String, String> properties,
+                                         Configuration configuration) {
+        this.nativeEntityManagerFactory = entityManagerFactory;
         if (entityManagerFactory == null) {
             throw new IllegalArgumentException("entityManagerFactory may not be null");
         }
@@ -70,16 +70,20 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
     }
 
     public EntityManager createEntityManager() {
-        return createSecureEntityManager(getTarget().createEntityManager(), Collections.EMPTY_MAP);
+        return createSecureEntityManager(nativeEntityManagerFactory.createEntityManager(), Collections.EMPTY_MAP);
     }
 
     public EntityManager createEntityManager(Map map) {
-        return createSecureEntityManager(getTarget().createEntityManager(map), map);
+        return createSecureEntityManager(nativeEntityManagerFactory.createEntityManager(map), map);
+    }
+
+    public boolean isOpen() {
+        return nativeEntityManagerFactory.isOpen();
     }
 
     public void close() {
         configuration = null;
-        getTarget().close();
+        nativeEntityManagerFactory.close();
     }
 
     protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, String> properties) {
