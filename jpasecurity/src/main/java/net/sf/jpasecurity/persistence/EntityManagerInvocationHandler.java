@@ -20,7 +20,6 @@ import static net.sf.jpasecurity.AccessType.READ;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,11 +43,8 @@ import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
-import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
-import net.sf.jpasecurity.security.AccessRule;
 import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
-import net.sf.jpasecurity.security.SecurityContext;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 import net.sf.jpasecurity.util.ReflectionUtils;
 import net.sf.jpasecurity.util.SystemMapKey;
@@ -65,42 +61,36 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     private static final Log LOG = LogFactory.getLog(EntityManagerInvocationHandler.class);
 
-    private SecurityContext securityContext;
+    private Configuration configuration;
     private MappingInformation mappingInformation;
     private SecureObjectManager secureObjectManager;
     private EntityFilter entityFilter;
-    private int maxFetchDepth;
 
     protected EntityManagerInvocationHandler(EntityManager entityManager,
-                                             MappingInformation mapping,
-                                             SecurityContext securityContext,
-                                             SecureEntityProxyFactory proxyFactory,
-                                             List<AccessRule> accessRules,
-                                             int maxFetchDepth) {
-        this(entityManager, mapping, securityContext, null, proxyFactory, accessRules, maxFetchDepth);
+                                             Configuration configuration,
+                                             MappingInformation mapping) {
+        this(entityManager, configuration, mapping, null);
     }
 
     protected EntityManagerInvocationHandler(EntityManager entityManager,
-                                             MappingInformation mappingInformation,
-                                             SecurityContext securityContext,
-                                             SecureObjectManager secureObjectManager,
-                                             SecureEntityProxyFactory secureEntityProxyFactory,
-                                             List<AccessRule> accessRules,
-                                             int maxFetchDepth) {
+                                             Configuration configuration,
+                                             MappingInformation mapping,
+                                             SecureObjectManager secureObjectManager) {
         super(entityManager);
         if (secureObjectManager == null) {
-            secureObjectManager
-                = new DefaultSecureObjectCache(mappingInformation, entityManager, this, secureEntityProxyFactory);
+            secureObjectManager = new DefaultSecureObjectCache(mapping,
+                                                               entityManager,
+                                                               this,
+                                                               configuration.getSecureEntityProxyFactory());
         }
-        this.securityContext = securityContext;
-        this.mappingInformation = mappingInformation;
+        this.configuration = configuration;
+        this.mappingInformation = mapping;
         this.secureObjectManager = secureObjectManager;
         this.entityFilter = new EntityFilter(entityManager,
                                              secureObjectManager,
                                              secureObjectManager,
                                              mappingInformation,
-                                             accessRules);
-        this.maxFetchDepth = maxFetchDepth;
+                                             configuration.getAccessRulesProvider().getAccessRules());
     }
 
     public void persist(Object entity) {
@@ -184,7 +174,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
      * and the authenticated user and its roles.
      */
     public Query createQuery(String qlString) {
-        FilterResult filterResult = entityFilter.filterQuery(qlString, READ, securityContext);
+        FilterResult filterResult = entityFilter.filterQuery(qlString, READ, configuration.getSecurityContext());
         if (filterResult.getQuery() == null) {
             return new EmptyResultQuery();
         } else {
@@ -211,7 +201,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public int getMaximumFetchDepth() {
-        return maxFetchDepth;
+        return configuration.getMaxFetchDepth();
     }
 
     public void fetch(Object entity, int depth) {
@@ -274,7 +264,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     public boolean isAccessible(AccessType accessType, Object entity) {
         try {
-            return entityFilter.isAccessible(entity, accessType, securityContext);
+            return entityFilter.isAccessible(entity, accessType, configuration.getSecurityContext());
         } catch (NotEvaluatableException e) {
             throw new SecurityException(e);
         }

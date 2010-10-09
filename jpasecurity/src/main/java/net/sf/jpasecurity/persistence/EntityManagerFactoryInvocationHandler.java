@@ -23,15 +23,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import net.sf.jpasecurity.entity.FetchManager;
-import net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory;
 import net.sf.jpasecurity.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.OrmXmlParser;
-import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
-import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
-import net.sf.jpasecurity.security.AccessRulesProvider;
-import net.sf.jpasecurity.security.SecurityContext;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 /**
@@ -41,18 +35,12 @@ import net.sf.jpasecurity.util.ProxyInvocationHandler;
 public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandler<EntityManagerFactory> {
 
     private MappingInformation mappingInformation;
-    private SecurityContext securityContext;
-    private AccessRulesProvider accessRulesProvider;
-    private SecureEntityProxyFactory proxyFactory;
-    private int maxFetchDepth;
+    private Configuration configuration;
 
     protected EntityManagerFactoryInvocationHandler(EntityManagerFactory entityManagerFactory,
                                                     PersistenceUnitInfo persistenceUnitInfo,
                                                     Map<String, String> properties,
-                                                    SecurityContext securityContext,
-                                                    AccessRulesProvider accessRulesProvider,
-                                                    SecureEntityProxyFactory proxyFactory,
-                                                    PropertyAccessStrategyFactory propertyAccessStrategyFactory) {
+                                                    Configuration configuration) {
         super(entityManagerFactory);
         if (entityManagerFactory == null) {
             throw new IllegalArgumentException("entityManagerFactory may not be null");
@@ -60,23 +48,13 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
         if (persistenceUnitInfo == null) {
             throw new IllegalArgumentException("persistenceUnitInfo may not be null");
         }
-        if (securityContext == null) {
-            throw new IllegalArgumentException("securityContext may not be null");
+        if (configuration == null) {
+            throw new IllegalArgumentException("configuration may not be null");
         }
-        if (accessRulesProvider == null) {
-            throw new IllegalArgumentException("accessRulesProvider may not be null");
-        }
-        if (proxyFactory == null) {
-            throw new IllegalArgumentException("proxyFactory may not be null");
-        }
-        if (propertyAccessStrategyFactory == null) {
-            propertyAccessStrategyFactory = new DefaultPropertyAccessStrategyFactory();
-        }
-        this.securityContext = securityContext;
-        this.accessRulesProvider = accessRulesProvider;
-        this.proxyFactory = proxyFactory;
-        JpaAnnotationParser annotationParser = new JpaAnnotationParser(propertyAccessStrategyFactory);
-        OrmXmlParser xmlParser = new OrmXmlParser(propertyAccessStrategyFactory);
+        this.configuration = configuration;
+        JpaAnnotationParser annotationParser
+            = new JpaAnnotationParser(configuration.getPropertyAccessStrategyFactory());
+        OrmXmlParser xmlParser = new OrmXmlParser(configuration.getPropertyAccessStrategyFactory());
         this.mappingInformation = annotationParser.parse(persistenceUnitInfo);
         this.mappingInformation = xmlParser.parse(persistenceUnitInfo, mappingInformation);
         Map<String, String> persistenceProperties
@@ -84,8 +62,11 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
         if (properties != null) {
             persistenceProperties.putAll(properties);
         }
-        setMaximumFetchDepth(persistenceProperties);
         injectPersistenceInformation(persistenceProperties);
+    }
+
+    protected Configuration getConfiguration() {
+        return configuration;
     }
 
     public EntityManager createEntityManager() {
@@ -97,71 +78,38 @@ public class EntityManagerFactoryInvocationHandler extends ProxyInvocationHandle
     }
 
     public void close() {
-        mappingInformation = null;
-        securityContext = null;
-        accessRulesProvider = null;
+        configuration = null;
         getTarget().close();
     }
 
     protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, String> properties) {
-        int entityManagerFetchDepth = this.maxFetchDepth;
-        String maxFetchDepth = properties.get(FetchManager.MAX_FETCH_DEPTH);
-        if (maxFetchDepth != null) {
-            entityManagerFetchDepth = Integer.parseInt(maxFetchDepth);
-        }
         EntityManagerInvocationHandler invocationHandler
-            = new EntityManagerInvocationHandler(entityManager,
-                                                 mappingInformation,
-                                                 securityContext,
-                                                 proxyFactory,
-                                                 accessRulesProvider.getAccessRules(),
-                                                 entityManagerFetchDepth);
+            = new EntityManagerInvocationHandler(entityManager, configuration, mappingInformation);
         return invocationHandler.createProxy();
-    }
-
-    private void setMaximumFetchDepth(Map<String, String> persistenceProperties) {
-        String maxFetchDepth = persistenceProperties.get(FetchManager.MAX_FETCH_DEPTH);
-        if (maxFetchDepth != null) {
-            this.maxFetchDepth = Integer.parseInt(maxFetchDepth);
-        } else {
-            this.maxFetchDepth = Integer.MAX_VALUE;
-        }
     }
 
     private void injectPersistenceInformation(Map<String, String> persistenceProperties) {
         persistenceProperties = Collections.unmodifiableMap(persistenceProperties);
-        if (securityContext instanceof PersistenceInformationReceiver) {
+        if (configuration.getSecurityContext() instanceof PersistenceInformationReceiver) {
             PersistenceInformationReceiver persistenceInformationReceiver
-                = (PersistenceInformationReceiver)securityContext;
+                = (PersistenceInformationReceiver)configuration.getSecurityContext();
             persistenceInformationReceiver.setPersistenceProperties(persistenceProperties);
             persistenceInformationReceiver.setPersistenceMapping(mappingInformation);
         }
-        if (accessRulesProvider instanceof PersistenceInformationReceiver) {
+        if (configuration.getAccessRulesProvider() instanceof PersistenceInformationReceiver) {
             PersistenceInformationReceiver persistenceInformationReceiver
-                = (PersistenceInformationReceiver)accessRulesProvider;
+                = (PersistenceInformationReceiver)configuration.getAccessRulesProvider();
             persistenceInformationReceiver.setPersistenceProperties(persistenceProperties);
             persistenceInformationReceiver.setPersistenceMapping(mappingInformation);
         }
-        if (accessRulesProvider instanceof SecurityContextReceiver) {
+        if (configuration.getAccessRulesProvider() instanceof SecurityContextReceiver) {
             SecurityContextReceiver securityContextReceiver
-                = (SecurityContextReceiver)accessRulesProvider;
-            securityContextReceiver.setSecurityContext(securityContext);
+                = (SecurityContextReceiver)configuration.getAccessRulesProvider();
+            securityContextReceiver.setSecurityContext(configuration.getSecurityContext());
         }
     }
 
     protected MappingInformation getMappingInformation() {
         return mappingInformation;
-    }
-
-    protected SecurityContext getSecurityContext() {
-        return securityContext;
-    }
-
-    protected AccessRulesProvider getAccessRulesProvider() {
-        return accessRulesProvider;
-    }
-
-    protected int getMaxFetchDepth() {
-        return maxFetchDepth;
     }
 }

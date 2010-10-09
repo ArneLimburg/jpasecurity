@@ -16,7 +16,6 @@
 package net.sf.jpasecurity.persistence;
 
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
@@ -33,91 +32,53 @@ import org.springframework.orm.jpa.LocalEntityManagerFactoryBean;
  */
 public class SecureLocalEntityManagerFactoryBean extends LocalEntityManagerFactoryBean {
 
-    private SecurityContext securityContext;
-    private AccessRulesProvider accessRulesProvider;
-    private SecureEntityProxyFactory secureEntityProxyFactory;
-    private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
+    private Configuration configuration;
 
     public SecureLocalEntityManagerFactoryBean() {
         setEntityManagerInterface(SecureEntityManager.class);
     }
 
-    public SecurityContext getSecurityContext() {
-        if (securityContext == null) {
-            String providerName
-                = (String)getJpaPropertyMap().get(SecurePersistenceProvider.SECURITY_CONTEXT_PROPERTY);
-            securityContext
-                = createObject(providerName, SecurePersistenceProvider.DEFAULT_SECURITY_CONTEXT_CLASS);
+    public Configuration getConfiguration() {
+        if (configuration == null) {
+            configuration = new Configuration(getJpaPropertyMap());
         }
-        return securityContext;
+        return configuration;
+    }
+
+    public SecurityContext getSecurityContext() {
+        return getConfiguration().getSecurityContext();
     }
 
     public void setSecurityContext(SecurityContext securityContext) {
-        this.securityContext = securityContext;
+        getConfiguration().setSecurityContext(securityContext);
     }
 
     public void setAuthenticationProvider(AuthenticationProvider authenticationProvider) {
-        this.securityContext = new AuthenticationProviderSecurityContext(authenticationProvider);
+        getConfiguration().setSecurityContext(new AuthenticationProviderSecurityContext(authenticationProvider));
     }
 
     public AccessRulesProvider getAccessRulesProvider() {
-        if (accessRulesProvider == null) {
-            String providerName
-                = (String)getJpaPropertyMap().get(SecurePersistenceProvider.ACCESS_RULES_PROVIDER_PROPERTY);
-            accessRulesProvider
-                = createObject(providerName, SecurePersistenceProvider.DEFAULT_ACCESS_RULES_PROVIDER_CLASS);
-        }
-        return accessRulesProvider;
+        return getConfiguration().getAccessRulesProvider();
     }
 
     public void setAccessRulesProvider(AccessRulesProvider accessRulesProvider) {
-        this.accessRulesProvider = accessRulesProvider;
+        getConfiguration().setAccessRulesProvider(accessRulesProvider);
     }
 
     public SecureEntityProxyFactory getSecureEntityProxyFactory() {
-        if (secureEntityProxyFactory == null) {
-            String factoryName
-                = (String)getJpaPropertyMap().get(SecurePersistenceProvider.SECURE_ENTITY_PROXY_FACTORY_PROPERTY);
-            secureEntityProxyFactory
-                = createObject(factoryName, SecurePersistenceProvider.DEFAULT_SECURE_ENTITY_PROXY_FACTORY_CLASS);
-        }
-        return secureEntityProxyFactory;
+        return getConfiguration().getSecureEntityProxyFactory();
     }
 
     public void setSecureEntityProxyFactory(SecureEntityProxyFactory secureEntityProxyFactory) {
-        this.secureEntityProxyFactory = secureEntityProxyFactory;
+        getConfiguration().setSecureEntityProxyFactory(secureEntityProxyFactory);
     }
 
     public PropertyAccessStrategyFactory getPropertyAccessStrategyFactory() {
-        if (propertyAccessStrategyFactory == null) {
-            String factoryName
-                = (String)getJpaPropertyMap().get(SecurePersistenceProvider.PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY);
-            propertyAccessStrategyFactory
-                = createObject(factoryName, SecurePersistenceProvider.DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS);
-        }
-        return propertyAccessStrategyFactory;
+        return getConfiguration().getPropertyAccessStrategyFactory();
     }
 
     public void setPropertyAccsessStrategyFactory(PropertyAccessStrategyFactory propertyAccessStrategyFactory) {
-        this.propertyAccessStrategyFactory = propertyAccessStrategyFactory;
-    }
-
-    protected <O> O createObject(String className, String defaultClassName) {
-        if (className == null) {
-            className = defaultClassName;
-        }
-        if (className == null) {
-            throw new IllegalArgumentException("defaultClassName must not be null");
-        }
-        try {
-            return (O)getClass().getClassLoader().loadClass(className).newInstance();
-        } catch (ClassNotFoundException e) {
-            throw new PersistenceException(e);
-        } catch (InstantiationException e) {
-            throw new PersistenceException(e);
-        } catch (IllegalAccessException e) {
-            throw new PersistenceException(e);
-        }
+        getConfiguration().setPropertyAccessStrategyFactory(propertyAccessStrategyFactory);
     }
 
     protected EntityManagerFactory createNativeEntityManagerFactory() {
@@ -126,9 +87,6 @@ public class SecureLocalEntityManagerFactoryBean extends LocalEntityManagerFacto
         return persistenceProvider.createSecureEntityManagerFactory(entityManagerFactory,
                                                                     getPersistenceUnitName(),
                                                                     getJpaPropertyMap(),
-                                                                    getSecurityContext(),
-                                                                    getAccessRulesProvider(),
-                                                                    getSecureEntityProxyFactory(),
-                                                                    getPropertyAccessStrategyFactory());
+                                                                    getConfiguration());
     }
 }
