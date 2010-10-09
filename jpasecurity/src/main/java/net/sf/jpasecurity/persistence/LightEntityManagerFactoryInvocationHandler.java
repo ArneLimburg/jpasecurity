@@ -21,12 +21,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import net.sf.jpasecurity.entity.FetchManager;
-import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
-import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
-import net.sf.jpasecurity.security.AccessRulesProvider;
-import net.sf.jpasecurity.security.SecurityContext;
-
 /**
  * @author Stefan Hildebrandt
  */
@@ -35,32 +29,21 @@ public class LightEntityManagerFactoryInvocationHandler extends EntityManagerFac
     public LightEntityManagerFactoryInvocationHandler(EntityManagerFactory entityManagerFactory,
                                                       PersistenceUnitInfo persistenceUnitInfo,
                                                       Map<String, String> properties,
-                                                      SecurityContext securityContext,
-                                                      AccessRulesProvider accessRulesProvider,
-                                                      SecureEntityProxyFactory proxyFactory,
-                                                      PropertyAccessStrategyFactory propertyAccessStrategyFactory) {
+                                                      Configuration configuration) {
         super(entityManagerFactory,
               persistenceUnitInfo,
               properties,
-              securityContext,
-              accessRulesProvider,
-              proxyFactory,
-              propertyAccessStrategyFactory);
+              configuration);
     }
 
     @Override
     protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, String> properties) {
-        int entityManagerFetchDepth = getMaxFetchDepth();
-        String maxFetchDepth = properties.get(FetchManager.MAX_FETCH_DEPTH);
-        if (maxFetchDepth != null) {
-            entityManagerFetchDepth = Integer.parseInt(maxFetchDepth);
-        }
         LightEntityManagerInvocationHandler invocationHandler
             = new LightEntityManagerInvocationHandler(entityManager,
                                                       getMappingInformation(),
-                                                      getSecurityContext(),
-                                                      getAccessRulesProvider().getAccessRules(),
-                                                      entityManagerFetchDepth);
+                                                      getConfiguration().getSecurityContext(),
+                                                      getConfiguration().getAccessRulesProvider().getAccessRules(),
+                                                      getConfiguration().getMaxFetchDepth());
         return invocationHandler.createProxy();
     }
 }
