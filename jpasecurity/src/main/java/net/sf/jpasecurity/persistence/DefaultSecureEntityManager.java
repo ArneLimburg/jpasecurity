@@ -29,7 +29,6 @@ import javax.persistence.FetchType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
-import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureEntityManager;
@@ -45,7 +44,6 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
-import net.sf.jpasecurity.util.ProxyInvocationHandler;
 import net.sf.jpasecurity.util.ReflectionUtils;
 import net.sf.jpasecurity.util.SystemMapKey;
 
@@ -56,26 +54,26 @@ import org.apache.commons.logging.LogFactory;
  * This class handles invocations on proxies of entity managers.
  * @author Arne Limburg
  */
-public class EntityManagerInvocationHandler extends ProxyInvocationHandler<EntityManager>
-                                            implements FetchManager, AccessManager {
+public class DefaultSecureEntityManager extends DelegatingEntityManager
+                                            implements SecureEntityManager, FetchManager {
 
-    private static final Log LOG = LogFactory.getLog(EntityManagerInvocationHandler.class);
+    private static final Log LOG = LogFactory.getLog(DefaultSecureEntityManager.class);
 
     private Configuration configuration;
     private MappingInformation mappingInformation;
     private SecureObjectManager secureObjectManager;
     private EntityFilter entityFilter;
 
-    protected EntityManagerInvocationHandler(EntityManager entityManager,
-                                             Configuration configuration,
-                                             MappingInformation mapping) {
+    protected DefaultSecureEntityManager(EntityManager entityManager,
+                                         Configuration configuration,
+                                         MappingInformation mapping) {
         this(entityManager, configuration, mapping, null);
     }
 
-    protected EntityManagerInvocationHandler(EntityManager entityManager,
-                                             Configuration configuration,
-                                             MappingInformation mapping,
-                                             SecureObjectManager secureObjectManager) {
+    protected DefaultSecureEntityManager(EntityManager entityManager,
+                                         Configuration configuration,
+                                         MappingInformation mapping,
+                                         SecureObjectManager secureObjectManager) {
         super(entityManager);
         if (secureObjectManager == null) {
             secureObjectManager = new DefaultSecureObjectCache(mapping,
@@ -109,7 +107,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     public <T> T find(Class<T> type, Object id) {
         secureObjectManager.preFlush();
-        T entity = getTarget().find(type, id);
+        T entity = super.find(type, id);
         secureObjectManager.postFlush();
         if (entity == null) {
             return null;
@@ -133,7 +131,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public <T> T getReference(Class<T> type, Object id) {
-        return secureObjectManager.getSecureObject(getTarget().getReference(type, id));
+        return secureObjectManager.getSecureObject(super.getReference(type, id));
     }
 
     public void lock(Object entity, LockModeType lockMode) {
@@ -148,25 +146,15 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         return createQuery(mappingInformation.getNamedQuery(name));
     }
 
-    //public Query createNativeQuery(String sqlString);
-
-    //public Query createNativeQuery(String sqlString, Class resultClass);
-
-    //public Query createNativeQuery(String sqlString, String resultSetMapping);
-
-    public Object getDelegate() {
-        return getTarget().getDelegate();
-    }
-
     public void flush() {
         secureObjectManager.preFlush();
-        getTarget().flush();
+        super.flush();
         secureObjectManager.postFlush();
     }
 
     public void clear() {
         secureObjectManager.clear();
-        getTarget().clear();
+        super.clear();
     }
 
     /**
@@ -181,11 +169,11 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             QueryInvocationHandler queryInvocationHandler
                 = new QueryInvocationHandler(secureObjectManager,
                                              this,
-                                             getTarget().createQuery(filterResult.getQuery()),
+                                             super.createQuery(filterResult.getQuery()),
                                              filterResult.getSelectedPaths(),
                                              filterResult.getTypeDefinitions(),
                                              new MappedPathEvaluator(mappingInformation),
-                                             getTarget().getFlushMode());
+                                             super.getFlushMode());
             Query query = queryInvocationHandler.createProxy();
             if (filterResult.getParameters() != null) {
                 for (Map.Entry<String, Object> parameter: filterResult.getParameters().entrySet()) {
@@ -197,7 +185,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
     }
 
     public EntityTransaction getTransaction() {
-        return new SecureTransactionInvocationHandler(getTarget().getTransaction(), secureObjectManager).createProxy();
+        return new SecureTransactionInvocationHandler(super.getTransaction(), secureObjectManager).createProxy();
     }
 
     public int getMaximumFetchDepth() {

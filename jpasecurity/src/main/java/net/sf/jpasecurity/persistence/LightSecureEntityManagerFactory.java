@@ -38,12 +38,10 @@ public class LightSecureEntityManagerFactory extends SecureEntityManagerFactory 
 
     @Override
     protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, String> properties) {
-        LightEntityManagerInvocationHandler invocationHandler
-            = new LightEntityManagerInvocationHandler(entityManager,
-                                                      getMappingInformation(),
-                                                      getConfiguration().getSecurityContext(),
-                                                      getConfiguration().getAccessRulesProvider().getAccessRules(),
-                                                      getConfiguration().getMaxFetchDepth());
-        return invocationHandler.createProxy();
+        return new LightSecureEntityManager(entityManager,
+                                            getMappingInformation(),
+                                            getConfiguration().getSecurityContext(),
+                                            getConfiguration().getAccessRulesProvider().getAccessRules(),
+                                            getConfiguration().getMaxFetchDepth());
     }
 }
