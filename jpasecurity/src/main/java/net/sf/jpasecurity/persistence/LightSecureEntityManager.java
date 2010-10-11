@@ -29,21 +29,22 @@ import net.sf.jpasecurity.security.AccessRule;
 import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.security.SecurityContext;
-import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 /**
  * @author Stefan Hildebrandt
  * @author Arne Limburg
  */
-public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<EntityManager> {
+public class LightSecureEntityManager extends DelegatingEntityManager {
 
     private MappingInformation mappingInformation;
     private SecurityContext securityContext;
     private EntityFilter entityFilter;
 
-    LightEntityManagerInvocationHandler(EntityManager entityManager, MappingInformation mappingInformation,
-                                        SecurityContext securityContext, List<AccessRule> accessRules,
-                                        int maxFetchDepth) {
+    LightSecureEntityManager(EntityManager entityManager,
+                             MappingInformation mappingInformation,
+                             SecurityContext securityContext,
+                             List<AccessRule> accessRules,
+                             int maxFetchDepth) {
         super(entityManager);
         this.mappingInformation = mappingInformation;
         this.securityContext = securityContext;
@@ -63,7 +64,7 @@ public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<
         if (filterResult.getQuery() == null) {
             return new EmptyResultQuery();
         } else {
-            Query query = getTarget().createQuery(filterResult.getQuery());
+            Query query = super.createQuery(filterResult.getQuery());
             if (filterResult.getParameters() != null) {
                 for (Map.Entry<String, Object> roleParameter: filterResult.getParameters().entrySet()) {
                     query.setParameter(roleParameter.getKey(), roleParameter.getValue());

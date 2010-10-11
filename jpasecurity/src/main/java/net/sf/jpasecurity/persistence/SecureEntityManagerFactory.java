@@ -87,9 +87,7 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
     }
 
     protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, String> properties) {
-        EntityManagerInvocationHandler invocationHandler
-            = new EntityManagerInvocationHandler(entityManager, configuration, mappingInformation);
-        return invocationHandler.createProxy();
+        return new DefaultSecureEntityManager(entityManager, configuration, mappingInformation);
     }
 
     private void injectPersistenceInformation(Map<String, String> persistenceProperties) {
