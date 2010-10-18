@@ -166,15 +166,13 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         if (filterResult.getQuery() == null) {
             return new EmptyResultQuery();
         } else {
-            QueryInvocationHandler queryInvocationHandler
-                = new QueryInvocationHandler(secureObjectManager,
-                                             this,
-                                             super.createQuery(filterResult.getQuery()),
-                                             filterResult.getSelectedPaths(),
-                                             filterResult.getTypeDefinitions(),
-                                             new MappedPathEvaluator(mappingInformation),
-                                             super.getFlushMode());
-            Query query = queryInvocationHandler.createProxy();
+            Query query = new SecureQuery(secureObjectManager,
+                                          this,
+                                          super.createQuery(filterResult.getQuery()),
+                                          filterResult.getSelectedPaths(),
+                                          filterResult.getTypeDefinitions(),
+                                          new MappedPathEvaluator(mappingInformation),
+                                          super.getFlushMode());
             if (filterResult.getParameters() != null) {
                 for (Map.Entry<String, Object> parameter: filterResult.getParameters().entrySet()) {
                     query.setParameter(parameter.getKey(), parameter.getValue());
@@ -185,7 +183,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public EntityTransaction getTransaction() {
-        return new SecureTransactionInvocationHandler(super.getTransaction(), secureObjectManager).createProxy();
+        return new SecureTransaction(super.getTransaction(), secureObjectManager);
     }
 
     public int getMaximumFetchDepth() {
