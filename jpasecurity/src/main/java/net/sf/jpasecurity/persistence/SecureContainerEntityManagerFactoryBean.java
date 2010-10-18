@@ -18,6 +18,7 @@ package net.sf.jpasecurity.persistence;
 import javax.persistence.EntityManagerFactory;
 
 import net.sf.jpasecurity.SecureEntityManager;
+import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.AccessRulesProvider;

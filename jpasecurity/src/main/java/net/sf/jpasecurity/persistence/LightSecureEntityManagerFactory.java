@@ -21,6 +21,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import net.sf.jpasecurity.configuration.Configuration;
+
 /**
  * @author Stefan Hildebrandt
  */
