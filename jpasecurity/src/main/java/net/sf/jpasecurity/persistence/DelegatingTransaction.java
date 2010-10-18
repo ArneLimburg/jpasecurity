@@ -17,24 +17,41 @@ package net.sf.jpasecurity.persistence;
 
 import javax.persistence.EntityTransaction;
 
-import net.sf.jpasecurity.entity.SecureObjectManager;
-import net.sf.jpasecurity.util.ProxyInvocationHandler;
-
 /**
  * @author Arne Limburg
  */
-public class SecureTransactionInvocationHandler extends ProxyInvocationHandler<EntityTransaction> {
+public class DelegatingTransaction implements EntityTransaction {
 
-    private SecureObjectManager objectManager;
+    private EntityTransaction delegate;
 
-    public SecureTransactionInvocationHandler(EntityTransaction target, SecureObjectManager objectManager) {
-        super(target);
-        this.objectManager = objectManager;
+    public DelegatingTransaction(EntityTransaction entityTransaction) {
+        if (entityTransaction == null) {
+            throw new IllegalArgumentException("transaction may not be null");
+        }
+        delegate = entityTransaction;
+    }
+
+    public boolean isActive() {
+        return delegate.isActive();
+    }
+
+    public boolean getRollbackOnly() {
+        return delegate.getRollbackOnly();
+    }
+
+    public void setRollbackOnly() {
+        delegate.setRollbackOnly();
+    }
+
+    public void begin() {
+        delegate.begin();
     }
 
     public void commit() {
-        objectManager.preFlush();
-        getTarget().commit();
-        objectManager.postFlush();
+        delegate.commit();
+    }
+
+    public void rollback() {
+        delegate.rollback();
     }
 }

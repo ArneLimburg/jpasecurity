@@ -13,16 +13,27 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.entity;
+package net.sf.jpasecurity.persistence;
 
-import java.util.Collection;
+import javax.persistence.EntityTransaction;
+
+import net.sf.jpasecurity.entity.SecureObjectManager;
 
 /**
  * @author Arne Limburg
  */
-public interface SecureObjectCache {
+public class SecureTransaction extends DelegatingTransaction {
 
-    boolean isSecureObject(Object object);
-    <E> E getSecureObject(E object);
-    <E> Collection<E> getSecureObjects(Class<E> type);
+    private SecureObjectManager objectManager;
+
+    public SecureTransaction(EntityTransaction target, SecureObjectManager objectManager) {
+        super(target);
+        this.objectManager = objectManager;
+    }
+
+    public void commit() {
+        objectManager.preFlush();
+        super.commit();
+        objectManager.postFlush();
+    }
 }

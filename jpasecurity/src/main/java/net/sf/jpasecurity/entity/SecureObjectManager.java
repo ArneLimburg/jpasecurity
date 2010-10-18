@@ -23,9 +23,6 @@ import javax.persistence.Query;
  */
 public interface SecureObjectManager extends SecureObjectCache {
 
-    boolean isSecureObject(Object object);
-    <E> E getSecureObject(E object);
-    <E> E getReference(Class<E> type, Object id);
     void persist(Object object);
     <E> E merge(E entity);
     boolean contains(Object entity);

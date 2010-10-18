@@ -23,6 +23,14 @@ import java.util.Collections;
  */
 public class EmptyObjectCache implements SecureObjectCache {
 
+    public boolean isSecureObject(Object object) {
+        return false;
+    }
+
+    public <E> E getSecureObject(E object) {
+        throw new UnsupportedOperationException();
+    }
+
     public <E> Collection<E> getSecureObjects(Class<E> type) {
         return Collections.emptySet();
     }

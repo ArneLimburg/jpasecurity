@@ -28,14 +28,13 @@ import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.mapping.TypeDefinition;
-import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
 
 /**
  * This class handles invocations on queries.
  * @author Arne Limburg
  */
-public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
+public class SecureQuery extends DelegatingQuery {
 
     private SecureObjectManager objectManager;
     private FetchManager fetchManager;
@@ -44,13 +43,13 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
     private PathEvaluator pathEvaluator;
     private FlushModeType flushMode;
 
-    public QueryInvocationHandler(SecureObjectManager objectManager,
-                                  FetchManager fetchManager,
-                                  Query query,
-                                  List<String> selectedPaths,
-                                  Set<TypeDefinition> types,
-                                  PathEvaluator pathEvaluator,
-                                  FlushModeType flushMode) {
+    public SecureQuery(SecureObjectManager objectManager,
+                       FetchManager fetchManager,
+                       Query query,
+                       List<String> selectedPaths,
+                       Set<TypeDefinition> types,
+                       PathEvaluator pathEvaluator,
+                       FlushModeType flushMode) {
         super(query);
         this.objectManager = objectManager;
         this.fetchManager = fetchManager;
@@ -62,27 +61,27 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
 
     public Query setFlushMode(FlushModeType flushMode) {
         this.flushMode = flushMode;
-        return getTarget().setFlushMode(flushMode);
+        return super.setFlushMode(flushMode);
     }
 
     public Query setParameter(int index, Object parameter) {
-        return objectManager.setParameter(getTarget(), index, parameter);
+        return objectManager.setParameter(getDelegate(), index, parameter);
     }
 
     public Query setParameter(String name, Object parameter) {
-        return objectManager.setParameter(getTarget(), name, parameter);
+        return objectManager.setParameter(getDelegate(), name, parameter);
     }
 
     public Object getSingleResult() {
         preFlush();
-        Object result = getSecureResult(getTarget().getSingleResult());
+        Object result = getSecureResult(getDelegate().getSingleResult());
         postFlush();
         return result;
     }
 
     public List getResultList() {
         preFlush();
-        List targetResult = getTarget().getResultList();
+        List targetResult = super.getResultList();
         postFlush();
         List proxyResult = new ArrayList();
         for (Object entity: targetResult) {
