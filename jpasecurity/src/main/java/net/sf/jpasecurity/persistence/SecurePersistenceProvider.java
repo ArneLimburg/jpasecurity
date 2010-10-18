@@ -27,6 +27,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import net.sf.jpasecurity.configuration.Configuration;
+
 /**
  * @author Arne Limburg
  */
