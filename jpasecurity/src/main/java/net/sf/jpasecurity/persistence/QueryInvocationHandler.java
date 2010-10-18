@@ -15,8 +15,6 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +27,8 @@ import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
+
+import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
 
 
 /**
@@ -104,6 +104,9 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
     }
 
     private Object getSecureResult(Object result) {
+        if(result == null){
+            return null;
+        }
         if (isSimplePropertyType(result.getClass())) {
             return result;
         }
