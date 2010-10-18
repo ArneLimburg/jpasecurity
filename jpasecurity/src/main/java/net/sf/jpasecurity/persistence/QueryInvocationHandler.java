@@ -104,6 +104,9 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
     }
 
     private Object getSecureResult(Object result) {
+        if (result == null) {
+           return null;
+        }
         if (isSimplePropertyType(result.getClass())) {
             return result;
         }
