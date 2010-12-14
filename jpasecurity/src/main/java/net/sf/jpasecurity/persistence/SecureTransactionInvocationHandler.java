@@ -39,7 +39,7 @@ public class SecureTransactionInvocationHandler extends ProxyInvocationHandler<E
     }
 
     public void rollback() {
-       getTarget().rollback();
-       objectManager.clear();
+        getTarget().rollback();
+        objectManager.clear();
     }
 }
