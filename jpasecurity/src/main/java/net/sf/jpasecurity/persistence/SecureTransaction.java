@@ -36,4 +36,9 @@ public class SecureTransaction extends DelegatingTransaction {
         super.commit();
         objectManager.postFlush();
     }
+
+    public void rollback() {
+        super.rollback();
+        objectManager.clear();
+    }
 }
