@@ -37,4 +37,9 @@ public class SecureTransactionInvocationHandler extends ProxyInvocationHandler<E
         getTarget().commit();
         objectManager.postFlush();
     }
+
+    public void rollback() {
+       getTarget().rollback();
+       objectManager.clear();
+    }
 }
