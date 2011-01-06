@@ -101,6 +101,9 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.util.ListHashMap;
 import net.sf.jpasecurity.util.ListMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * This implementation of the {@link JpqlVisitorAdapter} evaluates queries in memory,
  * storing the result in the specified {@link InMemoryEvaluationParameters}.
@@ -108,6 +111,8 @@ import net.sf.jpasecurity.util.ListMap;
  * @author Arne Limburg
  */
 public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationParameters> {
+
+    public static final Log LOG = LogFactory.getLog(InMemoryEvaluationParameters.class);
 
     public static final int DECIMAL_PRECISION = 100;
     public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
@@ -142,6 +147,9 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
     public <R> R evaluate(Node node, InMemoryEvaluationParameters<R> parameters) throws NotEvaluatableException {
         node.visit(this, parameters);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Returning result " + (parameters.isResultUndefined()? "<undefined>": parameters.getResult()));
+        }
         return parameters.getResult();
     }
 
@@ -201,6 +209,9 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         if (undefined) {
             data.setResultUndefined();
         } else {
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("No Node is true of " + node.toString());
+            }
             data.setResult(Boolean.FALSE);
         }
         return false;
@@ -212,6 +223,9 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             node.jjtGetChild(i).visit(this, data);
             try {
                 if (!(Boolean)data.getResult()) {
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Node " + i + " is false of " + node.toString());
+                    }
                     //The result is false, when we return here it stays false
                     return false;
                 }
@@ -847,8 +861,13 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         try {
             node.jjtGetChild(0).visit(this, data);
             data.setResult(!((Collection)data.getResult()).isEmpty());
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Result of " + node + " is " + data.getResult());
+            }
         } catch (NotEvaluatableException e) {
-            //result is undefined
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Result of " + node + " is undefined");
+            }
         }
         return false;
     }
@@ -865,6 +884,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             Set<Replacement> replacements
                 = getReplacements(subselect.getTypeDefinitions(), subselect.getStatement());
             Map<String, Object> aliases = new HashMap<String, Object>();
+            Set<String> ignoredAliases = new HashSet<String>();
             for (Replacement replacement: replacements) {
                 if (replacement.getReplacement() == null) {
                     throw new NotEvaluatableException();
@@ -875,7 +895,16 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                 if (replacement.getTypeDefinition().getType().isAssignableFrom(result.getClass())) {
                     aliases.put(replacement.getTypeDefinition().getAlias(), result);
                 } else {
-                    //Value is of wrong type then so the inner join rules out everything
+                    //Value is of wrong type, ignoring...
+                    //We have to store the ignored aliases,
+                    //because when no replacement is found for an ignored alias,
+                    //it is ruled out by an inner join. We have to return an empty result then.
+                    ignoredAliases.add(replacement.getTypeDefinition().getAlias());
+                }
+            }
+            for (String ignoredAlias: ignoredAliases) {
+                if (!aliases.containsKey(ignoredAlias)) {
+                    //No replacement found for alias. The result is ruled out by inner join then...
                     data.setResult(Collections.EMPTY_SET);
                     return false;
                 }
@@ -894,6 +923,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                     throw new NotEvaluatableException(e);
                 }
             } else {
+                LOG.trace("subselect returns no result");
                 data.setResult(Collections.EMPTY_SET);
             }
             return false;
@@ -907,6 +937,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                                                                 data.getPositionalParameters(),
                                                                 new EmptyObjectCache());
                 if (!evaluate(subselect.getWhereClause(), parameters)) {
+                    LOG.trace("Where-clause is always false");
                     data.setResult(Collections.EMPTY_SET);
                     return false;
                 }
@@ -979,10 +1010,12 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     private void evaluateJoinPathReplacements(Set<Replacement> replacements) {
         for (Replacement replacement: replacements) {
             if (replacement.getTypeDefinition().isJoin()) {
+                String joinPath = replacement.getTypeDefinition().getJoinPath();
+                int index = joinPath.indexOf('.');
+                String rootAlias = joinPath.substring(0, index);
                 Node replacementNode = replacement.getReplacement();
-                String rootAlias = replacementNode.jjtGetChild(0).toString();
                 Replacement rootReplacement = getReplacement(rootAlias, replacements);
-                while (rootReplacement != null) {
+                while (rootReplacement != null && rootReplacement.getReplacement() != null) {
                     Node rootNode = rootReplacement.getReplacement().clone();
                     for (int i = 1; i < replacementNode.jjtGetNumChildren(); i++) {
                         rootNode.jjtAddChild(replacementNode.jjtGetChild(i), rootNode.jjtGetNumChildren());
@@ -1039,7 +1072,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                     String rootAlias = joinPath.substring(0, index);
                     Object root = aliases.get(rootAlias);
                     if (root != null) {
-                        Object value = pathEvaluator.evaluate(root, joinPath);
+                        Object value = pathEvaluator.evaluate(root, joinPath.substring(index + 1));
                         if (typeDefinition.isInnerJoin() && value == null) {
                             throw new NoResultException();
                         }
