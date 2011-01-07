@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.sf.jpasecurity.configuration.ExceptionFactory;
+import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlInCollection;

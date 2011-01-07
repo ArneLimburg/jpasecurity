@@ -18,13 +18,13 @@ package net.sf.jpasecurity.persistence;
 import javax.persistence.EntityManagerFactory;
 
 import net.sf.jpasecurity.SecureEntityManager;
+import net.sf.jpasecurity.configuration.AccessRulesProvider;
+import net.sf.jpasecurity.configuration.AuthenticationProvider;
+import net.sf.jpasecurity.configuration.AuthenticationProviderSecurityContext;
 import net.sf.jpasecurity.configuration.Configuration;
+import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
-import net.sf.jpasecurity.security.AccessRulesProvider;
-import net.sf.jpasecurity.security.AuthenticationProvider;
-import net.sf.jpasecurity.security.AuthenticationProviderSecurityContext;
-import net.sf.jpasecurity.security.SecurityContext;
 
 import org.springframework.orm.jpa.LocalEntityManagerFactoryBean;
 

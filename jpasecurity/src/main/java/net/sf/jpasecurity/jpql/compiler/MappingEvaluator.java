@@ -20,6 +20,7 @@ import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
+import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
@@ -34,7 +35,6 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.mapping.SimplePropertyMappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
-import net.sf.jpasecurity.security.SecurityContext;
 
 /**
  * This evaluator is used to check queries and rules.

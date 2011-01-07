@@ -15,10 +15,10 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import net.sf.jpasecurity.security.SecurityContext;
+import net.sf.jpasecurity.configuration.SecurityContext;
 
 /**
- * This interface may be implemented by {@link net.sf.jpasecurity.security.AccessRulesProvider}s
+ * This interface may be implemented by {@link net.sf.jpasecurity.configuration.AccessRulesProvider}s
  * to obtain a {@link SecurityContext}.
  *
  * @author Arne Limburg

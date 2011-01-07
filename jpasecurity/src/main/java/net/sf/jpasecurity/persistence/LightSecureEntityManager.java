@@ -23,11 +23,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.configuration.Configuration;
+import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.entity.EmptyObjectCache;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
-import net.sf.jpasecurity.security.SecurityContext;
 
 /**
  * @author Stefan Hildebrandt

@@ -23,10 +23,6 @@ import javax.persistence.PersistenceException;
 import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
-import net.sf.jpasecurity.security.AccessRulesProvider;
-import net.sf.jpasecurity.security.AuthenticationProvider;
-import net.sf.jpasecurity.security.AuthenticationProviderSecurityContext;
-import net.sf.jpasecurity.security.SecurityContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

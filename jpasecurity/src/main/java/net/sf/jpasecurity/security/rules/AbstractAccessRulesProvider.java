@@ -22,20 +22,20 @@ import java.util.Map;
 
 import javax.persistence.PersistenceException;
 
+import net.sf.jpasecurity.configuration.AccessRule;
+import net.sf.jpasecurity.configuration.AccessRulesProvider;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.configuration.ExceptionFactory;
+import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.jpql.compiler.MappingEvaluator;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
 import net.sf.jpasecurity.persistence.ConfigurationReceiver;
-import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
 import net.sf.jpasecurity.persistence.SecurityContextReceiver;
-import net.sf.jpasecurity.security.AccessRule;
-import net.sf.jpasecurity.security.AccessRulesProvider;
-import net.sf.jpasecurity.security.SecurityContext;
 
 /**
  * A base class for implementations of the {@link AccessRulesProvider} interface

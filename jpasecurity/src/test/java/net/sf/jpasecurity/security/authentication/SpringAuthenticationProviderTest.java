@@ -18,7 +18,7 @@ package net.sf.jpasecurity.security.authentication;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
-import net.sf.jpasecurity.security.AuthenticationProvider;
+import net.sf.jpasecurity.configuration.AuthenticationProvider;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;

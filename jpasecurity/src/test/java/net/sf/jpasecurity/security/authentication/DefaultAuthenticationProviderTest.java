@@ -19,7 +19,7 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
 
-import net.sf.jpasecurity.security.AuthenticationProvider;
+import net.sf.jpasecurity.configuration.AuthenticationProvider;
 
 
 /**

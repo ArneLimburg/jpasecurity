@@ -27,6 +27,7 @@ import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.OrmXmlParser;
+import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
 
 /**
  * This class is a factory that creates {@link net.sf.jpasecurity.SecureEntityManager}s.

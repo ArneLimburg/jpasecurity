@@ -18,7 +18,7 @@ package net.sf.jpasecurity.security.authentication;
 import java.util.Map;
 
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
+import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
 
 /**
  * @author Arne Limburg

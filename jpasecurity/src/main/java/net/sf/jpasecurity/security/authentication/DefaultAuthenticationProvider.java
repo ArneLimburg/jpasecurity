@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import net.sf.jpasecurity.security.AuthenticationProvider;
+import net.sf.jpasecurity.configuration.AuthenticationProvider;
 
 /**
  * This is an implementation of the {@link AuthenticationProvider} interface

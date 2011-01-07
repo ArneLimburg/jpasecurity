@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.security;
+package net.sf.jpasecurity.configuration;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
+import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
 
 /**
  * An implementation of the {@link SecurityContext} interface,

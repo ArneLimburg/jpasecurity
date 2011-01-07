@@ -17,6 +17,8 @@ package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.Collection;
 
+import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
+
 /**
  * An interface to be implemented by classes that are able to evaluate
  * subselects.

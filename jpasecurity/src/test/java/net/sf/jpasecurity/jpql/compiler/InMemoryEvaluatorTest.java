@@ -15,6 +15,14 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.getCurrentArguments;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
+import static org.easymock.EasyMock.verify;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,19 +31,10 @@ import java.util.Map;
 import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.getCurrentArguments;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reset;
-import static org.easymock.EasyMock.verify;
-import org.easymock.IAnswer;
-
 import junit.framework.TestCase;
-import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
 import net.sf.jpasecurity.jpql.parser.JpqlGroupBy;
 import net.sf.jpasecurity.jpql.parser.JpqlHaving;
@@ -53,6 +52,8 @@ import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
 import net.sf.jpasecurity.util.SetHashMap;
 import net.sf.jpasecurity.util.SetMap;
+
+import org.easymock.IAnswer;
 
 public class InMemoryEvaluatorTest extends TestCase {
 

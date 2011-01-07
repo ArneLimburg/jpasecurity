@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.jpasecurity.configuration.SecurityContext;
+
 import org.springframework.util.ReflectionUtils;
 
 /**
