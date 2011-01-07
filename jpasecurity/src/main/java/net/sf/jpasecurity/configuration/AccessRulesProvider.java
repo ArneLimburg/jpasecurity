@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.security;
+package net.sf.jpasecurity.configuration;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ import java.util.List;
  * If the <tt>AuthenticationProvider</tt> needs information about the configured
  * persistence information like entity mapping information or persistence properties,
  * it may also implement the
- * {@link net.sf.jpasecurity.persistence.PersistenceInformationReceiver} interface
+ * {@link net.sf.jpasecurity.mapping.PersistenceInformationReceiver} interface
  * to become this information injected during runtime.
  *
  * @author Arne Limburg

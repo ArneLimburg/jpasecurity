@@ -28,7 +28,10 @@ import javax.persistence.EntityManager;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.configuration.AccessRule;
+import net.sf.jpasecurity.configuration.AuthenticationProviderSecurityContext;
 import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
+import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.entity.SecureObjectManager;

@@ -32,7 +32,7 @@ import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 
 import junit.framework.TestCase;
-import net.sf.jpasecurity.security.AuthenticationProvider;
+import net.sf.jpasecurity.configuration.AuthenticationProvider;
 
 import org.apache.commons.naming.NamingContext;
 import org.apache.commons.naming.java.javaURLContextFactory;

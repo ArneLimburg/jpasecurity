@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2010 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,24 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.security;
+package net.sf.jpasecurity.configuration;
 
 import java.util.Collection;
 
 /**
- * This interface may be implemented to provide authentication credentials.
+ * This interface may be implemented to provide details about the current security context
+ * like authentication credentials and so.
  *
- * If the <tt>AuthenticationProvider</tt> needs information about the configured
+ * If the <tt>SecurityContext</tt> needs information about the configured
  * persistence information like entity mapping information or persistence properties,
  * it may also implement the
- * {@link net.sf.jpasecurity.persistence.PersistenceInformationReceiver} interface
+ * {@link net.sf.jpasecurity.mapping.PersistenceInformationReceiver} interface
  * to get this information injected during runtime.
- *
  * @author Arne Limburg
  */
-public interface AuthenticationProvider {
+public interface SecurityContext {
 
-    /**
-     * Returns the authenticated principal.
-     */
-    Object getPrincipal();
-
-    /**
-     * Returns the roles of the authenticated user.
-     */
-    Collection<?> getRoles();
+    Collection<String> getAliases();
+    Object getAliasValue(String alias);
+    Collection<Object> getAliasValues(String alias);
 }

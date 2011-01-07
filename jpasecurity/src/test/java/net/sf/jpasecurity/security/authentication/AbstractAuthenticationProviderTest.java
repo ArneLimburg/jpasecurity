@@ -18,7 +18,7 @@ package net.sf.jpasecurity.security.authentication;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
-import net.sf.jpasecurity.security.AuthenticationProvider;
+import net.sf.jpasecurity.configuration.AuthenticationProvider;
 
 /**
  * @author Arne Limburg

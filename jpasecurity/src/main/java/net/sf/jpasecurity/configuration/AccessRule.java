@@ -14,7 +14,7 @@
  * and limitations under the License.
  */
 
-package net.sf.jpasecurity.security;
+package net.sf.jpasecurity.configuration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.sf.jpasecurity.AccessType;
-import net.sf.jpasecurity.jpql.compiler.JpqlCompiledStatement;
+import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlCollectionIdentifier;
 import net.sf.jpasecurity.jpql.parser.JpqlCreate;

@@ -19,12 +19,12 @@ import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
+import net.sf.jpasecurity.configuration.AccessRule;
 import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.security.AccessRule;
 
 /**
  * This compiler compiles access rules

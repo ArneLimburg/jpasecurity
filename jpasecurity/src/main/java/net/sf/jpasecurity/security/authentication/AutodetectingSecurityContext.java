@@ -20,9 +20,9 @@ import java.util.Collection;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import net.sf.jpasecurity.security.AuthenticationProvider;
-import net.sf.jpasecurity.security.AuthenticationProviderSecurityContext;
-import net.sf.jpasecurity.security.SecurityContext;
+import net.sf.jpasecurity.configuration.AuthenticationProvider;
+import net.sf.jpasecurity.configuration.AuthenticationProviderSecurityContext;
+import net.sf.jpasecurity.configuration.SecurityContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

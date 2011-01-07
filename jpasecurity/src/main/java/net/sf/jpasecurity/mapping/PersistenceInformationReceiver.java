@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.persistence;
+package net.sf.jpasecurity.mapping;
 
 import java.util.Map;
 
-import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
- * This interface may be implemented by {@link net.sf.jpasecurity.security.AuthenticationProvider}s
- * and {@link net.sf.jpasecurity.security.AccessRulesProvider}s to obtain the specified persistence informations.
+ * This interface may be implemented by {@link net.net.sf.jpasecurity.configuration.AuthenticationProvider}s
+ * and {@link net.sf.jpasecurity.configuration.net.sf.jpasecurity.security.AccessRulesProvider}s
+ * to obtain the specified persistence informations.
  *
  * @author Arne Limburg
  */

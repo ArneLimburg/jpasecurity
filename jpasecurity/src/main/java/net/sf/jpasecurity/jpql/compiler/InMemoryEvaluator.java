@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 
 import net.sf.jpasecurity.configuration.ExceptionFactory;
+import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlAbs;
 import net.sf.jpasecurity.jpql.parser.JpqlAdd;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;

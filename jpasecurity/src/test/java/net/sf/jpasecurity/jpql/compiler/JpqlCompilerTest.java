@@ -15,28 +15,17 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.getCurrentArguments;
-import static org.easymock.EasyMock.replay;
-
-import java.util.Collection;
-
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import org.easymock.IAnswer;
-
+import junit.framework.TestCase;
 import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
-import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
-import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
-import junit.framework.TestCase;
 
 /**
  * @author Arne Limburg
