@@ -176,10 +176,12 @@ public class SimpleSubselectEvaluator implements SubselectEvaluator {
     private void evaluateJoinPathReplacements(Set<Replacement> replacements) {
         for (Replacement replacement: replacements) {
             if (replacement.getTypeDefinition().isJoin()) {
+                String joinPath = replacement.getTypeDefinition().getJoinPath();
+                int index = joinPath.indexOf('.');
+                String rootAlias = joinPath.substring(0, index);
                 Node replacementNode = replacement.getReplacement();
-                String rootAlias = replacementNode.jjtGetChild(0).toString();
                 Replacement rootReplacement = getReplacement(rootAlias, replacements);
-                while (rootReplacement != null) {
+                while (rootReplacement != null && rootReplacement.getReplacement() != null) {
                     Node rootNode = rootReplacement.getReplacement().clone();
                     for (int i = 1; i < replacementNode.jjtGetNumChildren(); i++) {
                         rootNode.jjtAddChild(replacementNode.jjtGetChild(i), rootNode.jjtGetNumChildren());
