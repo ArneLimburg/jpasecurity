@@ -60,12 +60,13 @@
 <!--                                  AND bean1.trademarkId IN (CURRENT_ROLES)-->
 <!--                                  AND entry.group = CURRENT_PRINCIPAL)-->
 <!--    </access-rule>-->
-    <access-rule>
-      GRANT ACCESS TO AbstractAclProtectedEntity bean
-      WHERE EXISTS (SELECT entry FROM AclEntry entry 
-                    WHERE entry.accessControlList = bean.accessControlList
-                    AND (entry.group IN (CURRENT_ROLES) AND entry.privilege IN (CURRENT_ROLES)))
-    </access-rule>
+     <access-rule>
+       GRANT ACCESS TO AbstractAclProtectedEntity bean
+       WHERE EXISTS (SELECT entry FROM AclEntry entry 
+                                  JOIN entry.group entryGroup
+                     WHERE entry.accessControlList = bean.accessControlList
+                     AND (entryGroup IN (CURRENT_ROLES) AND entry.privilege IN (CURRENT_ROLES)))
+     </access-rule>
   </persistence-unit>
 
 </security>
