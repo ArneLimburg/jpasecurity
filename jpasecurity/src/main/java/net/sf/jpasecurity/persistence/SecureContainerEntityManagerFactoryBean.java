@@ -42,6 +42,7 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
     public Configuration getConfiguration() {
         if (configuration == null) {
             configuration = new Configuration(getJpaPropertyMap());
+            configuration.setExceptionFactory(new JpaExceptionFactory());
         }
         return configuration;
     }

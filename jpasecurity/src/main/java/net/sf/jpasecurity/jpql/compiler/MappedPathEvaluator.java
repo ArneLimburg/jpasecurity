@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.persistence.PersistenceException;
-
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
@@ -31,9 +30,11 @@ import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 public class MappedPathEvaluator implements PathEvaluator {
 
     private MappingInformation mappingInformation;
+    private ExceptionFactory exceptionFactory;
 
-    public MappedPathEvaluator(MappingInformation mappingInformation) {
+    public MappedPathEvaluator(MappingInformation mappingInformation, ExceptionFactory exceptionFactory) {
         this.mappingInformation = mappingInformation;
+        this.exceptionFactory = exceptionFactory;
     }
 
     public Object evaluate(Object root, String path) {
@@ -42,7 +43,7 @@ public class MappedPathEvaluator implements PathEvaluator {
         }
         Collection<Object> result = evaluateAll(Collections.singleton(root), path);
         if (result.size() > 1) {
-            throw new PersistenceException("path '" + path + "' is not single-valued");
+            throw exceptionFactory.createInvalidPathException(path,  "path is not single-valued");
         }
         return result.isEmpty()? null: result.iterator().next();
     }
@@ -56,7 +57,7 @@ public class MappedPathEvaluator implements PathEvaluator {
             for (Object rootObject: rootCollection) {
                 ClassMappingInformation classMapping = mappingInformation.getClassMapping(rootObject.getClass());
                 if (classMapping == null) {
-                    throw new PersistenceException("class '" + rootObject.getClass().getName() + "' is not mapped");
+                    throw exceptionFactory.createTypeNotFoundException(rootObject.getClass().getName());
                 }
                 PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(property);
                 if (propertyMapping != null) {

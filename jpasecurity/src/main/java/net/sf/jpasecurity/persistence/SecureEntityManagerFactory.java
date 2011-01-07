@@ -29,7 +29,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.OrmXmlParser;
 
 /**
- * This class handles invocations on proxies of entity-manager factories.
+ * This class is a factory that creates {@link net.sf.jpasecurity.SecureEntityManager}s.
  * @author Arne Limburg
  */
 public class SecureEntityManagerFactory implements EntityManagerFactory {
@@ -93,22 +93,24 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
 
     private void injectPersistenceInformation(Map<String, String> persistenceProperties) {
         persistenceProperties = Collections.unmodifiableMap(persistenceProperties);
-        if (configuration.getSecurityContext() instanceof PersistenceInformationReceiver) {
+        injectPersistenceInformation(configuration.getSecurityContext(), persistenceProperties);
+        injectPersistenceInformation(configuration.getAccessRulesProvider(), persistenceProperties);
+    }
+
+    private void injectPersistenceInformation(Object injectionTarget, Map<String, String> persistenceProperties) {
+        if (injectionTarget instanceof PersistenceInformationReceiver) {
             PersistenceInformationReceiver persistenceInformationReceiver
-                = (PersistenceInformationReceiver)configuration.getSecurityContext();
+                = (PersistenceInformationReceiver)injectionTarget;
             persistenceInformationReceiver.setPersistenceProperties(persistenceProperties);
             persistenceInformationReceiver.setPersistenceMapping(mappingInformation);
         }
-        if (configuration.getAccessRulesProvider() instanceof PersistenceInformationReceiver) {
-            PersistenceInformationReceiver persistenceInformationReceiver
-                = (PersistenceInformationReceiver)configuration.getAccessRulesProvider();
-            persistenceInformationReceiver.setPersistenceProperties(persistenceProperties);
-            persistenceInformationReceiver.setPersistenceMapping(mappingInformation);
-        }
-        if (configuration.getAccessRulesProvider() instanceof SecurityContextReceiver) {
-            SecurityContextReceiver securityContextReceiver
-                = (SecurityContextReceiver)configuration.getAccessRulesProvider();
+        if (injectionTarget instanceof SecurityContextReceiver) {
+            SecurityContextReceiver securityContextReceiver = (SecurityContextReceiver)injectionTarget;
             securityContextReceiver.setSecurityContext(configuration.getSecurityContext());
+        }
+        if (injectionTarget instanceof ConfigurationReceiver) {
+            ConfigurationReceiver configurationReceiver = (ConfigurationReceiver)injectionTarget;
+            configurationReceiver.setConfiguration(configuration);
         }
     }
 

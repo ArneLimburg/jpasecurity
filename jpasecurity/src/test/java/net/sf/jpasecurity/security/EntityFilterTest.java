@@ -28,6 +28,7 @@ import javax.persistence.EntityManager;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.entity.SecureObjectManager;
@@ -55,7 +56,7 @@ public class EntityFilterTest extends TestCase {
         JpqlParser parser = new JpqlParser();
         JpqlAccessRule rule
             = parser.parseRule("GRANT READ ACCESS TO Contact contact WHERE contact.owner = CURRENT_PRINCIPAL");
-        AccessRulesCompiler compiler = new AccessRulesCompiler(mappingInformation);
+        AccessRulesCompiler compiler = new AccessRulesCompiler(mappingInformation, new DefaultExceptionFactory());
         accessRules = Collections.singletonList(compiler.compile(rule));
     }
     
@@ -67,7 +68,11 @@ public class EntityFilterTest extends TestCase {
         expect(secureObjectManager.getSecureObjects((Class<Object>)anyObject()))
             .andReturn((Collection<Object>)Collections.EMPTY_SET).anyTimes();
         replay(entityManager, secureObjectManager);
-        EntityFilter filter = new EntityFilter(entityManager, secureObjectManager, mappingInformation, accessRules);
+        EntityFilter filter = new EntityFilter(entityManager,
+                                               secureObjectManager,
+                                               mappingInformation,
+                                               new DefaultExceptionFactory(),
+                                               accessRules);
         User john = new User("John");
         Contact contact = new Contact(john, "123456789");
         

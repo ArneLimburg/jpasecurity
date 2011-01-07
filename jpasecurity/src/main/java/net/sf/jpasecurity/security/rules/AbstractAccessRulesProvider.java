@@ -22,12 +22,15 @@ import java.util.Map;
 
 import javax.persistence.PersistenceException;
 
+import net.sf.jpasecurity.configuration.Configuration;
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.jpql.compiler.MappingEvaluator;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.persistence.ConfigurationReceiver;
 import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
 import net.sf.jpasecurity.persistence.SecurityContextReceiver;
 import net.sf.jpasecurity.security.AccessRule;
@@ -43,10 +46,12 @@ import net.sf.jpasecurity.security.SecurityContext;
  */
 public abstract class AbstractAccessRulesProvider implements AccessRulesProvider,
                                                              PersistenceInformationReceiver,
+                                                             ConfigurationReceiver,
                                                              SecurityContextReceiver {
 
     private MappingInformation persistenceMapping;
     private Map<String, String> persistenceProperties;
+    private Configuration configuration;
     private SecurityContext securityContext;
     private List<AccessRule> accessRules;
 
@@ -64,6 +69,14 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
 
     public final void setPersistenceProperties(Map<String, String> properties) {
         this.persistenceProperties = properties;
+    }
+
+    public Configuration getConfiguration() {
+        return this.configuration;
+    }
+
+    public final void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     public SecurityContext getSecurityContext() {
@@ -108,7 +121,8 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
             throw new IllegalStateException("access rules are already compiled");
         }
         JpqlParser jpqlParser = new JpqlParser();
-        AccessRulesCompiler compiler = new AccessRulesCompiler(persistenceMapping);
+        ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
+        AccessRulesCompiler compiler = new AccessRulesCompiler(persistenceMapping, exceptionFactory);
         accessRules = new ArrayList<AccessRule>();
         try {
             for (String accessRule : rules) {

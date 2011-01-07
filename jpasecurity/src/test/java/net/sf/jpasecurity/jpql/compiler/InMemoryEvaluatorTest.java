@@ -28,9 +28,13 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.getCurrentArguments;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
+import static org.easymock.EasyMock.verify;
 import org.easymock.IAnswer;
 
 import junit.framework.TestCase;
+import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
 import net.sf.jpasecurity.jpql.parser.JpqlGroupBy;
@@ -57,6 +61,7 @@ public class InMemoryEvaluatorTest extends TestCase {
     private MappingInformation mappingInformation;
     private JpqlParser parser;
     private JpqlCompiler compiler;
+    private ExceptionFactory exceptionFactory;
     private InMemoryEvaluator inMemoryEvaluator;
     private InMemoryEvaluationParameters<Boolean> parameters;
     private Map<String, Object> aliases = new HashMap<String, Object>();
@@ -71,13 +76,14 @@ public class InMemoryEvaluatorTest extends TestCase {
                 return (Collection<Object>)entities.get(getCurrentArguments()[0]);
             }
         }).anyTimes();
-        replay(objectManager);
+        exceptionFactory = createMock(ExceptionFactory.class);
+        replay(objectManager, exceptionFactory);
         PersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
         mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
         parser = new JpqlParser();
-        compiler = new JpqlCompiler(mappingInformation);
-        inMemoryEvaluator = new InMemoryEvaluator(compiler, new MappedPathEvaluator(mappingInformation));
+        compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
+        inMemoryEvaluator = new InMemoryEvaluator(compiler, new MappedPathEvaluator(mappingInformation, exceptionFactory), exceptionFactory);
         parameters = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
                                                                aliases,
                                                                namedParameters,
@@ -214,12 +220,18 @@ public class InMemoryEvaluatorTest extends TestCase {
             = compile("SELECT bean FROM FieldAccessAnnotationTestBean bean WHERE bean.name = :name");
         aliases.put("bean", new MethodAccessAnnotationTestBean());
         namedParameters.put("name", "test2");
+        
+        PersistenceException typeNotFoundException = new PersistenceException();
+        reset(exceptionFactory);
+        expect(exceptionFactory.createTypeNotFoundException(MethodAccessAnnotationTestBean.class.getName())).andReturn(typeNotFoundException);
+        replay(exceptionFactory);
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (PersistenceException e) {
-            //expected
+            assertSame(typeNotFoundException, e);
         }
+        verify(exceptionFactory);
     }
     
     public void testEvaluateSubselect() throws Exception {

@@ -27,6 +27,7 @@ import javax.persistence.spi.PersistenceUnitInfo;
 
 import org.easymock.IAnswer;
 
+import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
@@ -51,7 +52,7 @@ public class JpqlCompilerTest extends TestCase {
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
         mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
         parser = new JpqlParser();
-        compiler = new JpqlCompiler(mappingInformation);
+        compiler = new JpqlCompiler(mappingInformation, new DefaultExceptionFactory());
     }
 
     public void testSelectedPathsForCount() throws ParseException {

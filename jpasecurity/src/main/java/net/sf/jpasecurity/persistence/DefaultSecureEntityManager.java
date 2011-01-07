@@ -89,6 +89,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                                              secureObjectManager,
                                              secureObjectManager,
                                              mappingInformation,
+                                             configuration.getExceptionFactory(),
                                              configuration.getAccessRulesProvider().getAccessRules());
     }
 
@@ -172,7 +173,8 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                                           super.createQuery(filterResult.getQuery()),
                                           filterResult.getSelectedPaths(),
                                           filterResult.getTypeDefinitions(),
-                                          new MappedPathEvaluator(mappingInformation),
+                                          new MappedPathEvaluator(mappingInformation,
+                                                                  configuration.getExceptionFactory()),
                                           super.getFlushMode());
             if (filterResult.getParameters() != null) {
                 for (Map.Entry<String, Object> parameter: filterResult.getParameters().entrySet()) {

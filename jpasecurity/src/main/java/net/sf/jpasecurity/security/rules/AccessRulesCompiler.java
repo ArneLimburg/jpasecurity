@@ -19,6 +19,7 @@ import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.mapping.TypeDefinition;
@@ -31,8 +32,8 @@ import net.sf.jpasecurity.security.AccessRule;
  */
 public class AccessRulesCompiler extends JpqlCompiler {
 
-    public AccessRulesCompiler(MappingInformation mappingInformation) {
-        super(mappingInformation);
+    public AccessRulesCompiler(MappingInformation mappingInformation, ExceptionFactory exceptionFactory) {
+        super(mappingInformation, exceptionFactory);
     }
 
     public AccessRule compile(JpqlAccessRule rule) {

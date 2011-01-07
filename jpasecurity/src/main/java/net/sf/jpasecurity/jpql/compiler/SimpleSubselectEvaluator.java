@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.jpql.parser.JpqlEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
@@ -40,13 +41,15 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
 public class SimpleSubselectEvaluator implements SubselectEvaluator {
 
     private final InMemoryEvaluator inMemoryEvaluator;
+    private final ExceptionFactory exceptionFactory;
     private final ReplacementVisitor replacementVisitor;
 
-    public SimpleSubselectEvaluator(InMemoryEvaluator inMemoryEvaluator) {
+    public SimpleSubselectEvaluator(InMemoryEvaluator inMemoryEvaluator, ExceptionFactory exceptionFactory) {
         if (inMemoryEvaluator == null) {
             throw new IllegalArgumentException("inMemoryEvaluator may not be null");
         }
         this.inMemoryEvaluator = inMemoryEvaluator;
+        this.exceptionFactory = exceptionFactory;
         this.replacementVisitor = new ReplacementVisitor();
     }
 
@@ -104,7 +107,7 @@ public class SimpleSubselectEvaluator implements SubselectEvaluator {
             }
         }
         //now evaluate the subselect
-        PathEvaluator pathEvaluator = new MappedPathEvaluator(parameters.getMappingInformation());
+        PathEvaluator pathEvaluator = new MappedPathEvaluator(parameters.getMappingInformation(), exceptionFactory);
         List<Path> selectedPaths = getPaths(subselect.getSelectedPaths());
         List<Object> resultList = new ArrayList<Object>();
         for (Map<String, Object> variant: variants) {

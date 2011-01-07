@@ -21,8 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.PersistenceException;
-
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlInCollection;
@@ -49,13 +48,15 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
 public class JpqlCompiler {
 
     private MappingInformation mappingInformation;
+    private ExceptionFactory exceptionFactory;
     private final SelectVisitor selectVisitor = new SelectVisitor();
     private final AliasVisitor aliasVisitor = new AliasVisitor();
     private final NamedParameterVisitor namedParameterVisitor = new NamedParameterVisitor();
     private final PositionalParameterVisitor positionalParameterVisitor = new PositionalParameterVisitor();
 
-    public JpqlCompiler(MappingInformation mappingInformation) {
+    public JpqlCompiler(MappingInformation mappingInformation, ExceptionFactory exceptionFactory) {
         this.mappingInformation = mappingInformation;
+        this.exceptionFactory = exceptionFactory;
     }
 
     public JpqlCompiledStatement compile(JpqlStatement statement) {
@@ -158,7 +159,7 @@ public class JpqlCompiler {
             String alias = node.jjtGetChild(1).toString();
             Class<?> type = mappingInformation.getClassMapping(abstractSchemaName.trim()).getEntityType();
             if (type == null) {
-                throw new PersistenceException("type not found " + abstractSchemaName.trim());
+                throw exceptionFactory.createTypeNotFoundException(abstractSchemaName.trim());
             }
             typeDefinitions.add(new TypeDefinition(alias, type));
             return false;
