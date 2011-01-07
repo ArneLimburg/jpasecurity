@@ -31,6 +31,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.EntityManagerEvaluator;
@@ -81,12 +82,14 @@ public class EntityFilter {
     public EntityFilter(EntityManager entityManager,
                         SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
+                        ExceptionFactory exceptionFactory,
                         List<AccessRule> accessRules) {
         this(entityManager,
              null,
              objectCache,
              mappingInformation,
-             new MappedPathEvaluator(mappingInformation),
+             new MappedPathEvaluator(mappingInformation, exceptionFactory),
+             exceptionFactory,
              accessRules);
     }
 
@@ -94,12 +97,14 @@ public class EntityFilter {
                         SecureObjectManager objectManager,
                         SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
+                        ExceptionFactory exceptionFactory,
                         List<AccessRule> accessRules) {
         this(entityManager,
              objectManager,
              objectCache,
              mappingInformation,
-             new MappedPathEvaluator(mappingInformation),
+             new MappedPathEvaluator(mappingInformation, exceptionFactory),
+             exceptionFactory,
              accessRules);
     }
 
@@ -108,14 +113,18 @@ public class EntityFilter {
                         SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
                         PathEvaluator pathEvaluator,
+                        ExceptionFactory exceptionFactory,
                         List<AccessRule> accessRules) {
         this.mappingInformation = mappingInformation;
         this.parser = new JpqlParser();
-        this.compiler = new JpqlCompiler(mappingInformation);
+        this.compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
         this.objectCache = objectCache;
-        this.queryEvaluator = new InMemoryEvaluator(compiler, pathEvaluator);
-        this.entityManagerEvaluator
-            = new EntityManagerEvaluator(entityManager, secureObjectManager, compiler, pathEvaluator);
+        this.queryEvaluator = new InMemoryEvaluator(compiler, pathEvaluator, exceptionFactory);
+        this.entityManagerEvaluator = new EntityManagerEvaluator(entityManager,
+                                                                 secureObjectManager,
+                                                                 compiler,
+                                                                 pathEvaluator,
+                                                                 exceptionFactory);
         this.accessRules = accessRules;
     }
 

@@ -17,14 +17,16 @@ package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.Collection;
 
+import net.sf.jpasecurity.configuration.ExceptionFactory;
+
 /**
  * A subselect-evaluator that evaluates subselects based on the content of the object cache
  * @author Arne Limburg
  */
 public class ObjectCacheSubselectEvaluator extends SimpleSubselectEvaluator {
 
-    public ObjectCacheSubselectEvaluator(InMemoryEvaluator inMemoryEvaluator) {
-        super(inMemoryEvaluator);
+    public ObjectCacheSubselectEvaluator(InMemoryEvaluator inMemoryEvaluator, ExceptionFactory exceptionFactory) {
+        super(inMemoryEvaluator, exceptionFactory);
     }
 
     protected Collection<?> getResult(Replacement replacement, InMemoryEvaluationParameters<Collection<?>> parameters)

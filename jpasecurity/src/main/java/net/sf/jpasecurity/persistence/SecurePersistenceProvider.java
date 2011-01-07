@@ -72,6 +72,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         Map<String, String> persistenceProperties = (Map)info.getProperties();
         persistenceProperties.putAll(properties);
         Configuration configuration = new Configuration(persistenceProperties);
+        configuration.setExceptionFactory(new JpaExceptionFactory());
         return createSecureEntityManagerFactory(nativeEntityManagerFactory,
                                                 info,
                                                 properties,

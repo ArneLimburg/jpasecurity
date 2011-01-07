@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.jpql.parser.JpqlAbs;
 import net.sf.jpasecurity.jpql.parser.JpqlAdd;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
@@ -98,20 +99,27 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
     protected final JpqlCompiler compiler;
     protected final PathEvaluator pathEvaluator;
+    protected final ExceptionFactory exceptionFactory;
 
-    public InMemoryEvaluator(MappingInformation mappingInformation) {
-        this(new JpqlCompiler(mappingInformation), new MappedPathEvaluator(mappingInformation));
+    public InMemoryEvaluator(MappingInformation mappingInformation, ExceptionFactory exceptionFactory) {
+        this(new JpqlCompiler(mappingInformation, exceptionFactory),
+             new MappedPathEvaluator(mappingInformation, exceptionFactory),
+             exceptionFactory);
     }
 
-    public InMemoryEvaluator(JpqlCompiler compiler, PathEvaluator pathEvaluator) {
+    public InMemoryEvaluator(JpqlCompiler compiler, PathEvaluator pathEvaluator, ExceptionFactory exceptionFactory) {
         if (compiler == null) {
             throw new IllegalArgumentException("compiler may not be null");
         }
         if (pathEvaluator == null) {
             throw new IllegalArgumentException("pathEvaluator may not be null");
         }
+        if (exceptionFactory == null) {
+            throw new IllegalArgumentException("exceptionFactory may not be null");
+        }
         this.compiler = compiler;
         this.pathEvaluator = pathEvaluator;
+        this.exceptionFactory = exceptionFactory;
     }
 
     public boolean canEvaluate(Node node, InMemoryEvaluationParameters parameters) {
@@ -160,7 +168,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             int index = path.indexOf('.');
             if (index != -1) {
                 path = path.substring(index + 1);
-                PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMappingInformation());
+                PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMappingInformation(), exceptionFactory);
                 Collection<Object> result = pathEvaluator.evaluateAll(Collections.singleton(data.getResult()), path);
                 if (result.size() == 0) {
                     data.setResult(null);
@@ -847,7 +855,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     public boolean visit(JpqlSubselect node, InMemoryEvaluationParameters data) {
         JpqlCompiledStatement subselect = compiler.compile(node);
         try {
-            SubselectEvaluator subselectEvaluator = new SimpleSubselectEvaluator(this);
+            SubselectEvaluator subselectEvaluator = new SimpleSubselectEvaluator(this, exceptionFactory);
             data.setResult(subselectEvaluator.evaluate(subselect, data));
         } catch (NotEvaluatableException e) {
             if (!(node.jjtGetParent() instanceof JpqlExists)) {
@@ -855,7 +863,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                 return false;
             }
             try {
-                SubselectEvaluator subselectEvaluator = new ObjectCacheSubselectEvaluator(this);
+                SubselectEvaluator subselectEvaluator = new ObjectCacheSubselectEvaluator(this, exceptionFactory);
                 Collection<?> result = subselectEvaluator.evaluate(subselect, data);
                 if (result.size() > 0) {
                     data.setResult(result);

@@ -45,9 +45,9 @@ public class DefaultSecureObjectCache extends EntityPersister {
         = new HashMap<SystemMapKey, SecureMap<?, ?>>();
 
     public DefaultSecureObjectCache(MappingInformation mappingInformation,
-                             EntityManager entityManager,
-                             AccessManager accessManager,
-                             SecureEntityProxyFactory proxyFactory) {
+                                    EntityManager entityManager,
+                                    AccessManager accessManager,
+                                    SecureEntityProxyFactory proxyFactory) {
         super(mappingInformation, entityManager, accessManager, proxyFactory);
     }
 

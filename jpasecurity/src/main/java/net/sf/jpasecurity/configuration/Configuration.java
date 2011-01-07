@@ -59,6 +59,7 @@ public class Configuration {
     private SecurityContext securityContext;
     private SecureEntityProxyFactory secureEntityProxyFactory;
     private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
+    private ExceptionFactory exceptionFactory;
     private int maxFetchDepth;
 
     public Configuration(Map<String, String> properties) {
@@ -124,6 +125,17 @@ public class Configuration {
 
     public void setMaxFetchDepth(int maxFetchDepth) {
         this.maxFetchDepth = maxFetchDepth;
+    }
+
+    public ExceptionFactory getExceptionFactory() {
+        if (exceptionFactory == null) {
+            exceptionFactory = new DefaultExceptionFactory();
+        }
+        return exceptionFactory;
+    }
+
+    public void setExceptionFactory(ExceptionFactory exceptionFactory) {
+        this.exceptionFactory = exceptionFactory;
     }
 
     private AccessRulesProvider createAccessRulesProvider() {

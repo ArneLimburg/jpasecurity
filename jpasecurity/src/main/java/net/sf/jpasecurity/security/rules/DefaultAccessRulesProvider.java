@@ -20,7 +20,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.persistence.ConfigurationReceiver;
 import net.sf.jpasecurity.persistence.PersistenceInformationReceiver;
 import net.sf.jpasecurity.persistence.SecurityContextReceiver;
 import net.sf.jpasecurity.security.AccessRule;
@@ -33,7 +35,8 @@ import net.sf.jpasecurity.security.SecurityContext;
  */
 public class DefaultAccessRulesProvider implements AccessRulesProvider,
                                                    PersistenceInformationReceiver,
-                                                   SecurityContextReceiver {
+                                                   SecurityContextReceiver,
+                                                   ConfigurationReceiver {
 
     private final AnnotationAccessRulesProvider annotationRulesProvider = new AnnotationAccessRulesProvider();
     private final XmlAccessRulesProvider xmlRulesProvider = new XmlAccessRulesProvider();
@@ -62,5 +65,10 @@ public class DefaultAccessRulesProvider implements AccessRulesProvider,
     public void setSecurityContext(SecurityContext securityContext) {
         annotationRulesProvider.setSecurityContext(securityContext);
         xmlRulesProvider.setSecurityContext(securityContext);
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        annotationRulesProvider.setConfiguration(configuration);
+        xmlRulesProvider.setConfiguration(configuration);
     }
 }

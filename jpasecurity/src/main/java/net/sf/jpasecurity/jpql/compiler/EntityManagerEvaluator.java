@@ -23,6 +23,7 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
@@ -44,15 +45,18 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
     private final SecureObjectManager objectManager;
     private final QueryPreparator queryPreparator;
 
-    public EntityManagerEvaluator(JpqlCompiler compiler, PathEvaluator pathEvaluator) {
-        this(null, null, compiler, pathEvaluator);
+    public EntityManagerEvaluator(JpqlCompiler compiler,
+                                  PathEvaluator pathEvaluator,
+                                  ExceptionFactory exceptionFactory) {
+        this(null, null, compiler, pathEvaluator, exceptionFactory);
     }
 
     public EntityManagerEvaluator(EntityManager entityManager,
                                   SecureObjectManager objectManager,
                                   JpqlCompiler compiler,
-                                  PathEvaluator pathEvaluator) {
-        super(compiler, pathEvaluator);
+                                  PathEvaluator pathEvaluator,
+                                  ExceptionFactory exceptionFactory) {
+        super(compiler, pathEvaluator, exceptionFactory);
         this.entityManager = entityManager;
         this.objectManager = objectManager;
         this.queryPreparator = new QueryPreparator();
@@ -73,6 +77,7 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
             data.setResultUndefined();
             return false;
         }
+        LOG.trace("Evaluating subselect with query");
         try {
             JpqlCompiledStatement statement = compiler.compile(node).clone();
             Set<String> aliases = getAliases(statement.getTypeDefinitions());

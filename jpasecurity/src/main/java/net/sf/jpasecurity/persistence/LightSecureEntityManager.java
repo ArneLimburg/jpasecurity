@@ -17,15 +17,14 @@ package net.sf.jpasecurity.persistence;
 
 import static net.sf.jpasecurity.AccessType.READ;
 
-import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.entity.EmptyObjectCache;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.security.AccessRule;
 import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.security.SecurityContext;
@@ -42,13 +41,15 @@ public class LightSecureEntityManager extends DelegatingEntityManager {
 
     LightSecureEntityManager(EntityManager entityManager,
                              MappingInformation mappingInformation,
-                             SecurityContext securityContext,
-                             List<AccessRule> accessRules,
-                             int maxFetchDepth) {
+                             Configuration configuration) {
         super(entityManager);
         this.mappingInformation = mappingInformation;
-        this.securityContext = securityContext;
-        this.entityFilter = new EntityFilter(entityManager, new EmptyObjectCache(), mappingInformation, accessRules);
+        this.securityContext = configuration.getSecurityContext();
+        this.entityFilter = new EntityFilter(entityManager,
+                                             new EmptyObjectCache(),
+                                             mappingInformation,
+                                             configuration.getExceptionFactory(),
+                                             configuration.getAccessRulesProvider().getAccessRules());
     }
 
     public Query createNamedQuery(String name) {

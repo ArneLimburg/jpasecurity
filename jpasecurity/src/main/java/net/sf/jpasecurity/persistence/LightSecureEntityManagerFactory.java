@@ -32,18 +32,11 @@ public class LightSecureEntityManagerFactory extends SecureEntityManagerFactory 
                                            PersistenceUnitInfo persistenceUnitInfo,
                                            Map<String, String> properties,
                                            Configuration configuration) {
-        super(entityManagerFactory,
-              persistenceUnitInfo,
-              properties,
-              configuration);
+        super(entityManagerFactory, persistenceUnitInfo, properties, configuration);
     }
 
     @Override
     protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, String> properties) {
-        return new LightSecureEntityManager(entityManager,
-                                            getMappingInformation(),
-                                            getConfiguration().getSecurityContext(),
-                                            getConfiguration().getAccessRulesProvider().getAccessRules(),
-                                            getConfiguration().getMaxFetchDepth());
+        return new LightSecureEntityManager(entityManager, getMappingInformation(), getConfiguration());
     }
 }
