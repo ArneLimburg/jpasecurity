@@ -345,7 +345,7 @@ public class Credential extends BaseEntity implements UserDetails {
       <![CDATA[
 	<entity class="Person">
 		<table name="PERSONS"/>
-	    <inheritance strategy="JOINED"/>
+		<inheritance strategy="JOINED"/>
 		<attributes>
 			<basic name="firstName">
 				<column name="FIRST_NAME"/>
