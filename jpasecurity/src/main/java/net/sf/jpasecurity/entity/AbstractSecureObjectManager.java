@@ -148,6 +148,9 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     }
 
     void unsecureCopy(final AccessType accessType, final Object secureObject, final Object unsecureObject) {
+        if (secureObject instanceof SecureObject && !((SecureObject)secureObject).isInitialized()) {
+            return;
+        }
         boolean modified = false;
         final ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
@@ -292,6 +295,9 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     void copyIdAndVersion(Object unsecureObject, Object secureObject) {
         if (secureObject instanceof EntityProxy) {
             secureObject = ((EntityProxy)secureObject).getEntity();
+        }
+        if (secureObject instanceof SecureObject && !((SecureObject)secureObject).isInitialized()) {
+            return;
         }
         ClassMappingInformation classMapping = getClassMapping(secureObject.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getIdPropertyMappings()) {

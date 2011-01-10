@@ -87,10 +87,6 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         if (object != secureEntity) {
             throw new IllegalStateException("unexpected object " + object + ", expected " + secureEntity);
         }
-        if (!isInitialized() && !isUpdating()) {
-            refresh();
-            mapping.getClassMapping(entity.getClass()).postLoad(secureEntity);
-        }
         if (canInvoke(method)) {
             return invoke(object, method, args);
         }
@@ -104,6 +100,9 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             return entity.equals(value);
         } else if (isToString(method)) {
             return entity.toString();
+        }
+        if (!isInitialized() && !isUpdating()) {
+            refresh();
         }
         try {
             return superMethod.invoke(object, args);
@@ -125,7 +124,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     public void flush() {
-        if (!isReadOnly()) {
+        if (!isReadOnly() && isInitialized()) {
             objectManager.unsecureCopy(AccessType.UPDATE, secureEntity, entity);
         }
     }
@@ -137,12 +136,16 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     public void refresh() {
         try {
             setUpdating(true);
+            boolean oldInitialized = initialized;
             entity = unproxy(entity);
             if (!accessManager.isAccessible(AccessType.READ, entity)) {
                 throw new SecurityException("The current user is not permitted to access the specified object");
             }
             objectManager.secureCopy(entity, secureEntity);
             initialized = true;
+            if (initialized != oldInitialized) {
+                mapping.getClassMapping(entity.getClass()).postLoad(secureEntity);
+            }
         } finally {
             setUpdating(false);
         }
