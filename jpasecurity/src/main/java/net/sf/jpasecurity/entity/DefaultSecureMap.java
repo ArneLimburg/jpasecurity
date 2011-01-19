@@ -21,13 +21,14 @@ import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import net.sf.jpasecurity.AccessManager;
+import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureMap;
 
 /**
@@ -168,20 +169,42 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> implements SecureM
         return isSimplePropertyType(key.getClass())? key: objectManager.getUnsecureObject(key);
     }
 
-    private void checkInitialized() {
+    void checkInitialized() {
         if (!isInitialized()) {
-            initialize();
+            initialize(true);
         }
     }
 
-    private void initialize() {
-        this.filtered = new HashMap<K, V>();
+    void initialize(boolean checkAccess) {
+        filtered = new LinkedHashMap<K, V>();
         for (Map.Entry<K, V> entry: original.entrySet()) {
             K key = entry.getKey();
             V value = entry.getValue();
-            if ((isSimplePropertyType(key.getClass()) || isReadable(key))
-                && (isReadable(value))) {
-                filtered.put(key, value);
+            K secureKey = null;
+            V secureValue = null;
+            boolean filteredOut = false;
+            if (isSimplePropertyType(key.getClass())) {
+                secureKey = key;
+            } else if (!checkAccess || isReadable(key)) {
+                secureKey = objectManager.getSecureObject(key);
+                if (secureKey instanceof SecureEntity) {
+                    objectManager.initialize((SecureEntity)secureKey, checkAccess);
+                }
+            } else {
+                filteredOut = true;
+            }
+            if (isSimplePropertyType(value.getClass())) {
+                secureValue = value;
+            } else if (!checkAccess || isReadable(value)) {
+                secureValue = objectManager.getSecureObject(value);
+                if (secureValue instanceof SecureEntity) {
+                    objectManager.initialize((SecureEntity)secureValue, checkAccess);
+                }
+            } else {
+                filteredOut = true;
+            }
+            if (!filteredOut) {
+                filtered.put(secureKey, secureValue);
             }
         }
     }

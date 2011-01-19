@@ -165,4 +165,8 @@ public class SecureList<E> extends AbstractList<E> implements SecureCollection<E
     List<E> getOriginal() {
         return secureList.getOriginal();
     }
+
+    void initialize(boolean checkAccess) {
+        secureList.initialize(checkAccess);
+    }
 }

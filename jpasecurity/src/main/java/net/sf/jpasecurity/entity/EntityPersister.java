@@ -79,7 +79,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
             cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<SystemMapKey>());
         }
         T secureEntity = getSecureObject(unsecureEntity);
-        initialize(secureEntity, unsecureEntity, CascadeType.MERGE, new HashSet<Object>());
+        initialize(secureEntity, unsecureEntity, isNew, CascadeType.MERGE, new HashSet<Object>());
         if (isNew) {
             unsecureEntities.put(new SystemMapKey(secureEntity), unsecureEntity);
         }
@@ -97,7 +97,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
         entityManager.refresh(unsecureEntity);
         postFlush();
         if (entity instanceof SecureEntity) {
-            initialize((SecureEntity)entity);
+            initialize((SecureEntity)entity, true);
         }
         cascadeRefresh(entity, unsecureEntity, new HashSet<SystemMapKey>());
     }
@@ -351,7 +351,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
                     if (propertyMapping.isSingleValued()) {
                         Object unsecureValue = getUnsecureObject(secureValue);
                         if (secureValue instanceof SecureEntity) {
-                            initialize((SecureEntity)secureValue);
+                            initialize((SecureEntity)secureValue, true);
                         } else {
                             secureCopy(unsecureValue, secureValue);
                         }
@@ -371,10 +371,14 @@ public class EntityPersister extends AbstractSecureObjectManager {
 
     private void initialize(Object secureEntity,
                             Object unsecureEntity,
+                            boolean isNew,
                             CascadeType cascadeType,
                             Set<Object> alreadyInitializedEntities) {
         if (alreadyInitializedEntities.contains(secureEntity)) {
             return;
+        }
+        if (secureEntity instanceof SecureEntity && !((SecureEntity)secureEntity).isInitialized()) {
+            initialize((SecureEntity)secureEntity, !isNew);
         }
         alreadyInitializedEntities.add(secureEntity);
         ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
@@ -384,11 +388,27 @@ public class EntityPersister extends AbstractSecureObjectManager {
                     || propertyMapping.getCascadeTypes().contains(CascadeType.ALL))) {
                 Object secureValue = propertyMapping.getPropertyValue(secureEntity);
                 if (propertyMapping.isSingleValued()) {
-                    initialize(secureValue, getUnsecureObject(secureValue), cascadeType, alreadyInitializedEntities);
+                    initialize(secureValue,
+                               getUnsecureObject(secureValue),
+                               isNew(secureValue),
+                               cascadeType,
+                               alreadyInitializedEntities);
                 } else {
+                    if (secureValue instanceof AbstractSecureCollection) {
+                        AbstractSecureCollection<?, Collection<?>> secureCollection
+                            = (AbstractSecureCollection<?, Collection<?>>)secureValue;
+                        secureCollection.initialize(!isNew);
+                    } else if (secureValue instanceof SecureList) {
+                        SecureList<?> secureList = (SecureList<?>)secureValue;
+                        secureList.initialize(!isNew);
+                    } else if (secureValue instanceof DefaultSecureMap) {
+                        DefaultSecureMap<?, ?> secureMap = (DefaultSecureMap<?, ?>)secureValue;
+                        secureMap.initialize(!isNew);
+                    }
                     for (Object secureEntry: ((Collection<Object>)secureValue)) {
                         initialize(secureEntry,
                                    getUnsecureObject(secureEntry),
+                                   isNew(secureEntity),
                                    cascadeType,
                                    alreadyInitializedEntities);
                     }

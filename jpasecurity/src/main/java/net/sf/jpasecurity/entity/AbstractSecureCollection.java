@@ -17,6 +17,7 @@
 package net.sf.jpasecurity.entity;
 
 import static net.sf.jpasecurity.AccessType.READ;
+import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
 
 import java.util.AbstractCollection;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import java.util.List;
 
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.SecureCollection;
+import net.sf.jpasecurity.SecureEntity;
 
 /**
  * This is the base class for secure collections.
@@ -208,17 +210,24 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         operations.clear();
     }
 
-    private void checkInitialized() {
+    void checkInitialized() {
         if (!isInitialized()) {
-            initialize();
+            initialize(true);
         }
     }
 
-    private void initialize() {
-        this.filtered = createFiltered();
+    void initialize(boolean checkAccess) {
+        filtered = createFiltered();
         for (E entity: original) {
-            if (isReadable(entity)) {
-                filtered.add((E)objectManager.getSecureObject(entity));
+            if (isSimplePropertyType(entity.getClass())) {
+                filtered.add(entity);
+            }
+            if (!checkAccess || isReadable(entity)) {
+                E secureEntity = objectManager.getSecureObject(entity);
+                if (secureEntity instanceof SecureEntity) {
+                    objectManager.initialize((SecureEntity)secureEntity, checkAccess);
+                }
+                filtered.add(secureEntity);
             }
         }
     }
