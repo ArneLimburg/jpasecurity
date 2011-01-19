@@ -440,10 +440,10 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         return entityInvocationHandler.isInitialized();
     }
 
-    void initialize(SecureEntity secureEntity) {
+    void initialize(SecureEntity secureEntity, boolean checkAccess) {
         EntityInvocationHandler entityInvocationHandler
             = (EntityInvocationHandler)proxyFactory.getMethodInterceptor(secureEntity);
-        entityInvocationHandler.refresh();
+        entityInvocationHandler.refresh(checkAccess);
     }
 
     private Collection<Object> createCollection(Object original) {

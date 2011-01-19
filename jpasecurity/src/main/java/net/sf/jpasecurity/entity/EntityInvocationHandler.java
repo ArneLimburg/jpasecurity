@@ -74,7 +74,9 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     public SecureEntity createSecureEntity() {
-        return objectManager.createSecureEntity(mapping.getClassMapping(entity.getClass()).getEntityType(), this);
+        secureEntity
+            = objectManager.createSecureEntity(mapping.getClassMapping(entity.getClass()).getEntityType(), this);
+        return secureEntity;
     }
 
     public Object intercept(Object object, Method method, SuperMethod superMethod, Object... args) throws Throwable {
@@ -134,11 +136,15 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     public void refresh() {
+        refresh(true);
+    }
+
+    void refresh(boolean checkAccess) {
         try {
             setUpdating(true);
             boolean oldInitialized = initialized;
             entity = unproxy(entity);
-            if (!accessManager.isAccessible(AccessType.READ, entity)) {
+            if (checkAccess && !accessManager.isAccessible(AccessType.READ, entity)) {
                 throw new SecurityException("The current user is not permitted to access the specified object");
             }
             objectManager.secureCopy(entity, secureEntity);
