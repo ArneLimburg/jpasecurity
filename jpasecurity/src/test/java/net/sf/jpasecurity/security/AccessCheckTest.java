@@ -28,10 +28,49 @@ import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
  */
 public class AccessCheckTest extends TestCase {
 
-    public static final String USER = "user";
+    private static final String CREATOR = "creator";
+    private static final String USER = "user";
     private static final String ADMIN = "admin";
+    private static final String CHILD = "child";
+    private static final String GRANDCHILD = "grandchild";
 
-    public void testUpdateCheck() {
+    public void testCreate() {
+        TestAuthenticationProvider.authenticate(CREATOR, CREATOR);
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("access-check");
+        
+        //Merge a new entity
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean(USER);
+        FieldAccessAnnotationTestBean child = new FieldAccessAnnotationTestBean(CHILD);
+        FieldAccessAnnotationTestBean grandchild = new FieldAccessAnnotationTestBean(GRANDCHILD);
+        child.setParentBean(bean);
+        bean.getChildBeans().add(child);
+        grandchild.setParentBean(child);
+        child.getChildBeans().add(grandchild);
+        bean = entityManager.merge(bean);
+        assertEquals(1, bean.getChildBeans().size());
+        assertEquals(CHILD, bean.getChildBeans().iterator().next().getBeanName());
+        assertEquals(1, child.getChildBeans().size());
+        assertEquals(GRANDCHILD, child.getChildBeans().iterator().next().getBeanName());
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        
+        //Merge an existing entity
+        try {
+            entityManager = factory.createEntityManager();
+            entityManager.getTransaction().begin();
+            entityManager.merge(bean);
+            entityManager.getTransaction().commit();
+            fail("expected SecurityException");
+        } catch (SecurityException e) {
+            entityManager.getTransaction().rollback();
+        } finally {
+            entityManager.close();
+        }
+    }
+
+    public void testUpdate() {
         TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("access-check");
         EntityManager entityManager = factory.createEntityManager();

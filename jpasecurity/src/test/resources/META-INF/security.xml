@@ -32,6 +32,7 @@
   </persistence-unit>
 
   <persistence-unit name="access-check">
+    <access-rule>GRANT CREATE ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'creator' IN (CURRENT_ROLES)</access-rule>
     <access-rule>GRANT READ ACCESS TO FieldAccessAnnotationTestBean bean WHERE bean.name = CURRENT_PRINCIPAL</access-rule>
     <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
   </persistence-unit>

@@ -25,6 +25,7 @@ import net.sf.jpasecurity.security.AuthenticationProvider;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 
 /**
  * @author Arne Limburg
@@ -33,7 +34,7 @@ public class AcegiAuthenticationProvider implements AuthenticationProvider {
 
     public Object getPrincipal() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
+        if (authentication == null || (authentication instanceof AnonymousAuthenticationToken)) {
             return null;
         }
         return authentication.getPrincipal();
