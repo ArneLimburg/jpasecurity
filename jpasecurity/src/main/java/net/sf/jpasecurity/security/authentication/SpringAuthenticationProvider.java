@@ -25,6 +25,7 @@ import net.sf.jpasecurity.configuration.AuthenticationProvider;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 
 /**
  * @author Arne Limburg
@@ -33,7 +34,7 @@ public class SpringAuthenticationProvider implements AuthenticationProvider {
 
     public Object getPrincipal() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
+        if (authentication == null || (authentication instanceof AnonymousAuthenticationToken)) {
             return null;
         }
         return authentication.getPrincipal();
