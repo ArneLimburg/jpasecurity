@@ -13,25 +13,35 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.entity;
+package net.sf.jpasecurity.jpa;
 
-import net.sf.jpasecurity.LockModeType;
+import javax.persistence.Query;
+
 import net.sf.jpasecurity.Parameterizable;
 
 /**
+ * This class is the JPA-implementation of a {@link Parameterizable}, that wraps a <tt>Query</tt>.
  * @author Arne Limburg
  */
-public interface SecureObjectManager extends SecureObjectCache {
+public class JpaQuery implements Parameterizable {
 
-    void persist(Object object);
-    <E> E merge(E entity);
-    boolean contains(Object entity);
-    void refresh(Object entity);
-    void lock(Object entity, LockModeType lockMode);
-    void remove(Object entity);
-    <P extends Parameterizable> P setParameter(P parameterizable, int index, Object value);
-    <P extends Parameterizable> P setParameter(P parameterizable, String name, Object value);
-    void preFlush();
-    void postFlush();
-    void clear();
+    private Query query;
+
+    public JpaQuery(Query query) {
+        this.query = query;
+    }
+
+    public Query getWrappedQuery() {
+        return query;
+    }
+
+    public JpaQuery setParameter(int index, Object bean) {
+        query.setParameter(index, bean);
+        return this;
+    }
+
+    public JpaQuery setParameter(String name, Object bean) {
+        query.setParameter(name, bean);
+        return this;
+    }
 }

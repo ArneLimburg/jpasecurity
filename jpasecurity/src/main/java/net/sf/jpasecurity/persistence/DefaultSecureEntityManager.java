@@ -38,6 +38,7 @@ import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
 import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.jpa.JpaBeanStore;
 import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
@@ -77,10 +78,8 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                                          SecureObjectManager secureObjectManager) {
         super(entityManager);
         if (secureObjectManager == null) {
-            secureObjectManager = new DefaultSecureObjectCache(mapping,
-                                                               entityManager,
-                                                               this,
-                                                               configuration.getSecureEntityProxyFactory());
+            secureObjectManager
+                = new DefaultSecureObjectCache(mapping, new JpaBeanStore(entityManager), this, configuration);
         }
         this.configuration = configuration;
         this.mappingInformation = mapping;
@@ -137,7 +136,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public void lock(Object entity, LockModeType lockMode) {
-        secureObjectManager.lock(entity, lockMode);
+        secureObjectManager.lock(entity, net.sf.jpasecurity.LockModeType.valueOf(lockMode.name()));
     }
 
     public boolean contains(Object entity) {
@@ -213,12 +212,12 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                 if (propertyMapping.getFetchType() == FetchType.EAGER) {
                     Object value = propertyMapping.getPropertyValue(entity);
                     if (value instanceof Collection) {
-                        Collection<Object> collection = (Collection<Object>)value;
+                        Collection<?> collection = (Collection<?>)value;
                         for (Object entry: collection) {
                             fetch(entry, depth - 1, alreadyFetchedEntities);
                         }
                     } else if (value instanceof Map) {
-                        Map<Object, Object> map = (Map<Object, Object>)value;
+                        Map<?, ?> map = (Map<?, ?>)value;
                         for (Object entry: map.values()) {
                             fetch(entry, depth - 1, alreadyFetchedEntities);
                         }
@@ -268,6 +267,6 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     protected Collection<Class<?>> getImplementingInterfaces() {
-        return (Collection)Collections.singleton((Class<?>)SecureEntityManager.class);
+        return Collections.<Class<?>>singleton(SecureEntityManager.class);
     }
 }

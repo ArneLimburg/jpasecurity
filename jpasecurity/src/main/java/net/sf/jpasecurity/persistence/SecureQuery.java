@@ -26,6 +26,7 @@ import javax.persistence.Query;
 
 import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.jpa.JpaQuery;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
@@ -65,11 +66,11 @@ public class SecureQuery extends DelegatingQuery {
     }
 
     public Query setParameter(int index, Object parameter) {
-        return objectManager.setParameter(getDelegate(), index, parameter);
+        return objectManager.setParameter(new JpaQuery(getDelegate()), index, parameter).getWrappedQuery();
     }
 
     public Query setParameter(String name, Object parameter) {
-        return objectManager.setParameter(getDelegate(), name, parameter);
+        return objectManager.setParameter(new JpaQuery(getDelegate()), name, parameter).getWrappedQuery();
     }
 
     public Object getSingleResult() {

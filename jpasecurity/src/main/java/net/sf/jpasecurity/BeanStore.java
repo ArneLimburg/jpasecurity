@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,27 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.configuration;
+package net.sf.jpasecurity;
 
 /**
+ * Implementations of this interface are able to load and store beans.
  * @author Arne Limburg
  */
-public interface ExceptionFactory {
+public interface BeanStore {
 
-    RuntimeException createTypeNotFoundException(Class<?> type);
-    RuntimeException createTypeNotFoundException(String className);
-    RuntimeException createInvalidPathException(String path, String error);
+    void persist(Object bean);
+
+    <B> B merge(B bean);
+
+    boolean contains(Object unsecureObject);
+
+    void refresh(Object unsecureEntity);
+
+    void lock(Object unsecureObject, LockModeType lockMode);
+
+    void remove(Object unsecureEntity);
+
+    <B> B getReference(Class<B> entityType, Object id);
+
+    <B> B find(Class<B> entityType, Object id);
 }

@@ -20,6 +20,10 @@ package net.sf.jpasecurity.configuration;
  */
 public abstract class AbstractExceptionFactory implements ExceptionFactory {
 
+    public RuntimeException createTypeNotFoundException(Class<?> type) {
+        return createTypeNotFoundException(type.getName());
+    }
+
     public RuntimeException createTypeNotFoundException(String className) {
         return createRuntimeException("Mapping not found for type " + className, null);
     }

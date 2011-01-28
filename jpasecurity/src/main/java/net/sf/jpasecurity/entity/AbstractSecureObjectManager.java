@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.entity;
 
+import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,15 +27,15 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.persistence.CascadeType;
-import javax.persistence.PersistenceException;
-
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureMap;
 import net.sf.jpasecurity.SecureObject;
+import net.sf.jpasecurity.configuration.Configuration;
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
@@ -43,8 +45,6 @@ import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.util.SystemMapKey;
 
-import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
-
 /**
  * @author Arne Limburg
  */
@@ -52,15 +52,15 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
 
     private MappingInformation mappingInformation;
     private AccessManager accessManager;
-    private SecureEntityProxyFactory proxyFactory;
+    private Configuration configuration;
     private final List<Runnable> postFlushOperations = new ArrayList<Runnable>();
 
     public AbstractSecureObjectManager(MappingInformation mappingInformation,
                                        AccessManager accessManager,
-                                       SecureEntityProxyFactory proxyFactory) {
+                                       Configuration configuration) {
         this.mappingInformation = mappingInformation;
         this.accessManager = accessManager;
-        this.proxyFactory = proxyFactory;
+        this.configuration = configuration;
     }
 
     protected void addPostFlushOperation(Runnable operation) {
@@ -117,9 +117,10 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             return null;
         }
         if (secureObject instanceof EntityProxy) {
-            secureObject = (T)((EntityProxy)secureObject).getEntity();
+            secureObject = ((EntityProxy)secureObject).<T>getEntity();
         }
         if (secureObject instanceof SecureEntity) {
+            SecureEntityProxyFactory proxyFactory = configuration.getSecureEntityProxyFactory();
             EntityInvocationHandler entityInvocationHandler
                 = (EntityInvocationHandler)proxyFactory.getMethodInterceptor((SecureEntity)secureObject);
             return (T)entityInvocationHandler.entity;
@@ -164,7 +165,7 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
                                       accessType,
                                       secureObject,
                                       unsecureObject,
-                                      (SecureCollection<Object>)secureValue,
+                                      (SecureCollection<?>)secureValue,
                                       modified);
             } else if (secureValue instanceof SecureMap) {
                 modified = secureCopy(classMapping,
@@ -172,14 +173,14 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
                                       accessType,
                                       secureObject,
                                       unsecureObject,
-                                      (SecureMap<Object, Object>)secureValue,
+                                      (SecureMap<?, ?>)secureValue,
                                       modified);
             } else {
                 Object newValue;
                 if (secureValue instanceof Collection) {
-                   newValue = createUnsecureCollection((Collection)secureValue);
+                   newValue = createUnsecureCollection((Collection<?>)secureValue);
                 } else if (secureValue instanceof Map) {
-                   newValue = createUnsecureMap((Map)secureValue);
+                   newValue = createUnsecureMap((Map<?, ?>)secureValue);
                 } else if (propertyMapping.isRelationshipMapping()) {
                     newValue = getUnsecureObject(secureValue);
                 } else {
@@ -198,10 +199,10 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         }
     }
 
-   private Map createUnsecureMap(Map secureValue) {
-      Map<Object, Object> unsecureMap = new HashMap<Object, Object>();
-      for (Map.Entry<Object, Object> entry: ((Map<Object, Object>)secureValue).entrySet()) {
-          Object key = entry.getKey();
+   private <K, V> Map<K, V> createUnsecureMap(Map<K, V> secureValue) {
+      Map<K, V> unsecureMap = new HashMap<K, V>();
+      for (Map.Entry<K, V> entry: secureValue.entrySet()) {
+          K key = entry.getKey();
           if (!isSimplePropertyType(key.getClass())) {
               key = getUnsecureObject(key);
           }
@@ -210,9 +211,9 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
       return unsecureMap;
    }
 
-   private Collection createUnsecureCollection(Collection secureValue) {
-      Collection<Object> unsecureCollection = createCollection(secureValue);
-      for (Object entry: (Collection<?>)secureValue) {
+   private <T> Collection<T> createUnsecureCollection(Collection<T> secureValue) {
+      Collection<T> unsecureCollection = createCollection(secureValue);
+      for (T entry: secureValue) {
           unsecureCollection.add(getUnsecureObject(entry));
       }
       return unsecureCollection;
@@ -221,16 +222,15 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
    /**
      * @return <tt>true</tt>, if the owner is modified, <tt>false</tt> otherwise.
      */
-    boolean secureCopy(ClassMappingInformation classMapping,
-                       PropertyMappingInformation propertyMapping,
-                       AccessType accessType,
-                       Object secureOwner,
-                       Object unsecureOwner,
-                       SecureCollection<Object> secureValue,
-                       boolean modified) {
-        Object unsecureCollection = getUnsecureObject(secureValue);
-        SecureCollection<Object> secureCollection
-            = (SecureCollection<Object>)getSecureObject(unsecureCollection);
+    <V> boolean secureCopy(ClassMappingInformation classMapping,
+                           PropertyMappingInformation propertyMapping,
+                           AccessType accessType,
+                           Object secureOwner,
+                           Object unsecureOwner,
+                           SecureCollection<V> secureValue,
+                           boolean modified) {
+        Collection<V> unsecureCollection = getUnsecureObject(secureValue);
+        SecureCollection<V> secureCollection = (SecureCollection<V>)getSecureObject(unsecureCollection);
         if (secureValue != secureCollection && secureValue.isDirty()) {
             secureCollection = secureValue.merge(secureCollection);
         }
@@ -241,9 +241,9 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             }
             if (accessType == AccessType.UPDATE) {
                 if (secureCollection instanceof AbstractSecureCollection) {
-                    ((AbstractSecureCollection<?, Collection<?>>)secureCollection).flush();
+                    ((AbstractSecureCollection<?, ?>)secureCollection).flush();
                 } else if (secureCollection instanceof SecureList) {
-                    ((SecureList<?>)secureCollection).flush();
+                    ((SecureList<V>)secureCollection).flush();
                 } else {
                     throw new IllegalStateException("unsupported secure collection type: " + secureCollection.getClass());
                 }
@@ -259,16 +259,15 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     /**
      * @return <tt>true</tt>, if the owner is modified, <tt>false</tt> otherwise.
      */
-    boolean secureCopy(ClassMappingInformation classMapping,
-                       PropertyMappingInformation propertyMapping,
-                       AccessType accessType,
-                       Object secureOwner,
-                       Object unsecureOwner,
-                       SecureMap<Object, Object> secureValue,
-                       boolean modified) {
-        Object unsecureMap = getUnsecureObject(secureValue);
-        SecureMap<Object, Object> secureMap
-            = (SecureMap<Object, Object>)getSecureObject(unsecureMap);
+    <K, V> boolean secureCopy(ClassMappingInformation classMapping,
+                              PropertyMappingInformation propertyMapping,
+                              AccessType accessType,
+                              Object secureOwner,
+                              Object unsecureOwner,
+                              SecureMap<K, V> secureValue,
+                              boolean modified) {
+        Map<K, V> unsecureMap = getUnsecureObject(secureValue);
+        SecureMap<K, V> secureMap = (SecureMap<K, V>)getSecureObject(unsecureMap);
         if (secureValue != secureMap && secureValue.isDirty()) {
             secureMap = secureValue.merge(secureMap);
         }
@@ -279,7 +278,7 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             }
             if (accessType == AccessType.UPDATE) {
                 if (secureMap instanceof DefaultSecureMap) {
-                    ((DefaultSecureMap<Object, Object>)secureMap).flush();
+                    ((DefaultSecureMap<K, V>)secureMap).flush();
                 } else {
                     throw new IllegalStateException("unsupported secure map type: " + secureMap.getClass());
                 }
@@ -358,7 +357,8 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
                     || !oldMap.entrySet().containsAll(newMap.entrySet())
                     || !newMap.entrySet().containsAll(oldMap.entrySet());
             } else {
-                throw new PersistenceException("unsupported to-many-type " + relationshipMapping.getCollectionType().getName());
+                ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
+                throw exceptionFactory.createTypeNotFoundException(relationshipMapping.getCollectionType());
             }
         }
     }
@@ -366,7 +366,7 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     ClassMappingInformation getClassMapping(Class<?> type) {
         final ClassMappingInformation classMapping = mappingInformation.getClassMapping(type);
         if (classMapping == null) {
-             throw new PersistenceException("Unknown entity type " + type);
+             throw configuration.getExceptionFactory().createTypeNotFoundException(type);
         }
         return classMapping;
     }
@@ -425,34 +425,34 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     }
 
     SecureEntity createSecureEntity(Class<?> type, MethodInterceptor interceptor) {
-        return proxyFactory.createSecureEntityProxy(type, interceptor);
+        return configuration.getSecureEntityProxyFactory().createSecureEntityProxy(type, interceptor);
     }
 
     void setRemoved(SecureEntity secureEntity) {
         EntityInvocationHandler entityInvocationHandler
-            = (EntityInvocationHandler)proxyFactory.getMethodInterceptor(secureEntity);
+            = (EntityInvocationHandler)configuration.getSecureEntityProxyFactory().getMethodInterceptor(secureEntity);
         entityInvocationHandler.deleted = true;
     }
 
     boolean isInitialized(SecureEntity secureEntity) {
         EntityInvocationHandler entityInvocationHandler
-            = (EntityInvocationHandler)proxyFactory.getMethodInterceptor(secureEntity);
+            = (EntityInvocationHandler)configuration.getSecureEntityProxyFactory().getMethodInterceptor(secureEntity);
         return entityInvocationHandler.isInitialized();
     }
 
     void initialize(SecureEntity secureEntity, boolean checkAccess) {
         EntityInvocationHandler entityInvocationHandler
-            = (EntityInvocationHandler)proxyFactory.getMethodInterceptor(secureEntity);
+            = (EntityInvocationHandler)configuration.getSecureEntityProxyFactory().getMethodInterceptor(secureEntity);
         entityInvocationHandler.refresh(checkAccess);
     }
 
-    private Collection<Object> createCollection(Object original) {
+    private <T> Collection<T> createCollection(Collection<T> original) {
         if (original instanceof SortedSet) {
-            return new TreeSet<Object>(((SortedSet<Object>)original).comparator());
+            return new TreeSet<T>(((SortedSet<T>)original).comparator());
         } else if (original instanceof Set) {
-            return new LinkedHashSet<Object>();
+            return new LinkedHashSet<T>();
         } else {
-            return new ArrayList<Object>();
+            return new ArrayList<T>();
         }
     }
 

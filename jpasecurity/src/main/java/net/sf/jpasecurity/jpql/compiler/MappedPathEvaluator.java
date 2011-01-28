@@ -57,7 +57,7 @@ public class MappedPathEvaluator implements PathEvaluator {
             for (Object rootObject: rootCollection) {
                 ClassMappingInformation classMapping = mappingInformation.getClassMapping(rootObject.getClass());
                 if (classMapping == null) {
-                    throw exceptionFactory.createTypeNotFoundException(rootObject.getClass().getName());
+                    throw exceptionFactory.createTypeNotFoundException(rootObject.getClass());
                 }
                 PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(property);
                 if (propertyMapping != null) {

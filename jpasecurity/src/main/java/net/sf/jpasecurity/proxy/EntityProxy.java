@@ -21,5 +21,5 @@ package net.sf.jpasecurity.proxy;
  */
 public interface EntityProxy {
 
-    Object getEntity();
+    <B> B getEntity();
 }

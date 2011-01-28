@@ -21,15 +21,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-
 import net.sf.jpasecurity.AccessManager;
+import net.sf.jpasecurity.BeanStore;
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureMap;
+import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.util.SystemMapKey;
 
 /**
@@ -45,10 +44,10 @@ public class DefaultSecureObjectCache extends EntityPersister {
         = new HashMap<SystemMapKey, SecureMap<?, ?>>();
 
     public DefaultSecureObjectCache(MappingInformation mappingInformation,
-                                    EntityManager entityManager,
+                                    BeanStore beanStore,
                                     AccessManager accessManager,
-                                    SecureEntityProxyFactory proxyFactory) {
-        super(mappingInformation, entityManager, accessManager, proxyFactory);
+                                    Configuration configuration) {
+        super(mappingInformation, beanStore, accessManager, configuration);
     }
 
     public SecureCollection<?> getSecureCollection(Collection<?> unsecureCollection) {
@@ -72,7 +71,7 @@ public class DefaultSecureObjectCache extends EntityPersister {
     }
 
     public <E> E getReference(Class<E> type, Object id) {
-        return getSecureEntity(entityManager.getReference(type, id), id);
+        return getSecureEntity(beanStore.getReference(type, id), id);
     }
 
     public <E> E getSecureObject(E unsecureObject) {
