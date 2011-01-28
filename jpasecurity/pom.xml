@@ -36,7 +36,7 @@
     <developer>
       <id>arne</id>
       <name>Arne Limburg</name>
-      <email>arnelim(a)users.sourceforge.net</email>
+      <email>arne.limburg(a)openknowledge.de</email>
       <roles>
         <role>Project Lead</role>
         <role>Java Developer</role>
@@ -135,6 +135,18 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jdepend-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
@@ -202,6 +214,39 @@
               <consoleOutput>true</consoleOutput>
               <includeTestSourceDirectory>false</includeTestSourceDirectory> <!--TODO switch was disabled until now-->
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant-trax</artifactId>
+            <version>1.6.5</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <configuration>
+              <tasks>
+                <xslt in="${basedir}/target/jdepend-report.xml"
+                      out="${basedir}/target/jdepend-cycle-check.txt"
+                      style="${basedir}/src/jdepend/xsl/jdepend-cycle-check.xsl" />
+
+                <!-- Fail on cycles -->
+                <fail message="There are cycles in the package-dependencies">
+                  <condition>
+                    <length file="${basedir}/target/jdepend-cycle-check.txt"
+                            when="greater" length="0" />
+                  </condition>
+                </fail>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
