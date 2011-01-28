@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.configuration;
+package net.sf.jpasecurity;
+
 
 /**
+ * Implementations of this interface are parameterizable.
  * @author Arne Limburg
  */
-public interface ExceptionFactory {
+public interface Parameterizable {
 
-    RuntimeException createTypeNotFoundException(Class<?> type);
-    RuntimeException createTypeNotFoundException(String className);
-    RuntimeException createInvalidPathException(String path, String error);
+    Parameterizable setParameter(int index, Object bean);
+    Parameterizable setParameter(String name, Object bean);
 }

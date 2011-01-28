@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.entity;
 
+import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,21 +26,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.Query;
-
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.BeanStore;
+import net.sf.jpasecurity.CascadeType;
+import net.sf.jpasecurity.LockModeType;
+import net.sf.jpasecurity.Parameterizable;
 import net.sf.jpasecurity.SecureEntity;
+import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.proxy.EntityProxy;
-import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
-import static net.sf.jpasecurity.util.JpaTypes.*;
 import net.sf.jpasecurity.util.SystemMapKey;
 
 /**
@@ -46,23 +46,23 @@ import net.sf.jpasecurity.util.SystemMapKey;
  */
 public class EntityPersister extends AbstractSecureObjectManager {
 
-    protected final EntityManager entityManager;
+    protected final BeanStore beanStore;
     private Map<SystemMapKey, Object> secureEntities = new HashMap<SystemMapKey, Object>();
     private Map<SystemMapKey, Object> unsecureEntities = new HashMap<SystemMapKey, Object>();
 
     public EntityPersister(MappingInformation mappingInformation,
-                           EntityManager entityManager,
+                           BeanStore beanStore,
                            AccessManager accessManager,
-                           SecureEntityProxyFactory proxyFactory) {
-        super(mappingInformation, accessManager, proxyFactory);
-        this.entityManager = entityManager;
+                           Configuration configuration) {
+        super(mappingInformation, accessManager, configuration);
+        this.beanStore = beanStore;
     }
 
     public void persist(Object secureEntity) {
         Object unsecureEntity = getUnsecureObject(secureEntity);
         cascade(secureEntity, unsecureEntity, CascadeType.PERSIST, new HashSet<SystemMapKey>());
         preFlush();
-        entityManager.persist(unsecureEntity);
+        beanStore.persist(unsecureEntity);
         postFlush();
     }
 
@@ -73,7 +73,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
         if (isNew) {
             cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<SystemMapKey>());
         }
-        unsecureEntity = entityManager.merge(unsecureEntity);
+        unsecureEntity = beanStore.merge(unsecureEntity);
         postFlush();
         if (!isNew) {
             cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<SystemMapKey>());
@@ -87,14 +87,14 @@ public class EntityPersister extends AbstractSecureObjectManager {
     }
 
     public boolean contains(Object entity) {
-        return entityManager.contains(getUnsecureObject(entity));
+        return beanStore.contains(getUnsecureObject(entity));
     }
 
     public void refresh(Object entity) {
         checkAccess(AccessType.READ, entity);
         Object unsecureEntity = getUnsecureObject(entity);
         preFlush();
-        entityManager.refresh(unsecureEntity);
+        beanStore.refresh(unsecureEntity);
         postFlush();
         if (entity instanceof SecureEntity) {
             initialize((SecureEntity)entity, true);
@@ -108,7 +108,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
         } else if (lockMode == LockModeType.WRITE && !isAccessible(AccessType.UPDATE, entity)) {
             throw new SecurityException("specified entity is not updateable for locking");
         }
-        entityManager.lock(getUnsecureObject(entity), lockMode);
+        beanStore.lock(getUnsecureObject(entity), lockMode);
     }
 
     public void remove(Object entity) {
@@ -118,15 +118,17 @@ public class EntityPersister extends AbstractSecureObjectManager {
         if (entity instanceof SecureEntity) {
             setRemoved((SecureEntity)entity);
         }
-        entityManager.remove(unsecureEntity);
+        beanStore.remove(unsecureEntity);
     }
 
-    public Query setParameter(Query query, int index, Object value) {
-        return query.setParameter(index, convertParameter(value));
+    public <P extends Parameterizable> P setParameter(P parameterizable, int index, Object value) {
+        parameterizable.setParameter(index, convertParameter(value));
+        return parameterizable;
     }
 
-    public Query setParameter(Query query, String name, Object value) {
-        return query.setParameter(name, convertParameter(value));
+    public <P extends Parameterizable> P setParameter(P parameterizable, String name, Object value) {
+        parameterizable.setParameter(name, convertParameter(value));
+        return parameterizable;
     }
 
     private Object convertParameter(Object value) {
@@ -134,7 +136,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
             return value;
         } else if (value instanceof Collection) {
             Collection<Object> parameter = new ArrayList<Object>();
-            for (Object entry: (Collection<Object>)value) {
+            for (Object entry: (Collection<?>)value) {
                 if (isSimplePropertyType(entry.getClass())) {
                     parameter.add(entry);
                 } else {
@@ -146,7 +148,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
             return getUnsecureObject(value);
         } else {
             ClassMappingInformation classMapping = getClassMapping(value.getClass());
-            return entityManager.getReference(classMapping.getEntityType(), classMapping.getId(value));
+            return beanStore.getReference(classMapping.getEntityType(), classMapping.getId(value));
         }
     }
 
@@ -184,14 +186,14 @@ public class EntityPersister extends AbstractSecureObjectManager {
         List<E> result = new ArrayList<E>();
         for (Object secureEntity: secureEntities.values()) {
             if (type.isInstance(secureEntity)) {
-                result.add((E)secureEntity);
+                result.add(type.cast(secureEntity));
             }
         }
         return Collections.unmodifiableCollection(result);
     }
 
     public <T> T getReference(Class<T> type, Object id) {
-        return getSecureObject(entityManager.getReference(type, id));
+        return getSecureObject(beanStore.getReference(type, id));
     }
 
     public <T> T getSecureObject(T unsecureObject) {
@@ -256,7 +258,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
         if (id == null) {
             return true;
         }
-        return entityManager.find(classMapping.getEntityType(), id) == null;
+        return beanStore.find(classMapping.getEntityType(), id) == null;
     }
 
     void cascade(Object secureEntity,

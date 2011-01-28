@@ -40,10 +40,11 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
+
+import net.sf.jpasecurity.CascadeType;
 
 
 /**

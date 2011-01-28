@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
@@ -37,6 +36,8 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+
+import net.sf.jpasecurity.CascadeType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

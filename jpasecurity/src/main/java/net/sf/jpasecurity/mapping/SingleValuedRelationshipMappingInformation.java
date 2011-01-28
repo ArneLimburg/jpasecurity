@@ -15,8 +15,9 @@
  */
 package net.sf.jpasecurity.mapping;
 
-import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
+
+import net.sf.jpasecurity.CascadeType;
 
 /**
  * @author Arne Limburg

@@ -21,7 +21,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
@@ -54,6 +53,8 @@ import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 import javax.persistence.spi.PersistenceUnitInfo;
+
+import net.sf.jpasecurity.CascadeType;
 
 
 /**
@@ -251,19 +252,19 @@ public class JpaAnnotationParser extends AbstractMappingParser {
         AnnotatedElement annotatedProperty = (AnnotatedElement)property;
         ManyToMany manyToMany = annotatedProperty.getAnnotation(ManyToMany.class);
         if (manyToMany != null) {
-            return manyToMany.cascade();
+            return convert(manyToMany.cascade());
         }
         ManyToOne manyToOne = annotatedProperty.getAnnotation(ManyToOne.class);
         if (manyToOne != null) {
-            return manyToOne.cascade();
+            return convert(manyToOne.cascade());
         }
         OneToMany oneToMany = annotatedProperty.getAnnotation(OneToMany.class);
         if (oneToMany != null) {
-            return oneToMany.cascade();
+            return convert(oneToMany.cascade());
         }
         OneToOne oneToOne = annotatedProperty.getAnnotation(OneToOne.class);
         if (oneToOne != null) {
-            return oneToOne.cascade();
+            return convert(oneToOne.cascade());
         }
         return new CascadeType[0];
     }
@@ -321,5 +322,13 @@ public class JpaAnnotationParser extends AbstractMappingParser {
             }
         }
         return entityLifecycleMethods;
+    }
+
+    private CascadeType[] convert(javax.persistence.CascadeType... cascadeTypes) {
+        CascadeType[] convertedCascadeTypes = new CascadeType[cascadeTypes.length];
+        for (int i = 0; i < cascadeTypes.length; i++) {
+            convertedCascadeTypes[i] = CascadeType.valueOf(cascadeTypes[i].name());
+        }
+        return convertedCascadeTypes;
     }
 }

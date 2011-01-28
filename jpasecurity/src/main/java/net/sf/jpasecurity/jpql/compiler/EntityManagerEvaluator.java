@@ -21,10 +21,10 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 
 import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.jpa.JpaQuery;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
@@ -100,7 +100,7 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
             }
             String queryString = statement.getStatement().toString();
             LOG.info("executing query " + queryString);
-            Query query = entityManager.createQuery(queryString);
+            JpaQuery query = new JpaQuery(entityManager.createQuery(queryString));
             for (String namedParameter: statement.getNamedParameters()) {
                 if (objectManager == null) {
                     query.setParameter(namedParameter, data.getNamedParameterValue(namedParameter));
@@ -115,7 +115,7 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
                     objectManager.setParameter(query, namedParameter.getKey(), namedParameter.getValue());
                 }
             }
-            data.setResult(query.getResultList());
+            data.setResult(query.getWrappedQuery().getResultList());
             return false;
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();

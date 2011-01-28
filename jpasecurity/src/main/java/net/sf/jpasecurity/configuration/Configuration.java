@@ -58,12 +58,16 @@ public class Configuration {
     private ExceptionFactory exceptionFactory;
     private int maxFetchDepth;
 
+    public Configuration() {
+        this(null);
+    }
+
     public Configuration(Map<String, String> properties) {
         this.properties = properties;
         if (this.properties == null) {
             this.properties = Collections.emptyMap();
         }
-        String maxFetchDepth = properties.get(FetchManager.MAX_FETCH_DEPTH);
+        String maxFetchDepth = this.properties.get(FetchManager.MAX_FETCH_DEPTH);
         if (maxFetchDepth != null) {
             this.maxFetchDepth = Integer.parseInt(maxFetchDepth);
         } else {

@@ -224,7 +224,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         
         PersistenceException typeNotFoundException = new PersistenceException();
         reset(exceptionFactory);
-        expect(exceptionFactory.createTypeNotFoundException(MethodAccessAnnotationTestBean.class.getName())).andReturn(typeNotFoundException);
+        expect(exceptionFactory.createTypeNotFoundException(MethodAccessAnnotationTestBean.class)).andReturn(typeNotFoundException);
         replay(exceptionFactory);
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
