@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,24 +39,22 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
  * A subselect-evaluator that evaluates subselects only by the specified aliases.
  * @author Arne Limburg
  */
-public class SimpleSubselectEvaluator implements SubselectEvaluator {
+public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
 
-    private final InMemoryEvaluator inMemoryEvaluator;
     private final ExceptionFactory exceptionFactory;
     private final ReplacementVisitor replacementVisitor;
 
-    public SimpleSubselectEvaluator(InMemoryEvaluator inMemoryEvaluator, ExceptionFactory exceptionFactory) {
-        if (inMemoryEvaluator == null) {
-            throw new IllegalArgumentException("inMemoryEvaluator may not be null");
-        }
-        this.inMemoryEvaluator = inMemoryEvaluator;
+    public SimpleSubselectEvaluator(ExceptionFactory exceptionFactory) {
         this.exceptionFactory = exceptionFactory;
         this.replacementVisitor = new ReplacementVisitor();
     }
-
+    
     public Collection<?> evaluate(JpqlCompiledStatement subselect,
                                   InMemoryEvaluationParameters<Collection<?>> parameters)
                                   throws NotEvaluatableException {
+        if (evaluator == null) {
+            throw new IllegalStateException("evaluator may not be null");
+        }
         if (isFalse(subselect.getWhereClause(), parameters)) {
             return Collections.emptySet();
         }
@@ -118,7 +116,7 @@ public class SimpleSubselectEvaluator implements SubselectEvaluator {
                                                             parameters.getNamedParameters(),
                                                             parameters.getPositionalParameters(),
                                                             parameters.getObjectCache());
-            if (inMemoryEvaluator.evaluate(subselect.getWhereClause(), subselectParameters)) {
+            if (evaluator.evaluate(subselect.getWhereClause(), subselectParameters)) {
                 Object[] result = new Object[selectedPaths.size()];
                 for (int i = 0; i < result.length; i++) {
                     Path selectedPath = selectedPaths.get(0);
@@ -144,9 +142,9 @@ public class SimpleSubselectEvaluator implements SubselectEvaluator {
         if (replacement.getReplacement() == null) {
             throw new NotEvaluatableException("No replacement found for alias '" + replacement.getTypeDefinition().getAlias() + "'");
         }
-        Object result = inMemoryEvaluator.evaluate(replacement.getReplacement(), parameters);
+        Object result = evaluator.evaluate(replacement.getReplacement(), parameters);
         if (result instanceof Collection) {
-            Collection<Object> resultCollection = (Collection<Object>)result;
+            Collection<?> resultCollection = (Collection<?>)result;
             removeWrongTypes(replacement.getTypeDefinition().getType(), resultCollection);
             return resultCollection;
         } else if (result == null || !replacement.getTypeDefinition().getType().isInstance(result)) {
@@ -161,7 +159,7 @@ public class SimpleSubselectEvaluator implements SubselectEvaluator {
             return false;
         }
         try {
-            return !inMemoryEvaluator.evaluate(whereClause, (InMemoryEvaluationParameters<Boolean>)parameters);
+            return !evaluator.evaluate(whereClause, (InMemoryEvaluationParameters<Boolean>)parameters);
         } catch (NotEvaluatableException e) {
             return false;
         }
@@ -216,8 +214,8 @@ public class SimpleSubselectEvaluator implements SubselectEvaluator {
         return result;
     }
 
-    private void removeWrongTypes(Class<?> type, Collection<Object> collection) {
-        for (Iterator<Object> i = collection.iterator(); i.hasNext();) {
+    private void removeWrongTypes(Class<?> type, Collection<?> collection) {
+        for (Iterator<?> i = collection.iterator(); i.hasNext();) {
             if (!type.isInstance(i.next())) {
                 i.remove();
             }

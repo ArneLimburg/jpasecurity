@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import java.util.Map;
 import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluationParameters;
-import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluator;
+import net.sf.jpasecurity.jpql.compiler.QueryEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
@@ -37,7 +37,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
  */
 public class QueryOptimizer {
 
-    private final InMemoryEvaluator evaluator;
+    private final QueryEvaluator evaluator;
     private final InMemoryEvaluationParameters<Boolean> parameters;
     private final NodeOptimizer nodeOptimizer = new NodeOptimizer();
     private final QueryPreparator queryPreparator = new QueryPreparator();
@@ -46,7 +46,7 @@ public class QueryOptimizer {
                           Map<String, Object> aliases,
                           Map<String, Object> namedParameters,
                           Map<Integer, Object> positionalParameters,
-                          InMemoryEvaluator evaluator,
+                          QueryEvaluator evaluator,
                           SecureObjectCache objectCache) {
         this.evaluator = evaluator;
         this.parameters = new InMemoryEvaluationParameters<Boolean>(mappingInformation,

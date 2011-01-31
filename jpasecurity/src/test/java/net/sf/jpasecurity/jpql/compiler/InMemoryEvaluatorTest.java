@@ -63,7 +63,7 @@ public class InMemoryEvaluatorTest extends TestCase {
     private JpqlParser parser;
     private JpqlCompiler compiler;
     private ExceptionFactory exceptionFactory;
-    private InMemoryEvaluator inMemoryEvaluator;
+    private QueryEvaluator inMemoryEvaluator;
     private InMemoryEvaluationParameters<Boolean> parameters;
     private Map<String, Object> aliases = new HashMap<String, Object>();
     private Map<String, Object> namedParameters = new HashMap<String, Object>();
@@ -84,7 +84,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
         parser = new JpqlParser();
         compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
-        inMemoryEvaluator = new InMemoryEvaluator(compiler, new MappedPathEvaluator(mappingInformation, exceptionFactory), exceptionFactory);
+        inMemoryEvaluator = new QueryEvaluator(compiler, new MappedPathEvaluator(mappingInformation, exceptionFactory), exceptionFactory);
         parameters = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
                                                                aliases,
                                                                namedParameters,

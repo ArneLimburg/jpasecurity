@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package net.sf.jpasecurity.jpql.compiler;
 import java.util.Collection;
 
 import net.sf.jpasecurity.configuration.ExceptionFactory;
+import net.sf.jpasecurity.entity.SecureObjectCache;
+import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
+import net.sf.jpasecurity.jpql.parser.JpqlExists;
 
 /**
  * A subselect-evaluator that evaluates subselects based on the content of the object cache
@@ -25,14 +28,40 @@ import net.sf.jpasecurity.configuration.ExceptionFactory;
  */
 public class ObjectCacheSubselectEvaluator extends SimpleSubselectEvaluator {
 
-    public ObjectCacheSubselectEvaluator(InMemoryEvaluator inMemoryEvaluator, ExceptionFactory exceptionFactory) {
-        super(inMemoryEvaluator, exceptionFactory);
+    private final SecureObjectCache objectCache;
+    
+    public ObjectCacheSubselectEvaluator(SecureObjectCache objectCache, ExceptionFactory exceptionFactory) {
+        super(exceptionFactory);
+        if (objectCache == null) {
+            throw new IllegalArgumentException("SecureObjectCache may not be null");
+        }
+        this.objectCache = objectCache;
+    }
+    
+    public Collection<?> evaluate(JpqlCompiledStatement subselect,
+                                  InMemoryEvaluationParameters<Collection<?>> parameters)
+            throws NotEvaluatableException {
+        if (!(subselect.getStatement().jjtGetParent() instanceof JpqlExists)) {
+            parameters.setResultUndefined();
+            throw new NotEvaluatableException();
+        }
+        Collection<?> result = super.evaluate(subselect, parameters);
+        if (result.size() > 0) {
+            parameters.setResult(result);
+            return result;
+        } else {
+            //We cannot know then whether there are objects
+            //because that no objects could be found in the cache does not mean
+            //that no object can be found in the database
+            parameters.setResultUndefined();
+            throw new NotEvaluatableException();
+        }
     }
 
     protected Collection<?> getResult(Replacement replacement, InMemoryEvaluationParameters<Collection<?>> parameters)
             throws NotEvaluatableException {
         if (replacement.getReplacement() == null) {
-            return parameters.getObjectCache().getSecureObjects(replacement.getTypeDefinition().getType());
+            return objectCache.getSecureObjects(replacement.getTypeDefinition().getType());
         } else {
             return super.getResult(replacement, parameters);
         }

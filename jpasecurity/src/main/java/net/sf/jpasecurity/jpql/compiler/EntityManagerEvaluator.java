@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2010 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,19 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
 
-import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpa.JpaQuery;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
-import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
 import org.apache.commons.logging.Log;
@@ -38,89 +38,72 @@ import org.apache.commons.logging.LogFactory;
  * cannot be performed a call to a specified <tt>EntityManager</tt> is used.
  * @author Arne Limburg
  */
-public class EntityManagerEvaluator extends InMemoryEvaluator {
+public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
 
     private static final Log LOG = LogFactory.getLog(EntityManagerEvaluator.class);
 
     private final EntityManager entityManager;
     private final SecureObjectManager objectManager;
     private final QueryPreparator queryPreparator;
-
-    public EntityManagerEvaluator(JpqlCompiler compiler,
-                                  PathEvaluator pathEvaluator,
-                                  ExceptionFactory exceptionFactory) {
-        this(null, null, compiler, pathEvaluator, exceptionFactory);
-    }
+    private final PathEvaluator pathEvaluator;
 
     public EntityManagerEvaluator(EntityManager entityManager,
                                   SecureObjectManager objectManager,
-                                  JpqlCompiler compiler,
-                                  PathEvaluator pathEvaluator,
-                                  ExceptionFactory exceptionFactory) {
-        super(compiler, pathEvaluator, exceptionFactory);
+                                  PathEvaluator pathEvaluator) {
         this.entityManager = entityManager;
         this.objectManager = objectManager;
         this.queryPreparator = new QueryPreparator();
+        this.pathEvaluator = pathEvaluator;
     }
-
+    
     /**
-     * This method first tries to evaluate the specified subselect in memory by
-     * invoking the super-implementation. If the result of this invocation is <quote>undefined</quote>,
-     * a query is performed via the entity-manager of this evaluator. If this evaluator
-     * is already closed, the result of the evaluation is set to <quote>undefined</quote>.
+     * Within this method a query is performed via the entity-manager of this evaluator.
+     * If this evaluator is already closed, the result of the evaluation is set to <quote>undefined</quote>.
      */
-    public boolean visit(JpqlSubselect node, InMemoryEvaluationParameters data) {
-        boolean visitChildren = super.visit(node, data);
-        if (!data.isResultUndefined()) {
-            return visitChildren;
-        }
+    public Collection<?> evaluate(JpqlCompiledStatement statement,
+                                  InMemoryEvaluationParameters<Collection<?>> data) throws NotEvaluatableException {
         if (entityManager == null || !entityManager.isOpen()) {
             data.setResultUndefined();
-            return false;
+            throw new NotEvaluatableException();
         }
         LOG.trace("Evaluating subselect with query");
-        try {
-            JpqlCompiledStatement statement = compiler.compile(node).clone();
-            Set<String> aliases = getAliases(statement.getTypeDefinitions());
-            Set<String> namedParameters = new HashSet<String>(statement.getNamedParameters());
-            Map<String, String> namedPathParameters = new HashMap<String, String>();
-            Map<String, Object> namedParameterValues = new HashMap<String, Object>();
-            for (JpqlPath jpqlPath: statement.getWhereClausePaths()) {
-                String path = jpqlPath.toString();
-                String alias = getAlias(path);
-                if (!aliases.contains(alias)) {
-                    String namedParameter = namedPathParameters.get(path);
-                    if (namedParameter == null) {
-                        namedParameter = createNamedParameter(namedParameters);
-                        namedPathParameters.put(path, namedParameter);
-                        namedParameterValues.put(namedParameter, getPathValue(path, data.getAliasValues()));
-                    }
-                    queryPreparator.replace(jpqlPath, queryPreparator.createNamedParameter(namedParameter));
+        Set<String> aliases = getAliases(statement.getTypeDefinitions());
+        Set<String> namedParameters = new HashSet<String>(statement.getNamedParameters());
+        Map<String, String> namedPathParameters = new HashMap<String, String>();
+        Map<String, Object> namedParameterValues = new HashMap<String, Object>();
+        for (JpqlPath jpqlPath: statement.getWhereClausePaths()) {
+            String path = jpqlPath.toString();
+            String alias = getAlias(path);
+            if (!aliases.contains(alias)) {
+                String namedParameter = namedPathParameters.get(path);
+                if (namedParameter == null) {
+                    namedParameter = createNamedParameter(namedParameters);
+                    namedPathParameters.put(path, namedParameter);
+                    namedParameterValues.put(namedParameter, getPathValue(path, data.getAliasValues()));
                 }
+                queryPreparator.replace(jpqlPath, queryPreparator.createNamedParameter(namedParameter));
             }
-            String queryString = statement.getStatement().toString();
-            LOG.info("executing query " + queryString);
-            JpaQuery query = new JpaQuery(entityManager.createQuery(queryString));
-            for (String namedParameter: statement.getNamedParameters()) {
-                if (objectManager == null) {
-                    query.setParameter(namedParameter, data.getNamedParameterValue(namedParameter));
-                } else {
-                    objectManager.setParameter(query, namedParameter, data.getNamedParameterValue(namedParameter));
-                }
-            }
-            for (Map.Entry<String, Object> namedParameter: namedParameterValues.entrySet()) {
-                if (objectManager == null) {
-                    query.setParameter(namedParameter.getKey(), namedParameter.getValue());
-                } else {
-                    objectManager.setParameter(query, namedParameter.getKey(), namedParameter.getValue());
-                }
-            }
-            data.setResult(query.getWrappedQuery().getResultList());
-            return false;
-        } catch (NotEvaluatableException e) {
-            data.setResultUndefined();
-            return false;
         }
+        String queryString = statement.getStatement().toString();
+        LOG.info("executing query " + queryString);
+        JpaQuery query = new JpaQuery(entityManager.createQuery(queryString));
+        for (String namedParameter: statement.getNamedParameters()) {
+            if (objectManager == null) {
+                query.setParameter(namedParameter, data.getNamedParameterValue(namedParameter));
+            } else {
+                objectManager.setParameter(query, namedParameter, data.getNamedParameterValue(namedParameter));
+            }
+        }
+        for (Map.Entry<String, Object> namedParameter: namedParameterValues.entrySet()) {
+            if (objectManager == null) {
+                query.setParameter(namedParameter.getKey(), namedParameter.getValue());
+            } else {
+                objectManager.setParameter(query, namedParameter.getKey(), namedParameter.getValue());
+            }
+        }
+        List<?> result = query.getWrappedQuery().getResultList();
+        data.setResult(result);
+        return result;
     }
 
     private Object getPathValue(String path, Map<String, Object> aliases) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package net.sf.jpasecurity.configuration;
 public class DefaultExceptionFactory extends AbstractExceptionFactory {
 
     @Override
-    protected RuntimeException createRuntimeException(String errorMessage, Throwable cause) {
+    public RuntimeException createRuntimeException(String errorMessage, Throwable cause) {
         throw new IllegalStateException(errorMessage, cause);
     }
 }

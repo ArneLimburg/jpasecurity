@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,5 +32,5 @@ public abstract class AbstractExceptionFactory implements ExceptionFactory {
         return createRuntimeException("invalid path " + path + ": " + error, null);
     }
 
-    protected abstract RuntimeException createRuntimeException(String errorMessage, Throwable cause);
+    public abstract RuntimeException createRuntimeException(String errorMessage, Throwable cause);
 }

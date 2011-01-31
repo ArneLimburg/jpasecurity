@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import net.sf.jpasecurity.configuration.AbstractExceptionFactory;
  */
 public class JpaExceptionFactory extends AbstractExceptionFactory {
 
-    protected RuntimeException createRuntimeException(String errorMessage, Throwable cause) {
+    public RuntimeException createRuntimeException(String errorMessage, Throwable cause) {
         return new PersistenceException(errorMessage, cause);
     }
 }
