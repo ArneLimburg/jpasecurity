@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,30 +85,28 @@ import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
-import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
  * This implementation of the {@link JpqlVisitorAdapter} evaluates queries in memory,
  * storing the result in the specified {@link InMemoryEvaluationParameters}.
  * If the evaluation cannot be performed due to missing information the result is set to <quote>undefined</quote>.
+ * To evaluate subselect-query, pluggable implementations of {@link SubselectEvaluator} are used.
  * @author Arne Limburg
  */
-public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationParameters> {
+public class QueryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationParameters> {
 
     public static final int DECIMAL_PRECISION = 100;
     public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
 
-    protected final JpqlCompiler compiler;
-    protected final PathEvaluator pathEvaluator;
-    protected final ExceptionFactory exceptionFactory;
+    private final JpqlCompiler compiler;
+    private final PathEvaluator pathEvaluator;
+    private final ExceptionFactory exceptionFactory;
+    private final SubselectEvaluator[] subselectEvaluators;
 
-    public InMemoryEvaluator(MappingInformation mappingInformation, ExceptionFactory exceptionFactory) {
-        this(new JpqlCompiler(mappingInformation, exceptionFactory),
-             new MappedPathEvaluator(mappingInformation, exceptionFactory),
-             exceptionFactory);
-    }
-
-    public InMemoryEvaluator(JpqlCompiler compiler, PathEvaluator pathEvaluator, ExceptionFactory exceptionFactory) {
+    public QueryEvaluator(JpqlCompiler compiler,
+                             PathEvaluator pathEvaluator,
+                             ExceptionFactory exceptionFactory,
+                             SubselectEvaluator... subselectEvaluators) {
         if (compiler == null) {
             throw new IllegalArgumentException("compiler may not be null");
         }
@@ -121,6 +119,10 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         this.compiler = compiler;
         this.pathEvaluator = pathEvaluator;
         this.exceptionFactory = exceptionFactory;
+        this.subselectEvaluators = subselectEvaluators;
+        for (SubselectEvaluator subselectEvaluator: subselectEvaluators) {
+            subselectEvaluator.setQueryEvaluator(this);
+        }
     }
 
     public boolean canEvaluate(Node node, InMemoryEvaluationParameters parameters) {
@@ -855,26 +857,11 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
     public boolean visit(JpqlSubselect node, InMemoryEvaluationParameters data) {
         JpqlCompiledStatement subselect = compiler.compile(node);
-        try {
-            SubselectEvaluator subselectEvaluator = new SimpleSubselectEvaluator(this, exceptionFactory);
-            data.setResult(subselectEvaluator.evaluate(subselect, data));
-        } catch (NotEvaluatableException e) {
-            if (!(node.jjtGetParent() instanceof JpqlExists)) {
-                data.setResultUndefined();
-                return false;
-            }
+        for (SubselectEvaluator subselectEvaluator: subselectEvaluators) {
             try {
-                SubselectEvaluator subselectEvaluator = new ObjectCacheSubselectEvaluator(this, exceptionFactory);
-                Collection<?> result = subselectEvaluator.evaluate(subselect, data);
-                if (result.size() > 0) {
-                    data.setResult(result);
-                } else {
-                    //We cannot know then whether there are objects
-                    //because that no objects could be found in the cache does not mean
-                    //that no object can be found in the database
-                    data.setResultUndefined();
-                }
-            } catch (NotEvaluatableException e1) {
+                data.setResult(subselectEvaluator.evaluate(subselect, data));
+                return false;
+            } catch (NotEvaluatableException e) {
                 data.setResultUndefined();
             }
         }

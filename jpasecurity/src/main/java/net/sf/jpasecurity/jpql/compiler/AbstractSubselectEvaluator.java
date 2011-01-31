@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 - 2011 Arne Limburg
+ * Copyright 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,20 @@ import java.util.Collection;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 
 /**
- * An interface to be implemented by classes that are able to evaluate
- * subselects.
  * @author Arne Limburg
  */
-public interface SubselectEvaluator {
+public class AbstractSubselectEvaluator implements SubselectEvaluator {
 
-    void setQueryEvaluator(QueryEvaluator evaluator);
+    protected QueryEvaluator evaluator;
     
-    Collection<?> evaluate(JpqlCompiledStatement subselect, InMemoryEvaluationParameters<Collection<?>> parameters)
-        throws NotEvaluatableException;
+    public void setQueryEvaluator(QueryEvaluator evaluator) {
+        this.evaluator = evaluator;
+    }
+
+    public Collection<?> evaluate(JpqlCompiledStatement subselect,
+                    InMemoryEvaluationParameters<Collection<?>> parameters) throws NotEvaluatableException {
+        parameters.setResultUndefined();
+        throw new NotEvaluatableException();
+    }
+
 }

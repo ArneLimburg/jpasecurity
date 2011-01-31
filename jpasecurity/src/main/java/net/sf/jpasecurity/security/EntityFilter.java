@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,12 +39,15 @@ import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.compiler.EntityManagerEvaluator;
 import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluationParameters;
-import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluator;
+import net.sf.jpasecurity.jpql.compiler.QueryEvaluator;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
 import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
+import net.sf.jpasecurity.jpql.compiler.ObjectCacheSubselectEvaluator;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
+import net.sf.jpasecurity.jpql.compiler.SimpleSubselectEvaluator;
+import net.sf.jpasecurity.jpql.compiler.SubselectEvaluator;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentifier;
@@ -76,8 +79,8 @@ public class EntityFilter {
     private final JpqlCompiler compiler;
     private final SecureObjectCache objectCache;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
-    private final InMemoryEvaluator queryEvaluator;
-    private final EntityManagerEvaluator entityManagerEvaluator;
+    private final QueryEvaluator inMemoryEvaluator;
+    private final QueryEvaluator entityManagerEvaluator;
     private final QueryPreparator queryPreparator = new QueryPreparator();
     private final List<AccessRule> accessRules;
 
@@ -121,12 +124,11 @@ public class EntityFilter {
         this.parser = new JpqlParser();
         this.compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
         this.objectCache = objectCache;
-        this.queryEvaluator = new InMemoryEvaluator(compiler, pathEvaluator, exceptionFactory);
-        this.entityManagerEvaluator = new EntityManagerEvaluator(entityManager,
-                                                                 secureObjectManager,
-                                                                 compiler,
-                                                                 pathEvaluator,
-                                                                 exceptionFactory);
+        SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator(exceptionFactory);
+        SubselectEvaluator objectCacheEvaluator = new ObjectCacheSubselectEvaluator(objectCache, exceptionFactory);
+        SubselectEvaluator entityManagerEvaluator = new EntityManagerEvaluator(entityManager, secureObjectManager, pathEvaluator);
+        this.inMemoryEvaluator = new QueryEvaluator(compiler, pathEvaluator, exceptionFactory, simpleSubselectEvaluator, objectCacheEvaluator);
+        this.entityManagerEvaluator = new QueryEvaluator(compiler, pathEvaluator, exceptionFactory, simpleSubselectEvaluator, objectCacheEvaluator, entityManagerEvaluator);
         this.accessRules = accessRules;
     }
 
@@ -179,7 +181,7 @@ public class EntityFilter {
                                                             accessDefinition.getQueryParameters(),
                                                             Collections.EMPTY_MAP,
                                                             objectCache);
-            boolean result = queryEvaluator.evaluate(accessDefinition.getAccessRules(), evaluationParameters);
+            boolean result = inMemoryEvaluator.evaluate(accessDefinition.getAccessRules(), evaluationParameters);
             if (result) {
                 LOG.debug("Access rules are always true for current user and roles. Returning unfiltered query");
                 return new FilterResult(query);
@@ -215,7 +217,7 @@ public class EntityFilter {
                                                       Collections.EMPTY_MAP,
                                                       accessDefinition.getQueryParameters(),
                                                       Collections.EMPTY_MAP,
-                                                      queryEvaluator,
+                                                      inMemoryEvaluator,
                                                       objectCache);
         optimizer.optimize(accessDefinition.getAccessRules());
         Set<String> parameterNames = compiler.getNamedParameters(accessDefinition.getAccessRules());

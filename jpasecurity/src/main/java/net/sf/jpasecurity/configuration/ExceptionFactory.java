@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,4 +23,5 @@ public interface ExceptionFactory {
     RuntimeException createTypeNotFoundException(Class<?> type);
     RuntimeException createTypeNotFoundException(String className);
     RuntimeException createInvalidPathException(String path, String error);
+    RuntimeException createRuntimeException(String message, Throwable cause);
 }

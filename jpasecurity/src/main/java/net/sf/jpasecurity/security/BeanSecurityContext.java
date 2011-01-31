@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.jpasecurity.configuration.SecurityContext;
-
-import org.springframework.util.ReflectionUtils;
+import net.sf.jpasecurity.util.ReflectionUtils;
 
 /**
  * An implementation of the {@link SecurityContext} interface,
@@ -61,7 +60,7 @@ public class BeanSecurityContext implements SecurityContext {
     }
 
     public Object getAliasValue(String alias) {
-        return ReflectionUtils.invokeMethod(readMethods.get(alias), bean);
+        return ReflectionUtils.invokeMethod(bean, readMethods.get(alias));
     }
 
     public Collection<Object> getAliasValues(String alias) {
