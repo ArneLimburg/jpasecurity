@@ -48,8 +48,8 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
  */
 public class JpqlCompiler {
 
-    private MappingInformation mappingInformation;
-    private ExceptionFactory exceptionFactory;
+    protected final ExceptionFactory exceptionFactory;
+    private final MappingInformation mappingInformation;
     private final SelectVisitor selectVisitor = new SelectVisitor();
     private final AliasVisitor aliasVisitor = new AliasVisitor();
     private final NamedParameterVisitor namedParameterVisitor = new NamedParameterVisitor();

@@ -20,8 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.PersistenceException;
-
 import net.sf.jpasecurity.configuration.AccessRule;
 import net.sf.jpasecurity.configuration.AccessRulesProvider;
 import net.sf.jpasecurity.configuration.Configuration;
@@ -131,7 +129,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
                 accessRules.add(compiledRule);
             }
         } catch (ParseException e) {
-            throw new PersistenceException(e);
+            throw configuration.getExceptionFactory().createRuntimeException(e);
         }
     }
 

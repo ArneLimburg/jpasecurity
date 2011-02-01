@@ -17,8 +17,6 @@ package net.sf.jpasecurity.security.rules;
 
 import java.util.Set;
 
-import javax.persistence.PersistenceException;
-
 import net.sf.jpasecurity.configuration.AccessRule;
 import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
@@ -43,10 +41,10 @@ public class AccessRulesCompiler extends JpqlCompiler {
         }
         Set<String> namedParameters = getNamedParameters(rule);
         if (namedParameters.size() > 0) {
-            throw new PersistenceException("Named parameters are not allowed for access rules");
+            throw exceptionFactory.createRuntimeException("Named parameters are not allowed for access rules");
         }
         if (getPositionalParameters(rule).size() > 0) {
-            throw new PersistenceException("Positional parameters are not allowed for access rules");
+            throw exceptionFactory.createRuntimeException("Positional parameters are not allowed for access rules");
         }
         return new AccessRule(rule, typeDefinitions.iterator().next(), namedParameters);
     }

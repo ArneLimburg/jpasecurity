@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.PersistenceException;
-
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.configuration.AccessRule;
 import net.sf.jpasecurity.configuration.ExceptionFactory;
@@ -76,6 +74,7 @@ public class EntityFilter {
     private final QueryEvaluator queryEvaluator;
     private final QueryPreparator queryPreparator = new QueryPreparator();
     private final List<AccessRule> accessRules;
+    private final ExceptionFactory exceptionFactory;
 
     public EntityFilter(SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
@@ -89,6 +88,7 @@ public class EntityFilter {
         this.objectCache = objectCache;
         this.queryEvaluator = new QueryEvaluator(compiler, pathEvaluator, exceptionFactory, evaluators);
         this.accessRules = accessRules;
+        this.exceptionFactory = exceptionFactory;
     }
 
     public boolean isAccessible(Object entity, AccessType accessType, SecurityContext securityContext)
@@ -306,7 +306,7 @@ public class EntityFilter {
                 compiledStatement = compiler.compile(statement);
                 statementCache.put(query, compiledStatement);
             } catch (ParseException e) {
-                throw new PersistenceException(e);
+                throw exceptionFactory.createRuntimeException(e);
             }
         }
         return compiledStatement.clone();

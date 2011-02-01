@@ -32,5 +32,13 @@ public abstract class AbstractExceptionFactory implements ExceptionFactory {
         return createRuntimeException("invalid path " + path + ": " + error, null);
     }
 
+    public RuntimeException createRuntimeException(String message) {
+        return createRuntimeException(message, null);
+    }
+
+    public RuntimeException createRuntimeException(Throwable cause) {
+        return createRuntimeException(null, cause);
+    }
+
     public abstract RuntimeException createRuntimeException(String errorMessage, Throwable cause);
 }
