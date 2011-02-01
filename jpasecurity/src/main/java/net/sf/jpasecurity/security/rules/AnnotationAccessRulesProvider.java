@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.PersistenceException;
-
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
@@ -141,7 +139,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
             }
             return rules;
         } catch (ParseException e) {
-            throw new PersistenceException(e);
+            throw getConfiguration().getExceptionFactory().createRuntimeException(e);
         }
     }
 

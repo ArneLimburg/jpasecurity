@@ -21,8 +21,6 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.persistence.PersistenceException;
-
 import net.sf.jpasecurity.util.ListHashMap;
 import net.sf.jpasecurity.util.ListMap;
 import net.sf.jpasecurity.xml.AbstractXmlParser;
@@ -47,7 +45,7 @@ public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
                 parser.parse(urls.nextElement().openStream());
             }
         } catch (IOException e) {
-            throw new PersistenceException(e);
+            throw getConfiguration().getExceptionFactory().createRuntimeException(e);
         }
         compileRules(parser.getAccessRules());
     }
