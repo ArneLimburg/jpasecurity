@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.AccessType;
@@ -35,18 +34,13 @@ import net.sf.jpasecurity.configuration.AccessRule;
 import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.entity.SecureObjectCache;
-import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
-import net.sf.jpasecurity.jpql.compiler.EntityManagerEvaluator;
-import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluationParameters;
-import net.sf.jpasecurity.jpql.compiler.QueryEvaluator;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
-import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
-import net.sf.jpasecurity.jpql.compiler.ObjectCacheSubselectEvaluator;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
+import net.sf.jpasecurity.jpql.compiler.QueryEvaluationParameters;
+import net.sf.jpasecurity.jpql.compiler.QueryEvaluator;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
-import net.sf.jpasecurity.jpql.compiler.SimpleSubselectEvaluator;
 import net.sf.jpasecurity.jpql.compiler.SubselectEvaluator;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
@@ -79,56 +73,21 @@ public class EntityFilter {
     private final JpqlCompiler compiler;
     private final SecureObjectCache objectCache;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
-    private final QueryEvaluator inMemoryEvaluator;
-    private final QueryEvaluator entityManagerEvaluator;
+    private final QueryEvaluator queryEvaluator;
     private final QueryPreparator queryPreparator = new QueryPreparator();
     private final List<AccessRule> accessRules;
 
-    public EntityFilter(EntityManager entityManager,
-                        SecureObjectCache objectCache,
-                        MappingInformation mappingInformation,
-                        ExceptionFactory exceptionFactory,
-                        List<AccessRule> accessRules) {
-        this(entityManager,
-             null,
-             objectCache,
-             mappingInformation,
-             new MappedPathEvaluator(mappingInformation, exceptionFactory),
-             exceptionFactory,
-             accessRules);
-    }
-
-    public EntityFilter(EntityManager entityManager,
-                        SecureObjectManager objectManager,
-                        SecureObjectCache objectCache,
-                        MappingInformation mappingInformation,
-                        ExceptionFactory exceptionFactory,
-                        List<AccessRule> accessRules) {
-        this(entityManager,
-             objectManager,
-             objectCache,
-             mappingInformation,
-             new MappedPathEvaluator(mappingInformation, exceptionFactory),
-             exceptionFactory,
-             accessRules);
-    }
-
-    public EntityFilter(EntityManager entityManager,
-                        SecureObjectManager secureObjectManager,
-                        SecureObjectCache objectCache,
+    public EntityFilter(SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
                         PathEvaluator pathEvaluator,
                         ExceptionFactory exceptionFactory,
-                        List<AccessRule> accessRules) {
+                        List<AccessRule> accessRules,
+                        SubselectEvaluator... evaluators) {
         this.mappingInformation = mappingInformation;
         this.parser = new JpqlParser();
         this.compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
         this.objectCache = objectCache;
-        SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator(exceptionFactory);
-        SubselectEvaluator objectCacheEvaluator = new ObjectCacheSubselectEvaluator(objectCache, exceptionFactory);
-        SubselectEvaluator entityManagerEvaluator = new EntityManagerEvaluator(entityManager, secureObjectManager, pathEvaluator);
-        this.inMemoryEvaluator = new QueryEvaluator(compiler, pathEvaluator, exceptionFactory, simpleSubselectEvaluator, objectCacheEvaluator);
-        this.entityManagerEvaluator = new QueryEvaluator(compiler, pathEvaluator, exceptionFactory, simpleSubselectEvaluator, objectCacheEvaluator, entityManagerEvaluator);
+        this.queryEvaluator = new QueryEvaluator(compiler, pathEvaluator, exceptionFactory, evaluators);
         this.accessRules = accessRules;
     }
 
@@ -144,13 +103,12 @@ public class EntityFilter {
         if (accessDefinition == null) {
             return true;
         }
-        InMemoryEvaluationParameters<Boolean> evaluationParameters
-            = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
+        QueryEvaluationParameters<Boolean> evaluationParameters
+            = new QueryEvaluationParameters<Boolean>(mappingInformation,
                                                         Collections.singletonMap(alias, entity),
                                                         accessDefinition.getQueryParameters(),
-                                                        Collections.EMPTY_MAP,
-                                                        objectCache);
-        return entityManagerEvaluator.evaluate(accessDefinition.getAccessRules(), evaluationParameters);
+                                                        Collections.EMPTY_MAP);
+        return queryEvaluator.evaluate(accessDefinition.getAccessRules(), evaluationParameters);
     }
 
     public FilterResult filterQuery(String query, AccessType accessType, SecurityContext securityContext) {
@@ -175,13 +133,13 @@ public class EntityFilter {
         LOG.debug("Using access rules " + accessDefinition);
 
         try {
-            InMemoryEvaluationParameters<Boolean> evaluationParameters
-                = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
-                                                            Collections.EMPTY_MAP,
-                                                            accessDefinition.getQueryParameters(),
-                                                            Collections.EMPTY_MAP,
-                                                            objectCache);
-            boolean result = inMemoryEvaluator.evaluate(accessDefinition.getAccessRules(), evaluationParameters);
+            QueryEvaluationParameters<Boolean> evaluationParameters
+                = new QueryEvaluationParameters<Boolean>(mappingInformation,
+                                                         Collections.EMPTY_MAP,
+                                                         accessDefinition.getQueryParameters(),
+                                                         Collections.EMPTY_MAP,
+                                                         true);
+            boolean result = queryEvaluator.evaluate(accessDefinition.getAccessRules(), evaluationParameters);
             if (result) {
                 LOG.debug("Access rules are always true for current user and roles. Returning unfiltered query");
                 return new FilterResult(query);
@@ -217,7 +175,7 @@ public class EntityFilter {
                                                       Collections.EMPTY_MAP,
                                                       accessDefinition.getQueryParameters(),
                                                       Collections.EMPTY_MAP,
-                                                      inMemoryEvaluator,
+                                                      queryEvaluator,
                                                       objectCache);
         optimizer.optimize(accessDefinition.getAccessRules());
         Set<String> parameterNames = compiler.getNamedParameters(accessDefinition.getAccessRules());

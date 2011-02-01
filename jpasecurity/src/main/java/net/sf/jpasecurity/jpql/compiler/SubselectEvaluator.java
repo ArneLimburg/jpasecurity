@@ -27,7 +27,7 @@ import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 public interface SubselectEvaluator {
 
     void setQueryEvaluator(QueryEvaluator evaluator);
-    
-    Collection<?> evaluate(JpqlCompiledStatement subselect, InMemoryEvaluationParameters<Collection<?>> parameters)
+
+    Collection<?> evaluate(JpqlCompiledStatement subselect, QueryEvaluationParameters<Collection<?>> parameters)
         throws NotEvaluatableException;
 }

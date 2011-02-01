@@ -29,7 +29,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlExists;
 public class ObjectCacheSubselectEvaluator extends SimpleSubselectEvaluator {
 
     private final SecureObjectCache objectCache;
-    
+
     public ObjectCacheSubselectEvaluator(SecureObjectCache objectCache, ExceptionFactory exceptionFactory) {
         super(exceptionFactory);
         if (objectCache == null) {
@@ -37,9 +37,9 @@ public class ObjectCacheSubselectEvaluator extends SimpleSubselectEvaluator {
         }
         this.objectCache = objectCache;
     }
-    
+
     public Collection<?> evaluate(JpqlCompiledStatement subselect,
-                                  InMemoryEvaluationParameters<Collection<?>> parameters)
+                                  QueryEvaluationParameters<Collection<?>> parameters)
             throws NotEvaluatableException {
         if (!(subselect.getStatement().jjtGetParent() instanceof JpqlExists)) {
             parameters.setResultUndefined();
@@ -58,7 +58,7 @@ public class ObjectCacheSubselectEvaluator extends SimpleSubselectEvaluator {
         }
     }
 
-    protected Collection<?> getResult(Replacement replacement, InMemoryEvaluationParameters<Collection<?>> parameters)
+    protected Collection<?> getResult(Replacement replacement, QueryEvaluationParameters<Collection<?>> parameters)
             throws NotEvaluatableException {
         if (replacement.getReplacement() == null) {
             return objectCache.getSecureObjects(replacement.getTypeDefinition().getType());

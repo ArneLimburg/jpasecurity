@@ -25,13 +25,13 @@ import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 public class AbstractSubselectEvaluator implements SubselectEvaluator {
 
     protected QueryEvaluator evaluator;
-    
+
     public void setQueryEvaluator(QueryEvaluator evaluator) {
         this.evaluator = evaluator;
     }
 
     public Collection<?> evaluate(JpqlCompiledStatement subselect,
-                    InMemoryEvaluationParameters<Collection<?>> parameters) throws NotEvaluatableException {
+                    QueryEvaluationParameters<Collection<?>> parameters) throws NotEvaluatableException {
         parameters.setResultUndefined();
         throw new NotEvaluatableException();
     }
