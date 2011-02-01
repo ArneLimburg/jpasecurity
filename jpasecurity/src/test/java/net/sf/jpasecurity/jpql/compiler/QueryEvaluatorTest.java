@@ -55,7 +55,7 @@ import net.sf.jpasecurity.util.SetMap;
 
 import org.easymock.IAnswer;
 
-public class InMemoryEvaluatorTest extends TestCase {
+public class QueryEvaluatorTest extends TestCase {
 
     private static final String SELECT = "SELECT bean FROM FieldAccessAnnotationTestBean bean ";
     
@@ -63,8 +63,8 @@ public class InMemoryEvaluatorTest extends TestCase {
     private JpqlParser parser;
     private JpqlCompiler compiler;
     private ExceptionFactory exceptionFactory;
-    private QueryEvaluator inMemoryEvaluator;
-    private InMemoryEvaluationParameters<Boolean> parameters;
+    private QueryEvaluator queryEvaluator;
+    private QueryEvaluationParameters<Boolean> parameters;
     private Map<String, Object> aliases = new HashMap<String, Object>();
     private Map<String, Object> namedParameters = new HashMap<String, Object>();
     private Map<Integer, Object> positionalParameters = new HashMap<Integer, Object>();
@@ -84,12 +84,8 @@ public class InMemoryEvaluatorTest extends TestCase {
         mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
         parser = new JpqlParser();
         compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
-        inMemoryEvaluator = new QueryEvaluator(compiler, new MappedPathEvaluator(mappingInformation, exceptionFactory), exceptionFactory);
-        parameters = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
-                                                               aliases,
-                                                               namedParameters,
-                                                               positionalParameters,
-                                                               objectManager);
+        queryEvaluator = new QueryEvaluator(compiler, new MappedPathEvaluator(mappingInformation, exceptionFactory), exceptionFactory, new SimpleSubselectEvaluator(exceptionFactory), new ObjectCacheSubselectEvaluator(objectManager, exceptionFactory));
+        parameters = new QueryEvaluationParameters<Boolean>(mappingInformation, aliases, namedParameters, positionalParameters);
     }
     
     public void tearDown() {
@@ -115,51 +111,51 @@ public class InMemoryEvaluatorTest extends TestCase {
         JpqlOrderBy orderByClause = (JpqlOrderBy)selectStatement.jjtGetChild(5);
         
         //InMemoryEvaluator may only evaluate whereClause when alias and named parameter are set
-        assertFalse(inMemoryEvaluator.canEvaluate(selectStatement, parameters));
-        assertFalse(inMemoryEvaluator.canEvaluate(selectClause, parameters));
-        assertFalse(inMemoryEvaluator.canEvaluate(fromClause, parameters));
-        assertFalse(inMemoryEvaluator.canEvaluate(whereClause, parameters));
-        assertFalse(inMemoryEvaluator.canEvaluate(groupByClause, parameters));
-        assertFalse(inMemoryEvaluator.canEvaluate(havingClause, parameters));
-        assertFalse(inMemoryEvaluator.canEvaluate(orderByClause, parameters));
+        assertFalse(queryEvaluator.canEvaluate(selectStatement, parameters));
+        assertFalse(queryEvaluator.canEvaluate(selectClause, parameters));
+        assertFalse(queryEvaluator.canEvaluate(fromClause, parameters));
+        assertFalse(queryEvaluator.canEvaluate(whereClause, parameters));
+        assertFalse(queryEvaluator.canEvaluate(groupByClause, parameters));
+        assertFalse(queryEvaluator.canEvaluate(havingClause, parameters));
+        assertFalse(queryEvaluator.canEvaluate(orderByClause, parameters));
         try {
-            inMemoryEvaluator.evaluate(selectStatement, parameters);
+            queryEvaluator.evaluate(selectStatement, parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
         try {
-            inMemoryEvaluator.evaluate(selectClause, parameters);
+            queryEvaluator.evaluate(selectClause, parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
         try {
-            inMemoryEvaluator.evaluate(fromClause, parameters);
+            queryEvaluator.evaluate(fromClause, parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
         try {
-            inMemoryEvaluator.evaluate(whereClause, parameters);
+            queryEvaluator.evaluate(whereClause, parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
         try {
-            inMemoryEvaluator.evaluate(groupByClause, parameters);
+            queryEvaluator.evaluate(groupByClause, parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
         try {
-            inMemoryEvaluator.evaluate(havingClause, parameters);
+            queryEvaluator.evaluate(havingClause, parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
         try {
-            inMemoryEvaluator.evaluate(orderByClause, parameters);
+            queryEvaluator.evaluate(orderByClause, parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -167,8 +163,8 @@ public class InMemoryEvaluatorTest extends TestCase {
         
         aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
         namedParameters.put("name", "test2");
-        assertTrue(inMemoryEvaluator.canEvaluate(whereClause, parameters));
-        assertFalse(inMemoryEvaluator.evaluate(whereClause, parameters));
+        assertTrue(queryEvaluator.canEvaluate(whereClause, parameters));
+        assertFalse(queryEvaluator.evaluate(whereClause, parameters));
     }
 
     public void testCanEvaluateCount() throws Exception {
@@ -182,38 +178,38 @@ public class InMemoryEvaluatorTest extends TestCase {
         JpqlWhere whereClause = (JpqlWhere)selectStatement.jjtGetChild(2);
 
         //InMemoryEvaluator may only evaluate whereClause when alias and named parameter are set
-        assertFalse(inMemoryEvaluator.canEvaluate(selectStatement, parameters));
-        assertFalse(inMemoryEvaluator.canEvaluate(selectClause, parameters));
-        assertFalse(inMemoryEvaluator.canEvaluate(fromClause, parameters));
-        assertFalse(inMemoryEvaluator.canEvaluate(whereClause, parameters));
+        assertFalse(queryEvaluator.canEvaluate(selectStatement, parameters));
+        assertFalse(queryEvaluator.canEvaluate(selectClause, parameters));
+        assertFalse(queryEvaluator.canEvaluate(fromClause, parameters));
+        assertFalse(queryEvaluator.canEvaluate(whereClause, parameters));
         try {
-            inMemoryEvaluator.evaluate(selectStatement, parameters);
+            queryEvaluator.evaluate(selectStatement, parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
         try {
-            inMemoryEvaluator.evaluate(selectClause, parameters);
+            queryEvaluator.evaluate(selectClause, parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
         try {
-            inMemoryEvaluator.evaluate(fromClause, parameters);
+            queryEvaluator.evaluate(fromClause, parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
         try {
-            inMemoryEvaluator.evaluate(whereClause, parameters);
+            queryEvaluator.evaluate(whereClause, parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
         aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
         namedParameters.put("name", "test2");
-        assertTrue(inMemoryEvaluator.canEvaluate(whereClause, parameters));
-        assertFalse(inMemoryEvaluator.evaluate(whereClause, parameters));
+        assertTrue(queryEvaluator.canEvaluate(whereClause, parameters));
+        assertFalse(queryEvaluator.evaluate(whereClause, parameters));
     }
 
     public void testClassMappingNotFound() throws Exception {
@@ -227,7 +223,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         expect(exceptionFactory.createTypeNotFoundException(MethodAccessAnnotationTestBean.class)).andReturn(typeNotFoundException);
         replay(exceptionFactory);
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (PersistenceException e) {
             assertSame(typeNotFoundException, e);
@@ -242,7 +238,7 @@ public class InMemoryEvaluatorTest extends TestCase {
                                                 + " FROM FieldAccessAnnotationTestBean innerBean)");
         aliases.put("bean", new FieldAccessAnnotationTestBean("test"));
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -256,33 +252,33 @@ public class InMemoryEvaluatorTest extends TestCase {
         //first is true, second is false
         namedParameters.put("name", "test1");
         positionalParameters.put(1, 1);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         //first is false, second is true
         namedParameters.put("name", "test2");
         positionalParameters.put(1, 0);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         //both are true
         namedParameters.put("name", "test1");
         positionalParameters.put(1, 0);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         //both are false
         namedParameters.put("name", "test2");
         positionalParameters.put(1, 1);
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         //first is not evaluatable, second is true
         namedParameters.clear();
         positionalParameters.put(1, 0);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         //first is not evaluatable, second is false
         namedParameters.clear();
         positionalParameters.put(1, 1);
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -291,13 +287,13 @@ public class InMemoryEvaluatorTest extends TestCase {
         //first is true, second is not evaluatable
         namedParameters.put("name", "test1");
         positionalParameters.clear();
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         //first is false, second is not evaluatable
         namedParameters.put("name", "test2");
         positionalParameters.clear();
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -311,28 +307,28 @@ public class InMemoryEvaluatorTest extends TestCase {
         //first is true, second is false
         namedParameters.put("name", "test1");
         positionalParameters.put(1, 1);
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         //first is false, second is true
         namedParameters.put("name", "test2");
         positionalParameters.put(1, 0);
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         //both are true
         namedParameters.put("name", "test1");
         positionalParameters.put(1, 0);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         //both are false
         namedParameters.put("name", "test2");
         positionalParameters.put(1, 1);
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         //first is not evaluatable, second is true
         namedParameters.clear();
         positionalParameters.put(1, 0);
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -341,13 +337,13 @@ public class InMemoryEvaluatorTest extends TestCase {
         //first is not evaluatable, second is false
         namedParameters.clear();
         positionalParameters.put(1, 1);
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         //first is true, second is not evaluatable
         namedParameters.put("name", "test1");
         positionalParameters.clear();
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -356,7 +352,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         //first is false, second is not evaluatable
         namedParameters.put("name", "test2");
         positionalParameters.clear();
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
     }
     
     public void testEvaluateNot() throws Exception {
@@ -364,14 +360,14 @@ public class InMemoryEvaluatorTest extends TestCase {
         aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
 
         namedParameters.put("name", "test1");
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         namedParameters.put("name", "test2");
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         namedParameters.clear();
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -384,31 +380,31 @@ public class InMemoryEvaluatorTest extends TestCase {
 
         positionalParameters.put(1, 0);
         positionalParameters.put(2, 0);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         positionalParameters.put(1, 0);
         positionalParameters.put(2, 1);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         positionalParameters.put(1, -1);
         positionalParameters.put(2, 0);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         positionalParameters.put(1, -1);
         positionalParameters.put(2, 1);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         positionalParameters.put(1, -1);
         positionalParameters.put(2, -1);
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         positionalParameters.put(1, 1);
         positionalParameters.put(2, 1);
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         positionalParameters.clear();
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -417,7 +413,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         positionalParameters.clear();
         positionalParameters.put(1, 0);
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -426,7 +422,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         positionalParameters.clear();
         positionalParameters.put(2, 0);
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -434,11 +430,11 @@ public class InMemoryEvaluatorTest extends TestCase {
     
         positionalParameters.clear();
         positionalParameters.put(1, 1);
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
     
         positionalParameters.clear();
         positionalParameters.put(2, -1);
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
     }
     
     public void testEvaluateIn() throws Exception {
@@ -448,7 +444,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         positionalParameters.put(1, 0);
         positionalParameters.put(1, 1);
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -458,31 +454,31 @@ public class InMemoryEvaluatorTest extends TestCase {
 
         positionalParameters.put(1, 0);
         positionalParameters.put(2, 1);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         positionalParameters.put(1, 1);
         positionalParameters.put(2, 0);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         positionalParameters.put(1, -1);
         positionalParameters.put(2, 1);
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         positionalParameters.put(1, 1);
         positionalParameters.put(2, -1);
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         positionalParameters.clear();
         positionalParameters.put(1, 0);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         positionalParameters.clear();
         positionalParameters.put(2, 0);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         positionalParameters.clear();
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -491,7 +487,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         positionalParameters.clear();
         positionalParameters.put(1, 1);
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -500,7 +496,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         positionalParameters.clear();
         positionalParameters.put(2, 1);
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -513,17 +509,17 @@ public class InMemoryEvaluatorTest extends TestCase {
         
         aliases.clear();
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
         
         aliases.put("bean", bean);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         bean.setParentBean(new FieldAccessAnnotationTestBean("testParent"));
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
     }
     
     public void testEvaluateIsEmpty() throws Exception {
@@ -532,17 +528,17 @@ public class InMemoryEvaluatorTest extends TestCase {
         
         aliases.clear();
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
         
         aliases.put("bean", bean);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         bean.setChildren(Collections.singletonList(new FieldAccessAnnotationTestBean("testChild")));
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
     }
     
     public void testEvaluateExists() throws Exception {
@@ -555,14 +551,14 @@ public class InMemoryEvaluatorTest extends TestCase {
         aliases.put("bean", parent);
         entities.getNotNull(FieldAccessAnnotationTestBean.class).clear();
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
         }
         
         entities.add(FieldAccessAnnotationTestBean.class, child);
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
     }
     
     public void testEvaluateLike() throws Exception {
@@ -572,7 +568,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         
         aliases.clear();
         try {
-            inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //expected
@@ -580,41 +576,41 @@ public class InMemoryEvaluatorTest extends TestCase {
         aliases.put("bean", bean);
 
         bean.setBeanName("test1name");
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         bean.setBeanName("testname");
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         bean.setBeanName("a test1name");
-        assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         bean.setBeanName("a test1naaame");
-        assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(statement.getWhereClause(), parameters));
     }
     
     public void testEvaluateArithmeticFunctions() throws Exception {
-        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE 1 + 1 < 3").getWhereClause(), parameters));
-        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE 10 / 3 >= 3.3").getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(compile(SELECT + "WHERE 1 + 1 < 3").getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(compile(SELECT + "WHERE 10 / 3 >= 3.3").getWhereClause(), parameters));
         try {
-            inMemoryEvaluator.evaluate(compile(SELECT + "WHERE 10 / 0 >= 3.3").getWhereClause(), parameters);
+            queryEvaluator.evaluate(compile(SELECT + "WHERE 10 / 0 >= 3.3").getWhereClause(), parameters);
             fail();
         } catch (NotEvaluatableException e) {
             //division by zero
         }
-        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE 2 * 13 = (13 + 13)").getWhereClause(), parameters));
-        assertFalse(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE 1 - 2 > -1").getWhereClause(), parameters));
-        assertFalse(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE 25 - 1 <= 17").getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(compile(SELECT + "WHERE 2 * 13 = (13 + 13)").getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(compile(SELECT + "WHERE 1 - 2 > -1").getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(compile(SELECT + "WHERE 25 - 1 <= 17").getWhereClause(), parameters));
     }
     
     public void testEvaluateStringFunctions() throws Exception {
-        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(' test ') = 'test'").getWhereClause(), parameters));
-        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(BOTH '_' FROM '_test__') = 'test'").getWhereClause(), parameters));
-        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(LEADING FROM ' test') = 'test'").getWhereClause(), parameters));
-        assertTrue(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(TRAILING 'a' FROM 'testaaaaaaaa') = 'test'").getWhereClause(), parameters));
-        assertFalse(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(' test ') = ' test '").getWhereClause(), parameters));
-        assertFalse(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(BOTH '_' FROM '_test__') = 'test_'").getWhereClause(), parameters));
-        assertFalse(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(LEADING FROM ' test ') = 'test'").getWhereClause(), parameters));
-        assertFalse(inMemoryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(TRAILING 'a' FROM 'test ') = 'test'").getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(' test ') = 'test'").getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(BOTH '_' FROM '_test__') = 'test'").getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(LEADING FROM ' test') = 'test'").getWhereClause(), parameters));
+        assertTrue(queryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(TRAILING 'a' FROM 'testaaaaaaaa') = 'test'").getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(' test ') = ' test '").getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(BOTH '_' FROM '_test__') = 'test_'").getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(LEADING FROM ' test ') = 'test'").getWhereClause(), parameters));
+        assertFalse(queryEvaluator.evaluate(compile(SELECT + "WHERE TRIM(TRAILING 'a' FROM 'test ') = 'test'").getWhereClause(), parameters));
     }
     
     protected JpqlCompiledStatement compile(String query) throws ParseException {

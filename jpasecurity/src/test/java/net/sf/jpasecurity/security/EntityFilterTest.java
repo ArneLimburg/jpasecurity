@@ -31,10 +31,12 @@ import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.configuration.AccessRule;
 import net.sf.jpasecurity.configuration.AuthenticationProviderSecurityContext;
 import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.mapping.JpaAnnotationParser;
@@ -71,10 +73,11 @@ public class EntityFilterTest extends TestCase {
         expect(secureObjectManager.getSecureObjects((Class<Object>)anyObject()))
             .andReturn((Collection<Object>)Collections.EMPTY_SET).anyTimes();
         replay(entityManager, secureObjectManager);
-        EntityFilter filter = new EntityFilter(entityManager,
-                                               secureObjectManager,
+        ExceptionFactory exceptionFactory = new DefaultExceptionFactory();
+        EntityFilter filter = new EntityFilter(secureObjectManager,
                                                mappingInformation,
-                                               new DefaultExceptionFactory(),
+                                               new MappedPathEvaluator(mappingInformation, exceptionFactory),
+                                               exceptionFactory,
                                                accessRules);
         User john = new User("John");
         Contact contact = new Contact(john, "123456789");

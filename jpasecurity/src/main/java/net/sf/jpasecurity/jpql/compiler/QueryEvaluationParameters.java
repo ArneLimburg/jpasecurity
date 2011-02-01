@@ -19,51 +19,58 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
  * @author Arne Limburg
  */
-public class InMemoryEvaluationParameters<T> {
+public class QueryEvaluationParameters<T> {
 
     private static final Object UNDEFINED = new Object();
 
-    private MappingInformation mappingInformation;
-    private Map<String, Object> aliases;
-    private Map<String, Object> namedParameters;
-    private Map<Integer, Object> positionalParameters;
-    private SecureObjectCache objectCache;
+    private final MappingInformation mappingInformation;
+    private final Map<String, Object> aliases;
+    private final Map<String, Object> namedParameters;
+    private final Map<Integer, Object> positionalParameters;
+    private final boolean inMemory;
     private T result = (T)UNDEFINED;
 
-    public InMemoryEvaluationParameters(MappingInformation mappingInformation,
-                                        Map<String, Object> aliases,
-                                        Map<String, Object> namedParameters,
-                                        Map<Integer, Object> positionalParameters,
-                                        SecureObjectCache objectCache) {
+    public QueryEvaluationParameters(MappingInformation mappingInformation,
+                                     Map<String, Object> aliases,
+                                     Map<String, Object> namedParameters,
+                                     Map<Integer, Object> positionalParameters) {
+        this(mappingInformation, aliases, namedParameters, positionalParameters, false);
+    }
+
+    public QueryEvaluationParameters(MappingInformation mappingInformation,
+                                     Map<String, Object> aliases,
+                                     Map<String, Object> namedParameters,
+                                     Map<Integer, Object> positionalParameters,
+                                     boolean inMemory) {
         if (mappingInformation == null) {
             throw new IllegalArgumentException("mappingInformation may not be null");
-        }
-        if (objectCache == null) {
-            throw new IllegalArgumentException("objectManager may not be null");
         }
         this.mappingInformation = mappingInformation;
         this.aliases = aliases;
         this.namedParameters = namedParameters;
         this.positionalParameters = positionalParameters;
-        this.objectCache = objectCache;
+        this.inMemory = inMemory;
     }
 
-    public InMemoryEvaluationParameters(InMemoryEvaluationParameters parameters) {
+    public QueryEvaluationParameters(QueryEvaluationParameters parameters) {
         this(parameters.mappingInformation,
              parameters.aliases,
              parameters.namedParameters,
              parameters.positionalParameters,
-             parameters.objectCache);
+             parameters.inMemory);
     }
 
     public MappingInformation getMappingInformation() {
         return mappingInformation;
+    }
+
+    public boolean isInMemory() {
+        return inMemory;
     }
 
     public Set<String> getAliases() {
@@ -101,10 +108,6 @@ public class InMemoryEvaluationParameters<T> {
             throw new NotEvaluatableException();
         }
         return positionalParameters.get(index);
-    }
-
-    public SecureObjectCache getObjectCache() {
-        return objectCache;
     }
 
     public boolean isResultUndefined() {

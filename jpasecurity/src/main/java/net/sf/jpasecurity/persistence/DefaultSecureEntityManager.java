@@ -33,14 +33,20 @@ import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.configuration.Configuration;
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
 import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
 import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpa.JpaBeanStore;
+import net.sf.jpasecurity.jpql.compiler.EntityManagerEvaluator;
 import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
+import net.sf.jpasecurity.jpql.compiler.ObjectCacheSubselectEvaluator;
+import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
+import net.sf.jpasecurity.jpql.compiler.SimpleSubselectEvaluator;
+import net.sf.jpasecurity.jpql.compiler.SubselectEvaluator;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
@@ -84,12 +90,21 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         this.configuration = configuration;
         this.mappingInformation = mapping;
         this.secureObjectManager = secureObjectManager;
-        this.entityFilter = new EntityFilter(entityManager,
-                                             secureObjectManager,
-                                             secureObjectManager,
+        ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
+        PathEvaluator pathEvaluator = new MappedPathEvaluator(mappingInformation, exceptionFactory);
+        SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator(exceptionFactory);
+        SubselectEvaluator objectCacheEvaluator
+            = new ObjectCacheSubselectEvaluator(secureObjectManager, exceptionFactory);
+        SubselectEvaluator entityManagerEvaluator
+            = new EntityManagerEvaluator(entityManager, secureObjectManager, pathEvaluator);
+        this.entityFilter = new EntityFilter(secureObjectManager,
                                              mappingInformation,
+                                             pathEvaluator,
                                              configuration.getExceptionFactory(),
-                                             configuration.getAccessRulesProvider().getAccessRules());
+                                             configuration.getAccessRulesProvider().getAccessRules(),
+                                             simpleSubselectEvaluator,
+                                             objectCacheEvaluator,
+                                             entityManagerEvaluator);
     }
 
     public void persist(Object entity) {

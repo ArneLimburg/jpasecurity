@@ -23,8 +23,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.configuration.Configuration;
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.entity.EmptyObjectCache;
+import net.sf.jpasecurity.entity.SecureObjectCache;
+import net.sf.jpasecurity.jpql.compiler.EntityManagerEvaluator;
+import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
+import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
+import net.sf.jpasecurity.jpql.compiler.SimpleSubselectEvaluator;
+import net.sf.jpasecurity.jpql.compiler.SubselectEvaluator;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
@@ -45,11 +52,18 @@ public class LightSecureEntityManager extends DelegatingEntityManager {
         super(entityManager);
         this.mappingInformation = mappingInformation;
         this.securityContext = configuration.getSecurityContext();
-        this.entityFilter = new EntityFilter(entityManager,
-                                             new EmptyObjectCache(),
+        SecureObjectCache emptyObjectCache = new EmptyObjectCache();
+        ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
+        PathEvaluator pathEvaluator = new MappedPathEvaluator(mappingInformation, exceptionFactory);
+        SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator(exceptionFactory);
+        SubselectEvaluator entityManagerEvaluator = new EntityManagerEvaluator(entityManager, pathEvaluator);
+        this.entityFilter = new EntityFilter(emptyObjectCache,
                                              mappingInformation,
+                                             pathEvaluator,
                                              configuration.getExceptionFactory(),
-                                             configuration.getAccessRulesProvider().getAccessRules());
+                                             configuration.getAccessRulesProvider().getAccessRules(),
+                                             simpleSubselectEvaluator,
+                                             entityManagerEvaluator);
     }
 
     public Query createNamedQuery(String name) {

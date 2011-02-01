@@ -48,21 +48,29 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
     private final PathEvaluator pathEvaluator;
 
     public EntityManagerEvaluator(EntityManager entityManager,
+                                  PathEvaluator pathEvaluator) {
+        this(entityManager, null, pathEvaluator);
+    }
+
+    public EntityManagerEvaluator(EntityManager entityManager,
                                   SecureObjectManager objectManager,
                                   PathEvaluator pathEvaluator) {
+        if (pathEvaluator == null) {
+            throw new IllegalArgumentException("PathEvaluator may not be null");
+        }
         this.entityManager = entityManager;
         this.objectManager = objectManager;
         this.queryPreparator = new QueryPreparator();
         this.pathEvaluator = pathEvaluator;
     }
-    
+
     /**
      * Within this method a query is performed via the entity-manager of this evaluator.
      * If this evaluator is already closed, the result of the evaluation is set to <quote>undefined</quote>.
      */
     public Collection<?> evaluate(JpqlCompiledStatement statement,
-                                  InMemoryEvaluationParameters<Collection<?>> data) throws NotEvaluatableException {
-        if (entityManager == null || !entityManager.isOpen()) {
+                                  QueryEvaluationParameters<Collection<?>> data) throws NotEvaluatableException {
+        if (entityManager == null || !entityManager.isOpen() || data.isInMemory()) {
             data.setResultUndefined();
             throw new NotEvaluatableException();
         }

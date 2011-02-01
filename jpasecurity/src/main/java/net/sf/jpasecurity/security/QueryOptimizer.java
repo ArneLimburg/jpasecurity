@@ -19,7 +19,7 @@ import java.util.Map;
 
 import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
-import net.sf.jpasecurity.jpql.compiler.InMemoryEvaluationParameters;
+import net.sf.jpasecurity.jpql.compiler.QueryEvaluationParameters;
 import net.sf.jpasecurity.jpql.compiler.QueryEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
@@ -38,7 +38,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 public class QueryOptimizer {
 
     private final QueryEvaluator evaluator;
-    private final InMemoryEvaluationParameters<Boolean> parameters;
+    private final QueryEvaluationParameters<Boolean> parameters;
     private final NodeOptimizer nodeOptimizer = new NodeOptimizer();
     private final QueryPreparator queryPreparator = new QueryPreparator();
 
@@ -49,11 +49,11 @@ public class QueryOptimizer {
                           QueryEvaluator evaluator,
                           SecureObjectCache objectCache) {
         this.evaluator = evaluator;
-        this.parameters = new InMemoryEvaluationParameters<Boolean>(mappingInformation,
-                                                                    aliases,
-                                                                    namedParameters,
-                                                                    positionalParameters,
-                                                                    objectCache);
+        this.parameters = new QueryEvaluationParameters<Boolean>(mappingInformation,
+                                                                 aliases,
+                                                                 namedParameters,
+                                                                 positionalParameters,
+                                                                 true);
     }
 
     public void optimize(JpqlCompiledStatement compiledStatement) {
@@ -61,12 +61,12 @@ public class QueryOptimizer {
     }
 
     public void optimize(Node node) {
-        node.visit(nodeOptimizer, new InMemoryEvaluationParameters<Boolean>(parameters));
+        node.visit(nodeOptimizer, new QueryEvaluationParameters<Boolean>(parameters));
     }
 
-    private class NodeOptimizer extends JpqlVisitorAdapter<InMemoryEvaluationParameters<Boolean>> {
+    private class NodeOptimizer extends JpqlVisitorAdapter<QueryEvaluationParameters<Boolean>> {
 
-        public boolean visit(JpqlWhere where, InMemoryEvaluationParameters<Boolean> data) {
+        public boolean visit(JpqlWhere where, QueryEvaluationParameters<Boolean> data) {
             assert where.jjtGetNumChildren() == 1;
             try {
                 if (evaluator.evaluate(where.jjtGetChild(0), data)) {
@@ -81,7 +81,7 @@ public class QueryOptimizer {
             }
         }
 
-        public boolean visit(JpqlOr node, InMemoryEvaluationParameters<Boolean> data) {
+        public boolean visit(JpqlOr node, QueryEvaluationParameters<Boolean> data) {
             assert node.jjtGetNumChildren() == 2;
             try {
                 if (evaluator.evaluate(node.jjtGetChild(0), data)) {
@@ -107,7 +107,7 @@ public class QueryOptimizer {
             }
         }
 
-        public boolean visit(JpqlAnd node, InMemoryEvaluationParameters<Boolean> data) {
+        public boolean visit(JpqlAnd node, QueryEvaluationParameters<Boolean> data) {
             assert node.jjtGetNumChildren() == 2;
             try {
                 if (evaluator.evaluate(node.jjtGetChild(0), data)) {
@@ -130,7 +130,7 @@ public class QueryOptimizer {
             }
         }
 
-        public boolean visit(JpqlBrackets brackets, InMemoryEvaluationParameters<Boolean> data) {
+        public boolean visit(JpqlBrackets brackets, QueryEvaluationParameters<Boolean> data) {
             assert brackets.jjtGetNumChildren() == 1;
             while (brackets.jjtGetChild(0) instanceof JpqlBrackets) {
                 queryPreparator.replace(brackets.jjtGetChild(0), brackets.jjtGetChild(0).jjtGetChild(0));
