@@ -27,7 +27,7 @@ public interface PathEvaluator {
      * @param root the object to evaluate the path on
      * @param path the property path
      * @return the result
-     * @throws javax.persistence.PersistenceException if the property path is not single-valued
+     * @throws java.lang.RuntimeException if the property path is not single-valued
      */
     Object evaluate(Object root, String path);
 
@@ -36,7 +36,7 @@ public interface PathEvaluator {
      * @param root the object to evaluate the path on
      * @param path the property path
      * @return the result
-     * @throws javax.persistence.PersistenceException if the property path is not single-valued
+     * @throws java.lang.RuntimeException if the property path is not single-valued
      */
     Collection<Object> evaluateAll(Collection<Object> root, String path);
 }

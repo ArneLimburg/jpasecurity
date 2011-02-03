@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
 
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.util.ListHashMap;
 import net.sf.jpasecurity.util.ListMap;
 import net.sf.jpasecurity.xml.AbstractXmlParser;
@@ -37,7 +38,9 @@ import org.xml.sax.helpers.DefaultHandler;
 public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
 
     protected void initializeAccessRules() {
-        RulesParser parser = new RulesParser(getPersistenceMapping().getPersistenceUnitName());
+        String persistenceUnitName = getPersistenceMapping().getPersistenceUnitName();
+        ExceptionFactory exceptionFactory = getConfiguration().getExceptionFactory();
+        RulesParser parser = new RulesParser(persistenceUnitName, exceptionFactory);
         try {
             for (Enumeration<URL> urls
                     = Thread.currentThread().getContextClassLoader().getResources("META-INF/security.xml");
@@ -54,8 +57,8 @@ public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
 
         private String persistenceUnitName;
 
-        public RulesParser(String persistenceUnitName) {
-            super(new RulesHandler());
+        public RulesParser(String persistenceUnitName, ExceptionFactory exceptionFactory) {
+            super(new RulesHandler(), exceptionFactory);
             this.persistenceUnitName = persistenceUnitName;
         }
 

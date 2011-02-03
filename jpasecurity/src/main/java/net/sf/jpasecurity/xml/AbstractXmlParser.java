@@ -18,10 +18,11 @@ package net.sf.jpasecurity.xml;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.persistence.PersistenceException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -32,9 +33,11 @@ import org.xml.sax.helpers.DefaultHandler;
 public abstract class AbstractXmlParser<H extends DefaultHandler> {
 
     private H handler;
+    private ExceptionFactory exceptionFactory;
 
-    public AbstractXmlParser(H xmlHandler) {
+    public AbstractXmlParser(H xmlHandler, ExceptionFactory factory) {
         handler = xmlHandler;
+        exceptionFactory = factory;
     }
 
     protected H getHandler() {
@@ -48,11 +51,11 @@ public abstract class AbstractXmlParser<H extends DefaultHandler> {
             SAXParser parser = factory.newSAXParser();
             parser.parse(xml, handler);
         } catch (ParserConfigurationException e) {
-            throw new PersistenceException(e);
+            throw exceptionFactory.createRuntimeException(e);
         } catch (SAXException e) {
-            throw new PersistenceException(e);
+            throw exceptionFactory.createRuntimeException(e);
         } catch (IOException e) {
-            throw new PersistenceException(e);
+            throw exceptionFactory.createRuntimeException(e);
         }
     }
 }

@@ -25,11 +25,15 @@ public abstract class AbstractExceptionFactory implements ExceptionFactory {
     }
 
     public RuntimeException createTypeNotFoundException(String className) {
-        return createRuntimeException("Mapping not found for type " + className, null);
+        return createRuntimeException("Mapping not found for type " + className);
+    }
+
+    public RuntimeException createTypeDefinitionNotFoundException(String alias) {
+        return createRuntimeException("Type not found for alias \"" + alias + '"');
     }
 
     public RuntimeException createInvalidPathException(String path, String error) {
-        return createRuntimeException("invalid path " + path + ": " + error, null);
+        return createRuntimeException("invalid path " + path + ": " + error);
     }
 
     public RuntimeException createRuntimeException(String message) {
