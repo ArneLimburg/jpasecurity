@@ -36,7 +36,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class PersistenceXmlParser extends AbstractXmlParser<PersistenceXmlParser.PersistenceXmlHandler> {
 
     public PersistenceXmlParser() {
-        super(new PersistenceXmlHandler());
+        super(new PersistenceXmlHandler(), new JpaExceptionFactory());
     }
 
     public boolean containsPersistenceUnitInfo(String persistenceUnitName) {

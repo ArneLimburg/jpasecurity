@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class MappedPathEvaluator implements PathEvaluator {
         }
         Collection<Object> result = evaluateAll(Collections.singleton(root), path);
         if (result.size() > 1) {
-            throw exceptionFactory.createInvalidPathException(path,  "path is not single-valued");
+            throw exceptionFactory.createInvalidPathException(path, "path is not single-valued");
         }
         return result.isEmpty()? null: result.iterator().next();
     }

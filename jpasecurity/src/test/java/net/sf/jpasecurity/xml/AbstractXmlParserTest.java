@@ -32,6 +32,8 @@ import javax.xml.parsers.SAXParserFactory;
 
 import junit.framework.TestCase;
 
+import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
+
 import org.easymock.IAnswer;
 import org.xml.sax.InputSource;
 import org.xml.sax.Parser;
@@ -65,13 +67,13 @@ public class AbstractXmlParserTest extends TestCase {
     }
     
     public void testParserConfigurationException() {
-        AbstractXmlParser<DefaultHandler> parser = new AbstractXmlParser<DefaultHandler>(null) {
+        AbstractXmlParser<DefaultHandler> parser = new AbstractXmlParser<DefaultHandler>(null, new DefaultExceptionFactory()) {
         };
         try {
             TestSaxParserFactory.throwParserConfigurationException();
             parser.parse(new ByteArrayInputStream(new byte[1]));
-            fail("expected PersistenceException");
-        } catch (PersistenceException e) {
+            fail("expected IllegalStateException");
+        } catch (IllegalStateException e) {
             assertEquals(ParserConfigurationException.class, e.getCause().getClass());
         } finally {
             TestSaxParserFactory.clear();
@@ -79,18 +81,18 @@ public class AbstractXmlParserTest extends TestCase {
     }
     
     public void testSaxException() {
-        AbstractXmlParser<DefaultHandler> parser = new AbstractXmlParser<DefaultHandler>(null) {
+        AbstractXmlParser<DefaultHandler> parser = new AbstractXmlParser<DefaultHandler>(null, new DefaultExceptionFactory()) {
         };
         try {
             parser.parse(new ByteArrayInputStream(new byte[1]));
-            fail("expected PersistenceException");
-        } catch (PersistenceException e) {
+            fail("expected IllegalStateException");
+        } catch (IllegalStateException e) {
             assertEquals(SAXException.class, e.getCause().getClass());
         }
     }
     
     public void testIoException() {
-        AbstractXmlParser<DefaultHandler> parser = new AbstractXmlParser<DefaultHandler>(null) {
+        AbstractXmlParser<DefaultHandler> parser = new AbstractXmlParser<DefaultHandler>(null, new DefaultExceptionFactory()) {
         };
         try {
             parser.parse(new InputStream() {
@@ -98,8 +100,8 @@ public class AbstractXmlParserTest extends TestCase {
                     throw new IOException();
                 }
             });
-            fail("expected PersistenceException");
-        } catch (PersistenceException e) {
+            fail("expected IllegalStateException");
+        } catch (IllegalStateException e) {
             assertEquals(IOException.class, e.getCause().getClass());
         }
     }

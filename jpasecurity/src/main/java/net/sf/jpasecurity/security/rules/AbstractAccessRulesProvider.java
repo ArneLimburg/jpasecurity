@@ -137,7 +137,8 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
      * Check whether the mapping is consistent with the rules
      */
     private void checkAccessRules() {
-        MappingEvaluator evaluator = new MappingEvaluator(persistenceMapping, securityContext);
+        ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
+        MappingEvaluator evaluator = new MappingEvaluator(persistenceMapping, securityContext, exceptionFactory);
         QueryPreparator preparator = new QueryPreparator();
         for (AccessRule accessRule: accessRules) {
             evaluator.evaluate(preparator.createPath(accessRule.getSelectedPath()), accessRule.getTypeDefinitions());

@@ -18,8 +18,7 @@ package net.sf.jpasecurity.jpql.compiler;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.PersistenceException;
-
+import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
@@ -46,16 +45,23 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
 
     private MappingInformation mappingInformation;
     private SecurityContext securityContext;
+    private ExceptionFactory exceptionFactory;
 
-    public MappingEvaluator(MappingInformation mappingInformation, SecurityContext securityContext) {
+    public MappingEvaluator(MappingInformation mappingInformation,
+                            SecurityContext securityContext,
+                            ExceptionFactory exceptionFactory) {
         if (mappingInformation == null) {
             throw new IllegalArgumentException("mappingInformation may not be null");
         }
         if (securityContext == null) {
             throw new IllegalArgumentException("securityContext may not be null");
         }
+        if (exceptionFactory == null) {
+            throw new IllegalArgumentException("exceptionFactory may not be null");
+        }
         this.mappingInformation = mappingInformation;
         this.securityContext = securityContext;
+        this.exceptionFactory = exceptionFactory;
     }
 
     /**
@@ -71,15 +77,17 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             ClassMappingInformation classMapping = mappingInformation.getClassMapping(type);
             if (classMapping == null) {
-                throw new PersistenceException("Class \"" + type.getName() + "\" is not mapped");
+                throw exceptionFactory.createTypeNotFoundException(type);
             }
             String propertyName = node.jjtGetChild(i).getValue();
             PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(propertyName);
             if (propertyMapping == null) {
-                throw new PersistenceException("Property \"" + propertyName + "\" not found for class \"" + type.getName() + "\"");
+                String error = "Property not found for class " + type.getName();
+                throw exceptionFactory.createInvalidPathException(propertyName, error);
             }
             if (propertyMapping instanceof SimplePropertyMappingInformation && i < node.jjtGetNumChildren() - 1) {
-                throw new PersistenceException("Cannot navigate through simple property \"" + propertyName + "\" of class \"" + type.getName() + "\"");
+                String error = "Cannot navigate through simple property in class " + type.getName();
+                throw exceptionFactory.createInvalidPathException(propertyName, error);
             }
             type = propertyMapping.getProperyType();
         }
@@ -151,6 +159,6 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
                 return typeDefinition.getType();
             }
         }
-        throw new PersistenceException("Type not found for alias \"" + alias + "\"");
+        throw exceptionFactory.createTypeDefinitionNotFoundException(alias);
     }
 }

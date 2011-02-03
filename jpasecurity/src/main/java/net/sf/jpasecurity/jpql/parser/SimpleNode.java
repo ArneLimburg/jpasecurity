@@ -16,7 +16,6 @@
 
 package net.sf.jpasecurity.jpql.parser;
 
-import javax.persistence.PersistenceException;
 
 
 public class SimpleNode implements Node {
@@ -146,7 +145,7 @@ public class SimpleNode implements Node {
             }
             return node;
         } catch (CloneNotSupportedException e) {
-            throw new PersistenceException(e);
+            throw new IllegalStateException(e);
         }
     }
 }
