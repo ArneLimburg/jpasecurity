@@ -32,7 +32,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import junit.framework.TestCase;
-import net.sf.jpasecurity.configuration.ExceptionFactory;
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
@@ -45,11 +45,12 @@ import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.ParseException;
-import net.sf.jpasecurity.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
+import net.sf.jpasecurity.persistence.JpaExceptionFactory;
+import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.util.SetHashMap;
 import net.sf.jpasecurity.util.SetMap;
 
@@ -81,7 +82,7 @@ public class QueryEvaluatorTest extends TestCase {
         replay(objectManager, exceptionFactory);
         PersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
-        mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
+        mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(persistenceUnitInfo);
         parser = new JpqlParser();
         compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
         queryEvaluator = new QueryEvaluator(compiler, new MappedPathEvaluator(mappingInformation, exceptionFactory), exceptionFactory, new SimpleSubselectEvaluator(exceptionFactory), new ObjectCacheSubselectEvaluator(objectManager, exceptionFactory));

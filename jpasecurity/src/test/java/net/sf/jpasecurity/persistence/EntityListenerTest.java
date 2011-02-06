@@ -16,9 +16,8 @@
 package net.sf.jpasecurity.persistence;
 
 import junit.framework.TestCase;
-import net.sf.jpasecurity.mapping.JpaAnnotationParser;
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.OrmXmlParser;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.FieldAccessXmlTestBean;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
@@ -26,6 +25,8 @@ import net.sf.jpasecurity.model.TestEntityListener.PackageProtectedTestMethodCal
 import net.sf.jpasecurity.model.TestEntityListener.PrivateTestMethodCalledException;
 import net.sf.jpasecurity.model.TestEntityListener.ProtectedTestMethodCalledException;
 import net.sf.jpasecurity.model.TestEntityListener.PublicTestMethodCalledException;
+import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
+import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 
 /**
  * @author Arne Limburg
@@ -35,7 +36,7 @@ public class EntityListenerTest extends TestCase {
     public void testParseEntityListenerAnnotations() {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(MethodAccessAnnotationTestBean.class.getName());
-        MappingInformation mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
+        MappingInformation mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(persistenceUnitInfo);
         try {
             mappingInformation.getClassMapping(MethodAccessAnnotationTestBean.class).prePersist(null);
             fail("expected call to publicTestMethod");
@@ -63,8 +64,9 @@ public class EntityListenerTest extends TestCase {
     public void testXmlEntityListeners() {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
-        MappingInformation mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
-        mappingInformation = new OrmXmlParser().parse(persistenceUnitInfo, mappingInformation);
+        ExceptionFactory exceptionFactory = new JpaExceptionFactory();
+        MappingInformation mappingInformation = new JpaAnnotationParser(exceptionFactory).parse(persistenceUnitInfo);
+        mappingInformation = new OrmXmlParser(exceptionFactory).parse(persistenceUnitInfo, mappingInformation);
         try {
             mappingInformation.getClassMapping(FieldAccessXmlTestBean.class).prePersist(null);
             fail("expected call to publicTestMethod");

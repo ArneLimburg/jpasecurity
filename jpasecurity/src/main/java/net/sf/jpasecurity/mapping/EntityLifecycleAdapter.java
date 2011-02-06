@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package net.sf.jpasecurity.mapping;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import net.sf.jpasecurity.ExceptionFactory;
+
 /**
  * This class serves as a wrapper around entity-lifecycle-methods,
  * providing a common interface
@@ -25,8 +27,8 @@ import java.lang.reflect.Method;
  */
 public class EntityLifecycleAdapter extends AbstractEntityListenerAdapter {
 
-    public EntityLifecycleAdapter(EntityLifecycleMethods entityLifecycleMethods) {
-        super(entityLifecycleMethods);
+    public EntityLifecycleAdapter(EntityLifecycleMethods entityLifecycleMethods, ExceptionFactory exceptionFactory) {
+        super(entityLifecycleMethods, exceptionFactory);
     }
 
     protected void fireEvent(Method method, Object entity) throws IllegalAccessException,

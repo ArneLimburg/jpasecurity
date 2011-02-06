@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.configuration.AccessRule;
-import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;

@@ -17,7 +17,7 @@ package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.Collection;
 
-import net.sf.jpasecurity.configuration.ExceptionFactory;
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlExists;

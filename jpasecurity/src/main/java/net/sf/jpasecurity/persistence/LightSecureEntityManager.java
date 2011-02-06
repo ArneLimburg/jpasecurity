@@ -22,8 +22,8 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.configuration.Configuration;
-import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.entity.EmptyObjectCache;
 import net.sf.jpasecurity.entity.SecureObjectCache;

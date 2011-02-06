@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.PersistenceException;
-
+import net.sf.jpasecurity.ExceptionFactory;
 
 /**
  * This class holds mapping information for a specific persistence unit.
@@ -35,6 +34,7 @@ public class DefaultMappingInformation implements MappingInformation {
     private Map<Class<?>, ClassMappingInformation> entityTypeMappings
         = new HashMap<Class<?>, ClassMappingInformation>();
     private Map<String, ClassMappingInformation> entityNameMappings;
+    private ExceptionFactory exceptionFactory;
 
     /**
      * @param persistenceUnitName the name of the persistence unit
@@ -43,10 +43,12 @@ public class DefaultMappingInformation implements MappingInformation {
      */
     public DefaultMappingInformation(String persistenceUnitName,
                                      Map<Class<?>, ? extends ClassMappingInformation> entityTypeMappings,
-                                     Map<String, String> namedQueries) {
+                                     Map<String, String> namedQueries,
+                                     ExceptionFactory exceptionFactory) {
         this.persistenceUnitName = persistenceUnitName;
         this.entityTypeMappings = (Map<Class<?>, ClassMappingInformation>)entityTypeMappings;
         this.namedQueries = namedQueries;
+        this.exceptionFactory = exceptionFactory;
     }
 
     public String getPersistenceUnitName() {
@@ -80,7 +82,7 @@ public class DefaultMappingInformation implements MappingInformation {
         }
         ClassMappingInformation classMapping = entityNameMappings.get(entityName);
         if (classMapping == null) {
-            throw new PersistenceException("Could not find mapping for entity with name \"" + entityName + '"');
+            throw exceptionFactory.createTypeNotFoundException(entityName);
         }
         return classMapping;
     }
@@ -94,7 +96,7 @@ public class DefaultMappingInformation implements MappingInformation {
             }
             return type;
         } catch (NullPointerException e) {
-            throw new PersistenceException("Could not determine type of alias \"" + path + "\"", e);
+            throw exceptionFactory.createTypeDefinitionNotFoundException(path);
         }
     }
 

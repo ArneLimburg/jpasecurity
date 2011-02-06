@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.mapping;
+package net.sf.jpasecurity.persistence.mapping;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
@@ -55,6 +55,14 @@ import javax.persistence.Version;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.CascadeType;
+import net.sf.jpasecurity.ExceptionFactory;
+import net.sf.jpasecurity.mapping.AbstractMappingParser;
+import net.sf.jpasecurity.mapping.DefaultClassMappingInformation;
+import net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory;
+import net.sf.jpasecurity.mapping.EntityLifecycleMethods;
+import net.sf.jpasecurity.mapping.EntityListener;
+import net.sf.jpasecurity.mapping.EntityListenerWrapper;
+import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 
 
 /**
@@ -64,12 +72,13 @@ import net.sf.jpasecurity.CascadeType;
  */
 public class JpaAnnotationParser extends AbstractMappingParser {
 
-    public JpaAnnotationParser() {
-        this(new DefaultPropertyAccessStrategyFactory());
+    public JpaAnnotationParser(ExceptionFactory exceptionFactory) {
+        this(new DefaultPropertyAccessStrategyFactory(), exceptionFactory);
     }
 
-    public JpaAnnotationParser(PropertyAccessStrategyFactory factory) {
-        super(factory);
+    public JpaAnnotationParser(PropertyAccessStrategyFactory propertyAccessStrategyFactory,
+                               ExceptionFactory exceptionFactory) {
+        super(propertyAccessStrategyFactory, exceptionFactory);
     }
 
     protected void parsePersistenceUnit(PersistenceUnitInfo persistenceUnit) {
@@ -108,7 +117,7 @@ public class JpaAnnotationParser extends AbstractMappingParser {
     }
 
     protected void parseEntityLifecycleMethods(DefaultClassMappingInformation classMapping) {
-        classMapping.setEntityLifecycleMethods(parseEntityLifecycleMethods(classMapping.getEntityType()));
+        setEntityLifecycleMethods(classMapping, parseEntityLifecycleMethods(classMapping.getEntityType()));
     }
 
     protected void parseEntityListeners(DefaultClassMappingInformation classMapping) {
@@ -120,8 +129,9 @@ public class JpaAnnotationParser extends AbstractMappingParser {
             try {
                 Object entityListener = entityListenerClass.newInstance();
                 EntityLifecycleMethods entityLifecycleMethods = parseEntityLifecycleMethods(entityListenerClass);
-                classMapping.addEntityListener(entityListenerClass,
-                                               new EntityListenerWrapper(entityListener, entityLifecycleMethods));
+                EntityListener wrapper
+                    = new EntityListenerWrapper(entityListener, entityLifecycleMethods, exceptionFactory);
+                addEntityListener(classMapping, entityListenerClass, wrapper);
             } catch (InstantiationException e) {
                 throw new PersistenceException("could not instantiate default entity-listener of type " + entityListenerClass.getName(), e);
             } catch (IllegalAccessException e) {
@@ -219,10 +229,10 @@ public class JpaAnnotationParser extends AbstractMappingParser {
         return getAnnotationFetchType(property) != null;
     }
 
-    protected FetchType getFetchType(Member property) {
+    protected net.sf.jpasecurity.FetchType getFetchType(Member property) {
         FetchType fetchType = getAnnotationFetchType(property);
         if (fetchType != null) {
-            return fetchType;
+            return net.sf.jpasecurity.FetchType.valueOf(fetchType.name());
         }
         return super.getFetchType(property);
     }

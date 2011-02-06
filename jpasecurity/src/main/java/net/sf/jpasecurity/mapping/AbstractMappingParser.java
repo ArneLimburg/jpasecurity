@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,11 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.persistence.FetchType;
-import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.CascadeType;
-
+import net.sf.jpasecurity.ExceptionFactory;
+import net.sf.jpasecurity.FetchType;
 
 /**
  * Parses persistence units and created mapping information.
@@ -59,22 +58,29 @@ public abstract class AbstractMappingParser {
     private static final String GET_PROPERTY_PREFIX = "get";
     private static final String SET_PROPERTY_PREFIX = "set";
 
-    private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
+    protected final PropertyAccessStrategyFactory propertyAccessStrategyFactory;
+    protected final ExceptionFactory exceptionFactory;
 
     private Map<Class<?>, DefaultClassMappingInformation> classMappings;
     private Map<String, String> namedQueries;
     private List<EntityListener> defaultEntityListeners;
     private ClassLoader classLoader;
 
-    public AbstractMappingParser(PropertyAccessStrategyFactory propertyAccessStrategyFactory) {
+    public AbstractMappingParser(PropertyAccessStrategyFactory propertyAccessStrategyFactory,
+                                 ExceptionFactory exceptionFactory) {
         if (propertyAccessStrategyFactory == null) {
             throw new IllegalArgumentException("PropertyAccessStrategyFactory may not be null");
         }
         this.propertyAccessStrategyFactory = propertyAccessStrategyFactory;
+        this.exceptionFactory = exceptionFactory;
     }
 
     protected PropertyAccessStrategyFactory getPropertyAccessStrategyFactory() {
         return propertyAccessStrategyFactory;
+    }
+
+    protected ExceptionFactory getExceptionFactory() {
+        return exceptionFactory;
     }
 
     /**
@@ -105,7 +111,7 @@ public abstract class AbstractMappingParser {
         }
         parsePersistenceUnit(persistenceUnitInfo);
         String persistenceUnitName = persistenceUnitInfo.getPersistenceUnitName();
-        return new DefaultMappingInformation(persistenceUnitName, classMappings, namedQueries);
+        return new DefaultMappingInformation(persistenceUnitName, classMappings, namedQueries, exceptionFactory);
     }
 
     protected void parse(URL url) {
@@ -123,7 +129,7 @@ public abstract class AbstractMappingParser {
                 in.close();
             }
         } catch (IOException e) {
-            throw new PersistenceException(e);
+            throw exceptionFactory.createRuntimeException(e);
         }
     }
 
@@ -167,7 +173,8 @@ public abstract class AbstractMappingParser {
                                                               (DefaultClassMappingInformation)superclassMapping,
                                                               idClass,
                                                               usesFieldAccess,
-                                                              metadataComplete);
+                                                              metadataComplete,
+                                                              exceptionFactory);
             classMappings.put(mappedClass, classMapping);
         } else {
             classMapping.setEntityName(entityName);
@@ -204,7 +211,7 @@ public abstract class AbstractMappingParser {
         try {
             return classLoader.loadClass(name);
         } catch (ClassNotFoundException e) {
-            throw new PersistenceException(e);
+            throw exceptionFactory.createRuntimeException(e);
         }
     }
 
@@ -212,7 +219,7 @@ public abstract class AbstractMappingParser {
         try {
             return classLoader.getResources(name);
         } catch (IOException e) {
-            throw new PersistenceException(e);
+            throw exceptionFactory.createRuntimeException(e);
         }
     }
 
@@ -280,7 +287,9 @@ public abstract class AbstractMappingParser {
                                                                    propertyAccessStrategy);
             classMapping.addPropertyMapping(propertyMapping);
         } else if (propertyMapping == null) {
-            throw new PersistenceException("could not determine mapping for property \"" + name + "\" of class " + property.getDeclaringClass().getName());
+            String error = "could not determine mapping for property \"" + name
+                         + "\" of class " + property.getDeclaringClass().getName();
+            throw exceptionFactory.createMappingException(error);
         }
     }
 
@@ -322,7 +331,7 @@ public abstract class AbstractMappingParser {
             genericType = ((Field)property).getGenericType();
         }
         if (!(genericType instanceof ParameterizedType)) {
-            throw new PersistenceException("no target entity specified for property \"" + property.getName() + "\" of class " + property.getDeclaringClass().getName());
+            throw exceptionFactory.createTargetEntityNotFoundException(property);
         }
         Type[] genericTypeArguments = ((ParameterizedType)genericType).getActualTypeArguments();
         Type genericTypeArgument;
@@ -332,25 +341,25 @@ public abstract class AbstractMappingParser {
             //Must be a map, take the value
             genericTypeArgument = genericTypeArguments[1];
         } else {
-            throw new PersistenceException("could not determine target entity for property \"" + property.getName() + "\" of class " + property.getDeclaringClass().getName());
+            throw exceptionFactory.createTargetEntityNotFoundException(property);
         }
         if (genericTypeArgument instanceof Class) {
             return (Class<?>)genericTypeArgument;
         } else {
             Type[] bounds = null;
             if (genericTypeArgument instanceof TypeVariable) {
-                bounds = ((TypeVariable)genericTypeArgument).getBounds();
+                bounds = ((TypeVariable<?>)genericTypeArgument).getBounds();
             } else if (genericTypeArgument instanceof WildcardType) {
                 bounds = ((WildcardType)genericTypeArgument).getUpperBounds();
             }
             if (bounds != null) {
-                for (Type bound: ((TypeVariable)genericTypeArgument).getBounds()) {
+                for (Type bound: ((TypeVariable<?>)genericTypeArgument).getBounds()) {
                     if (bound instanceof Class) {
                         return (Class<?>)bound;
                     }
                 }
             }
-            throw new PersistenceException("could not determine target entity for property \"" + property.getName() + "\" of class " + property.getDeclaringClass().getName());
+            throw exceptionFactory.createTargetEntityNotFoundException(property);
         }
     }
 
@@ -390,6 +399,17 @@ public abstract class AbstractMappingParser {
     protected abstract void parseEntityListeners(DefaultClassMappingInformation classMapping);
 
     protected abstract void parseEntityLifecycleMethods(DefaultClassMappingInformation classMapping);
+
+    protected void addEntityListener(DefaultClassMappingInformation classMappingInformation,
+                                     Class<?> type,
+                                     EntityListener entityListener) {
+        classMappingInformation.addEntityListener(type, entityListener);
+    }
+
+    protected void setEntityLifecycleMethods(DefaultClassMappingInformation classMappingInformation,
+                                             EntityLifecycleMethods entityLifecycleMethods) {
+        classMappingInformation.setEntityLifecycleMethods(entityLifecycleMethods);
+    }
 
     protected abstract Class<?> getIdClass(Class<?> entityClass, boolean usesFieldAccess);
 

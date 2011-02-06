@@ -23,8 +23,8 @@ import javax.persistence.Persistence;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.OrmXmlParser;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
+import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 /**
@@ -61,7 +61,7 @@ public class NamedQueryTest extends TestCase {
     public void testParseNamedQueriesInOrmXml() throws Exception {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getMappingFileNames().add("META-INF/named-queries.xml");
-        MappingInformation mappingInformation = new OrmXmlParser().parse(persistenceUnitInfo);
+        MappingInformation mappingInformation = new OrmXmlParser(new JpaExceptionFactory()).parse(persistenceUnitInfo);
 
         assertEquals(4, mappingInformation.getNamedQueryNames().size());
     	

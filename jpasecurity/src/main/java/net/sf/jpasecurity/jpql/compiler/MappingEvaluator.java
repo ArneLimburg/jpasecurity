@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package net.sf.jpasecurity.jpql.compiler;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.jpasecurity.configuration.ExceptionFactory;
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerFetchJoin;

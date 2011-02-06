@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import net.sf.jpasecurity.configuration.ExceptionFactory;
+import net.sf.jpasecurity.ExceptionFactory;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;

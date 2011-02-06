@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package net.sf.jpasecurity.mapping;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.CascadeType;
+import net.sf.jpasecurity.FetchType;
 
 /**
  * This class holds mapping information for property mappings.

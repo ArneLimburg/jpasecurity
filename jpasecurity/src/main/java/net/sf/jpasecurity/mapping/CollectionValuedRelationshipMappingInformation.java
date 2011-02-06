@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@
  */
 package net.sf.jpasecurity.mapping;
 
-import javax.persistence.FetchType;
-import javax.persistence.PersistenceException;
-
 import net.sf.jpasecurity.CascadeType;
+import net.sf.jpasecurity.FetchType;
 
 /**
  * @author Arne Limburg
@@ -43,7 +41,7 @@ public final class CollectionValuedRelationshipMappingInformation extends Relati
               fetchType,
               cascadeTypes);
         if (collectionType == null) {
-            throw new PersistenceException("could not determine collection type of property \"" + propertyName + "\" of class " + declaringClassMapping.getEntityName());
+            throw new IllegalArgumentException("collectionType may not be null");
         }
         this.collectionType = collectionType;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package net.sf.jpasecurity.mapping;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import net.sf.jpasecurity.ExceptionFactory;
+
 /**
  * This class serves as a wrapper around entity-listeners,
  * providing a common interface
@@ -27,8 +29,10 @@ public class EntityListenerWrapper extends AbstractEntityListenerAdapter {
 
     private Object entityListener;
 
-    public EntityListenerWrapper(Object entityListener, EntityLifecycleMethods entityLifecycleMethods) {
-        super(entityLifecycleMethods);
+    public EntityListenerWrapper(Object entityListener,
+                                 EntityLifecycleMethods entityLifecycleMethods,
+                                 ExceptionFactory exceptionFactory) {
+        super(entityLifecycleMethods, exceptionFactory);
         this.entityListener = entityListener;
     }
 

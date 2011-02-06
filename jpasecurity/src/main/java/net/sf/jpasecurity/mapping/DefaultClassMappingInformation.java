@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.PersistenceException;
-
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.util.ReflectionUtils;
 
 /**
@@ -47,13 +46,15 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
     private List<EntityListener> defaultEntityListeners = Collections.EMPTY_LIST;
     private Map<Class<?>, EntityListener> entityListeners = new LinkedHashMap<Class<?>, EntityListener>();
     private EntityListener entityLifecyleAdapter;
+    private ExceptionFactory exceptionFactory;
 
     public DefaultClassMappingInformation(String entityName,
                                           Class<?> entityType,
                                           DefaultClassMappingInformation superclassMapping,
                                           Class<?> idClass,
                                           boolean usesFieldAccess,
-                                          boolean metadataComplete) {
+                                          boolean metadataComplete,
+                                          ExceptionFactory exceptionFactory) {
         if (entityName == null) {
             throw new IllegalArgumentException("entityName may not be null");
         }
@@ -69,6 +70,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
         this.idClass = idClass;
         this.fieldAccess = usesFieldAccess;
         this.metadataComplete = metadataComplete;
+        this.exceptionFactory = exceptionFactory;
     }
 
     public String getEntityName() {
@@ -192,7 +194,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
     }
 
     void setEntityLifecycleMethods(EntityLifecycleMethods entityLifecycleMethods) {
-        entityLifecyleAdapter = new EntityLifecycleAdapter(entityLifecycleMethods);
+        entityLifecyleAdapter = new EntityLifecycleAdapter(entityLifecycleMethods, exceptionFactory);
     }
 
     public Object newInstance() {
@@ -202,7 +204,8 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
     public Object getId(Object entity) {
         List<PropertyMappingInformation> idProperties = getIdPropertyMappings();
         if (idProperties.size() == 0) {
-            throw new PersistenceException("Id property required for class " + getEntityType().getName());
+            String error = "Id property required for class " + getEntityType().getName();
+            throw exceptionFactory.createMappingException(error);
         } else if (idProperties.size() == 1) {
             return idProperties.get(0).getPropertyValue(entity);
         } else {
@@ -213,9 +216,9 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
                 }
                 return id;
             } catch (InstantiationException e) {
-                throw new PersistenceException(e);
+                throw exceptionFactory.createRuntimeException(e);
             } catch (IllegalAccessException e) {
-                throw new PersistenceException(e);
+                throw exceptionFactory.createRuntimeException(e);
             }
         }
     }

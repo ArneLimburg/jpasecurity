@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,12 +30,12 @@ import java.util.TreeSet;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.CascadeType;
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureMap;
 import net.sf.jpasecurity.SecureObject;
 import net.sf.jpasecurity.configuration.Configuration;
-import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;

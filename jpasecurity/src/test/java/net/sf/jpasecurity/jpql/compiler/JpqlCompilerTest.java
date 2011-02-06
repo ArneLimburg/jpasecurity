@@ -22,10 +22,11 @@ import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
-import net.sf.jpasecurity.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
+import net.sf.jpasecurity.persistence.JpaExceptionFactory;
+import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
 
 /**
  * @author Arne Limburg
@@ -39,7 +40,7 @@ public class JpqlCompilerTest extends TestCase {
     public void setUp() {
         PersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
-        mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
+        mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(persistenceUnitInfo);
         parser = new JpqlParser();
         compiler = new JpqlCompiler(mappingInformation, new DefaultExceptionFactory());
     }
