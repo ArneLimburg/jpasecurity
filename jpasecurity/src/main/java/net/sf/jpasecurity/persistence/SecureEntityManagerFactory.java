@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.configuration.Configuration;
-import net.sf.jpasecurity.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.OrmXmlParser;
 import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
+import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
+import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 
 /**
  * This class is a factory that creates {@link net.sf.jpasecurity.SecureEntityManager}s.
@@ -55,8 +55,10 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
         }
         this.configuration = configuration;
         JpaAnnotationParser annotationParser
-            = new JpaAnnotationParser(configuration.getPropertyAccessStrategyFactory());
-        OrmXmlParser xmlParser = new OrmXmlParser(configuration.getPropertyAccessStrategyFactory());
+            = new JpaAnnotationParser(configuration.getPropertyAccessStrategyFactory(),
+                                      configuration.getExceptionFactory());
+        OrmXmlParser xmlParser = new OrmXmlParser(configuration.getPropertyAccessStrategyFactory(),
+                                                  configuration.getExceptionFactory());
         this.mappingInformation = annotationParser.parse(persistenceUnitInfo);
         this.mappingInformation = xmlParser.parse(persistenceUnitInfo, mappingInformation);
         Map<String, String> persistenceProperties

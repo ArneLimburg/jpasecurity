@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.configuration;
+package net.sf.jpasecurity;
+
+import java.lang.reflect.Member;
 
 /**
  * @author Arne Limburg
  */
 public interface ExceptionFactory {
 
+    RuntimeException createTargetEntityNotFoundException(Member property);
+    RuntimeException createMappingException(String message);
     RuntimeException createTypeDefinitionNotFoundException(String alias);
     RuntimeException createTypeNotFoundException(Class<?> type);
     RuntimeException createTypeNotFoundException(String className);

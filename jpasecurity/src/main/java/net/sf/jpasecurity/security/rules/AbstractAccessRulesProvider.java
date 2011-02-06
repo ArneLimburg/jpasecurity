@@ -1,5 +1,5 @@
 /*
- * Copyright 2008, 2009 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.configuration.AccessRule;
 import net.sf.jpasecurity.configuration.AccessRulesProvider;
 import net.sf.jpasecurity.configuration.Configuration;
-import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.jpql.compiler.MappingEvaluator;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;

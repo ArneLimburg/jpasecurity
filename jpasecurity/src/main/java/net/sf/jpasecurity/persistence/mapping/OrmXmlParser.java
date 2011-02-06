@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.mapping;
+package net.sf.jpasecurity.persistence.mapping;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +24,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+
+import javassist.bytecode.CodeAttribute.RuntimeCopyException;
 
 import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
@@ -38,6 +40,14 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import net.sf.jpasecurity.CascadeType;
+import net.sf.jpasecurity.ExceptionFactory;
+import net.sf.jpasecurity.mapping.AbstractMappingParser;
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.DefaultClassMappingInformation;
+import net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory;
+import net.sf.jpasecurity.mapping.EntityLifecycleMethods;
+import net.sf.jpasecurity.mapping.EntityListenerWrapper;
+import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -181,12 +191,13 @@ public class OrmXmlParser extends AbstractMappingParser {
 
     private Document ormDocument;
 
-    public OrmXmlParser() {
-        this(new DefaultPropertyAccessStrategyFactory());
+    public OrmXmlParser(ExceptionFactory exceptionFactory) {
+        this(new DefaultPropertyAccessStrategyFactory(), exceptionFactory);
     }
 
-    public OrmXmlParser(PropertyAccessStrategyFactory factory) {
-        super(factory);
+    public OrmXmlParser(PropertyAccessStrategyFactory propertyAccessStrategyFactory,
+                        ExceptionFactory exceptionFactory) {
+        super(propertyAccessStrategyFactory, exceptionFactory);
     }
 
     public void parsePersistenceUnit(PersistenceUnitInfo persistenceUnit) {
@@ -312,10 +323,10 @@ public class OrmXmlParser extends AbstractMappingParser {
     /**
      * {@inheritDoc}
      */
-    protected FetchType getFetchType(Member property) {
+    protected net.sf.jpasecurity.FetchType getFetchType(Member property) {
         FetchType fetchType = getXmlFetchType(property);
         if (fetchType != null) {
-            return fetchType;
+            return net.sf.jpasecurity.FetchType.valueOf(fetchType.name());
         }
         return super.getFetchType(property);
     }
@@ -403,7 +414,7 @@ public class OrmXmlParser extends AbstractMappingParser {
                 parse(persistenceUnit, mappings.nextElement().openStream());
             }
         } catch (IOException e) {
-            throw new PersistenceException(e);
+            throw exceptionFactory.createRuntimeException(e);
         }
     }
 
@@ -413,11 +424,11 @@ public class OrmXmlParser extends AbstractMappingParser {
             DocumentBuilder builder = factory.newDocumentBuilder();
             parse(persistenceUnit, builder.parse(stream));
         } catch (ParserConfigurationException e) {
-            throw new PersistenceException(e);
+            throw exceptionFactory.createRuntimeException(e);
         } catch (SAXException e) {
-            throw new PersistenceException(e);
+            throw exceptionFactory.createRuntimeException(e);
         } catch (IOException e) {
-            throw new PersistenceException(e);
+            throw exceptionFactory.createRuntimeException(e);
         } finally {
             stream.close();
         }
@@ -447,11 +458,11 @@ public class OrmXmlParser extends AbstractMappingParser {
         if (defaultPackage != null) {
             try {
                 return parse(getClass(defaultPackage + '.' + className), true);
-            } catch (PersistenceException e) {
+            } catch (RuntimeException e) {
                 if (e.getCause() instanceof ClassNotFoundException) {
                     try {
                         return parse(getClass(className), true);
-                    } catch (PersistenceException c) {
+                    } catch (RuntimeCopyException c) {
                         if (c.getCause() instanceof ClassNotFoundException) {
                             throw className.indexOf('.') != -1? c: e;
                         }
@@ -495,7 +506,7 @@ public class OrmXmlParser extends AbstractMappingParser {
         entityLifecycleMethods.setPreUpdateMethod(getMethod(classMapping.getEntityType(), preUpdateNode, 0));
         entityLifecycleMethods.setPostUpdateMethod(getMethod(classMapping.getEntityType(), postUpdateNode, 0));
         entityLifecycleMethods.setPostLoadMethod(getMethod(classMapping.getEntityType(), postLoadNode, 0));
-        classMapping.setEntityLifecycleMethods(entityLifecycleMethods);
+        setEntityLifecycleMethods(classMapping, entityLifecycleMethods);
     }
 
     protected void parseEntityListeners(DefaultClassMappingInformation classMapping) {
@@ -503,11 +514,12 @@ public class OrmXmlParser extends AbstractMappingParser {
         NodeList entityListeners = classNode.getElementsByTagName("entity-listener");
         for (int i = 0; i < entityListeners.getLength(); i++) {
             Class<?> type = getEntityListenerType(entityListeners.item(i));
-            EntityLifecycleMethods entityLifecycleMethods
-                = new JpaAnnotationParser(getPropertyAccessStrategyFactory()).parseEntityLifecycleMethods(type);
+            JpaAnnotationParser parser
+                = new JpaAnnotationParser(getPropertyAccessStrategyFactory(), getExceptionFactory());
+            EntityLifecycleMethods entityLifecycleMethods = parser.parseEntityLifecycleMethods(type);
             EntityListenerWrapper entityListener
                 = parseEntityListener(entityListeners.item(i), type, entityLifecycleMethods);
-            classMapping.addEntityListener(type, entityListener);
+            addEntityListener(classMapping, type, entityListener);
         }
     }
 
@@ -567,7 +579,7 @@ public class OrmXmlParser extends AbstractMappingParser {
             if (postLoadMethod != null) {
                 entityLifecycleMethods.setPostLoadMethod(postLoadMethod);
             }
-            return new EntityListenerWrapper(listener, entityLifecycleMethods);
+            return new EntityListenerWrapper(listener, entityLifecycleMethods, exceptionFactory);
         } catch (InstantiationException e) {
             throw new PersistenceException("could not instantiate default entity-listener of type " + listenerClass.getName(), e);
         } catch (IllegalAccessException e) {
@@ -580,7 +592,7 @@ public class OrmXmlParser extends AbstractMappingParser {
             return null;
         }
         if (nodes.getLength() > 1) {
-            throw new PersistenceException("Only one method may be specified per lifecycle event");
+            throw exceptionFactory.createMappingException("Only one method may be specified per lifecycle event");
         }
         return getMethod(type, nodes.item(0), parameterCount);
     }
@@ -682,7 +694,7 @@ public class OrmXmlParser extends AbstractMappingParser {
             query = MessageFormat.format(query, parameters);
             return (NodeList)XPATH.evaluate(query, ormDocument, resultType);
         } catch (XPathExpressionException e) {
-            throw new PersistenceException(e);
+            throw exceptionFactory.createRuntimeException(e);
         }
     }
 }

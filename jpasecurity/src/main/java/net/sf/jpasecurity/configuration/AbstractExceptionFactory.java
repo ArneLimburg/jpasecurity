@@ -15,10 +15,24 @@
  */
 package net.sf.jpasecurity.configuration;
 
+import java.lang.reflect.Member;
+
+import net.sf.jpasecurity.ExceptionFactory;
+
 /**
  * @author Arne Limburg
  */
 public abstract class AbstractExceptionFactory implements ExceptionFactory {
+
+    public RuntimeException createTargetEntityNotFoundException(Member property) {
+        String error = "Could not determine target entity for property \"" + property.getName()
+                     + "\" of class " + property.getDeclaringClass().getName();
+        return createMappingException(error);
+    }
+
+    public RuntimeException createMappingException(String message) {
+        return createRuntimeException(message);
+    }
 
     public RuntimeException createTypeNotFoundException(Class<?> type) {
         return createTypeNotFoundException(type.getName());

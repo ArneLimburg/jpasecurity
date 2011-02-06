@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,15 +25,14 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.FetchType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.configuration.Configuration;
-import net.sf.jpasecurity.configuration.ExceptionFactory;
 import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
 import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
@@ -224,7 +223,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
             if (propertyMapping.isRelationshipMapping()) {
-                if (propertyMapping.getFetchType() == FetchType.EAGER) {
+                if (propertyMapping.getFetchType() == net.sf.jpasecurity.FetchType.EAGER) {
                     Object value = propertyMapping.getPropertyValue(entity);
                     if (value instanceof Collection) {
                         Collection<?> collection = (Collection<?>)value;

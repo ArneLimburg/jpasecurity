@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package net.sf.jpasecurity.mapping;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import javax.persistence.PersistenceException;
+import net.sf.jpasecurity.ExceptionFactory;
 
 /**
  * This class is a base-class for {@link EntityListener}s.
@@ -26,10 +26,12 @@ import javax.persistence.PersistenceException;
  */
 public abstract class AbstractEntityListenerAdapter implements EntityListener {
 
-    private EntityLifecycleMethods entityLifecycleMethods;
+    private final EntityLifecycleMethods entityLifecycleMethods;
+    private final ExceptionFactory exceptionFactory;
 
-    public AbstractEntityListenerAdapter(EntityLifecycleMethods entityLifecycleMethods) {
+    public AbstractEntityListenerAdapter(EntityLifecycleMethods entityLifecycleMethods, ExceptionFactory factory) {
         this.entityLifecycleMethods = entityLifecycleMethods;
+        this.exceptionFactory = factory;
     }
 
     public void prePersist(Object entity) {
@@ -78,12 +80,12 @@ public abstract class AbstractEntityListenerAdapter implements EntityListener {
         try {
             fireEvent(method, entity);
         } catch (IllegalAccessException e) {
-            throw new PersistenceException(e);
+            throw exceptionFactory.createRuntimeException(e);
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof RuntimeException) {
                 throw (RuntimeException)e.getTargetException();
             } else {
-                throw new PersistenceException(e.getTargetException());
+                throw exceptionFactory.createRuntimeException(e.getTargetException());
             }
         }
     }
