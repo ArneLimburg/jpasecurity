@@ -34,7 +34,7 @@
   </programlisting>
   <para>
     Hibernate needs the Transaction-API from sun.
-    Download the classes of version 1.0.1B <ulink url="http://java.sun.com/products/jta">here</ulink>
+    Download the classes of version 1.0.1B <ulink url="http://www.oracle.com/technetwork/java/javaee/jta/index.html">here</ulink>
     and install it to your local Maven repository with the following command:
   </para>
   <programlisting>
