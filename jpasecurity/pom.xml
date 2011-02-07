@@ -4,7 +4,7 @@
   <groupId>net.sf.jpasecurity</groupId>
   <artifactId>jpasecurity</artifactId>
   <name>JPA Security</name>
-  <version>0.3.0-SNAPSHOT</version>
+  <version>0.3.0</version>
   <description>
     JPA Security is an Access Control Solution for the Java Persistence API (JPA).
     With JPA Security your access control takes place
@@ -124,7 +124,6 @@
             <exclude>${basedir}/target/generated-sources/javacc/net/sf/jpasecurity/jpql/parser/Node.java</exclude>
             <exclude>${basedir}/target/generated-sources/javacc/net/sf/jpasecurity/jpql/parser/SimpleNode.java</exclude>
           </excludes>
-          <compilerArgument>-ea</compilerArgument>
         </configuration>
       </plugin>
       <plugin>
