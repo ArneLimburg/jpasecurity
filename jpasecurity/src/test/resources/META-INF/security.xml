@@ -16,7 +16,7 @@
     <access-rule>GRANT ACCESS TO User user WHERE user.name = CURRENT_PRINCIPAL</access-rule>
     <access-rule>GRANT ACCESS TO User user WHERE 'ROLE_ADMIN' IN (CURRENT_ROLES)</access-rule>
   </persistence-unit>
-  
+
   <persistence-unit name="annotation-based-field-access">
     <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE bean.name = CURRENT_PRINCIPAL</access-rule>
     <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
@@ -61,13 +61,20 @@
 <!--                                  AND bean1.trademarkId IN (CURRENT_ROLES)-->
 <!--                                  AND entry.group = CURRENT_PRINCIPAL)-->
 <!--    </access-rule>-->
-    <access-rule>
-      GRANT ACCESS TO AbstractAclProtectedEntity bean
-      WHERE EXISTS (SELECT entry FROM AclEntry entry 
-                                 JOIN entry.group entryGroup
-                    WHERE entry.accessControlList = bean.accessControlList
-                    AND (entryGroup IN (CURRENT_ROLES) AND entry.privilege IN (CURRENT_ROLES)))
-    </access-rule>
+     <access-rule>
+       GRANT ACCESS TO AbstractAclProtectedEntity bean
+         WHERE (bean.trademarkId is null OR bean.trademarkId = CURRENT_PRINCIPAL)
+                AND (
+                  EXISTS ( SELECT entry FROM AclEntry entry JOIN entry.group entry_group
+                             WHERE entry.accessControlList = bean.accessControlList AND
+                    EXISTS(
+                      SELECT user from User user JOIN user.groups user_groups
+                         WHERE entry_group = user_groups
+                    )
+                  )
+                  OR bean.accessControlList is null
+                )
+     </access-rule>
   </persistence-unit>
 
 </security>
