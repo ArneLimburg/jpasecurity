@@ -1,13 +1,11 @@
 package net.sf.jpasecurity.acl;
 
 import java.util.Arrays;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import javax.persistence.Query;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.model.acl.Acl;
@@ -19,7 +17,7 @@ import net.sf.jpasecurity.model.acl.Role;
 import net.sf.jpasecurity.model.acl.User;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
-public class AclSyntaxTestOff extends TestCase {
+public class AclSyntaxTest extends TestCase {
 
     public static final Long TRADEMARK_ID = 1L;
     
@@ -92,18 +90,6 @@ public class AclSyntaxTestOff extends TestCase {
        } catch (NoResultException e) {
            //expected
        }
-       entityManager.close();
-   }
-   
-   public void testAclProtectedEntityAccessWithManyPrivileges() {
-       Object[] roles = new Object[1000];
-       roles[0] = group;
-       for (int i = 1; i < roles.length; i++) {
-           roles[i] = i % 2 == 0? privilege1: privilege2;
-       }
-       TestAuthenticationProvider.authenticate(TRADEMARK_ID, roles);
-       EntityManager entityManager = entityManagerFactory.createEntityManager();
-       AclProtectedEntity entity = (AclProtectedEntity)entityManager.createQuery("select e from AclProtectedEntity e").getSingleResult();
        entityManager.close();
    }
 }

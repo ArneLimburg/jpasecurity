@@ -77,4 +77,21 @@ public class TypeDefinition {
     public Class<?> getType() {
         return type;
     }
+
+    public String toString() {
+        StringBuilder toStringBuilder = new StringBuilder();
+        if (isInnerJoin()) {
+            toStringBuilder.append("inner join ");
+        } else if (isOuterJoin()) {
+            toStringBuilder.append("outer join ");
+        }
+        if (isFetchJoin()) {
+            toStringBuilder.append("fetch ");
+        }
+        toStringBuilder.append(type.getName());
+        if (alias != null) {
+            toStringBuilder.append(' ').append(alias);
+        }
+        return toStringBuilder.toString();
+    }
 }

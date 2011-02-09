@@ -883,7 +883,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         try {
             Set<Replacement> replacements
                 = getReplacements(subselect.getTypeDefinitions(), subselect.getStatement());
-            Map<String, Object> aliases = new HashMap<String, Object>();
+            ListMap<String, Object> aliasValues = new ListHashMap<String, Object>();
             Set<String> ignoredAliases = new HashSet<String>();
             for (Replacement replacement: replacements) {
                 if (replacement.getReplacement() == null) {
@@ -892,40 +892,68 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                 InMemoryEvaluationParameters parameters = new InMemoryEvaluationParameters(data);
                 replacement.getReplacement().visit(this, parameters);
                 Object result = parameters.getResult();
-                if (replacement.getTypeDefinition().getType().isAssignableFrom(result.getClass())) {
-                    aliases.put(replacement.getTypeDefinition().getAlias(), result);
+                Collection<Object> resultCollection;
+                if (result instanceof Collection) {
+                    resultCollection = (Collection<Object>)result;
                 } else {
+                    resultCollection = Collections.singleton(result);
+                }
+                for (Object value: resultCollection) {
+                  if (replacement.getTypeDefinition().getType().isAssignableFrom(value.getClass())) {
+                      aliasValues.add(replacement.getTypeDefinition().getAlias(), result);
+                  } else {
                     //Value is of wrong type, ignoring...
                     //We have to store the ignored aliases,
                     //because when no replacement is found for an ignored alias,
                     //it is ruled out by an inner join. We have to return an empty result then.
                     ignoredAliases.add(replacement.getTypeDefinition().getAlias());
+                  }
                 }
             }
             for (String ignoredAlias: ignoredAliases) {
-                if (!aliases.containsKey(ignoredAlias)) {
+                if (!aliasValues.containsKey(ignoredAlias)) {
                     //No replacement found for alias. The result is ruled out by inner join then...
                     data.setResult(Collections.EMPTY_SET);
                     return false;
                 }
             }
-            aliases.putAll(data.getAliasValues());
-            InMemoryEvaluationParameters<Boolean> whereClauseEvaluation
-                = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
-                                                            aliases,
-                                                            data.getNamedParameters(),
-                                                            data.getPositionalParameters(),
-                                                            data.getObjectCache());
-            if (evaluate(subselect.getWhereClause(), whereClauseEvaluation)) {
-                try {
-                    data.setResult(Collections.singleton(getPathValue(subselect.getSelectedPaths().get(0), aliases)));
-                } catch (RuntimeException e) {
-                    throw new NotEvaluatableException(e);
+            for (Iterator<Map<String, Object>> i = new ValueIterator(aliasValues); i.hasNext();) {
+                Map<String, Object> aliases = new HashMap<String, Object>(data.getAliasValues());
+                aliases.putAll(i.next());
+                InMemoryEvaluationParameters<Boolean> parameters
+                    = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
+                                                                aliases,
+                                                                data.getNamedParameters(),
+                                                                data.getPositionalParameters(),
+                                                                data.getObjectCache());
+                boolean whereClauseResult;
+                if (subselect.getWhereClause() == null) {
+                    whereClauseResult = true;
+                } else {
+                    subselect.getWhereClause().visit(this, parameters);
+                    if (parameters.isResultUndefined()) {
+                        whereClauseResult = false;
+                    } else {
+                        whereClauseResult = parameters.getResult();
+                    }
                 }
-            } else {
-                LOG.trace("subselect returns no result");
-                data.setResult(Collections.EMPTY_SET);
+                if (whereClauseResult) {
+                    if (subselect.getSelectedPaths().size() != 1) {
+                        throw new IllegalStateException("Illegal number of select-pathes: expected 1, but was " + subselect.getSelectedPaths().size());
+                    }
+                    String selectedPath = subselect.getSelectedPaths().get(0);
+                    Object result = getPathValue(selectedPath, aliases);
+                    if (result != null) {
+                        data.setResult(Collections.singleton(result));
+                        return false;
+                    } else {
+                        data.setResultUndefined();
+                    }
+                }
             }
+            data.getResult(); // maybe throws NotEvaluatableException
+            LOG.trace("subselect returns no result");
+            data.setResult(Collections.EMPTY_SET);
             return false;
         } catch (NotEvaluatableException notEvaluatableException) {
             try {
@@ -1108,6 +1136,10 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         public void setReplacement(Node replacement) {
             this.replacement = replacement;
         }
+
+        public String toString() {
+            return new StringBuilder().append(type).append(" = ").append(replacement).toString();
+        }
     }
 
     private class ReplacementVisitor extends JpqlVisitorAdapter<Set<Replacement>> {
@@ -1120,6 +1152,10 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                     replacement.setReplacement(node.jjtGetChild(0));
                 }
             }
+            return false;
+        }
+
+        public boolean visit(JpqlExists node, Set<Replacement> replacements) {
             return false;
         }
 
