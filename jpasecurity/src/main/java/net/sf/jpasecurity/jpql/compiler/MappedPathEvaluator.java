@@ -40,7 +40,9 @@ public class MappedPathEvaluator implements PathEvaluator {
         if (root == null) {
             return null;
         }
-        Collection<Object> result = evaluateAll(Collections.singleton(root), path);
+        final Collection<Object> rootCollection =
+            root instanceof Collection ? (Collection<Object>)root : Collections.singleton(root);
+        Collection<Object> result = evaluateAll(rootCollection, path);
         if (result.size() > 1) {
             throw new PersistenceException("path '" + path + "' is not single-valued");
         }
