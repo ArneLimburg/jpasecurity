@@ -40,6 +40,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlSelectExpressions;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
+import net.sf.jpasecurity.jpql.parser.JpqlWith;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.SimpleNode;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
@@ -50,6 +51,24 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
 public class QueryPreparator {
 
     private final PathReplacer pathReplacer = new PathReplacer();
+
+    /**
+     * Removes the specified <tt>With</tt>-node from its parent
+     * and appends the condition to the <tt>Where</tt>-node of the specified subselect.
+     * @param where the where-node
+     * @param with the with-node
+     */
+    public void appendToWhereClause(JpqlSubselect subselect, JpqlWith with) {
+        JpqlWhere where = new JpqlCompiledStatement(subselect).getWhereClause();
+        with.jjtGetParent().jjtRemoveChild(2);
+        Node condition = with.jjtGetChild(0);
+        if (where == null) {
+            where = createWhere(condition);
+            appendChildren(subselect, where);
+        } else {
+            append(where, condition);
+        }
+    }
 
     /**
      * Appends the specified node to the specified <tt>Where</tt>-node with <tt>and</tt>.
@@ -194,7 +213,11 @@ public class QueryPreparator {
         return appendChildren(new JpqlNotEquals(JpqlParserTreeConstants.JJTNOTEQUALS), node1, node2);
     }
 
-    private <N extends Node> N appendChildren(N parent, Node... children) {
+    /**
+     * Appends the specified children to the list of children of the specified parent.
+     * @return the parent
+     */
+    public <N extends Node> N appendChildren(N parent, Node... children) {
         for (int i = 0; i < children.length; i++) {
             parent.jjtAddChild(children[i], i);
             children[i].jjtSetParent(parent);

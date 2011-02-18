@@ -78,7 +78,7 @@
 
             <!-- **************************************************** -->
 
-              <xsd:element name="access-rule" type="xsd:string" minOccurs="0">
+              <xsd:element name="access-rule" type="xsd:string" minOccurs="0" maxOccurs="unbounded">
                 <xsd:annotation>
                   <xsd:documentation>
 
@@ -87,8 +87,9 @@
                   </xsd:documentation>
                 </xsd:annotation>
               </xsd:element>
-
+              
             </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string" />
           </xsd:complexType>
         </xsd:element>
       </xsd:sequence>

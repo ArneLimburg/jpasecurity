@@ -78,6 +78,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlNot;
 import net.sf.jpasecurity.jpql.parser.JpqlNotEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlOr;
 import net.sf.jpasecurity.jpql.parser.JpqlOrderBy;
+import net.sf.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
@@ -95,11 +96,14 @@ import net.sf.jpasecurity.jpql.parser.JpqlTrimLeading;
 import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
+import net.sf.jpasecurity.jpql.parser.JpqlWhere;
+import net.sf.jpasecurity.jpql.parser.JpqlWith;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.util.ListHashMap;
 import net.sf.jpasecurity.util.ListMap;
+import net.sf.jpasecurity.util.ValueHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -119,7 +123,10 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
     protected final JpqlCompiler compiler;
     protected final PathEvaluator pathEvaluator;
+    private final QueryPreparator queryPreparator = new QueryPreparator();
     private final ReplacementVisitor replacementVisitor = new ReplacementVisitor();
+    private final WithClauseVisitor withClauseVisitor = new WithClauseVisitor();
+    private final OuterJoinWithClauseVisitor outerJoinWithClauseVisitor = new OuterJoinWithClauseVisitor();
 
     public InMemoryEvaluator(MappingInformation mappingInformation) {
         this(new JpqlCompiler(mappingInformation), new MappedPathEvaluator(mappingInformation));
@@ -878,6 +885,13 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             return false;
         }
 
+        try {
+            handleWithClause(node);
+        } catch (NotEvaluatableException e) {
+            data.setResultUndefined();
+            return false;
+        }
+
         JpqlCompiledStatement subselect = compiler.compile(node);
 
         try {
@@ -893,7 +907,9 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                 replacement.getReplacement().visit(this, parameters);
                 Object result = parameters.getResult();
                 Collection<Object> resultCollection;
-                if (result instanceof Collection) {
+                if (result == null) {
+                    resultCollection = Collections.emptySet();
+                } else if (result instanceof Collection) {
                     resultCollection = (Collection<Object>)result;
                 } else {
                     resultCollection = Collections.singleton(result);
@@ -1116,6 +1132,65 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         }
     }
 
+    private void handleWithClause(JpqlSubselect node) throws NotEvaluatableException {
+        if (containsWithClauseWithOuterJoin(node)) {
+            throw new NotEvaluatableException("evaluation of subselect with OUTER JOIN ... WITH currenty not supported");
+        }
+
+        JpqlWith withClause;
+        while ((withClause = getWithClause(node)) != null) {
+            JpqlSubselect subselect = getSubselect(withClause);
+            JpqlWhere whereClause = new JpqlCompiledStatement(subselect).getWhereClause();
+            if (whereClause == null) {
+                queryPreparator.appendChildren(subselect, queryPreparator.createWhere(withClause.jjtGetChild(0)));
+            } else {
+                queryPreparator.appendToWhereClause(subselect, withClause);
+            }
+        }
+    }
+
+    private boolean containsWithClauseWithOuterJoin(JpqlSubselect node) {
+        ValueHolder<Boolean> result = new ValueHolder<Boolean>(false);
+        node.visit(outerJoinWithClauseVisitor, result);
+        return result.getValue();
+    }
+
+    private boolean containsWithClause(Node node) {
+        ValueHolder<JpqlWith> result = new ValueHolder<JpqlWith>();
+        node.visit(withClauseVisitor, result);
+        return result.getValue() != null;
+    }
+
+    private JpqlWith getWithClause(Node node) {
+        ValueHolder<JpqlWith> result = new ValueHolder<JpqlWith>();
+        node.visit(withClauseVisitor, result);
+        return result.getValue();
+    }
+
+    private JpqlSubselect getSubselect(Node node) {
+        while (!(node instanceof JpqlSubselect) && node != null) {
+            node = node.jjtGetParent();
+            if (node == null) {
+                throw new IllegalStateException("no parent found for node " + node);
+            }
+        }
+        return (JpqlSubselect)node;
+    }
+
+    private void validateChildCount(Node node, int childCount) {
+        if (node.jjtGetNumChildren() != childCount) {
+            throw new IllegalStateException("node " + node.getClass().getName() + " must have " + childCount + " children");
+        }
+    }
+
+    private void validateChildCount(Node node, int minChildCount, int maxChildCount) {
+        if (node.jjtGetNumChildren() < minChildCount) {
+            throw new IllegalStateException("node " + node.getClass().getName() + " must have at least " + minChildCount + " children");
+        } else if (node.jjtGetNumChildren() > maxChildCount) {
+            throw new IllegalStateException("node " + node.getClass().getName() + " must have at most " + maxChildCount + " children");
+        }
+    }
+
     private class Replacement {
 
         private TypeDefinition type;
@@ -1145,10 +1220,13 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     private class ReplacementVisitor extends JpqlVisitorAdapter<Set<Replacement>> {
 
         public boolean visit(JpqlEquals node, Set<Replacement> replacements) {
+            String child0 = node.jjtGetChild(0).toString();
+            String child1 = node.jjtGetChild(1).toString();
             for (Replacement replacement: replacements) {
-                if (node.jjtGetChild(0).toString().equals(replacement.getTypeDefinition().getAlias())) {
+                String alias = replacement.getTypeDefinition().getAlias();
+                if (child0.equals(alias) && !child1.equals(alias)) {
                     replacement.setReplacement(node.jjtGetChild(1));
-                } else if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias())) {
+                } else if (child1.equals(alias) && !child0.equals(alias)) {
                     replacement.setReplacement(node.jjtGetChild(0));
                 }
             }
@@ -1168,8 +1246,8 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         }
 
         public boolean visitJoin(Node node, Set<Replacement> replacements) {
-            if (node.jjtGetNumChildren() != 2) {
-                return false;
+            if (node.jjtGetNumChildren() == 1) {
+                throw new IllegalStateException("Subselect join without alias found: " + node);
             }
             for (Replacement replacement: replacements) {
                 if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias())) {
@@ -1220,17 +1298,29 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         }
     }
 
-    private void validateChildCount(Node node, int childCount) {
-        if (node.jjtGetNumChildren() != childCount) {
-            throw new IllegalStateException("node " + node.getClass().getName() + " must have " + childCount + " children");
+    private class WithClauseVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlWith>> {
+
+        @Override
+        public boolean visit(JpqlWith node, ValueHolder<JpqlWith> data) {
+            data.setValue(node);
+            return false;
         }
     }
 
-    private void validateChildCount(Node node, int minChildCount, int maxChildCount) {
-        if (node.jjtGetNumChildren() < minChildCount) {
-            throw new IllegalStateException("node " + node.getClass().getName() + " must have at least " + minChildCount + " children");
-        } else if (node.jjtGetNumChildren() > maxChildCount) {
-            throw new IllegalStateException("node " + node.getClass().getName() + " must have at most " + maxChildCount + " children");
+    private class OuterJoinWithClauseVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
+
+        public boolean visit(JpqlOuterJoin node, ValueHolder<Boolean> data) {
+            if (containsWithClause(node)) {
+                data.setValue(true);
+            }
+            return false;
+        }
+
+        public boolean visit(JpqlOuterFetchJoin node, ValueHolder<Boolean> data) {
+            if (containsWithClause(node)) {
+                data.setValue(true);
+            }
+            return false;
         }
     }
 }

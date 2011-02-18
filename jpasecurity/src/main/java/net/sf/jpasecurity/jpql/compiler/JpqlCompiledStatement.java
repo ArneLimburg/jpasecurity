@@ -58,6 +58,13 @@ public class JpqlCompiledStatement implements Cloneable {
         this.namedParameters = namedParameters;
     }
 
+    JpqlCompiledStatement(Node statement) {
+        this(statement,
+             Collections.<String>emptyList(),
+             Collections.<TypeDefinition>emptySet(),
+             Collections.<String>emptySet());
+    }
+
     /**
      * Returns the node representing this statement.
      */

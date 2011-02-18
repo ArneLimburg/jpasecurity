@@ -135,6 +135,13 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    public boolean visit(JpqlWith node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean visit(JpqlPath node, T data) {
         return visit(node);
     }

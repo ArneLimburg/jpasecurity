@@ -38,6 +38,7 @@ public class ToStringVisitorTest extends TestCase {
         assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN FETCH bean.name beanName WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.name name WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean INNER JOIN FETCH bean.name WHERE bean.id = :id");
+        assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.parent parent WITH parent.name = 'Parent' WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id BETWEEN 5 AND 7)");
         assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id NOT BETWEEN 5 AND 7)");
 		assertJpql("SELECT DISTINCT bean, bean.id FROM TestBean bean WHERE :id = bean.id");
