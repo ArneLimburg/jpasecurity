@@ -31,7 +31,7 @@ public class AbstractSubselectEvaluator implements SubselectEvaluator {
     }
 
     public Collection<?> evaluate(JpqlCompiledStatement subselect,
-                    QueryEvaluationParameters<Collection<?>> parameters) throws NotEvaluatableException {
+                    QueryEvaluationParameters parameters) throws NotEvaluatableException {
         parameters.setResultUndefined();
         throw new NotEvaluatableException(getClass().getSimpleName() + " cannot evaluate subselects");
     }

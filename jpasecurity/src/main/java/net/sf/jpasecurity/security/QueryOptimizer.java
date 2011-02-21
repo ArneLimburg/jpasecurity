@@ -38,7 +38,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 public class QueryOptimizer {
 
     private final QueryEvaluator evaluator;
-    private final QueryEvaluationParameters<Boolean> parameters;
+    private final QueryEvaluationParameters parameters;
     private final NodeOptimizer nodeOptimizer = new NodeOptimizer();
     private final QueryPreparator queryPreparator = new QueryPreparator();
 
@@ -49,11 +49,11 @@ public class QueryOptimizer {
                           QueryEvaluator evaluator,
                           SecureObjectCache objectCache) {
         this.evaluator = evaluator;
-        this.parameters = new QueryEvaluationParameters<Boolean>(mappingInformation,
-                                                                 aliases,
-                                                                 namedParameters,
-                                                                 positionalParameters,
-                                                                 true);
+        this.parameters = new QueryEvaluationParameters(mappingInformation,
+                                                        aliases,
+                                                        namedParameters,
+                                                        positionalParameters,
+                                                        true);
     }
 
     public void optimize(JpqlCompiledStatement compiledStatement) {
@@ -61,12 +61,12 @@ public class QueryOptimizer {
     }
 
     public void optimize(Node node) {
-        node.visit(nodeOptimizer, new QueryEvaluationParameters<Boolean>(parameters));
+        node.visit(nodeOptimizer, new QueryEvaluationParameters(parameters));
     }
 
-    private class NodeOptimizer extends JpqlVisitorAdapter<QueryEvaluationParameters<Boolean>> {
+    private class NodeOptimizer extends JpqlVisitorAdapter<QueryEvaluationParameters> {
 
-        public boolean visit(JpqlWhere where, QueryEvaluationParameters<Boolean> data) {
+        public boolean visit(JpqlWhere where, QueryEvaluationParameters data) {
             assert where.jjtGetNumChildren() == 1;
             try {
                 if (evaluator.evaluate(where.jjtGetChild(0), data)) {
@@ -81,7 +81,7 @@ public class QueryOptimizer {
             }
         }
 
-        public boolean visit(JpqlOr node, QueryEvaluationParameters<Boolean> data) {
+        public boolean visit(JpqlOr node, QueryEvaluationParameters data) {
             assert node.jjtGetNumChildren() == 2;
             try {
                 if (evaluator.evaluate(node.jjtGetChild(0), data)) {
@@ -107,7 +107,7 @@ public class QueryOptimizer {
             }
         }
 
-        public boolean visit(JpqlAnd node, QueryEvaluationParameters<Boolean> data) {
+        public boolean visit(JpqlAnd node, QueryEvaluationParameters data) {
             assert node.jjtGetNumChildren() == 2;
             try {
                 if (evaluator.evaluate(node.jjtGetChild(0), data)) {
@@ -130,7 +130,7 @@ public class QueryOptimizer {
             }
         }
 
-        public boolean visit(JpqlBrackets brackets, QueryEvaluationParameters<Boolean> data) {
+        public boolean visit(JpqlBrackets brackets, QueryEvaluationParameters data) {
             assert brackets.jjtGetNumChildren() == 1;
             while (brackets.jjtGetChild(0) instanceof JpqlBrackets) {
                 queryPreparator.replace(brackets.jjtGetChild(0), brackets.jjtGetChild(0).jjtGetChild(0));

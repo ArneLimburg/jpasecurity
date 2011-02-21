@@ -99,25 +99,19 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
 
     private final JpqlCompiler compiler;
-    private final PathEvaluator pathEvaluator;
     private final ExceptionFactory exceptionFactory;
     private final SubselectEvaluator[] subselectEvaluators;
 
     public QueryEvaluator(JpqlCompiler compiler,
-                             PathEvaluator pathEvaluator,
-                             ExceptionFactory exceptionFactory,
-                             SubselectEvaluator... subselectEvaluators) {
+                          ExceptionFactory exceptionFactory,
+                          SubselectEvaluator... subselectEvaluators) {
         if (compiler == null) {
             throw new IllegalArgumentException("compiler may not be null");
-        }
-        if (pathEvaluator == null) {
-            throw new IllegalArgumentException("pathEvaluator may not be null");
         }
         if (exceptionFactory == null) {
             throw new IllegalArgumentException("exceptionFactory may not be null");
         }
         this.compiler = compiler;
-        this.pathEvaluator = pathEvaluator;
         this.exceptionFactory = exceptionFactory;
         this.subselectEvaluators = subselectEvaluators;
         for (SubselectEvaluator subselectEvaluator: subselectEvaluators) {
@@ -134,7 +128,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         }
     }
 
-    public <R> R evaluate(Node node, QueryEvaluationParameters<R> parameters) throws NotEvaluatableException {
+    public <R> R evaluate(Node node, QueryEvaluationParameters parameters) throws NotEvaluatableException {
         node.visit(this, parameters);
         return parameters.getResult();
     }
