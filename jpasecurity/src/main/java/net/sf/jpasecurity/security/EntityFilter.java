@@ -78,7 +78,6 @@ public class EntityFilter {
 
     public EntityFilter(SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
-                        PathEvaluator pathEvaluator,
                         ExceptionFactory exceptionFactory,
                         List<AccessRule> accessRules,
                         SubselectEvaluator... evaluators) {
@@ -86,7 +85,7 @@ public class EntityFilter {
         this.parser = new JpqlParser();
         this.compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
         this.objectCache = objectCache;
-        this.queryEvaluator = new QueryEvaluator(compiler, pathEvaluator, exceptionFactory, evaluators);
+        this.queryEvaluator = new QueryEvaluator(compiler, exceptionFactory, evaluators);
         this.accessRules = accessRules;
         this.exceptionFactory = exceptionFactory;
     }
@@ -103,11 +102,11 @@ public class EntityFilter {
         if (accessDefinition == null) {
             return true;
         }
-        QueryEvaluationParameters<Boolean> evaluationParameters
-            = new QueryEvaluationParameters<Boolean>(mappingInformation,
-                                                     Collections.singletonMap(alias, entity),
-                                                     accessDefinition.getQueryParameters(),
-                                                     Collections.EMPTY_MAP);
+        QueryEvaluationParameters evaluationParameters
+            = new QueryEvaluationParameters(mappingInformation,
+                                            Collections.singletonMap(alias, entity),
+                                            accessDefinition.getQueryParameters(),
+                                            Collections.<Integer, Object>emptyMap());
         return queryEvaluator.evaluate(accessDefinition.getAccessRules(), evaluationParameters);
     }
 
@@ -133,12 +132,12 @@ public class EntityFilter {
         LOG.debug("Using access rules " + accessDefinition);
 
         try {
-            QueryEvaluationParameters<Boolean> evaluationParameters
-                = new QueryEvaluationParameters<Boolean>(mappingInformation,
-                                                         Collections.EMPTY_MAP,
-                                                         accessDefinition.getQueryParameters(),
-                                                         Collections.EMPTY_MAP,
-                                                         true);
+            QueryEvaluationParameters evaluationParameters
+                = new QueryEvaluationParameters(mappingInformation,
+                                                Collections.<String, Object>emptyMap(),
+                                                accessDefinition.getQueryParameters(),
+                                                Collections.<Integer, Object>emptyMap(),
+                                                true);
             boolean result = queryEvaluator.evaluate(accessDefinition.getAccessRules(), evaluationParameters);
             if (result) {
                 LOG.debug("Access rules are always true for current user and roles. Returning unfiltered query");

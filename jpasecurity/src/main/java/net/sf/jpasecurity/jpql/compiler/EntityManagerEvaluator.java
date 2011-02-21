@@ -69,7 +69,7 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
      * If this evaluator is already closed, the result of the evaluation is set to <quote>undefined</quote>.
      */
     public Collection<?> evaluate(JpqlCompiledStatement statement,
-                                  QueryEvaluationParameters<Collection<?>> data) throws NotEvaluatableException {
+                                  QueryEvaluationParameters data) throws NotEvaluatableException {
         if (entityManager == null || !entityManager.isOpen() || data.isInMemory()) {
             data.setResultUndefined();
             throw new NotEvaluatableException("No open EntityManager available");

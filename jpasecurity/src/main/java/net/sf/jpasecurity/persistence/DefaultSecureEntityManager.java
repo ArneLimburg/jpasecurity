@@ -98,7 +98,6 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
             = new EntityManagerEvaluator(entityManager, secureObjectManager, pathEvaluator);
         this.entityFilter = new EntityFilter(secureObjectManager,
                                              mappingInformation,
-                                             pathEvaluator,
                                              configuration.getExceptionFactory(),
                                              configuration.getAccessRulesProvider().getAccessRules(),
                                              simpleSubselectEvaluator,

@@ -20,7 +20,6 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +35,6 @@ import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.entity.SecureObjectManager;
-import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
@@ -66,20 +64,17 @@ public class EntityFilterTest extends TestCase {
         accessRules = Collections.singletonList(compiler.compile(rule));
     }
     
+    @SuppressWarnings("unchecked")
     public void testIsAccessible() throws Exception {
         EntityManager entityManager = createMock(EntityManager.class);
         SecureObjectManager secureObjectManager = createMock(SecureObjectManager.class);
         DefaultAuthenticationProvider authenticationProvider = new DefaultAuthenticationProvider();
         SecurityContext securityContext = new AuthenticationProviderSecurityContext(authenticationProvider);
         expect(secureObjectManager.getSecureObjects((Class<Object>)anyObject()))
-            .andReturn((Collection<Object>)Collections.EMPTY_SET).anyTimes();
+            .andReturn(Collections.<Object>emptySet()).anyTimes();
         replay(entityManager, secureObjectManager);
         ExceptionFactory exceptionFactory = new DefaultExceptionFactory();
-        EntityFilter filter = new EntityFilter(secureObjectManager,
-                                               mappingInformation,
-                                               new MappedPathEvaluator(mappingInformation, exceptionFactory),
-                                               exceptionFactory,
-                                               accessRules);
+        EntityFilter filter = new EntityFilter(secureObjectManager, mappingInformation, exceptionFactory, accessRules);
         User john = new User("John");
         Contact contact = new Contact(john, "123456789");
         

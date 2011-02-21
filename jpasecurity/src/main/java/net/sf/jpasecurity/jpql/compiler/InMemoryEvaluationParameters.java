@@ -22,7 +22,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 /**
  * @author Arne Limburg
  */
-public class InMemoryEvaluationParameters<T> extends QueryEvaluationParameters<T> {
+public class InMemoryEvaluationParameters extends QueryEvaluationParameters {
 
     public InMemoryEvaluationParameters(MappingInformation mappingInformation,
                                         Map<String, Object> aliases,
@@ -31,7 +31,7 @@ public class InMemoryEvaluationParameters<T> extends QueryEvaluationParameters<T
         super(mappingInformation, aliases, namedParameters, positionalParameters, true);
     }
 
-    public InMemoryEvaluationParameters(QueryEvaluationParameters<?> parameters) {
+    public InMemoryEvaluationParameters(QueryEvaluationParameters parameters) {
         this(parameters.getMappingInformation(),
              parameters.getAliasValues(),
              parameters.getNamedParameters(),

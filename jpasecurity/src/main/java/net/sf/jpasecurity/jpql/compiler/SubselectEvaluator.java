@@ -28,6 +28,6 @@ public interface SubselectEvaluator {
 
     void setQueryEvaluator(QueryEvaluator evaluator);
 
-    Collection<?> evaluate(JpqlCompiledStatement subselect, QueryEvaluationParameters<Collection<?>> parameters)
+    Collection<?> evaluate(JpqlCompiledStatement subselect, QueryEvaluationParameters parameters)
         throws NotEvaluatableException;
 }

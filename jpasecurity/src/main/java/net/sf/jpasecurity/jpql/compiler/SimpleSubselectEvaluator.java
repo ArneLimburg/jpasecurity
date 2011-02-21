@@ -51,12 +51,12 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     }
 
     public Collection<?> evaluate(JpqlCompiledStatement subselect,
-                                  QueryEvaluationParameters<Collection<?>> parameters)
+                                  QueryEvaluationParameters parameters)
                                   throws NotEvaluatableException {
         if (evaluator == null) {
             throw new IllegalStateException("evaluator may not be null");
         }
-        if (isFalse(subselect.getWhereClause(), new InMemoryEvaluationParameters<Boolean>(parameters))) {
+        if (isFalse(subselect.getWhereClause(), new InMemoryEvaluationParameters(parameters))) {
             return Collections.emptySet();
         }
         Set<Replacement> replacements = getReplacements(subselect.getTypeDefinitions(), subselect.getStatement());
@@ -65,7 +65,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         return evaluateSubselect(subselect, parameters, variants);
     }
 
-    protected Collection<?> getResult(Replacement replacement, QueryEvaluationParameters<Collection<?>> parameters)
+    protected Collection<?> getResult(Replacement replacement, QueryEvaluationParameters parameters)
             throws NotEvaluatableException {
         if (replacement.getReplacement() == null) {
             throw new NotEvaluatableException("No replacement found for alias '" + replacement.getTypeDefinition().getAlias() + "'");
@@ -82,12 +82,12 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         }
     }
 
-    private boolean isFalse(JpqlWhere whereClause, QueryEvaluationParameters<Boolean> parameters) {
+    private boolean isFalse(JpqlWhere whereClause, QueryEvaluationParameters parameters) {
         if (whereClause == null) {
             return false;
         }
         try {
-            return !evaluator.evaluate(whereClause, parameters);
+            return !evaluator.<Boolean>evaluate(whereClause, parameters);
         } catch (NotEvaluatableException e) {
             return false;
         }
@@ -134,14 +134,14 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         return null;
     }
 
-    private List<Map<String, Object>> evaluateAliases(QueryEvaluationParameters<Collection<?>> parameters,
+    private List<Map<String, Object>> evaluateAliases(QueryEvaluationParameters parameters,
                     Set<Replacement> replacements) throws NotEvaluatableException {
         List<Map<String, Object>> variants = new ArrayList<Map<String, Object>>();
         variants.add(new HashMap<String, Object>(parameters.getAliasValues()));
         for (Replacement replacement: replacements) {
             if (!replacement.getTypeDefinition().isJoin()) {
                 Collection<?> resultList
-                    = getResult(replacement, new QueryEvaluationParameters<Collection<?>>(parameters));
+                    = getResult(replacement, new QueryEvaluationParameters(parameters));
                 List<Map<String, Object>> newVariants = new ArrayList<Map<String, Object>>();
                 for (Object result: resultList) {
                     if (!isRemovedByInnerJoin(result, replacement)) {
@@ -158,17 +158,17 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         return variants;
     }
 
-    private List<Map<String, Object>> evaluateJoins(QueryEvaluationParameters<Collection<?>> parameters,
+    private List<Map<String, Object>> evaluateJoins(QueryEvaluationParameters parameters,
                     Set<Replacement> replacements, List<Map<String, Object>> variants) {
         for (Replacement replacement: replacements) {
             if (replacement.getTypeDefinition().isJoin()) {
                 for (Map<String, Object> variant: new ArrayList<Map<String, Object>>(variants)) {
                     try {
-                        QueryEvaluationParameters<Collection<?>> newParameters
-                            = new QueryEvaluationParameters<Collection<?>>(parameters.getMappingInformation(),
-                                                                           variant,
-                                                                           parameters.getNamedParameters(),
-                                                                           parameters.getPositionalParameters());
+                        QueryEvaluationParameters newParameters
+                            = new QueryEvaluationParameters(parameters.getMappingInformation(),
+                                                            variant,
+                                                            parameters.getNamedParameters(),
+                                                            parameters.getPositionalParameters());
                         Collection<?> resultList = getResult(replacement, newParameters);
                         List<Map<String, Object>> newVariants = new ArrayList<Map<String, Object>>();
                         for (Object result: resultList) {
@@ -189,13 +189,13 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     }
 
     private List<Object> evaluateSubselect(JpqlCompiledStatement subselect,
-                    QueryEvaluationParameters<Collection<?>> parameters, List<Map<String, Object>> variants) {
+                    QueryEvaluationParameters parameters, List<Map<String, Object>> variants) {
         PathEvaluator pathEvaluator = new MappedPathEvaluator(parameters.getMappingInformation(), exceptionFactory);
         List<Path> selectedPaths = getPaths(subselect.getSelectedPaths());
         List<Object> resultList = new ArrayList<Object>();
         for (Map<String, Object> variant: variants) {
-            QueryEvaluationParameters<Boolean> subselectParameters
-                = new QueryEvaluationParameters<Boolean>(parameters.getMappingInformation(),
+            QueryEvaluationParameters subselectParameters
+                = new QueryEvaluationParameters(parameters.getMappingInformation(),
                                                          variant,
                                                          parameters.getNamedParameters(),
                                                          parameters.getPositionalParameters());

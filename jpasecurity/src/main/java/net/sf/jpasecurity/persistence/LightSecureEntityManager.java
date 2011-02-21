@@ -59,7 +59,6 @@ public class LightSecureEntityManager extends DelegatingEntityManager {
         SubselectEvaluator entityManagerEvaluator = new EntityManagerEvaluator(entityManager, pathEvaluator);
         this.entityFilter = new EntityFilter(emptyObjectCache,
                                              mappingInformation,
-                                             pathEvaluator,
                                              configuration.getExceptionFactory(),
                                              configuration.getAccessRulesProvider().getAccessRules(),
                                              simpleSubselectEvaluator,

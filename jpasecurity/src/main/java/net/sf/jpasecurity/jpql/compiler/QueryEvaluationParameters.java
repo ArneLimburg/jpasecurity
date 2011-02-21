@@ -24,7 +24,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 /**
  * @author Arne Limburg
  */
-public class QueryEvaluationParameters<T> {
+public class QueryEvaluationParameters {
 
     private static final Object UNDEFINED = new Object();
 
@@ -33,7 +33,7 @@ public class QueryEvaluationParameters<T> {
     private final Map<String, Object> namedParameters;
     private final Map<Integer, Object> positionalParameters;
     private final boolean inMemory;
-    private T result = (T)UNDEFINED;
+    private Object result = UNDEFINED;
 
     public QueryEvaluationParameters(MappingInformation mappingInformation,
                                      Map<String, Object> aliases,
@@ -57,7 +57,7 @@ public class QueryEvaluationParameters<T> {
         this.inMemory = inMemory;
     }
 
-    public QueryEvaluationParameters(QueryEvaluationParameters<?> parameters) {
+    public QueryEvaluationParameters(QueryEvaluationParameters parameters) {
         this(parameters.mappingInformation,
              parameters.aliases,
              parameters.namedParameters,
@@ -114,18 +114,19 @@ public class QueryEvaluationParameters<T> {
         return result == UNDEFINED;
     }
 
-    public T getResult() throws NotEvaluatableException {
+    @SuppressWarnings("unchecked")
+    public <T> T getResult() throws NotEvaluatableException {
         if (isResultUndefined()) {
             throw new NotEvaluatableException();
         }
-        return result;
+        return (T)result;
     }
 
-    public void setResult(T result) {
+    public void setResult(Object result) {
         this.result = result;
     }
 
     public void setResultUndefined() {
-        this.result = (T)UNDEFINED;
+        this.result = UNDEFINED;
     }
 }
