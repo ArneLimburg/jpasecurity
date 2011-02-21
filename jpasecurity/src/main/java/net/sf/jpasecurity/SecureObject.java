@@ -22,6 +22,10 @@ package net.sf.jpasecurity;
  */
 public interface SecureObject {
 
+    /**
+     * Tests whether the properties of this <tt>SecureObjects<tt> are
+     * already read from the underlying original object.
+     */
     boolean isInitialized();
 
 }
