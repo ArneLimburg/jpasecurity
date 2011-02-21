@@ -105,9 +105,9 @@ public class EntityFilter {
         }
         QueryEvaluationParameters<Boolean> evaluationParameters
             = new QueryEvaluationParameters<Boolean>(mappingInformation,
-                                                        Collections.singletonMap(alias, entity),
-                                                        accessDefinition.getQueryParameters(),
-                                                        Collections.EMPTY_MAP);
+                                                     Collections.singletonMap(alias, entity),
+                                                     accessDefinition.getQueryParameters(),
+                                                     Collections.EMPTY_MAP);
         return queryEvaluator.evaluate(accessDefinition.getAccessRules(), evaluationParameters);
     }
 

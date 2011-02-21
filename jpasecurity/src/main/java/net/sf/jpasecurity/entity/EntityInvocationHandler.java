@@ -76,6 +76,9 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     public SecureEntity createSecureEntity() {
         secureEntity
             = objectManager.createSecureEntity(mapping.getClassMapping(entity.getClass()).getEntityType(), this);
+        if (!secureEntity.equals(secureEntity)) {
+            throw new IllegalStateException("Something went wrong on SecureEntity creation");
+        }
         return secureEntity;
     }
 
