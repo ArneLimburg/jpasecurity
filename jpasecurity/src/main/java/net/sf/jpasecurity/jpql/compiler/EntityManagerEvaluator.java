@@ -72,7 +72,7 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
                                   QueryEvaluationParameters<Collection<?>> data) throws NotEvaluatableException {
         if (entityManager == null || !entityManager.isOpen() || data.isInMemory()) {
             data.setResultUndefined();
-            throw new NotEvaluatableException();
+            throw new NotEvaluatableException("No open EntityManager available");
         }
         LOG.trace("Evaluating subselect with query");
         Set<String> aliases = getAliases(statement.getTypeDefinitions());

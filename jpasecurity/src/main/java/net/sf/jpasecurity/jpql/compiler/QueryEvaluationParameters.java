@@ -57,7 +57,7 @@ public class QueryEvaluationParameters<T> {
         this.inMemory = inMemory;
     }
 
-    public QueryEvaluationParameters(QueryEvaluationParameters parameters) {
+    public QueryEvaluationParameters(QueryEvaluationParameters<?> parameters) {
         this(parameters.mappingInformation,
              parameters.aliases,
              parameters.namedParameters,
@@ -83,7 +83,7 @@ public class QueryEvaluationParameters<T> {
 
     public Object getAliasValue(String alias) throws NotEvaluatableException {
         if (!aliases.containsKey(alias)) {
-            throw new NotEvaluatableException();
+            throw new NotEvaluatableException("alias '" + alias + "' not defined");
         }
         return aliases.get(alias);
     }

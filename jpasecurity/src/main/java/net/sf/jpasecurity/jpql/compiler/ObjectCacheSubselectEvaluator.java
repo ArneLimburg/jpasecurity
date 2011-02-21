@@ -43,7 +43,7 @@ public class ObjectCacheSubselectEvaluator extends SimpleSubselectEvaluator {
             throws NotEvaluatableException {
         if (!(subselect.getStatement().jjtGetParent() instanceof JpqlExists)) {
             parameters.setResultUndefined();
-            throw new NotEvaluatableException();
+            throw new NotEvaluatableException("ObjectCacheSubselectEvaluator only can evaluate subselects of an EXISTS");
         }
         Collection<?> result = super.evaluate(subselect, parameters);
         if (result.size() > 0) {

@@ -28,6 +28,7 @@ import java.util.Set;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlEquals;
+import net.sf.jpasecurity.jpql.parser.JpqlExists;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
@@ -55,84 +56,13 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         if (evaluator == null) {
             throw new IllegalStateException("evaluator may not be null");
         }
-        if (isFalse(subselect.getWhereClause(), parameters)) {
+        if (isFalse(subselect.getWhereClause(), new InMemoryEvaluationParameters<Boolean>(parameters))) {
             return Collections.emptySet();
         }
-        Set<Replacement> replacements
-            = getReplacements(subselect.getTypeDefinitions(), subselect.getStatement());
-
-        List<Map<String, Object>> variants = new ArrayList<Map<String, Object>>();
-        variants.add(new HashMap<String, Object>(parameters.getAliasValues()));
-        for (Replacement replacement: replacements) {
-            if (!replacement.getTypeDefinition().isJoin()) {
-                Collection<?> resultList
-                    = getResult(replacement, new QueryEvaluationParameters<Collection<?>>(parameters));
-                List<Map<String, Object>> newVariants = new ArrayList<Map<String, Object>>();
-                for (Object result: resultList) {
-                    //test whether this result is removed by inner join
-                    if (replacement.getTypeDefinition().getType().isInstance(result)) {
-                        for (Map<String, Object> variant: variants) {
-                            Map<String, Object> newVariant = new HashMap<String, Object>(variant);
-                            newVariant.put(replacement.getTypeDefinition().getAlias(), result);
-                            newVariants.add(newVariant);
-                        }
-                    }
-                }
-                variants = newVariants;
-            }
-        }
-        //evaluate joins
-        for (Replacement replacement: replacements) {
-            if (replacement.getTypeDefinition().isJoin()) {
-                for (Map<String, Object> variant: new ArrayList<Map<String, Object>>(variants)) {
-                    QueryEvaluationParameters<Collection<?>> newParameters
-                        = new QueryEvaluationParameters<Collection<?>>(parameters.getMappingInformation(),
-                                                                          variant,
-                                                                          parameters.getNamedParameters(),
-                                                                          parameters.getPositionalParameters());
-                    Collection<?> resultList = getResult(replacement, newParameters);
-                    List<Map<String, Object>> newVariants = new ArrayList<Map<String, Object>>();
-                    for (Object result: resultList) {
-                        //test whether this result is removed by inner join
-                        if (!replacement.getTypeDefinition().getType().isInstance(result)) {
-                            Map<String, Object> newVariant = new HashMap<String, Object>(variant);
-                            newVariant.put(replacement.getTypeDefinition().getAlias(), result);
-                            newVariants.add(newVariant);
-                        }
-                    }
-                    variants = newVariants;
-                }
-            }
-        }
-        //now evaluate the subselect
-        PathEvaluator pathEvaluator = new MappedPathEvaluator(parameters.getMappingInformation(), exceptionFactory);
-        List<Path> selectedPaths = getPaths(subselect.getSelectedPaths());
-        List<Object> resultList = new ArrayList<Object>();
-        for (Map<String, Object> variant: variants) {
-            QueryEvaluationParameters<Boolean> subselectParameters
-                = new QueryEvaluationParameters<Boolean>(parameters.getMappingInformation(),
-                                                            variant,
-                                                            parameters.getNamedParameters(),
-                                                            parameters.getPositionalParameters());
-            if (evaluator.evaluate(subselect.getWhereClause(), subselectParameters)) {
-                Object[] result = new Object[selectedPaths.size()];
-                for (int i = 0; i < result.length; i++) {
-                    Path selectedPath = selectedPaths.get(0);
-                    Object root = subselectParameters.getAliasValue(selectedPath.getRootAlias());
-                    if (selectedPath.hasSubpath()) {
-                        result[i] = pathEvaluator.evaluate(root, selectedPath.getSubpath());
-                    } else {
-                        result[i] = root;
-                    }
-                }
-                if (result.length == 1) {
-                    resultList.add(result[0]);
-                } else {
-                    resultList.add(result);
-                }
-            }
-        }
-        return resultList;
+        Set<Replacement> replacements = getReplacements(subselect.getTypeDefinitions(), subselect.getStatement());
+        List<Map<String, Object>> variants = evaluateAliases(parameters, replacements);
+        variants = evaluateJoins(parameters, replacements, variants);
+        return evaluateSubselect(subselect, parameters, variants);
     }
 
     protected Collection<?> getResult(Replacement replacement, QueryEvaluationParameters<Collection<?>> parameters)
@@ -152,12 +82,12 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         }
     }
 
-    private boolean isFalse(JpqlWhere whereClause, QueryEvaluationParameters<?> parameters) {
+    private boolean isFalse(JpqlWhere whereClause, QueryEvaluationParameters<Boolean> parameters) {
         if (whereClause == null) {
             return false;
         }
         try {
-            return !evaluator.evaluate(whereClause, (QueryEvaluationParameters<Boolean>)parameters);
+            return !evaluator.evaluate(whereClause, parameters);
         } catch (NotEvaluatableException e) {
             return false;
         }
@@ -204,6 +134,96 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         return null;
     }
 
+    private List<Map<String, Object>> evaluateAliases(QueryEvaluationParameters<Collection<?>> parameters,
+                    Set<Replacement> replacements) throws NotEvaluatableException {
+        List<Map<String, Object>> variants = new ArrayList<Map<String, Object>>();
+        variants.add(new HashMap<String, Object>(parameters.getAliasValues()));
+        for (Replacement replacement: replacements) {
+            if (!replacement.getTypeDefinition().isJoin()) {
+                Collection<?> resultList
+                    = getResult(replacement, new QueryEvaluationParameters<Collection<?>>(parameters));
+                List<Map<String, Object>> newVariants = new ArrayList<Map<String, Object>>();
+                for (Object result: resultList) {
+                    if (!isRemovedByInnerJoin(result, replacement)) {
+                        for (Map<String, Object> variant: variants) {
+                            Map<String, Object> newVariant = new HashMap<String, Object>(variant);
+                            newVariant.put(replacement.getTypeDefinition().getAlias(), result);
+                            newVariants.add(newVariant);
+                        }
+                    }
+                }
+                variants = newVariants;
+            }
+        }
+        return variants;
+    }
+
+    private List<Map<String, Object>> evaluateJoins(QueryEvaluationParameters<Collection<?>> parameters,
+                    Set<Replacement> replacements, List<Map<String, Object>> variants) {
+        for (Replacement replacement: replacements) {
+            if (replacement.getTypeDefinition().isJoin()) {
+                for (Map<String, Object> variant: new ArrayList<Map<String, Object>>(variants)) {
+                    try {
+                        QueryEvaluationParameters<Collection<?>> newParameters
+                            = new QueryEvaluationParameters<Collection<?>>(parameters.getMappingInformation(),
+                                                                           variant,
+                                                                           parameters.getNamedParameters(),
+                                                                           parameters.getPositionalParameters());
+                        Collection<?> resultList = getResult(replacement, newParameters);
+                        List<Map<String, Object>> newVariants = new ArrayList<Map<String, Object>>();
+                        for (Object result: resultList) {
+                            if (!isRemovedByInnerJoin(result, replacement)) {
+                                Map<String, Object> newVariant = new HashMap<String, Object>(variant);
+                                newVariant.put(replacement.getTypeDefinition().getAlias(), result);
+                                newVariants.add(newVariant);
+                            }
+                        }
+                        variants = newVariants;
+                    } catch (NotEvaluatableException e) {
+                        // This variant cannot be evaluated, try the next...
+                    }
+                }
+            }
+        }
+        return variants;
+    }
+
+    private List<Object> evaluateSubselect(JpqlCompiledStatement subselect,
+                    QueryEvaluationParameters<Collection<?>> parameters, List<Map<String, Object>> variants) {
+        PathEvaluator pathEvaluator = new MappedPathEvaluator(parameters.getMappingInformation(), exceptionFactory);
+        List<Path> selectedPaths = getPaths(subselect.getSelectedPaths());
+        List<Object> resultList = new ArrayList<Object>();
+        for (Map<String, Object> variant: variants) {
+            QueryEvaluationParameters<Boolean> subselectParameters
+                = new QueryEvaluationParameters<Boolean>(parameters.getMappingInformation(),
+                                                         variant,
+                                                         parameters.getNamedParameters(),
+                                                         parameters.getPositionalParameters());
+            try {
+                if (evaluator.evaluate(subselect.getWhereClause(), subselectParameters)) {
+                    Object[] result = new Object[selectedPaths.size()];
+                    for (int i = 0; i < result.length; i++) {
+                        Path selectedPath = selectedPaths.get(0);
+                        Object root = subselectParameters.getAliasValue(selectedPath.getRootAlias());
+                        if (selectedPath.hasSubpath()) {
+                            result[i] = pathEvaluator.evaluate(root, selectedPath.getSubpath());
+                        } else {
+                            result[i] = root;
+                        }
+                    }
+                    if (result.length == 1) {
+                        resultList.add(result[0]);
+                    } else {
+                        resultList.add(result);
+                    }
+                }
+            } catch (NotEvaluatableException e) {
+                // continue with next variant
+            }
+        }
+        return resultList;
+    }
+
     private List<Path> getPaths(Collection<String> paths) {
         List<Path> result = new ArrayList<Path>();
         for (String path: paths) {
@@ -218,6 +238,10 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
                 i.remove();
             }
         }
+    }
+
+    private boolean isRemovedByInnerJoin(Object result, Replacement replacement) {
+        return !replacement.getTypeDefinition().getType().isInstance(result);
     }
 
     protected class Replacement {
@@ -240,18 +264,28 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         public void setReplacement(Node replacement) {
             this.replacement = replacement;
         }
+
+        public String toString() {
+            return new StringBuilder().append(type).append(" = ").append(replacement).toString();
+        }
     }
 
     private class ReplacementVisitor extends JpqlVisitorAdapter<Set<Replacement>> {
 
         public boolean visit(JpqlEquals node, Set<Replacement> replacements) {
             for (Replacement replacement: replacements) {
-                if (node.jjtGetChild(0).toString().equals(replacement.getTypeDefinition().getAlias())) {
-                    replacement.setReplacement(node.jjtGetChild(1));
-                } else if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias())) {
-                    replacement.setReplacement(node.jjtGetChild(0));
+                if (!replacement.getTypeDefinition().isJoin()) {
+                    if (node.jjtGetChild(0).toString().equals(replacement.getTypeDefinition().getAlias())) {
+                        replacement.setReplacement(node.jjtGetChild(1));
+                    } else if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias())) {
+                        replacement.setReplacement(node.jjtGetChild(0));
+                    }
                 }
             }
+            return false;
+        }
+
+        public boolean visit(JpqlExists node, Set<Replacement> replacements) {
             return false;
         }
 

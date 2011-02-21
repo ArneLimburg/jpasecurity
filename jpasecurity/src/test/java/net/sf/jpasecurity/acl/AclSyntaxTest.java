@@ -1,5 +1,7 @@
 package net.sf.jpasecurity.acl;
 
+import java.util.Arrays;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
@@ -11,6 +13,8 @@ import net.sf.jpasecurity.model.acl.AclEntry;
 import net.sf.jpasecurity.model.acl.AclProtectedEntity;
 import net.sf.jpasecurity.model.acl.Group;
 import net.sf.jpasecurity.model.acl.Privilege;
+import net.sf.jpasecurity.model.acl.Role;
+import net.sf.jpasecurity.model.acl.User;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 public class AclSyntaxTest extends TestCase {
@@ -21,7 +25,8 @@ public class AclSyntaxTest extends TestCase {
     private Group group;
     private Privilege privilege1;
     private Privilege privilege2;
-    
+    private User user;
+
     public void setUp() {
        entityManagerFactory = Persistence.createEntityManagerFactory("acl-model");
        EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -35,7 +40,17 @@ public class AclSyntaxTest extends TestCase {
        group = new Group();
        group.setName("USERS");
        entityManager.persist(group);
-       TestAuthenticationProvider.authenticate(TRADEMARK_ID, group, privilege1, privilege2);
+       Role role = new Role();
+       role.setName("Test Role");
+       role.setPrivileges(Arrays.asList(privilege1, privilege2));
+       entityManager.persist(role);
+       user = new User();
+       user.setGroups(Arrays.asList(group));
+       user.setRoles(Arrays.asList(role));
+       entityManager.persist(user);
+       entityManager.getTransaction().commit();
+       entityManager.getTransaction().begin();
+       TestAuthenticationProvider.authenticate(TRADEMARK_ID, user.getId());
 
        Acl acl = new Acl();
        acl.setTrademarkId(TRADEMARK_ID);
@@ -62,6 +77,9 @@ public class AclSyntaxTest extends TestCase {
    
    public void testAclProtectedEntityAccess() {
        EntityManager entityManager = entityManagerFactory.createEntityManager();
+       //load users
+       entityManager.createQuery("select u from User u").getResultList();
+       //check access
        AclProtectedEntity entity = (AclProtectedEntity)entityManager.createQuery("select e from AclProtectedEntity e").getSingleResult();
        entityManager.close();
    }
@@ -75,18 +93,6 @@ public class AclSyntaxTest extends TestCase {
        } catch (NoResultException e) {
            //expected
        }
-       entityManager.close();
-   }
-   
-   public void ignoreTestAclProtectedEntityAccessWithManyPrivileges() {
-       Object[] roles = new Object[1000];
-       roles[0] = group;
-       for (int i = 1; i < roles.length; i++) {
-           roles[i] = i % 2 == 0? privilege1: privilege2;
-       }
-       TestAuthenticationProvider.authenticate(TRADEMARK_ID, roles);
-       EntityManager entityManager = entityManagerFactory.createEntityManager();
-       AclProtectedEntity entity = (AclProtectedEntity)entityManager.createQuery("select e from AclProtectedEntity e").getSingleResult();
        entityManager.close();
    }
 }
