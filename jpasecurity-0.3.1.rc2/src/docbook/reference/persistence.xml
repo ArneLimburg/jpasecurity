@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
+<article id="persistence.xml">
+  <title>Modifying your persistence.xml</title>
+  <para>
+    In order to use JPA Security you have to modify your <quote>persistence.xml</quote>
+    to point to JPA Security. Additionally you have to configure JPA Security to use your
+    original persistence provider.
+  </para>
+<!--  <itemizedlist>-->
+<!--    <listitem>-->
+<!--      <para>-->
+<!--        <systemitem>net.sf.jpasecurity.persistence.provider</systemitem>-->
+<!--        - The value of this property may be your original persistence provider-->
+<!--      </para>-->
+<!--    </listitem>-->
+<!--    <listitem>-->
+<!--      <para>-->
+<!--        <systemitem>net.sf.jpasecurity.security.authentication.provider</systemitem>-->
+<!--        - The value of this property may be an implementation of-->
+<!--        <systemitem>net.sf.jpasecurity.security.authentication.AuthenticationProvider</systemitem>-->
+<!--      </para>-->
+<!--    </listitem>-->
+<!--    <listitem>-->
+<!--      <para>-->
+<!--        <systemitem>net.sf.jpasecurity.security.rules.provider</systemitem>-->
+<!--        - The value of this property may be an implementation of-->
+<!--      <systemitem>net.sf.jpasecurity.security.rules.AccessRulesProvider</systemitem>-->
+<!--      </para>-->
+<!--    </listitem>-->
+<!--  </itemizedlist>-->
+  <example>
+    <title>persistence.xml Example</title>
+    <para>
+      Supposed you have an existing JPA application. Your <filename>persistence.xml</filename>
+      may look similar to this:
+    </para> 
+    <programlisting>
+      <![CDATA[
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+                                 http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+             version="1.0">
+          
+  <persistence-unit name="your-persistence-unit-name" transaction-type="...">
+
+    <provider>your.persistence.provider.ClassName</provider>
+
+    <class>your.persistent.ClassName</class>
+    <!-- More class-mappings go here -->
+    ...
+                
+    <properties>
+      <!-- persistence-provider-specific properties go here -->
+      ...
+    </properties>
+
+  </persistence-unit>
+</persistence>
+      ]]>          
+    </programlisting>
+    <para>
+      After integrating JPA Security your <quote>persistence.xml</quote>
+      may look like this:
+    </para>
+    <programlisting>
+      <![CDATA[
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+                                 http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+             version="1.0">
+          
+  <persistence-unit name="your-persistence-unit-name" transaction-type="...">
+
+    <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+    <class>your.persistent.ClassName</class>
+    <!-- More class-mappings go here -->
+    ...
+                
+    <properties>
+      <property name="net.sf.jpasecurity.persistence.provider"
+                value="your.persistence.provider.ClassName" />
+      <!-- persistence-provider-specific properties go here -->
+      ...
+    </properties>
+
+  </persistence-unit>
+</persistence>
+      ]]>          
+    </programlisting>
+    <para>
+      We changed the &lt;provider&gt; tag to point to JPA Security's
+      implementation of the <systemitem>PersistenceProvider</systemitem> interface
+      and added the property <systemitem>net.sf.jpasecurity.persistence.provider</systemitem>
+      to point to your original persistence provider. That is all you need to integrate JPA Security.
+    </para>
+  </example>
+</article>

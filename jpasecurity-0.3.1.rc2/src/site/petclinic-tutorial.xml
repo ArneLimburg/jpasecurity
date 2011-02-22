@@ -1,0 +1,42 @@
+<book>
+  <id>petclinic-tutorial</id>
+  <title>JPA Petclinic Tutorial</title>
+  <chapters>
+    <chapter>
+      <id>prerequisites</id>
+      <title>Prerequisites</title>
+      <sections>
+        <section>
+          <id>introduction</id>
+          <title>Introduction</title>
+        </section>
+        <section>
+          <id>setup</id>
+          <title>Setup</title>
+        </section>
+        <section>
+          <id>configuration</id>
+          <title>Configuration</title>
+        </section>
+      </sections>
+    </chapter>
+    <chapter>
+      <id>tutorial</id>
+      <title>Tutorial</title>
+      <sections>
+        <section>
+          <id>model</id>
+          <title>Domain Model</title>
+        </section>
+        <section>
+          <id>authentication</id>
+          <title>Authentication</title>
+        </section>
+        <section>
+          <id>authorization</id>
+          <title>Authorization</title>
+        </section>
+      </sections>
+    </chapter>
+  </chapters>
+</book>

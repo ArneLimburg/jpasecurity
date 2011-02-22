@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
+<article>
+  <title>Configuration of JPA Security</title>
+  <para>
+    JPA Security is configured via the persistence properties in your <filename>persistence.xml</filename>.
+    Below is a list of persistence properties that are supported out of the box by JPA Security.
+  </para>
+  <itemizedlist>
+    <listitem>
+      <para>
+        <systemitem>net.sf.jpasecurity.persistence.provider</systemitem> - This is the only property
+        that is required by JPA Security. It specifies the class name of the original persistence provider
+        that shall be used by JPA Security to do the actual database access. 
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        <systemitem>net.sf.jpasecurity.security.authentication.provider</systemitem> - This property specifies
+        the class name of the implementation of an authentication provider.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        <systemitem>net.sf.jpasecurity.security.rules.provider</systemitem> - This property specifies
+        the class name of the implementation of an access rules provider.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        <systemitem>net.sf.jpasecurity.maxFetchDepth</systemitem> - This property specifies up to which depth
+        the object graph of secure entities shall be prefetched (that means, up to which depth secure entities
+        are initialized as they come out of the entity manager). Secure entities that are not prefetched will
+        be initialized on the fly (that means as they are retrieved by a property access of another secure entity).
+        The default-value is <computeroutput>0</computeroutput>. 
+      </para>
+    </listitem>
+  </itemizedlist>
+</article>

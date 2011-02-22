@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
+<article id="model">
+  <title>Object Model</title>
+  <para>
+    We want to write a simple applications where users can store contacts.
+    In this section we create the data model of our application.
+    For this we need two classes annotated with JPA Annotations:
+    User and Contact. In the src/main/java/net/sf/jpasecurity folder
+    we create the subfolders contacts/model. Within the created folder
+    we create two files named User.java and Contact.java:
+  </para>
+  <programlisting>
+    <![CDATA[
+package net.sf.jpasecurity.contacts.model;
+
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
+public class User {
+
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+    @Basic
+    private String name;
+    
+    public User() {
+    }
+    
+    public User(String name) {
+        setName(name);
+    }
+    
+    public int getId() {
+        return id;
+    }
+    
+    protected void setId(int id) {
+        this.id = id;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public boolean equals(Object object) {
+        if (!(object instanceof User)) {
+            return false;
+        }
+        User user = (User)object;
+        return getName().equals(user.getName());
+    }
+    
+    public int hashCode() {
+        return getName().hashCode();
+    }
+}
+    ]]>
+  </programlisting>
+  <programlisting>
+    <![CDATA[
+package net.sf.jpasecurity.contacts.model;
+
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
+@Entity
+public class Contact {
+
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+    @ManyToOne
+    private User owner;
+    @Basic
+    private String text;
+    
+    public Contact() {
+    }
+    
+    public Contact(User owner, String text) {
+        setOwner(owner);
+        setText(text);
+    }
+    
+    public int getId() {
+        return id;
+    }
+    
+    protected void setId(int id) {
+        this.id = id;
+    }
+    
+    public User getOwner() {
+        return owner;
+    }
+    
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public String getText() {
+        return text;
+    }
+    
+    public void setText(String text) {
+        this.text = text;
+    }
+    
+    public boolean equals(Object object) {
+        if (!(object instanceof Contact)) {
+            return false;
+        }
+        Contact contact = (Contact)object;
+        return getOwner().equals(contact.getOwner()) && getText().equals(contact.getText());
+    }
+    
+    public int hashCode() {
+        return getOwner().hashCode() ^ getText().hashCode();
+    }
+}
+    ]]>
+  </programlisting>
+  <para>
+    The code for these entities is also available in the jpasecurity-0.3.1-SNAPSHOT-tests.jar.
+    If you have built this jar from the source-distribution you may provide it
+    within your pom.xml via the following snippet
+    and you don't have to write the classes yourself.
+  </para>
+  <programlisting>
+    <![CDATA[
+    <dependency>
+      <groupId>net.sf.jpasecurity</groupId>
+      <artifactId>jpasecurity</artifactId>
+      <version>0.3.1-SNAPSHOT</version>
+      <classifier>tests</classifier>
+    </dependency>
+    ]]>
+  </programlisting>
+</article>

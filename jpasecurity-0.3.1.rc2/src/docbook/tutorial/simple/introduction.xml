@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
+<article id="introduction">
+  <title>Introduction</title>
+  <para>
+    This Tutorial describes the development of a simple contacts application.
+    It does not represent any best practices on how to write such application.
+    It is just a simple sample to provide an entry point to JPA Security.
+    The code can be found in the module jpasecurity-simple-sample.
+    This tutorial assumes basic knowledge of the Java Persistence API.
+    <ulink url="http://maven.apache.org" type="text/html">Maven 2</ulink>
+    is used to build this sample so you should have installed Maven 2
+    before you start.
+  </para>
+</article>

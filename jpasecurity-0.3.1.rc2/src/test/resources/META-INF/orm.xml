@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/orm_1_0.xsd"
+                 version="1.0">
+  <persistence-unit-metadata>
+    <persistence-unit-defaults>
+      <entity-listeners>
+        <entity-listener class="net.sf.jpasecurity.model.DefaultEntityListener" />
+      </entity-listeners>
+    </persistence-unit-defaults>
+  </persistence-unit-metadata>
+  <package>net.sf.jpasecurity.model</package>
+  <entity class="MethodAccessXmlTestBean" access="PROPERTY">
+    <attributes>
+      <id name="id"/>
+      <basic name="name"/>
+      <many-to-one name="parent" fetch="LAZY"/>
+      <one-to-many name="children" fetch="EAGER">
+        <cascade>
+          <cascade-persist/>
+          <cascade-merge/>
+          <cascade-remove/>
+          <cascade-refresh/>
+        </cascade>
+      </one-to-many>
+    </attributes>
+  </entity>
+  <entity class="net.sf.jpasecurity.model.FieldAccessXmlTestBean" access="FIELD">
+    <entity-listeners>
+      <entity-listener class="net.sf.jpasecurity.model.TestEntityListener">
+        <post-persist method-name="publicTestMethod"/>
+        <post-remove method-name="protectedTestMethod"/>
+        <post-update method-name="packageProtectedTestMethod"/>
+        <post-load method-name="privateTestMethod"/>
+      </entity-listener>
+    </entity-listeners>
+    <attributes>
+      <id name="id"/>
+      <basic name="name"/>
+      <many-to-one name="parent" fetch="LAZY"/>
+      <one-to-many name="children" fetch="EAGER">
+        <cascade>
+          <cascade-all/>
+        </cascade>
+      </one-to-many>
+    </attributes>
+  </entity>
+
+</entity-mappings>

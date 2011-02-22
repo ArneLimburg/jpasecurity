@@ -1,0 +1,46 @@
+<book>
+  <id>simple-tutorial</id>
+  <title>JPA Security Simple Tutorial</title>
+  <chapters>
+    <chapter>
+      <id>prerequisites</id>
+      <title>Prerequisites</title>
+      <sections>
+        <section>
+          <id>introduction</id>
+          <title>Introduction</title>
+        </section>
+        <section>
+          <id>setup</id>
+          <title>Basic Setup</title>
+        </section>
+        <section>
+          <id>dependencies</id>
+          <title>Dependencies</title>
+        </section>
+      </sections>
+    </chapter>
+    <chapter>
+      <id>tutorial</id>
+      <title>Tutorial</title>
+      <sections>
+        <section>
+          <id>model</id>
+          <title>Object Model</title>
+        </section>
+        <section>
+          <id>persistence</id>
+          <title>Persistence Unit</title>
+        </section>
+        <section>
+          <id>test-data</id>
+          <title>Test Data</title>
+        </section>
+        <section>
+          <id>security</id>
+          <title>Adding Security</title>
+        </section>
+      </sections>
+    </chapter>
+  </chapters>
+</book>

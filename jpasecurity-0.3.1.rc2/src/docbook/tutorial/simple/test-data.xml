@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
+<article id="test-data">
+  <title>Test Data</title>
+  <para>
+    Now we can create some users and contacts. For this we change the App.java file we created during setup.
+    First we must import the following classes:
+  </para>
+  <programlisting>
+import java.security.PrivilegedAction;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+import net.sf.jpasecurity.contacts.model.Contact;
+import net.sf.jpasecurity.contacts.model.User;
+import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
+  </programlisting>
+  <para>
+    To create the users and contacts we must create an EntityManagerFactory, an EntityManager,
+    start a Transaction and persist the users. As recommended by the JPA Specification,
+    we use one EntityManagerFactory per application. So we create it directly within the main:
+  </para>
+  <programlisting>
+  public static void main(String[] args) {
+    EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("contacts");
+  }
+  </programlisting>
+  <para>
+    We use a separate method to create the users:
+  </para>
+  <programlisting>
+  public static void createUsers(EntityManagerFactory entityManagerFactory) {
+    EntityManager entityManager;
+
+    entityManager = entityManagerFactory.createEntityManager();
+    entityManager.getTransaction().begin();
+    entityManager.persist(new User("John"));
+    entityManager.persist(new User("Mary"));
+    entityManager.getTransaction().commit();
+    entityManager.close();
+  }
+  </programlisting>
+  <para>
+    Ok, let's retrieve the users from the database to see whether they were really persisted:
+  </para>
+  <programlisting>
+  public static void displayUserCount(EntityManagerFactory entityManagerFactory) {
+    EntityManager entityManager;
+    
+    entityManager = entityManagerFactory.createEntityManager();
+    entityManager.getTransaction().begin();
+    List&lt;User&gt; users = entityManager.createQuery("SELECT user FROM User user").getResultList();
+    System.out.println("users.size = " + users.size());
+    entityManager.getTransaction().commit();
+    entityManager.close();
+  }
+  </programlisting>
+  <para>
+    Let's change the main to call our methods and see the output:
+  </para>
+  <programlisting>
+  public static void main(String[] args) {
+    EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("contacts");
+    createUsers(entityManagerFactory);
+    displayUserCount(entityManagerFactory);
+  }
+  </programlisting>
+  <para>
+    Again on the command-line issue the following command from within the root-directory of our application:
+  </para>
+  <programlisting>
+mvn package
+  </programlisting>
+  <para>
+    Now again change into the <filename>target</filename> folder and execute our application to see the output:
+  </para>
+  <programlisting>
+java -jar jpasecurity-simple-sample-0.3.1-SNAPSHOT.jar
+  </programlisting>
+  <para>
+    As we can see from the output, there are really two users in the database.
+    Now we can create contacts for these users:
+  </para>
+  <programlisting>
+  public static void createContacts(EntityManagerFactory entityManagerFactory) {
+    EntityManager entityManager;
+
+    entityManager = entityManagerFactory.createEntityManager();
+    entityManager.getTransaction().begin();
+    User john = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'John'").getSingleResult();
+    User mary = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'Mary'").getSingleResult();
+    entityManager.persist(new Contact(john, "peter@jpasecurity.sf.net"));
+    entityManager.persist(new Contact(john, "0 12 34 - 56 789"));
+    entityManager.persist(new Contact(mary, "paul@jpasecurity.sf.net"));
+    entityManager.persist(new Contact(mary, "12 34 56 78 90"));
+    entityManager.getTransaction().commit();
+    entityManager.close();
+  }
+  </programlisting>
+  <para>
+    Let's see if all four contacts are there:
+  </para>
+  <programlisting>
+  public static void displayContactCount(EntityManagerFactory entityManagerFactory) {
+    EntityManager entityManager;
+
+    entityManager = entityManagerFactory.createEntityManager();
+    entityManager.getTransaction().begin();
+    List&lt;Contact&gt; contacts = entityManager.createQuery("SELECT contact FROM Contact contact").getResultList();
+    System.out.println("contacts.size = " + contacts.size());
+    entityManager.getTransaction().commit();
+    entityManager.close();
+  }
+  </programlisting>
+  <para>
+    Again we add the method to our main and see the output:
+  </para>
+  <programlisting>
+  public static void main(String[] args) {
+    EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("contacts");
+    createUsers(entityManagerFactory);
+    displayUserCount(entityManagerFactory);
+    createContacts(entityManagerFactory);
+    displayContactCount(entityManagerFactory);
+  }
+  </programlisting>
+  <para>
+    As we can see from the output: All contacts are persisted. Now it's time for some security.
+  </para>
+</article>

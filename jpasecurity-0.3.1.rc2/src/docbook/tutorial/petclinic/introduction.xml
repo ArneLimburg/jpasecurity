@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
+<article id="introduction">
+  <title>Introduction</title>
+  <para>
+    In this Tutorial we will develop an application for a petclinic.
+    In this application pet-owners shall be able to manage their pets
+    and their pet's visits at veterinarians (vets).
+  </para>
+  <para>
+    Vets shall be able to administrate their patients (which are the pets)
+    and the visits of the pets.
+  </para>
+  <para>
+    And these are the concrete requirements:
+  </para>
+  <orderedlist numeration="arabic">
+    <listitem>
+      <para>Owners of pets must be able to register themself</para>
+    </listitem>
+    <listitem>
+      <para>Owners of pets must be able to add and edit their pets</para>
+    </listitem>
+    <listitem>
+      <para>Owners of pets must be able to make appointments for visits (In order to do this, they have to know the vets and their specialties)</para>
+    </listitem>
+    <listitem>
+      <para>Vets must be able to maintain their visits, add comments and filter by owner or pet.</para>
+    </listitem>
+  </orderedlist>
+</article>
