@@ -57,11 +57,10 @@
     <title>Secure collections</title>
     <para>
       Collection relationships (i.e. one-to-many- and many-to-many-relations) are handled via <systemitem>SecureCollections</systemitem>.
-      Secure collections are filtered in memory and the the backing collection will contain every entity of the
-      original relationship, but when you access any method of a secure collection it will behave, as if it contained
-      only that entities that you are allowed to read. Write access is allowed only if write-access is allowed to the
-      owning entity. Every modification to a secure collection will be queued and the real action takes place on commit
-      for performance reasons. 
+      Secure collections are filtered in memory and the backing collection will contain every entity of the
+      original relationship. The main difference is that when you access any method of a secure collection it will behave, as if it only contained
+      those entities you are allowed to read. In addition write-access will only be possible if write-access is allowed to the
+      owning entity. Furthermore, for performance reasons every modification to a secure collection is queued and will not be executed until a commit operation.
     </para>  
   </section>
   <section>
