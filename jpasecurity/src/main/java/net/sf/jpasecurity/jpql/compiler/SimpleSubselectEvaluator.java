@@ -200,7 +200,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
                                                          parameters.getNamedParameters(),
                                                          parameters.getPositionalParameters());
             try {
-                if (evaluator.evaluate(subselect.getWhereClause(), subselectParameters)) {
+                if (evaluator.<Boolean>evaluate(subselect.getWhereClause(), subselectParameters)) {
                     Object[] result = new Object[selectedPaths.size()];
                     for (int i = 0; i < result.length; i++) {
                         Path selectedPath = selectedPaths.get(0);
@@ -298,8 +298,8 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         }
 
         public boolean visitJoin(Node node, Set<Replacement> replacements) {
-            if (node.jjtGetNumChildren() != 2) {
-                return false;
+            if (node.jjtGetNumChildren() == 1) {
+                throw new IllegalStateException("Subselect join without alias found: " + node);
             }
             for (Replacement replacement: replacements) {
                 if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias())) {

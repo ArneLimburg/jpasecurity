@@ -22,7 +22,23 @@ package net.sf.jpasecurity;
  */
 public interface AccessManager {
 
-    boolean isAccessible(AccessType accessType, String entityName, Object... parameters);
+    /**
+     * Checks whether an entity with the specified name, that was constructed with
+     * the specified constructor-arguments would be accessible with the specified access-type.
+     * @param accessType the access type
+     * @param entityName the name of the entity (may be entity-name according to the JPA Spec
+     *                                           or fully qualified class-name)
+     * @param constructorArgs the constructor-arguments
+     * @return whether the entity is accessible
+     */
+    boolean isAccessible(AccessType accessType, String entityName, Object... constructorArgs);
+
+    /**
+     * Checks whether the specified entity is accessible with the specified access type.
+     * @param accessType the access type
+     * @param entity the entity
+     * @return whether the entity is accessible
+     */
     boolean isAccessible(AccessType accessType, Object entity);
 
 }

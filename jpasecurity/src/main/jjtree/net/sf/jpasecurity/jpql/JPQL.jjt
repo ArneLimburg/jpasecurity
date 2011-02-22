@@ -172,6 +172,7 @@ TOKEN[IGNORE_CASE]: {
   | <INNER: "INNER">
   | <JOIN: "JOIN">
   | <FETCH: "FETCH">
+  | <WITH: "WITH">
   | <IN: "IN">
   | <SET: "SET">
   | <OBJECT: "OBJECT">
@@ -319,16 +320,16 @@ void subqueryFromItem(): {} {
 }
 
 void innerJoin() #InnerJoin: {} {
-    [<INNER>] <JOIN> joinPath() [<AS>] identificationVariable()
+    [<INNER>] <JOIN> joinPath() [<AS>] identificationVariable() [LOOKAHEAD(1) with()]
 }
 
 void collectionMemberDeclaration() #InCollection: {} {
     // synonymous with "INNER JOIN path AS identifier" (InnerJoin)
-    <IN> "(" joinPath() ")" [LOOKAHEAD(1) <AS>] identificationVariable()
+    <IN> "(" joinPath() ")" [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
 }
 
 void outerJoin() #OuterJoin: {} {
-    <LEFT> [<OUTER>] <JOIN> joinPath() [LOOKAHEAD(1) <AS>] identificationVariable()
+    <LEFT> [<OUTER>] <JOIN> joinPath() [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
 }
 
 void fetchJoin(): {} {
@@ -336,11 +337,15 @@ void fetchJoin(): {} {
 }
 
 void outerFetchJoin() #OuterFetchJoin: {} {
-    <LEFT> [<OUTER>] <JOIN> <FETCH> joinPath() [[LOOKAHEAD(1) <AS>] identificationVariable()]
+    <LEFT> [<OUTER>] <JOIN> <FETCH> joinPath() [[LOOKAHEAD(1) <AS>] identificationVariable()] [LOOKAHEAD(1) with()]
 }
 
 void innerFetchJoin() #InnerFetchJoin: {} {
-    [<INNER>] <JOIN> <FETCH> joinPath() [[LOOKAHEAD(1) <AS>] identificationVariable()]
+    [<INNER>] <JOIN> <FETCH> joinPath() [[LOOKAHEAD(1) <AS>] identificationVariable()] [LOOKAHEAD(1) with()] 
+}
+
+void with() #With: {} {
+    <WITH> conditionalExpression()
 }
 
 void joinPath() #Path: {} {

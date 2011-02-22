@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.jpql;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,13 @@ public class JpqlCompiledStatement extends JpqlStatementHolder {
         this.selectedPaths = selectedPathes;
         this.typeDefinitions = typeDefinitions;
         this.namedParameters = namedParameters;
+    }
+
+    public JpqlCompiledStatement(Node statement) {
+        this(statement,
+             Collections.<String>emptyList(),
+             Collections.<TypeDefinition>emptySet(),
+             Collections.<String>emptySet());
     }
 
     /**

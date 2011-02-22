@@ -74,7 +74,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     public SecureEntity createSecureEntity() {
-        secureEntity
+        SecureEntity secureEntity
             = objectManager.createSecureEntity(mapping.getClassMapping(entity.getClass()).getEntityType(), this);
         if (!secureEntity.equals(secureEntity)) {
             throw new IllegalStateException("Something went wrong on SecureEntity creation");
@@ -90,20 +90,24 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             secureEntity = (SecureEntity)object;
         }
         if (object != secureEntity) {
-            throw new IllegalStateException("unexpected object " + object + ", expected " + secureEntity);
+            throw new IllegalStateException("unexpected object of type " + object.getClass()
+               + ", expected type " + secureEntity.getClass());
         }
         if (canInvoke(method)) {
             return invoke(object, method, args);
         }
         if (isHashCode(method)) {
+            entity = unproxy(entity);
             return entity.hashCode();
         } else if (isEquals(method)) {
             Object value = args[0];
             if (objectManager.isSecureObject(value)) {
                 value = objectManager.getUnsecureObject(value);
             }
+            entity = unproxy(entity);
             return entity.equals(value);
         } else if (isToString(method)) {
+            entity = unproxy(entity);
             return entity.toString();
         }
         if (!isInitialized() && !isUpdating()) {

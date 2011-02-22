@@ -68,22 +68,9 @@ public class QueryTest extends TestCase {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         TestAuthenticationProvider.authenticate("root", "admin");
-        MethodAccessAnnotationTestBean child1 = createChild(USER1, USER1);
+        ParentChildTestData testData = new ParentChildTestData(entityManager);
+        MethodAccessAnnotationTestBean child1 = testData.createPermutations(USER1, USER2).iterator().next();
         MethodAccessAnnotationTestBean parent1 = child1.getParent();
-        MethodAccessAnnotationTestBean child2 = createChild(USER1, USER2);
-        MethodAccessAnnotationTestBean parent2 = child2.getParent();
-        MethodAccessAnnotationTestBean child3 = createChild(USER2, USER1);
-        MethodAccessAnnotationTestBean parent3 = child3.getParent();
-        MethodAccessAnnotationTestBean child4 = createChild(USER2, USER2);
-        MethodAccessAnnotationTestBean parent4 = child4.getParent();
-        entityManager.persist(child1);
-        entityManager.persist(parent1);
-        entityManager.persist(child2);
-        entityManager.persist(parent2);
-        entityManager.persist(child3);
-        entityManager.persist(parent3);
-        entityManager.persist(child4);
-        entityManager.persist(parent4);
         entityManager.getTransaction().commit();
         entityManager.close();
 
@@ -101,11 +88,28 @@ public class QueryTest extends TestCase {
         TestAuthenticationProvider.authenticate(null);
     }
 
-    private MethodAccessAnnotationTestBean createChild(String parentName, String childName) {
-        MethodAccessAnnotationTestBean parent = new MethodAccessAnnotationTestBean(parentName);
-        MethodAccessAnnotationTestBean child = new MethodAccessAnnotationTestBean(childName);
-        child.setParent(parent);
-        parent.getChildren().add(child);
-        return child;
+    public void testHibernateWithClause() {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("annotation-based-method-access");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        TestAuthenticationProvider.authenticate("root", "admin");
+        ParentChildTestData testData = new ParentChildTestData(entityManager);
+        MethodAccessAnnotationTestBean child1 = testData.createPermutations(USER1, USER2).iterator().next();
+        entityManager.getTransaction().commit();
+        entityManager.close();
+
+        TestAuthenticationProvider.authenticate(USER1);
+        entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        List<MethodAccessAnnotationTestBean> result
+            = entityManager.createQuery("select bean from MethodAccessAnnotationTestBean bean join bean.parent parent with parent.name = '" + USER1 + "' where bean.name = :name")
+                           .setParameter("name", USER1)
+                           .getResultList();
+        assertEquals(1, result.size());
+        assertEquals(child1, result.iterator().next());
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        entityManagerFactory.close();
+        TestAuthenticationProvider.authenticate(null);
     }
 }

@@ -69,7 +69,7 @@ public class QueryOptimizer {
         public boolean visit(JpqlWhere where, QueryEvaluationParameters data) {
             assert where.jjtGetNumChildren() == 1;
             try {
-                if (evaluator.evaluate(where.jjtGetChild(0), data)) {
+                if (evaluator.<Boolean>evaluate(where.jjtGetChild(0), data)) {
                     queryPreparator.remove(where);
                 } else {
                     Node node = queryPreparator.createBoolean(false);
@@ -84,7 +84,7 @@ public class QueryOptimizer {
         public boolean visit(JpqlOr node, QueryEvaluationParameters data) {
             assert node.jjtGetNumChildren() == 2;
             try {
-                if (evaluator.evaluate(node.jjtGetChild(0), data)) {
+                if (evaluator.<Boolean>evaluate(node.jjtGetChild(0), data)) {
                     queryPreparator.replace(node, queryPreparator.createEquals(queryPreparator.createBoolean(true),
                                                                                queryPreparator.createBoolean(true)));
                 } else {
@@ -93,7 +93,7 @@ public class QueryOptimizer {
                 return true;
             } catch (NotEvaluatableException e) {
                 try {
-                    if (evaluator.evaluate(node.jjtGetChild(1), data)) {
+                    if (evaluator.<Boolean>evaluate(node.jjtGetChild(1), data)) {
                         queryPreparator.replace(node,
                                                 queryPreparator.createEquals(queryPreparator.createBoolean(true),
                                                                              queryPreparator.createBoolean(true)));
@@ -110,7 +110,7 @@ public class QueryOptimizer {
         public boolean visit(JpqlAnd node, QueryEvaluationParameters data) {
             assert node.jjtGetNumChildren() == 2;
             try {
-                if (evaluator.evaluate(node.jjtGetChild(0), data)) {
+                if (evaluator.<Boolean>evaluate(node.jjtGetChild(0), data)) {
                     queryPreparator.replace(node, node.jjtGetChild(1));
                 } else {
                     queryPreparator.replace(node, queryPreparator.createBoolean(false));
@@ -118,7 +118,7 @@ public class QueryOptimizer {
                 return true;
             } catch (NotEvaluatableException e) {
                 try {
-                    if (evaluator.evaluate(node.jjtGetChild(1), data)) {
+                    if (evaluator.<Boolean>evaluate(node.jjtGetChild(1), data)) {
                         queryPreparator.replace(node, node.jjtGetChild(0));
                     } else {
                         queryPreparator.replace(node, queryPreparator.createBoolean(false));
