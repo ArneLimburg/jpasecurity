@@ -15,12 +15,17 @@
  */
 package net.sf.jpasecurity.security;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
+import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
+import net.sf.jpasecurity.persistence.ParentChildTestData;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 /**
@@ -30,6 +35,8 @@ public class AccessCheckTest extends TestCase {
 
     private static final String CREATOR = "creator";
     private static final String USER = "user";
+    private static final String USER1 = "user1";
+    private static final String USER2 = "user2";
     private static final String ADMIN = "admin";
     private static final String CHILD = "child";
     private static final String GRANDCHILD = "grandchild";
@@ -91,6 +98,40 @@ public class AccessCheckTest extends TestCase {
         } catch (SecurityException e) {
             // expected
             entityManager.getTransaction().rollback();
+        }
+        entityManager.close();
+    }
+    
+    public void testHibernateWith() {
+        TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("with-clause");
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        ParentChildTestData testData = new ParentChildTestData(entityManager);
+        testData.createPermutations(USER1, USER2);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+
+        TestAuthenticationProvider.authenticate(USER1);
+        entityManager = factory.createEntityManager();
+        Query query = entityManager.createQuery("SELECT mbean FROM MethodAccessAnnotationTestBean mbean WHERE mbean.name = :name");
+        query.setParameter("name", USER1);
+        List<MethodAccessAnnotationTestBean> result = query.getResultList();
+        assertEquals(1, result.size());
+
+        TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
+        MethodAccessAnnotationTestBean bean = result.iterator().next();
+        assertEquals(USER1, bean.getName());
+        assertEquals(USER2, bean.getParent().getName());
+
+        try {
+            TestAuthenticationProvider.authenticate(USER1);
+            entityManager.getTransaction().begin();
+            bean.getParent().setName(USER1);
+            entityManager.getTransaction().commit();
+            fail("expected SecurityException");
+        } catch (SecurityException e) {
+            //expected
         }
         entityManager.close();
     }

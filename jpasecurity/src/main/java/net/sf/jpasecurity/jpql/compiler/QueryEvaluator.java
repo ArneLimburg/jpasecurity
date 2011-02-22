@@ -130,7 +130,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
 
     public <R> R evaluate(Node node, QueryEvaluationParameters parameters) throws NotEvaluatableException {
         node.visit(this, parameters);
-        return parameters.getResult();
+        return parameters.<R>getResult();
     }
 
     public boolean visit(JpqlSelectClause node, QueryEvaluationParameters data) {

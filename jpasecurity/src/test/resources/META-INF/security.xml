@@ -44,6 +44,18 @@
     <access-rule>GRANT ACCESS TO ChildTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
   </persistence-unit>
 
+  <persistence-unit name="with-clause">
+     <access-rule>
+       GRANT ACCESS TO MethodAccessAnnotationTestBean bean
+         WHERE 'admin' in (CURRENT_ROLES)
+     </access-rule>
+    <access-rule>
+      GRANT ACCESS TO MethodAccessAnnotationTestBean b
+        WHERE EXISTS (SELECT bean FROM MethodAccessAnnotationTestBean bean JOIN bean.parent parent
+                      WITH parent.name = 'user2' WHERE b = bean AND bean.name = CURRENT_PRINCIPAL)
+    </access-rule>
+  </persistence-unit>
+
   <persistence-unit name="acl-model">
      <access-rule>
        GRANT ACCESS TO AbstractAclProtectedEntity bean

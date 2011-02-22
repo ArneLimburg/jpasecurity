@@ -35,7 +35,6 @@ import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
-import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.QueryEvaluationParameters;
 import net.sf.jpasecurity.jpql.compiler.QueryEvaluator;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
@@ -107,7 +106,7 @@ public class EntityFilter {
                                             Collections.singletonMap(alias, entity),
                                             accessDefinition.getQueryParameters(),
                                             Collections.<Integer, Object>emptyMap());
-        return queryEvaluator.evaluate(accessDefinition.getAccessRules(), evaluationParameters);
+        return queryEvaluator.<Boolean>evaluate(accessDefinition.getAccessRules(), evaluationParameters);
     }
 
     public FilterResult filterQuery(String query, AccessType accessType, SecurityContext securityContext) {
@@ -138,7 +137,7 @@ public class EntityFilter {
                                                 accessDefinition.getQueryParameters(),
                                                 Collections.<Integer, Object>emptyMap(),
                                                 true);
-            boolean result = queryEvaluator.evaluate(accessDefinition.getAccessRules(), evaluationParameters);
+            boolean result = queryEvaluator.<Boolean>evaluate(accessDefinition.getAccessRules(), evaluationParameters);
             if (result) {
                 LOG.debug("Access rules are always true for current user and roles. Returning unfiltered query");
                 return new FilterResult(query);
