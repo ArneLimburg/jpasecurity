@@ -17,7 +17,6 @@ package net.sf.jpasecurity.persistence;
 
 import javax.persistence.EntityManagerFactory;
 
-import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.configuration.AccessRulesProvider;
 import net.sf.jpasecurity.configuration.AuthenticationProvider;
 import net.sf.jpasecurity.configuration.AuthenticationProviderSecurityContext;
