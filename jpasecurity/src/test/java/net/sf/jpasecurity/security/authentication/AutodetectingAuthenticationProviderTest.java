@@ -34,6 +34,7 @@ import javax.naming.NameNotFoundException;
 import junit.framework.TestCase;
 import net.sf.jpasecurity.configuration.AuthenticationProvider;
 
+import org.acegisecurity.context.SecurityContextHolder;
 import org.apache.commons.naming.NamingContext;
 import org.apache.commons.naming.java.javaURLContextFactory;
 
@@ -89,8 +90,9 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
     
     public void testAutodetectSpringAuthenticationProvider() throws Exception {
         TestClassLoader testClassLoader = createMock(TestClassLoader.class);
-        Class springSecurityContextHolderClass = org.springframework.security.context.SecurityContextHolder.class;
-        expect(testClassLoader.loadClass(springSecurityContextHolderClass.getName(), false))
+        Class<org.springframework.security.context.SecurityContextHolder> springSecurityContextHolderClass
+            = org.springframework.security.context.SecurityContextHolder.class;
+        expect(testClassLoader.<org.springframework.security.context.SecurityContextHolder>loadClass(springSecurityContextHolderClass.getName(), false))
             .andReturn(springSecurityContextHolderClass);
         replay(testClassLoader);
         
@@ -104,10 +106,10 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
 
     public void testAutodetectAcegiAuthenticationProvider() throws Exception {
         TestClassLoader testClassLoader = createMock(TestClassLoader.class);
-        Class springSecurityContextHolderClass = org.springframework.security.context.SecurityContextHolder.class;
-        Class acegiSecurityContextHolderClass = org.acegisecurity.context.SecurityContextHolder.class;
+        Class<?> springSecurityContextHolderClass = org.springframework.security.context.SecurityContextHolder.class;
+        Class<SecurityContextHolder> acegiSecurityContextHolderClass = org.acegisecurity.context.SecurityContextHolder.class;
         expect(testClassLoader.loadClass(springSecurityContextHolderClass.getName(), false)).andThrow(new ClassNotFoundException()).anyTimes();
-        expect(testClassLoader.loadClass(acegiSecurityContextHolderClass.getName(), false)).andReturn(acegiSecurityContextHolderClass);
+        expect(testClassLoader.<SecurityContextHolder>loadClass(acegiSecurityContextHolderClass.getName(), false)).andReturn(acegiSecurityContextHolderClass);
         replay(testClassLoader);
 
         setContextClassLoader(testClassLoader);
@@ -120,12 +122,12 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
     
     public void testAutodetectEjbAuthenticationProvider() throws Exception {
         TestClassLoader testClassLoader = createStrictMock(TestClassLoader.class);
-        Class springSecurityContextHolderClass = org.springframework.security.context.SecurityContextHolder.class;
-        Class acegiSecurityContextHolderClass = org.acegisecurity.context.SecurityContextHolder.class;
-        Class contextFactoryClass = javaURLContextFactory.class;
+        Class<?> springSecurityContextHolderClass = org.springframework.security.context.SecurityContextHolder.class;
+        Class<?> acegiSecurityContextHolderClass = org.acegisecurity.context.SecurityContextHolder.class;
+        Class<javaURLContextFactory> contextFactoryClass = javaURLContextFactory.class;
         expect(testClassLoader.loadClass(springSecurityContextHolderClass.getName(), false)).andThrow(new ClassNotFoundException()).anyTimes();
         expect(testClassLoader.loadClass(acegiSecurityContextHolderClass.getName(), false)).andThrow(new ClassNotFoundException()).anyTimes();
-        expect(testClassLoader.loadClass(contextFactoryClass.getName(), false)).andReturn(contextFactoryClass);
+        expect(testClassLoader.<javaURLContextFactory>loadClass(contextFactoryClass.getName(), false)).andReturn(contextFactoryClass);
         expect(testClassLoader.loadClass(springSecurityContextHolderClass.getName(), false)).andThrow(new ClassNotFoundException()).anyTimes();
         expect(testClassLoader.loadClass(acegiSecurityContextHolderClass.getName(), false)).andThrow(new ClassNotFoundException()).anyTimes();
         replay(testClassLoader);
@@ -142,12 +144,12 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         InitialContext initialContext = new InitialContext();
         initialContext.unbind("java:comp");        
         TestClassLoader testClassLoader = createStrictMock(TestClassLoader.class);
-        Class springSecurityContextHolderClass = org.springframework.security.context.SecurityContextHolder.class;
-        Class acegiSecurityContextHolderClass = org.acegisecurity.context.SecurityContextHolder.class;
-        Class contextFactoryClass = javaURLContextFactory.class;
+        Class<?> springSecurityContextHolderClass = org.springframework.security.context.SecurityContextHolder.class;
+        Class<?> acegiSecurityContextHolderClass = org.acegisecurity.context.SecurityContextHolder.class;
+        Class<javaURLContextFactory> contextFactoryClass = javaURLContextFactory.class;
         expect(testClassLoader.loadClass(springSecurityContextHolderClass.getName(), false)).andThrow(new ClassNotFoundException()).anyTimes();
         expect(testClassLoader.loadClass(acegiSecurityContextHolderClass.getName(), false)).andThrow(new ClassNotFoundException()).anyTimes();
-        expect(testClassLoader.loadClass(contextFactoryClass.getName(), false)).andReturn(contextFactoryClass).anyTimes();
+        expect(testClassLoader.<javaURLContextFactory>loadClass(contextFactoryClass.getName(), false)).andReturn(contextFactoryClass).anyTimes();
         expect(testClassLoader.loadClass(springSecurityContextHolderClass.getName(), false)).andThrow(new ClassNotFoundException()).anyTimes();
         expect(testClassLoader.loadClass(acegiSecurityContextHolderClass.getName(), false)).andThrow(new ClassNotFoundException()).anyTimes();
         replay(testClassLoader);
@@ -173,6 +175,6 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
     }
     
     protected static interface TestClassLoader {
-        public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException;
+        public <T> Class<T> loadClass(String name, boolean resolve) throws ClassNotFoundException;
     }
 }

@@ -198,9 +198,9 @@ public class EntityFilter {
                                                     Class<?> type,
                                                     AccessType accessType,
                                                     SecurityContext securityContext) {
-        return createAccessDefinition((Map)Collections.singletonMap(alias, type),
-                                    accessType,
-                                    securityContext);
+        return createAccessDefinition(Collections.<String, Class<?>>singletonMap(alias, type),
+                                      accessType,
+                                      securityContext);
     }
 
     private AccessDefinition createAccessDefinition(Map<String, Class<?>> selectedTypes,

@@ -65,7 +65,7 @@ public interface Node extends Cloneable {
     /**
      * Accept the visitor.
      */
-    Object jjtAccept(JpqlParserVisitor visitor, Object data);
+    <T> boolean jjtAccept(JpqlParserVisitor<T> visitor, T data);
 
     /**
      * Returns the value of this node or <tt>null</tt>, if this node does not have a value.
@@ -75,12 +75,12 @@ public interface Node extends Cloneable {
     /**
      * Visits the visitor.
      */
-    void visit(JpqlParserVisitor visitor);
+    <T> void visit(JpqlParserVisitor<T> visitor);
 
     /**
      * Visits the visitor.
      */
-    void visit(JpqlParserVisitor visitor, Object data);
+    <T> void visit(JpqlParserVisitor<T> visitor, T data);
 
     Node clone();
 }

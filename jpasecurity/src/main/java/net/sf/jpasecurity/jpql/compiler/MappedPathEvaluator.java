@@ -52,7 +52,7 @@ public class MappedPathEvaluator implements PathEvaluator {
 
     public Collection<Object> evaluateAll(Collection<Object> root, String path) {
         String[] pathElements = path.split("\\.");
-        Collection rootCollection = new ArrayList<Object>(root);
+        Collection<Object> rootCollection = new ArrayList<Object>(root);
         Collection<Object> resultCollection = new ArrayList<Object>();
         for (String property: pathElements) {
             resultCollection.clear();
@@ -73,7 +73,7 @@ public class MappedPathEvaluator implements PathEvaluator {
             rootCollection.clear();
             for (Object resultObject: resultCollection) {
                 if (resultObject instanceof Collection) {
-                    rootCollection.addAll((Collection)resultObject);
+                    rootCollection.addAll((Collection<?>)resultObject);
                 } else {
                     rootCollection.add(resultObject);
                 }

@@ -238,18 +238,18 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 3);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable value = (Comparable)data.getResult();
+            Comparable<Object> value = data.<Comparable<Object>>getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable lower;
+            Comparable<Object> lower;
             try {
-                lower = (Comparable)data.getResult();
+                lower = data.<Comparable<Object>>getResult();
             } catch (NotEvaluatableException e) {
                 lower = null;
             }
             node.jjtGetChild(2).visit(this, data);
-            Comparable upper;
+            Comparable<Object> upper;
             try {
-                upper = (Comparable)data.getResult();
+                upper = data.<Comparable<Object>>getResult();
             } catch (NotEvaluatableException e) {
                 upper = null;
             }
@@ -284,7 +284,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             node.jjtGetChild(i).visit(this, data);
             try {
                 if (data.getResult() instanceof Collection) {
-                    values.addAll((Collection)data.getResult());
+                    values.addAll((Collection<?>)data.getResult());
                 } else {
                     values.add(data.getResult());
                 }
@@ -388,7 +388,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 1);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Collection result = (Collection)data.getResult();
+            Collection<?> result = (Collection<?>)data.getResult();
             data.setResult(result == null || result.isEmpty());
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -402,7 +402,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             node.jjtGetChild(0).visit(this, data);
             Object value = data.getResult();
             node.jjtGetChild(1).visit(this, data);
-            data.setResult(((Collection)data.getResult()).contains(value));
+            data.setResult(((Collection<?>)data.getResult()).contains(value));
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
         }
@@ -445,9 +445,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable value1 = (Comparable)data.getResult();
+            Comparable<Object> value1 = data.<Comparable<Object>>getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable value2 = (Comparable)data.getResult();
+            Comparable<Object> value2 = data.<Comparable<Object>>getResult();
             data.setResult(value1.compareTo(value2) > 0);
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -459,9 +459,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable value1 = (Comparable)data.getResult();
+            Comparable<Object> value1 = data.<Comparable<Object>>getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable value2 = (Comparable)data.getResult();
+            Comparable<Object> value2 = data.<Comparable<Object>>getResult();
             data.setResult(value1.compareTo(value2) >= 0);
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -473,9 +473,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable value1 = (Comparable)data.getResult();
+            Comparable<Object> value1 = data.<Comparable<Object>>getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable value2 = (Comparable)data.getResult();
+            Comparable<Object> value2 = data.<Comparable<Object>>getResult();
             data.setResult(value1.compareTo(value2) < 0);
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -487,9 +487,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable value1 = (Comparable)data.getResult();
+            Comparable<Object> value1 = data.<Comparable<Object>>getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable value2 = (Comparable)data.getResult();
+            Comparable<Object> value2 = data.<Comparable<Object>>getResult();
             data.setResult(value1.compareTo(value2) <= 0);
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -732,7 +732,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 1);
         try {
             node.jjtGetChild(0).visit(this, data);
-            data.setResult(((Collection)data.getResult()).size());
+            data.setResult(((Collection<?>)data.getResult()).size());
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
         }
@@ -842,7 +842,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     public boolean visit(JpqlExists node, QueryEvaluationParameters data) {
         try {
             node.jjtGetChild(0).visit(this, data);
-            data.setResult(!((Collection)data.getResult()).isEmpty());
+            data.setResult(!((Collection<?>)data.getResult()).isEmpty());
         } catch (NotEvaluatableException e) {
             //result is undefined
         }

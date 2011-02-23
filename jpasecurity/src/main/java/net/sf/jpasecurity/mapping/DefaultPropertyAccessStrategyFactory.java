@@ -38,7 +38,7 @@ public class DefaultPropertyAccessStrategyFactory implements PropertyAccessStrat
         }
     }
 
-    protected Field getField(Class type, String fieldname) {
+    protected Field getField(Class<?> type, String fieldname) {
         if (type == null) {
             return null;
         }
@@ -51,7 +51,7 @@ public class DefaultPropertyAccessStrategyFactory implements PropertyAccessStrat
         return getField(type.getSuperclass(), fieldname);
     }
 
-    protected Method getReadMethod(Class type, String propertyName) {
+    protected Method getReadMethod(Class<?> type, String propertyName) {
         String capitalizedPropertyName = capitalize(propertyName);
         String methodName = GET_METHOD_PREFIX + capitalizedPropertyName;
         Method method = getMethod(type, methodName, 0);
@@ -62,11 +62,11 @@ public class DefaultPropertyAccessStrategyFactory implements PropertyAccessStrat
         return method;
     }
 
-    protected Method getWriteMethod(Class type, String propertyName) {
+    protected Method getWriteMethod(Class<?> type, String propertyName) {
         return getMethod(type, SET_METHOD_PREFIX + capitalize(propertyName), 1);
     }
 
-    protected Method getMethod(Class type, String name, int parameterCount) {
+    protected Method getMethod(Class<?> type, String name, int parameterCount) {
         if (type == null) {
             return null;
         }

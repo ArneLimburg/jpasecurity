@@ -157,7 +157,7 @@
         </dependencies>
         <executions>
           <execution>
-            <id>clean-parser-output</id>
+            <id>process-generated-sources</id>
             <phase>process-sources</phase>
             <configuration>
               <tasks>
@@ -166,6 +166,9 @@
                     <present targetdir="src/main/java/net/sf/jpasecurity/jpql/parser"/>
                   </fileset>
                 </delete>
+                <replace dir="target/generated-sources/jjtree/net/sf/jpasecurity/jpql/parser/"
+                         token="public Object jjtAccept(JpqlParserVisitor visitor, Object data)"
+                         value="public &lt;T&gt; boolean jjtAccept(JpqlParserVisitor&lt;T&gt; visitor, T data)" />
               </tasks>
             </configuration>
             <goals>

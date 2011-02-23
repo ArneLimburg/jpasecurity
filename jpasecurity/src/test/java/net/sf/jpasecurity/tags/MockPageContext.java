@@ -86,7 +86,7 @@ public class MockPageContext extends PageContext {
         return getAttribute(name, PageContext.APPLICATION_SCOPE);
     }
 
-    public Enumeration getAttributeNamesInScope(final int scope) {
+    public Enumeration<String> getAttributeNamesInScope(final int scope) {
         return new Enumeration<String>() {
 
             private Iterator<String> iterator = attributes.get(scope).keySet().iterator();

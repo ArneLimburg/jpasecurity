@@ -23,6 +23,7 @@ import javax.persistence.PostLoad;
 public class DefaultEntityListener {
 
     @PostLoad
+    @SuppressWarnings("unused") // is used by reflection
     private void privateTestMethod(Object entity) {
         if (entity == null) {
             throw new DefaultEntityListenerCalledException();

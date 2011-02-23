@@ -25,13 +25,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.persistence.PersistenceException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import junit.framework.TestCase;
-
 import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 
 import org.easymock.IAnswer;
@@ -47,6 +45,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * Tests the correct exception behavior of {@link AbstractXmlParser}.
  * @author Arne Limburg
  */
+@SuppressWarnings("deprecation")
 public class AbstractXmlParserTest extends TestCase {
     
     public static final String SAX_PARSER_FACTORY_PROPERTY_NAME = "javax.xml.parsers.SAXParserFactory";

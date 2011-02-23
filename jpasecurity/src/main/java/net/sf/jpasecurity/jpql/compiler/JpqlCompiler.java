@@ -88,7 +88,7 @@ public class JpqlCompiler {
 
     public Set<TypeDefinition> getAliasDefinitions(Node node) {
         if (node == null) {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
         Set<TypeDefinition> typeDefinitions = new HashSet<TypeDefinition>();
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
@@ -99,7 +99,7 @@ public class JpqlCompiler {
 
     public Set<String> getNamedParameters(Node node) {
         if (node == null) {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
         Set<String> namedParameters = new HashSet<String>();
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
@@ -110,7 +110,7 @@ public class JpqlCompiler {
 
     public Set<String> getPositionalParameters(Node node) {
         if (node == null) {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
         Set<String> positionalParameters = new HashSet<String>();
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
@@ -191,7 +191,7 @@ public class JpqlCompiler {
                                   boolean innerJoin,
                                   boolean fetchJoin) {
             String fetchPath = node.jjtGetChild(0).toString();
-            Class type = mappingInformation.getType(fetchPath, typeDefinitions);
+            Class<?> type = mappingInformation.getType(fetchPath, typeDefinitions);
             if (node.jjtGetNumChildren() == 1) {
                 typeDefinitions.add(new TypeDefinition(type, fetchPath, innerJoin, fetchJoin));
             } else {

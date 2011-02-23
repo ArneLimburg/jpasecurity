@@ -89,7 +89,9 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         addOperation(new CollectionOperation<E, T>() {
             public void flush(T original, AbstractSecureObjectManager objectManager) {
                 if (collection instanceof AbstractSecureCollection) {
-                    original.addAll(((AbstractSecureCollection<E, Collection<E>>)collection).getOriginal());
+                    AbstractSecureCollection<E, Collection<E>> abstractSecureCollection
+                        = (AbstractSecureCollection<E, Collection<E>>)collection;
+                    original.addAll(abstractSecureCollection.getOriginal());
                 } else if (collection instanceof SecureList) {
                     original.addAll(((SecureList<E>)collection).getOriginal());
                 } else {
@@ -235,7 +237,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
     class FilteredIterator implements Iterator<E> {
 
         Iterator<E> iterator;
-        Object current = UNDEFINED;
+        E current = (E)UNDEFINED;
 
         public FilteredIterator(Iterator<E> iterator) {
             this.iterator = iterator;
@@ -247,17 +249,17 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
 
         public E next() {
             current = iterator.next();
-            return (E)current;
+            return current;
         }
 
         public void remove() {
             if (current == UNDEFINED) {
                 throw new IllegalStateException();
             }
-            checkRange((E)current);
+            checkRange(current);
             iterator.remove();
             AbstractSecureCollection.this.remove(current);
-            current = UNDEFINED;
+            current = (E)UNDEFINED;
         }
 
         protected void checkRange(E entry) {

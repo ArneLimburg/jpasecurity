@@ -81,6 +81,7 @@ public class AclSyntaxTest extends TestCase {
        entityManager.createQuery("select u from User u").getResultList();
        //check access
        AclProtectedEntity entity = (AclProtectedEntity)entityManager.createQuery("select e from AclProtectedEntity e").getSingleResult();
+       assertNotNull(entity);
        entityManager.close();
    }
 

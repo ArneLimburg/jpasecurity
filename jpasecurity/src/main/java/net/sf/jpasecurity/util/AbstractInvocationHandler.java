@@ -29,8 +29,8 @@ import java.util.Map;
  */
 public abstract class AbstractInvocationHandler implements InvocationHandler {
 
-    private static final Map<Class, Map<Method, Method>> METHODCACHE_CACHE
-       = Collections.synchronizedMap(new HashMap<Class, Map<Method, Method>>());
+    private static final Map<Class<?>, Map<Method, Method>> METHODCACHE_CACHE
+       = Collections.synchronizedMap(new HashMap<Class<?>, Map<Method, Method>>());
     private final Map<Method, Method> methodCache;
 
    protected AbstractInvocationHandler() {
