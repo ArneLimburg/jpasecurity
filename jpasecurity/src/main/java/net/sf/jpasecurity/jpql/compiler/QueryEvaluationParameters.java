@@ -114,7 +114,6 @@ public class QueryEvaluationParameters {
         return result == UNDEFINED;
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T getResult() throws NotEvaluatableException {
         if (isResultUndefined()) {
             throw new NotEvaluatableException();

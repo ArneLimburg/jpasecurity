@@ -69,13 +69,13 @@ public class AuthenticationProviderSecurityContext implements SecurityContext, P
         }
     }
 
-    public Collection<Object> getAliasValues(String alias) {
+    public <T> Collection<T> getAliasValues(String alias) {
         if (alias == null) {
             return null;
         }
         alias = alias.toUpperCase();
         if (alias.equals(CURRENT_ROLES)) {
-            return (Collection<Object>)authenticationProvider.getRoles();
+            return authenticationProvider.<T>getRoles();
         } else {
             return null;
         }

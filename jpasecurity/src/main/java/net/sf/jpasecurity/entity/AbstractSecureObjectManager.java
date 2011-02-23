@@ -86,15 +86,15 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             return null;
         }
         if (object instanceof List) {
-            return (T)new SecureList((List<?>)object, this, accessManager);
+            return (T)createSecureList((List<?>)object, this, accessManager);
         } else if (object instanceof SortedSet) {
-            return (T)new SecureSortedSet((SortedSet<?>)object, this, accessManager);
+            return (T)createSecureSortedSet((SortedSet<?>)object, this, accessManager);
         } else if (object instanceof Set) {
-            return (T)new SecureSet((Set<?>)object, this, accessManager);
+            return (T)createSecureSet((Set<?>)object, this, accessManager);
         } else if (object instanceof Collection) {
-            return (T)new DefaultSecureCollection((Collection<?>)object, this, accessManager);
+            return (T)createSecureCollection((Collection<?>)object, this, accessManager);
         } else if (object instanceof Map) {
-            return (T)new DefaultSecureMap<Object, Object>((Map<Object, Object>)object, this, accessManager);
+            return (T)createSecureMap((Map<?, ?>)object, this, accessManager);
         } else {
             EntityInvocationHandler entityInvocationHandler
                 = new EntityInvocationHandler(mappingInformation, accessManager, this, object);
@@ -199,27 +199,57 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         }
     }
 
-   private <K, V> Map<K, V> createUnsecureMap(Map<K, V> secureValue) {
-      Map<K, V> unsecureMap = new HashMap<K, V>();
-      for (Map.Entry<K, V> entry: secureValue.entrySet()) {
-          K key = entry.getKey();
-          if (!isSimplePropertyType(key.getClass())) {
-              key = getUnsecureObject(key);
-          }
-          unsecureMap.put(key, getUnsecureObject(entry.getValue()));
-      }
-      return unsecureMap;
-   }
+    private <K, V> Map<K, V> createUnsecureMap(Map<K, V> secureValue) {
+        Map<K, V> unsecureMap = new HashMap<K, V>();
+        for (Map.Entry<K, V> entry: secureValue.entrySet()) {
+            K key = entry.getKey();
+            if (!isSimplePropertyType(key.getClass())) {
+                key = getUnsecureObject(key);
+            }
+            unsecureMap.put(key, getUnsecureObject(entry.getValue()));
+        }
+        return unsecureMap;
+    }
 
-   private <T> Collection<T> createUnsecureCollection(Collection<T> secureValue) {
-      Collection<T> unsecureCollection = createCollection(secureValue);
-      for (T entry: secureValue) {
-          unsecureCollection.add(getUnsecureObject(entry));
-      }
-      return unsecureCollection;
-   }
+    private <E, T extends List<E>> SecureList<E> createSecureList(T list,
+                                                                  AbstractSecureObjectManager objectManager,
+                                                                  AccessManager accessManager) {
+        return new SecureList<E>(list, objectManager, accessManager);
+    }
 
-   /**
+    private <E, T extends SortedSet<E>> SecureSortedSet<E> createSecureSortedSet(T sortedSet,
+                                                                                 AbstractSecureObjectManager objectManager,
+                                                                                 AccessManager accessManager) {
+        return new SecureSortedSet<E>(sortedSet, objectManager, accessManager);
+    }
+
+    private <E, T extends Set<E>> SecureSet<E> createSecureSet(T set,
+                                                               AbstractSecureObjectManager objectManager,
+                                                               AccessManager accessManager) {
+        return new SecureSet<E>(set, objectManager, accessManager);
+    }
+
+    private <E, T extends Collection<E>> SecureCollection<E> createSecureCollection(T collection,
+                                                                                    AbstractSecureObjectManager objectManager,
+                                                                                    AccessManager accessManager) {
+        return new DefaultSecureCollection<E, T>(collection, objectManager, accessManager);
+    }
+
+    private <K, V> SecureMap<K, V> createSecureMap(Map<K, V> original,
+                                                   AbstractSecureObjectManager objectManager,
+                                                   AccessManager accessManager) {
+        return new DefaultSecureMap<K, V>(original, objectManager, accessManager);
+    }
+
+    private <T> Collection<T> createUnsecureCollection(Collection<T> secureValue) {
+        Collection<T> unsecureCollection = createCollection(secureValue);
+        for (T entry: secureValue) {
+            unsecureCollection.add(getUnsecureObject(entry));
+        }
+        return unsecureCollection;
+    }
+
+    /**
      * @return <tt>true</tt>, if the owner is modified, <tt>false</tt> otherwise.
      */
     <V> boolean secureCopy(ClassMappingInformation classMapping,

@@ -37,7 +37,7 @@ import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.jpa.JpaBeanStore;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
+import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 
 /**
  * @author Arne Limburg
@@ -47,8 +47,6 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
     private MappingInformation mapping;
     private EntityManager entityManager;
     private AccessManager accessManager;
-    private Configuration configuration;
-    private SecureEntityProxyFactory proxyFactory;
     private AbstractSecureObjectManager objectManager;
     private SecureEntity secureEntity;
     private Object unsecureEntity;
@@ -60,8 +58,8 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
         accessManager = createMock(AccessManager.class);
         objectManager = new EntityPersister(mapping, new JpaBeanStore(entityManager), accessManager, new Configuration());
 
-        expect(classMapping.getEntityType()).andReturn((Class)Object.class).anyTimes();
-        expect(classMapping.getPropertyMappings()).andReturn(Collections.EMPTY_LIST).anyTimes();
+        expect(classMapping.<Object>getEntityType()).andReturn(Object.class).anyTimes();
+        expect(classMapping.getPropertyMappings()).andReturn(Collections.<PropertyMappingInformation>emptyList()).anyTimes();
         classMapping.postLoad(anyObject());
         expectLastCall().anyTimes();
         expect(mapping.getClassMapping((Class<?>)anyObject())).andReturn(classMapping).anyTimes();

@@ -101,15 +101,15 @@ public class SimpleNode implements Node {
     }
 
     /** Accept the visitor. **/
-    public Object jjtAccept(JpqlParserVisitor visitor, Object data) {
+    public <T> boolean jjtAccept(JpqlParserVisitor<T> visitor, T data) {
         return visitor.visit(this, data);
     }
 
-    public void visit(JpqlParserVisitor visitor) {
+    public <T> void visit(JpqlParserVisitor<T> visitor) {
         visit(visitor, null);
     }
 
-    public void visit(JpqlParserVisitor visitor, Object data) {
+    public <T> void visit(JpqlParserVisitor<T> visitor, T data) {
         if ((Boolean)jjtAccept(visitor, data) && children != null) {
             for (int i = 0; i < children.length; i++) {
                 children[i].visit(visitor, data);

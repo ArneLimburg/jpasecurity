@@ -71,7 +71,6 @@ public class QueryEvaluatorTest extends TestCase {
     private Map<Integer, Object> positionalParameters = new HashMap<Integer, Object>();
     private SetMap<Class<?>, Object> entities = new SetHashMap<Class<?>, Object>();
     
-    @SuppressWarnings("unchecked")
     public void setUp() {
         SecureObjectManager objectManager = createMock(SecureObjectManager.class);
         expect(objectManager.getSecureObjects((Class<Object>)anyObject())).andAnswer(new IAnswer<Collection<Object>>() {

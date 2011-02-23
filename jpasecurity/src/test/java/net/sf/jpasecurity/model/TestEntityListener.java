@@ -15,7 +15,6 @@
  */
 package net.sf.jpasecurity.model;
 
-import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
@@ -46,6 +45,7 @@ public class TestEntityListener {
         }
     }
     
+    @SuppressWarnings("unused") // is used by reflection
     private void privateTestMethod(Object entity) {
         if (entity == null) {
             throw new PrivateTestMethodCalledException();

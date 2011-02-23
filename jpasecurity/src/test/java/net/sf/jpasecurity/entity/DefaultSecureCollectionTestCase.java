@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.entity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import net.sf.jpasecurity.SecureCollection;
@@ -34,6 +35,6 @@ public class DefaultSecureCollectionTestCase extends AbstractSecureCollectionTes
             original.add(objectManager.getUnsecureObject(secureEntity));
             filtered.add(secureEntity);
         }
-        return new DefaultSecureCollection(original, filtered, objectManager);
+        return new DefaultSecureCollection<Object, Collection<Object>>(original, filtered, objectManager);
     }
 }

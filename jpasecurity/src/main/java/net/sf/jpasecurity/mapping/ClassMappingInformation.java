@@ -25,7 +25,7 @@ import java.util.Set;
 public interface ClassMappingInformation {
 
     String getEntityName();
-    Class<?> getEntityType();
+    <E> Class<E> getEntityType();
     Set<ClassMappingInformation> getSubclassMappings();
     Class<?> getIdClass();
     boolean usesFieldAccess();

@@ -64,7 +64,6 @@ public class EntityFilterTest extends TestCase {
         accessRules = Collections.singletonList(compiler.compile(rule));
     }
     
-    @SuppressWarnings("unchecked")
     public void testIsAccessible() throws Exception {
         EntityManager entityManager = createMock(EntityManager.class);
         SecureObjectManager secureObjectManager = createMock(SecureObjectManager.class);

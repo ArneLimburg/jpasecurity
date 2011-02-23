@@ -95,7 +95,7 @@ public abstract class PropertyMappingInformation {
     }
 
     public Set<CascadeType> getCascadeTypes() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     /**

@@ -138,7 +138,7 @@ public abstract class ReflectionUtils {
       builder.append(System.identityHashCode(classType));
       builder.append('-');
       builder.append(name);
-      for (Class parameterType : parameterTypes) {
+      for (Class<?> parameterType : parameterTypes) {
          builder.append('-');
          builder.append(parameterType.getSimpleName());
       }

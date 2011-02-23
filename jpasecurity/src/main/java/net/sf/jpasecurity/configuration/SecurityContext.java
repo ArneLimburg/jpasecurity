@@ -32,5 +32,5 @@ public interface SecurityContext {
 
     Collection<String> getAliases();
     Object getAliasValue(String alias);
-    Collection<Object> getAliasValues(String alias);
+    <T> Collection<T> getAliasValues(String alias);
 }

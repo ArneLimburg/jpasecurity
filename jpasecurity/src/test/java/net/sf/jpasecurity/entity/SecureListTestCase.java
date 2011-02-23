@@ -34,7 +34,7 @@ public class SecureListTestCase extends AbstractSecureCollectionTestCase {
             original.add(objectManager.getUnsecureObject(secureEntity));
             filtered.add(secureEntity);
         }
-        return new SecureList(original, filtered, objectManager);
+        return new SecureList<Object>(original, filtered, objectManager);
     }
     
     public void flush(SecureCollection<Object> secureCollection) {
