@@ -218,9 +218,9 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     }
 
     private <E, T extends SortedSet<E>> SecureSortedSet<E> createSecureSortedSet(T sortedSet,
-                                                                                 AbstractSecureObjectManager objectManager,
+                                                                                 AbstractSecureObjectManager manager,
                                                                                  AccessManager accessManager) {
-        return new SecureSortedSet<E>(sortedSet, objectManager, accessManager);
+        return new SecureSortedSet<E>(sortedSet, manager, accessManager);
     }
 
     private <E, T extends Set<E>> SecureSet<E> createSecureSet(T set,
@@ -230,9 +230,9 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     }
 
     private <E, T extends Collection<E>> SecureCollection<E> createSecureCollection(T collection,
-                                                                                    AbstractSecureObjectManager objectManager,
+                                                                                    AbstractSecureObjectManager mgr,
                                                                                     AccessManager accessManager) {
-        return new DefaultSecureCollection<E, T>(collection, objectManager, accessManager);
+        return new DefaultSecureCollection<E, T>(collection, mgr, accessManager);
     }
 
     private <K, V> SecureMap<K, V> createSecureMap(Map<K, V> original,
