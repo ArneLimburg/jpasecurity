@@ -179,11 +179,11 @@ public class Configuration {
             Class<?> authenticationProviderClass = getClass().getClassLoader().loadClass(securityContextClassName);
             return (SecurityContext)authenticationProviderClass.newInstance();
         } catch (InstantiationException e) {
-            throw new PersistenceException(e);
+            throw getExceptionFactory().createRuntimeException(e);
         } catch (IllegalAccessException e) {
-            throw new PersistenceException(e);
+            throw getExceptionFactory().createRuntimeException(e);
         } catch (ClassNotFoundException e) {
-            throw new PersistenceException(e);
+            throw getExceptionFactory().createRuntimeException(e);
         }
     }
 
