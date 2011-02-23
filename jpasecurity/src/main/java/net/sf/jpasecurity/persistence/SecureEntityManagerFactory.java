@@ -32,7 +32,7 @@ import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 
 /**
- * This class is a factory that creates {@link net.sf.jpasecurity.SecureEntityManager}s.
+ * This class is a factory that creates {@link net.sf.jpasecurity.persistence.SecureEntityManager}s.
  * @author Arne Limburg
  */
 public class SecureEntityManagerFactory implements EntityManagerFactory {

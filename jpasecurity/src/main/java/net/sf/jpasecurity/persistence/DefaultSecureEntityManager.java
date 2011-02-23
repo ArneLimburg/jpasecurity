@@ -31,7 +31,6 @@ import javax.persistence.Query;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecureEntity;
-import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
 import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
