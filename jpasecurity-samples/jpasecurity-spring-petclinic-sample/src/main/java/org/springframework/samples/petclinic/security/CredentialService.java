@@ -6,7 +6,7 @@ import javax.persistence.Query;
 
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
-import net.sf.jpasecurity.SecureEntityManager;
+import net.sf.jpasecurity.persistence.SecureEntityManager;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.userdetails.UserDetails;
