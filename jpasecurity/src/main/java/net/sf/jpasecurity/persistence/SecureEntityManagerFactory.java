@@ -24,6 +24,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.configuration.Configuration;
+import net.sf.jpasecurity.configuration.ConfigurationReceiver;
+import net.sf.jpasecurity.configuration.SecurityContextReceiver;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
 import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;

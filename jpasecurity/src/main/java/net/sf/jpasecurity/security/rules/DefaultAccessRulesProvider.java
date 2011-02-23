@@ -23,11 +23,11 @@ import java.util.Map;
 import net.sf.jpasecurity.configuration.AccessRule;
 import net.sf.jpasecurity.configuration.AccessRulesProvider;
 import net.sf.jpasecurity.configuration.Configuration;
+import net.sf.jpasecurity.configuration.ConfigurationReceiver;
 import net.sf.jpasecurity.configuration.SecurityContext;
+import net.sf.jpasecurity.configuration.SecurityContextReceiver;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
-import net.sf.jpasecurity.persistence.ConfigurationReceiver;
-import net.sf.jpasecurity.persistence.SecurityContextReceiver;
 
 /**
  * This implementation of the {@link AccessRulesProvider} interface.
