@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.persistence;
+package net.sf.jpasecurity.configuration;
 
-import net.sf.jpasecurity.configuration.Configuration;
 
 /**
  * @author Arne Limburg
