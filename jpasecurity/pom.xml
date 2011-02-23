@@ -91,6 +91,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>2.1</version>
         <executions>
           <execution>
             <goals>
@@ -102,6 +103,7 @@
       <plugin>
          <groupId>org.apache.maven.plugins</groupId>
          <artifactId>maven-source-plugin</artifactId>
+         <version>2.1.2</version>
          <executions>
             <execution>
                <id>attach-sources</id>
@@ -112,7 +114,8 @@
          </executions>
       </plugin>
       <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
+      	<groupId>org.apache.maven.plugins</groupId>
+      	<artifactId>maven-compiler-plugin</artifactId>
         <version>2.0</version>
         <configuration>
           <source>1.5</source>
@@ -130,6 +133,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
+        <version>2.3</version>
         <configuration>
           <encoding>UTF-8</encoding>
         </configuration>
@@ -148,7 +152,8 @@
         </executions>
       </plugin>
       <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
+      	<groupId>org.apache.maven.plugins</groupId>
+      	<artifactId>maven-antrun-plugin</artifactId>
         <dependencies>
           <dependency>
             <groupId>ant</groupId>
@@ -156,6 +161,7 @@
             <version>1.6.5</version>
           </dependency>
         </dependencies>
+        <version>1.6</version>
         <executions>
           <execution>
             <id>process-generated-sources</id>
@@ -217,6 +223,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>javacc-maven-plugin</artifactId>
+        <version>2.6</version>
         <executions>
           <execution>
             <goals>
@@ -252,6 +259,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.5</version>
         <configuration>
           <downloadSources>true</downloadSources>
         </configuration>
@@ -315,6 +323,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.7</version>
         <configuration>
           <encoding>UTF-8</encoding>
         </configuration>
@@ -322,6 +331,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.5</version>
         <configuration>
           <configLocation>${basedir}/src/checkstyle/configuration.xml</configLocation>
           <encoding>UTF-8</encoding>
