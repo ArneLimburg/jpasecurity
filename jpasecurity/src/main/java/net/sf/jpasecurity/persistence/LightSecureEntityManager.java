@@ -27,12 +27,12 @@ import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.entity.EmptyObjectCache;
 import net.sf.jpasecurity.entity.SecureObjectCache;
-import net.sf.jpasecurity.jpql.compiler.EntityManagerEvaluator;
 import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.SimpleSubselectEvaluator;
 import net.sf.jpasecurity.jpql.compiler.SubselectEvaluator;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.persistence.compiler.EntityManagerEvaluator;
 import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
 

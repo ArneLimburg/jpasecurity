@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.jpql.compiler;
+package net.sf.jpasecurity.persistence.compiler;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,6 +27,11 @@ import javax.persistence.EntityManager;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpa.JpaQuery;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
+import net.sf.jpasecurity.jpql.compiler.AbstractSubselectEvaluator;
+import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
+import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
+import net.sf.jpasecurity.jpql.compiler.QueryEvaluationParameters;
+import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
