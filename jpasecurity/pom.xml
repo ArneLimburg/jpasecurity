@@ -159,9 +159,9 @@
       	<artifactId>maven-antrun-plugin</artifactId>
         <dependencies>
           <dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant-trax</artifactId>
-            <version>1.6.5</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jpasecurity-build</artifactId>
+            <version>${project.version}</version>
           </dependency>
         </dependencies>
         <version>1.6</version>
@@ -189,14 +189,17 @@
             <phase>package</phase>
             <configuration>
               <tasks>
-                <xslt in="${basedir}/target/jdepend-report.xml"
-                      out="${basedir}/target/jdepend-cycle-check.txt"
-                      style="${basedir}/src/jdepend/xsl/jdepend-cycle-check.xsl" />
+                <xslt in="target/jdepend-report.xml"
+                      out="target/jdepend-cycle-check.txt">
+                  <style>
+                    <javaresource name="jdepend/xsl/jdepend-cycle-check.xsl" />
+                  </style>
+                </xslt>
 
                 <!-- Fail on cycles -->
                 <fail message="There are cycles in the package-dependencies">
                   <condition>
-                    <length file="${basedir}/target/jdepend-cycle-check.txt"
+                    <length file="target/jdepend-cycle-check.txt"
                             when="greater" length="0" />
                   </condition>
                 </fail>
