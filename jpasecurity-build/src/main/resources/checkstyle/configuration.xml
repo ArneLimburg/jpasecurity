@@ -35,7 +35,7 @@
     <!-- Checks for Headers                                -->
     <!-- See http://checkstyle.sf.net/config_header.html   -->
     <module name="RegexpHeader">
-        <property name="headerFile" value="src/checkstyle/java.header"/>
+        <property name="headerFile" value="${checkstyle.header.file}"/>
     </module>
 
     <module name="FileLength"/>
