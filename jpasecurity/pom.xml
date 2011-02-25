@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
+  <parent>
+    <groupId>net.sf.jpasecurity</groupId>
+    <artifactId>jpasecurity-modules</artifactId>
+    <version>0.4.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>net.sf.jpasecurity</groupId>
   <artifactId>jpasecurity</artifactId>
   <name>JPA Security</name>
-  <version>0.4.0-SNAPSHOT</version>
   <description>
     JPA Security is an Access Control Solution for the Java Persistence API (JPA).
     With JPA Security your access control takes place
@@ -127,7 +131,6 @@
             <exclude>${basedir}/target/generated-sources/javacc/net/sf/jpasecurity/jpql/parser/Node.java</exclude>
             <exclude>${basedir}/target/generated-sources/javacc/net/sf/jpasecurity/jpql/parser/SimpleNode.java</exclude>
           </excludes>
-          <compilerArgument>-ea</compilerArgument>
         </configuration>
       </plugin>
       <plugin>
@@ -239,7 +242,8 @@
         <configuration>
           <consoleOutput>true</consoleOutput>
           <encoding>UTF-8</encoding>
-          <configLocation>${basedir}/src/checkstyle/configuration.xml</configLocation>
+          <configLocation>checkstyle/configuration.xml</configLocation>
+          <headerLocation>checkstyle/java.header</headerLocation>
         </configuration>
         <executions>
           <execution>
@@ -255,6 +259,13 @@
             </configuration>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jpasecurity-build</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -333,8 +344,9 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>2.5</version>
         <configuration>
-          <configLocation>${basedir}/src/checkstyle/configuration.xml</configLocation>
           <encoding>UTF-8</encoding>
+          <configLocation>checkstyle/configuration.xml</configLocation>
+          <headerLocation>checkstyle/java.header</headerLocation>
         </configuration>
       </plugin>
       <plugin>
