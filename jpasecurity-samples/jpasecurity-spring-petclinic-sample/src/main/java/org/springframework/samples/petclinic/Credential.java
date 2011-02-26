@@ -26,7 +26,7 @@ import org.springframework.util.StringUtils;
  */
 public class Credential extends BaseEntity implements UserDetails {
 
-    private static final GrantedAuthority[] USER_AUTHORITIES = { new GrantedAuthorityImpl("ROLE_USER") };
+    private static final GrantedAuthority[] USER_AUTHORITIES = {new GrantedAuthorityImpl("ROLE_USER")};
 
     private String username;
     private String password;

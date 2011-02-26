@@ -23,7 +23,6 @@ import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.persistence.SecureEntityManager;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
@@ -41,10 +40,11 @@ public class CredentialService implements UserDetailsService, AccessManager {
     private SecureEntityManager em;
 
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
+    public UserDetails loadUserByUsername(String username) {
         try {
-            Query query = this.em
-                            .createQuery("SELECT credential FROM Credential credential INNER JOIN FETCH credential.user WHERE credential.username = :username");
+            Query query = this.em.createQuery("SELECT credential FROM Credential credential "
+                                            + "INNER JOIN FETCH credential.user "
+                                            + "WHERE credential.username = :username");
             query.setParameter("username", username);
             return (UserDetails)query.getSingleResult();
         } catch (NoResultException e) {

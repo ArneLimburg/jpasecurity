@@ -34,66 +34,66 @@ import org.springframework.beans.support.PropertyComparator;
  */
 public class Pet extends NamedEntity {
 
-	private Date birthDate;
+    private Date birthDate;
 
-	private PetType type;
+    private PetType type;
 
-	private Owner owner;
+    private Owner owner;
 
-	private Set<Visit> visits;
+    private Set<Visit> visits;
 
-	protected Pet() {
-	}
-	
-	public Pet(Owner owner) {
-	    this.owner = owner;
-	}
+    protected Pet() {
+    }
 
-	public void setBirthDate(Date birthDate) {
-		this.birthDate = birthDate;
-	}
+    public Pet(Owner owner) {
+        this.owner = owner;
+    }
 
-	public Date getBirthDate() {
-		return this.birthDate;
-	}
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
+    }
 
-	public void setType(PetType type) {
-		this.type = type;
-	}
+    public Date getBirthDate() {
+        return this.birthDate;
+    }
 
-	public PetType getType() {
-		return this.type;
-	}
+    public void setType(PetType type) {
+        this.type = type;
+    }
 
-	protected void setOwner(Owner owner) {
-		this.owner = owner;
-	}
+    public PetType getType() {
+        return this.type;
+    }
 
-	public Owner getOwner() {
-		return this.owner;
-	}
+    protected void setOwner(Owner owner) {
+        this.owner = owner;
+    }
 
-	protected void setVisitsInternal(Set<Visit> visits) {
-		this.visits = visits;
-	}
+    public Owner getOwner() {
+        return this.owner;
+    }
 
-	protected Set<Visit> getVisitsInternal() {
-		if (this.visits == null) {
-			this.visits = new HashSet<Visit>();
-		}
-		return this.visits;
-	}
+    protected void setVisitsInternal(Set<Visit> visits) {
+        this.visits = visits;
+    }
 
-	public List<Visit> getVisits() {
-		List<Visit> sortedVisits = new ArrayList<Visit>(getVisitsInternal());
-		PropertyComparator.sort(sortedVisits, new MutableSortDefinition("date", false, false));
-		return Collections.unmodifiableList(sortedVisits);
-	}
+    protected Set<Visit> getVisitsInternal() {
+        if (this.visits == null) {
+            this.visits = new HashSet<Visit>();
+        }
+        return this.visits;
+    }
 
-	public void addVisit(Visit visit) {
-		getVisitsInternal().add(visit);
-		visit.setPet(this);
-	}
+    public List<Visit> getVisits() {
+        List<Visit> sortedVisits = new ArrayList<Visit>(getVisitsInternal());
+        PropertyComparator.sort(sortedVisits, new MutableSortDefinition("date", false, false));
+        return Collections.unmodifiableList(sortedVisits);
+    }
+
+    public void addVisit(Visit visit) {
+        getVisitsInternal().add(visit);
+        visit.setPet(this);
+    }
 
     public boolean equals(Object object) {
         return object instanceof Pet? super.equals(object): false;
