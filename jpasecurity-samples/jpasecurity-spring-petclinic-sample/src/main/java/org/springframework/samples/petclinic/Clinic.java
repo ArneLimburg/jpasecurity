@@ -17,8 +17,6 @@ package org.springframework.samples.petclinic;
 
 import java.util.Collection;
 
-import org.springframework.dao.DataAccessException;
-
 /**
  * The high-level PetClinic business interface.
  *
@@ -36,13 +34,13 @@ public interface Clinic {
      * Retrieve all <code>Vet</code>s from the data store.
      * @return a <code>Collection</code> of <code>Vet</code>s
      */
-    Collection<Vet> getVets() throws DataAccessException;
+    Collection<Vet> getVets();
 
     /**
      * Retrieve all <code>PetType</code>s from the data store.
      * @return a <code>Collection</code> of <code>PetType</code>s
      */
-    Collection<PetType> getPetTypes() throws DataAccessException;
+    Collection<PetType> getPetTypes();
 
     /**
      * Retrieve <code>Owner</code>s from the data store by last name,
@@ -51,7 +49,7 @@ public interface Clinic {
      * @return a <code>Collection</code> of matching <code>Owner</code>s
      * (or an empty <code>Collection</code> if none found)
      */
-    Collection<Owner> findOwners(String lastName) throws DataAccessException;
+    Collection<Owner> findOwners(String lastName);
 
     /**
      * Retrieve an <code>Owner</code> from the data store by id.
@@ -59,7 +57,7 @@ public interface Clinic {
      * @return the <code>Owner</code> if found
      * @throws org.springframework.dao.DataRetrievalFailureException if not found
      */
-    Owner loadOwner(int id) throws DataAccessException;
+    Owner loadOwner(int id);
 
     /**
      * Retrieve a <code>Pet</code> from the data store by id.
@@ -67,7 +65,7 @@ public interface Clinic {
      * @return the <code>Pet</code> if found
      * @throws org.springframework.dao.DataRetrievalFailureException if not found
      */
-    Pet loadPet(int id) throws DataAccessException;
+    Pet loadPet(int id);
 
     /**
      * Retrieve a <code>Vet</code> from the data store by id.
@@ -75,7 +73,7 @@ public interface Clinic {
      * @return the <code>Vet</code> if found
      * @throws org.springframework.dao.DataRetrievalFailureException if not found
      */
-    Vet loadVet(int id) throws DataAccessException;
+    Vet loadVet(int id);
 
     /**
      * Retrieve <code>Visit</code>s from the data store,
@@ -84,7 +82,7 @@ public interface Clinic {
      * @return a <code>Collection</code> of matching <code>Visit</code>s
      * (or an empty <code>Collection</code> if none found)
      */
-    Collection<Visit> findVisits(Vet vet) throws DataAccessException;
+    Collection<Visit> findVisits(Vet vet);
 
     /**
      * Retrieve a <code>Visit</code> from the data store by id.
@@ -92,27 +90,27 @@ public interface Clinic {
      * @return the <code>Visit</code> if found
      * @throws org.springframework.dao.DataRetrievalFailureException if not found
      */
-    Visit loadVisit(int id) throws DataAccessException;
+    Visit loadVisit(int id);
 
     /**
      * Save an <code>Owner</code> to the data store, either inserting or updating it.
      * @param owner the <code>Owner</code> to save
      * @see BaseEntity#isNew
      */
-    void storeOwner(Owner owner) throws DataAccessException;
+    void storeOwner(Owner owner);
 
     /**
      * Save a <code>Pet</code> to the data store, either inserting or updating it.
      * @param pet the <code>Pet</code> to save
      * @see BaseEntity#isNew
      */
-    void storePet(Pet pet) throws DataAccessException;
+    void storePet(Pet pet);
 
     /**
      * Save a <code>Visit</code> to the data store, either inserting or updating it.
      * @param visit the <code>Visit</code> to save
      * @see BaseEntity#isNew
      */
-    void storeVisit(Visit visit) throws DataAccessException;
+    void storeVisit(Visit visit);
 
 }
