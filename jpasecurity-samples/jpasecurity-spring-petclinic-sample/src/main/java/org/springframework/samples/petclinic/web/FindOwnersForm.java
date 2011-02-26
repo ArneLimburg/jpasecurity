@@ -39,43 +39,42 @@ import org.springframework.web.bind.WebDataBinder;
 @RequestMapping("/findOwners.do")
 public class FindOwnersForm {
 
-	private final Clinic clinic;
+    private final Clinic clinic;
 
-	@Autowired
-	public FindOwnersForm(Clinic clinic) {
-		this.clinic = clinic;
-	}
+    @Autowired
+    public FindOwnersForm(Clinic clinic) {
+        this.clinic = clinic;
+    }
 
     @InitBinder
     public void setAllowedFields(WebDataBinder dataBinder) {
-        dataBinder.setDisallowedFields(new String[] {"id"});
+        dataBinder.setDisallowedFields(new String[] { "id" });
     }
 
-	@RequestMapping(method = RequestMethod.GET)
-	public  String setupForm(Model model) {
-		model.addAttribute("owner", new Owner());
-		return "findOwners";
-	}
+    @RequestMapping(method = RequestMethod.GET)
+    public String setupForm(Model model) {
+        model.addAttribute("owner", new Owner());
+        return "findOwners";
+    }
 
-	@RequestMapping(method = RequestMethod.POST)
-	public  String processSubmit(Owner owner, BindingResult result, Model model) {
-		// find owners by last name
-		Collection<Owner> results = this.clinic.findOwners(owner.getLastName());
-		if (results.size() < 1) {
-			// no owners found
-			result.rejectValue("lastName", "notFound", "not found");
-			return "findOwners";
-		}
-		if (results.size() > 1) {
-			// multiple owners found
-			model.addAttribute("selections", results);
-			return "owners";
-		}
-		else {
-			// 1 owner found
-			owner = results.iterator().next();
-			return "redirect:owner.do?ownerId=" + owner.getId();
-		}
-	}
+    @RequestMapping(method = RequestMethod.POST)
+    public String processSubmit(Owner owner, BindingResult result, Model model) {
+        // find owners by last name
+        Collection<Owner> results = this.clinic.findOwners(owner.getLastName());
+        if (results.size() < 1) {
+            // no owners found
+            result.rejectValue("lastName", "notFound", "not found");
+            return "findOwners";
+        }
+        if (results.size() > 1) {
+            // multiple owners found
+            model.addAttribute("selections", results);
+            return "owners";
+        } else {
+            // 1 owner found
+            owner = results.iterator().next();
+            return "redirect:owner.do?ownerId=" + owner.getId();
+        }
+    }
 
 }

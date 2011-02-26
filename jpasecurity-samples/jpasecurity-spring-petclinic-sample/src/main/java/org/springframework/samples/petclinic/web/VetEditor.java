@@ -25,18 +25,18 @@ import org.springframework.samples.petclinic.Vet;
  */
 public class VetEditor extends PropertyEditorSupport {
 
-	private final Clinic clinic;
+    private final Clinic clinic;
 
-	public VetEditor(Clinic clinic) {
-		this.clinic = clinic;
-	}
+    public VetEditor(Clinic clinic) {
+        this.clinic = clinic;
+    }
 
-	@Override
-	public void setAsText(String text) {
-		for (Vet vet: this.clinic.getVets()) {
-			if (vet.toString().equals(text)) {
-				setValue(vet);
-			}
-		}
-	}
+    @Override
+    public void setAsText(String text) {
+        for (Vet vet: this.clinic.getVets()) {
+            if (vet.toString().equals(text)) {
+                setValue(vet);
+            }
+        }
+    }
 }
