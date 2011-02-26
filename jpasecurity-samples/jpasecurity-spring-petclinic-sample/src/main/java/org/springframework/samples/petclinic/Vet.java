@@ -78,7 +78,7 @@ public class Vet extends Person {
     public boolean equals(Object object) {
         return object instanceof Vet ? super.equals(object) : false;
     }
-    
+
     public int hashCode() {
         return super.hashCode();
     }
