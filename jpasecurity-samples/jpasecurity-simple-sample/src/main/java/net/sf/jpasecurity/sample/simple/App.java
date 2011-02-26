@@ -22,6 +22,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
@@ -42,7 +43,7 @@ public class App {
     }
 
     public static void createUsers(final EntityManagerFactory entityManagerFactory) {
-        StaticAuthenticationProvider.runAs("root", Arrays.asList("admin"), new PrivilegedAction() {
+        StaticAuthenticationProvider.runAs("root", Arrays.asList("admin"), new PrivilegedAction<Object>() {
             public Object run() {
                 EntityManager entityManager;
 
@@ -58,9 +59,7 @@ public class App {
     }
 
     public static void displayUserCount(EntityManagerFactory entityManagerFactory) {
-        EntityManager entityManager;
-        
-        entityManager = entityManagerFactory.createEntityManager();
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         List<User> users = entityManager.createQuery("SELECT user FROM User user").getResultList();
         System.out.println("users.size = " + users.size());
@@ -69,14 +68,14 @@ public class App {
     }
 
     public static void createContacts(final EntityManagerFactory entityManagerFactory) {
-        StaticAuthenticationProvider.runAs("root", Arrays.asList("admin"), new PrivilegedAction() {
+        StaticAuthenticationProvider.runAs("root", Arrays.asList("admin"), new PrivilegedAction<Object>() {
             public Object run() {
-                EntityManager entityManager;
-
-                entityManager = entityManagerFactory.createEntityManager();
+                EntityManager entityManager = entityManagerFactory.createEntityManager();
                 entityManager.getTransaction().begin();
-                User john = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'John'").getSingleResult();
-                User mary = (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'Mary'").getSingleResult();
+                Query johnQuery = entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'John'");
+                Query maryQuery = entityManager.createQuery("SELECT user FROM User user WHERE user.name = 'Mary'");
+                User john = (User)johnQuery.getSingleResult();
+                User mary = (User)maryQuery.getSingleResult();
                 entityManager.persist(new Contact(john, "peter@jpasecurity.sf.net"));
                 entityManager.persist(new Contact(john, "0 12 34 - 56 789"));
                 entityManager.persist(new Contact(mary, "paul@jpasecurity.sf.net"));
