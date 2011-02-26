@@ -51,8 +51,8 @@ public class EditOwnerForm {
 
     @InitBinder
     public void setAllowedFields(WebDataBinder dataBinder) {
-        dataBinder.setDisallowedFields(new String[] { "id" });
-        dataBinder.setDisallowedFields(new String[] { "username" });
+        dataBinder.setDisallowedFields(new String[] {"id"});
+        dataBinder.setDisallowedFields(new String[] {"username"});
     }
 
     @RequestMapping(method = RequestMethod.GET)

@@ -106,4 +106,8 @@ public class Visit extends BaseEntity {
     public boolean equals(Object object) {
         return object instanceof Visit ? super.equals(object) : false;
     }
+
+    public int hashCode() {
+        return super.hashCode();
+    }
 }
