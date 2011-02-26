@@ -6,9 +6,218 @@
   <name>JPA Security Modules</name>
   <version>0.4.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+
+  <url>http://jpasecurity.sf.net</url>
+  <inceptionYear>2008</inceptionYear>
+
   <modules>
     <module>jpasecurity-build</module>
     <module>jpasecurity</module>
     <module>jpasecurity-samples</module>
   </modules>
+
+  <issueManagement>
+    <system>Sourceforge Tracker</system>
+    <url>http://sourceforge.net/tracker/?group_id=219346</url>
+  </issueManagement>
+
+  <developers>
+    <developer>
+      <id>arne</id>
+      <name>Arne Limburg</name>
+      <email>arne.limburg(a)openknowledge.de</email>
+      <roles>
+        <role>Project Lead</role>
+        <role>Java Developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>jsiemer</id>
+      <name>Johannes Siemer</name>
+      <email>jsiemer(a)users.sourceforge.net</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>bigsteff</id>
+      <name>Stefan Hildebrandt</name>
+      <email>bigsteff(a)users.sourceforge.net</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/jpasecurity/</connection>
+    <developerConnection>scm:svn:https://jpasecurity.svn.sourceforge.net/svnroot/jpasecurity/trunk/jpasecurity/
+    </developerConnection>
+    <url>http://jpasecurity.svn.sourceforge.net/viewvc/jpasecurity/trunk/jpasecurity/</url>
+  </scm>
+
+  <organization>
+    <name>JPA Security</name>
+  </organization>
+
+  <distributionManagement>
+    <site>
+      <id>sourceforge</id>
+      <url>sftp://jpasecurity.sf.net:/home/groups/j/jp/jpasecurity/htdocs/</url>
+    </site>
+  </distributionManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.1.2</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+      	<artifactId>maven-compiler-plugin</artifactId>
+        <version>2.0</version>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.3</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.5</version>
+        <configuration>
+          <consoleOutput>true</consoleOutput>
+          <encoding>UTF-8</encoding>
+          <configLocation>checkstyle/configuration.xml</configLocation>
+          <headerLocation>checkstyle/java.header</headerLocation>
+        </configuration>
+        <executions>
+          <execution>
+            <id>compile</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>checkstyle</goal>
+            </goals>
+            <configuration>
+              <failsOnError>true</failsOnError>
+              <consoleOutput>true</consoleOutput>
+              <includeTestSourceDirectory>false</includeTestSourceDirectory> <!--TODO switch was disabled until now-->
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jpasecurity-build</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.5</version>
+        <configuration>
+          <downloadSources>true</downloadSources>
+        </configuration>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jdepend-maven-plugin</artifactId>
+        <version>2.0-beta-2</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jpasecurity-build</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <configuration>
+              <target description="Checking for cyclic package-dependencies">
+                <xslt in="target/jdepend-report.xml"
+                      out="target/jdepend-cycle-check.txt">
+                  <style>
+                    <javaresource name="jdepend/xsl/jdepend-cycle-check.xsl" />
+                  </style>
+                </xslt>
+
+                <!-- Fail on cycles -->
+                <fail message="There are cycles in the package-dependencies">
+                  <condition>
+                    <length file="target/jdepend-cycle-check.txt"
+                            when="greater" length="0" />
+                  </condition>
+                </fail>
+             </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>
