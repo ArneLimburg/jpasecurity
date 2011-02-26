@@ -10,4 +10,8 @@ public class Specialty extends NamedEntity {
     public boolean equals(Object object) {
         return object instanceof Specialty? super.equals(object): false;
     }
+
+    public int hashCode() {
+        return super.hashCode();
+    }
 }
