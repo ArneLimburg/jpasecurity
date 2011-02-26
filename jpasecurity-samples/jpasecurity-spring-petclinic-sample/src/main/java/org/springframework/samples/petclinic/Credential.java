@@ -26,16 +26,16 @@ import org.springframework.util.StringUtils;
  */
 public class Credential extends BaseEntity implements UserDetails {
 
-    private static final GrantedAuthority[] USER_AUTHORITIES = {new GrantedAuthorityImpl("ROLE_USER")};
-    
+    private static final GrantedAuthority[] USER_AUTHORITIES = { new GrantedAuthorityImpl("ROLE_USER") };
+
     private String username;
     private String password;
     private Person user;
-    
+
     public String getUsername() {
         return username;
     }
-    
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -43,25 +43,25 @@ public class Credential extends BaseEntity implements UserDetails {
     public String getPassword() {
         return password;
     }
-    
+
     protected void setPassword(String password) {
         this.password = password;
     }
-    
+
     public String getNewPassword() {
         return "new password";
     }
-    
+
     public void setNewPassword(String password) {
         if (StringUtils.hasText(password)) {
             setPassword(new Md5PasswordEncoder().encodePassword(password, null));
         }
     }
-    
+
     public Person getUser() {
         return user;
     }
-    
+
     public void setUser(Person user) {
         this.user = user;
     }
@@ -85,8 +85,12 @@ public class Credential extends BaseEntity implements UserDetails {
     public boolean isCredentialsNonExpired() {
         return true;
     }
-    
+
     public boolean equals(Object object) {
         return object instanceof Credential? super.equals(object): false;
+    }
+
+    public int hashCode() {
+        return super.hashCode();
     }
 }

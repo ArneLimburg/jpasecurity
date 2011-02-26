@@ -47,7 +47,7 @@ public class OwnerValidator {
             errors.rejectValue("telephone", "required", "required");
         } else {
             for (int i = 0; i < telephone.length(); ++i) {
-                if ((Character.isDigit(telephone.charAt(i))) == false) {
+                if (!Character.isDigit(telephone.charAt(i))) {
                     errors.rejectValue("telephone", "nonNumeric", "non-numeric");
                     break;
                 }
