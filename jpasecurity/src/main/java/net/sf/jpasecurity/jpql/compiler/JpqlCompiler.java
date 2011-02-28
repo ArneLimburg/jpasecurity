@@ -23,6 +23,7 @@ import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
+import net.sf.jpasecurity.jpql.parser.JpqlCount;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlInCollection;
@@ -41,6 +42,7 @@ import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ToStringVisitor;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
+import net.sf.jpasecurity.util.ValueHolder;
 
 /**
  * Compiles a {@link JpqlStatement} into a {@link JpqlCompiledStatement}.
@@ -51,6 +53,8 @@ public class JpqlCompiler {
     private MappingInformation mappingInformation;
     private final SelectVisitor selectVisitor = new SelectVisitor();
     private final AliasVisitor aliasVisitor = new AliasVisitor();
+    private final CountVisitor countVisitor = new CountVisitor();
+    private final PathVisitor pathVisitor = new PathVisitor();
     private final NamedParameterVisitor namedParameterVisitor = new NamedParameterVisitor();
     private final PositionalParameterVisitor positionalParameterVisitor = new PositionalParameterVisitor();
 
@@ -153,9 +157,25 @@ public class JpqlCompiler {
 
     private class AliasVisitor extends JpqlVisitorAdapter<Set<TypeDefinition>> {
 
+        public boolean visit(JpqlSelectExpression node, Set<TypeDefinition> typeDefinitions) {
+            if (node.jjtGetNumChildren() == 1) {
+                return false;
+            }
+            String path = pathVisitor.getPath(node);
+            String alias = getAlias(node);
+            Class<?> type;
+            if (countVisitor.isCount(node)) {
+                type = Long.class;
+            } else {
+                type = mappingInformation.getType(path, typeDefinitions);
+            }
+            typeDefinitions.add(new TypeDefinition(alias, type, path, path.contains("."), false));
+            return false;
+        }
+
         public boolean visit(JpqlFromItem node, Set<TypeDefinition> typeDefinitions) {
             String abstractSchemaName = node.jjtGetChild(0).toString();
-            String alias = node.jjtGetChild(1).toString();
+            String alias = getAlias(node);
             Class<?> type = mappingInformation.getClassMapping(abstractSchemaName.trim()).getEntityType();
             if (type == null) {
                 throw new PersistenceException("type not found " + abstractSchemaName.trim());
@@ -193,7 +213,7 @@ public class JpqlCompiler {
             if (node.jjtGetNumChildren() == 1) {
                 typeDefinitions.add(new TypeDefinition(type, fetchPath, innerJoin, fetchJoin));
             } else {
-                String alias = node.jjtGetChild(1).toString();
+                String alias = getAlias(node);
                 typeDefinitions.add(new TypeDefinition(alias, type, fetchPath, innerJoin, fetchJoin));
             }
             return false;
@@ -201,6 +221,10 @@ public class JpqlCompiler {
 
         public boolean visit(JpqlSubselect node, Set<TypeDefinition> typeDefinitions) {
             return false;
+        }
+
+        private String getAlias(Node node) {
+            return node.jjtGetChild(1).toString();
         }
     }
 
@@ -217,6 +241,34 @@ public class JpqlCompiler {
         public boolean visit(JpqlPositionalInputParameter node, Set<String> positionalParameters) {
             positionalParameters.add(node.getValue());
             return true;
+        }
+    }
+
+    private class PathVisitor extends JpqlVisitorAdapter<ValueHolder<String>> {
+
+        public String getPath(Node node) {
+            ValueHolder<String> result = new ValueHolder<String>();
+            node.visit(this, result);
+            return result.getValue();
+        }
+
+        public boolean visit(JpqlPath node, ValueHolder<String> result) {
+            result.setValue(node.toString());
+            return false;
+        }
+    }
+
+    private class CountVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
+
+        public boolean isCount(Node node) {
+            ValueHolder<Boolean> result = new ValueHolder<Boolean>(Boolean.FALSE);
+            node.visit(this, result);
+            return result.getValue();
+        }
+
+        public boolean visit(JpqlCount node, ValueHolder<Boolean> result) {
+            result.setValue(Boolean.TRUE);
+            return false;
         }
     }
 }

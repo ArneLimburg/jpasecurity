@@ -1177,20 +1177,6 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         return (JpqlSubselect)node;
     }
 
-    private void validateChildCount(Node node, int childCount) {
-        if (node.jjtGetNumChildren() != childCount) {
-            throw new IllegalStateException("node " + node.getClass().getName() + " must have " + childCount + " children");
-        }
-    }
-
-    private void validateChildCount(Node node, int minChildCount, int maxChildCount) {
-        if (node.jjtGetNumChildren() < minChildCount) {
-            throw new IllegalStateException("node " + node.getClass().getName() + " must have at least " + minChildCount + " children");
-        } else if (node.jjtGetNumChildren() > maxChildCount) {
-            throw new IllegalStateException("node " + node.getClass().getName() + " must have at most " + maxChildCount + " children");
-        }
-    }
-
     private class Replacement {
 
         private TypeDefinition type;

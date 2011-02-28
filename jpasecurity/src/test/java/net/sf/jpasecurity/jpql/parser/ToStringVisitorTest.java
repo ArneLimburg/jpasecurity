@@ -30,6 +30,7 @@ public class ToStringVisitorTest extends TestCase {
 	public void testToStringVisitor() throws ParseException {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.id = :id");
         assertJpql("SELECT COUNT(bean) FROM TestBean bean WHERE bean.id = :id");
+        assertJpql("SELECT COUNT( DISTINCT bean.id) FROM TestBean bean WHERE bean.id = :id");
         assertJpql("SELECT AVG(bean) FROM TestBean bean WHERE bean.id = :id");
         assertJpql("SELECT SUM(bean) FROM TestBean bean WHERE bean.id = :id");
 		assertJpql("SELECT bean FROM net.sf.jpasecurity.model.TestBean bean WHERE bean.id = :id");
@@ -95,6 +96,7 @@ public class ToStringVisitorTest extends TestCase {
 		assertJpql("SELECT bean FROM TestBean bean WHERE bean.created < CURRENT_TIME");
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name IN ('name 1', 'name 2')");
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
+        assertJpql("SELECT bean, COUNT( DISTINCT bean) AS beanCount FROM TestBean bean WHERE bean.name = 'name 1'");
 		assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0");
 		assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0 WHERE bean.id = 0");
 		assertJpql("DELETE FROM TestBean bean");
