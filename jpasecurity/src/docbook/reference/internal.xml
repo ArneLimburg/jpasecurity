@@ -67,7 +67,7 @@
     <title>Other Operations</title>
     <para>
       Every entity that was loaded over a secured <systemitem>EntityManager</systemitem> can be casted to <systemitem>SecureEntity</systemitem>.
-      This interface provides methods to programmaticallay check accessibility, force read- and write-check
+      This interface provides methods to programmatically check accessibility, force read- and write-check
       (via <systemitem>refresh()</systemitem> and <systemitem>flush()</systemitem>) and check the state of the entity.
     </para>
     <para>
