@@ -50,6 +50,15 @@
       </roles>
       <timezone>+1</timezone>
     </developer>
+     <developer>
+      <id>descipar</id>
+      <name>Kai Schulte</name>
+      <email>descipar(a)users.sourceforge.net</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
   </developers>
 
   <licenses>
