@@ -219,15 +219,11 @@ public class QueryEvaluatorTest extends TestCase {
         aliases.put("bean", new MethodAccessAnnotationTestBean());
         namedParameters.put("name", "test2");
         
-        PersistenceException typeNotFoundException = new PersistenceException();
-        reset(exceptionFactory);
-        expect(exceptionFactory.createTypeNotFoundException(MethodAccessAnnotationTestBean.class)).andReturn(typeNotFoundException);
-        replay(exceptionFactory);
         try {
             queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
         } catch (PersistenceException e) {
-            assertSame(typeNotFoundException, e);
+            assertTrue(e.getMessage().contains("Mapping not found"));
         }
         verify(exceptionFactory);
     }

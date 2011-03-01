@@ -73,4 +73,9 @@
      </access-rule>
   </persistence-unit>
 
+  <persistence-unit name="alias">
+  	<access-rule>
+      GRANT ACCESS TO Contact contact WHERE contact.owner.name = 'user'
+  	</access-rule>
+  </persistence-unit>
 </security>

@@ -76,15 +76,8 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
         Class<?> type = getType(alias, typeDefinitions);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             ClassMappingInformation classMapping = mappingInformation.getClassMapping(type);
-            if (classMapping == null) {
-                throw exceptionFactory.createTypeNotFoundException(type);
-            }
             String propertyName = node.jjtGetChild(i).getValue();
             PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(propertyName);
-            if (propertyMapping == null) {
-                String error = "Property not found for class " + type.getName();
-                throw exceptionFactory.createInvalidPathException(propertyName, error);
-            }
             if (propertyMapping instanceof SimplePropertyMappingInformation && i < node.jjtGetNumChildren() - 1) {
                 String error = "Cannot navigate through simple property in class " + type.getName();
                 throw exceptionFactory.createInvalidPathException(propertyName, error);

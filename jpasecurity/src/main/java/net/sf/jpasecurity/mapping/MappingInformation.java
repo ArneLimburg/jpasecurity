@@ -28,6 +28,8 @@ public interface MappingInformation {
     Set<String> getNamedQueryNames();
     String getNamedQuery(String name);
     Collection<Class<?>> getPersistentClasses();
+    boolean containsClassMapping(Class<?> entityType);
+    boolean containsClassMapping(String entityName);
     ClassMappingInformation getClassMapping(Class<?> entityType);
     ClassMappingInformation getClassMapping(String entityName);
     Class<?> getType(String path, Set<TypeDefinition> typeDefinitions);

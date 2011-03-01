@@ -19,10 +19,14 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.FlushModeType;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
+import static org.easymock.EasyMock.*;
 import junit.framework.TestCase;
+import net.sf.jpasecurity.contacts.model.Contact;
+import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.persistence.ParentChildTestData;
@@ -134,5 +138,26 @@ public class AccessCheckTest extends TestCase {
             //expected
         }
         entityManager.close();
+    }
+    
+    public void testAliasRules() {
+        TestAuthenticationProvider.authenticate(USER);
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("alias");
+
+        EntityManager entityManager = factory.createEntityManager();
+        EntityManager mock = (EntityManager)entityManager.getDelegate();
+        reset(mock);
+        String originalQuery = "SELECT c.text, SUM(c.id) AS cSum FROM Contact AS c WHERE c.owner.name = :name GROUP BY c.text ORDER BY cSum";
+        String filteredQuery = " SELECT c.text,  SUM(c.id)  AS cSum FROM Contact c WHERE (c.owner.name = :name) AND (c.owner.name = 'user') GROUP BY c.text  ORDER BY cSum";
+        
+        expect(mock.isOpen()).andReturn(true).anyTimes();
+        expect(mock.getFlushMode()).andReturn(FlushModeType.AUTO);
+        expect(mock.createQuery(filteredQuery)).andReturn(createMock(Query.class));
+        
+        replay(mock);
+
+        entityManager.createQuery(originalQuery);
+        
+        verify(mock);
     }
 }

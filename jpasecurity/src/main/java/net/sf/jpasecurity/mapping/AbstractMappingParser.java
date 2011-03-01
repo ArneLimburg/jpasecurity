@@ -230,7 +230,11 @@ public abstract class AbstractMappingParser {
         boolean isVersionProperty = isVersionProperty(property);
         boolean isSingleValuedRelationshipProperty = isSingleValuedRelationshipProperty(property);
         boolean isCollectionValuedRelationshipProperty = isCollectionValuedRelationshipProperty(property);
-        PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(name);
+        boolean createPropertyMapping = !classMapping.containsPropertyMapping(name);
+        PropertyMappingInformation propertyMapping = null;
+        if (!createPropertyMapping) {
+            propertyMapping = classMapping.getPropertyMapping(name);
+        }
         if (propertyMapping != null) {
             if (isIdProperty) {
                 propertyMapping.setIdProperty(isIdProperty);

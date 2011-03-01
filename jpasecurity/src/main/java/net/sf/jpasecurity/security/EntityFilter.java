@@ -92,9 +92,6 @@ public class EntityFilter {
     public boolean isAccessible(Object entity, AccessType accessType, SecurityContext securityContext)
             throws NotEvaluatableException {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-        if (mapping == null) {
-            throw new IllegalArgumentException(entity.getClass() + " is no managed entity type");
-        }
         String alias = Character.toLowerCase(mapping.getEntityName().charAt(0)) + mapping.getEntityName().substring(1);
         AccessDefinition accessDefinition
             = createAccessDefinition(alias, mapping.getEntityType(), accessType, securityContext);

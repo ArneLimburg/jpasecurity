@@ -67,13 +67,31 @@ public class DefaultMappingInformation implements MappingInformation {
         return Collections.unmodifiableSet(entityTypeMappings.keySet());
     }
 
-    public ClassMappingInformation getClassMapping(Class<?> entityType) {
+    public boolean containsClassMapping(Class<?> entityType) {
+        while (entityType != null) {
+            if (entityTypeMappings.containsKey(entityType)) {
+                return true;
+            }
+            entityType = entityType.getSuperclass();
+        }
+        return false;
+    }
+
+    public ClassMappingInformation getClassMapping(Class<?> type) {
+        Class<?> entityType = type;
         ClassMappingInformation classMapping = entityTypeMappings.get(entityType);
         while (classMapping == null && entityType != null) {
             entityType = entityType.getSuperclass();
             classMapping = entityTypeMappings.get(entityType);
         }
+        if (classMapping == null) {
+            throw exceptionFactory.createTypeNotFoundException(type);
+        }
         return classMapping;
+    }
+
+    public boolean containsClassMapping(String entityName) {
+        return entityNameMappings.containsKey(entityName);
     }
 
     public ClassMappingInformation getClassMapping(String entityName) {
@@ -88,16 +106,12 @@ public class DefaultMappingInformation implements MappingInformation {
     }
 
     public Class<?> getType(String path, Set<TypeDefinition> typeDefinitions) {
-        try {
-            String[] entries = path.split("\\.");
-            Class<?> type = getAliasType(entries[0], typeDefinitions);
-            for (int i = 1; i < entries.length; i++) {
-                type = getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
-            }
-            return type;
-        } catch (NullPointerException e) {
-            throw exceptionFactory.createTypeDefinitionNotFoundException(path);
+        String[] entries = path.split("\\.");
+        Class<?> type = getAliasType(entries[0], typeDefinitions);
+        for (int i = 1; i < entries.length; i++) {
+            type = getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
         }
+        return type;
     }
 
     private void initializeEntityNameMappings() {
@@ -114,6 +128,6 @@ public class DefaultMappingInformation implements MappingInformation {
                 return typeDefinition.getType();
             }
         }
-        return null;
+        throw new TypeNotPresentException(alias, null);
     }
 }

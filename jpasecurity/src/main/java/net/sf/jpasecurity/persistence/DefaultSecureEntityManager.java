@@ -18,7 +18,6 @@ package net.sf.jpasecurity.persistence;
 import static net.sf.jpasecurity.AccessType.READ;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -214,11 +213,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
         depth = Math.min(depth, getMaximumFetchDepth());
         alreadyFetchedEntities.add(new SystemMapKey(entity));
-        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-        if (mapping == null) {
+        if (!mappingInformation.containsClassMapping(entity.getClass())) {
             LOG.debug("No class mapping found for entity " + entity);
             return;
         }
+        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
             if (propertyMapping.isRelationshipMapping()) {
                 if (propertyMapping.getFetchType() == net.sf.jpasecurity.FetchType.EAGER) {
@@ -245,10 +244,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         ClassMappingInformation classMapping = mappingInformation.getClassMapping(entityName);
         Object[] transientParameters = new Object[parameters.length];
         for (int i = 0; i < transientParameters.length; i++) {
-            ClassMappingInformation parameterMapping = mappingInformation.getClassMapping(parameters[i].getClass());
-            if (parameterMapping == null) {
-                transientParameters[i] = parameters[i];
-            } else {
+            if (mappingInformation.containsClassMapping(parameters[i].getClass())) {
                 EntityInvocationHandler transientInvocationHandler
                     = new EntityInvocationHandler(mappingInformation,
                                                   this,
@@ -256,6 +252,8 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                                                   parameters[i],
                                                   true);
                 transientParameters[i] = transientInvocationHandler.createSecureEntity();
+            } else {
+                transientParameters[i] = parameters[i];
             }
         }
         Object entity = ReflectionUtils.invokeConstructor(classMapping.getEntityType(), transientParameters);
@@ -276,9 +274,5 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
         SecureEntity secureEntity = (SecureEntity)entity;
         return secureEntity.isRemoved();
-    }
-
-    protected Collection<Class<?>> getImplementingInterfaces() {
-        return Collections.<Class<?>>singleton(SecureEntityManager.class);
     }
 }

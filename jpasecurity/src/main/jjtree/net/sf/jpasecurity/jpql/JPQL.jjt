@@ -403,9 +403,9 @@ void selectExpressions() #SelectExpressions: {} {
 }
 
 void selectExpression() #SelectExpression: {} {
-    aggregateSelectExpression()
-        | LOOKAHEAD(path()) path()
-        | identificationVariable()
+    aggregateSelectExpression() [[<AS>] identificationVariable()]
+        | LOOKAHEAD(path()) path() [[<AS>] identificationVariable()]
+        | identificationVariable() [[<AS>] identificationVariable()]
         | (<OBJECT> "(" identificationVariable() ")")
         | constructorExpression()
 }
