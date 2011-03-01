@@ -144,13 +144,11 @@
       <name>Maven Plugin Repository</name>
       <url>http://repo1.maven.org/maven2</url>
     </repository>
- 	<!--
    	<repository>
       <id>jboss</id>
       <name>JBoss Repository</name>
-      <url>http://repository.jboss.com/maven2</url>
+      <url>https://repository.jboss.org/nexus/content/groups/public-jboss</url>
     </repository>
-    -->
     <repository>
      <id>EclipseLink Repo</id>
      <url>http://www.eclipse.org/downloads/download.php?r=1&amp;nf=1&amp;file=/rt/eclipselink/maven.repo</url>
