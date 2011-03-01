@@ -34,7 +34,7 @@ import net.sf.jpasecurity.security.PermitWhere;
 public class Contact {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Integer id;
     @ManyToOne
     private User owner;
     @Basic

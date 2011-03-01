@@ -35,7 +35,7 @@ import net.sf.jpasecurity.security.PermitWhere;
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Integer id;
     @Basic
     private String name;
     

@@ -45,7 +45,7 @@ public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
             for (Enumeration<URL> urls
                     = Thread.currentThread().getContextClassLoader().getResources("META-INF/security.xml");
                  urls.hasMoreElements();) {
-                parser.parse(urls.nextElement().openStream());
+                parser.parse(urls.nextElement());
             }
         } catch (IOException e) {
             throw getConfiguration().getExceptionFactory().createRuntimeException(e);

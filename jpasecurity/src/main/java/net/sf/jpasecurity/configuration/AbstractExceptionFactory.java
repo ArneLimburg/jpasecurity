@@ -35,7 +35,7 @@ public abstract class AbstractExceptionFactory implements ExceptionFactory {
     }
 
     public RuntimeException createTypeNotFoundException(Class<?> type) {
-        return createTypeNotFoundException(type.getName());
+        return createTypeNotFoundException(type == null? null: type.getName());
     }
 
     public RuntimeException createTypeNotFoundException(String className) {
@@ -44,6 +44,11 @@ public abstract class AbstractExceptionFactory implements ExceptionFactory {
 
     public RuntimeException createTypeDefinitionNotFoundException(String alias) {
         return createRuntimeException("Type not found for alias \"" + alias + '"');
+    }
+
+    public RuntimeException createPropertyNotFoundException(Class<?> type, String propertyName) {
+        String message = "property \"" + propertyName + "\" of class \"" + type.getName() + "\" is not mapped";
+        return createRuntimeException(message);
     }
 
     public RuntimeException createInvalidPathException(String path, String error) {
