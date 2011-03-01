@@ -32,6 +32,7 @@ public interface ClassMappingInformation {
     boolean usesPropertyAccess();
     boolean isMetadataComplete();
     boolean areSuperclassEntityListenersExcluded();
+    boolean containsPropertyMapping(String propertyName);
     PropertyMappingInformation getPropertyMapping(String propertyName);
     List<PropertyMappingInformation> getPropertyMappings();
     List<PropertyMappingInformation> getIdPropertyMappings();

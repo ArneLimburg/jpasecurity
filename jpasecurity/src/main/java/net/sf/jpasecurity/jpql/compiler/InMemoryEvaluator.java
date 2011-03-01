@@ -127,6 +127,8 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     private final ReplacementVisitor replacementVisitor = new ReplacementVisitor();
     private final WithClauseVisitor withClauseVisitor = new WithClauseVisitor();
     private final OuterJoinWithClauseVisitor outerJoinWithClauseVisitor = new OuterJoinWithClauseVisitor();
+    private final GroupByClauseVisitor groupByClauseVisitor = new GroupByClauseVisitor();
+    private final HavingClauseVisitor havingClauseVisitor = new HavingClauseVisitor();
 
     public InMemoryEvaluator(MappingInformation mappingInformation) {
         this(new JpqlCompiler(mappingInformation), new MappedPathEvaluator(mappingInformation));
@@ -887,6 +889,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
         try {
             handleWithClause(node);
+            handleGroupByClause(node);
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
             return false;
@@ -1177,6 +1180,27 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         return (JpqlSubselect)node;
     }
 
+    private void handleGroupByClause(JpqlSubselect node) throws NotEvaluatableException {
+        if (containsGroupByClause(node)) {
+            throw new NotEvaluatableException("evaluation of subselect with GROUP BY currenty not supported");
+        }
+        if (containsHavingClause(node)) {
+            throw new NotEvaluatableException("evaluation of subselect with GROUP BY currenty not supported");
+        }
+    }
+
+    private boolean containsGroupByClause(Node node) {
+        ValueHolder<JpqlGroupBy> result = new ValueHolder<JpqlGroupBy>();
+        node.visit(groupByClauseVisitor, result);
+        return result.getValue() != null;
+    }
+
+    private boolean containsHavingClause(Node node) {
+        ValueHolder<JpqlHaving> result = new ValueHolder<JpqlHaving>();
+        node.visit(havingClauseVisitor, result);
+        return result.getValue() != null;
+    }
+
     private class Replacement {
 
         private TypeDefinition type;
@@ -1306,6 +1330,24 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             if (containsWithClause(node)) {
                 data.setValue(true);
             }
+            return false;
+        }
+    }
+
+    private class GroupByClauseVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlGroupBy>> {
+
+        @Override
+        public boolean visit(JpqlGroupBy node, ValueHolder<JpqlGroupBy> data) {
+            data.setValue(node);
+            return false;
+        }
+    }
+
+    private class HavingClauseVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlHaving>> {
+
+        @Override
+        public boolean visit(JpqlHaving node, ValueHolder<JpqlHaving> data) {
+            data.setValue(node);
             return false;
         }
     }

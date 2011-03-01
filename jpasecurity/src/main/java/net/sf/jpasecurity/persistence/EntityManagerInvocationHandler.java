@@ -229,11 +229,11 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         }
         depth = Math.min(depth, getMaximumFetchDepth());
         alreadyFetchedEntities.add(new SystemMapKey(entity));
-        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-        if (mapping == null) {
+        if (!mappingInformation.containsClassMapping(entity.getClass())) {
             LOG.debug("No class mapping found for entity " + entity);
             return;
         }
+        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
             if (propertyMapping.isRelationshipMapping()) {
                 if (propertyMapping.getFetchType() == FetchType.EAGER) {
@@ -260,10 +260,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         ClassMappingInformation classMapping = mappingInformation.getClassMapping(entityName);
         Object[] transientParameters = new Object[parameters.length];
         for (int i = 0; i < transientParameters.length; i++) {
-            ClassMappingInformation parameterMapping = mappingInformation.getClassMapping(parameters[i].getClass());
-            if (parameterMapping == null) {
-                transientParameters[i] = parameters[i];
-            } else {
+            if (mappingInformation.containsClassMapping(parameters[i].getClass())) {
                 EntityInvocationHandler transientInvocationHandler
                     = new EntityInvocationHandler(mappingInformation,
                                                   this,
@@ -271,6 +268,8 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                                                   parameters[i],
                                                   true);
                 transientParameters[i] = transientInvocationHandler.createSecureEntity();
+            } else {
+                transientParameters[i] = parameters[i];
             }
         }
         Object entity = ReflectionUtils.invokeConstructor(classMapping.getEntityType(), transientParameters);
@@ -299,12 +298,10 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
 
     private Object getCurrentUser() {
         Object user = authenticationProvider.getPrincipal();
-        if (user != null && getTarget().isOpen()) {
+        if (user != null && getTarget().isOpen() && mappingInformation.containsClassMapping(user.getClass())) {
             ClassMappingInformation userClassMapping = mappingInformation.getClassMapping(user.getClass());
-            if (userClassMapping != null) {
-                Object id = userClassMapping.getId(user);
-                user = getReference(userClassMapping.getEntityType(), id);
-            }
+            Object id = userClassMapping.getId(user);
+            user = getReference(userClassMapping.getEntityType(), id);
         }
         return user;
     }
@@ -314,12 +311,12 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         Set<Object> roles = new HashSet<Object>();
         if (authorizedRoles != null) {
             for (Object role: authorizedRoles) {
-                ClassMappingInformation roleClassMapping = mappingInformation.getClassMapping(role.getClass());
-                if (roleClassMapping == null) {
-                    roles.add(role);
-                } else {
+                if (mappingInformation.containsClassMapping(role.getClass())) {
+                    ClassMappingInformation roleClassMapping = mappingInformation.getClassMapping(role.getClass());
                     Object id = roleClassMapping.getId(role);
                     roles.add(getReference(roleClassMapping.getEntityType(), id));
+                } else {
+                    roles.add(role);
                 }
             }
         }

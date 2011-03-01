@@ -57,13 +57,7 @@ public class MappedPathEvaluator implements PathEvaluator {
             resultCollection.clear();
             for (Object rootObject: rootCollection) {
                 ClassMappingInformation classMapping = mappingInformation.getClassMapping(rootObject.getClass());
-                if (classMapping == null) {
-                    throw new PersistenceException("class '" + rootObject.getClass().getName() + "' is not mapped");
-                }
                 PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(property);
-                if (propertyMapping == null) {
-                    throw new PersistenceException("property '" + property + "' of class '" + rootObject.getClass().getName() + "' is not mapped");
-                }
                 Object result = propertyMapping.getPropertyValue(rootObject);
                 if (result != null) {
                     resultCollection.add(result);

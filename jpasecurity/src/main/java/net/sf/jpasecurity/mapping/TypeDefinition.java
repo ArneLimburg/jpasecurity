@@ -29,9 +29,6 @@ public class TypeDefinition {
     private boolean fetchJoin;
 
     public TypeDefinition(String alias, Class<?> type) {
-        if (type == null) {
-            throw new IllegalArgumentException("type may not be null");
-        }
         this.alias = alias;
         this.type = type;
     }
@@ -74,8 +71,22 @@ public class TypeDefinition {
         return fetchJoin;
     }
 
+    public boolean isPreliminary() {
+        return type == null;
+    }
+
     public Class<?> getType() {
+        if (isPreliminary()) {
+            throw new IllegalStateException("type is not yet determined");
+        }
         return type;
+    }
+
+    public void setType(Class<?> type) {
+        if (!isPreliminary()) {
+            throw new IllegalStateException("type already set");
+        }
+        this.type = type;
     }
 
     public String toString() {
@@ -88,7 +99,11 @@ public class TypeDefinition {
         if (isFetchJoin()) {
             toStringBuilder.append("fetch ");
         }
-        toStringBuilder.append(type.getName());
+        if (isPreliminary()) {
+            toStringBuilder.append("<undetermined type>");
+        } else {
+            toStringBuilder.append(type.getName());
+        }
         if (alias != null) {
             toStringBuilder.append(' ').append(alias);
         }

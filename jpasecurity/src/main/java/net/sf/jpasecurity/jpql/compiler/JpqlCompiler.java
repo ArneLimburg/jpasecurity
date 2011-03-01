@@ -163,11 +163,15 @@ public class JpqlCompiler {
             }
             String path = pathVisitor.getPath(node);
             String alias = getAlias(node);
-            Class<?> type;
+            Class<?> type = null;
             if (countVisitor.isCount(node)) {
                 type = Long.class;
             } else {
-                type = mappingInformation.getType(path, typeDefinitions);
+                try {
+                    type = mappingInformation.getType(path, typeDefinitions);
+                } catch (TypeNotPresentException e) {
+                    type = null; // must be determined later
+                }
             }
             typeDefinitions.add(new TypeDefinition(alias, type, path, path.contains("."), false));
             return false;
@@ -181,6 +185,7 @@ public class JpqlCompiler {
                 throw new PersistenceException("type not found " + abstractSchemaName.trim());
             }
             typeDefinitions.add(new TypeDefinition(alias, type));
+            determinePreliminaryTypes(typeDefinitions);
             return false;
         }
 
@@ -225,6 +230,19 @@ public class JpqlCompiler {
 
         private String getAlias(Node node) {
             return node.jjtGetChild(1).toString();
+        }
+
+        private void determinePreliminaryTypes(Set<TypeDefinition> typeDefinitions) {
+            for (TypeDefinition typeDefinition: typeDefinitions) {
+                if (typeDefinition.isPreliminary()) {
+                    try {
+                        Class<?> type = mappingInformation.getType(typeDefinition.getJoinPath(), typeDefinitions);
+                        typeDefinition.setType(type);
+                    } catch (TypeNotPresentException e) {
+                        // must be determined later
+                    }
+                }
+            }
         }
     }
 

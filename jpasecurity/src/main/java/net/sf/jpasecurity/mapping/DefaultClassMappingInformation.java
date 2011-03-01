@@ -130,10 +130,18 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
         propertyMappings.clear();
     }
 
+    public boolean containsPropertyMapping(String propertyName) {
+        return propertyMappings.containsKey(propertyName)
+               || (superclassMapping != null && superclassMapping.containsPropertyMapping(propertyName));
+    }
+
     public PropertyMappingInformation getPropertyMapping(String propertyName) {
         PropertyMappingInformation propertyMapping = propertyMappings.get(propertyName);
         if (propertyMapping == null && superclassMapping != null) {
             return superclassMapping.getPropertyMapping(propertyName);
+        }
+        if (propertyMapping == null) {
+            throw new PersistenceException("property '" + propertyName + "' of class '" + getEntityType().getName() + "' is not mapped");
         }
         return propertyMapping;
     }

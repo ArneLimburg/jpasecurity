@@ -23,6 +23,8 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 
 import junit.framework.TestCase;
+import net.sf.jpasecurity.contacts.model.Contact;
+import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.persistence.ParentChildTestData;
@@ -133,6 +135,30 @@ public class AccessCheckTest extends TestCase {
         } catch (SecurityException e) {
             //expected
         }
+        entityManager.close();
+    }
+    
+    //enable this test when switching to Hibernate 3.6.1
+    public void ignoreTestAliasRules() {
+        TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("alias");
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        User user = new User(USER);
+        entityManager.persist(user);
+        Contact contact1 = new Contact(user, "contact1@dummy.org");
+        Contact contact2 = new Contact(user, "contact2@dummy.org");
+        entityManager.persist(contact1);
+        entityManager.persist(contact2);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+
+        TestAuthenticationProvider.authenticate(USER);
+        entityManager = factory.createEntityManager();
+        Query query = entityManager.createQuery("SELECT c.text, SUM(c.id) AS cSum FROM Contact AS c WHERE c.owner.name = :name GROUP BY c.text ORDER BY cSum");
+        query.setParameter("name", USER);
+        List<MethodAccessAnnotationTestBean> result = query.getResultList();
+        assertEquals(2, result.size());
         entityManager.close();
     }
 }

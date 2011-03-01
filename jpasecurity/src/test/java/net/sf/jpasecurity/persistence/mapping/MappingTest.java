@@ -18,6 +18,7 @@ package net.sf.jpasecurity.persistence.mapping;
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.Persistence;
+import javax.persistence.PersistenceException;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
@@ -63,17 +64,36 @@ public class MappingTest extends TestCase {
         Persistence.createEntityManagerFactory(persistenceUnit);
         MappingInformation mapping = TestAuthenticationProvider.getPersistenceMapping();
         ClassMappingInformation classMapping = mapping.getClassMapping(entityType);
-        assertNotNull(classMapping);
         assertEquals(entityType, classMapping.getEntityType());
         assertEquals(fieldAccess, classMapping.usesFieldAccess());
         assertNotNull(classMapping.getPropertyMapping("id"));
         assertNotNull(classMapping.getPropertyMapping("name"));
         assertNotNull(classMapping.getPropertyMapping("parent"));
         assertNotNull(classMapping.getPropertyMapping("children"));
-        assertNull(classMapping.getPropertyMapping("identifier"));
-        assertNull(classMapping.getPropertyMapping("beanName"));
-        assertNull(classMapping.getPropertyMapping("parentBean"));
-        assertNull(classMapping.getPropertyMapping("childBeans"));
+        try {
+            classMapping.getPropertyMapping("identifier");
+            fail("expected PersistenceException");
+        } catch (PersistenceException e) {
+            assertTrue(e.getMessage().contains("not mapped"));
+        }
+        try {
+            classMapping.getPropertyMapping("beanName");
+            fail("expected PersistenceException");
+        } catch (PersistenceException e) {
+            assertTrue(e.getMessage().contains("not mapped"));
+        }
+        try {
+            classMapping.getPropertyMapping("parentBean");
+            fail("expected PersistenceException");
+        } catch (PersistenceException e) {
+            assertTrue(e.getMessage().contains("not mapped"));
+        }
+        try {
+            classMapping.getPropertyMapping("childBeans");
+            fail("expected PersistenceException");
+        } catch (PersistenceException e) {
+            assertTrue(e.getMessage().contains("not mapped"));
+        }
         assertTrue(classMapping.getPropertyMapping("id").isIdProperty());
         assertFalse(classMapping.getPropertyMapping("name").isIdProperty());
         assertFalse(classMapping.getPropertyMapping("parent").isIdProperty());

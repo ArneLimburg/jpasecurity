@@ -84,12 +84,10 @@ public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<
 
     private Object getCurrentUser() {
         Object user = authenticationProvider.getPrincipal();
-        if (user != null && getTarget().isOpen()) {
+        if (user != null && getTarget().isOpen() && mappingInformation.containsClassMapping(user.getClass())) {
             ClassMappingInformation userClassMapping = mappingInformation.getClassMapping(user.getClass());
-            if (userClassMapping != null) {
-                Object id = userClassMapping.getId(user);
-                user = getTarget().getReference(userClassMapping.getEntityType(), id);
-            }
+            Object id = userClassMapping.getId(user);
+            user = getTarget().getReference(userClassMapping.getEntityType(), id);
         }
         return user;
     }
@@ -99,12 +97,12 @@ public class LightEntityManagerInvocationHandler extends ProxyInvocationHandler<
         Set<Object> roles = new HashSet<Object>();
         if (authorizedRoles != null) {
             for (Object role: authorizedRoles) {
-                ClassMappingInformation roleClassMapping = mappingInformation.getClassMapping(role.getClass());
-                if (roleClassMapping == null) {
-                    roles.add(role);
-                } else {
+                if (mappingInformation.containsClassMapping(role.getClass())) {
+                    ClassMappingInformation roleClassMapping = mappingInformation.getClassMapping(role.getClass());
                     Object id = roleClassMapping.getId(role);
                     roles.add(getTarget().getReference(roleClassMapping.getEntityType(), id));
+                } else {
+                    roles.add(role);
                 }
             }
         }
