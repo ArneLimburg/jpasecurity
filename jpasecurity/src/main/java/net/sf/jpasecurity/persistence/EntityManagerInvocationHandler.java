@@ -17,6 +17,7 @@ package net.sf.jpasecurity.persistence;
 
 import static net.sf.jpasecurity.AccessType.READ;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,9 +36,9 @@ import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureEntityManager;
 import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
+import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
 import net.sf.jpasecurity.entity.EntityInvocationHandler;
 import net.sf.jpasecurity.entity.FetchManager;
-import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
@@ -64,6 +65,7 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
                                             implements FetchManager, AccessManager {
 
     private static final Log LOG = LogFactory.getLog(EntityManagerInvocationHandler.class);
+    private static final String GET_DELEGATE_METHOD_NAME = "getDelegate";
 
     private AuthenticationProvider authenticationProvider;
     private MappingInformation mappingInformation;
@@ -290,6 +292,14 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
         }
         SecureEntity secureEntity = (SecureEntity)entity;
         return secureEntity.isRemoved();
+    }
+
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (GET_DELEGATE_METHOD_NAME.equals(method.getName())) {
+            //Special handling for getDelegate to return the target instead of the proxy
+            return getDelegate();
+        }
+        return super.invoke(proxy, method, args);
     }
 
     protected Collection<Class<?>> getImplementingInterfaces() {

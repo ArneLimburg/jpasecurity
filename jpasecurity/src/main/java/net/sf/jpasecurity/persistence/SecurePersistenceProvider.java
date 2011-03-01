@@ -155,7 +155,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
                 = Thread.currentThread().getContextClassLoader().getResources("META-INF/persistence.xml");
                  persistenceFiles.hasMoreElements();) {
                 URL persistenceFile = persistenceFiles.nextElement();
-                persistenceXmlParser.parse(persistenceFile.openStream());
+                persistenceXmlParser.parse(persistenceFile);
                 if (persistenceXmlParser.containsPersistenceUnitInfo(persistenceUnitName)) {
                    final PersistenceUnitInfo persistenceUnitInfo =
                       persistenceXmlParser.getPersistenceUnitInfo(persistenceUnitName);

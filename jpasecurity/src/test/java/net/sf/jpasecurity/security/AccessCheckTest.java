@@ -19,9 +19,11 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.FlushModeType;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
+import static org.easymock.EasyMock.*;
 import junit.framework.TestCase;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
@@ -138,27 +140,24 @@ public class AccessCheckTest extends TestCase {
         entityManager.close();
     }
     
-    //enable this test when switching to Hibernate 3.6.1
-    public void ignoreTestAliasRules() {
-        TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
-        EntityManagerFactory factory = Persistence.createEntityManagerFactory("alias");
-        EntityManager entityManager = factory.createEntityManager();
-        entityManager.getTransaction().begin();
-        User user = new User(USER);
-        entityManager.persist(user);
-        Contact contact1 = new Contact(user, "contact1@dummy.org");
-        Contact contact2 = new Contact(user, "contact2@dummy.org");
-        entityManager.persist(contact1);
-        entityManager.persist(contact2);
-        entityManager.getTransaction().commit();
-        entityManager.close();
-
+    public void testAliasRules() {
         TestAuthenticationProvider.authenticate(USER);
-        entityManager = factory.createEntityManager();
-        Query query = entityManager.createQuery("SELECT c.text, SUM(c.id) AS cSum FROM Contact AS c WHERE c.owner.name = :name GROUP BY c.text ORDER BY cSum");
-        query.setParameter("name", USER);
-        List<MethodAccessAnnotationTestBean> result = query.getResultList();
-        assertEquals(2, result.size());
-        entityManager.close();
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("alias");
+
+        EntityManager entityManager = factory.createEntityManager();
+        EntityManager mock = (EntityManager)entityManager.getDelegate();
+        reset(mock);
+        String originalQuery = "SELECT c.text, SUM(c.id) AS cSum FROM Contact AS c WHERE c.owner.name = :name GROUP BY c.text ORDER BY cSum";
+        String filteredQuery = " SELECT c.text,  SUM(c.id)  AS cSum FROM Contact c WHERE (c.owner.name = :name) AND (c.owner.name = 'user') GROUP BY c.text  ORDER BY cSum";
+        
+        expect(mock.isOpen()).andReturn(true).anyTimes();
+        expect(mock.getFlushMode()).andReturn(FlushModeType.AUTO);
+        expect(mock.createQuery(filteredQuery)).andReturn(createMock(Query.class));
+        
+        replay(mock);
+
+        entityManager.createQuery(originalQuery);
+        
+        verify(mock);
     }
 }

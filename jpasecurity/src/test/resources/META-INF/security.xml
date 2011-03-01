@@ -74,15 +74,8 @@
   </persistence-unit>
 
   <persistence-unit name="alias">
-    <access-rule>
-      GRANT CREATE ACCESS TO User user
-    </access-rule>
   	<access-rule>
-      GRANT ACCESS TO User user
-        WHERE EXISTS (SELECT COUNT(DISTINCT contact)
-          FROM Contact contact
-          JOIN contact.owner owner 
-          WHERE owner = user)
+      GRANT ACCESS TO Contact contact WHERE contact.owner.name = 'user'
   	</access-rule>
   </persistence-unit>
 </security>

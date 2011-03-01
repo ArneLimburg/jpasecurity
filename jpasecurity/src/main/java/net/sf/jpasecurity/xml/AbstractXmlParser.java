@@ -17,6 +17,7 @@ package net.sf.jpasecurity.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 import javax.persistence.PersistenceException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -39,6 +40,15 @@ public abstract class AbstractXmlParser<H extends DefaultHandler> {
 
     protected H getHandler() {
         return handler;
+    }
+
+    public void parse(URL url) throws IOException {
+        InputStream stream = url.openStream();
+        try {
+            parse(stream);
+        } finally {
+            stream.close();
+        }
     }
 
     public void parse(InputStream xml) {
