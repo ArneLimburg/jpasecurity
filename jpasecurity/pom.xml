@@ -41,7 +41,7 @@
             <id>process-generated-sources</id>
             <phase>process-sources</phase>
             <configuration>
-              <tasks>
+              <target>
                 <delete>
                   <fileset dir="target/generated-sources/javacc/net/sf/jpasecurity/jpql/parser/">
                     <present targetdir="src/main/java/net/sf/jpasecurity/jpql/parser"/>
@@ -50,7 +50,7 @@
                 <replace dir="target/generated-sources/jjtree/net/sf/jpasecurity/jpql/parser/"
                          token="public Object jjtAccept(JpqlParserVisitor visitor, Object data)"
                          value="public &lt;T&gt; boolean jjtAccept(JpqlParserVisitor&lt;T&gt; visitor, T data)" />
-              </tasks>
+              </target>
             </configuration>
             <goals>
               <goal>run</goal>
@@ -60,12 +60,12 @@
             <id>copy-manual</id>
             <phase>site</phase>
             <configuration>
-              <tasks>
+              <target>
                 <copy file="target/generated-site/pdf/reference/reference.pdf"
                       tofile="target/site/reference/manual.pdf"/>
                 <copy file="target/generated-site/xhtml/reference/reference.xhtml"
                       tofile="target/site/reference/manual.html"/>
-              </tasks>
+              </target>
             </configuration>
             <goals>
               <goal>run</goal>
