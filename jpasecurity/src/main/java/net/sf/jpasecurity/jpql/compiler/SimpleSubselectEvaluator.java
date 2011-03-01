@@ -29,12 +29,18 @@ import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlExists;
+import net.sf.jpasecurity.jpql.parser.JpqlGroupBy;
+import net.sf.jpasecurity.jpql.parser.JpqlHaving;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
+import net.sf.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
+import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
+import net.sf.jpasecurity.jpql.parser.JpqlWith;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.mapping.TypeDefinition;
+import net.sf.jpasecurity.util.ValueHolder;
 
 /**
  * A subselect-evaluator that evaluates subselects only by the specified aliases.
@@ -43,11 +49,15 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
 public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
 
     private final ExceptionFactory exceptionFactory;
-    private final ReplacementVisitor replacementVisitor;
+    private final QueryPreparator queryPreparator = new QueryPreparator();
+    private final ReplacementVisitor replacementVisitor = new ReplacementVisitor();
+    private final WithClauseVisitor withClauseVisitor = new WithClauseVisitor();
+    private final OuterJoinWithClauseVisitor outerJoinWithClauseVisitor = new OuterJoinWithClauseVisitor();
+    private final GroupByClauseVisitor groupByClauseVisitor = new GroupByClauseVisitor();
+    private final HavingClauseVisitor havingClauseVisitor = new HavingClauseVisitor();
 
     public SimpleSubselectEvaluator(ExceptionFactory exceptionFactory) {
         this.exceptionFactory = exceptionFactory;
-        this.replacementVisitor = new ReplacementVisitor();
     }
 
     public Collection<?> evaluate(JpqlCompiledStatement subselect,
@@ -56,6 +66,8 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         if (evaluator == null) {
             throw new IllegalStateException("evaluator may not be null");
         }
+        handleWithClause(getSubselect(subselect.getStatement()));
+        handleGroupByClause(getSubselect(subselect.getStatement()));
         if (isFalse(subselect.getWhereClause(), new InMemoryEvaluationParameters(parameters))) {
             return Collections.emptySet();
         }
@@ -244,6 +256,72 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         return !replacement.getTypeDefinition().getType().isInstance(result);
     }
 
+    private void handleWithClause(JpqlSubselect node) throws NotEvaluatableException {
+        if (containsWithClauseWithOuterJoin(node)) {
+            throw new NotEvaluatableException("evaluation of subselect with OUTER JOIN ... WITH currenty not supported");
+        }
+
+        JpqlWith withClause;
+        while ((withClause = getWithClause(node)) != null) {
+            JpqlSubselect subselect = getSubselect(withClause);
+            JpqlWhere whereClause = new JpqlCompiledStatement(subselect).getWhereClause();
+            if (whereClause == null) {
+                queryPreparator.appendChildren(subselect, queryPreparator.createWhere(withClause.jjtGetChild(0)));
+            } else {
+                queryPreparator.appendToWhereClause(subselect, withClause);
+            }
+        }
+    }
+
+    private boolean containsWithClauseWithOuterJoin(JpqlSubselect node) {
+        ValueHolder<Boolean> result = new ValueHolder<Boolean>(false);
+        node.visit(outerJoinWithClauseVisitor, result);
+        return result.getValue();
+    }
+
+    private boolean containsWithClause(Node node) {
+        ValueHolder<JpqlWith> result = new ValueHolder<JpqlWith>();
+        node.visit(withClauseVisitor, result);
+        return result.getValue() != null;
+    }
+
+    private JpqlWith getWithClause(Node node) {
+        ValueHolder<JpqlWith> result = new ValueHolder<JpqlWith>();
+        node.visit(withClauseVisitor, result);
+        return result.getValue();
+    }
+
+    private JpqlSubselect getSubselect(Node node) {
+        while (!(node instanceof JpqlSubselect) && node != null) {
+            node = node.jjtGetParent();
+            if (node == null) {
+                throw new IllegalStateException("no parent found for node " + node);
+            }
+        }
+        return (JpqlSubselect)node;
+    }
+
+    private void handleGroupByClause(JpqlSubselect node) throws NotEvaluatableException {
+        if (containsGroupByClause(node)) {
+            throw new NotEvaluatableException("evaluation of subselect with GROUP BY currenty not supported");
+        }
+        if (containsHavingClause(node)) {
+            throw new NotEvaluatableException("evaluation of subselect with GROUP BY currenty not supported");
+        }
+    }
+
+    private boolean containsGroupByClause(Node node) {
+        ValueHolder<JpqlGroupBy> result = new ValueHolder<JpqlGroupBy>();
+        node.visit(groupByClauseVisitor, result);
+        return result.getValue() != null;
+    }
+
+    private boolean containsHavingClause(Node node) {
+        ValueHolder<JpqlHaving> result = new ValueHolder<JpqlHaving>();
+        node.visit(havingClauseVisitor, result);
+        return result.getValue() != null;
+    }
+
     protected class Replacement {
 
         private TypeDefinition type;
@@ -306,6 +384,50 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
                     replacement.setReplacement(node.jjtGetChild(0));
                 }
             }
+            return false;
+        }
+    }
+
+    private class WithClauseVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlWith>> {
+
+        @Override
+        public boolean visit(JpqlWith node, ValueHolder<JpqlWith> data) {
+            data.setValue(node);
+            return false;
+        }
+    }
+
+    private class OuterJoinWithClauseVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
+
+        public boolean visit(JpqlOuterJoin node, ValueHolder<Boolean> data) {
+            if (containsWithClause(node)) {
+                data.setValue(true);
+            }
+            return false;
+        }
+
+        public boolean visit(JpqlOuterFetchJoin node, ValueHolder<Boolean> data) {
+            if (containsWithClause(node)) {
+                data.setValue(true);
+            }
+            return false;
+        }
+    }
+
+    private class GroupByClauseVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlGroupBy>> {
+
+        @Override
+        public boolean visit(JpqlGroupBy node, ValueHolder<JpqlGroupBy> data) {
+            data.setValue(node);
+            return false;
+        }
+    }
+
+    private class HavingClauseVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlHaving>> {
+
+        @Override
+        public boolean visit(JpqlHaving node, ValueHolder<JpqlHaving> data) {
+            data.setValue(node);
             return false;
         }
     }
