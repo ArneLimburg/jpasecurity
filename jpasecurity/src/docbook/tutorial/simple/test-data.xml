@@ -79,7 +79,7 @@ mvn package
     Now again change into the <filename>target</filename> folder and execute our application to see the output:
   </para>
   <programlisting>
-java -jar jpasecurity-simple-sample-0.3.1-SNAPSHOT.jar
+java -jar jpasecurity-simple-sample-0.3.1.jar
   </programlisting>
   <para>
     As we can see from the output, there are really two users in the database.

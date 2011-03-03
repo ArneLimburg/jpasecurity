@@ -133,7 +133,7 @@ public class Contact {
     ]]>
   </programlisting>
   <para>
-    The code for these entities is also available in the jpasecurity-0.3.1-SNAPSHOT-tests.jar.
+    The code for these entities is also available in the jpasecurity-0.3.1-tests.jar.
     If you have built this jar from the source-distribution you may provide it
     within your pom.xml via the following snippet
     and you don't have to write the classes yourself.
@@ -143,7 +143,7 @@ public class Contact {
     <dependency>
       <groupId>net.sf.jpasecurity</groupId>
       <artifactId>jpasecurity</artifactId>
-      <version>0.3.1-SNAPSHOT</version>
+      <version>0.3.1</version>
       <classifier>tests</classifier>
     </dependency>
     ]]>

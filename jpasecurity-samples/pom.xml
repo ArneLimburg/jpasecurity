@@ -4,7 +4,7 @@
   <groupId>net.sf.jpasecurity</groupId>
   <artifactId>jpasecurity-samples</artifactId>
   <name>JPA Security Samples</name>
-  <version>0.3.0</version>
+  <version>0.3.1</version>
   <packaging>pom</packaging>
   <modules>
     <module>jpasecurity-simple-sample</module>
