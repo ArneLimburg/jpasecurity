@@ -34,6 +34,9 @@ import java.util.Set;
 
 import javax.persistence.NoResultException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.entity.EmptyObjectCache;
 import net.sf.jpasecurity.entity.SecureObjectCache;
@@ -110,9 +113,6 @@ import net.sf.jpasecurity.util.SetHashMap;
 import net.sf.jpasecurity.util.SetMap;
 import net.sf.jpasecurity.util.ValueHolder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * This implementation of the {@link JpqlVisitorAdapter} evaluates queries in memory,
  * storing the result in the specified {@link InMemoryEvaluationParameters}.
@@ -161,8 +161,8 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
     public <R> R evaluate(Node node, InMemoryEvaluationParameters<R> parameters) throws NotEvaluatableException {
         node.visit(this, parameters);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Returning result " + (parameters.isResultUndefined()? "<undefined>": parameters.getResult()));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Returning result " + (parameters.isResultUndefined()? "<undefined>": parameters.getResult()));
         }
         return parameters.getResult();
     }
@@ -908,7 +908,6 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             data.setResultUndefined();
             return false;
         }
-
         try {
             handleWithClause(node);
             handleGroupByClause(node);
@@ -917,10 +916,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             return false;
         }
         JpqlCompiledStatement subselect = compiler.compile(node);
-        SetMap<Alias, Object> aliasValues = new SetHashMap<Alias, Object>();
-        for (Map.Entry<Alias, Object> aliasEntry: ((InMemoryEvaluationParameters<?>)data).getAliasValues().entrySet()) {
-            aliasValues.add(aliasEntry.getKey(), aliasEntry.getValue());
-        }
+        SetMap<Alias, Object> aliasValues = extractAliasValues(data);
         try {
             Set<Replacement> replacements
                 = getReplacements(subselect.getTypeDefinitions(), subselect.getStatement());
@@ -999,6 +995,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             data.setResult(Collections.EMPTY_SET);
             return false;
         } catch (NotEvaluatableException notEvaluatableException) {
+            InMemoryEvaluator subselectEvaluator = new InMemoryEvaluator(compiler, pathEvaluator);
             try {
                 //Test whether the where-clause is always false
                 InMemoryEvaluationParameters<Boolean> parameters
@@ -1007,7 +1004,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                                                                 data.getNamedParameters(),
                                                                 data.getPositionalParameters(),
                                                                 new EmptyObjectCache());
-                if (!new InMemoryEvaluator(compiler, pathEvaluator).evaluate(subselect.getWhereClause(), parameters)) {
+                if (!subselectEvaluator.evaluate(subselect.getWhereClause(), parameters)) {
                     LOG.trace("Where-clause is always false");
                     data.setResult(Collections.EMPTY_SET);
                     return false;
@@ -1031,9 +1028,11 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                                                                         data.getNamedParameters(),
                                                                         data.getPositionalParameters(),
                                                                         objectCache);
-                        if (subselect.getWhereClause() == null || evaluate(subselect.getWhereClause(), parameters)) {
+                        if (subselect.getWhereClause() == null
+                            || subselectEvaluator.evaluate(subselect.getWhereClause(), parameters)) {
                             if (subselect.getSelectedPaths().size() != 1) {
-                                throw new IllegalStateException("Illegal number of select-pathes: expected 1, but was " + subselect.getSelectedPaths().size());
+                                throw new IllegalStateException("Illegal number of select-pathes: expected 1, but was "
+                                    + subselect.getSelectedPaths().size());
                             }
                             String selectedPath = subselect.getSelectedPaths().get(0);
                             Object result = getPathValue(selectedPath, aliases);
@@ -1122,6 +1121,14 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             }
         }
         return null;
+    }
+
+    private SetMap<Alias, Object> extractAliasValues(InMemoryEvaluationParameters<?> data) {
+       SetMap<Alias, Object> aliasValues = new SetHashMap<Alias, Object>();
+       for (Map.Entry<Alias, Object> aliasEntry: data.getAliasValues().entrySet()) {
+           aliasValues.add(aliasEntry.getKey(), aliasEntry.getValue());
+       }
+       return aliasValues;
     }
 
     private SetMap<Alias, Object> evaluateAliasValues(Set<TypeDefinition> typeDefinitions,
