@@ -29,6 +29,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlOr;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
@@ -43,7 +44,7 @@ public class QueryOptimizer {
     private final QueryPreparator queryPreparator = new QueryPreparator();
 
     public QueryOptimizer(MappingInformation mappingInformation,
-                          Map<String, Object> aliases,
+                          Map<Alias, Object> aliases,
                           Map<String, Object> namedParameters,
                           Map<Integer, Object> positionalParameters,
                           InMemoryEvaluator evaluator,

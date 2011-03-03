@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.jpasecurity.entity.SecureObjectCache;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
@@ -30,14 +31,14 @@ public class InMemoryEvaluationParameters<T> {
     private static final Object UNDEFINED = new Object();
 
     private MappingInformation mappingInformation;
-    private Map<String, Object> aliases;
+    private Map<Alias, Object> aliases;
     private Map<String, Object> namedParameters;
     private Map<Integer, Object> positionalParameters;
     private SecureObjectCache objectCache;
     private T result = (T)UNDEFINED;
 
     public InMemoryEvaluationParameters(MappingInformation mappingInformation,
-                                        Map<String, Object> aliases,
+                                        Map<Alias, Object> aliases,
                                         Map<String, Object> namedParameters,
                                         Map<Integer, Object> positionalParameters,
                                         SecureObjectCache objectCache) {
@@ -66,15 +67,15 @@ public class InMemoryEvaluationParameters<T> {
         return mappingInformation;
     }
 
-    public Set<String> getAliases() {
+    public Set<Alias> getAliases() {
         return aliases.keySet();
     }
 
-    public Map<String, Object> getAliasValues() {
+    public Map<Alias, Object> getAliasValues() {
         return Collections.unmodifiableMap(aliases);
     }
 
-    public Object getAliasValue(String alias) throws NotEvaluatableException {
+    public Object getAliasValue(Alias alias) throws NotEvaluatableException {
         if (!aliases.containsKey(alias)) {
             throw new NotEvaluatableException();
         }

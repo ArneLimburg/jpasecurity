@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Arne Limburg
@@ -38,5 +39,5 @@ public interface PathEvaluator {
      * @return the result
      * @throws javax.persistence.PersistenceException if the property path is not single-valued
      */
-    Collection<Object> evaluateAll(Collection<Object> root, String path);
+    List<Object> evaluateAll(Collection<?> root, String path);
 }

@@ -108,7 +108,7 @@ public class DefaultMappingInformation implements MappingInformation {
 
     public Class<?> getType(String path, Set<TypeDefinition> typeDefinitions) {
         String[] entries = path.split("\\.");
-        Class<?> type = getAliasType(entries[0], typeDefinitions);
+        Class<?> type = getAliasType(new Alias(entries[0]), typeDefinitions);
         for (int i = 1; i < entries.length; i++) {
             type = getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
         }
@@ -125,13 +125,13 @@ public class DefaultMappingInformation implements MappingInformation {
         logEntityNameMappings();
     }
 
-    private Class<?> getAliasType(String alias, Set<TypeDefinition> typeDefinitions) {
+    private Class<?> getAliasType(Alias alias, Set<TypeDefinition> typeDefinitions) {
         for (TypeDefinition typeDefinition: typeDefinitions) {
             if (alias.equals(typeDefinition.getAlias())) {
                 return typeDefinition.getType();
             }
         }
-        throw new TypeNotPresentException(alias, null);
+        throw new TypeNotPresentException(alias.getName(), null);
     }
 
    private void logEntityNameMappings() {

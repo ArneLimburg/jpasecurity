@@ -22,13 +22,13 @@ package net.sf.jpasecurity.mapping;
  */
 public class TypeDefinition {
 
-    private String alias;
+    private Alias alias;
     private Class<?> type;
     private String joinPath;
     private boolean innerJoin;
     private boolean fetchJoin;
 
-    public TypeDefinition(String alias, Class<?> type) {
+    public TypeDefinition(Alias alias, Class<?> type) {
         this.alias = alias;
         this.type = type;
     }
@@ -37,7 +37,7 @@ public class TypeDefinition {
         this(null, type, joinPath, innerJoin, fetchJoin);
     }
 
-    public TypeDefinition(String alias, Class<?> type, String joinPath, boolean innerJoin, boolean fetchJoin) {
+    public TypeDefinition(Alias alias, Class<?> type, String joinPath, boolean innerJoin, boolean fetchJoin) {
         this(alias, type);
         if (joinPath == null) {
             throw new IllegalArgumentException("joinPath may not be null");
@@ -47,7 +47,7 @@ public class TypeDefinition {
         this.fetchJoin = fetchJoin;
     }
 
-    public String getAlias() {
+    public Alias getAlias() {
         return alias;
     }
 

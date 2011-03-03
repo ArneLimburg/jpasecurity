@@ -110,7 +110,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             entity = unproxy(entity);
             return entity.toString();
         }
-        if (!isInitialized() && !isUpdating()) {
+        if (!isInitialized()) {
             refresh();
         }
         try {
@@ -147,6 +147,9 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
     }
 
     void refresh(boolean checkAccess) {
+        if (isUpdating()) {
+            return; //we are already refreshing
+        }
         try {
             setUpdating(true);
             boolean oldInitialized = initialized;

@@ -26,6 +26,9 @@ import javax.persistence.Query;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
+import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
+import net.sf.jpasecurity.jpql.parser.Node;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
 import org.apache.commons.logging.Log;
@@ -43,6 +46,7 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
     private final EntityManager entityManager;
     private final SecureObjectManager objectManager;
     private final QueryPreparator queryPreparator;
+    private final SubselectVisitor subselectVisitor;
 
     public EntityManagerEvaluator(JpqlCompiler compiler, PathEvaluator pathEvaluator) {
         this(null, null, compiler, pathEvaluator);
@@ -56,6 +60,7 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
         this.entityManager = entityManager;
         this.objectManager = objectManager;
         this.queryPreparator = new QueryPreparator();
+        this.subselectVisitor = new SubselectVisitor();
     }
 
     /**
@@ -75,18 +80,20 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
         }
         try {
             JpqlCompiledStatement statement = compiler.compile(node).clone();
-            Set<String> aliases = getAliases(statement.getTypeDefinitions());
+            Set<Alias> aliases = getAliases(getTypeDefinitions(node));
+            //add subselect aliases
             Set<String> namedParameters = new HashSet<String>(statement.getNamedParameters());
             Map<String, String> namedPathParameters = new HashMap<String, String>();
             Map<String, Object> namedParameterValues = new HashMap<String, Object>();
             for (JpqlPath jpqlPath: statement.getWhereClausePaths()) {
                 String path = jpqlPath.toString();
-                String alias = getAlias(path);
+                Alias alias = getAlias(path);
                 if (!aliases.contains(alias)) {
                     String namedParameter = namedPathParameters.get(path);
                     if (namedParameter == null) {
                         namedParameter = createNamedParameter(namedParameters);
                         namedPathParameters.put(path, namedParameter);
+                        //TODO handle collection-valued paths correctly
                         namedParameterValues.put(namedParameter, getPathValue(path, data.getAliasValues()));
                     }
                     queryPreparator.replace(jpqlPath, queryPreparator.createNamedParameter(namedParameter));
@@ -117,8 +124,8 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
         }
     }
 
-    private Set<String> getAliases(Set<TypeDefinition> typeDefinitions) {
-        Set<String> aliases = new HashSet<String>();
+    private Set<Alias> getAliases(Set<TypeDefinition> typeDefinitions) {
+        Set<Alias> aliases = new HashSet<Alias>();
         for (TypeDefinition typeDefinition: typeDefinitions) {
             if (typeDefinition.getAlias() != null) {
                 aliases.add(typeDefinition.getAlias());
@@ -135,5 +142,24 @@ public class EntityManagerEvaluator extends InMemoryEvaluator {
         } while (namedParameters.contains(namedParameter));
         namedParameters.add(namedParameter);
         return namedParameter;
+    }
+
+    private Set<TypeDefinition> getTypeDefinitions(Node node) {
+        Set<JpqlSubselect> subselects = new HashSet<JpqlSubselect>();
+        node.visit(subselectVisitor, subselects);
+        Set<TypeDefinition> typeDefinitions = new HashSet<TypeDefinition>();
+        for (JpqlSubselect subselect: subselects) {
+            JpqlCompiledStatement statement = compiler.compile(subselect);
+            typeDefinitions.addAll(statement.getTypeDefinitions());
+        }
+        return typeDefinitions;
+    }
+
+    private class SubselectVisitor extends JpqlVisitorAdapter<Set<JpqlSubselect>> {
+
+        public boolean visit(JpqlSubselect node, Set<JpqlSubselect> data) {
+            data.add(node);
+            return true;
+        }
     }
 }

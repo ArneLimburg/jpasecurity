@@ -25,6 +25,7 @@ import javax.persistence.Query;
 import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.util.ProxyInvocationHandler;
 
@@ -145,12 +146,13 @@ public class QueryInvocationHandler extends ProxyInvocationHandler<Query> {
 
     private String resolveAliases(String aliasedPath) {
         int index = aliasedPath.indexOf('.');
-        String alias, path;
+        Alias alias;
+        String path;
         if (index == -1) {
-            alias = aliasedPath;
+            alias = new Alias(aliasedPath);
             path = null;
         } else {
-            alias = aliasedPath.substring(0, index);
+            alias = new Alias(aliasedPath.substring(0, index));
             path = aliasedPath.substring(index + 1);
         }
         for (TypeDefinition typeDefinition: types) {

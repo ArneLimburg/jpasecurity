@@ -34,6 +34,7 @@ import java.util.Set;
 
 import javax.persistence.NoResultException;
 
+import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.entity.EmptyObjectCache;
 import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.parser.JpqlAbs;
@@ -42,6 +43,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlBetween;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
+import net.sf.jpasecurity.jpql.parser.JpqlCollectionValuedPath;
 import net.sf.jpasecurity.jpql.parser.JpqlConcat;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentDate;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentTime;
@@ -99,10 +101,13 @@ import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.JpqlWith;
 import net.sf.jpasecurity.jpql.parser.Node;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.util.ListHashMap;
 import net.sf.jpasecurity.util.ListMap;
+import net.sf.jpasecurity.util.SetHashMap;
+import net.sf.jpasecurity.util.SetMap;
 import net.sf.jpasecurity.util.ValueHolder;
 
 import org.apache.commons.logging.Log;
@@ -195,6 +200,22 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             if (index != -1) {
                 PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMappingInformation());
                 data.setResult(pathEvaluator.evaluate(data.getResult(), path.substring(index + 1)));
+            }
+        } catch (NotEvaluatableException e) {
+            data.setResultUndefined();
+        }
+        return false;
+    }
+
+    public boolean visit(JpqlCollectionValuedPath node, InMemoryEvaluationParameters data) {
+        try {
+            node.jjtGetChild(0).visit(this, data);
+            String path = node.toString();
+            int index = path.indexOf('.');
+            if (index != -1) {
+                PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMappingInformation());
+                Collection<Object> rootCollection = Collections.singleton(data.getResult());
+                data.setResult(pathEvaluator.evaluateAll(rootCollection, path.substring(index + 1)));
             }
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
@@ -415,7 +436,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         validateChildCount(node, 1);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Collection result = (Collection)data.getResult();
+            Collection<?> result = (Collection<?>)data.getResult();
             data.setResult(result == null || result.isEmpty());
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -793,7 +814,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     public boolean visit(JpqlIdentifier node, InMemoryEvaluationParameters data) {
         validateChildCount(node, 0);
         try {
-            data.setResult(data.getAliasValue(node.getValue()));
+            data.setResult(data.getAliasValue(new Alias(node.getValue())));
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
         }
@@ -803,7 +824,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
     public boolean visit(JpqlIdentificationVariable node, InMemoryEvaluationParameters data) {
         validateChildCount(node, 0);
         try {
-            data.setResult(data.getAliasValue(node.getValue()));
+            data.setResult(data.getAliasValue(new Alias(node.getValue())));
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
         }
@@ -881,6 +902,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         return false;
     }
 
+    @Override
     public boolean visit(JpqlSubselect node, InMemoryEvaluationParameters data) {
         if (!(node.jjtGetParent() instanceof JpqlExists)) {
             data.setResultUndefined();
@@ -894,14 +916,15 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             data.setResultUndefined();
             return false;
         }
-
         JpqlCompiledStatement subselect = compiler.compile(node);
-
+        SetMap<Alias, Object> aliasValues = new SetHashMap<Alias, Object>();
+        for (Map.Entry<Alias, Object> aliasEntry: ((InMemoryEvaluationParameters<?>)data).getAliasValues().entrySet()) {
+            aliasValues.add(aliasEntry.getKey(), aliasEntry.getValue());
+        }
         try {
             Set<Replacement> replacements
                 = getReplacements(subselect.getTypeDefinitions(), subselect.getStatement());
-            ListMap<String, Object> aliasValues = new ListHashMap<String, Object>();
-            Set<String> ignoredAliases = new HashSet<String>();
+            Set<Alias> ignoredAliases = new HashSet<Alias>();
             for (Replacement replacement: replacements) {
                 if (replacement.getReplacement() == null) {
                     throw new NotEvaluatableException();
@@ -929,15 +952,16 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                   }
                 }
             }
-            for (String ignoredAlias: ignoredAliases) {
+            for (Alias ignoredAlias: ignoredAliases) {
                 if (!aliasValues.containsKey(ignoredAlias)) {
                     //No replacement found for alias. The result is ruled out by inner join then...
                     data.setResult(Collections.EMPTY_SET);
                     return false;
                 }
             }
-            for (Iterator<Map<String, Object>> i = new ValueIterator(aliasValues); i.hasNext();) {
-                Map<String, Object> aliases = new HashMap<String, Object>(data.getAliasValues());
+            for (Iterator<Map<Alias, Object>> i = new ValueIterator(aliasValues, subselect.getTypeDefinitions());
+                 i.hasNext();) {
+                Map<Alias, Object> aliases = new HashMap<Alias, Object>(data.getAliasValues());
                 aliases.putAll(i.next());
                 InMemoryEvaluationParameters<Boolean> parameters
                     = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
@@ -983,7 +1007,7 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
                                                                 data.getNamedParameters(),
                                                                 data.getPositionalParameters(),
                                                                 new EmptyObjectCache());
-                if (!evaluate(subselect.getWhereClause(), parameters)) {
+                if (!new InMemoryEvaluator(compiler, pathEvaluator).evaluate(subselect.getWhereClause(), parameters)) {
                     LOG.trace("Where-clause is always false");
                     data.setResult(Collections.EMPTY_SET);
                     return false;
@@ -994,13 +1018,13 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             //we try to evaluate with the session-data from the objectManager
             SecureObjectCache objectCache = data.getObjectCache();
             try {
-                ListMap<String, Object> aliasValues
+                SetMap<Alias, Object> evaluatedAliasValues
                     = evaluateAliasValues(subselect.getTypeDefinitions(), objectCache);
-                for (Iterator<Map<String, Object>> i = new ValueIterator(aliasValues); i.hasNext();) {
-                    Map<String, Object> aliases = new HashMap<String, Object>(data.getAliasValues());
-                    aliases.putAll(i.next());
+                aliasValues.putAll(evaluatedAliasValues);
+                for (Iterator<Map<Alias, Object>> i = new ValueIterator(aliasValues, subselect.getTypeDefinitions());
+                     i.hasNext();) {
+                    Map<Alias, Object> aliases = i.next();
                     try {
-                        addJoinAliases(subselect.getTypeDefinitions(), aliases, pathEvaluator);
                         InMemoryEvaluationParameters<Boolean> parameters
                             = new InMemoryEvaluationParameters<Boolean>(data.getMappingInformation(),
                                                                         aliases,
@@ -1030,18 +1054,33 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         }
     }
 
-    protected Object getPathValue(String path, Map<String, Object> aliases) {
-        String alias = getAlias(path);
+    protected Object getPathValue(String path, Map<Alias, Object> aliases) {
+        Alias alias = getAlias(path);
         Object aliasValue = aliases.get(alias);
-        if (path.length() == alias.length()) {
+        if (path.length() == alias.getName().length()) {
             return aliasValue;
         }
-        return pathEvaluator.evaluate(aliasValue, path.substring(alias.length() + 1));
+        return pathEvaluator.evaluate(aliasValue, path.substring(alias.getName().length() + 1));
     }
 
-    protected String getAlias(String path) {
+    protected Collection<?> getPathCollection(String path, Map<Alias, Object> aliases) {
+        Alias alias = getAlias(path);
+        Object aliasValue = aliases.get(alias);
+        Collection<?> aliasCollection = Collections.singleton(aliasValue);
+        if (path.length() == alias.getName().length()) {
+            return aliasCollection;
+        }
+        return pathEvaluator.evaluateAll(aliasCollection, path.substring(alias.getName().length() + 1));
+    }
+
+    protected Alias getAlias(String path) {
         int index = path.indexOf('.');
-        return index == -1? path: path.substring(0, index);
+        return index == -1? new Alias(path): new Alias(path.substring(0, index));
+    }
+
+    protected String getSubPath(String path) {
+        int index = path.indexOf('.');
+        return path.substring(index + 1);
     }
 
     private Set<Replacement> getReplacements(Set<TypeDefinition> types, Node statement) {
@@ -1085,54 +1124,35 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         return null;
     }
 
-    private ListMap<String, Object> evaluateAliasValues(Set<TypeDefinition> typeDefinitions,
-                                                        SecureObjectCache objectCache) {
-        ListMap<String, Object> aliasValues = new ListHashMap<String, Object>();
+    private SetMap<Alias, Object> evaluateAliasValues(Set<TypeDefinition> typeDefinitions,
+                                                      SecureObjectCache objectCache) {
+        SetMap<Alias, Object> aliasValues = new SetHashMap<Alias, Object>();
         for (TypeDefinition typeDefinition: typeDefinitions) {
-            String alias = typeDefinition.getAlias();
+            Alias alias = typeDefinition.getAlias();
             if (alias != null && !typeDefinition.isJoin()) {
-                aliasValues.addAll(alias, objectCache.getSecureObjects(typeDefinition.getType()));
+                Collection<?> secureObjects = objectCache.getSecureObjects(typeDefinition.getType());
+                for (Object secureObject: secureObjects) {
+                    if (secureObject instanceof SecureEntity) {
+                        SecureEntity secureEntity = (SecureEntity)secureObject;
+                        if (!secureEntity.isInitialized()) {
+                            ((SecureEntity)secureObject).refresh();
+                        }
+                    }
+                }
+                aliasValues.addAll(alias, secureObjects);
             }
         }
         return aliasValues;
     }
 
-    private void addJoinAliases(Set<TypeDefinition> typeDefinitions,
-                                Map<String, Object> aliases,
-                                PathEvaluator pathEvaluator) throws NotEvaluatableException {
-        Set<TypeDefinition> joinAliasDefinitions = new HashSet<TypeDefinition>();
+    private Set<TypeDefinition> getJoinAliasDefinitions(Set<TypeDefinition> typeDefinitions) {
+        Set<TypeDefinition> joinTypeDefinitions = new HashSet<TypeDefinition>();
         for (TypeDefinition typeDefinition: typeDefinitions) {
             if (typeDefinition.isJoin()) {
-                joinAliasDefinitions.add(typeDefinition);
+                joinTypeDefinitions.add(typeDefinition);
             }
         }
-        //We cannot be sure about the order of the aliasDefinitions.
-        //So we process the aliases where the root alias is already available
-        //and do so until all aliases are processed
-        while (!joinAliasDefinitions.isEmpty()) {
-            int count = joinAliasDefinitions.size();
-            for (Iterator<TypeDefinition> i = joinAliasDefinitions.iterator(); i.hasNext();) {
-                TypeDefinition typeDefinition = i.next();
-                if (typeDefinition.getAlias() != null) {
-                    String joinPath = typeDefinition.getJoinPath();
-                    int index = joinPath.indexOf('.');
-                    String rootAlias = joinPath.substring(0, index);
-                    Object root = aliases.get(rootAlias);
-                    if (root != null) {
-                        Object value = pathEvaluator.evaluate(root, joinPath.substring(index + 1));
-                        if (typeDefinition.isInnerJoin() && value == null) {
-                            throw new NoResultException();
-                        }
-                        aliases.put(typeDefinition.getAlias(), value);
-                        i.remove();
-                    }
-                }
-            }
-            if (joinAliasDefinitions.size() == count) {
-                //No alias removed. This would be an endless loop, if we would not throw an exception here
-                throw new NotEvaluatableException();
-            }
-        }
+        return joinTypeDefinitions;
     }
 
     private void handleWithClause(JpqlSubselect node) throws NotEvaluatableException {
@@ -1233,10 +1253,10 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             String child0 = node.jjtGetChild(0).toString();
             String child1 = node.jjtGetChild(1).toString();
             for (Replacement replacement: replacements) {
-                String alias = replacement.getTypeDefinition().getAlias();
-                if (child0.equals(alias) && !child1.equals(alias)) {
+                Alias alias = replacement.getTypeDefinition().getAlias();
+                if (child0.equals(alias.getName()) && !child1.equals(alias.getName())) {
                     replacement.setReplacement(node.jjtGetChild(1));
-                } else if (child1.equals(alias) && !child0.equals(alias)) {
+                } else if (child1.equals(alias.getName()) && !child0.equals(alias.getName())) {
                     replacement.setReplacement(node.jjtGetChild(0));
                 }
             }
@@ -1268,36 +1288,100 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
         }
     }
 
-    private static class ValueIterator implements Iterator<Map<String, Object>> {
+    private class ValueIterator implements Iterator<Map<Alias, Object>> {
 
-        private List<String> possibleKeys;
-        private ListMap<String, Object> possibleValues;
-        private Map<String, Object> currentValue;
+        private List<Alias> possibleAliases;
+        private ListMap<Alias, Object> possibleValues;
+        private ListMap<Alias, TypeDefinition> dependentTypeDefinitions;
+        private Map<Alias, Object> currentValue;
+        private ListMap<Alias, Object> currentPossibleDependentValues;
+        private boolean initialized = false;
 
-        public ValueIterator(ListMap<String, Object> possibleValues) {
-            this.possibleKeys = new ArrayList<String>(possibleValues.keySet());
-            this.possibleValues = possibleValues;
-            this.currentValue = new HashMap<String, Object>();
+        public ValueIterator(SetMap<Alias, Object> possibleValues, Set<TypeDefinition> typeDefinitions) {
+            this.possibleAliases = new ArrayList<Alias>(possibleValues.keySet());
+            this.possibleValues = new ListHashMap<Alias, Object>();
+            this.dependentTypeDefinitions = new ListHashMap<Alias, TypeDefinition>();
+            this.currentValue = new HashMap<Alias, Object>();
+            this.currentPossibleDependentValues = new ListHashMap<Alias, Object>();
+            for (Map.Entry<Alias, Set<Object>> possibleValueEntry: possibleValues.entrySet()) {
+                this.possibleValues.put(possibleValueEntry.getKey(),
+                                        new ArrayList<Object>(possibleValueEntry.getValue()));
+            }
+            for (TypeDefinition typeDefinition: getJoinAliasDefinitions(typeDefinitions)) {
+                this.dependentTypeDefinitions.add(getAlias(typeDefinition.getJoinPath()), typeDefinition);
+            }
         }
 
         public boolean hasNext() {
-            for (String key: possibleKeys) {
-                if (possibleValues.indexOf(key, currentValue.get(key)) < possibleValues.size(key) - 1) {
-                    return true;
+            if (!initialized) {
+                if (possibleValues.isEmpty()) {
+                    return false;
+                }
+                for (Map.Entry<Alias, List<Object>> possibleAliasValueEntry: possibleValues.entrySet()) {
+                    if (possibleAliasValueEntry.getValue().isEmpty()) {
+                        return false;
+                    }
+                    boolean possibleValueFound = false;
+                    for (Object possibleValue: possibleAliasValueEntry.getValue()) {
+                        if (couldSetCurrentValues(possibleAliasValueEntry.getKey(),
+                                                  possibleValue)) {
+                            possibleValueFound = true;
+                            break;
+                        }
+                    }
+                    if (!possibleValueFound) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            if (currentValue.isEmpty()) {
+              return false;
+            }
+            for (Alias alias: possibleAliases) {
+                for (int i = possibleValues.indexOf(alias, currentValue.get(alias)) + 1;
+                     i < possibleValues.size(alias);
+                     i++) {
+                    if (couldSetCurrentValues(alias, possibleValues.get(alias, i))) {
+                        return true;
+                    }
                 }
             }
             return false;
         }
 
-        public Map<String, Object> next() {
-            for (String key: possibleKeys) {
-                Object current = currentValue.get(key);
-                int index = possibleValues.indexOf(key, current);
-                if (index == possibleValues.size(key) - 1) {
-                    currentValue.put(key, possibleValues.get(key, 0));
+        public Map<Alias, Object> next() {
+            if (!initialized) {
+                for (Alias possibleAlias: possibleAliases) {
+                    setCurrentValues(possibleAlias, possibleValues.get(possibleAlias, 0));
+                }
+                initialized = true;
+                return new HashMap<Alias, Object>(currentValue);
+            }
+            for (Alias alias: possibleAliases) {
+                Object current = currentValue.get(alias);
+                if (dependentTypeDefinitions.containsKey(alias)) {
+                    for (TypeDefinition dependentTypeDefinition: dependentTypeDefinitions.get(alias)) {
+                        Object currentDependentValue = currentValue.get(dependentTypeDefinition.getAlias());
+                        int index = currentPossibleDependentValues.indexOf(dependentTypeDefinition.getAlias(),
+                                                                           currentDependentValue);
+                        if (index == -1
+                            || index == currentPossibleDependentValues.size(dependentTypeDefinition.getAlias()) - 1) {
+                            currentPossibleDependentValues.remove(dependentTypeDefinition.getAlias());
+                        } else {
+                            Object nextValue
+                                = currentPossibleDependentValues.get(dependentTypeDefinition.getAlias(), index + 1);
+                            setCurrentValues(dependentTypeDefinition.getAlias(), nextValue);
+                            return new HashMap<Alias, Object>(currentValue);
+                        }
+                    }
+                }
+                int index = possibleValues.indexOf(alias, current);
+                if (index == possibleValues.size(alias) - 1) {
+                    setCurrentValues(alias, possibleValues.get(alias, 0));
                 } else {
-                    currentValue.put(key, possibleValues.get(key, index + 1));
-                    return new HashMap(currentValue);
+                    setCurrentValues(alias, possibleValues.get(alias, index + 1));
+                    return new HashMap<Alias, Object>(currentValue);
                 }
             }
             throw new NoSuchElementException();
@@ -1305,6 +1389,49 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
 
         public void remove() {
             throw new UnsupportedOperationException();
+        }
+
+        private void setCurrentValues(Alias alias, Object value) {
+            //TODO proper handling of inner join-rule-out
+            Map<Alias, Object> currentValue = new HashMap<Alias, Object>(this.currentValue);
+            ListMap<Alias, Object> currentPossibleDependentValues
+                = new ListHashMap<Alias, Object>(this.currentPossibleDependentValues);
+            if (couldSetCurrentValues(alias, value, currentValue, currentPossibleDependentValues)) {
+                this.currentValue = currentValue;
+                this.currentPossibleDependentValues = currentPossibleDependentValues;
+            }
+        }
+
+        private boolean couldSetCurrentValues(Alias alias, Object value) {
+            return couldSetCurrentValues(alias,
+                                         value,
+                                         new HashMap<Alias, Object>(currentValue),
+                                         new ListHashMap<Alias, Object>(currentPossibleDependentValues));
+        }
+
+        private boolean couldSetCurrentValues(Alias alias,
+                                              Object value,
+                                              Map<Alias, Object> currentValue,
+                                              ListMap<Alias, Object> currentPossibleDependentValues) {
+            currentValue.put(alias, value);
+            if (dependentTypeDefinitions.containsKey(alias)) {
+                for (TypeDefinition dependentTypeDefinition: dependentTypeDefinitions.get(alias)) {
+                    List<Object> dependentValues
+                        = pathEvaluator.evaluateAll(Collections.singleton(value),
+                                                    getSubPath(dependentTypeDefinition.getJoinPath()));
+                    if (dependentValues.isEmpty() && dependentTypeDefinition.isInnerJoin()) {
+                        return false;
+                    }
+                    currentPossibleDependentValues.put(dependentTypeDefinition.getAlias(), dependentValues);
+                    if (!couldSetCurrentValues(dependentTypeDefinition.getAlias(),
+                                               dependentValues.iterator().next(),
+                                               currentValue,
+                                               currentPossibleDependentValues)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
 

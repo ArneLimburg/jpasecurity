@@ -53,7 +53,7 @@ public class AccessRule extends JpqlCompiledStatement {
 
     public AccessRule(JpqlAccessRule rule, TypeDefinition typeDefinition, Set<String> namedParameters) {
         super(rule,
-              Collections.singletonList(typeDefinition.getAlias()),
+              Collections.singletonList(typeDefinition.getAlias().getName()),
               Collections.singleton(typeDefinition),
               namedParameters);
     }

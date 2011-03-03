@@ -159,6 +159,14 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlPath node, T data);
 
     /**
+     * Called when visiting a <tt>JpqlCollectionValuedPath</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlCollectionValuedPath node, T data);
+
+    /**
      * Called when visiting a <tt>JpqlSetClause</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor

@@ -26,6 +26,7 @@ public class AclSyntaxTest extends TestCase {
     private Privilege privilege1;
     private Privilege privilege2;
     private User user;
+    private AclProtectedEntity entity;
 
     public void setUp() {
        entityManagerFactory = Persistence.createEntityManagerFactory("acl-model");
@@ -40,12 +41,15 @@ public class AclSyntaxTest extends TestCase {
        group = new Group();
        group.setName("USERS");
        entityManager.persist(group);
+       Group group2 = new Group();
+       group2.setName("ADMINS");
+       entityManager.persist(group2);
        Role role = new Role();
        role.setName("Test Role");
-       role.setPrivileges(Arrays.asList(privilege1, privilege2));
+//       role.setPrivileges(Arrays.asList(privilege1, privilege2));
        entityManager.persist(role);
        user = new User();
-       user.setGroups(Arrays.asList(group));
+       user.setGroups(Arrays.asList(group, group2));
        user.setRoles(Arrays.asList(role));
        entityManager.persist(user);
        entityManager.getTransaction().commit();
@@ -58,14 +62,14 @@ public class AclSyntaxTest extends TestCase {
        AclEntry entry = new AclEntry();
        entry.setAccessControlList(acl);
        acl.getEntries().add(entry);
-       entry.setPrivilege(privilege1);
+//       entry.setPrivilege(privilege1);
        entry.setGroup(group);
        entityManager.persist(entry);
 
-       AclProtectedEntity aclProtectedEntity = new AclProtectedEntity();
-       aclProtectedEntity.setTrademarkId(TRADEMARK_ID);
-       aclProtectedEntity.setAccessControlList(acl);
-       entityManager.persist(aclProtectedEntity);
+       entity = new AclProtectedEntity();
+       entity.setTrademarkId(TRADEMARK_ID);
+       entity.setAccessControlList(acl);
+       entityManager.persist(entity);
 
        entityManager.getTransaction().commit();
        entityManager.close();
@@ -78,6 +82,7 @@ public class AclSyntaxTest extends TestCase {
    public void testAclProtectedEntityAccess() {
        EntityManager entityManager = entityManagerFactory.createEntityManager();
        AclProtectedEntity entity = (AclProtectedEntity)entityManager.createQuery("select e from AclProtectedEntity e").getSingleResult();
+       assertNotNull(entity);
        entityManager.close();
    }
 
@@ -90,6 +95,17 @@ public class AclSyntaxTest extends TestCase {
        } catch (NoResultException e) {
            //expected
        }
+       entityManager.close();
+   }
+   
+   public void testAclProtectedEntityUpdate() {
+       EntityManager entityManager = entityManagerFactory.createEntityManager();
+       entityManager.getTransaction().begin();
+       entityManager.find(User.class, user.getId());
+       AclProtectedEntity e = entityManager.find(AclProtectedEntity.class, entity.getId());//(AclProtectedEntity)entityManager.createQuery("select e from AclProtectedEntity e").getSingleResult();
+       entity.getAccessControlList().getEntries().size();
+       e.setSomeProperty("test");
+       entityManager.getTransaction().commit();
        entityManager.close();
    }
 }

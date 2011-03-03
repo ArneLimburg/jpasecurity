@@ -16,6 +16,8 @@
 
 package net.sf.jpasecurity.security;
 
+import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,9 +28,6 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.entity.SecureObjectCache;
@@ -52,10 +51,12 @@ import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ParseException;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 
-import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * This class handles the access control.
@@ -122,7 +123,8 @@ public class EntityFilter {
     public boolean isAccessible(Object entity, AccessType accessType, Object user, Set<Object> roles)
             throws NotEvaluatableException {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-        String alias = Character.toLowerCase(mapping.getEntityName().charAt(0)) + mapping.getEntityName().substring(1);
+        Alias alias = new Alias(Character.toLowerCase(mapping.getEntityName().charAt(0))
+                                + mapping.getEntityName().substring(1));
         Node accessRulesNode = createAccessRuleNode(alias, mapping.getEntityType(), accessType, roles.size());
         if (accessRulesNode == null) {
             return true;
@@ -229,9 +231,9 @@ public class EntityFilter {
         return createAccessRuleNode(getSelectedEntityTypes(statement), accessType, roleCount);
     }
 
-    private Node createAccessRuleNode(String alias, Class<?> type, AccessType accessType, int roleCount) {
+    private Node createAccessRuleNode(Alias alias, Class<?> type, AccessType accessType, int roleCount) {
         Map<String, Class<?>> aliases = new HashMap<String, Class<?>>();
-        aliases.put(alias, type);
+        aliases.put(alias.getName(), type);
         return createAccessRuleNode(aliases, accessType, roleCount);
     }
 

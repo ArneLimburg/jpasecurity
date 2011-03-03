@@ -18,6 +18,7 @@ package net.sf.jpasecurity.jpql.compiler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import javax.persistence.PersistenceException;
 
@@ -40,33 +41,35 @@ public class MappedPathEvaluator implements PathEvaluator {
         if (root == null) {
             return null;
         }
-        final Collection<Object> rootCollection =
-            root instanceof Collection ? (Collection<Object>)root : Collections.singleton(root);
-        Collection<Object> result = evaluateAll(rootCollection, path);
+        final Collection<?> rootCollection =
+            root instanceof Collection ? (Collection<?>)root : Collections.singleton(root);
+        Collection<?> result = evaluateAll(rootCollection, path);
         if (result.size() > 1) {
             throw new PersistenceException("path '" + path + "' is not single-valued");
         }
         return result.isEmpty()? null: result.iterator().next();
     }
 
-    public Collection<Object> evaluateAll(Collection<Object> root, String path) {
+    public List<Object> evaluateAll(final Collection<?> root, String path) {
         String[] pathElements = path.split("\\.");
-        Collection rootCollection = new ArrayList<Object>(root);
-        Collection<Object> resultCollection = new ArrayList<Object>();
+        List<Object> rootCollection = new ArrayList<Object>(root);
+        List<Object> resultCollection = new ArrayList<Object>();
         for (String property: pathElements) {
             resultCollection.clear();
             for (Object rootObject: rootCollection) {
                 ClassMappingInformation classMapping = mappingInformation.getClassMapping(rootObject.getClass());
                 PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(property);
                 Object result = propertyMapping.getPropertyValue(rootObject);
-                if (result != null) {
+                if (result instanceof Collection) {
+                    resultCollection.addAll((Collection<?>)result);
+                } else if (result != null) {
                     resultCollection.add(result);
                 }
             }
             rootCollection.clear();
             for (Object resultObject: resultCollection) {
                 if (resultObject instanceof Collection) {
-                    rootCollection.addAll((Collection)resultObject);
+                    rootCollection.addAll((Collection<Object>)resultObject);
                 } else {
                     rootCollection.add(resultObject);
                 }

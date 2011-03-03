@@ -40,6 +40,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ToStringVisitor;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.util.ValueHolder;
@@ -162,7 +163,7 @@ public class JpqlCompiler {
                 return false;
             }
             String path = pathVisitor.getPath(node);
-            String alias = getAlias(node);
+            Alias alias = getAlias(node);
             Class<?> type = null;
             if (countVisitor.isCount(node)) {
                 type = Long.class;
@@ -179,7 +180,7 @@ public class JpqlCompiler {
 
         public boolean visit(JpqlFromItem node, Set<TypeDefinition> typeDefinitions) {
             String abstractSchemaName = node.jjtGetChild(0).toString();
-            String alias = getAlias(node);
+            Alias alias = getAlias(node);
             Class<?> type = mappingInformation.getClassMapping(abstractSchemaName.trim()).getEntityType();
             if (type == null) {
                 throw new PersistenceException("type not found " + abstractSchemaName.trim());
@@ -218,7 +219,7 @@ public class JpqlCompiler {
             if (node.jjtGetNumChildren() == 1) {
                 typeDefinitions.add(new TypeDefinition(type, fetchPath, innerJoin, fetchJoin));
             } else {
-                String alias = getAlias(node);
+                Alias alias = getAlias(node);
                 typeDefinitions.add(new TypeDefinition(alias, type, fetchPath, innerJoin, fetchJoin));
             }
             return false;
@@ -228,8 +229,8 @@ public class JpqlCompiler {
             return false;
         }
 
-        private String getAlias(Node node) {
-            return node.jjtGetChild(1).toString();
+        private Alias getAlias(Node node) {
+            return new Alias(node.jjtGetChild(1).toString());
         }
 
         private void determinePreliminaryTypes(Set<TypeDefinition> typeDefinitions) {

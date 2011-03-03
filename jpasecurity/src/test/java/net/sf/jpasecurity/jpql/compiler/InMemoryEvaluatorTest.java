@@ -42,6 +42,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.ParseException;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
@@ -59,7 +60,7 @@ public class InMemoryEvaluatorTest extends TestCase {
     private JpqlCompiler compiler;
     private InMemoryEvaluator inMemoryEvaluator;
     private InMemoryEvaluationParameters<Boolean> parameters;
-    private Map<String, Object> aliases = new HashMap<String, Object>();
+    private Map<Alias, Object> aliases = new HashMap<Alias, Object>();
     private Map<String, Object> namedParameters = new HashMap<String, Object>();
     private Map<Integer, Object> positionalParameters = new HashMap<Integer, Object>();
     private SetMap<Class<?>, Object> entities = new SetHashMap<Class<?>, Object>();
@@ -158,7 +159,7 @@ public class InMemoryEvaluatorTest extends TestCase {
             //expected
         }
         
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
         namedParameters.put("name", "test2");
         assertTrue(inMemoryEvaluator.canEvaluate(whereClause, parameters));
         assertFalse(inMemoryEvaluator.evaluate(whereClause, parameters));
@@ -203,7 +204,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         } catch (NotEvaluatableException e) {
             //expected
         }
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
         namedParameters.put("name", "test2");
         assertTrue(inMemoryEvaluator.canEvaluate(whereClause, parameters));
         assertFalse(inMemoryEvaluator.evaluate(whereClause, parameters));
@@ -212,7 +213,7 @@ public class InMemoryEvaluatorTest extends TestCase {
     public void testClassMappingNotFound() throws Exception {
         JpqlCompiledStatement statement
             = compile("SELECT bean FROM FieldAccessAnnotationTestBean bean WHERE bean.name = :name");
-        aliases.put("bean", new MethodAccessAnnotationTestBean());
+        aliases.put(new Alias("bean"), new MethodAccessAnnotationTestBean());
         namedParameters.put("name", "test2");
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
@@ -227,7 +228,7 @@ public class InMemoryEvaluatorTest extends TestCase {
                                                 + "WHERE bean.name IN "
                                                 + "(SELECT innerBean "
                                                 + " FROM FieldAccessAnnotationTestBean innerBean)");
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test"));
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
@@ -238,7 +239,7 @@ public class InMemoryEvaluatorTest extends TestCase {
     
     public void testEvaluateOr() throws Exception {
         JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.name = :name OR bean.id = ?1");
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
 
         //first is true, second is false
         namedParameters.put("name", "test1");
@@ -293,7 +294,7 @@ public class InMemoryEvaluatorTest extends TestCase {
     
     public void testEvaluateAnd() throws Exception {
         JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.name = :name AND bean.id = ?1");
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
 
         //first is true, second is false
         namedParameters.put("name", "test1");
@@ -348,7 +349,7 @@ public class InMemoryEvaluatorTest extends TestCase {
     
     public void testEvaluateNot() throws Exception {
         JpqlCompiledStatement statement = compile(SELECT + "WHERE NOT (bean.name = :name)");
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
 
         namedParameters.put("name", "test1");
         assertFalse(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
@@ -367,7 +368,7 @@ public class InMemoryEvaluatorTest extends TestCase {
     
     public void testEvaluateBetween() throws Exception {
         JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.id BETWEEN ?1 AND ?2");
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
 
         positionalParameters.put(1, 0);
         positionalParameters.put(2, 0);
@@ -441,7 +442,7 @@ public class InMemoryEvaluatorTest extends TestCase {
             //expected
         }
         
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
 
         positionalParameters.put(1, 0);
         positionalParameters.put(2, 1);
@@ -506,7 +507,7 @@ public class InMemoryEvaluatorTest extends TestCase {
             //expected
         }
         
-        aliases.put("bean", bean);
+        aliases.put(new Alias("bean"), bean);
         assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         bean.setParentBean(new FieldAccessAnnotationTestBean("testParent"));
@@ -525,7 +526,7 @@ public class InMemoryEvaluatorTest extends TestCase {
             //expected
         }
         
-        aliases.put("bean", bean);
+        aliases.put(new Alias("bean"), bean);
         assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
 
         bean.setChildren(Collections.singletonList(new FieldAccessAnnotationTestBean("testChild")));
@@ -539,7 +540,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         FieldAccessAnnotationTestBean child = new FieldAccessAnnotationTestBean("test2");
         child.setParentBean(parent);
         
-        aliases.put("bean", parent);
+        aliases.put(new Alias("bean"), parent);
         entities.getNotNull(FieldAccessAnnotationTestBean.class).clear();
         try {
             inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters);
@@ -564,7 +565,7 @@ public class InMemoryEvaluatorTest extends TestCase {
         } catch (NotEvaluatableException e) {
             //expected
         }
-        aliases.put("bean", bean);
+        aliases.put(new Alias("bean"), bean);
 
         bean.setBeanName("test1name");
         assertTrue(inMemoryEvaluator.evaluate(statement.getWhereClause(), parameters));
