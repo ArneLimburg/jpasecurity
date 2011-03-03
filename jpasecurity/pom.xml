@@ -4,7 +4,7 @@
   <groupId>net.sf.jpasecurity</groupId>
   <artifactId>jpasecurity</artifactId>
   <name>JPA Security</name>
-  <version>0.3.1</version>
+  <version>0.3.2-SNAPSHOT</version>
   <description>
     JPA Security is an Access Control Solution for the Java Persistence API (JPA).
     With JPA Security your access control takes place

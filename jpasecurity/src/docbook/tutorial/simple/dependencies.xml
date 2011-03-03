@@ -13,7 +13,7 @@
     <dependency>
       <groupId>net.sf.jpasecurity</groupId>
       <artifactId>jpasecurity</artifactId>
-      <version>0.3.1</version>
+      <version>0.3.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>javax.annotation</groupId>
@@ -45,13 +45,13 @@ mvn install:install-file -DgroupId=javax.transaction -DartifactId=jta -Dversion=
   </para>
   <para>
     As no remote repository contains JPA Security yet, we need to install it to our local maven-repository, too.
-    If you don't already have, you may download the jpasecurity-0.3.1.jar <ulink url="https://sourceforge.net/project/showfiles.php?group_id=219346">here</ulink>.
+    If you don't already have, you may download the jpasecurity-0.3.2-SNAPSHOT.jar <ulink url="https://sourceforge.net/project/showfiles.php?group_id=219346">here</ulink>.
     We install it with the following command:
   </para>
   <programlisting>
-mvn install:install-file -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity -Dversion=0.3.1 -Dpackaging=jar -Dfile=/path/to/jpasecurity-0.3.1.jar
+mvn install:install-file -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity -Dversion=0.3.2-SNAPSHOT -Dpackaging=jar -Dfile=/path/to/jpasecurity-0.3.2-SNAPSHOT.jar
   </programlisting>
   <para>
-    Note again that you have to provide the absolute path to your <systemitem>jpa-security-0.3.1.jar</systemitem>.
+    Note again that you have to provide the absolute path to your <systemitem>jpa-security-0.3.2-SNAPSHOT.jar</systemitem>.
   </para>
 </article>

@@ -5,7 +5,7 @@
   <groupId>net.sf.jpasecurity</groupId>
   <artifactId>jpasecurity-acl</artifactId>
   <packaging>jar</packaging>
-  <version>0.3.1</version>
+  <version>0.3.2-SNAPSHOT</version>
   <name>JPA Security Access Control Lists</name>
 
   <build>
@@ -25,7 +25,7 @@
     <dependency>
       <groupId>net.sf.jpasecurity</groupId>
       <artifactId>jpasecurity</artifactId>
-      <version>0.3.1</version>
+      <version>0.3.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>javax.persistence</groupId>
@@ -36,7 +36,7 @@
     <dependency>
       <groupId>net.sf.jpasecurity</groupId>
       <artifactId>jpasecurity</artifactId>
-      <version>0.3.1</version>
+      <version>0.3.2-SNAPSHOT</version>
       <scope>test</scope>
       <classifier>tests</classifier>
     </dependency>

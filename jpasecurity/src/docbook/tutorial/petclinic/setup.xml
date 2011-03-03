@@ -24,7 +24,7 @@
   <groupId>net.sf.jpasecurity</groupId>
   <artifactId>jpasecurity-spring-petclinic-sample</artifactId>
   <packaging>war</packaging>
-  <version>0.3.1</version>
+  <version>0.3.2-SNAPSHOT</version>
   <name>JPA Security Spring Petclinic Sample</name>
   <url>http://jpasecurity.sf.net</url>
 
@@ -71,7 +71,7 @@
     <dependency>
       <groupId>net.sf.jpasecurity</groupId>
       <artifactId>jpasecurity</artifactId>
-      <version>0.3.1</version>
+      <version>0.3.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
