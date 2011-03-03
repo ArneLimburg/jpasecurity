@@ -18,6 +18,7 @@ package net.sf.jpasecurity.security;
 
 import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,12 +78,12 @@ public class EntityFilter {
     private final EntityManagerEvaluator entityManagerEvaluator;
     private final QueryPreparator queryPreparator = new QueryPreparator();
     private final CurrentUserReplacer currentUserReplacer = new CurrentUserReplacer();
-    private final List<AccessRule> accessRules;
+    private final Collection<AccessRule> accessRules;
 
     public EntityFilter(EntityManager entityManager,
                         SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
-                        List<AccessRule> accessRules) {
+                        Collection<AccessRule> accessRules) {
         this(entityManager,
              null,
              objectCache,
@@ -95,7 +96,7 @@ public class EntityFilter {
                         SecureObjectManager objectManager,
                         SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
-                        List<AccessRule> accessRules) {
+                        Collection<AccessRule> accessRules) {
         this(entityManager,
              objectManager,
              objectCache,
@@ -109,7 +110,7 @@ public class EntityFilter {
                         SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
                         PathEvaluator pathEvaluator,
-                        List<AccessRule> accessRules) {
+                        Collection<AccessRule> accessRules) {
         this.mappingInformation = mappingInformation;
         this.parser = new JpqlParser();
         this.compiler = new JpqlCompiler(mappingInformation);

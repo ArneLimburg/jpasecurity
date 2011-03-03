@@ -15,14 +15,18 @@
  */
 package net.sf.jpasecurity.security.rules;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
-import net.sf.jpasecurity.mapping.TypeDefinition;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.security.AccessRule;
 
 /**
@@ -35,18 +39,28 @@ public class AccessRulesCompiler extends JpqlCompiler {
         super(mappingInformation);
     }
 
-    public AccessRule compile(JpqlAccessRule rule) {
+    public Collection<AccessRule> compile(JpqlAccessRule rule) {
         Set<TypeDefinition> typeDefinitions = getAliasDefinitions(rule);
-        if (typeDefinitions.size() != 1) {
-            throw new IllegalStateException("An access rule must have exactly one alias specified");
+        if (typeDefinitions.isEmpty()) {
+            throw new PersistenceException("An access rule must have at least alias specified");
+        }
+        Alias alias = typeDefinitions.iterator().next().getAlias();
+        for (TypeDefinition typeDefinition: typeDefinitions) {
+            if (!typeDefinition.getAlias().equals(alias)) {
+                throw new PersistenceException("An access rule must have exactly one alias specified, found " + alias + " and " + typeDefinition.getAlias());
+            }
         }
         Set<String> namedParameters = getNamedParameters(rule);
-        if (namedParameters.size() > 0) {
+        if (!namedParameters.isEmpty()) {
             throw new PersistenceException("Named parameters are not allowed for access rules");
         }
-        if (getPositionalParameters(rule).size() > 0) {
+        if (!getPositionalParameters(rule).isEmpty()) {
             throw new PersistenceException("Positional parameters are not allowed for access rules");
         }
-        return new AccessRule(rule, typeDefinitions.iterator().next(), namedParameters);
+        Set<AccessRule> accessRules = new HashSet<AccessRule>();
+        for (TypeDefinition typeDefinition: typeDefinitions) {
+            accessRules.add(new AccessRule(rule, typeDefinition));
+        }
+        return Collections.unmodifiableSet(accessRules);
     }
 }

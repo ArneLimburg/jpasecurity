@@ -32,6 +32,7 @@ public interface MappingInformation {
     boolean containsClassMapping(String entityName);
     ClassMappingInformation getClassMapping(Class<?> entityType);
     ClassMappingInformation getClassMapping(String entityName);
+    Collection<ClassMappingInformation> resolveClassMappings(Class<?> type);
     Class<?> getType(String path, Set<TypeDefinition> typeDefinitions);
 
 }

@@ -100,8 +100,8 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
         try {
             for (String accessRule : rules) {
                 JpqlAccessRule parsedRule = jpqlParser.parseRule(accessRule);
-                AccessRule compiledRule = compiler.compile(parsedRule);
-                accessRules.add(compiledRule);
+                Collection<AccessRule> compiledRules = compiler.compile(parsedRule);
+                accessRules.addAll(compiledRules);
             }
         } catch (ParseException e) {
             throw new PersistenceException(e);

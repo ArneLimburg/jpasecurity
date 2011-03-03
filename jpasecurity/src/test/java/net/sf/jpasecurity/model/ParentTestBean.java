@@ -30,7 +30,7 @@ import javax.persistence.Version;
  * @author Stefan Hildebrandt
  */
 @Entity
-public class ParentTestBean {
+public class ParentTestBean implements TestInterface {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

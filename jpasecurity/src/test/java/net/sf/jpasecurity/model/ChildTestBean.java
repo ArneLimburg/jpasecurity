@@ -25,7 +25,7 @@ import javax.persistence.Id;
  * @author Stefan Hildebrandt
  */
 @Entity
-public class ChildTestBean {
+public class ChildTestBean implements TestInterface {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

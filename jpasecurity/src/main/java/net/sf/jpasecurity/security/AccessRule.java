@@ -51,11 +51,11 @@ public class AccessRule extends JpqlCompiledStatement {
     private final CurrentRolesVisitor currentRolesVisitor = new CurrentRolesVisitor();
     private Set<AccessType> access;
 
-    public AccessRule(JpqlAccessRule rule, TypeDefinition typeDefinition, Set<String> namedParameters) {
+    public AccessRule(JpqlAccessRule rule, TypeDefinition typeDefinition) {
         super(rule,
               Collections.singletonList(typeDefinition.getAlias().getName()),
               Collections.singleton(typeDefinition),
-              namedParameters);
+              Collections.<String>emptySet());
     }
 
     public String getSelectedPath() {

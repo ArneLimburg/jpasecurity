@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +42,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ToStringVisitor;
 import net.sf.jpasecurity.mapping.Alias;
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.util.ValueHolder;
@@ -179,13 +181,28 @@ public class JpqlCompiler {
         }
 
         public boolean visit(JpqlFromItem node, Set<TypeDefinition> typeDefinitions) {
-            String abstractSchemaName = node.jjtGetChild(0).toString();
+            String abstractSchemaName = node.jjtGetChild(0).toString().trim();
             Alias alias = getAlias(node);
-            Class<?> type = mappingInformation.getClassMapping(abstractSchemaName.trim()).getEntityType();
-            if (type == null) {
-                throw new PersistenceException("type not found " + abstractSchemaName.trim());
+            Collection<Class<?>> types = new HashSet<Class<?>>();
+            if (mappingInformation.containsClassMapping(abstractSchemaName)) {
+                types.add(mappingInformation.getClassMapping(abstractSchemaName).getEntityType());
+            } else {
+                try {
+                    Class<?> type = Thread.currentThread().getContextClassLoader().loadClass(abstractSchemaName);
+                    Collection<ClassMappingInformation> classMappings = mappingInformation.resolveClassMappings(type);
+                    for (ClassMappingInformation classMapping: classMappings) {
+                        types.add(classMapping.getEntityType());
+                    }
+                } catch (ClassNotFoundException e) {
+                    throw new PersistenceException(e);
+                }
             }
-            typeDefinitions.add(new TypeDefinition(alias, type));
+            if (types.isEmpty()) {
+                throw new PersistenceException("type not found " + abstractSchemaName);
+            }
+            for (Class<?> type: types) {
+                typeDefinitions.add(new TypeDefinition(alias, type));
+            }
             determinePreliminaryTypes(typeDefinitions);
             return false;
         }

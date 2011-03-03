@@ -18,6 +18,7 @@ package net.sf.jpasecurity.mapping;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -104,6 +105,16 @@ public class DefaultMappingInformation implements MappingInformation {
             throw new PersistenceException("Could not find mapping for entity with name \"" + entityName + '"');
         }
         return classMapping;
+    }
+
+    public Collection<ClassMappingInformation> resolveClassMappings(Class<?> type) {
+        Set<ClassMappingInformation> resolvedMappings = new HashSet<ClassMappingInformation>();
+        for (Map.Entry<Class<?>, ClassMappingInformation> classMappingEntry: entityTypeMappings.entrySet()) {
+            if (type.isAssignableFrom(classMappingEntry.getKey())) {
+                resolvedMappings.add(classMappingEntry.getValue());
+            }
+        }
+        return Collections.unmodifiableCollection(resolvedMappings);
     }
 
     public Class<?> getType(String path, Set<TypeDefinition> typeDefinitions) {

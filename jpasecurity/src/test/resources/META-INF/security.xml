@@ -77,4 +77,10 @@
       GRANT ACCESS TO Contact contact WHERE contact.owner.name = 'user'
   	</access-rule>
   </persistence-unit>
+  
+  <persistence-unit name="interface">
+    <access-rule>
+      GRANT ACCESS TO net.sf.jpasecurity.model.TestInterface t WHERE t.name = CURRENT_PRINCIPAL 
+    </access-rule>
+  </persistence-unit>
 </security>
