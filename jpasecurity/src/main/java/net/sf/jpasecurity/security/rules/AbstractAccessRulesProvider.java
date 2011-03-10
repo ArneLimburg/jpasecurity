@@ -64,7 +64,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
     /**
      * {@inheritDoc}
      */
-    public synchronized final List<AccessRule> getAccessRules() {
+    public final synchronized List<AccessRule> getAccessRules() {
         if (accessRules == null) {
             initializeAccessRules();
             checkAccessRules();
