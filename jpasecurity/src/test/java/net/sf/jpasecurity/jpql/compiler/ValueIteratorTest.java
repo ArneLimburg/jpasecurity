@@ -15,11 +15,12 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
+import static net.sf.jpasecurity.util.Maps.entry;
+import static net.sf.jpasecurity.util.Maps.map;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
-import static net.sf.jpasecurity.util.Maps.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -212,6 +213,25 @@ public class ValueIteratorTest extends TestCase {
         assertNoSuchElementException(valueIterator);
     }
 
+    public void testNextWithInnerJoin() {
+        FieldAccessAnnotationTestBean bean1a = beanFactory.withName("bean1a").withParent().withChild().create();
+        FieldAccessAnnotationTestBean bean1b = beanFactory.withName("bean1b").withoutParent().withChild().create();
+        FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChild().create();
+        PathEvaluator pathEvaluator = pathEvaluatorFactory.withBeans(bean1a, bean1b, bean2).create();
+        possibleValues.add(BEAN1, bean1a);
+        possibleValues.add(BEAN1, bean1b);
+        possibleValues.add(BEAN2, bean2);
+        ValueIterator valueIterator = new ValueIterator(possibleValues, typeDefinitions, pathEvaluator);
+        assertNext(map(entry(BEAN1, (Object)bean1a),
+                       entry(PARENT1, (Object)bean1a.getParentBean()),
+                       entry(CHILD1, (Object)bean1a.getChildBeans().iterator().next()),
+                       entry(BEAN2, (Object)bean2),
+                       entry(PARENT2, (Object)bean2.getParentBean()),
+                       entry(CHILD2, (Object)bean2.getChildBeans().iterator().next())),
+                   valueIterator);
+        assertNoSuchElementException(valueIterator);
+    }
+    
     public void testNextWithOuterJoinOnChildren() {
         FieldAccessAnnotationTestBean bean1 = beanFactory.withName("bean1").withParent().withoutChildren().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChildren().create();
