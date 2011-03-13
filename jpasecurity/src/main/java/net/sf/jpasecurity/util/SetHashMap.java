@@ -16,7 +16,7 @@
 
 package net.sf.jpasecurity.util;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -25,6 +25,6 @@ import java.util.Set;
 public class SetHashMap<K, V> extends AbstractCollectionHashMap<K, Set<V>, V> implements SetMap<K, V> {
 
     protected Set<V> createCollection() {
-        return new HashSet<V>();
+        return new LinkedHashSet<V>();
     }
 }

@@ -37,6 +37,10 @@ public class TypeDefinition {
         this(null, type, joinPath, innerJoin, fetchJoin);
     }
 
+    public TypeDefinition(Alias alias, Class<?> type, String joinPath, boolean innerJoin) {
+        this(alias, type, joinPath, innerJoin, false);
+    }
+
     public TypeDefinition(Alias alias, Class<?> type, String joinPath, boolean innerJoin, boolean fetchJoin) {
         this(alias, type);
         if (joinPath == null) {

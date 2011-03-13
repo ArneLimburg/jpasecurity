@@ -68,9 +68,6 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
                 return false;
             }
             for (Map.Entry<Alias, List<Object>> possibleAliasValueEntry: possibleValues.entrySet()) {
-                if (possibleAliasValueEntry.getValue().isEmpty()) {
-                    return false;
-                }
                 boolean possibleValueFound = false;
                 for (Object possibleValue: possibleAliasValueEntry.getValue()) {
                     if (couldSetCurrentValues(possibleAliasValueEntry.getKey(), possibleValue)) {
@@ -88,6 +85,24 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
             return false;
         }
         for (Alias alias: possibleAliases) {
+            if (dependentTypeDefinitions.containsKey(alias)) {
+                for (TypeDefinition dependentTypeDefinition: dependentTypeDefinitions.get(alias)) {
+                    Alias dependentAlias = dependentTypeDefinition.getAlias();
+                    Object currentDependentValue = currentValue.get(dependentAlias);
+                    if (currentDependentValue == null) {
+                        //outer join
+                        continue;
+                    }
+                    List<Object> possibleDependentValues = currentPossibleDependentValues.get(dependentAlias);
+                    for (int i = possibleDependentValues.indexOf(currentDependentValue) + 1;
+                         i < possibleDependentValues.size();
+                         i++) {
+                        if (couldSetCurrentValues(dependentAlias, possibleDependentValues.get(i))) {
+                            return true;
+                        }
+                    }
+                }
+            }
             for (int i = possibleValues.indexOf(alias, currentValue.get(alias)) + 1;
                  i < possibleValues.size(alias);
                  i++) {
@@ -101,10 +116,10 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
 
     public Map<Alias, Object> next() {
         if (!initialized) {
-            for (Alias possibleAlias: possibleAliases) {
-                setCurrentValues(possibleAlias, possibleValues.get(possibleAlias, 0));
+            initialize();
+            if (currentValue.isEmpty()) {
+                throw new NoSuchElementException();
             }
-            initialized = true;
             return new HashMap<Alias, Object>(currentValue);
         }
         for (Alias alias: possibleAliases) {
@@ -116,7 +131,7 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
                                                                        currentDependentValue);
                     if (index == -1
                         || index == currentPossibleDependentValues.size(dependentTypeDefinition.getAlias()) - 1) {
-                        currentPossibleDependentValues.remove(dependentTypeDefinition.getAlias());
+                        continue;
                     } else {
                         Object nextValue
                             = currentPossibleDependentValues.get(dependentTypeDefinition.getAlias(), index + 1);
@@ -140,6 +155,27 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
         throw new UnsupportedOperationException();
     }
 
+    private void initialize() {
+        for (Alias possibleAlias: possibleAliases) {
+            boolean valueFound = false;
+            for (Object possibleValue: possibleValues.get(possibleAlias)) {
+                Map<Alias, Object> currentValue = new HashMap<Alias, Object>(this.currentValue);
+                ListMap<Alias, Object> currentPossibleDependentValues
+                    = new ListHashMap<Alias, Object>(this.currentPossibleDependentValues);
+                if (couldSetCurrentValues(possibleAlias, possibleValue, currentValue, currentPossibleDependentValues)) {
+                    this.currentValue = currentValue;
+                    this.currentPossibleDependentValues = currentPossibleDependentValues;
+                    valueFound = true;
+                    break;
+                }
+            }
+            if (!valueFound) {
+                throw new NoSuchElementException();
+            }
+        }
+        initialized = true;
+    }
+
     private void setCurrentValues(Alias alias, Object value) {
         Map<Alias, Object> currentValue = new HashMap<Alias, Object>(this.currentValue);
         ListMap<Alias, Object> currentPossibleDependentValues
@@ -152,15 +188,15 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
 
     private boolean couldSetCurrentValues(Alias alias, Object value) {
         return couldSetCurrentValues(alias,
-                        value,
-                        new HashMap<Alias, Object>(currentValue),
-                        new ListHashMap<Alias, Object>(currentPossibleDependentValues));
+                                     value,
+                                     new HashMap<Alias, Object>(currentValue),
+                                     new ListHashMap<Alias, Object>(currentPossibleDependentValues));
     }
 
     private boolean couldSetCurrentValues(Alias alias,
-                    Object value,
-                    Map<Alias, Object> currentValue,
-                    ListMap<Alias, Object> currentPossibleDependentValues) {
+                                          Object value,
+                                          Map<Alias, Object> currentValue,
+                                          ListMap<Alias, Object> currentPossibleDependentValues) {
         currentValue.put(alias, value);
         if (dependentTypeDefinitions.containsKey(alias)) {
             for (TypeDefinition dependentTypeDefinition: dependentTypeDefinitions.get(alias)) {
@@ -168,13 +204,19 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
                     = pathEvaluator.evaluateAll(Collections.singleton(value),
                                                 getSubpath(dependentTypeDefinition.getJoinPath()));
                 if (dependentValues.isEmpty() && dependentTypeDefinition.isInnerJoin()) {
+                    currentPossibleDependentValues.remove(dependentTypeDefinition.getAlias());
                     return false;
                 }
                 currentPossibleDependentValues.put(dependentTypeDefinition.getAlias(), dependentValues);
+                if (dependentValues.isEmpty()) {
+                    //must be outer join
+                    currentValue.put(dependentTypeDefinition.getAlias(), null);
+                    continue;
+                }
                 if (!couldSetCurrentValues(dependentTypeDefinition.getAlias(),
-                                dependentValues.iterator().next(),
-                                currentValue,
-                                currentPossibleDependentValues)) {
+                                           dependentValues.iterator().next(),
+                                           currentValue,
+                                           currentPossibleDependentValues)) {
                     return false;
                 }
             }
