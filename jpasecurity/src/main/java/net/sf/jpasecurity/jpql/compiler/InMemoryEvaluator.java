@@ -32,6 +32,9 @@ import java.util.Set;
 
 import javax.persistence.NoResultException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.entity.EmptyObjectCache;
 import net.sf.jpasecurity.entity.SecureObjectCache;
@@ -105,9 +108,6 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.util.SetHashMap;
 import net.sf.jpasecurity.util.SetMap;
 import net.sf.jpasecurity.util.ValueHolder;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * This implementation of the {@link JpqlVisitorAdapter} evaluates queries in memory,
@@ -463,6 +463,10 @@ public class InMemoryEvaluator extends JpqlVisitorAdapter<InMemoryEvaluationPara
             } else {
                 node.jjtGetChild(1).visit(this, data);
                 Object value2 = data.getResult();
+                if (value1 instanceof BigDecimal
+                   && value2 instanceof Long) {
+                    value2 = BigDecimal.valueOf((Long)value2);
+                }
                 data.setResult(value1.equals(value2));
             }
         } catch (NotEvaluatableException e) {
