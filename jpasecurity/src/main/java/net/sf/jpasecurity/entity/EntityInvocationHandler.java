@@ -28,20 +28,40 @@ import net.sf.jpasecurity.util.AbstractInvocationHandler;
 
 /**
  * An invocation handler to handle invocations on entities.
+ *
  * @author Arne Limburg
  */
 public class EntityInvocationHandler extends AbstractInvocationHandler implements SecureEntity, MethodInterceptor {
 
     private static final boolean IS_HIBERNATE_AVAILABLE;
+    private static final Class<?> HIBERNATE_PROXY_CLASS;
+    private static final Method GET_HIBERNATE_LAZY_INITIALIZER;
+    private static final Method GET_IMPLEMENTATION_METHOD;
+
     static {
         boolean isHibernateAvailable;
+        Class<?> hibernateProxyClass = null;
+        Class<?> lazyInitialuzerClass = null;
+        Method hibernateLazyInitializerMethod = null;
+        Method getImplementationMethod = null;
         try {
-            Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.HibernateProxy");
+            hibernateProxyClass =
+                Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.HibernateProxy");
+            lazyInitialuzerClass =
+                Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.LazyInitializer");
+            hibernateLazyInitializerMethod = hibernateProxyClass.getMethod("getHibernateLazyInitializer");
+
+            getImplementationMethod = lazyInitialuzerClass.getMethod("getImplementation");
             isHibernateAvailable = true;
         } catch (ClassNotFoundException e) {
             isHibernateAvailable = false;
+        } catch (NoSuchMethodException e) {
+            isHibernateAvailable = false;
         }
         IS_HIBERNATE_AVAILABLE = isHibernateAvailable;
+        HIBERNATE_PROXY_CLASS = hibernateProxyClass;
+        GET_HIBERNATE_LAZY_INITIALIZER = hibernateLazyInitializerMethod;
+        GET_IMPLEMENTATION_METHOD = getImplementationMethod;
     }
 
     private MappingInformation mapping;
@@ -91,7 +111,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         }
         if (object != secureEntity) {
             throw new IllegalStateException("unexpected object of type " + object.getClass()
-               + ", expected type " + secureEntity.getClass());
+                + ", expected type " + secureEntity.getClass());
         }
         if (canInvoke(method)) {
             return invoke(object, method, args);
@@ -187,15 +207,11 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             return object;
         }
         try {
-            Class<?> hibernateProxy
-                = Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.HibernateProxy");
-            if (!hibernateProxy.isInstance(object)) {
+            if (!HIBERNATE_PROXY_CLASS.isInstance(object)) {
                 return object;
             }
-            Class<?> lazyInitializer
-                = Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.LazyInitializer");
-            Object lazyInitializerInstance = hibernateProxy.getMethod("getHibernateLazyInitializer").invoke(object);
-            return lazyInitializer.getMethod("getImplementation").invoke(lazyInitializerInstance);
+            Object lazyInitializerInstance = GET_HIBERNATE_LAZY_INITIALIZER.invoke(object);
+            return GET_IMPLEMENTATION_METHOD.invoke(lazyInitializerInstance);
         } catch (Exception e) {
             return object;
         }

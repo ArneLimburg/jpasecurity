@@ -1,6 +1,11 @@
 package net.sf.jpasecurity.model.acl;
 
+import java.util.List;
+
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -11,6 +16,12 @@ public class Group extends AbstractEntity {
    private String description;
 
    private String groupType;
+
+    @ManyToMany
+   @JoinTable(name = "GROUP_HIERARCHY",
+       joinColumns = @JoinColumn(name = "PARENT_ID"),
+       inverseJoinColumns = @JoinColumn(name = "CHILD_ID"))
+   private List<Group> fullHierarchy;
 
    public String getName() {
       return name;
@@ -35,4 +46,12 @@ public class Group extends AbstractEntity {
    public void setDescription(String description) {
       this.description = description;
    }
+
+    public List<Group> getFullHierarchy() {
+        return fullHierarchy;
+    }
+
+    public void setFullHierarchy(List<Group> fullHierarchy) {
+        this.fullHierarchy = fullHierarchy;
+    }
 }
