@@ -15,26 +15,17 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.persistence.spi.PersistenceUnitInfo;
-
-import org.easymock.IAnswer;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
-import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.acl.Acl;
 import net.sf.jpasecurity.model.acl.AclEntry;
 import net.sf.jpasecurity.model.acl.Group;
@@ -42,11 +33,6 @@ import net.sf.jpasecurity.model.acl.User;
 import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
 import net.sf.jpasecurity.util.SetHashMap;
 import net.sf.jpasecurity.util.SetMap;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
 
 /** @author Stefan Hildebrandt */
 public class AclValueIteratorTest extends TestCase {
@@ -63,15 +49,15 @@ public class AclValueIteratorTest extends TestCase {
 
     public void setUp() {
         typeDefinitions = new HashSet<TypeDefinition>();
-        typeDefinitions.add(new TypeDefinition(GROUP, Group.class, "user3.groups", true));
+        typeDefinitions.add(new TypeDefinition(GROUP, Group.class, "user.groups", true));
         typeDefinitions.add(new TypeDefinition(ACL_ENTRY, AclEntry.class));
-        typeDefinitions.add(new TypeDefinition(GROUP_FULL_HIERARCHY, Group.class, "groups3.fullHierarchy", true));
+        typeDefinitions.add(new TypeDefinition(GROUP_FULL_HIERARCHY, Group.class, "groups.fullHierarchy", true));
         typeDefinitions.add(new TypeDefinition(USER, User.class));
         typeDefinitions.add(new TypeDefinition(ACL, Acl.class));
         possibleValues = new SetHashMap<Alias, Object>();
     }
 
-    public void testNextWithFourPossibleValues() {
+    public void testAcl() {
         final Group group10004623 = new Group();
         group10004623.setId(10004623);
         group10004623.setFullHierarchy(Arrays.asList(group10004623));
@@ -142,7 +128,7 @@ public class AclValueIteratorTest extends TestCase {
             valueIterator.next();
             count++;
         }
-        assertEquals(100,count);
+        assertEquals(2, count);
     }
 
     private MappedPathEvaluator createPathEvaluator() {
@@ -153,83 +139,5 @@ public class AclValueIteratorTest extends TestCase {
         persistenceUnitInfo.getManagedClassNames().add(User.class.getName());
         final MappingInformation mappingInformation = new JpaAnnotationParser().parse(persistenceUnitInfo);
         return new MappedPathEvaluator(mappingInformation);
-    }
-
-    private void assertNext(Map<Alias, Object> values, Iterator<Map<Alias, Object>> i) {
-        assertTrue(i.hasNext());
-        Map<Alias, Object> result = i.next();
-        for (Map.Entry<Alias, Object> entry : values.entrySet()) {
-            assertEquals(entry.getValue(), result.get(entry.getKey()));
-        }
-    }
-
-    private void assertNoSuchElementException(Iterator<?> i) {
-        assertFalse(i.hasNext());
-        try {
-            i.next();
-            fail();
-        } catch (NoSuchElementException e) {
-            //expected
-        }
-    }
-
-    private class PathEvaluatorFactory {
-
-        private FieldAccessAnnotationTestBean[] beans;
-
-        public PathEvaluatorFactory withBeans(FieldAccessAnnotationTestBean... beans) {
-            this.beans = beans;
-            return this;
-        }
-
-        public PathEvaluatorFactory withNoBeans() {
-            return withBeans();
-        }
-
-        public PathEvaluatorFactory withBean(FieldAccessAnnotationTestBean bean) {
-            return withBeans(bean);
-        }
-
-        public PathEvaluator create() {
-            PathEvaluator pathEvaluator = createMock(PathEvaluator.class);
-            for (FieldAccessAnnotationTestBean bean : beans) {
-                expect(pathEvaluator.evaluateAll(eq(Collections.singleton(bean)), eq("parent")))
-                    .andAnswer(new ParentAnswer(bean)).anyTimes();
-                expect(pathEvaluator.evaluateAll(eq(Collections.singleton(bean)), eq("children")))
-                    .andAnswer(new ChildrenAnswer(bean)).anyTimes();
-            }
-            replay(pathEvaluator);
-            return pathEvaluator;
-        }
-    }
-
-    private class ParentAnswer implements IAnswer<List<Object>> {
-
-        private FieldAccessAnnotationTestBean bean;
-
-        public ParentAnswer(FieldAccessAnnotationTestBean bean) {
-            this.bean = bean;
-        }
-
-        public List<Object> answer() throws Throwable {
-            return bean.getParentBean() == null ?
-                Collections.emptyList() :
-                Collections.<Object>singletonList(bean.getParentBean());
-        }
-    }
-
-    private class ChildrenAnswer implements IAnswer<List<Object>> {
-
-        private FieldAccessAnnotationTestBean bean;
-
-        public ChildrenAnswer(FieldAccessAnnotationTestBean bean) {
-            this.bean = bean;
-        }
-
-        public List<Object> answer() throws Throwable {
-            return bean.getChildBeans() == null || bean.getChildBeans().isEmpty() ?
-                Collections.emptyList() :
-                new ArrayList<Object>(bean.getChildBeans());
-        }
     }
 }

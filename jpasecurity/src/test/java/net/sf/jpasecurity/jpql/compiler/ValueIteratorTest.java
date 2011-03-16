@@ -53,6 +53,7 @@ public class ValueIteratorTest extends TestCase {
     private static final Alias PARENT2 = new Alias("parent2");
     private static final Alias CHILD1 = new Alias("child1");
     private static final Alias CHILD2 = new Alias("child2");
+    private static final Alias GRANDCHILD2 = new Alias("grandchild2");
 
     private final FieldAccessAnnotationTestBeanFactory beanFactory = new FieldAccessAnnotationTestBeanFactory();
     private final PathEvaluatorFactory pathEvaluatorFactory = new PathEvaluatorFactory();
@@ -354,19 +355,19 @@ public class ValueIteratorTest extends TestCase {
                        entry(PARENT2, (Object)bean2.getParentBean()),
                        entry(CHILD2, (Object)bean2Child1)),
                    valueIterator);
-        assertNext(map(entry(BEAN1, (Object)bean1b),
-                       entry(PARENT1, (Object)bean1b.getParentBean()),
-                       entry(CHILD1, (Object)bean1b.getChildBeans().iterator().next()),
-                       entry(BEAN2, (Object)bean2),
-                       entry(PARENT2, (Object)bean2.getParentBean()),
-                       entry(CHILD2, (Object)bean2Child1)),
-                   valueIterator);
         assertNext(map(entry(BEAN1, (Object)bean1a),
                        entry(PARENT1, (Object)bean1a.getParentBean()),
                        entry(CHILD1, (Object)bean1a.getChildBeans().iterator().next()),
                        entry(BEAN2, (Object)bean2),
                        entry(PARENT2, (Object)bean2.getParentBean()),
                        entry(CHILD2, (Object)bean2Child2)),
+                   valueIterator);
+        assertNext(map(entry(BEAN1, (Object)bean1b),
+                       entry(PARENT1, (Object)bean1b.getParentBean()),
+                       entry(CHILD1, (Object)bean1b.getChildBeans().iterator().next()),
+                       entry(BEAN2, (Object)bean2),
+                       entry(PARENT2, (Object)bean2.getParentBean()),
+                       entry(CHILD2, (Object)bean2Child1)),
                    valueIterator);
         assertNext(map(entry(BEAN1, (Object)bean1b),
                        entry(PARENT1, (Object)bean1b.getParentBean()),
@@ -452,6 +453,49 @@ public class ValueIteratorTest extends TestCase {
                        entry(PARENT2, (Object)bean2b.getParentBean()),
                        entry(CHILD2, (Object)bean2b.getChildBeans().iterator().next())),
                    valueIterator);
+        assertNoSuchElementException(valueIterator);
+    }
+
+    public void testNextWithDoubleJoin() {
+        typeDefinitions.add(new TypeDefinition(GRANDCHILD2, FieldAccessAnnotationTestBean.class, "child2.children", false));
+        FieldAccessAnnotationTestBean bean1 = beanFactory.withName("bean1").withParent().withChild().create();
+        FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChildren().create();
+        FieldAccessAnnotationTestBean child2a = bean2.getChildBeans().get(0);
+        FieldAccessAnnotationTestBean child2b = bean2.getChildBeans().get(1);
+        FieldAccessAnnotationTestBean grandchild2a = beanFactory.withName("grandchild2a").withoutParent().withoutChildren().create();
+        FieldAccessAnnotationTestBean grandchild2b = beanFactory.withName("grandchild2b").withoutParent().withoutChildren().create();
+        child2b.getChildBeans().add(grandchild2a);
+        child2b.getChildBeans().add(grandchild2b);
+        grandchild2a.setParentBean(child2b);
+        grandchild2b.setParentBean(child2b);
+        PathEvaluator pathEvaluator = pathEvaluatorFactory.withBeans(bean1, bean2, child2a, child2b).create();
+        possibleValues.add(BEAN1, bean1);
+        possibleValues.add(BEAN2, bean2);
+        ValueIterator valueIterator = new ValueIterator(possibleValues, typeDefinitions, pathEvaluator);
+        assertNext(map(entry(BEAN1, (Object)bean1),
+                       entry(PARENT1, (Object)bean1.getParentBean()),
+                       entry(CHILD1, (Object)bean1.getChildBeans().iterator().next()),
+                       entry(BEAN2, (Object)bean2),
+                       entry(PARENT2, (Object)bean2.getParentBean()),
+                       entry(CHILD2, (Object)child2a),
+                       entry(GRANDCHILD2, null)),
+                   valueIterator);
+        assertNext(map(entry(BEAN1, (Object)bean1),
+                       entry(PARENT1, (Object)bean1.getParentBean()),
+                       entry(CHILD1, (Object)bean1.getChildBeans().iterator().next()),
+                       entry(BEAN2, (Object)bean2),
+                       entry(PARENT2, (Object)bean2.getParentBean()),
+                       entry(CHILD2, (Object)child2b),
+                       entry(GRANDCHILD2, (Object)grandchild2a)),
+                   valueIterator);
+        assertNext(map(entry(BEAN1, (Object)bean1),
+                       entry(PARENT1, (Object)bean1.getParentBean()),
+                       entry(CHILD1, (Object)bean1.getChildBeans().iterator().next()),
+                       entry(BEAN2, (Object)bean2),
+                       entry(PARENT2, (Object)bean2.getParentBean()),
+                       entry(CHILD2, (Object)child2b),
+                       entry(GRANDCHILD2, (Object)grandchild2b)),
+                    valueIterator);
         assertNoSuchElementException(valueIterator);
     }
 
