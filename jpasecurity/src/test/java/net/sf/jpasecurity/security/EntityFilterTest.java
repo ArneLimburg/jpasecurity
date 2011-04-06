@@ -20,6 +20,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,7 +51,7 @@ import net.sf.jpasecurity.security.rules.AccessRulesCompiler;
 public class EntityFilterTest extends TestCase {
 
     private MappingInformation mappingInformation;
-    private List<AccessRule> accessRules;
+    private Collection<AccessRule> accessRules;
     
     public void setUp() throws Exception {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
@@ -61,7 +62,7 @@ public class EntityFilterTest extends TestCase {
         JpqlAccessRule rule
             = parser.parseRule("GRANT READ ACCESS TO Contact contact WHERE contact.owner = CURRENT_PRINCIPAL");
         AccessRulesCompiler compiler = new AccessRulesCompiler(mappingInformation, new DefaultExceptionFactory());
-        accessRules = Collections.singletonList(compiler.compile(rule));
+        accessRules = compiler.compile(rule);
     }
     
     public void testIsAccessible() throws Exception {

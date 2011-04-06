@@ -18,6 +18,7 @@ package net.sf.jpasecurity.jpql.compiler;
 import java.util.Collection;
 
 import net.sf.jpasecurity.ExceptionFactory;
+import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlExists;
@@ -61,7 +62,16 @@ public class ObjectCacheSubselectEvaluator extends SimpleSubselectEvaluator {
     protected Collection<?> getResult(Replacement replacement, QueryEvaluationParameters parameters)
             throws NotEvaluatableException {
         if (replacement.getReplacement() == null) {
-            return objectCache.getSecureObjects(replacement.getTypeDefinition().getType());
+            Collection<?> secureObjects = objectCache.getSecureObjects(replacement.getTypeDefinition().getType());
+            for (Object secureObject: secureObjects) {
+                if (secureObject instanceof SecureEntity) {
+                    SecureEntity secureEntity = (SecureEntity)secureObject;
+                    if (!secureEntity.isInitialized()) {
+                        ((SecureEntity)secureObject).refresh();
+                    }
+                }
+            }
+            return secureObjects;
         } else {
             return super.getResult(replacement, parameters);
         }

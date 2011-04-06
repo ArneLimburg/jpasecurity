@@ -20,6 +20,7 @@ import static net.sf.jpasecurity.AccessType.READ;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.ExceptionFactory;
@@ -47,6 +48,7 @@ public class LightSecureEntityManager extends DelegatingEntityManager {
     private EntityFilter entityFilter;
 
     LightSecureEntityManager(EntityManager entityManager,
+                             EntityManagerFactory entityManagerFactory,
                              MappingInformation mappingInformation,
                              Configuration configuration) {
         super(entityManager);
@@ -56,7 +58,7 @@ public class LightSecureEntityManager extends DelegatingEntityManager {
         ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
         PathEvaluator pathEvaluator = new MappedPathEvaluator(mappingInformation, exceptionFactory);
         SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator(exceptionFactory);
-        SubselectEvaluator entityManagerEvaluator = new EntityManagerEvaluator(entityManager, pathEvaluator);
+        SubselectEvaluator entityManagerEvaluator = new EntityManagerEvaluator(entityManagerFactory, pathEvaluator);
         this.entityFilter = new EntityFilter(emptyObjectCache,
                                              mappingInformation,
                                              configuration.getExceptionFactory(),

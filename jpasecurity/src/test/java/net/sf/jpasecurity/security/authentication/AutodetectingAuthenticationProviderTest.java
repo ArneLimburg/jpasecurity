@@ -33,6 +33,7 @@ import javax.naming.NameNotFoundException;
 
 import junit.framework.TestCase;
 import net.sf.jpasecurity.configuration.AuthenticationProvider;
+import net.sf.jpasecurity.mapping.Alias;
 
 import org.acegisecurity.context.SecurityContextHolder;
 import org.apache.commons.naming.NamingContext;
@@ -82,8 +83,8 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         expect(mock.getRoles()).andReturn(Collections.EMPTY_SET);
         replay(mock);
         
-        assertSame(user, authenticationProvider.getAliasValue("CURRENT_PRINCIPAL"));
-        assertSame(Collections.EMPTY_SET, authenticationProvider.getAliasValues("CURRENT_ROLES"));
+        assertSame(user, authenticationProvider.getAliasValue(new Alias("CURRENT_PRINCIPAL")));
+        assertSame(Collections.EMPTY_SET, authenticationProvider.getAliasValues(new Alias("CURRENT_ROLES")));
         
         verify(mock);
     }

@@ -49,6 +49,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ParseException;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 
@@ -72,13 +73,13 @@ public class EntityFilter {
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final QueryEvaluator queryEvaluator;
     private final QueryPreparator queryPreparator = new QueryPreparator();
-    private final List<AccessRule> accessRules;
+    private final Collection<AccessRule> accessRules;
     private final ExceptionFactory exceptionFactory;
 
     public EntityFilter(SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
                         ExceptionFactory exceptionFactory,
-                        List<AccessRule> accessRules,
+                        Collection<AccessRule> accessRules,
                         SubselectEvaluator... evaluators) {
         this.mappingInformation = mappingInformation;
         this.parser = new JpqlParser();
@@ -92,7 +93,8 @@ public class EntityFilter {
     public boolean isAccessible(Object entity, AccessType accessType, SecurityContext securityContext)
             throws NotEvaluatableException {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-        String alias = Character.toLowerCase(mapping.getEntityName().charAt(0)) + mapping.getEntityName().substring(1);
+        Alias alias = new Alias(Character.toLowerCase(mapping.getEntityName().charAt(0))
+                                + mapping.getEntityName().substring(1));
         AccessDefinition accessDefinition
             = createAccessDefinition(alias, mapping.getEntityType(), accessType, securityContext);
         if (accessDefinition == null) {
@@ -130,7 +132,7 @@ public class EntityFilter {
         try {
             QueryEvaluationParameters evaluationParameters
                 = new QueryEvaluationParameters(mappingInformation,
-                                                Collections.<String, Object>emptyMap(),
+                                                Collections.<Alias, Object>emptyMap(),
                                                 accessDefinition.getQueryParameters(),
                                                 Collections.<Integer, Object>emptyMap(),
                                                 true);
@@ -191,11 +193,11 @@ public class EntityFilter {
                                     securityContext);
     }
 
-    private AccessDefinition createAccessDefinition(String alias,
+    private AccessDefinition createAccessDefinition(Alias alias,
                                                     Class<?> type,
                                                     AccessType accessType,
                                                     SecurityContext securityContext) {
-        return createAccessDefinition(Collections.<String, Class<?>>singletonMap(alias, type),
+        return createAccessDefinition(Collections.<String, Class<?>>singletonMap(alias.getName(), type),
                                       accessType,
                                       securityContext);
     }
@@ -308,19 +310,19 @@ public class EntityFilter {
     }
 
     private void expand(AccessRule accessRule, SecurityContext securityContext, Map<String, Object> queryParameters) {
-        for (String alias: securityContext.getAliases()) {
-            Collection<JpqlIn> inNodes = accessRule.getInNodes(alias);
+        for (Alias alias: securityContext.getAliases()) {
+            Collection<JpqlIn> inNodes = accessRule.getInNodes(alias.getName());
             if (inNodes.size() > 0) {
-                expand(alias, inNodes, securityContext.getAliasValues(alias), queryParameters);
+                expand(alias.getName(), inNodes, securityContext.getAliasValues(alias), queryParameters);
             } else {
-                for (JpqlIdentifier identifier: accessRule.getIdentifierNodes(alias)) {
+                for (JpqlIdentifier identifier: accessRule.getIdentifierNodes(alias.getName())) {
                     Node nodeToReplace = identifier;
                     if (nodeToReplace.jjtGetParent() instanceof JpqlPath) {
                         nodeToReplace = nodeToReplace.jjtGetParent();
                     }
-                    queryPreparator.replace(nodeToReplace, queryPreparator.createNamedParameter(alias));
+                    queryPreparator.replace(nodeToReplace, queryPreparator.createNamedParameter(alias.getName()));
                 }
-                queryParameters.put(alias, securityContext.getAliasValue(alias));
+                queryParameters.put(alias.getName(), securityContext.getAliasValue(alias));
             }
         }
     }

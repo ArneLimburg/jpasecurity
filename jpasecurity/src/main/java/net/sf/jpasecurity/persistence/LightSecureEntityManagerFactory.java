@@ -36,7 +36,12 @@ public class LightSecureEntityManagerFactory extends SecureEntityManagerFactory 
     }
 
     @Override
-    protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, String> properties) {
-        return new LightSecureEntityManager(entityManager, getMappingInformation(), getConfiguration());
+    protected EntityManager createSecureEntityManager(EntityManager entityManager,
+                                                      EntityManagerFactory entityManagerFactory,
+                                                      Map<String, String> properties) {
+        return new LightSecureEntityManager(entityManager,
+                                            entityManagerFactory,
+                                            getMappingInformation(),
+                                            getConfiguration());
     }
 }

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
 
@@ -32,8 +33,8 @@ import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
  */
 public class AuthenticationProviderSecurityContext implements SecurityContext, PersistenceInformationReceiver {
 
-    private static final String CURRENT_PRINCIPAL = "CURRENT_PRINCIPAL";
-    private static final String CURRENT_ROLES = "CURRENT_ROLES";
+    private static final Alias CURRENT_PRINCIPAL = new Alias("CURRENT_PRINCIPAL");
+    private static final Alias CURRENT_ROLES = new Alias("CURRENT_ROLES");
 
     private AuthenticationProvider authenticationProvider;
     private PersistenceInformationReceiver persistenceInformationReceiver;
@@ -57,11 +58,10 @@ public class AuthenticationProviderSecurityContext implements SecurityContext, P
         }
     }
 
-    public Object getAliasValue(String alias) {
+    public Object getAliasValue(Alias alias) {
         if (alias == null) {
             return null;
         }
-        alias = alias.toUpperCase();
         if (alias.equals(CURRENT_PRINCIPAL)) {
             return authenticationProvider.getPrincipal();
         } else {
@@ -69,11 +69,10 @@ public class AuthenticationProviderSecurityContext implements SecurityContext, P
         }
     }
 
-    public <T> Collection<T> getAliasValues(String alias) {
+    public <T> Collection<T> getAliasValues(Alias alias) {
         if (alias == null) {
             return null;
         }
-        alias = alias.toUpperCase();
         if (alias.equals(CURRENT_ROLES)) {
             return authenticationProvider.<T>getRoles();
         } else {
@@ -81,7 +80,7 @@ public class AuthenticationProviderSecurityContext implements SecurityContext, P
         }
     }
 
-    public Collection<String> getAliases() {
+    public Collection<Alias> getAliases() {
         return Collections.unmodifiableCollection(Arrays.asList(CURRENT_PRINCIPAL, CURRENT_ROLES));
     }
 }

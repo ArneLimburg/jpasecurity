@@ -29,6 +29,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
@@ -72,7 +73,7 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
     }
 
     public boolean visit(JpqlPath node, Set<TypeDefinition> typeDefinitions) {
-        String alias = node.jjtGetChild(0).getValue();
+        Alias alias = new Alias(node.jjtGetChild(0).getValue());
         Class<?> type = getType(alias, typeDefinitions);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             ClassMappingInformation classMapping = mappingInformation.getClassMapping(type);
@@ -99,7 +100,7 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
 
     public boolean visit(JpqlFromItem node, Set<TypeDefinition> typeDefinitions) {
         String typeName = node.jjtGetChild(0).toString().trim();
-        String alias = node.jjtGetChild(1).toString().trim();
+        Alias alias = new Alias(node.jjtGetChild(1).toString().trim());
         typeDefinitions.add(new TypeDefinition(alias, mappingInformation.getClassMapping(typeName).getEntityType()));
         return false;
     }
@@ -126,7 +127,7 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
         }
         Node pathNode = node.jjtGetChild(0);
         Node aliasNode = node.jjtGetChild(1);
-        String rootAlias = pathNode.jjtGetChild(0).toString();
+        Alias rootAlias = new Alias(pathNode.jjtGetChild(0).toString());
         Class<?> rootType = getType(rootAlias, typeDefinitions);
         ClassMappingInformation classMapping = mappingInformation.getClassMapping(rootType);
         for (int i = 1; i < pathNode.jjtGetNumChildren(); i++) {
@@ -134,11 +135,11 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
                 = classMapping.getPropertyMapping(pathNode.jjtGetChild(i).toString()).getProperyType();
             classMapping = mappingInformation.getClassMapping(propertyType);
         }
-        typeDefinitions.add(new TypeDefinition(aliasNode.toString(), classMapping.getEntityType()));
+        typeDefinitions.add(new TypeDefinition(new Alias(aliasNode.toString()), classMapping.getEntityType()));
         return false;
     }
 
-    public Class<?> getType(String alias, Set<TypeDefinition> typeDefinitions) {
+    public Class<?> getType(Alias alias, Set<TypeDefinition> typeDefinitions) {
         if (securityContext.getAliases().contains(alias)) {
             Object aliasValue = securityContext.getAliasValues(alias);
             if (aliasValue != null) {
@@ -152,6 +153,6 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
                 return typeDefinition.getType();
             }
         }
-        throw exceptionFactory.createTypeDefinitionNotFoundException(alias);
+        throw exceptionFactory.createTypeDefinitionNotFoundException(alias.getName());
     }
 }

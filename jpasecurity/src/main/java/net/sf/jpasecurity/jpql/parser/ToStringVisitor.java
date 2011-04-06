@@ -187,6 +187,18 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
     /**
      * {@inheritDoc}
      */
+    public boolean visit(JpqlCollectionValuedPath node, StringBuilder query) {
+        node.jjtGetChild(0).visit(this, query);
+        for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+            query.append('.');
+            node.jjtGetChild(i).visit(this, query);
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean visit(JpqlSetClause node, StringBuilder query) {
         query.append(" SET ");
         node.jjtGetChild(0).visit(this, query);

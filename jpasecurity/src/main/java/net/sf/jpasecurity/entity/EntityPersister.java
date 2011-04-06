@@ -148,7 +148,12 @@ public class EntityPersister extends AbstractSecureObjectManager {
             return getUnsecureObject(value);
         } else {
             ClassMappingInformation classMapping = getClassMapping(value.getClass());
-            return beanStore.getReference(classMapping.getEntityType(), classMapping.getId(value));
+            Object id = classMapping.getId(value);
+            if (id == null) { //TODO correctly handle unsaved values
+                return value;
+            }
+            Object managedValue = beanStore.find(classMapping.getEntityType(), id);
+            return managedValue == null? value: managedValue;
         }
     }
 

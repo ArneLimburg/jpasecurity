@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Arne Limburg
+ * Copyright 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
-package net.sf.jpasecurity.util;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
+package net.sf.jpasecurity.model;
 
 /**
  * @author Arne Limburg
  */
-public class SetHashMap<K, V> extends AbstractCollectionHashMap<K, Set<V>, V> implements SetMap<K, V> {
+public interface TestInterface {
 
-    protected Set<V> createCollection() {
-        return new LinkedHashSet<V>();
-    }
 }

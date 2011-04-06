@@ -36,8 +36,8 @@ public class JpaBeanStore implements BeanStore {
         return entityManager.contains(bean);
     }
 
-    public <T> T find(Class<T> type, Object bean) {
-        return entityManager.find(type, bean);
+    public <T> T find(Class<T> type, Object id) {
+        return entityManager.find(type, id);
     }
 
     public <T> T getReference(Class<T> type, Object bean) {
