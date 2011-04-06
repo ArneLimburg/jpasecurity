@@ -15,6 +15,12 @@
  */
 package net.sf.jpasecurity.security;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
+import static org.easymock.EasyMock.verify;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -23,10 +29,7 @@ import javax.persistence.FlushModeType;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
-import static org.easymock.EasyMock.*;
 import junit.framework.TestCase;
-import net.sf.jpasecurity.contacts.model.Contact;
-import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.persistence.ParentChildTestData;

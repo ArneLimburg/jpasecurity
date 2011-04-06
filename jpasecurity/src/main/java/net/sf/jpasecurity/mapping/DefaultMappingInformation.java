@@ -18,6 +18,7 @@ package net.sf.jpasecurity.mapping;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -91,6 +92,9 @@ public class DefaultMappingInformation implements MappingInformation {
     }
 
     public boolean containsClassMapping(String entityName) {
+        if (entityNameMappings == null) {
+            initializeEntityNameMappings();
+        }
         return entityNameMappings.containsKey(entityName);
     }
 
@@ -105,9 +109,19 @@ public class DefaultMappingInformation implements MappingInformation {
         return classMapping;
     }
 
+    public Collection<ClassMappingInformation> resolveClassMappings(Class<?> type) {
+        Set<ClassMappingInformation> resolvedMappings = new HashSet<ClassMappingInformation>();
+        for (Map.Entry<Class<?>, ClassMappingInformation> classMappingEntry: entityTypeMappings.entrySet()) {
+            if (type.isAssignableFrom(classMappingEntry.getKey())) {
+                resolvedMappings.add(classMappingEntry.getValue());
+            }
+        }
+        return Collections.unmodifiableCollection(resolvedMappings);
+    }
+
     public Class<?> getType(String path, Set<TypeDefinition> typeDefinitions) {
         String[] entries = path.split("\\.");
-        Class<?> type = getAliasType(entries[0], typeDefinitions);
+        Class<?> type = getAliasType(new Alias(entries[0]), typeDefinitions);
         for (int i = 1; i < entries.length; i++) {
             type = getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
         }
@@ -122,12 +136,12 @@ public class DefaultMappingInformation implements MappingInformation {
         }
     }
 
-    private Class<?> getAliasType(String alias, Set<TypeDefinition> typeDefinitions) {
+    private Class<?> getAliasType(Alias alias, Set<TypeDefinition> typeDefinitions) {
         for (TypeDefinition typeDefinition: typeDefinitions) {
             if (alias.equals(typeDefinition.getAlias())) {
                 return typeDefinition.getType();
             }
         }
-        throw new TypeNotPresentException(alias, null);
+        throw new TypeNotPresentException(alias.getName(), null);
     }
 }

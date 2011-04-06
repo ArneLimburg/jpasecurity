@@ -33,6 +33,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlBetween;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
+import net.sf.jpasecurity.jpql.parser.JpqlCollectionValuedPath;
 import net.sf.jpasecurity.jpql.parser.JpqlConcat;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentDate;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentTime;
@@ -85,6 +86,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
+import net.sf.jpasecurity.mapping.Alias;
 
 /**
  * This implementation of the {@link JpqlVisitorAdapter} evaluates queries in memory,
@@ -164,16 +166,24 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             String path = node.toString();
             int index = path.indexOf('.');
             if (index != -1) {
-                path = path.substring(index + 1);
                 PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMappingInformation(), exceptionFactory);
-                Collection<Object> result = pathEvaluator.evaluateAll(Collections.singleton(data.getResult()), path);
-                if (result.size() == 0) {
-                    data.setResult(null);
-                } else if (result.size() == 1) {
-                    data.setResult(result.iterator().next());
-                } else {
-                    data.setResult(result);
-                }
+                data.setResult(pathEvaluator.evaluate(data.getResult(), path.substring(index + 1)));
+            }
+        } catch (NotEvaluatableException e) {
+            data.setResultUndefined();
+        }
+        return false;
+    }
+
+    public boolean visit(JpqlCollectionValuedPath node, QueryEvaluationParameters data) {
+        try {
+            node.jjtGetChild(0).visit(this, data);
+            String path = node.toString();
+            int index = path.indexOf('.');
+            if (index != -1) {
+                PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMappingInformation(), exceptionFactory);
+                Collection<Object> rootCollection = Collections.singleton(data.getResult());
+                data.setResult(pathEvaluator.evaluateAll(rootCollection, path.substring(index + 1)));
             }
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
@@ -766,7 +776,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     public boolean visit(JpqlIdentifier node, QueryEvaluationParameters data) {
         validateChildCount(node, 0);
         try {
-            data.setResult(data.getAliasValue(node.getValue()));
+            data.setResult(data.getAliasValue(new Alias(node.getValue())));
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
         }
@@ -776,7 +786,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     public boolean visit(JpqlIdentificationVariable node, QueryEvaluationParameters data) {
         validateChildCount(node, 0);
         try {
-            data.setResult(data.getAliasValue(node.getValue()));
+            data.setResult(data.getAliasValue(new Alias(node.getValue())));
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
         }
@@ -860,5 +870,15 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             }
         }
         return false;
+    }
+
+    protected Collection<?> getResultCollection(Object result) {
+        if (result == null) {
+            return Collections.emptySet();
+        } else if (result instanceof Collection) {
+            return (Collection<Object>)result;
+        } else {
+            return Collections.singleton(result);
+        }
     }
 }

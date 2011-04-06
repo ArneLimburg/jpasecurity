@@ -20,12 +20,41 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+
 /**
  * An implementation of the {@link CollectionMap} interface that inherits from {@link HashMap}.
  * @author Arne Limburg
  */
 public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> extends HashMap<K, C>
                                                                                implements CollectionMap<K, C, V> {
+
+    /**
+     * {@inheritDoc}
+     */
+    public AbstractCollectionHashMap() {
+        super();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public AbstractCollectionHashMap(int initialCapacity, float loadFactor) {
+        super(initialCapacity, loadFactor);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public AbstractCollectionHashMap(int initialCapacity) {
+        super(initialCapacity);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public AbstractCollectionHashMap(Map<? extends K, ? extends C> map) {
+        super(map);
+    }
 
     /**
      * {@inheritDoc}

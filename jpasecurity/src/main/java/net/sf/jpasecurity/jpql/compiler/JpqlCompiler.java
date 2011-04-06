@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +41,8 @@ import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ToStringVisitor;
+import net.sf.jpasecurity.mapping.Alias;
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.util.ValueHolder;
@@ -164,7 +167,7 @@ public class JpqlCompiler {
                 return false;
             }
             String path = pathVisitor.getPath(node);
-            String alias = getAlias(node);
+            Alias alias = getAlias(node);
             Class<?> type = null;
             if (countVisitor.isCount(node)) {
                 type = Long.class;
@@ -180,13 +183,28 @@ public class JpqlCompiler {
         }
 
         public boolean visit(JpqlFromItem node, Set<TypeDefinition> typeDefinitions) {
-            String abstractSchemaName = node.jjtGetChild(0).toString();
-            String alias = getAlias(node);
-            Class<?> type = mappingInformation.getClassMapping(abstractSchemaName.trim()).getEntityType();
-            if (type == null) {
+            String abstractSchemaName = node.jjtGetChild(0).toString().trim();
+            Alias alias = getAlias(node);
+            Collection<Class<?>> types = new HashSet<Class<?>>();
+            if (mappingInformation.containsClassMapping(abstractSchemaName)) {
+                types.add(mappingInformation.getClassMapping(abstractSchemaName).getEntityType());
+            } else {
+                try {
+                    Class<?> type = Thread.currentThread().getContextClassLoader().loadClass(abstractSchemaName);
+                    Collection<ClassMappingInformation> classMappings = mappingInformation.resolveClassMappings(type);
+                    for (ClassMappingInformation classMapping: classMappings) {
+                        types.add(classMapping.getEntityType());
+                    }
+                } catch (ClassNotFoundException e) {
+                    throw exceptionFactory.createRuntimeException(e);
+                }
+            }
+            if (types.isEmpty()) {
                 throw exceptionFactory.createTypeNotFoundException(abstractSchemaName.trim());
             }
-            typeDefinitions.add(new TypeDefinition(alias, type));
+            for (Class<?> type: types) {
+                typeDefinitions.add(new TypeDefinition(alias, type));
+            }
             determinePreliminaryTypes(typeDefinitions);
             return false;
         }
@@ -220,7 +238,7 @@ public class JpqlCompiler {
             if (node.jjtGetNumChildren() == 1) {
                 typeDefinitions.add(new TypeDefinition(type, fetchPath, innerJoin, fetchJoin));
             } else {
-                String alias = getAlias(node);
+                Alias alias = getAlias(node);
                 typeDefinitions.add(new TypeDefinition(alias, type, fetchPath, innerJoin, fetchJoin));
             }
             return false;
@@ -230,8 +248,8 @@ public class JpqlCompiler {
             return false;
         }
 
-        private String getAlias(Node node) {
-            return node.jjtGetChild(1).toString();
+        private Alias getAlias(Node node) {
+            return new Alias(node.jjtGetChild(1).toString());
         }
 
         private void determinePreliminaryTypes(Set<TypeDefinition> typeDefinitions) {

@@ -220,7 +220,7 @@ public class FieldAccessAnnotationTestBean {
     }
 
     public int hashCode() {
-        return id;
+        return id == 0? System.identityHashCode(this): id;
     }
     
     public boolean equals(Object object) {

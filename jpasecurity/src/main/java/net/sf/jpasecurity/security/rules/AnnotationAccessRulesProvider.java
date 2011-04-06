@@ -35,6 +35,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.ParseException;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.security.PermitWhere;
 import net.sf.jpasecurity.util.ListMap;
 import net.sf.jpasecurity.util.SetMap;
@@ -153,7 +154,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
 
         public boolean visit(JpqlPath path, String alias) {
             if (path.jjtGetNumChildren() > 1
-                || !getSecurityContext().getAliases().contains(path.jjtGetChild(0).getValue())) {
+                || !getSecurityContext().getAliases().contains(new Alias(path.jjtGetChild(0).getValue()))) {
                 queryPreparator.prepend(alias, path);
             }
             return true;

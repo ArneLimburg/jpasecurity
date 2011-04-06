@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
@@ -29,21 +30,21 @@ public class QueryEvaluationParameters {
     private static final Object UNDEFINED = new Object();
 
     private final MappingInformation mappingInformation;
-    private final Map<String, Object> aliases;
+    private final Map<Alias, Object> aliases;
     private final Map<String, Object> namedParameters;
     private final Map<Integer, Object> positionalParameters;
     private final boolean inMemory;
     private Object result = UNDEFINED;
 
     public QueryEvaluationParameters(MappingInformation mappingInformation,
-                                     Map<String, Object> aliases,
+                                     Map<Alias, Object> aliases,
                                      Map<String, Object> namedParameters,
                                      Map<Integer, Object> positionalParameters) {
         this(mappingInformation, aliases, namedParameters, positionalParameters, false);
     }
 
     public QueryEvaluationParameters(MappingInformation mappingInformation,
-                                     Map<String, Object> aliases,
+                                     Map<Alias, Object> aliases,
                                      Map<String, Object> namedParameters,
                                      Map<Integer, Object> positionalParameters,
                                      boolean inMemory) {
@@ -73,15 +74,15 @@ public class QueryEvaluationParameters {
         return inMemory;
     }
 
-    public Set<String> getAliases() {
+    public Set<Alias> getAliases() {
         return aliases.keySet();
     }
 
-    public Map<String, Object> getAliasValues() {
+    public Map<Alias, Object> getAliasValues() {
         return Collections.unmodifiableMap(aliases);
     }
 
-    public Object getAliasValue(String alias) throws NotEvaluatableException {
+    public Object getAliasValue(Alias alias) throws NotEvaluatableException {
         if (!aliases.containsKey(alias)) {
             throw new NotEvaluatableException("alias '" + alias + "' not defined");
         }

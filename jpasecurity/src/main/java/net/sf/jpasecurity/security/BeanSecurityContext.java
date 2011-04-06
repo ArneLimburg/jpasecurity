@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.jpasecurity.configuration.SecurityContext;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.util.ReflectionUtils;
 
 /**
@@ -39,14 +40,14 @@ import net.sf.jpasecurity.util.ReflectionUtils;
 public class BeanSecurityContext implements SecurityContext {
 
     private Object bean;
-    private Map<String, Method> readMethods;
+    private Map<Alias, Method> readMethods;
 
     public BeanSecurityContext(Object bean) {
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
-            Map<String, Method> readMethods = new HashMap<String, Method>();
+            Map<Alias, Method> readMethods = new HashMap<Alias, Method>();
             for (PropertyDescriptor propertyDescriptor: beanInfo.getPropertyDescriptors()) {
-                readMethods.put(propertyDescriptor.getName(), propertyDescriptor.getReadMethod());
+                readMethods.put(new Alias(propertyDescriptor.getName()), propertyDescriptor.getReadMethod());
             }
             this.bean = bean;
             this.readMethods = Collections.unmodifiableMap(readMethods);
@@ -55,25 +56,27 @@ public class BeanSecurityContext implements SecurityContext {
         }
     }
 
-    public Collection<String> getAliases() {
+    public Collection<Alias> getAliases() {
         return readMethods.keySet();
     }
 
-    public Object getAliasValue(String alias) {
+    public Object getAliasValue(Alias alias) {
         return ReflectionUtils.invokeMethod(bean, readMethods.get(alias));
     }
 
-    public Collection<Object> getAliasValues(String alias) {
+    public Collection<?> getAliasValues(Alias alias) {
         Object aliasValue = getAliasValue(alias);
         if (aliasValue == null) {
             return null;
         }
         if (aliasValue instanceof Collection) {
-            return (Collection<Object>)aliasValue;
+            return (Collection<?>)aliasValue;
         } else if (aliasValue.getClass().isArray()) {
             return Arrays.asList((Object[])aliasValue);
-        } else {
+        } else if (aliasValue == null) {
             return null;
+        } else {
+            return Collections.singleton(aliasValue);
         }
     }
 }

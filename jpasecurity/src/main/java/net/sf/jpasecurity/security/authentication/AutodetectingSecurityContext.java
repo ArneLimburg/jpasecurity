@@ -23,6 +23,7 @@ import javax.naming.NamingException;
 import net.sf.jpasecurity.configuration.AuthenticationProvider;
 import net.sf.jpasecurity.configuration.AuthenticationProviderSecurityContext;
 import net.sf.jpasecurity.configuration.SecurityContext;
+import net.sf.jpasecurity.mapping.Alias;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -88,15 +89,15 @@ public class AutodetectingSecurityContext implements SecurityContext {
         }
     }
 
-    public Collection<String> getAliases() {
+    public Collection<Alias> getAliases() {
         return securityContext.getAliases();
     }
 
-    public Object getAliasValue(String alias) {
+    public Object getAliasValue(Alias alias) {
         return securityContext.getAliasValue(alias);
     }
 
-    public Collection<Object> getAliasValues(String alias) {
+    public Collection<?> getAliasValues(Alias alias) {
         return securityContext.getAliasValues(alias);
     }
 }

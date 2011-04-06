@@ -17,6 +17,8 @@ package net.sf.jpasecurity.configuration;
 
 import java.util.Collection;
 
+import net.sf.jpasecurity.mapping.Alias;
+
 /**
  * This interface may be implemented to provide details about the current security context
  * like authentication credentials and so.
@@ -30,7 +32,7 @@ import java.util.Collection;
  */
 public interface SecurityContext {
 
-    Collection<String> getAliases();
-    Object getAliasValue(String alias);
-    <T> Collection<T> getAliasValues(String alias);
+    Collection<Alias> getAliases();
+    Object getAliasValue(Alias alias);
+    <T> Collection<T> getAliasValues(Alias alias);
 }

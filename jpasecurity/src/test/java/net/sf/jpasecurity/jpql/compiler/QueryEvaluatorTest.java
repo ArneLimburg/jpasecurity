@@ -20,7 +20,6 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.getCurrentArguments;
 import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 
 import java.util.Collection;
@@ -45,6 +44,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.ParseException;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
@@ -66,7 +66,7 @@ public class QueryEvaluatorTest extends TestCase {
     private ExceptionFactory exceptionFactory;
     private QueryEvaluator queryEvaluator;
     private QueryEvaluationParameters parameters;
-    private Map<String, Object> aliases = new HashMap<String, Object>();
+    private Map<Alias, Object> aliases = new HashMap<Alias, Object>();
     private Map<String, Object> namedParameters = new HashMap<String, Object>();
     private Map<Integer, Object> positionalParameters = new HashMap<Integer, Object>();
     private SetMap<Class<?>, Object> entities = new SetHashMap<Class<?>, Object>();
@@ -162,7 +162,7 @@ public class QueryEvaluatorTest extends TestCase {
             //expected
         }
         
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
         namedParameters.put("name", "test2");
         assertTrue(queryEvaluator.canEvaluate(whereClause, parameters));
         assertFalse(queryEvaluator.<Boolean>evaluate(whereClause, parameters));
@@ -207,7 +207,7 @@ public class QueryEvaluatorTest extends TestCase {
         } catch (NotEvaluatableException e) {
             //expected
         }
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
         namedParameters.put("name", "test2");
         assertTrue(queryEvaluator.canEvaluate(whereClause, parameters));
         assertFalse(queryEvaluator.<Boolean>evaluate(whereClause, parameters));
@@ -216,7 +216,7 @@ public class QueryEvaluatorTest extends TestCase {
     public void testClassMappingNotFound() throws Exception {
         JpqlCompiledStatement statement
             = compile("SELECT bean FROM FieldAccessAnnotationTestBean bean WHERE bean.name = :name");
-        aliases.put("bean", new MethodAccessAnnotationTestBean());
+        aliases.put(new Alias("bean"), new MethodAccessAnnotationTestBean());
         namedParameters.put("name", "test2");
         
         try {
@@ -233,7 +233,7 @@ public class QueryEvaluatorTest extends TestCase {
                                                 + "WHERE bean.name IN "
                                                 + "(SELECT innerBean "
                                                 + " FROM FieldAccessAnnotationTestBean innerBean)");
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test"));
         try {
             queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
@@ -244,7 +244,7 @@ public class QueryEvaluatorTest extends TestCase {
     
     public void testEvaluateOr() throws Exception {
         JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.name = :name OR bean.id = ?1");
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
 
         //first is true, second is false
         namedParameters.put("name", "test1");
@@ -299,7 +299,7 @@ public class QueryEvaluatorTest extends TestCase {
     
     public void testEvaluateAnd() throws Exception {
         JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.name = :name AND bean.id = ?1");
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
 
         //first is true, second is false
         namedParameters.put("name", "test1");
@@ -354,7 +354,7 @@ public class QueryEvaluatorTest extends TestCase {
     
     public void testEvaluateNot() throws Exception {
         JpqlCompiledStatement statement = compile(SELECT + "WHERE NOT (bean.name = :name)");
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
 
         namedParameters.put("name", "test1");
         assertFalse(queryEvaluator.<Boolean>evaluate(statement.getWhereClause(), parameters));
@@ -373,7 +373,7 @@ public class QueryEvaluatorTest extends TestCase {
     
     public void testEvaluateBetween() throws Exception {
         JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.id BETWEEN ?1 AND ?2");
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
 
         positionalParameters.put(1, 0);
         positionalParameters.put(2, 0);
@@ -447,7 +447,7 @@ public class QueryEvaluatorTest extends TestCase {
             //expected
         }
         
-        aliases.put("bean", new FieldAccessAnnotationTestBean("test1"));
+        aliases.put(new Alias("bean"), new FieldAccessAnnotationTestBean("test1"));
 
         positionalParameters.put(1, 0);
         positionalParameters.put(2, 1);
@@ -512,7 +512,7 @@ public class QueryEvaluatorTest extends TestCase {
             //expected
         }
         
-        aliases.put("bean", bean);
+        aliases.put(new Alias("bean"), bean);
         assertTrue(queryEvaluator.<Boolean>evaluate(statement.getWhereClause(), parameters));
 
         bean.setParentBean(new FieldAccessAnnotationTestBean("testParent"));
@@ -531,7 +531,7 @@ public class QueryEvaluatorTest extends TestCase {
             //expected
         }
         
-        aliases.put("bean", bean);
+        aliases.put(new Alias("bean"), bean);
         assertTrue(queryEvaluator.<Boolean>evaluate(statement.getWhereClause(), parameters));
 
         bean.setChildren(Collections.singletonList(new FieldAccessAnnotationTestBean("testChild")));
@@ -545,7 +545,7 @@ public class QueryEvaluatorTest extends TestCase {
         FieldAccessAnnotationTestBean child = new FieldAccessAnnotationTestBean("test2");
         child.setParentBean(parent);
         
-        aliases.put("bean", parent);
+        aliases.put(new Alias("bean"), parent);
         entities.getNotNull(FieldAccessAnnotationTestBean.class).clear();
         try {
             queryEvaluator.evaluate(statement.getWhereClause(), parameters);
@@ -570,7 +570,7 @@ public class QueryEvaluatorTest extends TestCase {
         } catch (NotEvaluatableException e) {
             //expected
         }
-        aliases.put("bean", bean);
+        aliases.put(new Alias("bean"), bean);
 
         bean.setBeanName("test1name");
         assertTrue(queryEvaluator.<Boolean>evaluate(statement.getWhereClause(), parameters));

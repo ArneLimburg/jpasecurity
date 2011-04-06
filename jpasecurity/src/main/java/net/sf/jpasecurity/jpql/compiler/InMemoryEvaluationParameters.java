@@ -17,6 +17,7 @@ package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.Map;
 
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
@@ -25,7 +26,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 public class InMemoryEvaluationParameters extends QueryEvaluationParameters {
 
     public InMemoryEvaluationParameters(MappingInformation mappingInformation,
-                                        Map<String, Object> aliases,
+                                        Map<Alias, Object> aliases,
                                         Map<String, Object> namedParameters,
                                         Map<Integer, Object> positionalParameters) {
         super(mappingInformation, aliases, namedParameters, positionalParameters, true);

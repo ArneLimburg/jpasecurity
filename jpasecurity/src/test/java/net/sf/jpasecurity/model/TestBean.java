@@ -37,7 +37,7 @@ public class TestBean {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Integer id;
     @Basic
     private String name;
     @ManyToOne

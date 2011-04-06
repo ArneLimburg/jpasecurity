@@ -109,7 +109,7 @@ public class MethodAccessAnnotationTestBean {
     }
 
     public int hashCode() {
-        return getId();
+        return getId() == 0? System.identityHashCode(this): getId();
     }
     
     public boolean equals(Object object) {

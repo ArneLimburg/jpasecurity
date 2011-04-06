@@ -360,6 +360,12 @@ void path() #Path: {} {
     identificationVariable() (<DOT> pathComponent())*
 }
 
+void collectionValuedPath() #CollectionValuedPath: {} {
+    // a path is any dot-separated path expression starting with a
+    // non-reserved word
+    identificationVariable() (<DOT> pathComponent())*
+}
+
 void updateClause(): {} {
     <UPDATE> fromItem() setClause()
 }
@@ -636,11 +642,11 @@ void emptyCollectionComparisonExpression(): {} {
 }
 
 void positiveEmptyCollectionComparisonExpression() #IsEmpty: {} {
-    path() <IS> <EMPTY> 
+    collectionValuedPath() <IS> <EMPTY> 
 }
 
 void negativeEmptyCollectionComparisonExpression() #IsEmpty: {} {
-    path() <IS> <NOT> <EMPTY> 
+    collectionValuedPath() <IS> <NOT> <EMPTY> 
 }
 
 void collectionMemberExpression(): {} {
@@ -649,11 +655,11 @@ void collectionMemberExpression(): {} {
 }
 
 void positiveCollectionMemberExpression() #MemberOf: {} {
-    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent()) <MEMBER> [<OF>] path()
+    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent()) <MEMBER> [<OF>] collectionValuedPath()
 }
 
 void negativeCollectionMemberExpression() #MemberOf: {} {
-    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent()) <NOT> <MEMBER> [<OF>] path()
+    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent()) <NOT> <MEMBER> [<OF>] collectionValuedPath()
 }
 
 void existsExpression(): {} {

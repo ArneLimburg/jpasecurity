@@ -17,6 +17,7 @@ package net.sf.jpasecurity.mapping;
 
 import java.lang.reflect.Field;
 
+import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.util.ReflectionUtils;
 
 /**
@@ -31,6 +32,9 @@ public class ReflectionFieldAccessStrategy implements PropertyAccessStrategy {
     }
 
     public Object getPropertyValue(Object target) {
+        if ((target instanceof SecureEntity) && !((SecureEntity)target).isInitialized()) {
+            ((SecureEntity)target).refresh();
+        }
         return ReflectionUtils.getFieldValue(field, target);
     }
 

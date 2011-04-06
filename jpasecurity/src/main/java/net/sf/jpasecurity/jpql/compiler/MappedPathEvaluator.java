@@ -18,6 +18,7 @@ package net.sf.jpasecurity.jpql.compiler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
@@ -41,19 +42,19 @@ public class MappedPathEvaluator implements PathEvaluator {
         if (root == null) {
             return null;
         }
-        final Collection<Object> rootCollection =
-            root instanceof Collection ? (Collection<Object>)root : Collections.singleton(root);
-        Collection<Object> result = evaluateAll(rootCollection, path);
+        final Collection<?> rootCollection =
+            root instanceof Collection ? (Collection<?>)root : Collections.singleton(root);
+        Collection<?> result = evaluateAll(rootCollection, path);
         if (result.size() > 1) {
             throw exceptionFactory.createInvalidPathException(path, "path is not single-valued");
         }
         return result.isEmpty()? null: result.iterator().next();
     }
 
-    public Collection<Object> evaluateAll(Collection<Object> root, String path) {
+    public <R> List<R> evaluateAll(final Collection<?> root, String path) {
         String[] pathElements = path.split("\\.");
-        Collection<Object> rootCollection = new ArrayList<Object>(root);
-        Collection<Object> resultCollection = new ArrayList<Object>();
+        List<Object> rootCollection = new ArrayList<Object>(root);
+        List<R> resultCollection = new ArrayList<R>();
         for (String property: pathElements) {
             resultCollection.clear();
             for (Object rootObject: rootCollection) {
@@ -61,16 +62,17 @@ public class MappedPathEvaluator implements PathEvaluator {
                 if (classMapping.containsPropertyMapping(property)) {
                     PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(property);
                     Object result = propertyMapping.getPropertyValue(rootObject);
-                    if (result != null) {
-                        resultCollection.add(result);
+                    if (result instanceof Collection) {
+                        resultCollection.addAll((Collection<R>)result);
+                    } else if (result != null) {
+                        resultCollection.add((R)result);
                     }
-                } //otherwise it must be a subclass property of another subclass,
-                  //so this rootObject is not part of the current result
+                } // else the property may be of a subclass and this path is ruled out by inner join on subclass table
             }
             rootCollection.clear();
             for (Object resultObject: resultCollection) {
                 if (resultObject instanceof Collection) {
-                    rootCollection.addAll((Collection<?>)resultObject);
+                    rootCollection.addAll((Collection<Object>)resultObject);
                 } else {
                     rootCollection.add(resultObject);
                 }

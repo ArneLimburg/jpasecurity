@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
@@ -70,12 +71,14 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     private EntityFilter entityFilter;
 
     protected DefaultSecureEntityManager(EntityManager entityManager,
+                                         EntityManagerFactory entityManagerFactory,
                                          Configuration configuration,
                                          MappingInformation mapping) {
-        this(entityManager, configuration, mapping, null);
+        this(entityManager, entityManagerFactory, configuration, mapping, null);
     }
 
     protected DefaultSecureEntityManager(EntityManager entityManager,
+                                         EntityManagerFactory entityManagerFactory,
                                          Configuration configuration,
                                          MappingInformation mapping,
                                          SecureObjectManager secureObjectManager) {
@@ -93,10 +96,10 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         SubselectEvaluator objectCacheEvaluator
             = new ObjectCacheSubselectEvaluator(secureObjectManager, exceptionFactory);
         SubselectEvaluator entityManagerEvaluator
-            = new EntityManagerEvaluator(entityManager, secureObjectManager, pathEvaluator);
+            = new EntityManagerEvaluator(entityManagerFactory, secureObjectManager, pathEvaluator);
         this.entityFilter = new EntityFilter(secureObjectManager,
                                              mappingInformation,
-                                             configuration.getExceptionFactory(),
+                                             exceptionFactory,
                                              configuration.getAccessRulesProvider().getAccessRules(),
                                              simpleSubselectEvaluator,
                                              objectCacheEvaluator,

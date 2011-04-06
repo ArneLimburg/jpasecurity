@@ -39,7 +39,10 @@ import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.JpqlWith;
 import net.sf.jpasecurity.jpql.parser.Node;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.TypeDefinition;
+import net.sf.jpasecurity.util.SetHashMap;
+import net.sf.jpasecurity.util.SetMap;
 import net.sf.jpasecurity.util.ValueHolder;
 
 /**
@@ -72,8 +75,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
             return Collections.emptySet();
         }
         Set<Replacement> replacements = getReplacements(subselect.getTypeDefinitions(), subselect.getStatement());
-        List<Map<String, Object>> variants = evaluateAliases(parameters, replacements);
-        variants = evaluateJoins(parameters, replacements, variants);
+        SetMap<Alias, Object> variants = evaluateAliases(parameters, replacements);
         return evaluateSubselect(subselect, parameters, variants);
     }
 
@@ -108,7 +110,9 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     private Set<Replacement> getReplacements(Set<TypeDefinition> types, Node statement) {
         Set<Replacement> replacements = new HashSet<Replacement>();
         for (TypeDefinition type: types) {
-            replacements.add(new Replacement(type));
+            if (!type.isJoin()) {
+                replacements.add(new Replacement(type));
+            }
         }
         statement.visit(replacementVisitor, replacements);
         evaluateJoinPathReplacements(replacements);
@@ -146,71 +150,51 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         return null;
     }
 
-    private List<Map<String, Object>> evaluateAliases(QueryEvaluationParameters parameters,
-                    Set<Replacement> replacements) throws NotEvaluatableException {
-        List<Map<String, Object>> variants = new ArrayList<Map<String, Object>>();
-        variants.add(new HashMap<String, Object>(parameters.getAliasValues()));
+    private SetMap<Alias, Object> evaluateAliases(QueryEvaluationParameters parameters,
+                                                  Set<Replacement> replacements) throws NotEvaluatableException {
+        SetMap<Alias, Object> aliasValues = new SetHashMap<Alias, Object>();
+        for (Map.Entry<Alias, Object> aliasEntry: parameters.getAliasValues().entrySet()) {
+            aliasValues.add(aliasEntry.getKey(), aliasEntry.getValue());
+        }
+        Set<Alias> ignoredAliases = new HashSet<Alias>();
         for (Replacement replacement: replacements) {
-            if (!replacement.getTypeDefinition().isJoin()) {
-                Collection<?> resultList
-                    = getResult(replacement, new QueryEvaluationParameters(parameters));
-                List<Map<String, Object>> newVariants = new ArrayList<Map<String, Object>>();
-                for (Object result: resultList) {
-                    if (!isRemovedByInnerJoin(result, replacement)) {
-                        for (Map<String, Object> variant: variants) {
-                            Map<String, Object> newVariant = new HashMap<String, Object>(variant);
-                            newVariant.put(replacement.getTypeDefinition().getAlias(), result);
-                            newVariants.add(newVariant);
-                        }
-                    }
-                }
-                variants = newVariants;
+            Collection<?> result = getResult(replacement, parameters);
+            for (Object value: result) {
+              if (replacement.getTypeDefinition().getType().isAssignableFrom(value.getClass())) {
+                  aliasValues.add(replacement.getTypeDefinition().getAlias(), value);
+              } else {
+                //Value is of wrong type, ignoring...
+                //We have to store the ignored aliases,
+                //because when no replacement is found for an ignored alias,
+                //it is ruled out by an inner join. We have to return an empty result then.
+                ignoredAliases.add(replacement.getTypeDefinition().getAlias());
+              }
             }
         }
-        return variants;
-    }
-
-    private List<Map<String, Object>> evaluateJoins(QueryEvaluationParameters parameters,
-                    Set<Replacement> replacements, List<Map<String, Object>> variants) {
-        for (Replacement replacement: replacements) {
-            if (replacement.getTypeDefinition().isJoin()) {
-                for (Map<String, Object> variant: new ArrayList<Map<String, Object>>(variants)) {
-                    try {
-                        QueryEvaluationParameters newParameters
-                            = new QueryEvaluationParameters(parameters.getMappingInformation(),
-                                                            variant,
-                                                            parameters.getNamedParameters(),
-                                                            parameters.getPositionalParameters());
-                        Collection<?> resultList = getResult(replacement, newParameters);
-                        List<Map<String, Object>> newVariants = new ArrayList<Map<String, Object>>();
-                        for (Object result: resultList) {
-                            if (!isRemovedByInnerJoin(result, replacement)) {
-                                Map<String, Object> newVariant = new HashMap<String, Object>(variant);
-                                newVariant.put(replacement.getTypeDefinition().getAlias(), result);
-                                newVariants.add(newVariant);
-                            }
-                        }
-                        variants = newVariants;
-                    } catch (NotEvaluatableException e) {
-                        // This variant cannot be evaluated, try the next...
-                    }
-                }
+        for (Alias ignoredAlias: ignoredAliases) {
+            if (!aliasValues.containsKey(ignoredAlias)) {
+                //No replacement found for alias. The result is ruled out by inner join then...
+                return new SetHashMap<Alias, Object>();
             }
         }
-        return variants;
+        return aliasValues;
     }
 
     private List<Object> evaluateSubselect(JpqlCompiledStatement subselect,
-                    QueryEvaluationParameters parameters, List<Map<String, Object>> variants) {
+                                           QueryEvaluationParameters parameters,
+                                           SetMap<Alias, Object> variants) {
         PathEvaluator pathEvaluator = new MappedPathEvaluator(parameters.getMappingInformation(), exceptionFactory);
         List<Path> selectedPaths = getPaths(subselect.getSelectedPaths());
         List<Object> resultList = new ArrayList<Object>();
-        for (Map<String, Object> variant: variants) {
+        Set<TypeDefinition> types = subselect.getTypeDefinitions();
+        for (Iterator<Map<Alias, Object>> v = new ValueIterator(variants, types, pathEvaluator); v.hasNext();) {
+            Map<Alias, Object> aliases = new HashMap<Alias, Object>(parameters.getAliasValues());
+            aliases.putAll(v.next());
             QueryEvaluationParameters subselectParameters
                 = new QueryEvaluationParameters(parameters.getMappingInformation(),
-                                                         variant,
-                                                         parameters.getNamedParameters(),
-                                                         parameters.getPositionalParameters());
+                                                aliases,
+                                                parameters.getNamedParameters(),
+                                                parameters.getPositionalParameters());
             try {
                 if (evaluator.<Boolean>evaluate(subselect.getWhereClause(), subselectParameters)) {
                     Object[] result = new Object[selectedPaths.size()];
@@ -250,10 +234,6 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
                 i.remove();
             }
         }
-    }
-
-    private boolean isRemovedByInnerJoin(Object result, Replacement replacement) {
-        return !replacement.getTypeDefinition().getType().isInstance(result);
     }
 
     private void handleWithClause(JpqlSubselect node) throws NotEvaluatableException {
@@ -351,13 +331,14 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     private class ReplacementVisitor extends JpqlVisitorAdapter<Set<Replacement>> {
 
         public boolean visit(JpqlEquals node, Set<Replacement> replacements) {
+            String child0 = node.jjtGetChild(0).toString();
+            String child1 = node.jjtGetChild(1).toString();
             for (Replacement replacement: replacements) {
-                if (!replacement.getTypeDefinition().isJoin()) {
-                    if (node.jjtGetChild(0).toString().equals(replacement.getTypeDefinition().getAlias())) {
-                        replacement.setReplacement(node.jjtGetChild(1));
-                    } else if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias())) {
-                        replacement.setReplacement(node.jjtGetChild(0));
-                    }
+                Alias alias = replacement.getTypeDefinition().getAlias();
+                if (child0.equals(alias.getName()) && !child1.equals(alias.getName())) {
+                    replacement.setReplacement(node.jjtGetChild(1));
+                } else if (child1.equals(alias.getName()) && !child0.equals(alias.getName())) {
+                    replacement.setReplacement(node.jjtGetChild(0));
                 }
             }
             return false;
@@ -434,16 +415,16 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
 
     private class Path {
 
-        private String rootAlias;
+        private Alias rootAlias;
         private String subpath;
 
         public Path(String path) {
             int index = path.indexOf('.');
             if (index == -1) {
-                rootAlias = path;
+                rootAlias = new Alias(path);
                 subpath = null;
             } else {
-                rootAlias = path.substring(0, index);
+                rootAlias = new Alias(path.substring(0, index));
                 subpath = path.substring(index + 1);
             }
         }
@@ -452,7 +433,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
             return subpath != null;
         }
 
-        public String getRootAlias() {
+        public Alias getRootAlias() {
             return rootAlias;
         }
 
