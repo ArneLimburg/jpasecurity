@@ -18,7 +18,9 @@ package net.sf.jpasecurity.jpql.compiler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
@@ -53,7 +55,7 @@ public class MappedPathEvaluator implements PathEvaluator {
     public List<Object> evaluateAll(final Collection<?> root, String path) {
         String[] pathElements = path.split("\\.");
         List<Object> rootCollection = new ArrayList<Object>(root);
-        List<Object> resultCollection = new ArrayList<Object>();
+        Set<Object> resultCollection = new HashSet<Object>();
         for (String property: pathElements) {
             resultCollection.clear();
             for (Object rootObject: rootCollection) {
@@ -75,6 +77,6 @@ public class MappedPathEvaluator implements PathEvaluator {
                 }
             }
         }
-        return resultCollection;
+        return new ArrayList<Object>(resultCollection);
     }
 }

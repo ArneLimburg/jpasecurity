@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -30,11 +31,15 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.util.ListHashMap;
 import net.sf.jpasecurity.util.ListMap;
 import net.sf.jpasecurity.util.SetMap;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Arne Limburg
  */
 public class ValueIterator implements Iterator<Map<Alias, Object>> {
+
+    private static final Log LOG = LogFactory.getLog(ValueIterator.class);
 
     private final PathEvaluator pathEvaluator;
 
@@ -44,25 +49,39 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
     private Map<Alias, Object> currentValues;
     private ListMap<Alias, Object> currentPossibleDependentValues;
     private boolean initialized = false;
+    private Map<Alias, Object> next;
+    private final Set<Map<Alias, Object>> alreadyReturned = new LinkedHashSet<Map<Alias, Object>>();
 
     public ValueIterator(SetMap<Alias, Object> possibleValues,
                          Set<TypeDefinition> typeDefinitions,
                          PathEvaluator pathEvaluator) {
         this.pathEvaluator = pathEvaluator;
-        this.possibleAliases = new ArrayList<Alias>(possibleValues.keySet());
         this.possibleValues = new ListHashMap<Alias, Object>();
         this.dependentTypeDefinitions = new ListHashMap<Alias, TypeDefinition>();
         this.currentValues = new HashMap<Alias, Object>();
         this.currentPossibleDependentValues = new ListHashMap<Alias, Object>();
+        for (TypeDefinition typeDefinition: getJoinAliasDefinitions(typeDefinitions)) {
+            possibleValues.remove(typeDefinition.getAlias());
+            this.dependentTypeDefinitions.add(getAlias(typeDefinition.getJoinPath()), typeDefinition);
+        }
         for (Map.Entry<Alias, Set<Object>> possibleValueEntry: possibleValues.entrySet()) {
             this.possibleValues.put(possibleValueEntry.getKey(), new ArrayList<Object>(possibleValueEntry.getValue()));
         }
-        for (TypeDefinition typeDefinition: getJoinAliasDefinitions(typeDefinitions)) {
-            this.dependentTypeDefinitions.add(getAlias(typeDefinition.getJoinPath()), typeDefinition);
-        }
+        this.possibleAliases = new ArrayList<Alias>(possibleValues.keySet());
     }
 
     public boolean hasNext() {
+        if (next == null && internalHasNext()) {
+            try {
+                next = internalNext();
+            } catch (NoSuchElementException e) {
+                return false;
+            }
+        }
+        return next != null;
+    }
+
+    private boolean internalHasNext() {
         if (!initialized) {
             return hasFirst();
         }
@@ -77,8 +96,20 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
         return false;
     }
 
+
     public Map<Alias, Object> next() {
-        if (!hasNext()) {
+        Map<Alias, Object> nextValue = internalNext();
+        alreadyReturned.add(new HashMap<Alias, Object>(nextValue));
+        return nextValue;
+    }
+
+    private Map<Alias, Object> internalNext() {
+        if (next != null) {
+            final Map<Alias, Object> nextValue = next;
+            next = null;
+            return nextValue;
+        }
+        if (!internalHasNext()) {
             throw new NoSuchElementException();
         }
         if (!initialized) {
@@ -86,12 +117,23 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
         }
         for (Alias alias: possibleAliases) {
             if (hasNextDependentValue(alias)) {
-                return nextDependentValue(alias);
+                final Map<Alias, Object> aliasObjectMap = nextDependentValue(alias);
+                if (!alreadyReturned.contains(aliasObjectMap)) {
+                    return aliasObjectMap;
+                } else {
+                   LOG.error("Double dependendValue for alias " + alias + " " + aliasObjectMap);
+                }
+
             }
         }
         for (Alias alias: possibleAliases) {
             if (hasNextValue(alias)) {
-                return nextValue(alias);
+                final Map<Alias, Object> aliasObjectMap = nextValue(alias);
+                if (!alreadyReturned.contains(aliasObjectMap)) {
+                    return aliasObjectMap;
+                } else {
+                   LOG.error("Double value for alias " + alias + " " + aliasObjectMap);
+                }
             }
         }
         throw new NoSuchElementException();

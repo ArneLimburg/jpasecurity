@@ -127,7 +127,8 @@ public class EntityManagerInvocationHandler extends ProxyInvocationHandler<Entit
             return null;
         }
         if (!isAccessible(READ, entity)) {
-            throw new SecurityException("The current user is not permitted to find the specified entity of type " + entity.getClass());
+            throw new SecurityException("The current user is not permitted to find "
+               + "the specified entity of type " + entity.getClass() + " with id " + id);
         }
         entity = secureObjectManager.getSecureObject(entity);
         if (entity instanceof SecureEntity) {

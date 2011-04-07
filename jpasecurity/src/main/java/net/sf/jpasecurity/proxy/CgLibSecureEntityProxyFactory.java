@@ -51,7 +51,8 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
                     return ((CgLibMethodInterceptor)callback).interceptor;
                 }
             }
-            throw new IllegalArgumentException("The specified object was not created by this factory");
+            throw new IllegalArgumentException("The specified object of type " + entity.getClass()
+               + " was not created by this factory");
         } catch (SecurityException e) {
             if (e.getCause() instanceof NoSuchMethodException) {
                 throw new IllegalArgumentException("The specified object was not created by this factory");

@@ -223,11 +223,15 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
                 filtered.add(entity);
             }
             if (!checkAccess || isReadable(entity)) {
-                E secureEntity = objectManager.getSecureObject(entity);
-                if (secureEntity instanceof SecureEntity) {
-                    objectManager.initialize((SecureEntity)secureEntity, checkAccess);
+                try {
+                    E secureEntity = objectManager.getSecureObject(entity);
+                    if (secureEntity instanceof SecureEntity) {
+                        objectManager.initialize((SecureEntity)secureEntity, checkAccess);
+                    }
+                    filtered.add(secureEntity);
+                } catch (SecurityException e) {
+                    //ignore
                 }
-                filtered.add(secureEntity);
             }
         }
     }
