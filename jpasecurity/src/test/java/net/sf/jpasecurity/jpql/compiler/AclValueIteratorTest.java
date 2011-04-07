@@ -128,7 +128,7 @@ public class AclValueIteratorTest extends TestCase {
             valueIterator.next();
             count++;
         }
-        assertEquals(2, count);
+        assertEquals(1, count);
     }
 
     private MappedPathEvaluator createPathEvaluator() {
