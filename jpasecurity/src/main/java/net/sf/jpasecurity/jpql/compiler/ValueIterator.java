@@ -49,17 +49,18 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
                          Set<TypeDefinition> typeDefinitions,
                          PathEvaluator pathEvaluator) {
         this.pathEvaluator = pathEvaluator;
-        this.possibleAliases = new ArrayList<Alias>(possibleValues.keySet());
         this.possibleValues = new ListHashMap<Alias, Object>();
         this.dependentTypeDefinitions = new ListHashMap<Alias, TypeDefinition>();
         this.currentValues = new HashMap<Alias, Object>();
         this.currentPossibleDependentValues = new ListHashMap<Alias, Object>();
+        for (TypeDefinition typeDefinition: getJoinAliasDefinitions(typeDefinitions)) {
+            possibleValues.remove(typeDefinition.getAlias());
+            this.dependentTypeDefinitions.add(getAlias(typeDefinition.getJoinPath()), typeDefinition);
+        }
         for (Map.Entry<Alias, Set<Object>> possibleValueEntry: possibleValues.entrySet()) {
             this.possibleValues.put(possibleValueEntry.getKey(), new ArrayList<Object>(possibleValueEntry.getValue()));
         }
-        for (TypeDefinition typeDefinition: getJoinAliasDefinitions(typeDefinitions)) {
-            this.dependentTypeDefinitions.add(getAlias(typeDefinition.getJoinPath()), typeDefinition);
-        }
+        this.possibleAliases = new ArrayList<Alias>(possibleValues.keySet());
     }
 
     public boolean hasNext() {
@@ -270,7 +271,7 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
             }
             Object currentValue = currentValues.get(dependentAlias);
             if (hasNextDependentValue(dependentAlias, currentValue)) {
-                return nextDependentValue(dependentAlias, currentValues.get(dependentAlias));
+                return nextDependentValue(dependentAlias, currentValue);
             }
         }
         throw new NoSuchElementException();
