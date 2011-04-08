@@ -397,13 +397,19 @@ public class EntityPersister extends AbstractSecureObjectManager {
                     if (secureValue instanceof AbstractSecureCollection) {
                         AbstractSecureCollection<?, Collection<?>> secureCollection
                             = (AbstractSecureCollection<?, Collection<?>>)secureValue;
-                        secureCollection.initialize(!isNew);
+                        if (!secureCollection.isInitialized()) {
+                            secureCollection.initialize(!isNew);
+                        }
                     } else if (secureValue instanceof SecureList) {
                         SecureList<?> secureList = (SecureList<?>)secureValue;
-                        secureList.initialize(!isNew);
+                        if (!secureList.isInitialized()) {
+                            secureList.initialize(!isNew);
+                        }
                     } else if (secureValue instanceof DefaultSecureMap) {
                         DefaultSecureMap<?, ?> secureMap = (DefaultSecureMap<?, ?>)secureValue;
-                        secureMap.initialize(!isNew);
+                        if (!secureMap.isInitialized()) {
+                            secureMap.initialize(!isNew);
+                        }
                     }
                     for (Object secureEntry: ((Collection<Object>)secureValue)) {
                         initialize(secureEntry,
