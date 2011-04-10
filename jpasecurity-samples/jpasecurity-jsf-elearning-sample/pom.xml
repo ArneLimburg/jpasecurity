@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <parent>
+    <groupId>net.sf.jpasecurity</groupId>
+    <artifactId>jpasecurity-modules</artifactId>
+    <version>0.4.0-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>jpasecurity-jsf-elearning-sample</artifactId>
+  <name>JPA Security JSF E-learning sample</name>
+  <packaging>pom</packaging>
+  <modules>
+    <module>jpasecurity-jsf-elearning-domain</module>
+    <module>jpasecurity-jsf-elearning-view</module>
+    <module>jpasecurity-jsf-elearning-jsf-application</module>
+    <module>jpasecurity-jsf-elearning-cdi-application</module>
+  </modules>
+</project>
