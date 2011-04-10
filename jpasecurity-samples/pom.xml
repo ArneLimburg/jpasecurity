@@ -13,5 +13,6 @@
   <modules>
     <module>jpasecurity-simple-sample</module>
     <module>jpasecurity-spring-petclinic-sample</module>
+    <module>jpasecurity-jsf-elearning-sample</module>
   </modules>
 </project>
