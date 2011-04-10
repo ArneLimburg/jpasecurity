@@ -423,12 +423,12 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Object value1 = data.getResult();
+            Object value1 = convert(data.getResult());
             if (value1 == null) {
                 data.setResult(false);
             } else {
                 node.jjtGetChild(1).visit(this, data);
-                Object value2 = data.getResult();
+                Object value2 = convert(data.getResult());
                 data.setResult(value1.equals(value2));
             }
         } catch (NotEvaluatableException e) {
@@ -879,6 +879,18 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             return (Collection<Object>)result;
         } else {
             return Collections.singleton(result);
+        }
+    }
+
+    private Object convert(Object object) {
+        if (!(object instanceof Number) || object instanceof BigDecimal) {
+            return object;
+        } else if (object instanceof Float) {
+            return BigDecimal.valueOf((Float)object);
+        } else if (object instanceof Double) {
+            return BigDecimal.valueOf((Double)object);
+        } else {
+            return new BigDecimal(object.toString());
         }
     }
 }

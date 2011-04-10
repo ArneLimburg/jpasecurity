@@ -17,6 +17,7 @@ package net.sf.jpasecurity.jpql.compiler;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.persistence.spi.PersistenceUnitInfo;
@@ -44,7 +45,6 @@ public class AclValueIteratorTest extends TestCase {
     private static final Alias USER = new Alias("user");
     private static final Alias GROUP = new Alias("groups");
     private static final Alias GROUP_FULL_HIERARCHY = new Alias("fullHierarchy");
-    private static final int MAX_COUNT = 1000000;
 
     private Set<TypeDefinition> typeDefinitions;
     private SetMap<Alias, Object> possibleValues;
@@ -125,12 +125,15 @@ public class AclValueIteratorTest extends TestCase {
         possibleValues.add(USER, user);
         PathEvaluator pathEvaluator = createPathEvaluator();
         ValueIterator valueIterator = new ValueIterator(possibleValues, typeDefinitions, pathEvaluator);
-        int count = 0;
-        while (valueIterator.hasNext() && count < MAX_COUNT) {
+        assertTrue(valueIterator.hasNext());
+        assertNotNull(valueIterator.next());
+        assertFalse(valueIterator.hasNext());
+        try {
             valueIterator.next();
-            count++;
+            fail();
+        } catch (NoSuchElementException e) {
+            //expected
         }
-        assertEquals(2, count);
     }
 
     private MappedPathEvaluator createPathEvaluator() {
