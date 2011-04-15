@@ -1,16 +1,28 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://java.sun.com/jsf/html">
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
   <h:head>
     <title>Course 1</title>
   </h:head>
   <h:body>
     <h1>Course 1</h1>
     <h2>Lecturer</h2>
-    <h:outputLink value="teacher.xhtml">Teacher 1</h:outputLink>
+    <h:outputLink value="teacher.xhtml" >
+      <f:param name="id" value="#{course.lecturer.id}" />
+      <h:outputText value="#{course.lecturer.name}" />
+    </h:outputLink>
     <h2>Participants</h2>
     <ul>
-      <li><h:outputLink value="student.xhtml">Student 1</h:outputLink></li>
+      <ui:repeat var="participant" value="#{course.participants}">
+        <li>
+          <h:outputLink value="student.xhtml" >
+            <f:param name="id" value="#{participant.id}" />
+            <h:outputText value="#{participant.name}" />
+          </h:outputLink>
+        </li>
+      </ui:repeat>
     </ul>
   </h:body>
 </html>

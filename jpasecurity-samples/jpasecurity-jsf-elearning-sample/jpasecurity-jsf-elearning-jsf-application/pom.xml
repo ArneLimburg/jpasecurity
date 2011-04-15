@@ -13,18 +13,18 @@
   <name>JPA Security JSF E-learning sample - pure JSF application</name>
   <url>http://jpasecurity.sf.net</url>
 
-<!--   <build> -->
-<!--     <plugins> -->
-<!--       <plugin> -->
-<!--         <groupId>org.codehaus.mojo</groupId> -->
-<!--         <artifactId>jdepend-maven-plugin</artifactId> -->
-<!--       </plugin> -->
-<!--       <plugin> -->
-<!--         <groupId>org.apache.maven.plugins</groupId> -->
-<!--         <artifactId>maven-antrun-plugin</artifactId> -->
-<!--       </plugin> -->
-<!--     </plugins> -->
-<!--   </build> -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jdepend-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
   <dependencies>
     <dependency>
