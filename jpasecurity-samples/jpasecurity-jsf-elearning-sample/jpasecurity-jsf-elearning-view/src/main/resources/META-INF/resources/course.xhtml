@@ -4,10 +4,10 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets">
   <h:head>
-    <title>Course 1</title>
+    <title>#{course.name}</title>
   </h:head>
   <h:body>
-    <h1>Course 1</h1>
+    <h1>#{course.name}</h1>
     <h2>Lecturer</h2>
     <h:outputLink value="teacher.xhtml" >
       <f:param name="id" value="#{course.lecturer.id}" />
