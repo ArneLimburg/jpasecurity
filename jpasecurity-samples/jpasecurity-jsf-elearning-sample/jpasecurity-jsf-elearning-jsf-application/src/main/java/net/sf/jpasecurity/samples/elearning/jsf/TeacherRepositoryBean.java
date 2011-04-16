@@ -47,7 +47,7 @@ public class TeacherRepositoryBean {
 
             public List<Course> getCourses() {
                 return Collections.emptyList();
-            }            
+            }
         };
     }
 }

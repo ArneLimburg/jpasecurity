@@ -29,15 +29,7 @@ import net.sf.jpasecurity.sample.elearning.domain.Teacher;
  * @author Arne Limburg
  */
 @ManagedBean(name = "course")
-public class CourseBean implements Course {
-
-    public int getId() {
-        return 1;
-    }
-
-    public String getName() {
-        return "Course 1";
-    }
+public class CourseBean extends EntityBean implements Course {
 
     public Teacher getLecturer() {
         return new Teacher() {
