@@ -26,15 +26,7 @@ import net.sf.jpasecurity.sample.elearning.domain.Student;
  * @author Arne Limburg
  */
 @ManagedBean(name = "student")
-public class StudentBean implements Student {
-
-    public int getId() {
-        return 1;
-    }
-
-    public String getName() {
-        return "Student 1";
-    }
+public class StudentBean extends EntityBean implements Student {
 
     public List<Course> getCourses() {
         return new CourseRepositoryBean().getAllCourses();
