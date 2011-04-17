@@ -65,7 +65,7 @@ public class EjbAuthenticationProvider implements AuthenticationProvider, Persis
         }
     }
 
-    public void setPersistenceProperties(Map<String, String> properties) {
+    public void setPersistenceProperties(Map<String, Object> properties) {
         //not needed
     }
 }

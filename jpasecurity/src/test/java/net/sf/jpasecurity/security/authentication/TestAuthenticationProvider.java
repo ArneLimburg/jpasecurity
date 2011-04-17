@@ -27,7 +27,7 @@ public class TestAuthenticationProvider extends StaticAuthenticationProvider
                                         implements PersistenceInformationReceiver {
 
     private static MappingInformation persistenceMapping;
-    private static Map<String, String> persistenceProperties;
+    private static Map<String, Object> persistenceProperties;
     
     public static MappingInformation getPersistenceMapping() {
         return persistenceMapping;
@@ -37,11 +37,11 @@ public class TestAuthenticationProvider extends StaticAuthenticationProvider
         TestAuthenticationProvider.persistenceMapping = persistenceMapping;
     }
     
-    public static Map<String, String> getPersistenceProperties() {
+    public static Map<String, Object> getPersistenceProperties() {
         return persistenceProperties;
     }
 
-    public void setPersistenceProperties(Map<String, String> properties) {
+    public void setPersistenceProperties(Map<String, Object> properties) {
         TestAuthenticationProvider.persistenceProperties = properties;
     }
 }

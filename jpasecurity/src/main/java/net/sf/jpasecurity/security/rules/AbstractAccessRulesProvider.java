@@ -48,7 +48,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
                                                              SecurityContextReceiver {
 
     private MappingInformation persistenceMapping;
-    private Map<String, String> persistenceProperties;
+    private Map<String, Object> persistenceProperties;
     private Configuration configuration;
     private SecurityContext securityContext;
     private List<AccessRule> accessRules;
@@ -61,11 +61,11 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
         this.persistenceMapping = persistenceMapping;
     }
 
-    public Map<String, String> getPersistenceProperties() {
+    public Map<String, Object> getPersistenceProperties() {
         return persistenceProperties;
     }
 
-    public final void setPersistenceProperties(Map<String, String> properties) {
+    public final void setPersistenceProperties(Map<String, Object> properties) {
         this.persistenceProperties = properties;
     }
 

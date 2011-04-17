@@ -69,8 +69,8 @@ public class SecurePersistenceProvider implements PersistenceProvider {
 
     public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
                                                                  PersistenceUnitInfo info,
-                                                                 Map<String, String> properties) {
-        Map<String, Object> persistenceProperties = (Map)info.getProperties();
+                                                                 Map<String, Object> properties) {
+        Map<String, Object> persistenceProperties = (Map<String, Object>)(Map<?, Object>)info.getProperties();
         persistenceProperties.putAll(properties);
         Configuration configuration = new Configuration(persistenceProperties);
         configuration.setExceptionFactory(new JpaExceptionFactory());
@@ -82,7 +82,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
 
     public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
                                                                  String persistenceUnitName,
-                                                                 Map<String, String> properties,
+                                                                 Map<String, Object> properties,
                                                                  Configuration configuration) {
         PersistenceUnitInfo info = createPersistenceUnitInfo(persistenceUnitName);
         if (info == null) {
@@ -96,7 +96,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
 
     public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
                                                                  PersistenceUnitInfo persistenceUnitInfo,
-                                                                 Map<String, String> properties,
+                                                                 Map<String, Object> properties,
                                                                  Configuration configuration) {
         String persistenceUnitType = getPersistenceUnitTypeProperty(persistenceUnitInfo, properties);
         if (SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT.equals(persistenceUnitType)) {
@@ -144,10 +144,10 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     }
 
     private String getPersistenceUnitTypeProperty(PersistenceUnitInfo persistenceUnitInfo,
-                                                            Map<String, String> properties) {
-        String property = properties.get(SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY);
+                                                  Map<String, Object> properties) {
+        Object property = properties.get(SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY);
         if (property != null) {
-            return property;
+            return property.toString();
         }
         property = (String)persistenceUnitInfo.getProperties().get(SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY);
         if (SECURE_PERSISTENCE_PROVIDER_TYPE_LIGHT.equals(property)) {

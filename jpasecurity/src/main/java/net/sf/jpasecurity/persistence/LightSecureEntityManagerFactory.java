@@ -30,7 +30,7 @@ public class LightSecureEntityManagerFactory extends SecureEntityManagerFactory 
 
     public LightSecureEntityManagerFactory(EntityManagerFactory entityManagerFactory,
                                            PersistenceUnitInfo persistenceUnitInfo,
-                                           Map<String, String> properties,
+                                           Map<String, Object> properties,
                                            Configuration configuration) {
         super(entityManagerFactory, persistenceUnitInfo, properties, configuration);
     }
@@ -38,7 +38,7 @@ public class LightSecureEntityManagerFactory extends SecureEntityManagerFactory 
     @Override
     protected EntityManager createSecureEntityManager(EntityManager entityManager,
                                                       EntityManagerFactory entityManagerFactory,
-                                                      Map<String, String> properties) {
+                                                      Map<String, Object> properties) {
         return new LightSecureEntityManager(entityManager,
                                             entityManagerFactory,
                                             getMappingInformation(),

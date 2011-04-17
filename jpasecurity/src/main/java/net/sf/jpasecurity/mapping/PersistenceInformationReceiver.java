@@ -28,5 +28,5 @@ import java.util.Map;
 public interface PersistenceInformationReceiver {
 
     void setPersistenceMapping(MappingInformation persistenceMapping);
-    void setPersistenceProperties(Map<String, String> properties);
+    void setPersistenceProperties(Map<String, Object> properties);
 }

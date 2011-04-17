@@ -51,7 +51,7 @@ public class Configuration {
 
     private static final Log LOG = LogFactory.getLog(Configuration.class);
 
-    private Map<String, String> properties;
+    private Map<String, Object> properties;
     private AccessRulesProvider accessRulesProvider;
     private SecurityContext securityContext;
     private SecureEntityProxyFactory secureEntityProxyFactory;
@@ -63,15 +63,14 @@ public class Configuration {
         this(null);
     }
 
-    public Configuration(Map<String, String> properties) {
+    public Configuration(Map<String, Object> properties) {
         this.properties = properties;
         if (this.properties == null) {
             this.properties = Collections.emptyMap();
         }
-        //TODO KSC sure?
-        String maxFetchDepth = this.properties.get(FetchManager.MAX_FETCH_DEPTH);
+        Object maxFetchDepth = this.properties.get(FetchManager.MAX_FETCH_DEPTH);
         if (maxFetchDepth != null) {
-            this.maxFetchDepth = Integer.parseInt(maxFetchDepth);
+            this.maxFetchDepth = Integer.parseInt(maxFetchDepth.toString());
         } else {
             this.maxFetchDepth = Integer.MAX_VALUE;
         }
@@ -144,13 +143,13 @@ public class Configuration {
 
     private AccessRulesProvider createAccessRulesProvider() {
         try {
-            String accessRulesProviderClassName = properties.get(ACCESS_RULES_PROVIDER_PROPERTY);
+            Object accessRulesProviderClassName = properties.get(ACCESS_RULES_PROVIDER_PROPERTY);
             if (accessRulesProviderClassName == null) {
                 accessRulesProviderClassName = DEFAULT_ACCESS_RULES_PROVIDER_CLASS;
             }
             LOG.info("using " + accessRulesProviderClassName + " as access rules provider");
             Class<?> accessRulesProviderClass
-                = getClass().getClassLoader().loadClass(accessRulesProviderClassName);
+                = getClass().getClassLoader().loadClass(accessRulesProviderClassName.toString());
             return (AccessRulesProvider)accessRulesProviderClass.newInstance();
         } catch (InstantiationException e) {
             throw new PersistenceException(e);
@@ -163,7 +162,7 @@ public class Configuration {
 
     private SecurityContext createSecurityContext() {
         try {
-            String securityContextClassName = null;
+            Object securityContextClassName = null;
             if (properties != null) {
                 securityContextClassName = properties.get(SECURITY_CONTEXT_PROPERTY).toString();
             }
@@ -179,7 +178,8 @@ public class Configuration {
                 securityContextClassName = DEFAULT_SECURITY_CONTEXT_CLASS;
             }
             LOG.info("using " + securityContextClassName + " as security context");
-            Class<?> authenticationProviderClass = getClass().getClassLoader().loadClass(securityContextClassName);
+            Class<?> authenticationProviderClass
+                = getClass().getClassLoader().loadClass(securityContextClassName.toString());
             return (SecurityContext)authenticationProviderClass.newInstance();
         } catch (InstantiationException e) {
             throw getExceptionFactory().createRuntimeException(e);
@@ -192,14 +192,14 @@ public class Configuration {
 
     private AuthenticationProvider createAuthenticationProvider() {
         try {
-            String authenticationProviderClassName = null;
+            Object authenticationProviderClassName;
             authenticationProviderClassName = properties.get(AUTHENTICATION_PROVIDER_PROPERTY);
             if (authenticationProviderClassName == null) {
                 return null;
             }
             LOG.info("using " + authenticationProviderClassName + " as authentication provider");
             Class<?> authenticationProviderClass
-                = getClass().getClassLoader().loadClass(authenticationProviderClassName);
+                = getClass().getClassLoader().loadClass(authenticationProviderClassName.toString());
             return (AuthenticationProvider)authenticationProviderClass.newInstance();
         } catch (InstantiationException e) {
             throw new PersistenceException(e);
@@ -212,13 +212,14 @@ public class Configuration {
 
     private SecureEntityProxyFactory createSecureEntityProxyFactory() {
         try {
-            String secureEntityProxyFactoryClassName = null;
+            Object secureEntityProxyFactoryClassName = null;
             secureEntityProxyFactoryClassName = properties.get(SECURE_ENTITY_PROXY_FACTORY_PROPERTY);
             if (secureEntityProxyFactoryClassName == null) {
                 secureEntityProxyFactoryClassName = DEFAULT_SECURE_ENTITY_PROXY_FACTORY_CLASS;
             }
             LOG.info("using " + secureEntityProxyFactoryClassName + " as SecureEntity proxy factory");
-            Class<?> secureEntityProxyClass = getClass().getClassLoader().loadClass(secureEntityProxyFactoryClassName);
+            Class<?> secureEntityProxyClass
+                = getClass().getClassLoader().loadClass(secureEntityProxyFactoryClassName.toString());
             return (SecureEntityProxyFactory)secureEntityProxyClass.newInstance();
         } catch (InstantiationException e) {
             throw new PersistenceException(e);
@@ -231,14 +232,14 @@ public class Configuration {
 
     private PropertyAccessStrategyFactory createPropertyAccessStrategyFactory() {
         try {
-            String propertyAccessStrategyFactoryClassName = null;
+            Object propertyAccessStrategyFactoryClassName;
             propertyAccessStrategyFactoryClassName = properties.get(PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY);
             if (propertyAccessStrategyFactoryClassName == null) {
                 propertyAccessStrategyFactoryClassName = DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS;
             }
             LOG.info("using " + propertyAccessStrategyFactoryClassName + " as PropertyAccessStrategy factory");
             Class<?> propertyAccessStrategyClass
-                = getClass().getClassLoader().loadClass(propertyAccessStrategyFactoryClassName);
+                = getClass().getClassLoader().loadClass(propertyAccessStrategyFactoryClassName.toString());
             return (PropertyAccessStrategyFactory)propertyAccessStrategyClass.newInstance();
         } catch (InstantiationException e) {
             throw new PersistenceException(e);

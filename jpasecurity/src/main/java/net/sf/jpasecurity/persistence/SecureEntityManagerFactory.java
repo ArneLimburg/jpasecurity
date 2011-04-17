@@ -47,7 +47,7 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
 
     protected SecureEntityManagerFactory(EntityManagerFactory entityManagerFactory,
                                          PersistenceUnitInfo persistenceUnitInfo,
-                                         Map<String, String> properties,
+                                         Map<String, Object> properties,
                                          Configuration configuration) {
         this.nativeEntityManagerFactory = entityManagerFactory;
         if (entityManagerFactory == null) {
@@ -67,8 +67,8 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
                                                   configuration.getExceptionFactory());
         this.mappingInformation = annotationParser.parse(persistenceUnitInfo);
         this.mappingInformation = xmlParser.parse(persistenceUnitInfo, mappingInformation);
-        Map<String, String> persistenceProperties
-            = new HashMap<String, String>((Map)persistenceUnitInfo.getProperties());
+        Map<String, Object> persistenceProperties
+            = new HashMap<String, Object>((Map)persistenceUnitInfo.getProperties());
         if (properties != null) {
             persistenceProperties.putAll(properties);
         }
@@ -102,17 +102,17 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
 
     protected EntityManager createSecureEntityManager(EntityManager entityManager,
                                                       EntityManagerFactory entityManagerFactory,
-                                                      Map<String, String> properties) {
+                                                      Map<String, Object> properties) {
         return new DefaultSecureEntityManager(entityManager, entityManagerFactory, configuration, mappingInformation);
     }
 
-    private void injectPersistenceInformation(Map<String, String> persistenceProperties) {
+    private void injectPersistenceInformation(Map<String, Object> persistenceProperties) {
         persistenceProperties = Collections.unmodifiableMap(persistenceProperties);
         injectPersistenceInformation(configuration.getSecurityContext(), persistenceProperties);
         injectPersistenceInformation(configuration.getAccessRulesProvider(), persistenceProperties);
     }
 
-    private void injectPersistenceInformation(Object injectionTarget, Map<String, String> persistenceProperties) {
+    private void injectPersistenceInformation(Object injectionTarget, Map<String, Object> persistenceProperties) {
         if (injectionTarget instanceof PersistenceInformationReceiver) {
             PersistenceInformationReceiver persistenceInformationReceiver
                 = (PersistenceInformationReceiver)injectionTarget;
