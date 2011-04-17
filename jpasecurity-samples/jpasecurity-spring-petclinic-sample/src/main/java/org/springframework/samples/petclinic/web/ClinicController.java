@@ -22,7 +22,7 @@ import org.springframework.samples.petclinic.Clinic;
 import org.springframework.samples.petclinic.Credential;
 import org.springframework.samples.petclinic.Owner;
 import org.springframework.samples.petclinic.Vet;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
