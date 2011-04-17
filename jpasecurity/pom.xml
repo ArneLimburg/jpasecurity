@@ -157,21 +157,27 @@
     <dependency>
       <groupId>org.acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
+      <artifactId>spring-orm</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <optional>true</optional>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
@@ -226,11 +232,11 @@
       <artifactId>easymock</artifactId>
       <scope>test</scope>
     </dependency>
-          <dependency>
-    	<groupId>org.eclipse.persistence</groupId>
-    	<artifactId>eclipselink</artifactId>
-    	<version>2.2.0</version>
-    	<scope>compile</scope>
-      </dependency>
+    <dependency>
+      <groupId>org.eclipse.persistence</groupId>
+      <artifactId>eclipselink</artifactId>
+      <version>2.2.0</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 </project>

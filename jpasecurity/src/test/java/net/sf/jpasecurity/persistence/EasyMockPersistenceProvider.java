@@ -20,11 +20,16 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.Map;
 
+import javax.persistence.Cache;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
+import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.metamodel.Metamodel;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
+import javax.persistence.spi.ProviderUtil;
 
 import org.easymock.EasyMock;
 
@@ -88,5 +93,35 @@ public class EasyMockPersistenceProvider implements PersistenceProvider {
         public void close() {
             open = false;
         }
+
+		public CriteriaBuilder getCriteriaBuilder() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public Metamodel getMetamodel() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public Map<String, Object> getProperties() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public Cache getCache() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public PersistenceUnitUtil getPersistenceUnitUtil() {
+			// TODO Auto-generated method stub
+			return null;
+		}
     }
+
+	public ProviderUtil getProviderUtil() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

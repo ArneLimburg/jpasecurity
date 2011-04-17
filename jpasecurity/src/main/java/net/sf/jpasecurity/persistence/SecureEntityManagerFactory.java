@@ -19,8 +19,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.Cache;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.metamodel.Metamodel;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.configuration.Configuration;
@@ -128,4 +132,29 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
     protected MappingInformation getMappingInformation() {
         return mappingInformation;
     }
+
+	public CriteriaBuilder getCriteriaBuilder() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Metamodel getMetamodel() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Map<String, Object> getProperties() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Cache getCache() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public PersistenceUnitUtil getPersistenceUnitUtil() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

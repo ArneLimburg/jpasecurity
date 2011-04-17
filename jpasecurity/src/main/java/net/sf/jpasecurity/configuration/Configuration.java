@@ -68,6 +68,7 @@ public class Configuration {
         if (this.properties == null) {
             this.properties = Collections.emptyMap();
         }
+        //TODO KSC sure?
         String maxFetchDepth = this.properties.get(FetchManager.MAX_FETCH_DEPTH);
         if (maxFetchDepth != null) {
             this.maxFetchDepth = Integer.parseInt(maxFetchDepth);
@@ -76,7 +77,9 @@ public class Configuration {
         }
     }
 
-    public AccessRulesProvider getAccessRulesProvider() {
+
+
+	public AccessRulesProvider getAccessRulesProvider() {
         if (accessRulesProvider == null) {
             accessRulesProvider = createAccessRulesProvider();
         }
@@ -162,7 +165,7 @@ public class Configuration {
         try {
             String securityContextClassName = null;
             if (properties != null) {
-                securityContextClassName = properties.get(SECURITY_CONTEXT_PROPERTY);
+                securityContextClassName = properties.get(SECURITY_CONTEXT_PROPERTY).toString();
             }
             if (securityContextClassName == null) {
                 securityContextClassName
