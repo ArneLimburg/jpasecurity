@@ -52,7 +52,7 @@ public class AuthenticationProviderSecurityContext implements SecurityContext, P
         }
     }
 
-    public void setPersistenceProperties(Map<String, String> properties) {
+    public void setPersistenceProperties(Map<String, Object> properties) {
         if (persistenceInformationReceiver != null) {
             persistenceInformationReceiver.setPersistenceProperties(properties);
         }

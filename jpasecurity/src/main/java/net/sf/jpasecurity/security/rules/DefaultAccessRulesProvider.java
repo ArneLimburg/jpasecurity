@@ -57,7 +57,7 @@ public class DefaultAccessRulesProvider implements AccessRulesProvider,
         xmlRulesProvider.setPersistenceMapping(persistenceMapping);
     }
 
-    public void setPersistenceProperties(Map<String, String> properties) {
+    public void setPersistenceProperties(Map<String, Object> properties) {
         annotationRulesProvider.setPersistenceProperties(properties);
         xmlRulesProvider.setPersistenceProperties(properties);
     }
