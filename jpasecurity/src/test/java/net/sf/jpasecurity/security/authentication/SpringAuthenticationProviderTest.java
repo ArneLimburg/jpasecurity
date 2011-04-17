@@ -18,6 +18,10 @@ package net.sf.jpasecurity.security.authentication;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
 import net.sf.jpasecurity.configuration.AuthenticationProvider;
 
 import org.springframework.security.core.Authentication;
@@ -35,9 +39,9 @@ public class SpringAuthenticationProviderTest extends AbstractAuthenticationProv
     }
     
     public void authenticate(Object principal, String... roles) {
-        GrantedAuthority[] grantedAuthorities = new GrantedAuthority[roles.length];
+        Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>(roles.length);
         for (int i = 0; i < roles.length; i++) {
-            grantedAuthorities[i] = new GrantedAuthorityImpl(roles[i]);
+            grantedAuthorities.add(new GrantedAuthorityImpl(roles[i]));
         }
         Authentication authentication = createMock(Authentication.class);
         expect(authentication.getPrincipal()).andReturn(principal).anyTimes();
