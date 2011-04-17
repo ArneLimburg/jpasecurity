@@ -162,7 +162,7 @@ public class Configuration {
         try {
             Object securityContextClassName = null;
             if (properties != null) {
-                securityContextClassName = properties.get(SECURITY_CONTEXT_PROPERTY).toString();
+                securityContextClassName = properties.get(SECURITY_CONTEXT_PROPERTY);
             }
             if (securityContextClassName == null) {
                 securityContextClassName
