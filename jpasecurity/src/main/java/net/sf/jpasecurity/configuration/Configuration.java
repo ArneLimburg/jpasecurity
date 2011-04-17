@@ -76,9 +76,7 @@ public class Configuration {
         }
     }
 
-
-
-	public AccessRulesProvider getAccessRulesProvider() {
+    public AccessRulesProvider getAccessRulesProvider() {
         if (accessRulesProvider == null) {
             accessRulesProvider = createAccessRulesProvider();
         }

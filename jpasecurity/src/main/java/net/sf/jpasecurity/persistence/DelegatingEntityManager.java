@@ -130,105 +130,75 @@ public class DelegatingEntityManager implements EntityManager {
         delegate.setFlushMode(flushMode);
     }
 
-	public <T> T find(Class<T> entityClass, Object primaryKey,
-			Map<String, Object> properties) {
-		
-		// TODO Auto-generated method stub
-		return delegate.find(entityClass, primaryKey, properties);
-	}
+    public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
+        return delegate.find(entityClass, primaryKey, properties);
+    }
 
-	public <T> T find(Class<T> entityClass, Object primaryKey,
-			LockModeType lockMode) {
-		// TODO Auto-generated method stub
-		return delegate.find(entityClass, primaryKey, lockMode);
-	}
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
+        return delegate.find(entityClass, primaryKey, lockMode);
+    }
 
-	public <T> T find(Class<T> entityClass, Object primaryKey,
-			LockModeType lockMode, Map<String, Object> properties) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
+        return delegate.find(entityClass, primaryKey, lockMode, properties);
+    }
 
-	public void lock(Object entity, LockModeType lockMode,
-			Map<String, Object> properties) {
-		delegate.lock(entity, lockMode, properties);
-		// TODO Auto-generated method stub
-		
-	}
+    public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        delegate.lock(entity, lockMode, properties);
+    }
 
-	public void refresh(Object entity, Map<String, Object> properties) {
-		delegate.refresh(entity, properties);
-		// TODO Auto-generated method stub
-		
-	}
+    public void refresh(Object entity, Map<String, Object> properties) {
+        delegate.refresh(entity, properties);
+    }
 
-	public void refresh(Object entity, LockModeType lockMode) {
-		delegate.refresh(entity, lockMode);
-		// TODO Auto-generated method stub
-		
-	}
+    public void refresh(Object entity, LockModeType lockMode) {
+        delegate.refresh(entity, lockMode);
+    }
 
-	public void refresh(Object entity, LockModeType lockMode,
-			Map<String, Object> properties) {
-		delegate.refresh(entity, lockMode, properties);
-		// TODO Auto-generated method stub
-		
-	}
+    public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        delegate.refresh(entity, lockMode, properties);
+    }
 
-	public void detach(Object entity) {
-		delegate.detach(entity);
-		// TODO Auto-generated method stub
-		
-	}
+    public void detach(Object entity) {
+        delegate.detach(entity);
+    }
 
-	public LockModeType getLockMode(Object entity) {
-		// TODO Auto-generated method stub
-		return delegate.getLockMode(entity);
-	}
+    public LockModeType getLockMode(Object entity) {
+        return delegate.getLockMode(entity);
+    }
 
-	public void setProperty(String propertyName, Object value) {
-		// TODO Auto-generated method stub
-		delegate.setProperty(propertyName, value);
-		
-	}
+    public void setProperty(String propertyName, Object value) {
+        delegate.setProperty(propertyName, value);
+    }
 
-	public Map<String, Object> getProperties() {
-		// TODO Auto-generated method stub
-		return delegate.getProperties();
-	}
+    public Map<String, Object> getProperties() {
+        return delegate.getProperties();
+    }
 
-	public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
-		// TODO Auto-generated method stub
-		return delegate.createQuery(criteriaQuery);
-	}
+    public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+        return delegate.createQuery(criteriaQuery);
+    }
 
-	public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
-		// TODO Auto-generated method stub
-		return delegate.createQuery(qlString, resultClass);
-	}
+    public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+        return delegate.createQuery(qlString, resultClass);
+    }
 
-	public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
-		// TODO Auto-generated method stub
-		return delegate.createNamedQuery(name, resultClass);
-	}
+    public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+        return delegate.createNamedQuery(name, resultClass);
+    }
 
-	public <T> T unwrap(Class<T> cls) {
-		// TODO Auto-generated method stub
-		return delegate.unwrap(cls);
-	}
+    public <T> T unwrap(Class<T> cls) {
+        return delegate.unwrap(cls);
+    }
 
-	public EntityManagerFactory getEntityManagerFactory() {
-		// TODO Auto-generated method stub
-		return delegate.getEntityManagerFactory();
-	}
+    public EntityManagerFactory getEntityManagerFactory() {
+        return delegate.getEntityManagerFactory();
+    }
 
-	public CriteriaBuilder getCriteriaBuilder() {
-		// TODO Auto-generated method stub
-		return delegate.getCriteriaBuilder();
-	}
+    public CriteriaBuilder getCriteriaBuilder() {
+        return delegate.getCriteriaBuilder();
+    }
 
-	public Metamodel getMetamodel() {
-		// TODO Auto-generated method stub
-		return delegate.getMetamodel();
-	}
+    public Metamodel getMetamodel() {
+        return delegate.getMetamodel();
+    }
 }

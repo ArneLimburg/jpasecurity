@@ -133,28 +133,28 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
         return mappingInformation;
     }
 
-	public CriteriaBuilder getCriteriaBuilder() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public CriteriaBuilder getCriteriaBuilder() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Metamodel getMetamodel() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Metamodel getMetamodel() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Map<String, Object> getProperties() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map<String, Object> getProperties() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Cache getCache() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Cache getCache() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public PersistenceUnitUtil getPersistenceUnitUtil() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public PersistenceUnitUtil getPersistenceUnitUtil() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

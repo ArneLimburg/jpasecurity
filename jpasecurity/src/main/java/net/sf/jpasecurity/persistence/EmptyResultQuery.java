@@ -35,6 +35,9 @@ import javax.persistence.TemporalType;
  */
 public class EmptyResultQuery implements Query {
 
+    private int firstResult = 0;
+    private int maxResults = Integer.MAX_VALUE;
+
     /**
      * As this query always returns an empty result, this call is ignored.
      * <strong>Note:</strong> no check is performed whether the named parameter
@@ -89,17 +92,30 @@ public class EmptyResultQuery implements Query {
         return this;
     }
 
+    public int getFirstResult() {
+        return firstResult;
+    }
+
     /**
-     * As this query always returns an empty result, this call is ignored.
+     * As this query always returns an empty result, <tt>firstResult</tt> is only recorded.
      */
     public Query setFirstResult(int startPosition) {
+        firstResult = startPosition;
         return this;
     }
 
     /**
-     * As this query always returns an empty result, this call is ignored.
+     * As this query always returns an empty result, this call always returns an empty list.
+     */
+    public int getMaxResults() {
+        return maxResults;
+    }
+
+    /**
+     * As this query always returns an empty result, <tt>maxResult</tt> is only recorded.
      */
     public Query setMaxResults(int maxResult) {
+        maxResults = maxResult;
         return this;
     }
 
@@ -139,100 +155,88 @@ public class EmptyResultQuery implements Query {
         return Collections.EMPTY_LIST;
     }
 
-	public int getMaxResults() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    public Map<String, Object> getHints() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public int getFirstResult() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    public <T> Query setParameter(Parameter<T> param, T value) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Map<String, Object> getHints() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Query setParameter(Parameter<Calendar> param, Calendar value, TemporalType temporalType) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public <T> Query setParameter(Parameter<T> param, T value) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Query setParameter(Parameter<Date> param, Date value, TemporalType temporalType) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Query setParameter(Parameter<Calendar> param, Calendar value,
-			TemporalType temporalType) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Set<Parameter<?>> getParameters() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Query setParameter(Parameter<Date> param, Date value,
-			TemporalType temporalType) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Parameter<?> getParameter(String name) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Set<Parameter<?>> getParameters() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public <T> Parameter<T> getParameter(String name, Class<T> type) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Parameter<?> getParameter(String name) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Parameter<?> getParameter(int position) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public <T> Parameter<T> getParameter(String name, Class<T> type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public <T> Parameter<T> getParameter(int position, Class<T> type) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Parameter<?> getParameter(int position) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public boolean isBound(Parameter<?> param) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public <T> Parameter<T> getParameter(int position, Class<T> type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public <T> T getParameterValue(Parameter<T> param) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public boolean isBound(Parameter<?> param) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public Object getParameterValue(String name) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public <T> T getParameterValue(Parameter<T> param) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Object getParameterValue(int position) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Object getParameterValue(String name) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public FlushModeType getFlushMode() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Object getParameterValue(int position) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Query setLockMode(LockModeType lockMode) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public FlushModeType getFlushMode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public LockModeType getLockMode() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Query setLockMode(LockModeType lockMode) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public LockModeType getLockMode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public <T> T unwrap(Class<T> cls) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public <T> T unwrap(Class<T> cls) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
