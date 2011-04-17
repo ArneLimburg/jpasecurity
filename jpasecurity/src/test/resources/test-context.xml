@@ -9,7 +9,7 @@
 	
     <bean id="contactsDao" class="net.sf.jpasecurity.contacts.spring.DefaultContactsDao"/>
 
-    <bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
+    <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
         <property name="providers">
             <list>
                 <ref bean="daoAuthenticationProvider"/>
@@ -17,12 +17,12 @@
         </property>
     </bean>
 
-    <bean id="daoAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+    <bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
         <property name="forcePrincipalAsString" value="true"/>
         <property name="userDetailsService" ref="userDetailsService"/>
     </bean>
 
-    <bean id="userDetailsService" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
+    <bean id="userDetailsService" class="org.springframework.security.core.userdetails.memory.InMemoryDaoImpl">
         <property name="userMap">
             <value>
                 admin=,ROLE_ADMIN
