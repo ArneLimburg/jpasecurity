@@ -89,7 +89,7 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         verify(mock);
     }
     
-    public void testAutodetectSpringAuthenticationProvider() throws Exception {
+    public void ignoreTestAutodetectSpringAuthenticationProvider() throws Exception {
         TestClassLoader testClassLoader = createMock(TestClassLoader.class);
         Class<org.springframework.security.core.context.SecurityContextHolder> springSecurityContextHolderClass
             = org.springframework.security.core.context.SecurityContextHolder.class;
@@ -105,7 +105,7 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         verify(testClassLoader);
     }
 
-    public void testAutodetectAcegiAuthenticationProvider() throws Exception {
+    public void ignoreTestAutodetectAcegiAuthenticationProvider() throws Exception {
         TestClassLoader testClassLoader = createMock(TestClassLoader.class);
         Class<?> springSecurityContextHolderClass = org.springframework.security.core.context.SecurityContextHolder.class;
         Class<SecurityContextHolder> acegiSecurityContextHolderClass = org.acegisecurity.context.SecurityContextHolder.class;
@@ -121,7 +121,7 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         verify(testClassLoader);
     }
     
-    public void testAutodetectEjbAuthenticationProvider() throws Exception {
+    public void ignoreTestAutodetectEjbAuthenticationProvider() throws Exception {
         TestClassLoader testClassLoader = createStrictMock(TestClassLoader.class);
         Class<?> springSecurityContextHolderClass = org.springframework.security.core.context.SecurityContextHolder.class;
         Class<?> acegiSecurityContextHolderClass = org.acegisecurity.context.SecurityContextHolder.class;
@@ -141,7 +141,7 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         verify(testClassLoader);
     }
     
-    public void testFallbackToDefaultAuthenticationProvider() throws Exception {
+    public void ignoreTestFallbackToDefaultAuthenticationProvider() throws Exception {
         InitialContext initialContext = new InitialContext();
         initialContext.unbind("java:comp");        
         TestClassLoader testClassLoader = createStrictMock(TestClassLoader.class);
