@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.persistence.SharedCacheMode;
+import javax.persistence.ValidationMode;
 import javax.persistence.spi.ClassTransformer;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
@@ -46,6 +48,9 @@ public class DefaultPersistenceUnitInfo implements PersistenceUnitInfo {
     private ClassLoader classLoader;
     private ClassLoader tempClassLoader;
     private List<ClassTransformer> classTransformers = new ArrayList<ClassTransformer>();
+    private ValidationMode validationMode;
+    private SharedCacheMode sharedCacheMode;
+    private String persistenceXMLSchemaVersion;
 
     public String getPersistenceUnitName() {
         return persistenceUnitName;
@@ -154,4 +159,28 @@ public class DefaultPersistenceUnitInfo implements PersistenceUnitInfo {
     public void addTransformer(ClassTransformer transformer) {
         classTransformers.add(transformer);
     }
+
+	public SharedCacheMode getSharedCacheMode() {
+		return sharedCacheMode;
+	}
+	
+	public void setSharedCacheMode(SharedCacheMode aSharedCacheMode){
+		sharedCacheMode = aSharedCacheMode;
+	}
+
+	public ValidationMode getValidationMode() {
+		return validationMode;
+	}
+	
+	public void setValidationMode(ValidationMode aValidationMode){
+		validationMode = aValidationMode;
+	}
+
+	public String getPersistenceXMLSchemaVersion() {
+		return persistenceXMLSchemaVersion;
+	}
+	
+	public void setPersistenceXMLSchemaVersion(String aPersistenceXMLSchemaVersion){
+		persistenceXMLSchemaVersion = aPersistenceXMLSchemaVersion;
+	}
 }

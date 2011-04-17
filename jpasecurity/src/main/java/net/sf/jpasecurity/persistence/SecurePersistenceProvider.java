@@ -26,6 +26,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
+import javax.persistence.spi.ProviderUtil;
 
 import net.sf.jpasecurity.configuration.Configuration;
 
@@ -69,7 +70,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     public EntityManagerFactory createSecureEntityManagerFactory(EntityManagerFactory nativeEntityManagerFactory,
                                                                  PersistenceUnitInfo info,
                                                                  Map<String, String> properties) {
-        Map<String, String> persistenceProperties = (Map)info.getProperties();
+        Map<String, Object> persistenceProperties = (Map)info.getProperties();
         persistenceProperties.putAll(properties);
         Configuration configuration = new Configuration(persistenceProperties);
         configuration.setExceptionFactory(new JpaExceptionFactory());
@@ -194,4 +195,9 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         }
         return Thread.currentThread().getContextClassLoader();
     }
+
+	public ProviderUtil getProviderUtil() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
