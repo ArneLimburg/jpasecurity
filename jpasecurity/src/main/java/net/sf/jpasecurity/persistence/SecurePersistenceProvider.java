@@ -196,8 +196,8 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         return Thread.currentThread().getContextClassLoader();
     }
 
-	public ProviderUtil getProviderUtil() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public ProviderUtil getProviderUtil() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

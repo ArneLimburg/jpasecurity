@@ -160,27 +160,27 @@ public class DefaultPersistenceUnitInfo implements PersistenceUnitInfo {
         classTransformers.add(transformer);
     }
 
-	public SharedCacheMode getSharedCacheMode() {
-		return sharedCacheMode;
-	}
-	
-	public void setSharedCacheMode(SharedCacheMode aSharedCacheMode){
-		sharedCacheMode = aSharedCacheMode;
-	}
+    public SharedCacheMode getSharedCacheMode() {
+        return sharedCacheMode;
+    }
 
-	public ValidationMode getValidationMode() {
-		return validationMode;
-	}
-	
-	public void setValidationMode(ValidationMode aValidationMode){
-		validationMode = aValidationMode;
-	}
+    public void setSharedCacheMode(SharedCacheMode mode) {
+        sharedCacheMode = mode;
+    }
 
-	public String getPersistenceXMLSchemaVersion() {
-		return persistenceXMLSchemaVersion;
-	}
-	
-	public void setPersistenceXMLSchemaVersion(String aPersistenceXMLSchemaVersion){
-		persistenceXMLSchemaVersion = aPersistenceXMLSchemaVersion;
-	}
+    public ValidationMode getValidationMode() {
+        return validationMode;
+    }
+
+    public void setValidationMode(ValidationMode mode) {
+        validationMode = mode;
+    }
+
+    public String getPersistenceXMLSchemaVersion() {
+        return persistenceXMLSchemaVersion;
+    }
+
+    public void setPersistenceXMLSchemaVersion(String version) {
+        persistenceXMLSchemaVersion = version;
+    }
 }
