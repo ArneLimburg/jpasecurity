@@ -150,7 +150,7 @@
               <goal>checkstyle</goal>
             </goals>
             <configuration>
-              <failsOnError>false</failsOnError>
+              <failsOnError>true</failsOnError>
               <consoleOutput>true</consoleOutput>
               <includeTestSourceDirectory>false</includeTestSourceDirectory> <!--TODO switch was disabled until now-->
             </configuration>
