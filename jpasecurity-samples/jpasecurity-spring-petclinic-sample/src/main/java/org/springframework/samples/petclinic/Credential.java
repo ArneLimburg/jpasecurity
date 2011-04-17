@@ -15,10 +15,13 @@
  */
 package org.springframework.samples.petclinic;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.providers.encoding.Md5PasswordEncoder;
-import org.springframework.security.userdetails.UserDetails;
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 
 /**
@@ -27,6 +30,8 @@ import org.springframework.util.StringUtils;
 public class Credential extends BaseEntity implements UserDetails {
 
     private static final GrantedAuthority[] USER_AUTHORITIES = {new GrantedAuthorityImpl("ROLE_USER")};
+    
+    
 
     private String username;
     private String password;
@@ -66,8 +71,9 @@ public class Credential extends BaseEntity implements UserDetails {
         this.user = user;
     }
 
-    public GrantedAuthority[] getAuthorities() {
-        return USER_AUTHORITIES;
+    public List<GrantedAuthority> getAuthorities() {
+    	//TODO  KSC: Arne das anschauen lassen
+        return Arrays.asList(USER_AUTHORITIES);
     }
 
     public boolean isEnabled() {
