@@ -54,7 +54,7 @@ import org.apache.commons.logging.LogFactory;
 public class AutodetectingSecurityContext implements SecurityContext {
 
     private static final String SPRING_CONTEXT_HOLDER_CLASS
-        = "org.springframework.security.context.SecurityContextHolder";
+        = "org.springframework.security.core.context.SecurityContextHolder";
     private static final String ACEGI_CONTEXT_HOLDER_CLASS
         = "org.acegisecurity.context.SecurityContextHolder";
     private static final Log LOG = LogFactory.getLog(AutodetectingSecurityContext.class);
