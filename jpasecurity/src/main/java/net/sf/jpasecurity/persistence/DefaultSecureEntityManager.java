@@ -34,7 +34,7 @@ import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
 import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
-import net.sf.jpasecurity.entity.EntityInvocationHandler;
+import net.sf.jpasecurity.entity.SecureEntityInterceptor;
 import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpa.JpaBeanStore;
@@ -248,8 +248,8 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         Object[] transientParameters = new Object[parameters.length];
         for (int i = 0; i < transientParameters.length; i++) {
             if (mappingInformation.containsClassMapping(parameters[i].getClass())) {
-                EntityInvocationHandler transientInvocationHandler
-                    = new EntityInvocationHandler(mappingInformation,
+                SecureEntityInterceptor transientInvocationHandler
+                    = new SecureEntityInterceptor(mappingInformation,
                                                   this,
                                                   (AbstractSecureObjectManager)secureObjectManager,
                                                   parameters[i],
