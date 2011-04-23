@@ -96,8 +96,8 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         } else if (object instanceof Map) {
             return (T)createSecureMap((Map<?, ?>)object, this, accessManager);
         } else {
-            EntityInvocationHandler entityInvocationHandler
-                = new EntityInvocationHandler(mappingInformation, accessManager, this, object);
+            SecureEntityInterceptor entityInvocationHandler
+                = new SecureEntityInterceptor(mappingInformation, accessManager, this, object);
             return (T)entityInvocationHandler.createSecureEntity();
         }
     }
@@ -121,8 +121,8 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         }
         if (secureObject instanceof SecureEntity) {
             SecureEntityProxyFactory proxyFactory = configuration.getSecureEntityProxyFactory();
-            EntityInvocationHandler entityInvocationHandler
-                = (EntityInvocationHandler)proxyFactory.getMethodInterceptor((SecureEntity)secureObject);
+            SecureEntityInterceptor entityInvocationHandler
+                = (SecureEntityInterceptor)proxyFactory.getMethodInterceptor((SecureEntity)secureObject);
             return (T)entityInvocationHandler.entity;
         } else if (secureObject instanceof AbstractSecureCollection) {
             return (T)((AbstractSecureCollection<?, Collection<?>>)secureObject).getOriginal();
@@ -455,20 +455,20 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     }
 
     void setRemoved(SecureEntity secureEntity) {
-        EntityInvocationHandler entityInvocationHandler
-            = (EntityInvocationHandler)configuration.getSecureEntityProxyFactory().getMethodInterceptor(secureEntity);
+        SecureEntityInterceptor entityInvocationHandler
+            = (SecureEntityInterceptor)configuration.getSecureEntityProxyFactory().getMethodInterceptor(secureEntity);
         entityInvocationHandler.deleted = true;
     }
 
     boolean isInitialized(SecureEntity secureEntity) {
-        EntityInvocationHandler entityInvocationHandler
-            = (EntityInvocationHandler)configuration.getSecureEntityProxyFactory().getMethodInterceptor(secureEntity);
+        SecureEntityInterceptor entityInvocationHandler
+            = (SecureEntityInterceptor)configuration.getSecureEntityProxyFactory().getMethodInterceptor(secureEntity);
         return entityInvocationHandler.isInitialized();
     }
 
     void initialize(SecureEntity secureEntity, boolean checkAccess) {
-        EntityInvocationHandler entityInvocationHandler
-            = (EntityInvocationHandler)configuration.getSecureEntityProxyFactory().getMethodInterceptor(secureEntity);
+        SecureEntityInterceptor entityInvocationHandler
+            = (SecureEntityInterceptor)configuration.getSecureEntityProxyFactory().getMethodInterceptor(secureEntity);
         entityInvocationHandler.refresh(checkAccess);
     }
 

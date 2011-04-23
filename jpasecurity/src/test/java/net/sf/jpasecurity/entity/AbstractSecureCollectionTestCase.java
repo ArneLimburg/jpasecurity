@@ -68,7 +68,7 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
         replay(classMapping, mapping, entityManager, accessManager);
         
         unsecureEntity = new Object();
-        secureEntity = new EntityInvocationHandler(mapping, accessManager, objectManager, unsecureEntity).createSecureEntity();
+        secureEntity = new SecureEntityInterceptor(mapping, accessManager, objectManager, unsecureEntity).createSecureEntity();
     }
     
     public abstract SecureCollection<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
@@ -196,7 +196,7 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
 
     public void testRetainAll() {
         Object unsecureEntity2 = new Object();
-        SecureEntity secureEntity2 = new EntityInvocationHandler(mapping, accessManager, objectManager, unsecureEntity2).createSecureEntity();
+        SecureEntity secureEntity2 = new SecureEntityInterceptor(mapping, accessManager, objectManager, unsecureEntity2).createSecureEntity();
         final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity, secureEntity2);
         final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
         testRetain(secureCollection, unsecureCollection, new Runnable() {
@@ -208,7 +208,7 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
 
     public void testRetainAllSecureCollection() {
         Object unsecureEntity2 = new Object();
-        SecureEntity secureEntity2 = new EntityInvocationHandler(mapping, accessManager, objectManager, unsecureEntity2).createSecureEntity();
+        SecureEntity secureEntity2 = new SecureEntityInterceptor(mapping, accessManager, objectManager, unsecureEntity2).createSecureEntity();
         final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity, secureEntity2);
         final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
         testRetain(secureCollection, unsecureCollection, new Runnable() {
@@ -220,7 +220,7 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
 
     public void testRetainAllSecureList() {
         Object unsecureEntity2 = new Object();
-        SecureEntity secureEntity2 = new EntityInvocationHandler(mapping, accessManager, objectManager, unsecureEntity2).createSecureEntity();
+        SecureEntity secureEntity2 = new SecureEntityInterceptor(mapping, accessManager, objectManager, unsecureEntity2).createSecureEntity();
         final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity, secureEntity2);
         final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
         testRetain(secureCollection, unsecureCollection, new Runnable() {

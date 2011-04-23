@@ -19,18 +19,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import net.sf.jpasecurity.AccessManager;
-import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SuperMethod;
-import net.sf.jpasecurity.util.AbstractInvocationHandler;
 
 /**
  * An invocation handler to handle invocations on entities.
  * @author Arne Limburg
  */
-public class EntityInvocationHandler extends AbstractInvocationHandler implements SecureEntity, MethodInterceptor {
+public class SecureEntityInterceptor extends SecureEntityDecorator implements MethodInterceptor {
 
     private static final boolean IS_HIBERNATE_AVAILABLE;
     static {
@@ -44,33 +42,19 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         IS_HIBERNATE_AVAILABLE = isHibernateAvailable;
     }
 
-    private MappingInformation mapping;
-    private AccessManager accessManager;
-    private AbstractSecureObjectManager objectManager;
-    private boolean initialized;
-    boolean deleted;
-    private SecureEntity secureEntity;
-    Object entity;
-    private boolean isTransient;
-    private transient ThreadLocal<Boolean> updating;
-
-    public EntityInvocationHandler(MappingInformation mapping,
+    public SecureEntityInterceptor(MappingInformation mapping,
                                    AccessManager accessManager,
                                    AbstractSecureObjectManager objectManager,
                                    Object entity) {
         this(mapping, accessManager, objectManager, entity, false);
     }
 
-    public EntityInvocationHandler(MappingInformation mapping,
+    public SecureEntityInterceptor(MappingInformation mapping,
                                    AccessManager accessManager,
                                    AbstractSecureObjectManager objectManager,
                                    Object entity,
                                    boolean isTransient) {
-        this.mapping = mapping;
-        this.accessManager = accessManager;
-        this.objectManager = objectManager;
-        this.entity = entity;
-        this.isTransient = isTransient;
+        super(mapping, accessManager, objectManager, entity, isTransient);
     }
 
     public SecureEntity createSecureEntity() {
@@ -120,69 +104,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
         }
     }
 
-    public boolean isInitialized() {
-        return initialized;
-    }
-
-    public boolean isAccessible(AccessType accessType) {
-        return accessManager.isAccessible(accessType, entity);
-    }
-
-    public boolean isRemoved() {
-        return deleted;
-    }
-
-    public void flush() {
-        if (!isReadOnly() && isInitialized()) {
-            objectManager.unsecureCopy(AccessType.UPDATE, secureEntity, entity);
-        }
-    }
-
-    public boolean isReadOnly() {
-        return isTransient;
-    }
-
-    public void refresh() {
-        refresh(true);
-    }
-
-    void refresh(boolean checkAccess) {
-        if (isUpdating()) {
-            return; //we are already refreshing
-        }
-        try {
-            setUpdating(true);
-            boolean oldInitialized = initialized;
-            entity = unproxy(entity);
-            if (checkAccess && !accessManager.isAccessible(AccessType.READ, entity)) {
-                throw new SecurityException("The current user is not permitted to access the specified object");
-            }
-            objectManager.secureCopy(entity, secureEntity);
-            initialized = true;
-            if (initialized != oldInitialized) {
-                mapping.getClassMapping(entity.getClass()).postLoad(secureEntity);
-            }
-        } finally {
-            setUpdating(false);
-        }
-    }
-
-    private boolean isUpdating() {
-        return updating != null && updating.get() != null && updating.get();
-    }
-
-    private void setUpdating(boolean isUpdating) {
-        if (updating == null) {
-            updating = new ThreadLocal<Boolean>();
-        }
-        if (isUpdating) {
-            updating.set(true);
-        } else {
-            updating.remove();
-        }
-    }
-
-    private Object unproxy(Object object) {
+    <O> O unproxy(O object) {
         if (!IS_HIBERNATE_AVAILABLE) {
             return object;
         }
@@ -195,7 +117,7 @@ public class EntityInvocationHandler extends AbstractInvocationHandler implement
             Class<?> lazyInitializer
                 = Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.LazyInitializer");
             Object lazyInitializerInstance = hibernateProxy.getMethod("getHibernateLazyInitializer").invoke(object);
-            return lazyInitializer.getMethod("getImplementation").invoke(lazyInitializerInstance);
+            return (O)lazyInitializer.getMethod("getImplementation").invoke(lazyInitializerInstance);
         } catch (Exception e) {
             return object;
         }
