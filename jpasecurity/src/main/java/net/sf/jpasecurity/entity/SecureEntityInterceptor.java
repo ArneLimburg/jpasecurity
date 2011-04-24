@@ -30,31 +30,24 @@ import net.sf.jpasecurity.proxy.SuperMethod;
  */
 public class SecureEntityInterceptor extends SecureEntityDecorator implements MethodInterceptor {
 
-    private static final boolean IS_HIBERNATE_AVAILABLE;
-    static {
-        boolean isHibernateAvailable;
-        try {
-            Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.HibernateProxy");
-            isHibernateAvailable = true;
-        } catch (ClassNotFoundException e) {
-            isHibernateAvailable = false;
-        }
-        IS_HIBERNATE_AVAILABLE = isHibernateAvailable;
-    }
+    private ObjectWrapper objectWrapper;
 
     public SecureEntityInterceptor(MappingInformation mapping,
+                                   ObjectWrapper objectWrapper,
                                    AccessManager accessManager,
                                    AbstractSecureObjectManager objectManager,
                                    Object entity) {
-        this(mapping, accessManager, objectManager, entity, false);
+        this(mapping, objectWrapper, accessManager, objectManager, entity, false);
     }
 
     public SecureEntityInterceptor(MappingInformation mapping,
+                                   ObjectWrapper objectWrapper,
                                    AccessManager accessManager,
                                    AbstractSecureObjectManager objectManager,
                                    Object entity,
                                    boolean isTransient) {
-        super(mapping, accessManager, objectManager, entity, isTransient);
+        super(mapping, objectWrapper, accessManager, objectManager, entity, isTransient);
+        this.objectWrapper = objectWrapper;
     }
 
     public SecureEntity createSecureEntity() {
@@ -77,49 +70,30 @@ public class SecureEntityInterceptor extends SecureEntityDecorator implements Me
             throw new IllegalStateException("unexpected object of type " + object.getClass()
                + ", expected type " + delegate.getClass());
         }
-        if (canInvoke(method)) {
-            return invoke(object, method, args);
-        }
         if (isHashCode(method)) {
-            entity = unproxy(entity);
+            entity = objectWrapper.unwrap(entity);
             return entity.hashCode();
         } else if (isEquals(method)) {
             Object value = args[0];
             if (objectManager.isSecureObject(value)) {
                 value = objectManager.getUnsecureObject(value);
             }
-            entity = unproxy(entity);
+            entity = objectWrapper.unwrap(entity);
             return entity.equals(value);
         } else if (isToString(method)) {
-            entity = unproxy(entity);
+            entity = objectWrapper.unwrap(entity);
             return entity.toString();
         }
-        if (!isInitialized()) {
-            refresh();
-        }
         try {
+            if (canInvoke(method)) {
+                return invoke(object, method, args);
+            }
+            if (!isInitialized()) {
+                refresh();
+            }
             return superMethod.invoke(object, args);
         } catch (InvocationTargetException e) {
             throw e.getTargetException();
-        }
-    }
-
-    <O> O unproxy(O object) {
-        if (!IS_HIBERNATE_AVAILABLE) {
-            return object;
-        }
-        try {
-            Class<?> hibernateProxy
-                = Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.HibernateProxy");
-            if (!hibernateProxy.isInstance(object)) {
-                return object;
-            }
-            Class<?> lazyInitializer
-                = Thread.currentThread().getContextClassLoader().loadClass("org.hibernate.proxy.LazyInitializer");
-            Object lazyInitializerInstance = hibernateProxy.getMethod("getHibernateLazyInitializer").invoke(object);
-            return (O)lazyInitializer.getMethod("getImplementation").invoke(lazyInitializerInstance);
-        } catch (Exception e) {
-            return object;
         }
     }
 }

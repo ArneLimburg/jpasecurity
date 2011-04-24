@@ -84,8 +84,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                                          SecureObjectManager secureObjectManager) {
         super(entityManager);
         if (secureObjectManager == null) {
-            secureObjectManager
-                = new DefaultSecureObjectCache(mapping, new JpaBeanStore(entityManager), this, configuration);
+            secureObjectManager = new DefaultSecureObjectCache(mapping,
+                                                               new JpaBeanStore(entityManager),
+                                                               this,
+                                                               configuration,
+                                                               new JpaEntityWrapper());
         }
         this.configuration = configuration;
         this.mappingInformation = mapping;
@@ -250,6 +253,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
             if (mappingInformation.containsClassMapping(parameters[i].getClass())) {
                 SecureEntityInterceptor transientInvocationHandler
                     = new SecureEntityInterceptor(mappingInformation,
+                                                  new JpaEntityWrapper(),
                                                   this,
                                                   (AbstractSecureObjectManager)secureObjectManager,
                                                   parameters[i],

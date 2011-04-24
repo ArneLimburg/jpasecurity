@@ -28,6 +28,7 @@ import net.sf.jpasecurity.util.AbstractInvocationHandler;
 public abstract class SecureEntityDecorator extends AbstractInvocationHandler implements SecureEntity {
 
     MappingInformation mapping;
+    private ObjectWrapper objectWrapper;
     private AccessManager accessManager;
     AbstractSecureObjectManager objectManager;
     private boolean initialized;
@@ -38,11 +39,13 @@ public abstract class SecureEntityDecorator extends AbstractInvocationHandler im
     private transient ThreadLocal<Boolean> updating;
 
     SecureEntityDecorator(MappingInformation mapping,
+                          ObjectWrapper objectWrapper,
                           AccessManager accessManager,
                           AbstractSecureObjectManager objectManager,
                           Object entity,
                           boolean isTransient) {
         this.mapping = mapping;
+        this.objectWrapper = objectWrapper;
         this.accessManager = accessManager;
         this.objectManager = objectManager;
         this.entity = entity;
@@ -82,7 +85,7 @@ public abstract class SecureEntityDecorator extends AbstractInvocationHandler im
         try {
             setUpdating(true);
             boolean oldInitialized = initialized;
-            entity = unproxy(entity);
+            entity = objectWrapper.unwrap(entity);
             if (checkAccess && !accessManager.isAccessible(AccessType.READ, entity)) {
                 throw new SecurityException("The current user is not permitted to access the specified object");
             }
@@ -95,8 +98,6 @@ public abstract class SecureEntityDecorator extends AbstractInvocationHandler im
             setUpdating(false);
         }
     }
-
-    abstract <B> B unproxy(B bean);
 
     private boolean isUpdating() {
         return updating != null && updating.get() != null && updating.get();

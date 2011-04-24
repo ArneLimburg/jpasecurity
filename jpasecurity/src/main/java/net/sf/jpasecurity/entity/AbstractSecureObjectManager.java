@@ -50,17 +50,20 @@ import net.sf.jpasecurity.util.SystemMapKey;
  */
 public abstract class AbstractSecureObjectManager implements SecureObjectManager {
 
-    private MappingInformation mappingInformation;
-    private AccessManager accessManager;
-    private Configuration configuration;
+    private final MappingInformation mappingInformation;
+    private final AccessManager accessManager;
+    private final Configuration configuration;
+    private final ObjectWrapper objectWrapper;
     private final List<Runnable> postFlushOperations = new ArrayList<Runnable>();
 
     public AbstractSecureObjectManager(MappingInformation mappingInformation,
                                        AccessManager accessManager,
-                                       Configuration configuration) {
+                                       Configuration configuration,
+                                       ObjectWrapper objectWrapper) {
         this.mappingInformation = mappingInformation;
         this.accessManager = accessManager;
         this.configuration = configuration;
+        this.objectWrapper = objectWrapper;
     }
 
     protected void addPostFlushOperation(Runnable operation) {
@@ -97,7 +100,7 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             return (T)createSecureMap((Map<?, ?>)object, this, accessManager);
         } else {
             SecureEntityInterceptor entityInvocationHandler
-                = new SecureEntityInterceptor(mappingInformation, accessManager, this, object);
+                = new SecureEntityInterceptor(mappingInformation, objectWrapper, accessManager, this, object);
             return (T)entityInvocationHandler.createSecureEntity();
         }
     }
