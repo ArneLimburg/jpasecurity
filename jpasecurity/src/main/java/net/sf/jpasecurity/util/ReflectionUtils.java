@@ -163,6 +163,18 @@ public abstract class ReflectionUtils {
         }
     }
 
+    public static Object throwThrowable(Throwable throwable) {
+        if (throwable instanceof Error) {
+            throw (Error)throwable;
+        } else if (throwable instanceof RuntimeException) {
+            throw (RuntimeException)throwable;
+        } else if (throwable instanceof InvocationTargetException) {
+            return throwThrowable(((InvocationTargetException)throwable).getTargetException());
+        } else {
+            throw new SecurityException(throwable);
+        }
+    }
+
     private static Class<?>[] getTypes(Object[] parameters) {
         Class<?>[] types = new Class<?>[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
@@ -190,17 +202,5 @@ public abstract class ReflectionUtils {
             }
         }
         return true;
-    }
-
-    private static Object throwThrowable(Throwable throwable) {
-        if (throwable instanceof Error) {
-            throw (Error)throwable;
-        } else if (throwable instanceof RuntimeException) {
-            throw (RuntimeException)throwable;
-        } else if (throwable instanceof InvocationTargetException) {
-            return throwThrowable(((InvocationTargetException)throwable).getTargetException());
-        } else {
-            throw new SecurityException(throwable);
-        }
     }
 }
