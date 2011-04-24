@@ -53,8 +53,9 @@ public class EntityPersister extends AbstractSecureObjectManager {
     public EntityPersister(MappingInformation mappingInformation,
                            BeanStore beanStore,
                            AccessManager accessManager,
-                           Configuration configuration) {
-        super(mappingInformation, accessManager, configuration);
+                           Configuration configuration,
+                           ObjectWrapper objectWrapper) {
+        super(mappingInformation, accessManager, configuration, objectWrapper);
         this.beanStore = beanStore;
     }
 

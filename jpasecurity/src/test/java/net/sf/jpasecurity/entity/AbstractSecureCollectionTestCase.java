@@ -38,6 +38,7 @@ import net.sf.jpasecurity.jpa.JpaBeanStore;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.persistence.JpaEntityWrapper;
 
 /**
  * @author Arne Limburg
@@ -56,7 +57,7 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
         mapping = createMock(MappingInformation.class);
         entityManager = createMock(EntityManager.class);
         accessManager = createMock(AccessManager.class);
-        objectManager = new EntityPersister(mapping, new JpaBeanStore(entityManager), accessManager, new Configuration());
+        objectManager = new EntityPersister(mapping, new JpaBeanStore(entityManager), accessManager, new Configuration(), new JpaEntityWrapper());
 
         expect(classMapping.<Object>getEntityType()).andReturn(Object.class).anyTimes();
         expect(classMapping.getPropertyMappings()).andReturn(Collections.<PropertyMappingInformation>emptyList()).anyTimes();
@@ -68,7 +69,7 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
         replay(classMapping, mapping, entityManager, accessManager);
         
         unsecureEntity = new Object();
-        secureEntity = new SecureEntityInterceptor(mapping, accessManager, objectManager, unsecureEntity).createSecureEntity();
+        secureEntity = new SecureEntityInterceptor(mapping, new JpaEntityWrapper(), accessManager, objectManager, unsecureEntity).createSecureEntity();
     }
     
     public abstract SecureCollection<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
@@ -196,7 +197,7 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
 
     public void testRetainAll() {
         Object unsecureEntity2 = new Object();
-        SecureEntity secureEntity2 = new SecureEntityInterceptor(mapping, accessManager, objectManager, unsecureEntity2).createSecureEntity();
+        SecureEntity secureEntity2 = new SecureEntityInterceptor(mapping, new JpaEntityWrapper(), accessManager, objectManager, unsecureEntity2).createSecureEntity();
         final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity, secureEntity2);
         final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
         testRetain(secureCollection, unsecureCollection, new Runnable() {
@@ -208,7 +209,7 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
 
     public void testRetainAllSecureCollection() {
         Object unsecureEntity2 = new Object();
-        SecureEntity secureEntity2 = new SecureEntityInterceptor(mapping, accessManager, objectManager, unsecureEntity2).createSecureEntity();
+        SecureEntity secureEntity2 = new SecureEntityInterceptor(mapping, new JpaEntityWrapper(), accessManager, objectManager, unsecureEntity2).createSecureEntity();
         final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity, secureEntity2);
         final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
         testRetain(secureCollection, unsecureCollection, new Runnable() {
@@ -220,7 +221,7 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
 
     public void testRetainAllSecureList() {
         Object unsecureEntity2 = new Object();
-        SecureEntity secureEntity2 = new SecureEntityInterceptor(mapping, accessManager, objectManager, unsecureEntity2).createSecureEntity();
+        SecureEntity secureEntity2 = new SecureEntityInterceptor(mapping, new JpaEntityWrapper(), accessManager, objectManager, unsecureEntity2).createSecureEntity();
         final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity, secureEntity2);
         final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
         testRetain(secureCollection, unsecureCollection, new Runnable() {
