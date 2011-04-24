@@ -85,11 +85,11 @@ public class SecureEntityInterceptor extends SecureEntityDecorator implements Me
             return entity.toString();
         }
         try {
+            if (!SecureEntityMethods.contains(method) && !isInitialized()) {
+                refresh();
+            }
             if (canInvoke(method)) {
                 return invoke(object, method, args);
-            }
-            if (!isInitialized()) {
-                refresh();
             }
             return superMethod.invoke(object, args);
         } catch (InvocationTargetException e) {
