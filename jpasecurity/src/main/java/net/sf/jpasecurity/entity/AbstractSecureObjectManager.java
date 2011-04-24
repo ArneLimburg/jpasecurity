@@ -463,12 +463,6 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         entityInvocationHandler.deleted = true;
     }
 
-    boolean isInitialized(SecureEntity secureEntity) {
-        SecureEntityInterceptor entityInvocationHandler
-            = (SecureEntityInterceptor)configuration.getSecureEntityProxyFactory().getMethodInterceptor(secureEntity);
-        return entityInvocationHandler.isInitialized();
-    }
-
     void initialize(SecureEntity secureEntity, boolean checkAccess) {
         SecureEntityInterceptor entityInvocationHandler
             = (SecureEntityInterceptor)configuration.getSecureEntityProxyFactory().getMethodInterceptor(secureEntity);
