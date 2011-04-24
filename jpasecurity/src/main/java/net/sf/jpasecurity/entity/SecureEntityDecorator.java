@@ -32,7 +32,7 @@ public abstract class SecureEntityDecorator extends AbstractInvocationHandler im
     AbstractSecureObjectManager objectManager;
     private boolean initialized;
     boolean deleted;
-    SecureEntity secureEntity;
+    SecureEntity delegate;
     Object entity;
     private boolean isTransient;
     private transient ThreadLocal<Boolean> updating;
@@ -63,7 +63,7 @@ public abstract class SecureEntityDecorator extends AbstractInvocationHandler im
 
     public void flush() {
         if (!isReadOnly() && isInitialized()) {
-            objectManager.unsecureCopy(AccessType.UPDATE, secureEntity, entity);
+            objectManager.unsecureCopy(AccessType.UPDATE, delegate, entity);
         }
     }
 
@@ -86,10 +86,10 @@ public abstract class SecureEntityDecorator extends AbstractInvocationHandler im
             if (checkAccess && !accessManager.isAccessible(AccessType.READ, entity)) {
                 throw new SecurityException("The current user is not permitted to access the specified object");
             }
-            objectManager.secureCopy(entity, secureEntity);
+            objectManager.secureCopy(entity, delegate);
             initialized = true;
             if (initialized != oldInitialized) {
-                mapping.getClassMapping(entity.getClass()).postLoad(secureEntity);
+                mapping.getClassMapping(entity.getClass()).postLoad(delegate);
             }
         } finally {
             setUpdating(false);

@@ -67,15 +67,15 @@ public class SecureEntityInterceptor extends SecureEntityDecorator implements Me
     }
 
     public Object intercept(Object object, Method method, SuperMethod superMethod, Object... args) throws Throwable {
-        if (secureEntity == null) {
+        if (delegate == null) {
             if (!(object instanceof SecureEntity)) {
                 throw new IllegalStateException("intercepted object must be of type SecureEntity");
             }
-            secureEntity = (SecureEntity)object;
+            delegate = (SecureEntity)object;
         }
-        if (object != secureEntity) {
+        if (object != delegate) {
             throw new IllegalStateException("unexpected object of type " + object.getClass()
-               + ", expected type " + secureEntity.getClass());
+               + ", expected type " + delegate.getClass());
         }
         if (canInvoke(method)) {
             return invoke(object, method, args);
