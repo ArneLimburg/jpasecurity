@@ -105,7 +105,7 @@ public class DefaultSecureObjectCache extends EntityPersister {
         super.preFlush();
         for (Map<Object, SecureEntity> entities: secureEntities.values().toArray(new Map[secureEntities.size()])) {
             for (SecureEntity entity: entities.values().toArray(new SecureEntity[entities.size()])) {
-                if (isInitialized(entity)) {
+                if (entity.isInitialized()) {
                     entity.flush();
                 }
             }
