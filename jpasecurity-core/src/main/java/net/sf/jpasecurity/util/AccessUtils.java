@@ -15,15 +15,16 @@
  */
 package net.sf.jpasecurity.util;
 
-import javax.servlet.jsp.tagext.TagSupport;
-
+import static net.sf.jpasecurity.AccessType.CREATE;
+import static net.sf.jpasecurity.AccessType.DELETE;
+import static net.sf.jpasecurity.AccessType.READ;
+import static net.sf.jpasecurity.AccessType.UPDATE;
 import net.sf.jpasecurity.AccessManager;
-import static net.sf.jpasecurity.AccessType.*;
 
 /**
  * @author Arne Limburg
  */
-public abstract class AccessUtils extends TagSupport {
+public abstract class AccessUtils {
 
     public static boolean canCreate(AccessManager accessManager, Object entity) {
         return accessManager.isAccessible(CREATE, entity);
