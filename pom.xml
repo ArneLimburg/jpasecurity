@@ -310,8 +310,8 @@
     <dependencies>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-servlet_3.0_spec</artifactId>
-        <version>1.0</version>
+        <artifactId>geronimo-ejb_3.1_spec</artifactId>
+        <version>1.0.2</version>
       </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
@@ -320,8 +320,13 @@
       </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-ejb_3.1_spec</artifactId>
-        <version>1.0.2</version>
+        <artifactId>geronimo-el_2.2_spec</artifactId>
+        <version>1.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-servlet_3.0_spec</artifactId>
+        <version>1.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
