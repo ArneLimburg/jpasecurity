@@ -12,7 +12,7 @@
 
   <modules>
     <module>jpasecurity-build</module>
-    <module>jpasecurity</module>
+    <module>jpasecurity-core</module>
     <module>jpasecurity-samples</module>
   </modules>
 
