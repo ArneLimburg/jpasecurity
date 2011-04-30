@@ -18,38 +18,51 @@ package net.sf.jpasecurity.entity;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntity;
-import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.proxy.Decorator;
 import net.sf.jpasecurity.util.AbstractInvocationHandler;
 
 /**
  * A class to decorate a bean to become a {@link SecureEntity}.
  * @author Arne Limburg
  */
-public abstract class SecureEntityDecorator extends AbstractInvocationHandler implements SecureEntity {
+public class SecureEntityDecorator extends AbstractInvocationHandler implements SecureEntity, Decorator<SecureEntity> {
 
-    MappingInformation mapping;
+    private ClassMappingInformation mapping;
     private ObjectWrapper objectWrapper;
     private AccessManager accessManager;
-    AbstractSecureObjectManager objectManager;
+    private AbstractSecureObjectManager objectManager;
     private boolean initialized;
     boolean deleted;
-    SecureEntity delegate;
-    Object entity;
+    private SecureEntity delegate;
+    private Object entity;
     private boolean isTransient;
     private transient ThreadLocal<Boolean> updating;
 
-    SecureEntityDecorator(MappingInformation mapping,
-                          ObjectWrapper objectWrapper,
-                          AccessManager accessManager,
-                          AbstractSecureObjectManager objectManager,
-                          Object entity,
-                          boolean isTransient) {
+    public SecureEntityDecorator(ClassMappingInformation mapping,
+                                 ObjectWrapper objectWrapper,
+                                 AccessManager accessManager,
+                                 AbstractSecureObjectManager objectManager,
+                                 Object entity) {
+        this(mapping, objectWrapper, accessManager, objectManager, entity, false);
+    }
+
+    public SecureEntityDecorator(ClassMappingInformation mapping,
+                                 ObjectWrapper objectWrapper,
+                                 AccessManager accessManager,
+                                 AbstractSecureObjectManager objectManager,
+                                 Object entity,
+                                 boolean isTransient) {
         this.mapping = mapping;
         this.objectWrapper = objectWrapper;
         this.accessManager = accessManager;
         this.objectManager = objectManager;
         this.entity = entity;
         this.isTransient = isTransient;
+    }
+
+    public void setDelegate(SecureEntity delegate) {
+        this.delegate = delegate;
     }
 
     public boolean isInitialized() {
@@ -92,7 +105,7 @@ public abstract class SecureEntityDecorator extends AbstractInvocationHandler im
             objectManager.secureCopy(entity, delegate);
             initialized = true;
             if (initialized != oldInitialized) {
-                mapping.getClassMapping(entity.getClass()).postLoad(delegate);
+                mapping.postLoad(delegate);
             }
         } finally {
             setUpdating(false);

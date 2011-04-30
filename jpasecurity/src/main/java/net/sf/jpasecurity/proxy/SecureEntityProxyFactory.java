@@ -24,7 +24,10 @@ import net.sf.jpasecurity.SecureEntity;
  */
 public interface SecureEntityProxyFactory {
 
-    SecureEntity createSecureEntityProxy(Class<?> entityType, MethodInterceptor interceptor);
-    MethodInterceptor getMethodInterceptor(SecureEntity entity);
+    SecureEntity createSecureEntityProxy(Class<?> entityType,
+                                         MethodInterceptor interceptor,
+                                         Decorator<SecureEntity> decorator);
+    MethodInterceptor getInterceptor(SecureEntity entity);
+    Decorator<SecureEntity> getDecorator(SecureEntity entity);
 
 }

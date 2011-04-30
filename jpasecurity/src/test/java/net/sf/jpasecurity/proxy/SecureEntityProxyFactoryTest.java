@@ -33,7 +33,7 @@ public class SecureEntityProxyFactoryTest extends TestCase {
     private SecureEntityProxyFactory proxyFactory = new CgLibSecureEntityProxyFactory();
     
     public void testSuperMethodThrowsInvocationTargetException() {
-        TestEntity entity = (TestEntity)proxyFactory.createSecureEntityProxy(TestEntity.class, new SuperMethodInvoker());
+        TestEntity entity = (TestEntity)proxyFactory.createSecureEntityProxy(TestEntity.class, new SuperMethodInvoker(), new EmptyDecorator());
         try {
             entity.throwNullPointerException();
         } catch (SuperMethodInvocationException e) {
@@ -43,7 +43,7 @@ public class SecureEntityProxyFactoryTest extends TestCase {
     
     public void testWrongSecureEntity() {
         try {
-            proxyFactory.getMethodInterceptor(createNiceMock(SecureEntity.class));
+            proxyFactory.getInterceptor(createNiceMock(SecureEntity.class));
             fail("expected IllegalArgumentException since the specified proxy was not created by the factory");
         } catch (IllegalArgumentException e) {
             //expected
@@ -54,7 +54,7 @@ public class SecureEntityProxyFactoryTest extends TestCase {
             }
         });
         try {
-            proxyFactory.getMethodInterceptor(secureEntity);
+            proxyFactory.getInterceptor(secureEntity);
             fail("expected IllegalArgumentException since the specified proxy was not created by the factory");
         } catch (IllegalArgumentException e) {
             //expected
@@ -75,6 +75,12 @@ public class SecureEntityProxyFactoryTest extends TestCase {
             } catch (InvocationTargetException e) {
                 throw new SuperMethodInvocationException(e);
             }
+        }
+    }
+    
+    private static class EmptyDecorator implements Decorator<SecureEntity> {
+
+        public void setDelegate(SecureEntity delegate) {
         }
     }
     

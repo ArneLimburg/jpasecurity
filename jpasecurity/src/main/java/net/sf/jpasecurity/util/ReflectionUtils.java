@@ -160,6 +160,8 @@ public abstract class ReflectionUtils {
             field.set(target, value);
         } catch (IllegalAccessException e) {
             throwThrowable(e);
+        } catch (NullPointerException e) {
+            throw e;
         }
     }
 

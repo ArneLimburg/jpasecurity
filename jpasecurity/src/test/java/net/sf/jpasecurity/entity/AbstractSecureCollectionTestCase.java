@@ -39,6 +39,7 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.persistence.JpaEntityWrapper;
+import net.sf.jpasecurity.proxy.Decorator;
 
 /**
  * @author Arne Limburg
@@ -47,6 +48,7 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
 
     private MappingInformation mapping;
     private EntityManager entityManager;
+    private ObjectWrapper objectWrapper;
     private AccessManager accessManager;
     private AbstractSecureObjectManager objectManager;
     private SecureEntity secureEntity;
@@ -69,7 +71,11 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
         replay(classMapping, mapping, entityManager, accessManager);
         
         unsecureEntity = new Object();
-        secureEntity = new SecureEntityInterceptor(mapping, new JpaEntityWrapper(), accessManager, objectManager, unsecureEntity).createSecureEntity();
+        
+        objectWrapper = new JpaEntityWrapper();
+        SecureEntityInterceptor interceptor = new SecureEntityInterceptor(objectWrapper, objectManager, unsecureEntity);
+        Decorator<SecureEntity> decorator = new SecureEntityDecorator(classMapping, objectWrapper, accessManager, objectManager, unsecureEntity);
+        secureEntity = (SecureEntity)objectManager.createSecureEntity(Object.class, interceptor, decorator);
     }
     
     public abstract SecureCollection<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
@@ -197,7 +203,9 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
 
     public void testRetainAll() {
         Object unsecureEntity2 = new Object();
-        SecureEntity secureEntity2 = new SecureEntityInterceptor(mapping, new JpaEntityWrapper(), accessManager, objectManager, unsecureEntity2).createSecureEntity();
+        SecureEntityInterceptor interceptor = new SecureEntityInterceptor(objectWrapper, objectManager, unsecureEntity2);
+        Decorator<SecureEntity> decorator = new SecureEntityDecorator(mapping.getClassMapping(Object.class), objectWrapper, accessManager, objectManager, unsecureEntity2);
+        SecureEntity secureEntity2 = (SecureEntity)objectManager.createSecureEntity(Object.class, interceptor, decorator);
         final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity, secureEntity2);
         final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
         testRetain(secureCollection, unsecureCollection, new Runnable() {
@@ -209,7 +217,9 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
 
     public void testRetainAllSecureCollection() {
         Object unsecureEntity2 = new Object();
-        SecureEntity secureEntity2 = new SecureEntityInterceptor(mapping, new JpaEntityWrapper(), accessManager, objectManager, unsecureEntity2).createSecureEntity();
+        SecureEntityInterceptor interceptor = new SecureEntityInterceptor(objectWrapper, objectManager, unsecureEntity2);
+        Decorator<SecureEntity> decorator = new SecureEntityDecorator(mapping.getClassMapping(Object.class), objectWrapper, accessManager, objectManager, unsecureEntity2);
+        SecureEntity secureEntity2 = (SecureEntity)objectManager.createSecureEntity(Object.class, interceptor, decorator);
         final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity, secureEntity2);
         final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
         testRetain(secureCollection, unsecureCollection, new Runnable() {
@@ -221,7 +231,9 @@ public abstract class AbstractSecureCollectionTestCase extends TestCase {
 
     public void testRetainAllSecureList() {
         Object unsecureEntity2 = new Object();
-        SecureEntity secureEntity2 = new SecureEntityInterceptor(mapping, new JpaEntityWrapper(), accessManager, objectManager, unsecureEntity2).createSecureEntity();
+        SecureEntityInterceptor interceptor = new SecureEntityInterceptor(objectWrapper, objectManager, unsecureEntity2);
+        Decorator<SecureEntity> decorator = new SecureEntityDecorator(mapping.getClassMapping(Object.class), objectWrapper, accessManager, objectManager, unsecureEntity2);
+        SecureEntity secureEntity2 = (SecureEntity)objectManager.createSecureEntity(Object.class, interceptor, decorator);
         final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity, secureEntity2);
         final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
         testRetain(secureCollection, unsecureCollection, new Runnable() {

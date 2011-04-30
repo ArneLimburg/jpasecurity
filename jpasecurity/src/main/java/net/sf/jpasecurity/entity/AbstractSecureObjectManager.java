@@ -40,6 +40,7 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.proxy.Decorator;
 import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
@@ -99,9 +100,11 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         } else if (object instanceof Map) {
             return (T)createSecureMap((Map<?, ?>)object, this, accessManager);
         } else {
-            SecureEntityInterceptor entityInvocationHandler
-                = new SecureEntityInterceptor(mappingInformation, objectWrapper, accessManager, this, object);
-            return (T)entityInvocationHandler.createSecureEntity();
+            ClassMappingInformation mapping = getClassMapping(object.getClass());
+            SecureEntityInterceptor interceptor = new SecureEntityInterceptor(objectWrapper, this, object);
+            Decorator<SecureEntity> decorator
+                = new SecureEntityDecorator(mapping, objectWrapper, accessManager, this, object);
+            return createSecureEntity(mapping.<T>getEntityType(), interceptor, decorator);
         }
     }
 
@@ -124,9 +127,9 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         }
         if (secureObject instanceof SecureEntity) {
             SecureEntityProxyFactory proxyFactory = configuration.getSecureEntityProxyFactory();
-            SecureEntityInterceptor entityInvocationHandler
-                = (SecureEntityInterceptor)proxyFactory.getMethodInterceptor((SecureEntity)secureObject);
-            return (T)entityInvocationHandler.entity;
+            SecureEntityInterceptor secureEntityInterceptor
+                = (SecureEntityInterceptor)proxyFactory.getInterceptor((SecureEntity)secureObject);
+            return (T)secureEntityInterceptor.entity;
         } else if (secureObject instanceof AbstractSecureCollection) {
             return (T)((AbstractSecureCollection<?, Collection<?>>)secureObject).getOriginal();
         } else if (secureObject instanceof SecureList) {
@@ -453,20 +456,20 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         });
     }
 
-    SecureEntity createSecureEntity(Class<?> type, MethodInterceptor interceptor) {
-        return configuration.getSecureEntityProxyFactory().createSecureEntityProxy(type, interceptor);
+    <E> E createSecureEntity(Class<E> type, MethodInterceptor interceptor, Decorator<SecureEntity> decorator) {
+        return (E)configuration.getSecureEntityProxyFactory().createSecureEntityProxy(type, interceptor, decorator);
     }
 
     void setRemoved(SecureEntity secureEntity) {
-        SecureEntityInterceptor entityInvocationHandler
-            = (SecureEntityInterceptor)configuration.getSecureEntityProxyFactory().getMethodInterceptor(secureEntity);
-        entityInvocationHandler.deleted = true;
+        SecureEntityDecorator secureEntityDecorator
+            = (SecureEntityDecorator)configuration.getSecureEntityProxyFactory().getDecorator(secureEntity);
+        secureEntityDecorator.deleted = true;
     }
 
     void initialize(SecureEntity secureEntity, boolean checkAccess) {
-        SecureEntityInterceptor entityInvocationHandler
-            = (SecureEntityInterceptor)configuration.getSecureEntityProxyFactory().getMethodInterceptor(secureEntity);
-        entityInvocationHandler.refresh(checkAccess);
+        SecureEntityDecorator secureEntityDecorator
+            = (SecureEntityDecorator)configuration.getSecureEntityProxyFactory().getDecorator(secureEntity);
+        secureEntityDecorator.refresh(checkAccess);
     }
 
     private <T> Collection<T> createCollection(Collection<T> original) {
