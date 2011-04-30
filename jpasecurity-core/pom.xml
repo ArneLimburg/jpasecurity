@@ -7,8 +7,8 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jpasecurity</artifactId>
-  <name>JPA Security</name>
+  <artifactId>jpasecurity-core</artifactId>
+  <name>JPA Security Core</name>
   <description>
     JPA Security is an Access Control Solution for the Java Persistence API (JPA).
     With JPA Security your access control takes place
