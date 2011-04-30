@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,20 +35,35 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
     /**
      * {@inheritDoc}
      */
-    public SecureEntity createSecureEntityProxy(final Class<?> entityType, final MethodInterceptor interceptor) {
-        return (SecureEntity)Enhancer.create(entityType,
-                                             new Class[] {SecureEntity.class},
-                                             new CgLibMethodInterceptor(interceptor));
+    public SecureEntity createSecureEntityProxy(final Class<?> entityType,
+                                                final MethodInterceptor interceptor,
+                                                final Decorator<SecureEntity> decorator) {
+        SecureEntity entity = (SecureEntity)Enhancer.create(entityType,
+                                                            new Class[] {SecureEntity.class},
+                                                            new CgLibMethodInterceptor(interceptor, decorator));
+        decorator.setDelegate(entity);
+        return entity;
     }
 
     /**
      * {@inheritDoc}
      */
-    public MethodInterceptor getMethodInterceptor(SecureEntity entity) {
+    public MethodInterceptor getInterceptor(SecureEntity entity) {
+        return getCgLibMethodInterceptor(entity).interceptor;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Decorator<SecureEntity> getDecorator(SecureEntity entity) {
+        return getCgLibMethodInterceptor(entity).decorator;
+    }
+
+    private CgLibMethodInterceptor getCgLibMethodInterceptor(SecureEntity entity) {
         try {
             for (Callback callback: getCallbacks(entity)) {
                 if (callback instanceof CgLibMethodInterceptor) {
-                    return ((CgLibMethodInterceptor)callback).interceptor;
+                    return (CgLibMethodInterceptor)callback;
                 }
             }
             throw new IllegalArgumentException("The specified object was not created by this factory");
@@ -71,13 +86,21 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
    private class CgLibMethodInterceptor implements net.sf.cglib.proxy.MethodInterceptor {
 
         private MethodInterceptor interceptor;
+        private Decorator<SecureEntity> decorator;
 
-        public CgLibMethodInterceptor(MethodInterceptor interceptor) {
+        public CgLibMethodInterceptor(MethodInterceptor interceptor, Decorator<SecureEntity> decorator) {
             this.interceptor = interceptor;
+            this.decorator = decorator;
         }
 
         public Object intercept(Object object, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-            return interceptor.intercept(object, method, new CgLibSuperMethod(proxy), args);
+            SuperMethod superMethod;
+            if (SecureEntityMethods.contains(method)) {
+                superMethod = new CgLibSecureEntityMethod(decorator, method);
+            } else {
+                superMethod = new CgLibSuperMethod(proxy);
+            }
+            return interceptor.intercept(object, method, superMethod, args);
         }
     }
 
@@ -95,6 +118,21 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
             } catch (Throwable e) {
                 throw new InvocationTargetException(e);
             }
+        }
+    }
+
+    private class CgLibSecureEntityMethod implements SuperMethod {
+
+        private Decorator<SecureEntity> secureEntityDecorator;
+        private Method method;
+
+        public CgLibSecureEntityMethod(Decorator<SecureEntity> secureEntityDecorator, Method method) {
+            this.secureEntityDecorator = secureEntityDecorator;
+            this.method = method;
+        }
+
+        public Object invoke(Object object, Object... args) throws IllegalAccessException, InvocationTargetException {
+            return method.invoke(secureEntityDecorator, args);
         }
     }
 }

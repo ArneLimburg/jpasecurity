@@ -34,8 +34,10 @@ import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
 import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
-import net.sf.jpasecurity.entity.SecureEntityInterceptor;
 import net.sf.jpasecurity.entity.FetchManager;
+import net.sf.jpasecurity.entity.ObjectWrapper;
+import net.sf.jpasecurity.entity.SecureEntityDecorator;
+import net.sf.jpasecurity.entity.SecureEntityInterceptor;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpa.JpaBeanStore;
 import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
@@ -48,6 +50,9 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.persistence.compiler.EntityManagerEvaluator;
+import net.sf.jpasecurity.proxy.Decorator;
+import net.sf.jpasecurity.proxy.MethodInterceptor;
+import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.util.ReflectionUtils;
@@ -69,6 +74,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     private MappingInformation mappingInformation;
     private SecureObjectManager secureObjectManager;
     private EntityFilter entityFilter;
+    private ObjectWrapper objectWrapper;
 
     protected DefaultSecureEntityManager(EntityManager entityManager,
                                          EntityManagerFactory entityManagerFactory,
@@ -107,6 +113,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                                              simpleSubselectEvaluator,
                                              objectCacheEvaluator,
                                              entityManagerEvaluator);
+        this.objectWrapper = new JpaEntityWrapper();
     }
 
     public void persist(Object entity) {
@@ -249,16 +256,18 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
         ClassMappingInformation classMapping = mappingInformation.getClassMapping(entityName);
         Object[] transientParameters = new Object[parameters.length];
+        AbstractSecureObjectManager objectManager = (AbstractSecureObjectManager)secureObjectManager;
         for (int i = 0; i < transientParameters.length; i++) {
             if (mappingInformation.containsClassMapping(parameters[i].getClass())) {
-                SecureEntityInterceptor transientInvocationHandler
-                    = new SecureEntityInterceptor(mappingInformation,
-                                                  new JpaEntityWrapper(),
-                                                  this,
-                                                  (AbstractSecureObjectManager)secureObjectManager,
-                                                  parameters[i],
-                                                  true);
-                transientParameters[i] = transientInvocationHandler.createSecureEntity();
+                ClassMappingInformation mapping = mappingInformation.getClassMapping(parameters[i].getClass());
+                MethodInterceptor interceptor
+                    = new SecureEntityInterceptor(objectWrapper, objectManager, parameters[i]);
+                Decorator<SecureEntity> decorator
+                    = new SecureEntityDecorator(mapping, objectWrapper, this, objectManager, parameters[i], true);
+                SecureEntityProxyFactory factory
+                    = configuration.getSecureEntityProxyFactory();
+                transientParameters[i]
+                    = factory.createSecureEntityProxy(mapping.getEntityType(), interceptor, decorator);
             } else {
                 transientParameters[i] = parameters[i];
             }
