@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.el.ELContext;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -30,6 +31,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.el.ExpressionEvaluator;
+import javax.servlet.jsp.el.VariableResolver;
 
 /**
  * @author Arne Limburg
@@ -166,5 +169,20 @@ public class MockPageContext extends PageContext {
     }
 
     public void release() {
+    }
+
+    public void include(String arg0, boolean arg1) throws ServletException, IOException {
+    }
+
+    public ELContext getELContext() {
+        return null;
+    }
+
+    public ExpressionEvaluator getExpressionEvaluator() {
+        return null;
+    }
+
+    public VariableResolver getVariableResolver() {
+        return null;
     }
 }
