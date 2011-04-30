@@ -53,10 +53,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class AutodetectingSecurityContext implements SecurityContext {
 
-    private static final String SPRING_CONTEXT_HOLDER_CLASS
-        = "org.springframework.security.core.context.SecurityContextHolder";
-    private static final String ACEGI_CONTEXT_HOLDER_CLASS
-        = "org.acegisecurity.context.SecurityContextHolder";
     private static final Log LOG = LogFactory.getLog(AutodetectingSecurityContext.class);
 
     private SecurityContext securityContext;
@@ -67,25 +63,13 @@ public class AutodetectingSecurityContext implements SecurityContext {
 
     protected AuthenticationProvider autodetectAuthenticationProvider() {
         try {
-            Class.forName(SPRING_CONTEXT_HOLDER_CLASS, false, Thread.currentThread().getContextClassLoader());
-            LOG.info("autodetected presence of Spring Security, using SpringAuthenticationProvider");
-            return new SpringAuthenticationProvider();
-        } catch (ClassNotFoundException springSecurityNotFoundException) {
-            try {
-                Class.forName(ACEGI_CONTEXT_HOLDER_CLASS, false, Thread.currentThread().getContextClassLoader());
-                LOG.info("autodetected presence of Acegi Security, using AcegiAuthenticationProvider");
-                return new AcegiAuthenticationProvider();
-            } catch (ClassNotFoundException acegiSecurityNotFoundException) {
-                try {
-                    InitialContext context = new InitialContext();
-                    context.lookup("java:comp/EJBContext");
-                    LOG.info("autodetected presence of EJB, using EJBAuthenticationProvider");
-                    return new EjbAuthenticationProvider();
-                } catch (NamingException ejbSecurityNotFoundException) {
-                    LOG.info("falling back to DefaultAuthenticationPovider");
-                    return new DefaultAuthenticationProvider();
-                }
-            }
+            InitialContext context = new InitialContext();
+            context.lookup("java:comp/EJBContext");
+            LOG.info("autodetected presence of EJB, using EJBAuthenticationProvider");
+            return new EjbAuthenticationProvider();
+        } catch (NamingException ejbSecurityNotFoundException) {
+            LOG.info("falling back to DefaultAuthenticationPovider");
+            return new DefaultAuthenticationProvider();
         }
     }
 
