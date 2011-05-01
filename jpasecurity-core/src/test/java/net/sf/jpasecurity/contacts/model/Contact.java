@@ -39,27 +39,27 @@ public class Contact {
     private User owner;
     @Basic
     private String text;
-    
+
     public Contact() {
     }
-    
+
     public Contact(User user, String text) {
         setOwner(user);
         setText(text);
     }
-    
+
     public int getId() {
         return id;
     }
-    
+
     protected void setId(int id) {
         this.id = id;
     }
-    
+
     public User getOwner() {
         return owner;
     }
-    
+
     public void setOwner(User user) {
         this.owner = user;
     }
@@ -67,11 +67,11 @@ public class Contact {
     public String getText() {
         return text;
     }
-    
+
     public void setText(String text) {
         this.text = text;
     }
-    
+
     public boolean equals(Object object) {
         if (!(object instanceof Contact)) {
             return false;
@@ -79,7 +79,7 @@ public class Contact {
         Contact contact = (Contact)object;
         return getOwner().equals(contact.getOwner()) && getText().equals(contact.getText());
     }
-    
+
     public int hashCode() {
         return getOwner().hashCode() ^ getText().hashCode();
     }

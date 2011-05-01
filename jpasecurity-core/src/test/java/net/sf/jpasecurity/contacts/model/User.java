@@ -29,7 +29,7 @@ import net.sf.jpasecurity.security.PermitWhere;
  * @author Arne Limburg
  */
 @Entity
-@DeclareRoles({"admin", "user"})
+@DeclareRoles({ "admin", "user" })
 @RolesAllowed("admin")
 @PermitWhere("name = CURRENT_PRINCIPAL")
 public class User {
@@ -38,30 +38,30 @@ public class User {
     private Integer id;
     @Basic
     private String name;
-    
+
     public User() {
     }
-    
+
     public User(String name) {
         setName(name);
     }
-    
+
     protected int getId() {
         return id;
     }
-    
+
     public void setId(int id) {
         this.id = id;
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public boolean equals(Object object) {
         if (this == object) {
             return true;
@@ -72,7 +72,7 @@ public class User {
         User user = (User)object;
         return getName().equals(user.getName());
     }
-    
+
     public int hashCode() {
         return getName().hashCode();
     }
