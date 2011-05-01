@@ -140,7 +140,7 @@ public class SimpleContactsTest {
     @Test
     public void proxying() throws Exception {
         StaticAuthenticationProvider.authenticate(null, "admin");
-        assertTrue(SecureEntityTester.isSecureEntity(getAllUsers().get(0)));        
+        assertTrue(SecureEntityTester.isSecureEntity(getAllUsers().get(0)));
     }
 
     public List<User> getAllUsers() {
