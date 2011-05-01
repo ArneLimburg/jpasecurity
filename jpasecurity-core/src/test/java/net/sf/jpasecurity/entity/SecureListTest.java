@@ -15,8 +15,8 @@
  */
 package net.sf.jpasecurity.entity;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
@@ -24,16 +24,20 @@ import net.sf.jpasecurity.SecureEntity;
 /**
  * @author Arne Limburg
  */
-public class SecureSetTestCase extends AbstractSecureCollectionTestCase {
-    
+public class SecureListTest extends AbstractSecureCollectionTestCase {
+
     public SecureCollection<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
                                                            SecureEntity... secureEntities) {
-        Set<Object> original = new HashSet<Object>();
-        Set<Object> filtered = new HashSet<Object>();
+        List<Object> original = new ArrayList<Object>();
+        List<Object> filtered = new ArrayList<Object>();
         for (SecureEntity secureEntity: secureEntities) {
             original.add(objectManager.getUnsecureObject(secureEntity));
             filtered.add(secureEntity);
         }
-        return new SecureSet<Object>(original, filtered, objectManager);
+        return new SecureList<Object>(original, filtered, objectManager);
+    }
+
+    public void flush(SecureCollection<Object> secureCollection) {
+        ((SecureList<Object>)secureCollection).flush();
     }
 }

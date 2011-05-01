@@ -15,9 +15,9 @@
  */
 package net.sf.jpasecurity.entity;
 
-import java.util.Comparator;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
@@ -25,22 +25,16 @@ import net.sf.jpasecurity.SecureEntity;
 /**
  * @author Arne Limburg
  */
-public class SecureSortedSetTestCase extends AbstractSecureCollectionTestCase {
-    
+public class DefaultSecureCollectionTest extends AbstractSecureCollectionTestCase {
+
     public SecureCollection<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
                                                            SecureEntity... secureEntities) {
-        SortedSet<Object> original = new TreeSet<Object>(new HashCodeComparator());
-        SortedSet<Object> filtered = new TreeSet<Object>(new HashCodeComparator());
+        List<Object> original = new ArrayList<Object>();
+        List<Object> filtered = new ArrayList<Object>();
         for (SecureEntity secureEntity: secureEntities) {
             original.add(objectManager.getUnsecureObject(secureEntity));
             filtered.add(secureEntity);
         }
-        return new SecureSortedSet<Object>(original, filtered, objectManager);
-    }
-    
-    private class HashCodeComparator implements Comparator<Object> {
-        public int compare(Object o1, Object o2) {
-            return o1.hashCode() - o2.hashCode();
-        }
+        return new DefaultSecureCollection<Object, Collection<Object>>(original, filtered, objectManager);
     }
 }
