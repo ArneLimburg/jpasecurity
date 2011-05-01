@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.security.authentication;
+package net.sf.jpasecurity.spring.authentication;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
@@ -23,11 +23,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import net.sf.jpasecurity.configuration.AuthenticationProvider;
+import net.sf.jpasecurity.security.authentication.AbstractAuthenticationProviderTest;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
+
 
 /**
  * @author Arne Limburg
