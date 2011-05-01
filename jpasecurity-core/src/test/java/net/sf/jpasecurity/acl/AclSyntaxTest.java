@@ -15,6 +15,9 @@
  */
 package net.sf.jpasecurity.acl;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import java.util.Arrays;
 
 import javax.persistence.EntityManager;
@@ -31,7 +34,6 @@ import net.sf.jpasecurity.model.acl.Role;
 import net.sf.jpasecurity.model.acl.User;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
-import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
