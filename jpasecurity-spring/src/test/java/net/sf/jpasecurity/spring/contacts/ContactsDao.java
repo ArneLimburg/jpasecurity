@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.contacts.spring;
+package net.sf.jpasecurity.spring.contacts;
 
 import java.util.List;
 

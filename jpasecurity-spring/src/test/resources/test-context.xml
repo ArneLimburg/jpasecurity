@@ -7,7 +7,7 @@
                            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
 	
-    <bean id="contactsDao" class="net.sf.jpasecurity.contacts.spring.DefaultContactsDao"/>
+    <bean id="contactsDao" class="net.sf.jpasecurity.spring.contacts.DefaultContactsDao"/>
 
     <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
         <property name="providers">
@@ -34,10 +34,10 @@
 
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
 
-    <bean id="entityManagerFactory" class="net.sf.jpasecurity.persistence.SecureLocalEntityManagerFactoryBean">
+    <bean id="entityManagerFactory" class="net.sf.jpasecurity.spring.persistence.SecureLocalEntityManagerFactoryBean">
     	<property name="persistenceUnitName" value="spring-contacts"/>
     	<property name="authenticationProvider">
-    	    <bean class="net.sf.jpasecurity.security.authentication.SpringAuthenticationProvider"/>
+    	    <bean class="net.sf.jpasecurity.spring.authentication.SpringAuthenticationProvider"/>
     	</property>
     	<property name="accessRulesProvider">
     	    <bean class="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
@@ -49,7 +49,7 @@
     </bean>
 
     <aop:config>
-        <aop:pointcut id="daoMethods" expression="execution(* net.sf.jpasecurity.contacts.spring.DefaultContactsDao.*(..))"/>
+        <aop:pointcut id="daoMethods" expression="execution(* net.sf.jpasecurity.spring.contacts.DefaultContactsDao.*(..))"/>
         <aop:advisor advice-ref="transactionAdvice" pointcut-ref="daoMethods"/>
     </aop:config>
 

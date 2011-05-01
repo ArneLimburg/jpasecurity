@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.persistence;
+package net.sf.jpasecurity.spring.persistence;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -23,6 +23,9 @@ import net.sf.jpasecurity.configuration.AuthenticationProviderSecurityContext;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
+import net.sf.jpasecurity.persistence.JpaExceptionFactory;
+import net.sf.jpasecurity.persistence.SecureEntityManager;
+import net.sf.jpasecurity.persistence.SecurePersistenceProvider;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 
 import org.springframework.orm.jpa.LocalEntityManagerFactoryBean;
