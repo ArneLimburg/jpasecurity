@@ -15,6 +15,10 @@
  */
 package net.sf.jpasecurity.contacts.simple;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -22,37 +26,54 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.contacts.ContactsTestData;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.persistence.SecureEntityTester;
 import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
 
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 /**
  * @author Arne Limburg
  */
-public class SimpleContactsTest extends TestCase {
+public class SimpleContactsTest {
 
-    private EntityManagerFactory entityManagerFactory;
+    private static EntityManagerFactory entityManagerFactory;
     private ContactsTestData testData;
 
-    public void setUp() {
+    @BeforeClass
+    public static void createEntityManagerFactory() {
         entityManagerFactory = Persistence.createEntityManagerFactory("simple-contacts");
+    }
+
+    @AfterClass
+    public static void closeEntityManagerFactory() {
+        entityManagerFactory.close();
+        entityManagerFactory = null;
+    }
+
+    @Before
+    public void createTestData() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         StaticAuthenticationProvider.authenticate(null, "admin");
         testData = new ContactsTestData(entityManager);
         StaticAuthenticationProvider.authenticate(null);
     }
-    
-    public void tearDown() {
+
+    @After
+    public void removeTestData() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         testData.clear(entityManager);
-        entityManagerFactory.close();
         StaticAuthenticationProvider.authenticate(null);
     }
-    
-    public void testUnauthenticated() {
+
+    @Test
+    public void getUnauthenticated() {
         assertEquals(0, getAllUsers().size());
         try {
             getUser("John");
@@ -68,16 +89,18 @@ public class SimpleContactsTest extends TestCase {
         }
         assertEquals(0, getAllContacts().size());
     }
-    
-    public void testAuthenticatedAsAdmin() {
+
+    @Test
+    public void getAuthenticatedAsAdmin() {
         StaticAuthenticationProvider.authenticate(null, "admin");
         assertEquals(2, getAllUsers().size());
         assertEquals(testData.getJohn(), getUser("John"));
         assertEquals(testData.getMary(), getUser("Mary"));
         assertEquals(4, getAllContacts().size());
     }
-    
-    public void testAuthenticatedAsJohn() {
+
+    @Test
+    public void getAuthenticatedAsJohn() {
         StaticAuthenticationProvider.authenticate(testData.getJohn(), "user");
         List<User> allUsers = getAllUsers();
         assertEquals(1, allUsers.size());
@@ -94,8 +117,9 @@ public class SimpleContactsTest extends TestCase {
         assertTrue(contacts.contains(testData.getJohnsContact1()));
         assertTrue(contacts.contains(testData.getJohnsContact2()));
     }
-    
-    public void testAuthenticatedAsMary() {
+
+    @Test
+    public void getAuthenticatedAsMary() {
         StaticAuthenticationProvider.authenticate(testData.getMary(), "user");
         List<User> allUsers = getAllUsers();
         assertEquals(1, allUsers.size());
@@ -112,12 +136,13 @@ public class SimpleContactsTest extends TestCase {
         assertTrue(contacts.contains(testData.getMarysContact1()));
         assertTrue(contacts.contains(testData.getMarysContact2()));
     }
-    
-    public void htestProxying() throws Exception {
+
+    @Test
+    public void proxying() throws Exception {
         StaticAuthenticationProvider.authenticate(null, "admin");
         assertTrue(SecureEntityTester.isSecureEntity(getAllUsers().get(0)));        
     }
-    
+
     public List<User> getAllUsers() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         try {
@@ -132,7 +157,7 @@ public class SimpleContactsTest extends TestCase {
             entityManager.close();
         }
     }
-    
+
     public User getUser(String name) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         try {
@@ -149,7 +174,7 @@ public class SimpleContactsTest extends TestCase {
             entityManager.close();
         }
     }
-    
+
     public List<Contact> getAllContacts() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         try {
