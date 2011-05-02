@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 Stefan Hildebrandt
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,10 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
@@ -22,7 +26,6 @@ import java.util.Set;
 
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
@@ -37,8 +40,13 @@ import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.util.SetHashMap;
 import net.sf.jpasecurity.util.SetMap;
 
-/** @author Stefan Hildebrandt */
-public class AclValueIteratorTest extends TestCase {
+import org.junit.Before;
+import org.junit.Test;
+
+/**
+ * @author Stefan Hildebrandt
+ */
+public class AclValueIteratorTest {
 
     private static final Alias ACL = new Alias("acl");
     private static final Alias ACL_ENTRY = new Alias("entry");
@@ -49,7 +57,8 @@ public class AclValueIteratorTest extends TestCase {
     private Set<TypeDefinition> typeDefinitions;
     private SetMap<Alias, Object> possibleValues;
 
-    public void setUp() {
+    @Before
+    public void createTestData() {
         typeDefinitions = new HashSet<TypeDefinition>();
         typeDefinitions.add(new TypeDefinition(GROUP, Group.class, "user.groups", true));
         typeDefinitions.add(new TypeDefinition(ACL_ENTRY, AclEntry.class));
@@ -59,60 +68,62 @@ public class AclValueIteratorTest extends TestCase {
         possibleValues = new SetHashMap<Alias, Object>();
     }
 
-    public void testAcl() {
-        final Group group10004623 = new Group();
-        group10004623.setId(10004623);
-        group10004623.setFullHierarchy(Arrays.asList(group10004623));
-        possibleValues.add(GROUP, group10004623);
-        possibleValues.add(GROUP_FULL_HIERARCHY, group10004623);
-        final Group group10004700 = new Group();
-        group10004700.setId(10004700);
-        group10004700.setFullHierarchy(Arrays.asList(group10004700));
-        possibleValues.add(GROUP, group10004700);
-        possibleValues.add(GROUP_FULL_HIERARCHY, group10004700);
-        final Group group10004633 = new Group();
-        group10004633.setId(10004633);
-        group10004633.setFullHierarchy(Arrays.asList(group10004633));
-        possibleValues.add(GROUP, group10004633);
-        possibleValues.add(GROUP_FULL_HIERARCHY, group10004633);
-        final Group group10004631 = new Group();
-        group10004631.setId(10004631);
-        group10004631.setFullHierarchy(Arrays.asList(group10004631));
-        possibleValues.add(GROUP, group10004631);
-        possibleValues.add(GROUP_FULL_HIERARCHY, group10004631);
-        final Group group10004629 = new Group();
-        group10004629.setId(10004629);
-        group10004629.setFullHierarchy(Arrays.asList(group10004629));
-        possibleValues.add(GROUP, group10004629);
-        possibleValues.add(GROUP_FULL_HIERARCHY, group10004629);
-        final Group group10004630 = new Group();
-        group10004630.setId(10004630);
-        group10004630.setFullHierarchy(Arrays.asList(group10004630));
-        possibleValues.add(GROUP, group10004630);
-        possibleValues.add(GROUP_FULL_HIERARCHY, group10004630);
-        final Group group10004635 = new Group();
-        group10004635.setId(10004635);
-        group10004635.setFullHierarchy(Arrays.asList(group10004635));
-        possibleValues.add(GROUP, group10004635);
-        possibleValues.add(GROUP_FULL_HIERARCHY, group10004635);
-        final Group group10004632 = new Group();
-        group10004632.setId(10004632);
-        group10004632.setFullHierarchy(Arrays.asList(group10004632));
-        possibleValues.add(GROUP, group10004632);
-        possibleValues.add(GROUP_FULL_HIERARCHY, group10004632);
-        final Group group10004634 = new Group();
-        group10004634.setId(10004634);
-        group10004634.setFullHierarchy(Arrays.asList(group10004634));
-        possibleValues.add(GROUP, group10004634);
-        possibleValues.add(GROUP_FULL_HIERARCHY, group10004634);
-        final Group group10004636 = new Group();
-        group10004636.setId(10004636);
-        group10004636.setFullHierarchy(Arrays.asList(group10004636));
-        possibleValues.add(GROUP, group10004636);
-        possibleValues.add(GROUP_FULL_HIERARCHY, group10004636);
+    @Test(expected = NoSuchElementException.class)
+    public void acl() {
+        int groupId = 0;
+        final Group group1 = new Group();
+        group1.setId(++groupId);
+        group1.setFullHierarchy(Arrays.asList(group1));
+        possibleValues.add(GROUP, group1);
+        possibleValues.add(GROUP_FULL_HIERARCHY, group1);
+        final Group group2 = new Group();
+        group2.setId(++groupId);
+        group2.setFullHierarchy(Arrays.asList(group2));
+        possibleValues.add(GROUP, group2);
+        possibleValues.add(GROUP_FULL_HIERARCHY, group2);
+        final Group group3 = new Group();
+        group3.setId(++groupId);
+        group3.setFullHierarchy(Arrays.asList(group3));
+        possibleValues.add(GROUP, group3);
+        possibleValues.add(GROUP_FULL_HIERARCHY, group3);
+        final Group group4 = new Group();
+        group4.setId(++groupId);
+        group4.setFullHierarchy(Arrays.asList(group4));
+        possibleValues.add(GROUP, group4);
+        possibleValues.add(GROUP_FULL_HIERARCHY, group4);
+        final Group group5 = new Group();
+        group5.setId(++groupId);
+        group5.setFullHierarchy(Arrays.asList(group5));
+        possibleValues.add(GROUP, group5);
+        possibleValues.add(GROUP_FULL_HIERARCHY, group5);
+        final Group group6 = new Group();
+        group6.setId(++groupId);
+        group6.setFullHierarchy(Arrays.asList(group6));
+        possibleValues.add(GROUP, group6);
+        possibleValues.add(GROUP_FULL_HIERARCHY, group6);
+        final Group group7 = new Group();
+        group7.setId(++groupId);
+        group7.setFullHierarchy(Arrays.asList(group7));
+        possibleValues.add(GROUP, group7);
+        possibleValues.add(GROUP_FULL_HIERARCHY, group7);
+        final Group group8 = new Group();
+        group8.setId(++groupId);
+        group8.setFullHierarchy(Arrays.asList(group8));
+        possibleValues.add(GROUP, group8);
+        possibleValues.add(GROUP_FULL_HIERARCHY, group8);
+        final Group group9 = new Group();
+        group9.setId(++groupId);
+        group9.setFullHierarchy(Arrays.asList(group9));
+        possibleValues.add(GROUP, group9);
+        possibleValues.add(GROUP_FULL_HIERARCHY, group9);
+        final Group group10 = new Group();
+        group10.setId(++groupId);
+        group10.setFullHierarchy(Arrays.asList(group10));
+        possibleValues.add(GROUP, group10);
+        possibleValues.add(GROUP_FULL_HIERARCHY, group10);
         final AclEntry aclEntry = new AclEntry();
         aclEntry.setId(1);
-        aclEntry.setGroup(group10004636);
+        aclEntry.setGroup(group10);
         possibleValues.add(ACL_ENTRY, aclEntry);
         final Acl acl = new Acl();
         acl.setId(1);
@@ -121,19 +132,14 @@ public class AclValueIteratorTest extends TestCase {
         possibleValues.add(ACL, acl);
         User user = new User();
         user.setId(1);
-        user.setGroups(Arrays.asList(group10004636));
+        user.setGroups(Arrays.asList(group10));
         possibleValues.add(USER, user);
         PathEvaluator pathEvaluator = createPathEvaluator();
         ValueIterator valueIterator = new ValueIterator(possibleValues, typeDefinitions, pathEvaluator);
         assertTrue(valueIterator.hasNext());
         assertNotNull(valueIterator.next());
         assertFalse(valueIterator.hasNext());
-        try {
-            valueIterator.next();
-            fail();
-        } catch (NoSuchElementException e) {
-            //expected
-        }
+        valueIterator.next();
     }
 
     private MappedPathEvaluator createPathEvaluator() {
