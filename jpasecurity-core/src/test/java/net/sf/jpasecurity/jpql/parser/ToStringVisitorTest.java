@@ -46,7 +46,7 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.name name WHERE bean.id = :id");
         assertJpql("SELECT bean FROM TestBean bean INNER JOIN FETCH bean.name WHERE bean.id = :id");
         assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.parent parent WITH parent.name = 'Parent' "
-        		   + "WHERE bean.id = :id");
+                   + "WHERE bean.id = :id");
         assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id BETWEEN 5 AND 7)");
         assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id NOT BETWEEN 5 AND 7)");
         assertJpql("SELECT DISTINCT bean, bean.id FROM TestBean bean WHERE :id = bean.id");
@@ -60,14 +60,14 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean.name FROM TestBean bean WHERE ((3 + 2) * 2) >= 10.0");
         assertJpql("SELECT bean.id FROM TestBean bean WHERE ABS(bean.id) = 1 HAVING bean.id > 0");
         assertJpql("SELECT bean.id FROM TestBean bean "
-        		   + "WHERE ABS(bean.id) = 1 GROUP BY bean.id HAVING COUNT(bean.id) > 0");
+                   + "WHERE ABS(bean.id) = 1 GROUP BY bean.id HAVING COUNT(bean.id) > 0");
         assertJpql("SELECT bean.id, bean.name, COUNT(bean.collectionProperty.id) "
                    + "FROM TestBean bean GROUP BY bean.id, bean.name");
         assertJpql("SELECT bean FROM TestBean bean "
-        		   + "WHERE TRIM(LEADING ' ' FROM bean.name) = TRIM(TRAILING FROM bean.name)");
+                   + "WHERE TRIM(LEADING ' ' FROM bean.name) = TRIM(TRAILING FROM bean.name)");
         assertJpql("SELECT bean FROM TestBean bean WHERE TRIM(bean.name) = TRIM(BOTH FROM bean.name)");
         assertJpql("SELECT bean FROM TestBean bean "
-        		   + "WHERE bean.name = ALL( SELECT bean.collectionProperty.name FROM TestBean bean)");
+                   + "WHERE bean.name = ALL( SELECT bean.collectionProperty.name FROM TestBean bean)");
         assertJpql("SELECT bean FROM TestBean bean "
                    + "WHERE bean.name = ANY( SELECT bean.collectionProperty.name FROM TestBean bean)");
         assertJpql("SELECT NEW net.sf.jpasecurity.TestBean(bean.id, bean.name) FROM TestBean bean");
