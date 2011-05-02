@@ -15,9 +15,10 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
+import static org.junit.Assert.assertEquals;
+
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
@@ -28,16 +29,20 @@ import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
 import net.sf.jpasecurity.persistence.JpaExceptionFactory;
 import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
 
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * @author Arne Limburg
  */
-public class JpqlCompilerTest extends TestCase {
+public class JpqlCompilerTest {
 
     private MappingInformation mappingInformation;
     private JpqlParser parser;
     private JpqlCompiler compiler;
-    
-    public void setUp() {
+
+    @Before
+    public void initialize() {
         PersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
         mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(persistenceUnitInfo);
@@ -45,14 +50,16 @@ public class JpqlCompilerTest extends TestCase {
         compiler = new JpqlCompiler(mappingInformation, new DefaultExceptionFactory());
     }
 
-    public void testSelectedPathsForCount() throws ParseException {
+    @Test
+    public void selectedPathsForCount() throws ParseException {
         String statement = "SELECT COUNT(tb) FROM FieldAccessAnnotationTestBean tb";
         JpqlCompiledStatement compiledStatement = compiler.compile(parser.parseQuery(statement));
         assertEquals(1, compiledStatement.getSelectedPaths().size());
         assertEquals("tb", compiledStatement.getSelectedPaths().get(0));
     }
 
-    public void testSelectedPathsForDistinct() throws ParseException {
+    @Test
+    public void selectedPathsForDistinct() throws ParseException {
         String statement
             = "SELECT DISTINCT tb1, tb2 FROM FieldAccessAnnotationTestBean tb1, FieldAccessAnnotationTestBean tb2";
         JpqlCompiledStatement compiledStatement = compiler.compile(parser.parseQuery(statement));
@@ -61,7 +68,8 @@ public class JpqlCompilerTest extends TestCase {
         assertEquals("tb2", compiledStatement.getSelectedPaths().get(1));
     }
 
-    public void testSelectedPathsForExists() throws ParseException {
+    @Test
+    public void selectedPathsForExists() throws ParseException {
         String statement = "SELECT tb FROM FieldAccessAnnotationTestBean tb "
                          + "WHERE EXISTS(SELECT tb2 FROM FieldAccessAnnotationTestBean tb2)";
         JpqlCompiledStatement compiledStatement = compiler.compile(parser.parseQuery(statement));
