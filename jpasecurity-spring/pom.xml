@@ -37,12 +37,12 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <optional>provided</optional>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-orm</artifactId>
-      <optional>provided</optional>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
