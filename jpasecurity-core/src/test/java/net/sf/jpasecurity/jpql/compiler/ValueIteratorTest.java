@@ -21,6 +21,10 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +35,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
@@ -40,12 +43,14 @@ import net.sf.jpasecurity.util.SetHashMap;
 import net.sf.jpasecurity.util.SetMap;
 
 import org.easymock.IAnswer;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
  * @author Arne Limburg
  */
-public class ValueIteratorTest extends TestCase {
+public class ValueIteratorTest {
 
     private static final Alias BEAN1 = new Alias("bean1");
     private static final Alias BEAN2 = new Alias("bean2");
@@ -59,8 +64,9 @@ public class ValueIteratorTest extends TestCase {
     private final PathEvaluatorFactory pathEvaluatorFactory = new PathEvaluatorFactory();
     private Set<TypeDefinition> typeDefinitions;
     private SetMap<Alias, Object> possibleValues;
-    
-    public void setUp() {        
+
+    @Before
+    public void initializeTypeDefinitions() {
         typeDefinitions = new HashSet<TypeDefinition>();
         typeDefinitions.add(new TypeDefinition(BEAN1, FieldAccessAnnotationTestBean.class));
         typeDefinitions.add(new TypeDefinition(PARENT1, FieldAccessAnnotationTestBean.class, "bean1.parent", true));
@@ -70,14 +76,16 @@ public class ValueIteratorTest extends TestCase {
         typeDefinitions.add(new TypeDefinition(CHILD2, FieldAccessAnnotationTestBean.class, "bean2.children", true));
         possibleValues = new SetHashMap<Alias, Object>();
     }
-    
-    public void testEmptyPossibleValues() {
+
+    @Test
+    public void emptyPossibleValues() {
         PathEvaluator pathEvaluator = pathEvaluatorFactory.withNoBeans().create();
         ValueIterator valueIterator = new ValueIterator(possibleValues, typeDefinitions, pathEvaluator);
         assertNoSuchElementException(valueIterator);
     }
 
-    public void testEmptyPossibleValuesEntry() {
+    @Test
+    public void emptyPossibleValuesEntry() {
         PathEvaluator pathEvaluator = pathEvaluatorFactory.withNoBeans().create();
         possibleValues.getNotNull(BEAN1); //creates empty entry
         assertTrue(possibleValues.containsKey(BEAN1));
@@ -85,7 +93,8 @@ public class ValueIteratorTest extends TestCase {
         assertNoSuchElementException(valueIterator);
     }
 
-    public void testEmptyBean1() {
+    @Test
+    public void emptyBean1() {
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChildren().create();
         PathEvaluator pathEvaluator = pathEvaluatorFactory.withBean(bean2).create();
         possibleValues.getNotNull(BEAN1);
@@ -94,8 +103,9 @@ public class ValueIteratorTest extends TestCase {
         // still no such element, since no value for bean1
         assertNoSuchElementException(valueIterator);
     }
-        
-    public void testInnerJoinOnParent() {
+
+    @Test
+    public void innerJoinOnParent() {
         FieldAccessAnnotationTestBean bean1 = beanFactory.withName("bean1").withoutParent().withChildren().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChildren().create();
         PathEvaluator pathEvaluator = pathEvaluatorFactory.withBeans(bean1, bean2).create();
@@ -105,8 +115,9 @@ public class ValueIteratorTest extends TestCase {
         // still no such element, since bean1 will be removed by inner join to parent
         assertNoSuchElementException(valueIterator);
     }
-        
-    public void testInnerJoinOnChildren() {
+
+    @Test
+    public void innerJoinOnChildren() {
         FieldAccessAnnotationTestBean bean1 = beanFactory.withName("bean1").withParent().withChildren().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withoutChildren().create();
         PathEvaluator pathEvaluator = pathEvaluatorFactory.withBeans(bean1, bean2).create();
@@ -116,11 +127,12 @@ public class ValueIteratorTest extends TestCase {
         // still no such element, since bean2 will be removed by inner join to children
         assertNoSuchElementException(valueIterator);
     }
-    
+
     /**
      * First call to next() initializes the iterator
      */
-    public void testInitialize() {
+    @Test
+    public void initialize() {
         FieldAccessAnnotationTestBean bean1 = beanFactory.withName("bean1").withParent().withChild().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChild().create();
         PathEvaluator pathEvaluator = pathEvaluatorFactory.withBeans(bean1, bean2).create();
@@ -137,7 +149,8 @@ public class ValueIteratorTest extends TestCase {
         assertNoSuchElementException(valueIterator);
     }
 
-    public void testInitializeWithOuterJoinOnChildren() {
+    @Test
+    public void initializeWithOuterJoinOnChildren() {
         FieldAccessAnnotationTestBean bean1 = beanFactory.withName("bean1").withParent().withoutChildren().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChild().create();
         PathEvaluator pathEvaluator = pathEvaluatorFactory.withBeans(bean1, bean2).create();
@@ -154,7 +167,8 @@ public class ValueIteratorTest extends TestCase {
         assertNoSuchElementException(valueIterator);
     }
 
-    public void testInitializeWithOuterJoinOnParent() {
+    @Test
+    public void initializeWithOuterJoinOnParent() {
         FieldAccessAnnotationTestBean bean1 = beanFactory.withName("bean1").withParent().withChild().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withoutParent().withChild().create();
         PathEvaluator pathEvaluator = pathEvaluatorFactory.withBeans(bean1, bean2).create();
@@ -171,7 +185,8 @@ public class ValueIteratorTest extends TestCase {
         assertNoSuchElementException(valueIterator);
     }
 
-    public void testInitializeWithOuterJoinOnParentAndChildren() {
+    @Test
+    public void initializeWithOuterJoinOnParentAndChildren() {
         FieldAccessAnnotationTestBean bean1 = beanFactory.withName("bean1").withParent().withoutChildren().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withoutParent().withChild().create();
         PathEvaluator pathEvaluator = pathEvaluatorFactory.withBeans(bean1, bean2).create();
@@ -188,7 +203,8 @@ public class ValueIteratorTest extends TestCase {
         assertNoSuchElementException(valueIterator);
     }
 
-    public void testNext() {
+    @Test
+    public void next() {
         FieldAccessAnnotationTestBean bean1 = beanFactory.withName("bean1").withParent().withChildren().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChild().create();
         FieldAccessAnnotationTestBean bean1Child1 = bean1.getChildBeans().get(0);
@@ -214,7 +230,8 @@ public class ValueIteratorTest extends TestCase {
         assertNoSuchElementException(valueIterator);
     }
 
-    public void testNextWithInnerJoin() {
+    @Test
+    public void nextWithInnerJoin() {
         FieldAccessAnnotationTestBean bean1a = beanFactory.withName("bean1a").withParent().withChild().create();
         FieldAccessAnnotationTestBean bean1b = beanFactory.withName("bean1b").withoutParent().withChild().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChild().create();
@@ -232,8 +249,9 @@ public class ValueIteratorTest extends TestCase {
                    valueIterator);
         assertNoSuchElementException(valueIterator);
     }
-    
-    public void testNextWithOuterJoinOnChildren() {
+
+    @Test
+    public void nextWithOuterJoinOnChildren() {
         FieldAccessAnnotationTestBean bean1 = beanFactory.withName("bean1").withParent().withoutChildren().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChildren().create();
         FieldAccessAnnotationTestBean bean2Child1 = bean2.getChildBeans().get(0);
@@ -258,8 +276,9 @@ public class ValueIteratorTest extends TestCase {
                     valueIterator);
         assertNoSuchElementException(valueIterator);
     }
-    
-    public void testNextWithOuterJoinOnParent() {
+
+    @Test
+    public void nextWithOuterJoinOnParent() {
         FieldAccessAnnotationTestBean bean1 = beanFactory.withName("bean1").withParent().withChildren().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withoutParent().withChild().create();
         FieldAccessAnnotationTestBean bean1Child1 = bean1.getChildBeans().get(0);
@@ -285,7 +304,8 @@ public class ValueIteratorTest extends TestCase {
         assertNoSuchElementException(valueIterator);
     }
 
-    public void testNextWithOuterJoinOnParentAndChildren() {
+    @Test
+    public void nextWithOuterJoinOnParentAndChildren() {
         FieldAccessAnnotationTestBean bean1 = beanFactory.withName("bean1").withParent().withoutChildren().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withoutParent().withChildren().create();
         FieldAccessAnnotationTestBean bean2Child1 = bean2.getChildBeans().get(0);
@@ -310,8 +330,9 @@ public class ValueIteratorTest extends TestCase {
                     valueIterator);
         assertNoSuchElementException(valueIterator);
     }
-    
-    public void testNextWithTwoPossibleValues() {
+
+    @Test
+    public void nextWithTwoPossibleValues() {
         FieldAccessAnnotationTestBean bean1a = beanFactory.withName("bean1a").withParent().withChild().create();
         FieldAccessAnnotationTestBean bean1b = beanFactory.withName("bean1b").withParent().withChild().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChild().create();
@@ -337,7 +358,8 @@ public class ValueIteratorTest extends TestCase {
         assertNoSuchElementException(valueIterator);
     }
 
-    public void testNextWithTwoPossibleValuesAndChildren() {
+    @Test
+    public void nextWithTwoPossibleValuesAndChildren() {
         FieldAccessAnnotationTestBean bean1a = beanFactory.withName("bean1a").withParent().withChild().create();
         FieldAccessAnnotationTestBean bean1b = beanFactory.withName("bean1b").withParent().withChild().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChildren().create();
@@ -379,7 +401,8 @@ public class ValueIteratorTest extends TestCase {
         assertNoSuchElementException(valueIterator);
     }
 
-    public void testNextWithChildrenAndTwoPossibleValues() {
+    @Test
+    public void nextWithChildrenAndTwoPossibleValues() {
         FieldAccessAnnotationTestBean bean1a = beanFactory.withName("bean1a").withParent().withChildren().create();
         FieldAccessAnnotationTestBean bean1b = beanFactory.withName("bean1b").withParent().withChild().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChild().create();
@@ -414,7 +437,8 @@ public class ValueIteratorTest extends TestCase {
         assertNoSuchElementException(valueIterator);
     }
 
-    public void testNextWithFourPossibleValues() {
+    @Test
+    public void nextWithFourPossibleValues() {
         FieldAccessAnnotationTestBean bean1a = beanFactory.withName("bean1a").withParent().withChild().create();
         FieldAccessAnnotationTestBean bean1b = beanFactory.withName("bean1b").withParent().withChild().create();
         FieldAccessAnnotationTestBean bean2a = beanFactory.withName("bean2a").withParent().withChild().create();
@@ -456,14 +480,20 @@ public class ValueIteratorTest extends TestCase {
         assertNoSuchElementException(valueIterator);
     }
 
-    public void testNextWithDoubleJoin() {
-        typeDefinitions.add(new TypeDefinition(GRANDCHILD2, FieldAccessAnnotationTestBean.class, "child2.children", false));
+    @Test
+    public void nextWithDoubleJoin() {
+        typeDefinitions.add(new TypeDefinition(GRANDCHILD2,
+                                               FieldAccessAnnotationTestBean.class,
+                                               "child2.children",
+                                               false));
         FieldAccessAnnotationTestBean bean1 = beanFactory.withName("bean1").withParent().withChild().create();
         FieldAccessAnnotationTestBean bean2 = beanFactory.withName("bean2").withParent().withChildren().create();
         FieldAccessAnnotationTestBean child2a = bean2.getChildBeans().get(0);
         FieldAccessAnnotationTestBean child2b = bean2.getChildBeans().get(1);
-        FieldAccessAnnotationTestBean grandchild2a = beanFactory.withName("grandchild2a").withoutParent().withoutChildren().create();
-        FieldAccessAnnotationTestBean grandchild2b = beanFactory.withName("grandchild2b").withoutParent().withoutChildren().create();
+        FieldAccessAnnotationTestBean grandchild2a
+            = beanFactory.withName("grandchild2a").withoutParent().withoutChildren().create();
+        FieldAccessAnnotationTestBean grandchild2b
+            = beanFactory.withName("grandchild2b").withoutParent().withoutChildren().create();
         child2b.getChildBeans().add(grandchild2a);
         child2b.getChildBeans().add(grandchild2b);
         grandchild2a.setParentBean(child2b);
@@ -506,7 +536,7 @@ public class ValueIteratorTest extends TestCase {
             assertEquals(entry.getValue(), result.get(entry.getKey()));
         }
     }
-    
+
     private void assertNoSuchElementException(Iterator<?> i) {
         assertFalse(i.hasNext());
         try {
@@ -518,60 +548,62 @@ public class ValueIteratorTest extends TestCase {
     }
 
     private class PathEvaluatorFactory {
-        
+
         private FieldAccessAnnotationTestBean[] beans;
-        
+
         public PathEvaluatorFactory withBeans(FieldAccessAnnotationTestBean... beans) {
             this.beans = beans;
             return this;
         }
-        
+
         public PathEvaluatorFactory withNoBeans() {
             return withBeans();
         }
-        
+
         public PathEvaluatorFactory withBean(FieldAccessAnnotationTestBean bean) {
             return withBeans(bean);
         }
-        
+
         public PathEvaluator create() {
             PathEvaluator pathEvaluator = createMock(PathEvaluator.class);
             for (FieldAccessAnnotationTestBean bean: beans) {
-                expect(pathEvaluator.evaluateAll(eq(Collections.singleton(bean)), eq("parent"))).andAnswer(new ParentAnswer(bean)).anyTimes();
-                expect(pathEvaluator.evaluateAll(eq(Collections.singleton(bean)), eq("children"))).andAnswer(new ChildrenAnswer(bean)).anyTimes();
+                expect(pathEvaluator.evaluateAll(eq(Collections.singleton(bean)), eq("parent")))
+                    .andAnswer(new ParentAnswer(bean)).anyTimes();
+                expect(pathEvaluator.evaluateAll(eq(Collections.singleton(bean)), eq("children")))
+                    .andAnswer(new ChildrenAnswer(bean)).anyTimes();
             }
             replay(pathEvaluator);
             return pathEvaluator;
         }
     }
-    
+
     private class ParentAnswer implements IAnswer<List<Object>> {
 
         private FieldAccessAnnotationTestBean bean;
-        
+
         public ParentAnswer(FieldAccessAnnotationTestBean bean) {
             this.bean = bean;
         }
-        
+
         public List<Object> answer() throws Throwable {
-            return bean.getParentBean() == null?
-                   Collections.emptyList():
-                   Collections.<Object>singletonList(bean.getParentBean());
+            return bean.getParentBean() == null
+                   ? Collections.emptyList()
+                   : Collections.<Object>singletonList(bean.getParentBean());
         }
     }
 
     private class ChildrenAnswer implements IAnswer<List<Object>> {
 
         private FieldAccessAnnotationTestBean bean;
-        
+
         public ChildrenAnswer(FieldAccessAnnotationTestBean bean) {
             this.bean = bean;
         }
-        
+
         public List<Object> answer() throws Throwable {
-            return bean.getChildBeans() == null || bean.getChildBeans().isEmpty()?
-                   Collections.emptyList():
-                   new ArrayList<Object>(bean.getChildBeans());
+            return bean.getChildBeans() == null || bean.getChildBeans().isEmpty()
+                   ? Collections.emptyList()
+                   : new ArrayList<Object>(bean.getChildBeans());
         }
     }
 }
