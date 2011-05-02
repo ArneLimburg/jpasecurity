@@ -645,10 +645,11 @@ public class QueryEvaluatorTest {
         return compiler.compile(statement);
     }
 
-    protected boolean evaluate(String query, QueryEvaluationParameters parameters) throws NotEvaluatableException, ParseException {
+    protected boolean evaluate(String query, QueryEvaluationParameters parameters) throws NotEvaluatableException,
+                                                                                          ParseException {
         return evaluate(compile(query).getWhereClause(), parameters);
     }
-    
+
     protected boolean evaluate(JpqlWhere whereClause, QueryEvaluationParameters parameters)
             throws NotEvaluatableException {
         return queryEvaluator.<Boolean>evaluate(whereClause, parameters);
