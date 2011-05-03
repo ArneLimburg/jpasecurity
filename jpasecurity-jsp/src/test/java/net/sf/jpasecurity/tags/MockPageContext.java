@@ -40,14 +40,14 @@ import javax.servlet.jsp.el.VariableResolver;
 public class MockPageContext extends PageContext {
 
     private Map<Integer, Map<String, Object>> attributes = new HashMap<Integer, Map<String, Object>>();
-    
+
     public MockPageContext() {
         attributes.put(PageContext.PAGE_SCOPE, new HashMap<String, Object>());
         attributes.put(PageContext.REQUEST_SCOPE, new HashMap<String, Object>());
         attributes.put(PageContext.SESSION_SCOPE, new HashMap<String, Object>());
         attributes.put(PageContext.APPLICATION_SCOPE, new HashMap<String, Object>());
     }
-    
+
     public Object getAttribute(String name, int scope) {
         return attributes.get(scope).get(name);
     }
@@ -71,7 +71,7 @@ public class MockPageContext extends PageContext {
     public Object getAttribute(String name) {
         return getAttribute(name, PageContext.PAGE_SCOPE);
     }
-    
+
     public Object findAttribute(String name) {
         Object attribute;
         attribute = getAttribute(name, PageContext.PAGE_SCOPE);
@@ -93,7 +93,7 @@ public class MockPageContext extends PageContext {
         return new Enumeration<String>() {
 
             private Iterator<String> iterator = attributes.get(scope).keySet().iterator();
-            
+
             public boolean hasMoreElements() {
                 return iterator.hasNext();
             }
@@ -103,7 +103,7 @@ public class MockPageContext extends PageContext {
             }
         };
     }
-    
+
     public int getAttributesScope(String name) {
         for (Map.Entry<Integer, Map<String, Object>> scope: attributes.entrySet()) {
             if (scope.getValue().containsKey(name)) {
@@ -112,7 +112,7 @@ public class MockPageContext extends PageContext {
         }
         return 0;
     }
-    
+
     public void forward(String relativeUrlPath) throws ServletException, IOException {
     }
 
@@ -163,9 +163,7 @@ public class MockPageContext extends PageContext {
                            String errorPageURL,
                            boolean needsSession,
                            int bufferSize,
-                           boolean autoFlush)
-        throws IOException, IllegalStateException, IllegalArgumentException {
-
+                           boolean autoFlush) throws IOException {
     }
 
     public void release() {

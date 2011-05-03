@@ -37,18 +37,18 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
     private Object entity = new Object();
     private AbstractEntityTag entityTag;
     private AccessManager accessManager;
-    
+
     public void setUp() {
         entityTag = createEntityTag();
         entityTag.setPageContext(pageContext);
         entityTag.setEntity("testEntity");
         accessManager = createMock(AccessManager.class);
     }
-    
+
     public void tearDown() {
         entityTag.release();
     }
-    
+
     public void testAccessiblePageScope() {
         initializeEntity(PageContext.PAGE_SCOPE);
         initializeAccessManager(PageContext.PAGE_SCOPE, true);
@@ -62,7 +62,7 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
         assertEquals(Tag.SKIP_BODY, entityTag.doStartTag());
         verify(accessManager);
     }
-    
+
     public void testAccessibleRequestScope() {
         initializeEntity(PageContext.REQUEST_SCOPE);
         initializeAccessManager(PageContext.REQUEST_SCOPE, true);
@@ -76,7 +76,7 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
         assertEquals(Tag.SKIP_BODY, entityTag.doStartTag());
         verify(accessManager);
     }
-    
+
     public void testAccessibleSessionScope() {
         initializeEntity(PageContext.SESSION_SCOPE);
         initializeAccessManager(PageContext.SESSION_SCOPE, true);
@@ -90,7 +90,7 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
         assertEquals(Tag.SKIP_BODY, entityTag.doStartTag());
         verify(accessManager);
     }
-    
+
     public void testAccessibleApplicationScope() {
         initializeEntity(PageContext.APPLICATION_SCOPE);
         initializeAccessManager(PageContext.APPLICATION_SCOPE, true);
@@ -104,7 +104,7 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
         assertEquals(Tag.SKIP_BODY, entityTag.doStartTag());
         verify(accessManager);
     }
-    
+
     public void testAccessibleSecureEntity() {
         SecureEntity secureEntity = createMock(SecureEntity.class);
         expect(secureEntity.isAccessible(getAccessType())).andReturn(true);
@@ -113,7 +113,7 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
         assertEquals(Tag.EVAL_BODY_INCLUDE, entityTag.doStartTag());
         verify(secureEntity);
     }
-    
+
     public void testNotAccessibleSecureEntity() {
         SecureEntity secureEntity = createMock(SecureEntity.class);
         expect(secureEntity.isAccessible(getAccessType())).andReturn(false);
@@ -122,7 +122,7 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
         assertEquals(Tag.SKIP_BODY, entityTag.doStartTag());
         verify(secureEntity);
     }
-    
+
     public void testNoEntity() {
         initializeAccessManager(PageContext.PAGE_SCOPE, true);
         try {
@@ -132,7 +132,7 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
             // expected, since no entity is present
         }
     }
-    
+
     public void testNoAccessManager() {
         initializeEntity(PageContext.PAGE_SCOPE);
         try {
@@ -142,7 +142,7 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
             // expected, since no access manager is present
         }
     }
-    
+
     public void initializeEntity(int scope) {
         initializeEntity(entity, scope);
     }
@@ -150,11 +150,11 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
     public void initializeEntity(Object entity, int scope) {
         pageContext.setAttribute(entityTag.getEntity(), entity, scope);
     }
-    
+
     public void initializeAccessManager(int scope, boolean accessible) {
         initializeAccessManager(accessManager, scope, accessible);
     }
-    
+
     public void initializeAccessManager(AccessManager accessManager, int scope, boolean accessible) {
         if (accessManager != null) {
             pageContext.setAttribute("accessManager", accessManager, scope);
@@ -162,8 +162,8 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
         }
         replay(accessManager);
     }
-    
+
     public abstract AbstractEntityTag createEntityTag();
-    
+
     public abstract AccessType getAccessType();
 }

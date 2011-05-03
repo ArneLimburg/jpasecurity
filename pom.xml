@@ -164,7 +164,7 @@
             <configuration>
               <failsOnError>true</failsOnError>
               <consoleOutput>true</consoleOutput>
-              <includeTestSourceDirectory>false</includeTestSourceDirectory> <!--TODO switch was disabled until now-->
+              <includeTestSourceDirectory>true</includeTestSourceDirectory>
             </configuration>
           </execution>
         </executions>

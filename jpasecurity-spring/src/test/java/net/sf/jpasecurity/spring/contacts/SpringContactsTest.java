@@ -38,29 +38,31 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Arne Limburg
  */
 public class SpringContactsTest extends TestCase {
-    
+
     private ConfigurableApplicationContext applicationContext;
     private ContactsDao contactsDao;
     private AuthenticationManager authenticationManager;
     private ContactsTestData testData;
-    
+
     public void setUp() {
         applicationContext = new ClassPathXmlApplicationContext("test-context.xml");
         contactsDao = (ContactsDao)applicationContext.getBean("contactsDao");
         authenticationManager = (AuthenticationManager)applicationContext.getBean("authenticationManager");
-        EntityManager entityManager = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory")).createEntityManager();
+        EntityManager entityManager
+            = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory")).createEntityManager();
         authenticate("admin");
         testData = new ContactsTestData(entityManager);
         SecurityContextHolder.getContext().setAuthentication(null);
     }
-    
+
     public void tearDown() {
-        EntityManager entityManager = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory")).createEntityManager();
+        EntityManager entityManager
+            = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory")).createEntityManager();
         testData.clear(entityManager);
         SecurityContextHolder.getContext().setAuthentication(null);
         applicationContext.close();
     }
-    
+
     public void testUnauthenticated() {
         assertEquals(0, contactsDao.getAllUsers().size());
         try {
@@ -77,7 +79,7 @@ public class SpringContactsTest extends TestCase {
         }
         assertEquals(0, contactsDao.getAllContacts().size());
     }
-    
+
     public void testAuthenticatedAsAdmin() {
         authenticate("admin");
         assertEquals(2, contactsDao.getAllUsers().size());
@@ -85,7 +87,7 @@ public class SpringContactsTest extends TestCase {
         assertEquals(testData.getMary(), contactsDao.getUser("Mary"));
         assertEquals(4, contactsDao.getAllContacts().size());
     }
-    
+
     public void testAuthenticatedAsJohn() {
         authenticate("John");
         List<User> allUsers = contactsDao.getAllUsers();
@@ -103,7 +105,7 @@ public class SpringContactsTest extends TestCase {
         assertTrue(contacts.contains(testData.getJohnsContact1()));
         assertTrue(contacts.contains(testData.getJohnsContact2()));
     }
-    
+
     public void testAuthenticatedAsMary() {
         authenticate("Mary");
         List<User> allUsers = contactsDao.getAllUsers();
@@ -121,12 +123,12 @@ public class SpringContactsTest extends TestCase {
         assertTrue(contacts.contains(testData.getMarysContact1()));
         assertTrue(contacts.contains(testData.getMarysContact2()));
     }
-    
+
     public void testProxying() throws Exception {
         authenticate("admin");
-        assertTrue(SecureEntityTester.isSecureEntity(contactsDao.getAllUsers().get(0)));        
+        assertTrue(SecureEntityTester.isSecureEntity(contactsDao.getAllUsers().get(0)));
     }
-    
+
     private void authenticate(String userName) {
         Authentication authentication
             = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userName, ""));

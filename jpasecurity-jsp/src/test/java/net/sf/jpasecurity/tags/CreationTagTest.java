@@ -30,22 +30,24 @@ import junit.framework.TestCase;
  */
 public class CreationTagTest extends TestCase {
 
+    private static final float FLOAT_VALUE = 2.3f;
+
     private PageContext pageContext = new MockPageContext();
     private CreationTag creationTag = new CreationTag();
     private Object param1 = new Object();
     private AccessManager accessManager;
-    
+
     public void setUp() {
         creationTag.setPageContext(pageContext);
         creationTag.setType("net.sf.jpasecurity.model.TestEntity");
         creationTag.setParameters("param1, param2, 1, 2.3");
         accessManager = createMock(AccessManager.class);
     }
-    
+
     public void tearDown() {
         creationTag.release();
     }
-    
+
     public void testAccessiblePageScope() {
         initializeAccessManager(PageContext.PAGE_SCOPE, true);
         assertEquals(Tag.EVAL_BODY_INCLUDE, creationTag.doStartTag());
@@ -57,7 +59,7 @@ public class CreationTagTest extends TestCase {
         assertEquals(Tag.SKIP_BODY, creationTag.doStartTag());
         verify(accessManager);
     }
-    
+
     public void testAccessibleRequestScope() {
         initializeAccessManager(PageContext.REQUEST_SCOPE, true);
         assertEquals(Tag.EVAL_BODY_INCLUDE, creationTag.doStartTag());
@@ -69,7 +71,7 @@ public class CreationTagTest extends TestCase {
         assertEquals(Tag.SKIP_BODY, creationTag.doStartTag());
         verify(accessManager);
     }
-    
+
     public void testAccessibleSessionScope() {
         initializeAccessManager(PageContext.SESSION_SCOPE, true);
         assertEquals(Tag.EVAL_BODY_INCLUDE, creationTag.doStartTag());
@@ -81,7 +83,7 @@ public class CreationTagTest extends TestCase {
         assertEquals(Tag.SKIP_BODY, creationTag.doStartTag());
         verify(accessManager);
     }
-    
+
     public void testAccessibleApplicationScope() {
         initializeAccessManager(PageContext.APPLICATION_SCOPE, true);
         assertEquals(Tag.EVAL_BODY_INCLUDE, creationTag.doStartTag());
@@ -93,11 +95,11 @@ public class CreationTagTest extends TestCase {
         assertEquals(Tag.SKIP_BODY, creationTag.doStartTag());
         verify(accessManager);
     }
-    
-   public void initializeAccessManager(int scope, boolean accessible) {
+
+    public void initializeAccessManager(int scope, boolean accessible) {
         pageContext.setAttribute("param1", param1, scope);
         pageContext.setAttribute("accessManager", accessManager, scope);
-        expect(accessManager.isAccessible(AccessType.CREATE, creationTag.getType(), param1, "param2", 1, 2.3f))
+        expect(accessManager.isAccessible(AccessType.CREATE, creationTag.getType(), param1, "param2", 1, FLOAT_VALUE))
             .andReturn(accessible);
         replay(accessManager);
     }

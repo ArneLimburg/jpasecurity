@@ -34,13 +34,13 @@ public class DefaultContactsDao implements ContactsDao {
     public List<User> getAllUsers() {
         return entityManager.createQuery("SELECT user FROM User user").getResultList();
     }
-    
+
     public User getUser(String name) {
         return (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = :name")
                                   .setParameter("name", name)
                                   .getSingleResult();
     }
-    
+
     public List<Contact> getAllContacts() {
         return entityManager.createQuery("SELECT contact FROM Contact contact").getResultList();
     }

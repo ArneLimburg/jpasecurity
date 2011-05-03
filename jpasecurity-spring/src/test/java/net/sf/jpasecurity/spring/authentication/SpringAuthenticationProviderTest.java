@@ -39,7 +39,7 @@ public class SpringAuthenticationProviderTest extends AbstractAuthenticationProv
     public AuthenticationProvider createAuthenticationProvider() {
         return new SpringAuthenticationProvider();
     }
-    
+
     public void authenticate(Object principal, String... roles) {
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>(roles.length);
         for (int i = 0; i < roles.length; i++) {
