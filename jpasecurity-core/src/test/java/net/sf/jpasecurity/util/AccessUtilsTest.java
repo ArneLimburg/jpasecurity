@@ -19,7 +19,8 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 
@@ -28,7 +29,7 @@ import org.junit.Test;
 /**
  * @author Arne Limburg
  */
-public class AccessUtilsTest extends TestCase {
+public class AccessUtilsTest {
 
     private Object entity = new Object();
 
