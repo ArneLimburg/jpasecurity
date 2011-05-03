@@ -20,6 +20,8 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.getCurrentArguments;
 import static org.easymock.EasyMock.replay;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,10 +31,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 
 import org.easymock.IAnswer;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.Parser;
 import org.xml.sax.SAXException;
@@ -46,28 +50,32 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author Arne Limburg
  */
 @SuppressWarnings("deprecation")
-public class AbstractXmlParserTest extends TestCase {
-    
+public class AbstractXmlParserTest {
+
     public static final String SAX_PARSER_FACTORY_PROPERTY_NAME = "javax.xml.parsers.SAXParserFactory";
 
     private String oldSaxParserFactoryName;
-    
-    public void setUp() {
+
+    @Before
+    public void setSaxParserFactoryProperty() {
         oldSaxParserFactoryName = System.getProperty(SAX_PARSER_FACTORY_PROPERTY_NAME);
         System.setProperty(SAX_PARSER_FACTORY_PROPERTY_NAME, TestSaxParserFactory.class.getName());
     }
-    
-    public void tearDown() {
+
+    @After
+    public void restoreSaxParserFactoryProperty() {
         if (oldSaxParserFactoryName == null) {
             System.clearProperty(SAX_PARSER_FACTORY_PROPERTY_NAME);
         } else {
             System.setProperty(SAX_PARSER_FACTORY_PROPERTY_NAME, oldSaxParserFactoryName);
         }
     }
-    
-    public void testParserConfigurationException() {
-        AbstractXmlParser<DefaultHandler> parser = new AbstractXmlParser<DefaultHandler>(null, new DefaultExceptionFactory()) {
-        };
+
+    @Test
+    public void parserConfigurationException() {
+        AbstractXmlParser<DefaultHandler> parser
+            = new AbstractXmlParser<DefaultHandler>(null, new DefaultExceptionFactory()) {
+            };
         try {
             TestSaxParserFactory.throwParserConfigurationException();
             parser.parse(new ByteArrayInputStream(new byte[1]));
@@ -78,10 +86,12 @@ public class AbstractXmlParserTest extends TestCase {
             TestSaxParserFactory.clear();
         }
     }
-    
-    public void testSaxException() {
-        AbstractXmlParser<DefaultHandler> parser = new AbstractXmlParser<DefaultHandler>(null, new DefaultExceptionFactory()) {
-        };
+
+    @Test
+    public void saxException() {
+        AbstractXmlParser<DefaultHandler> parser
+            = new AbstractXmlParser<DefaultHandler>(null, new DefaultExceptionFactory()) {
+            };
         try {
             parser.parse(new ByteArrayInputStream(new byte[1]));
             fail("expected IllegalStateException");
@@ -89,10 +99,12 @@ public class AbstractXmlParserTest extends TestCase {
             assertEquals(SAXException.class, e.getCause().getClass());
         }
     }
-    
-    public void testIoException() {
-        AbstractXmlParser<DefaultHandler> parser = new AbstractXmlParser<DefaultHandler>(null, new DefaultExceptionFactory()) {
-        };
+
+    @Test
+    public void ioException() {
+        AbstractXmlParser<DefaultHandler> parser
+            = new AbstractXmlParser<DefaultHandler>(null, new DefaultExceptionFactory()) {
+            };
         try {
             parser.parse(new InputStream() {
                 public int read() throws IOException {
@@ -104,19 +116,19 @@ public class AbstractXmlParserTest extends TestCase {
             assertEquals(IOException.class, e.getCause().getClass());
         }
     }
-    
+
     public static class TestSaxParserFactory extends SAXParserFactory {
 
-        private static final ThreadLocal<Boolean> throwParserConfigurationException = new ThreadLocal<Boolean>();
+        private static ThreadLocal<Boolean> throwParserConfigurationException = new ThreadLocal<Boolean>();
 
         public static void throwParserConfigurationException() {
             throwParserConfigurationException.set(true);
         }
-        
+
         public static void clear() {
             throwParserConfigurationException.remove();
         }
-        
+
         public SAXParser newSAXParser() throws ParserConfigurationException, SAXException {
             if (throwParserConfigurationException.get() != null && throwParserConfigurationException.get()) {
                 throw new ParserConfigurationException();
@@ -125,15 +137,15 @@ public class AbstractXmlParserTest extends TestCase {
             }
         }
 
-        public boolean getFeature(String name) throws ParserConfigurationException, SAXNotRecognizedException, SAXNotSupportedException {
+        public boolean getFeature(String name) {
             return false;
         }
 
-        public void setFeature(String name, boolean value) throws ParserConfigurationException, SAXNotRecognizedException, SAXNotSupportedException {
+        public void setFeature(String name, boolean value) throws SAXNotSupportedException {
             throw new SAXNotSupportedException();
         }
     }
-    
+
     private static class TestSaxParser extends SAXParser {
 
         public Parser getParser() throws SAXException {
@@ -165,7 +177,7 @@ public class AbstractXmlParserTest extends TestCase {
         public boolean isValidating() {
             return false;
         }
-        
+
         public Object getProperty(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
             throw new SAXNotSupportedException();
         }
