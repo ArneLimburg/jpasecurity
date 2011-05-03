@@ -15,28 +15,33 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
+import org.junit.After;
+import org.junit.Test;
+
 /**
  * @author Arne Limburg
  * @author Johannes Siemer
  */
-public class NamedQueryTest extends TestCase {
+public class NamedQueryTest {
 
     public static final String USER1 = "user1";
     public static final String USER2 = "user2";
-    
-    public void testCreateNamedQuery() {
+
+    @Test
+    public void createNamedQuery() {
         TestAuthenticationProvider.authenticate(USER1);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = factory.createEntityManager();
@@ -57,21 +62,23 @@ public class NamedQueryTest extends TestCase {
         entityManager.getTransaction().commit();
         entityManager.close();
     }
-    
-    public void testParseNamedQueriesInOrmXml() throws Exception {
+
+    @Test
+    public void parseNamedQueriesInOrmXml() throws Exception {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getMappingFileNames().add("META-INF/named-queries.xml");
         MappingInformation mappingInformation = new OrmXmlParser(new JpaExceptionFactory()).parse(persistenceUnitInfo);
 
         assertEquals(4, mappingInformation.getNamedQueryNames().size());
-    	
-    	assertEquals("select test from Contact test", mappingInformation.getNamedQuery("myQuery1"));
-    	assertEquals("select test from Contact test", mappingInformation.getNamedQuery("myQuery2"));
-    	assertEquals("select test from Contact test", mappingInformation.getNamedQuery("myQuery3"));
-    	assertEquals("select test from Contact test", mappingInformation.getNamedQuery("myQuery4"));
+
+        assertEquals("select test from Contact test", mappingInformation.getNamedQuery("myQuery1"));
+        assertEquals("select test from Contact test", mappingInformation.getNamedQuery("myQuery2"));
+        assertEquals("select test from Contact test", mappingInformation.getNamedQuery("myQuery3"));
+        assertEquals("select test from Contact test", mappingInformation.getNamedQuery("myQuery4"));
     }
-    
-    public void tearDown() {
+
+    @After
+    public void logout() {
         TestAuthenticationProvider.authenticate(null);
     }
 }

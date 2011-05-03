@@ -15,6 +15,9 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -26,17 +29,18 @@ import javax.persistence.Query;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
-public class LightEntityManagerTest extends TestCase {
+public class LightEntityManagerTest {
 
     private static final String USER1 = "user1";
     private static final String USER2 = "user2";
-    
-    public void testQuery() {
+
+    @Test
+    public void query() {
         TestAuthenticationProvider.authenticate(USER1);
         Map<String, String> persistenceProperties
             = Collections.singletonMap(SecurePersistenceProvider.SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY,
@@ -49,18 +53,20 @@ public class LightEntityManagerTest extends TestCase {
         entityManager.persist(bean);
         entityManager.getTransaction().commit();
         entityManager.close();
-        
+
         TestAuthenticationProvider.authenticate(null);
         entityManager = entityManagerFactory.createEntityManager();
         assertNotNull("entity may be found by id in light entity-managers",
                       entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier()));
-        Query query = entityManager.createQuery("select bean from FieldAccessAnnotationTestBean bean where bean.id = ?0");
+        Query query
+            = entityManager.createQuery("select bean from FieldAccessAnnotationTestBean bean where bean.id = ?0");
         query.setParameter(0, bean.getIdentifier());
         assertEquals(0, query.getResultList().size());
         entityManager.close();
     }
-    
-    public void testRelations() {
+
+    @Test
+    public void relations() {
         TestAuthenticationProvider.authenticate("root", "admin");
         Map<String, String> persistenceProperties
             = Collections.singletonMap(SecurePersistenceProvider.SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY,
@@ -76,14 +82,16 @@ public class LightEntityManagerTest extends TestCase {
         entityManager.persist(parent);
         entityManager.getTransaction().commit();
         entityManager.close();
-        
+
         TestAuthenticationProvider.authenticate(USER1);
         entityManager = entityManagerFactory.createEntityManager();
-        Query query = entityManager.createQuery("select bean from FieldAccessAnnotationTestBean bean where bean.id = ?0");
+        Query query
+            = entityManager.createQuery("select bean from FieldAccessAnnotationTestBean bean where bean.id = ?0");
         query.setParameter(0, parent.getIdentifier());
         FieldAccessAnnotationTestBean foundParent = (FieldAccessAnnotationTestBean)query.getSingleResult();
+        //child may be accessed in light entity-managers
         FieldAccessAnnotationTestBean foundChild = foundParent.getChildBeans().iterator().next();
-        assertEquals("child may be accessed in light entity-managers", child.getIdentifier(), foundChild.getIdentifier());
+        assertEquals("wrong child from light entity-managers", child.getIdentifier(), foundChild.getIdentifier());
         entityManager.close();
     }
 }
