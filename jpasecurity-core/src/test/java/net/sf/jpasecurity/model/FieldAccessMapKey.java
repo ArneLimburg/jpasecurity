@@ -35,7 +35,7 @@ public class FieldAccessMapKey {
 
     protected FieldAccessMapKey() {
     }
-    
+
     public FieldAccessMapKey(String name) {
         this.name = name;
     }
@@ -47,14 +47,14 @@ public class FieldAccessMapKey {
     public String getName() {
         return name;
     }
-    
+
     public int hashCode() {
         if (id == 0) {
             return super.hashCode();
         }
         return id;
     }
-    
+
     public boolean equals(Object object) {
         if (!(object instanceof FieldAccessMapKey)) {
             return false;

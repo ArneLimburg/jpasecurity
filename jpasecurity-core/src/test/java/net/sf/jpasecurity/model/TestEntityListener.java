@@ -30,37 +30,37 @@ public class TestEntityListener {
             throw new PublicTestMethodCalledException();
         }
     }
-    
+
     @PreRemove
     protected void protectedTestMethod(Object entity) {
         if (entity == null) {
             throw new ProtectedTestMethodCalledException();
         }
     }
-    
+
     @PreUpdate
     void packageProtectedTestMethod(Object entity) {
         if (entity == null) {
             throw new PackageProtectedTestMethodCalledException();
         }
     }
-    
+
     @SuppressWarnings("unused") // is used by reflection
     private void privateTestMethod(Object entity) {
         if (entity == null) {
             throw new PrivateTestMethodCalledException();
         }
     }
-    
+
     public static class PublicTestMethodCalledException extends RuntimeException {
     }
 
     public static class ProtectedTestMethodCalledException extends RuntimeException {
     }
-    
+
     public static class PackageProtectedTestMethodCalledException extends RuntimeException {
     }
-    
+
     public static class PrivateTestMethodCalledException extends RuntimeException {
     }
 }

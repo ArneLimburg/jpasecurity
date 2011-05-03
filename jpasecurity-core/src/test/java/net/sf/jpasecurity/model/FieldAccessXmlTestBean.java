@@ -26,35 +26,35 @@ public class FieldAccessXmlTestBean {
     private String name;
     private FieldAccessXmlTestBean parent;
     private List<FieldAccessXmlTestBean> children;
-    
+
     public int getIdentifier() {
         return id;
     }
-    
+
     public void setIdentifier(int identifier) {
         id = identifier;
     }
-    
+
     public String getBeanName() {
         return name;
     }
-    
+
     public void setBeanName(String beanName) {
         name = beanName;
     }
-    
+
     public FieldAccessXmlTestBean getParentBean() {
         return parent;
     }
-    
+
     public void setParentBean(FieldAccessXmlTestBean parentBean) {
         parent = parentBean;
     }
-    
+
     public List<FieldAccessXmlTestBean> getChildBeans() {
         return children;
     }
-    
+
     public void setChildren(List<FieldAccessXmlTestBean> childBeans) {
         children = childBeans;
     }

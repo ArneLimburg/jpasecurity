@@ -38,7 +38,7 @@ public class FieldAccessMapValue {
 
     protected FieldAccessMapValue() {
     }
-    
+
     public FieldAccessMapValue(FieldAccessMapKey key, FieldAccessAnnotationTestBean parent) {
         this.key = key;
         this.parent = parent;
@@ -51,18 +51,18 @@ public class FieldAccessMapValue {
     public FieldAccessMapKey getKey() {
         return key;
     }
-    
+
     public FieldAccessAnnotationTestBean getParent() {
         return parent;
     }
-    
+
     public int hashCode() {
         if (id == 0) {
             return super.hashCode();
         }
         return id;
     }
-    
+
     public boolean equals(Object object) {
         if (!(object instanceof FieldAccessMapValue)) {
             return false;

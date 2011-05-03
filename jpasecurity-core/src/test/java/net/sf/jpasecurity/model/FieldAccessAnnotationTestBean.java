@@ -85,45 +85,45 @@ public class FieldAccessAnnotationTestBean {
     private int postUpdateCount = 0;
     @Transient
     private int postLoadCount = 0;
-    
+
     protected FieldAccessAnnotationTestBean() {
     }
-    
+
     public FieldAccessAnnotationTestBean(String name) {
-        this.name = name; 
+        this.name = name;
     }
-    
+
     public FieldAccessAnnotationTestBean(String name, FieldAccessAnnotationTestBean parent) {
         this.name = name;
         this.parent = parent;
     }
-    
+
     public int getIdentifier() {
         return id;
     }
-    
+
     public void setIdentifier(int identifier) {
         id = identifier;
     }
-    
+
     public String getBeanName() {
         namePropertyReadCount++;
         return name;
     }
-    
+
     public void setBeanName(String beanName) {
         namePropertyWriteCount++;
         name = beanName;
     }
-    
+
     public int getNamePropertyReadCount() {
         return namePropertyReadCount;
     }
-    
+
     public int getNamePropertyWriteCount() {
         return namePropertyWriteCount;
     }
-    
+
     public int getPrePersistCount() {
         return prePersistCount;
     }
@@ -155,26 +155,26 @@ public class FieldAccessAnnotationTestBean {
     public FieldAccessAnnotationTestBean getParentBean() {
         return parent;
     }
-    
+
     public void setParentBean(FieldAccessAnnotationTestBean parentBean) {
         parent = parentBean;
     }
-    
+
     public List<FieldAccessAnnotationTestBean> getChildBeans() {
         return children;
     }
-    
+
     public void setChildren(List<FieldAccessAnnotationTestBean> childBeans) {
         children = childBeans;
     }
-    
+
     public Map<FieldAccessMapKey, FieldAccessMapValue> getValues() {
         return map;
     }
-    
+
     public void aBusinessMethodThatDoesNothing() {
     }
-    
+
     @PrePersist
     public void prePersistLifecycleMethod() {
         prePersistCount++;
@@ -222,7 +222,7 @@ public class FieldAccessAnnotationTestBean {
     public int hashCode() {
         return id == 0? System.identityHashCode(this): id;
     }
-    
+
     public boolean equals(Object object) {
         if (!(object instanceof FieldAccessAnnotationTestBean)) {
             return false;

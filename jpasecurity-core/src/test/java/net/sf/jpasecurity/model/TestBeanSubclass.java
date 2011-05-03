@@ -32,7 +32,7 @@ public class TestBeanSubclass extends TestBean {
 
     protected TestBeanSubclass() {
     }
-    
+
     public TestBeanSubclass(String owner) {
         this.owner = owner;
     }
