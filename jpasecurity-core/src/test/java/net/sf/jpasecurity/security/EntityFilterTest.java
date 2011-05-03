@@ -19,14 +19,14 @@ import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.configuration.AccessRule;
@@ -45,27 +45,36 @@ import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.security.authentication.DefaultAuthenticationProvider;
 import net.sf.jpasecurity.security.rules.AccessRulesCompiler;
 
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * @author Arne Limburg
  */
-public class EntityFilterTest extends TestCase {
+public class EntityFilterTest {
 
     private MappingInformation mappingInformation;
     private Collection<AccessRule> accessRules;
-    
-    public void setUp() throws Exception {
+
+    @Before
+    public void createMappingInformation() throws Exception {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(Contact.class.getName());
         persistenceUnitInfo.getManagedClassNames().add(User.class.getName());
         mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(persistenceUnitInfo);
+    }
+
+    @Before
+    public void createAccessRules() throws Exception {
         JpqlParser parser = new JpqlParser();
         JpqlAccessRule rule
             = parser.parseRule("GRANT READ ACCESS TO Contact contact WHERE contact.owner = CURRENT_PRINCIPAL");
         AccessRulesCompiler compiler = new AccessRulesCompiler(mappingInformation, new DefaultExceptionFactory());
         accessRules = compiler.compile(rule);
     }
-    
-    public void testIsAccessible() throws Exception {
+
+    @Test
+    public void access() throws Exception {
         EntityManager entityManager = createMock(EntityManager.class);
         SecureObjectManager secureObjectManager = createMock(SecureObjectManager.class);
         DefaultAuthenticationProvider authenticationProvider = new DefaultAuthenticationProvider();
@@ -77,7 +86,7 @@ public class EntityFilterTest extends TestCase {
         EntityFilter filter = new EntityFilter(secureObjectManager, mappingInformation, exceptionFactory, accessRules);
         User john = new User("John");
         Contact contact = new Contact(john, "123456789");
-        
+
         authenticationProvider.authenticate(john);
         assertTrue(filter.isAccessible(contact, AccessType.READ, securityContext));
         authenticationProvider.authenticate(new User("Mary"));
