@@ -16,43 +16,51 @@
 package net.sf.jpasecurity.proxy;
 
 import static org.easymock.EasyMock.createNiceMock;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import junit.framework.TestCase;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.jpasecurity.SecureEntity;
 
+import org.junit.Test;
+
 /**
  * @author Arne Limburg
  */
-public class SecureEntityProxyFactoryTest extends TestCase {
+public class SecureEntityProxyFactoryTest {
 
     private SecureEntityProxyFactory proxyFactory = new CgLibSecureEntityProxyFactory();
-    
-    public void testSuperMethodThrowsInvocationTargetException() {
-        TestEntity entity = (TestEntity)proxyFactory.createSecureEntityProxy(TestEntity.class, new SuperMethodInvoker(), new EmptyDecorator());
+
+    @Test
+    public void superMethodThrowsInvocationTargetException() {
+        TestEntity entity = (TestEntity)proxyFactory.createSecureEntityProxy(TestEntity.class,
+                                                                             new SuperMethodInvoker(),
+                                                                             new EmptyDecorator());
         try {
             entity.throwNullPointerException();
         } catch (SuperMethodInvocationException e) {
             assertTrue(e.getCause() instanceof InvocationTargetException);
         }
     }
-    
-    public void testWrongSecureEntity() {
+
+    @Test
+    public void wrongSecureEntity() {
         try {
             proxyFactory.getInterceptor(createNiceMock(SecureEntity.class));
             fail("expected IllegalArgumentException since the specified proxy was not created by the factory");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        SecureEntity secureEntity = (SecureEntity)Enhancer.create(SecureEntity.class, new net.sf.cglib.proxy.MethodInterceptor() {
-            public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-                return null;
-            }
-        });
+        SecureEntity secureEntity
+            = (SecureEntity)Enhancer.create(SecureEntity.class, new net.sf.cglib.proxy.MethodInterceptor() {
+                public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+                    return null;
+                }
+            });
         try {
             proxyFactory.getInterceptor(secureEntity);
             fail("expected IllegalArgumentException since the specified proxy was not created by the factory");
@@ -60,16 +68,17 @@ public class SecureEntityProxyFactoryTest extends TestCase {
             //expected
         }
     }
-    
+
     public static class TestEntity {
-        
+
         public void throwNullPointerException() {
             throw new NullPointerException();
         }
     }
-    
+
     private static class SuperMethodInvoker implements MethodInterceptor {
-        public Object intercept(Object object, Method method, SuperMethod superMethod, Object... args) throws Throwable {
+        public Object intercept(Object object, Method method, SuperMethod superMethod, Object... args)
+                throws Throwable {
             try {
                 return superMethod.invoke(object, args);
             } catch (InvocationTargetException e) {
@@ -77,15 +86,15 @@ public class SecureEntityProxyFactoryTest extends TestCase {
             }
         }
     }
-    
+
     private static class EmptyDecorator implements Decorator<SecureEntity> {
 
         public void setDelegate(SecureEntity delegate) {
         }
     }
-    
+
     private static class SuperMethodInvocationException extends RuntimeException {
-        
+
         public SuperMethodInvocationException(Exception e) {
             super(e);
         }
