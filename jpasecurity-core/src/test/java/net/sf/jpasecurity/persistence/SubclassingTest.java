@@ -15,26 +15,31 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import static org.junit.Assert.assertEquals;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-
-import junit.framework.TestCase;
 
 import net.sf.jpasecurity.model.TestBean;
 import net.sf.jpasecurity.model.TestBeanSubclass;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * @author Arne Limburg
  */
-public class SubclassingTest extends TestCase {
+public class SubclassingTest {
 
     public static final String USER = "user";
-    
+
     private EntityManagerFactory factory;
-    
-    public void setUp() {
+
+    @Before
+    public void createTestData() {
         TestAuthenticationProvider.authenticate(USER);
         factory = Persistence.createEntityManagerFactory("subclassing-test");
         EntityManager entityManager = factory.createEntityManager();
@@ -45,18 +50,20 @@ public class SubclassingTest extends TestCase {
         entityManager.close();
         TestAuthenticationProvider.authenticate(null);
     }
-    
-    public void tearDown() {
+
+    @After
+    public void closeEntityManagerFactory() {
         factory.close();
     }
-    
-    public void testAccessRulesOnSubclasses() {
+
+    @Test
+    public void accessRulesOnSubclasses() {
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         assertEquals(1, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
         TestAuthenticationProvider.authenticate(USER);
         assertEquals(2, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
         entityManager.getTransaction().commit();
-        entityManager.close();        
+        entityManager.close();
     }
 }
