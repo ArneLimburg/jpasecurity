@@ -15,39 +15,46 @@
  */
 package net.sf.jpasecurity.security.authentication;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.configuration.AuthenticationProvider;
+
+import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
-public abstract class AbstractAuthenticationProviderTest extends TestCase {
+public abstract class AbstractAuthenticationProviderTest {
 
     public static final String USER = "user";
     public static final String ROLE1 = "role1";
     public static final String ROLE2 = "role2";
 
     public abstract AuthenticationProvider createAuthenticationProvider();
-    
+
     public abstract void authenticate(Object principal, String... roles);
-    
-    public void testUnauthenticated() {
+
+    @Test
+    public void unauthenticated() {
         assertUnauthenticated();
     }
 
-    public void testAuthenticated() {
+    @Test
+    public void authenticated() {
         authenticate(USER, ROLE1, ROLE2);
         assertAuthenticated();
     }
-    
+
     protected void assertUnauthenticated() {
         AuthenticationProvider authenticationProvider = createAuthenticationProvider();
         assertNull(authenticationProvider.getPrincipal());
         assertEquals(0, authenticationProvider.getRoles().size());
     }
-    
+
     protected void assertAuthenticated() {
         AuthenticationProvider authenticationProvider = createAuthenticationProvider();
         assertEquals(USER, authenticationProvider.getPrincipal());

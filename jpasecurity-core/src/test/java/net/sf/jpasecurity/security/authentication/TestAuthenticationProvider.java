@@ -28,15 +28,15 @@ public class TestAuthenticationProvider extends StaticAuthenticationProvider
 
     private static MappingInformation persistenceMapping;
     private static Map<String, Object> persistenceProperties;
-    
+
     public static MappingInformation getPersistenceMapping() {
         return persistenceMapping;
     }
-    
+
     public void setPersistenceMapping(MappingInformation persistenceMapping) {
         TestAuthenticationProvider.persistenceMapping = persistenceMapping;
     }
-    
+
     public static Map<String, Object> getPersistenceProperties() {
         return persistenceProperties;
     }
