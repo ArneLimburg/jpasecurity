@@ -26,35 +26,35 @@ public class MethodAccessXmlTestBean {
     private String beanName;
     private MethodAccessXmlTestBean parentBean;
     private List<MethodAccessXmlTestBean> childBeans;
-    
+
     public int getId() {
         return identifier;
     }
-    
+
     public void setId(int id) {
         identifier = id;
     }
-    
+
     public String getName() {
         return beanName;
     }
-    
+
     public void setName(String name) {
         beanName = name;
     }
-    
+
     public MethodAccessXmlTestBean getParent() {
         return parentBean;
     }
-    
+
     public void setParent(MethodAccessXmlTestBean parent) {
         parentBean = parent;
     }
-    
+
     public List<MethodAccessXmlTestBean> getChildren() {
         return childBeans;
     }
-    
+
     public void setChildren(List<MethodAccessXmlTestBean> children) {
         childBeans = children;
     }

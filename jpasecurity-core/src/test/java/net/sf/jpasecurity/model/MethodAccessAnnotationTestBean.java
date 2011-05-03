@@ -44,31 +44,31 @@ public class MethodAccessAnnotationTestBean {
     private List<MethodAccessAnnotationTestBean> childBeans = new ArrayList<MethodAccessAnnotationTestBean>();
     private int namePropertyReadCount = 0;
     private int namePropertyWriteCount = 0;
-    
+
     public MethodAccessAnnotationTestBean() {
     }
-    
+
     public MethodAccessAnnotationTestBean(String name) {
         beanName = name;
     }
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "identifier")
     public int getId() {
         return identifier;
     }
-    
+
     public void setId(int id) {
         identifier = id;
     }
-    
+
     @Column(name = "beanName")
     public String getName() {
         namePropertyReadCount++;
         return beanName;
     }
-    
+
     public void setName(String name) {
         namePropertyWriteCount++;
         beanName = name;
@@ -83,7 +83,7 @@ public class MethodAccessAnnotationTestBean {
     public int getNamePropertyWriteCount() {
         return namePropertyWriteCount;
     }
-    
+
     public void aBusinessMethodThatDoesNothing() {
     }
 
@@ -92,18 +92,18 @@ public class MethodAccessAnnotationTestBean {
     public MethodAccessAnnotationTestBean getParent() {
         return parentBean;
     }
-    
+
     public void setParent(MethodAccessAnnotationTestBean parent) {
         parentBean = parent;
     }
-    
+
     @OneToMany(mappedBy = "parent",
-    		   fetch = FetchType.EAGER,
-               cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH})
+               fetch = FetchType.EAGER,
+               cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH })
     public List<MethodAccessAnnotationTestBean> getChildren() {
         return childBeans;
     }
-    
+
     public void setChildren(List<MethodAccessAnnotationTestBean> children) {
         childBeans = children;
     }
@@ -111,7 +111,7 @@ public class MethodAccessAnnotationTestBean {
     public int hashCode() {
         return getId() == 0? System.identityHashCode(this): getId();
     }
-    
+
     public boolean equals(Object object) {
         if (!(object instanceof MethodAccessAnnotationTestBean)) {
             return false;

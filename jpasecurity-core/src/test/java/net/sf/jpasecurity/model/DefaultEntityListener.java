@@ -29,7 +29,7 @@ public class DefaultEntityListener {
             throw new DefaultEntityListenerCalledException();
         }
     }
-    
+
     public static class DefaultEntityListenerCalledException extends RuntimeException {
     }
 }

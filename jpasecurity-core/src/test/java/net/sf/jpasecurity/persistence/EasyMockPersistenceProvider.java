@@ -39,23 +39,26 @@ import org.easymock.EasyMock;
 public class EasyMockPersistenceProvider implements PersistenceProvider {
 
     public EntityManagerFactory createEntityManagerFactory(String emName, Map map) {
-        if (map != null && map.containsKey(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY)
-            && getClass().getName().equals(map.get(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY))) {
+        if (map != null
+                        && map.containsKey(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY)
+                        && getClass().getName()
+                                        .equals(map.get(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY))) {
             return new EasyMockEntityManagerFactory();
         }
         PersistenceXmlParser persistenceXmlParser = new PersistenceXmlParser();
         try {
-            for (Enumeration<URL> e = Thread.currentThread().getContextClassLoader().getResources("META-INF/persistence.xml"); e.hasMoreElements();) {
+            for (Enumeration<URL> e = Thread.currentThread().getContextClassLoader()
+                            .getResources("META-INF/persistence.xml"); e.hasMoreElements();) {
                 try {
                     persistenceXmlParser.parse(e.nextElement());
                     if (persistenceXmlParser.containsPersistenceUnitInfo(emName)) {
                         PersistenceUnitInfo info = persistenceXmlParser.getPersistenceUnitInfo(emName);
-                        if (getClass().getName().equals(info.getPersistenceProviderClassName().equals(getClass().getName()))) {
+                        if (getClass().getName().equals(info.getPersistenceProviderClassName())) {
                             return new EasyMockEntityManagerFactory();
                         }
                     }
                 } catch (IOException ioException) {
-                    //ignore 
+                    //ignore
                 }
             }
         } catch (IOException e) {
@@ -67,11 +70,11 @@ public class EasyMockPersistenceProvider implements PersistenceProvider {
     public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map map) {
         return createEntityManagerFactory(info.getPersistenceUnitName(), map);
     }
-    
+
     private class EasyMockEntityManagerFactory implements EntityManagerFactory {
 
         private boolean open = true;
-        
+
         public EntityManager createEntityManager() {
             if (!open) {
                 throw new IllegalStateException("already closed");
@@ -94,34 +97,34 @@ public class EasyMockPersistenceProvider implements PersistenceProvider {
             open = false;
         }
 
-		public CriteriaBuilder getCriteriaBuilder() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+        public CriteriaBuilder getCriteriaBuilder() {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-		public Metamodel getMetamodel() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+        public Metamodel getMetamodel() {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-		public Map<String, Object> getProperties() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+        public Map<String, Object> getProperties() {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-		public Cache getCache() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+        public Cache getCache() {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-		public PersistenceUnitUtil getPersistenceUnitUtil() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+        public PersistenceUnitUtil getPersistenceUnitUtil() {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 
-	public ProviderUtil getProviderUtil() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public ProviderUtil getProviderUtil() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

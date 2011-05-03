@@ -44,35 +44,35 @@ public class TestBean {
     private TestBean parent;
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<TestBean> children = new ArrayList<TestBean>();
-    
+
     public int getId() {
         return id;
     }
-    
+
     public void setId(int identifier) {
         id = identifier;
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public TestBean getParent() {
         return parent;
     }
-    
+
     public void setParent(TestBean parent) {
         this.parent = parent;
     }
-    
+
     public List<TestBean> getChildren() {
         return children;
     }
-    
+
     public void setChildren(List<TestBean> children) {
         this.children = children;
     }
