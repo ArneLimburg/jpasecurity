@@ -19,26 +19,32 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
+
+import org.junit.After;
+import org.junit.Test;
 
 /**
  * @author Arne Limburg
  * @author Johannes Siemer
  */
-public class JpqlQueryParserTest extends TestCase {
+public class JpqlQueryParserTest {
 
     public static final String USER1 = "user1";
 
-    public void testCount() {
+    @Test
+    public void count() {
         executeQuery("SELECT COUNT(tb) FROM FieldAccessAnnotationTestBean tb");
     }
 
-    public void testDistinct() {
-        executeQuery("SELECT DISTINCT tb1, tb2 FROM FieldAccessAnnotationTestBean tb1, FieldAccessAnnotationTestBean tb2");
+    @Test
+    public void distinct() {
+        executeQuery("SELECT DISTINCT tb1, tb2 "
+        		   + "FROM FieldAccessAnnotationTestBean tb1, FieldAccessAnnotationTestBean tb2");
     }
 
-    public void testExists() {
+    @Test
+    public void exists() {
         executeQuery("SELECT tb FROM FieldAccessAnnotationTestBean tb "
                    + "WHERE EXISTS(SELECT tb2 FROM FieldAccessAnnotationTestBean tb2)");
     }
@@ -53,7 +59,8 @@ public class JpqlQueryParserTest extends TestCase {
         entityManager.close();
     }
 
-    public void tearDown() {
+    @After
+    public void logout() {
         TestAuthenticationProvider.authenticate(null);
     }
 }
