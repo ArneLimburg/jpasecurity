@@ -23,14 +23,17 @@ import junit.framework.TestCase;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 
+import org.junit.Test;
+
 /**
  * @author Arne Limburg
  */
 public class AccessUtilsTest extends TestCase {
 
     private Object entity = new Object();
-    
-    public void testCanCreate() {
+
+    @Test
+    public void canCreate() {
         AccessManager accessManager = createMock(AccessManager.class);
         expect(accessManager.isAccessible(AccessType.CREATE, entity)).andReturn(true);
         replay(accessManager);
@@ -38,15 +41,17 @@ public class AccessUtilsTest extends TestCase {
         verify(accessManager);
     }
 
-    public void testMayNotCreate() {
+    @Test
+    public void mayNotCreate() {
         AccessManager accessManager = createMock(AccessManager.class);
         expect(accessManager.isAccessible(AccessType.CREATE, entity)).andReturn(false);
         replay(accessManager);
         assertFalse(AccessUtils.canCreate(accessManager, entity));
         verify(accessManager);
     }
-    
-    public void testCanRead() {
+
+    @Test
+    public void canRead() {
         AccessManager accessManager = createMock(AccessManager.class);
         expect(accessManager.isAccessible(AccessType.READ, entity)).andReturn(true);
         replay(accessManager);
@@ -54,15 +59,17 @@ public class AccessUtilsTest extends TestCase {
         verify(accessManager);
     }
 
-    public void testMayNotRead() {
+    @Test
+    public void mayNotRead() {
         AccessManager accessManager = createMock(AccessManager.class);
         expect(accessManager.isAccessible(AccessType.READ, entity)).andReturn(false);
         replay(accessManager);
         assertFalse(AccessUtils.canRead(accessManager, entity));
         verify(accessManager);
     }
-    
-    public void testCanUpdate() {
+
+    @Test
+    public void canUpdate() {
         AccessManager accessManager = createMock(AccessManager.class);
         expect(accessManager.isAccessible(AccessType.UPDATE, entity)).andReturn(true);
         replay(accessManager);
@@ -70,15 +77,17 @@ public class AccessUtilsTest extends TestCase {
         verify(accessManager);
     }
 
-    public void testMayNotUpdate() {
+    @Test
+    public void mayNotUpdate() {
         AccessManager accessManager = createMock(AccessManager.class);
         expect(accessManager.isAccessible(AccessType.UPDATE, entity)).andReturn(false);
         replay(accessManager);
         assertFalse(AccessUtils.canUpdate(accessManager, entity));
         verify(accessManager);
     }
-    
-    public void testCanDelete() {
+
+    @Test
+    public void canDelete() {
         AccessManager accessManager = createMock(AccessManager.class);
         expect(accessManager.isAccessible(AccessType.DELETE, entity)).andReturn(true);
         replay(accessManager);
@@ -86,7 +95,8 @@ public class AccessUtilsTest extends TestCase {
         verify(accessManager);
     }
 
-    public void testMayNotDelete() {
+    @Test
+    public void mayNotDelete() {
         AccessManager accessManager = createMock(AccessManager.class);
         expect(accessManager.isAccessible(AccessType.DELETE, entity)).andReturn(false);
         replay(accessManager);

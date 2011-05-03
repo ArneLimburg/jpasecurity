@@ -15,10 +15,11 @@
  */
 package net.sf.jpasecurity.security.rules;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.net.URL;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.persistence.JpaExceptionFactory;
@@ -26,21 +27,27 @@ import net.sf.jpasecurity.persistence.PersistenceXmlParser;
 import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.security.authentication.AutodetectingSecurityContext;
 
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * @author Arne Limburg
  */
-public class AccessRulesCompilerTest extends TestCase {
+public class AccessRulesCompilerTest {
 
     private MappingInformation mappingInformation;
-    
-    public void setUp() throws IOException {
+
+    @Before
+    public void createMappingInformation() throws IOException {
         URL persistenceXml = Thread.currentThread().getContextClassLoader().getResource("META-INF/persistence.xml");
         PersistenceXmlParser parser = new PersistenceXmlParser();
         parser.parse(persistenceXml);
-        mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(parser.getPersistenceUnitInfo("interface"));
+        mappingInformation
+            = new JpaAnnotationParser(new JpaExceptionFactory()).parse(parser.getPersistenceUnitInfo("interface"));
     }
-    
-    public void testRulesOnInterfaces() {
+
+    @Test
+    public void rulesOnInterfaces() {
         XmlAccessRulesProvider accessRulesProvider = new XmlAccessRulesProvider();
         accessRulesProvider.setPersistenceMapping(mappingInformation);
         accessRulesProvider.setConfiguration(new Configuration());

@@ -26,7 +26,7 @@ public final class Maps {
     public static <K, V> Map.Entry<K, V> entry(K key, V value) {
         return new MapEntry<K, V>(key, value);
     }
-    
+
     public static <K, V> Map<K, V> map(Map.Entry<K, V>... entries) {
         Map<K, V> map = new HashMap<K, V>();
         for (Map.Entry<K, V> entry: entries) {
@@ -34,16 +34,16 @@ public final class Maps {
         }
         return map;
     }
-    
+
     private Maps() {
         //Prevent instantiation
     }
-    
+
     private static class MapEntry<K, V> implements Map.Entry<K, V> {
-        
+
         private K key;
         private V value;
-        
+
         public MapEntry(K key, V value) {
             this.key = key;
             this.value = value;
