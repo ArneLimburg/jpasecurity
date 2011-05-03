@@ -20,6 +20,8 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -29,16 +31,17 @@ import javax.persistence.FlushModeType;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.persistence.ParentChildTestData;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
+import org.junit.Test;
+
 /**
  * @author Arne Limburg
  */
-public class AccessCheckTest extends TestCase {
+public class AccessCheckTest {
 
     private static final String CREATOR = "creator";
     private static final String USER = "user";
@@ -48,10 +51,11 @@ public class AccessCheckTest extends TestCase {
     private static final String CHILD = "child";
     private static final String GRANDCHILD = "grandchild";
 
-    public void testCreate() {
+    @Test
+    public void create() {
         TestAuthenticationProvider.authenticate(CREATOR, CREATOR);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("access-check");
-        
+
         //Merge a new entity
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -69,7 +73,7 @@ public class AccessCheckTest extends TestCase {
         assertEquals(GRANDCHILD, child.getChildBeans().iterator().next().getBeanName());
         entityManager.getTransaction().commit();
         entityManager.close();
-        
+
         //Merge an existing entity
         try {
             entityManager = factory.createEntityManager();
@@ -84,7 +88,8 @@ public class AccessCheckTest extends TestCase {
         }
     }
 
-    public void testUpdate() {
+    @Test
+    public void update() {
         TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("access-check");
         EntityManager entityManager = factory.createEntityManager();
@@ -108,8 +113,9 @@ public class AccessCheckTest extends TestCase {
         }
         entityManager.close();
     }
-    
-    public void testHibernateWith() {
+
+    @Test
+    public void hibernateWith() {
         TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("with-clause");
         EntityManager entityManager = factory.createEntityManager();
@@ -121,7 +127,8 @@ public class AccessCheckTest extends TestCase {
 
         TestAuthenticationProvider.authenticate(USER1);
         entityManager = factory.createEntityManager();
-        Query query = entityManager.createQuery("SELECT mbean FROM MethodAccessAnnotationTestBean mbean WHERE mbean.name = :name");
+        Query query = entityManager.createQuery("SELECT mbean FROM MethodAccessAnnotationTestBean mbean "
+                                                + "WHERE mbean.name = :name");
         query.setParameter("name", USER1);
         List<MethodAccessAnnotationTestBean> result = query.getResultList();
         assertEquals(1, result.size());
@@ -142,25 +149,29 @@ public class AccessCheckTest extends TestCase {
         }
         entityManager.close();
     }
-    
-    public void testAliasRules() {
+
+    @Test
+    public void aliasRules() {
         TestAuthenticationProvider.authenticate(USER);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("alias");
 
         EntityManager entityManager = factory.createEntityManager();
         EntityManager mock = (EntityManager)entityManager.getDelegate();
         reset(mock);
-        String originalQuery = "SELECT c.text, SUM(c.id) AS cSum FROM Contact AS c WHERE c.owner.name = :name GROUP BY c.text ORDER BY cSum";
-        String filteredQuery = " SELECT c.text,  SUM(c.id)  AS cSum FROM Contact c WHERE (c.owner.name = :name) AND (c.owner.name = 'user') GROUP BY c.text  ORDER BY cSum";
-        
+        String originalQuery = "SELECT c.text, SUM(c.id) AS cSum FROM Contact AS c "
+                             + "WHERE c.owner.name = :name GROUP BY c.text ORDER BY cSum";
+        String filteredQuery = " SELECT c.text,  SUM(c.id)  AS cSum FROM Contact c "
+                             + "WHERE (c.owner.name = :name) AND (c.owner.name = 'user') "
+                             + "GROUP BY c.text  ORDER BY cSum";
+
         expect(mock.isOpen()).andReturn(true).anyTimes();
         expect(mock.getFlushMode()).andReturn(FlushModeType.AUTO);
         expect(mock.createQuery(filteredQuery)).andReturn(createMock(Query.class));
-        
+
         replay(mock);
 
         entityManager.createQuery(originalQuery);
-        
+
         verify(mock);
     }
 }
