@@ -15,7 +15,7 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.fail;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
@@ -28,15 +28,19 @@ import net.sf.jpasecurity.model.TestEntityListener.PublicTestMethodCalledExcepti
 import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 
+import org.junit.Test;
+
 /**
  * @author Arne Limburg
  */
-public class EntityListenerTest extends TestCase {
+public class EntityListenerTest {
 
-    public void testParseEntityListenerAnnotations() {
+    @Test
+    public void parseEntityListenerAnnotations() {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(MethodAccessAnnotationTestBean.class.getName());
-        MappingInformation mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(persistenceUnitInfo);
+        MappingInformation mappingInformation
+            = new JpaAnnotationParser(new JpaExceptionFactory()).parse(persistenceUnitInfo);
         try {
             mappingInformation.getClassMapping(MethodAccessAnnotationTestBean.class).prePersist(null);
             fail("expected call to publicTestMethod");
@@ -60,8 +64,9 @@ public class EntityListenerTest extends TestCase {
         mappingInformation.getClassMapping(MethodAccessAnnotationTestBean.class).postUpdate(null);
         mappingInformation.getClassMapping(MethodAccessAnnotationTestBean.class).postLoad(null);
     }
-    
-    public void testXmlEntityListeners() {
+
+    @Test
+    public void xmlEntityListeners() {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
         ExceptionFactory exceptionFactory = new JpaExceptionFactory();
