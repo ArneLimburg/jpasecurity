@@ -64,7 +64,8 @@ public class QueryTest extends TestCase {
     }
 
     public void testScalarResult() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("annotation-based-method-access");
+        EntityManagerFactory entityManagerFactory
+            = Persistence.createEntityManagerFactory("annotation-based-method-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         TestAuthenticationProvider.authenticate("root", "admin");
@@ -78,7 +79,8 @@ public class QueryTest extends TestCase {
         entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         List<Object[]> result
-            = entityManager.createQuery("select bean.name, bean.parent from MethodAccessAnnotationTestBean bean").getResultList();
+            = entityManager.createQuery("select bean.name, bean.parent from MethodAccessAnnotationTestBean bean")
+                           .getResultList();
         assertEquals(1, result.size());
         assertEquals(USER1, result.get(0)[0]);
         assertEquals(parent1, result.get(0)[1]);
@@ -89,7 +91,8 @@ public class QueryTest extends TestCase {
     }
 
     public void testHibernateWithClause() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("annotation-based-method-access");
+        EntityManagerFactory entityManagerFactory
+            = Persistence.createEntityManagerFactory("annotation-based-method-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         TestAuthenticationProvider.authenticate("root", "admin");
@@ -102,7 +105,9 @@ public class QueryTest extends TestCase {
         entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         List<MethodAccessAnnotationTestBean> result
-            = entityManager.createQuery("select bean from MethodAccessAnnotationTestBean bean join bean.parent parent with parent.name = '" + USER1 + "' where bean.name = :name")
+            = entityManager.createQuery("select bean from MethodAccessAnnotationTestBean bean "
+                                        + "join bean.parent parent with parent.name = '" + USER1 + "' "
+                                        + "where bean.name = :name")
                            .setParameter("name", USER1)
                            .getResultList();
         assertEquals(1, result.size());

@@ -15,24 +15,28 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import static org.junit.Assert.assertEquals;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.FieldAccessMapKey;
 import net.sf.jpasecurity.model.FieldAccessMapValue;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
+import org.junit.Test;
+
 /**
  * @author Arne Limburg
  */
-public class MapTest extends TestCase {
+public class MapTest {
 
     public static final String USER1 = "user1";
 
-    public void testMapMapping() {
+    @Test
+    public void mapMapping() {
         TestAuthenticationProvider.authenticate(USER1);
         EntityManagerFactory entityManagerFactory
             = Persistence.createEntityManagerFactory("annotation-based-field-access");
@@ -45,7 +49,7 @@ public class MapTest extends TestCase {
         entityManager.persist(parent);
         entityManager.getTransaction().commit();
         entityManager.close();
-        
+
         entityManager = entityManagerFactory.createEntityManager();
         FieldAccessAnnotationTestBean bean
             = entityManager.find(FieldAccessAnnotationTestBean.class, parent.getIdentifier());

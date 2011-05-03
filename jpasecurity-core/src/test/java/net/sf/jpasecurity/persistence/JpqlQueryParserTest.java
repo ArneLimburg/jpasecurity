@@ -40,7 +40,7 @@ public class JpqlQueryParserTest {
     @Test
     public void distinct() {
         executeQuery("SELECT DISTINCT tb1, tb2 "
-        		   + "FROM FieldAccessAnnotationTestBean tb1, FieldAccessAnnotationTestBean tb2");
+                     + "FROM FieldAccessAnnotationTestBean tb1, FieldAccessAnnotationTestBean tb2");
     }
 
     @Test

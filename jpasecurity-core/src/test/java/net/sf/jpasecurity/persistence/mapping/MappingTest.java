@@ -15,10 +15,15 @@
  */
 package net.sf.jpasecurity.persistence.mapping;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import javax.persistence.Persistence;
 import javax.persistence.PersistenceException;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.FetchType;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
@@ -29,11 +34,14 @@ import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.MethodAccessXmlTestBean;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
+import org.junit.Test;
+
 /**
  * @author Arne Limburg
  */
-public class MappingTest extends TestCase {
+public class MappingTest {
 
+    @Test
     public void testAnnotatedNamedQueries() {
         Persistence.createEntityManagerFactory("annotation-based-field-access");
         MappingInformation mapping = TestAuthenticationProvider.getPersistenceMapping();
@@ -43,7 +51,7 @@ public class MappingTest extends TestCase {
         assertEquals("select bean from FieldAccessAnnotationTestBean bean where bean.name = :name",
                      mapping.getNamedQuery("findByName"));
     }
-    
+
     public void testAnnotationMethodAccess() {
         testAccess("annotation-based-method-access", false, MethodAccessAnnotationTestBean.class);
     }
@@ -101,9 +109,9 @@ public class MappingTest extends TestCase {
         assertEquals(Integer.TYPE, classMapping.getPropertyMapping("id").getProperyType());
         assertEquals(String.class, classMapping.getPropertyMapping("name").getProperyType());
         assertEquals(entityType, classMapping.getPropertyMapping("parent").getProperyType());
-        assertEquals(entityType, classMapping.getPropertyMapping("children").getProperyType());        
+        assertEquals(entityType, classMapping.getPropertyMapping("children").getProperyType());
         assertEquals(FetchType.LAZY, classMapping.getPropertyMapping("parent").getFetchType());
-        assertEquals(FetchType.EAGER, classMapping.getPropertyMapping("children").getFetchType());        
+        assertEquals(FetchType.EAGER, classMapping.getPropertyMapping("children").getFetchType());
         assertEquals(0, classMapping.getPropertyMapping("id").getCascadeTypes().size());
         assertEquals(0, classMapping.getPropertyMapping("name").getCascadeTypes().size());
         assertEquals(0, classMapping.getPropertyMapping("parent").getCascadeTypes().size());
