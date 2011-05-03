@@ -57,15 +57,11 @@ public class EntityFilterTest {
     private Collection<AccessRule> accessRules;
 
     @Before
-    public void createMappingInformation() throws Exception {
+    public void initialize() throws Exception {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(Contact.class.getName());
         persistenceUnitInfo.getManagedClassNames().add(User.class.getName());
         mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(persistenceUnitInfo);
-    }
-
-    @Before
-    public void createAccessRules() throws Exception {
         JpqlParser parser = new JpqlParser();
         JpqlAccessRule rule
             = parser.parseRule("GRANT READ ACCESS TO Contact contact WHERE contact.owner = CURRENT_PRINCIPAL");
