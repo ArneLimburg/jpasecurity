@@ -15,11 +15,16 @@
  */
 package net.sf.jpasecurity.security.authentication;
 
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
 
 import net.sf.jpasecurity.configuration.AuthenticationProvider;
+
+import org.junit.Test;
 
 
 /**
@@ -34,15 +39,17 @@ public class DefaultAuthenticationProviderTest extends AbstractAuthenticationPro
     public void authenticate(Object principal, String... roles) {
         new DefaultAuthenticationProvider().authenticate(principal, (Object[])roles);
     }
-    
-    public void testUnauthenticate() {
+
+    @Test
+    public void unauthenticate() {
         authenticate(USER, ROLE1, ROLE2);
         assertAuthenticated();
         new DefaultAuthenticationProvider().unauthenticate();
         assertUnauthenticated();
     }
-    
-    public void testRunAs() {
+
+    @Test
+    public void runAs() {
         assertUnauthenticated();
         final Object expectedResult = new Object();
         final Object result
@@ -56,7 +63,8 @@ public class DefaultAuthenticationProviderTest extends AbstractAuthenticationPro
         assertSame(expectedResult, result);
     }
 
-    public void testRunAsWithRuntimeException() {
+    @Test
+    public void runAsWithRuntimeException() {
         assertUnauthenticated();
         final NullPointerException expectedException = new NullPointerException();
         try {
@@ -73,29 +81,34 @@ public class DefaultAuthenticationProviderTest extends AbstractAuthenticationPro
         assertUnauthenticated();
     }
 
-    public void testExceptionalRunAs() throws Exception {
+    @Test
+    public void exceptionalRunAs() throws Exception {
         assertUnauthenticated();
         final Object expectedResult = new Object();
-        final Object result
-            = DefaultAuthenticationProvider.runAs(USER, Arrays.asList(ROLE1, ROLE2), new PrivilegedExceptionAction<Object>() {
-                public Object run() throws Exception {
-                    assertAuthenticated();
-                    return expectedResult;
-                }
-            });
+        final Object result = DefaultAuthenticationProvider.runAs(USER,
+                                                                  Arrays.asList(ROLE1, ROLE2),
+                                                                  new PrivilegedExceptionAction<Object>() {
+                                                                      public Object run() throws Exception {
+                                                                          assertAuthenticated();
+                                                                          return expectedResult;
+                                                                      }
+                                                                  });
         assertUnauthenticated();
         assertSame(expectedResult, result);
     }
 
-    public void testExceptionalRunAsWithException() {
+    @Test
+    public void exceptionalRunAsWithException() {
         assertUnauthenticated();
         final Exception expectedException = new Exception();
         try {
-            DefaultAuthenticationProvider.runAs(USER, Arrays.asList(ROLE1, ROLE2), new PrivilegedExceptionAction<Object>() {
-                public Object run() throws Exception {
-                    throw expectedException;
-                }
-            });
+            DefaultAuthenticationProvider.runAs(USER,
+                                                Arrays.asList(ROLE1, ROLE2),
+                                                new PrivilegedExceptionAction<Object>() {
+                                                    public Object run() throws Exception {
+                                                        throw expectedException;
+                                                    }
+                                                });
             fail("expected exception");
         } catch (Exception e) {
             assertSame(expectedException, e);

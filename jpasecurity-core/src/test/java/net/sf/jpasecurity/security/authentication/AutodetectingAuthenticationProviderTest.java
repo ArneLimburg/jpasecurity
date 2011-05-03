@@ -48,34 +48,36 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
                 return mock;
             }
         };
-        
+
         Object user = new Object();
         expect(mock.getPrincipal()).andReturn(user);
         expect(mock.getRoles()).andReturn(Collections.EMPTY_SET);
         replay(mock);
-        
+
         assertSame(user, authenticationProvider.getAliasValue(new Alias("CURRENT_PRINCIPAL")));
         assertSame(Collections.EMPTY_SET, authenticationProvider.getAliasValues(new Alias("CURRENT_ROLES")));
-        
+
         verify(mock);
     }
-    
+
     public void testAutodetectEjbAuthenticationProvider() throws Exception {
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY, javaURLContextFactory.class.getName());
-        System.setProperty(Context.URL_PKG_PREFIXES, NamingContext.class.getPackage().getName());            
+        System.setProperty(Context.URL_PKG_PREFIXES, NamingContext.class.getPackage().getName());
 
         InitialContext initialContext = new InitialContext();
         initialContext.createSubcontext("java:comp");
-        
+
         EJBContext ejbContext = createNiceMock(EJBContext.class);
         initialContext.bind("java:comp/EJBContext", ejbContext);
 
-        AuthenticationProvider authenticationProvider = new AutodetectingSecurityContext().autodetectAuthenticationProvider();
+        AuthenticationProvider authenticationProvider
+            = new AutodetectingSecurityContext().autodetectAuthenticationProvider();
         assertTrue(authenticationProvider instanceof EjbAuthenticationProvider);
     }
-    
+
     public void testFallbackToDefaultAuthenticationProvider() throws Exception {
-        AuthenticationProvider authenticationProvider = new AutodetectingSecurityContext().autodetectAuthenticationProvider();
+        AuthenticationProvider authenticationProvider
+            = new AutodetectingSecurityContext().autodetectAuthenticationProvider();
         assertTrue(authenticationProvider instanceof DefaultAuthenticationProvider);
     }
 
@@ -89,7 +91,7 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
             //ignore, don't need to unbind then
         } finally {
             System.clearProperty(Context.INITIAL_CONTEXT_FACTORY);
-            System.clearProperty(Context.URL_PKG_PREFIXES);            
+            System.clearProperty(Context.URL_PKG_PREFIXES);
         }
     }
 }
