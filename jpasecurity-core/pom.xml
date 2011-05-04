@@ -31,6 +31,23 @@
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <version>2.5</version>
+        <configuration>
+          <instrumentation>
+            <excludes>
+              <!-- exclude generated classes -->
+              <exclude>net.sf.jpasecurity.jpql.parser.JavaCharStream.class</exclude>
+              <exclude>net.sf.jpasecurity.jpql.parser.JpqlParser.class</exclude>
+              <exclude>net.sf.jpasecurity.jpql.parser.JpqlParserTokenManager.class</exclude>
+              <exclude>net.sf.jpasecurity.jpql.parser.ParseException.class</exclude>
+              <exclude>net.sf.jpasecurity.jpql.parser.TokenMgrError.class</exclude>
+            </excludes>
+          </instrumentation>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
         <artifactId>jdepend-maven-plugin</artifactId>
       </plugin>
       <plugin>
