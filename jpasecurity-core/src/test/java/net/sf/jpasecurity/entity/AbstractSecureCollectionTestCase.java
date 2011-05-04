@@ -306,7 +306,7 @@ public abstract class AbstractSecureCollectionTestCase {
     protected AbstractSecureObjectManager getObjectManager() {
         return objectManager;
     }
-    
+
     private void testAdd(SecureCollection<Object> secureCollection,
                          Collection<Object> unsecureCollection,
                          Runnable addOperation) {
