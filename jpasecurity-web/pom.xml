@@ -7,11 +7,11 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jpasecurity-jsp</artifactId>
-  <name>JPA Security JSP Support</name>
+  <artifactId>jpasecurity-web</artifactId>
+  <name>JPA Security Servlet and JSP Support</name>
   <description>
-    This module provides support for JSPs. It provides tags to control the visibility of JSP-content
-    according to the access level of the current user.
+    This module provides support for Servlet-authentication and JSPs.
+    It provides tags to control the visibility of JSP-content according to the access level of the current user.
   </description>
 
   <build>

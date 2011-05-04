@@ -14,7 +14,7 @@
     <module>jpasecurity-build</module>
     <module>jpasecurity-core</module>
     <module>jpasecurity-spring</module>
-    <module>jpasecurity-jsp</module>
+    <module>jpasecurity-web</module>
     <module>jpasecurity-samples</module>
   </modules>
 
