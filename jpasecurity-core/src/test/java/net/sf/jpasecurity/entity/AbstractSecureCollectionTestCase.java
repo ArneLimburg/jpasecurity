@@ -303,6 +303,10 @@ public abstract class AbstractSecureCollectionTestCase {
         });
     }
 
+    protected AbstractSecureObjectManager getObjectManager() {
+        return objectManager;
+    }
+    
     private void testAdd(SecureCollection<Object> secureCollection,
                          Collection<Object> unsecureCollection,
                          Runnable addOperation) {
@@ -343,9 +347,9 @@ public abstract class AbstractSecureCollectionTestCase {
         assertFalse(unsecureCollection.iterator().hasNext());
     }
 
-    public void testRetain(SecureCollection<Object> secureCollection,
-                           Collection<Object> unsecureCollection,
-                           Runnable retainOperation) {
+    private void testRetain(SecureCollection<Object> secureCollection,
+                            Collection<Object> unsecureCollection,
+                            Runnable retainOperation) {
         assertEquals(2, secureCollection.size());
         assertEquals(2, unsecureCollection.size());
 
