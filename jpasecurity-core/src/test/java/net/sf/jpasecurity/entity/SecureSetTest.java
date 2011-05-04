@@ -64,7 +64,7 @@ public class SecureSetTest extends AbstractSecureCollectionTestCase {
 
         SecureSet<Object> filtered = new SecureSet<Object>(original, getObjectManager(), accessManager);
         assertEquals(1, filtered.size());
-        assertTrue(filtered.contains(object1));
+        assertTrue(filtered.iterator().next().equals(object1));
         assertFalse(filtered.contains(object2));
     }
 }
