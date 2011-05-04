@@ -31,7 +31,7 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>jpasecurity-core</artifactId>
+      <artifactId>jpasecurity-web</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
