@@ -37,11 +37,11 @@
           <instrumentation>
             <excludes>
               <!-- exclude generated classes -->
-              <exclude>net.sf.jpasecurity.jpql.parser.JavaCharStream.class</exclude>
-              <exclude>net.sf.jpasecurity.jpql.parser.JpqlParser.class</exclude>
-              <exclude>net.sf.jpasecurity.jpql.parser.JpqlParserTokenManager.class</exclude>
-              <exclude>net.sf.jpasecurity.jpql.parser.ParseException.class</exclude>
-              <exclude>net.sf.jpasecurity.jpql.parser.TokenMgrError.class</exclude>
+              <exclude>net/sf/jpasecurity/jpql/parser/JavaCharStream.class</exclude>
+              <exclude>net/sf/jpasecurity/jpql/parser/JpqlParser.class</exclude>
+              <exclude>net/sf/jpasecurity/jpql/parser/JpqlParserTokenManager.class</exclude>
+              <exclude>net/sf/jpasecurity/jpql/parser/ParseException.class</exclude>
+              <exclude>net/sf/jpasecurity/jpql/parser/TokenMgrError.class</exclude>
             </excludes>
           </instrumentation>
         </configuration>
