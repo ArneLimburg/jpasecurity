@@ -85,7 +85,7 @@ public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
             }
 
             public void startElement(String uri, String tag, String qualified, Attributes attributes)
-                    throws SAXException {
+                throws SAXException {
                 if (PERSISTENCE_UNIT_TAG.equals(qualified)) {
                     persistenceUnit = attributes.getValue(PERSISTENCE_UNIT_NAME_ATTRIBUTE);
                 } else if (ACCESS_RULE_TAG.equals(qualified)) {
@@ -94,12 +94,12 @@ public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
             }
 
             public void characters(char[] chars, int start, int length)
-                    throws SAXException {
+                throws SAXException {
                 accessRule.append(chars, start, length);
             }
 
             public void endElement(String uri, String tag, String qualified)
-                    throws SAXException {
+                throws SAXException {
                 if (ACCESS_RULE_TAG.equals(qualified)) {
                     accessRules.add(persistenceUnit, accessRule.toString());
                 }

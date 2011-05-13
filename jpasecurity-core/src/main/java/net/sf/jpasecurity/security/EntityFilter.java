@@ -91,7 +91,7 @@ public class EntityFilter {
     }
 
     public boolean isAccessible(Object entity, AccessType accessType, SecurityContext securityContext)
-            throws NotEvaluatableException {
+        throws NotEvaluatableException {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         Alias alias = new Alias(Character.toLowerCase(mapping.getEntityName().charAt(0))
                                 + mapping.getEntityName().substring(1));

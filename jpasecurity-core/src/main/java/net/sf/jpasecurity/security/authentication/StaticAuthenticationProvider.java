@@ -57,7 +57,7 @@ public class StaticAuthenticationProvider implements AuthenticationProvider {
     }
 
     public static <R> R runAs(Object principal, Collection<?> roles, PrivilegedExceptionAction<R> action)
-            throws Exception {
+        throws Exception {
         Object currentPrincipal = StaticAuthenticationProvider.principal;
         Collection<?> currentRoles = StaticAuthenticationProvider.roles;
         try {

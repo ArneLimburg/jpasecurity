@@ -78,7 +78,7 @@ public class SecureEntityProxyFactoryTest {
 
     private static class SuperMethodInvoker implements MethodInterceptor {
         public Object intercept(Object object, Method method, SuperMethod superMethod, Object... args)
-                throws Throwable {
+            throws Throwable {
             try {
                 return superMethod.invoke(object, args);
             } catch (InvocationTargetException e) {
