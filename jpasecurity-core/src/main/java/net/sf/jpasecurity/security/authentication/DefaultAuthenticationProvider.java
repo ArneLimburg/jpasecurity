@@ -70,7 +70,7 @@ public class DefaultAuthenticationProvider implements AuthenticationProvider {
     }
 
     public static <R> R runAs(Object principal, Collection<?> roles, PrivilegedExceptionAction<R> action)
-            throws Exception {
+        throws Exception {
         DefaultAuthenticationProvider authenticationProvider = new DefaultAuthenticationProvider();
         Object currentPrincipal = authenticationProvider.getPrincipal();
         Collection<?> currentRoles = authenticationProvider.getRoles();

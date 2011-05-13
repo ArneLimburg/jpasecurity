@@ -85,14 +85,14 @@ public class DefaultAuthenticationProviderTest extends AbstractAuthenticationPro
     public void exceptionalRunAs() throws Exception {
         assertUnauthenticated();
         final Object expectedResult = new Object();
-        final Object result = DefaultAuthenticationProvider.runAs(USER,
-                                                                  Arrays.asList(ROLE1, ROLE2),
-                                                                  new PrivilegedExceptionAction<Object>() {
-                                                                      public Object run() throws Exception {
-                                                                          assertAuthenticated();
-                                                                          return expectedResult;
-                                                                      }
-                                                                  });
+        PrivilegedExceptionAction<Object> action
+            = new PrivilegedExceptionAction<Object>() {
+                public Object run() throws Exception {
+                    assertAuthenticated();
+                    return expectedResult;
+                }
+            };
+        final Object result = DefaultAuthenticationProvider.runAs(USER, Arrays.asList(ROLE1, ROLE2), action);
         assertUnauthenticated();
         assertSame(expectedResult, result);
     }
@@ -102,13 +102,13 @@ public class DefaultAuthenticationProviderTest extends AbstractAuthenticationPro
         assertUnauthenticated();
         final Exception expectedException = new Exception();
         try {
-            DefaultAuthenticationProvider.runAs(USER,
-                                                Arrays.asList(ROLE1, ROLE2),
-                                                new PrivilegedExceptionAction<Object>() {
-                                                    public Object run() throws Exception {
-                                                        throw expectedException;
-                                                    }
-                                                });
+            PrivilegedExceptionAction<Object> exceptionThrowingAction
+                = new PrivilegedExceptionAction<Object>() {
+                    public Object run() throws Exception {
+                        throw expectedException;
+                    }
+                };
+            DefaultAuthenticationProvider.runAs(USER, Arrays.asList(ROLE1, ROLE2), exceptionThrowingAction);
             fail("expected exception");
         } catch (Exception e) {
             assertSame(expectedException, e);

@@ -186,10 +186,11 @@ public class QueryEvaluatorTest {
 
     @Test
     public void canEvaluateCount() throws Exception {
-        JpqlCompiledStatement statement = compile("SELECT COUNT(bean) "
-                                                + "FROM FieldAccessAnnotationTestBean bean "
-                                                + "WHERE bean.name = :name "
-                                                );
+        JpqlCompiledStatement statement
+            = compile("SELECT COUNT(bean) "
+                      + "FROM FieldAccessAnnotationTestBean bean "
+                      + "WHERE bean.name = :name "
+            );
         JpqlSelect selectStatement = (JpqlSelect)statement.getStatement().jjtGetChild(0);
         JpqlSelectClause selectClause = (JpqlSelectClause)selectStatement.jjtGetChild(0);
         JpqlFrom fromClause = (JpqlFrom)selectStatement.jjtGetChild(1);
@@ -651,7 +652,7 @@ public class QueryEvaluatorTest {
     }
 
     protected boolean evaluate(JpqlWhere whereClause, QueryEvaluationParameters parameters)
-            throws NotEvaluatableException {
+        throws NotEvaluatableException {
         return queryEvaluator.<Boolean>evaluate(whereClause, parameters);
     }
 }

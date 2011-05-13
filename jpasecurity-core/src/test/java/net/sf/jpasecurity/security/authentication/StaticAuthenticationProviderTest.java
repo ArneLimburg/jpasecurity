@@ -86,14 +86,14 @@ public class StaticAuthenticationProviderTest extends AbstractAuthenticationProv
     public void exceptionalRunAs() throws Exception {
         assertUnauthenticated();
         final Object expectedResult = new Object();
-        final Object result = StaticAuthenticationProvider.runAs(USER,
-                                                                 Arrays.asList(ROLE1, ROLE2),
-                                                                 new PrivilegedExceptionAction<Object>() {
-                                                                     public Object run() throws Exception {
-                                                                         assertAuthenticated();
-                                                                         return expectedResult;
-                                                                     }
-                                                                 });
+        PrivilegedExceptionAction<Object> action
+            = new PrivilegedExceptionAction<Object>() {
+                public Object run() throws Exception {
+                    assertAuthenticated();
+                    return expectedResult;
+                }
+            };
+        final Object result = StaticAuthenticationProvider.runAs(USER, Arrays.asList(ROLE1, ROLE2), action);
         assertUnauthenticated();
         assertSame(expectedResult, result);
     }
@@ -103,13 +103,13 @@ public class StaticAuthenticationProviderTest extends AbstractAuthenticationProv
         assertUnauthenticated();
         final Exception expectedException = new Exception();
         try {
-            StaticAuthenticationProvider.runAs(USER,
-                                               Arrays.asList(ROLE1, ROLE2),
-                                               new PrivilegedExceptionAction<Object>() {
-                                                   public Object run() throws Exception {
-                                                       throw expectedException;
-                                                   }
-                                                });
+            PrivilegedExceptionAction<Object> exceptionThrowingAction
+                = new PrivilegedExceptionAction<Object>() {
+                    public Object run() throws Exception {
+                        throw expectedException;
+                    }
+                };
+            StaticAuthenticationProvider.runAs(USER, Arrays.asList(ROLE1, ROLE2), exceptionThrowingAction);
             fail("expected exception");
         } catch (Exception e) {
             assertSame(expectedException, e);

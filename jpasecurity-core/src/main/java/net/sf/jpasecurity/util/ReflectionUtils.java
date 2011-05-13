@@ -63,7 +63,7 @@ public abstract class ReflectionUtils {
     }
 
     public static Constructor<?> getConstructor(Class<?> type, Class<?>... parameterTypes)
-            throws NoSuchMethodException {
+        throws NoSuchMethodException {
         Constructor<?> result = null;
         for (Constructor<?> constructor: type.getDeclaredConstructors()) {
             if (match(constructor.getParameterTypes(), parameterTypes)) {
