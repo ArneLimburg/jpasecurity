@@ -283,30 +283,30 @@ public class EntityPersister extends AbstractSecureObjectManager {
         unsecureCopy(accessType, secureEntity, unsecureEntity);
         ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
-           if (propertyMapping.isRelationshipMapping()
-               && (propertyMapping.getCascadeTypes().contains(cascadeType)
-                   || propertyMapping.getCascadeTypes().contains(CascadeType.ALL))) {
-               Object secureValue = propertyMapping.getPropertyValue(secureEntity);
-               if (secureValue != null) {
-                  if (propertyMapping.isSingleValued()) {
-                      cascade(secureValue, getUnsecureObject(secureValue), cascadeType, alreadyCascadedEntities);
-                  } else {
-                      CollectionValuedRelationshipMappingInformation collectionMapping
-                          = (CollectionValuedRelationshipMappingInformation)propertyMapping;
-                      if (Collection.class.isAssignableFrom(collectionMapping.getCollectionType())) {
-                          for (Object secureEntry: ((Collection<Object>)secureValue)) {
-                              Object unsecureEntry = getUnsecureObject(secureEntry);
-                              cascade(secureEntry, unsecureEntry, cascadeType, alreadyCascadedEntities);
-                          }
-                      } else if (Map.class.isAssignableFrom(collectionMapping.getCollectionType())) {
-                          for (Object secureEntry: ((Map<Object, Object>)secureValue).values()) {
-                              Object unsecureEntry = getUnsecureObject(secureEntry);
-                              cascade(secureEntry, unsecureEntry, cascadeType, alreadyCascadedEntities);
-                          }
-                      }
-                  }
-               }
-           }
+            if (propertyMapping.isRelationshipMapping()
+                && (propertyMapping.getCascadeTypes().contains(cascadeType)
+                    || propertyMapping.getCascadeTypes().contains(CascadeType.ALL))) {
+                Object secureValue = propertyMapping.getPropertyValue(secureEntity);
+                if (secureValue != null) {
+                    if (propertyMapping.isSingleValued()) {
+                        cascade(secureValue, getUnsecureObject(secureValue), cascadeType, alreadyCascadedEntities);
+                    } else {
+                        CollectionValuedRelationshipMappingInformation collectionMapping
+                            = (CollectionValuedRelationshipMappingInformation)propertyMapping;
+                        if (Collection.class.isAssignableFrom(collectionMapping.getCollectionType())) {
+                            for (Object secureEntry: ((Collection<Object>)secureValue)) {
+                                Object unsecureEntry = getUnsecureObject(secureEntry);
+                                cascade(secureEntry, unsecureEntry, cascadeType, alreadyCascadedEntities);
+                            }
+                        } else if (Map.class.isAssignableFrom(collectionMapping.getCollectionType())) {
+                            for (Object secureEntry: ((Map<Object, Object>)secureValue).values()) {
+                                Object unsecureEntry = getUnsecureObject(secureEntry);
+                                cascade(secureEntry, unsecureEntry, cascadeType, alreadyCascadedEntities);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
