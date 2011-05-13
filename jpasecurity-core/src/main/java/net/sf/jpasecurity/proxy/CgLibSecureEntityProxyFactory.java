@@ -75,14 +75,14 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
         }
     }
 
-   private Callback[] getCallbacks(SecureEntity entity) {
-      if (entity instanceof Factory) {
-         return ((Factory)entity).getCallbacks();
-      }
-      throw new IllegalArgumentException("The specified object was not created by this factory");
-   }
+    private Callback[] getCallbacks(SecureEntity entity) {
+        if (entity instanceof Factory) {
+            return ((Factory)entity).getCallbacks();
+        }
+        throw new IllegalArgumentException("The specified object was not created by this factory");
+    }
 
-   private class CgLibMethodInterceptor implements net.sf.cglib.proxy.MethodInterceptor {
+    private class CgLibMethodInterceptor implements net.sf.cglib.proxy.MethodInterceptor {
 
         private MethodInterceptor interceptor;
         private Decorator<SecureEntity> decorator;
