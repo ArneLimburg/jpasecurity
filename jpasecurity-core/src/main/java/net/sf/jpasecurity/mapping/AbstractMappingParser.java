@@ -469,8 +469,8 @@ public abstract class AbstractMappingParser {
         }
         for (Method method: entityClass.getDeclaredMethods()) {
             if (method.getName().equals(propertySetterName)
-             && method.getParameterTypes().length == 1
-             && method.getReturnType() == void.class) {
+                && method.getParameterTypes().length == 1
+                && method.getReturnType() == void.class) {
                 return method.getParameterTypes()[0].isAssignableFrom(propertyType);
             }
         }
