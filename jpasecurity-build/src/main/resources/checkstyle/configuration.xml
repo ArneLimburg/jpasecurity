@@ -161,6 +161,7 @@
         <module name="ArrayTypeStyle"/>
         <module name="TodoComment"/>
         <module name="UpperEll"/>
+        <module name="Indentation"/>
 
     </module>
 
