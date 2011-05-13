@@ -264,7 +264,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
                 upper = null;
             }
             if ((lower != null && lower.compareTo(value) > 0)
-             || (upper != null && upper.compareTo(value) < 0)) {
+                || (upper != null && upper.compareTo(value) < 0)) {
                 data.setResult(false);
             } else if (lower == null || upper == null) {
                 data.setResultUndefined();

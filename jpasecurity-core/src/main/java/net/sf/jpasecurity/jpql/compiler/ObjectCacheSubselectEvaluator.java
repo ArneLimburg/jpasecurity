@@ -41,7 +41,7 @@ public class ObjectCacheSubselectEvaluator extends SimpleSubselectEvaluator {
 
     public Collection<?> evaluate(JpqlCompiledStatement subselect,
                                   QueryEvaluationParameters parameters)
-            throws NotEvaluatableException {
+        throws NotEvaluatableException {
         if (!(subselect.getStatement().jjtGetParent() instanceof JpqlExists)) {
             parameters.setResultUndefined();
             throw new NotEvaluatableException("ObjectCacheSubselectEvaluator only can evaluate subselects of an EXISTS");
@@ -60,7 +60,7 @@ public class ObjectCacheSubselectEvaluator extends SimpleSubselectEvaluator {
     }
 
     protected Collection<?> getResult(Replacement replacement, QueryEvaluationParameters parameters)
-            throws NotEvaluatableException {
+        throws NotEvaluatableException {
         if (replacement.getReplacement() == null) {
             Collection<?> secureObjects = objectCache.getSecureObjects(replacement.getTypeDefinition().getType());
             for (Object secureObject: secureObjects) {

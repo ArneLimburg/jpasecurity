@@ -65,7 +65,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
 
     public Collection<?> evaluate(JpqlCompiledStatement subselect,
                                   QueryEvaluationParameters parameters)
-                                  throws NotEvaluatableException {
+        throws NotEvaluatableException {
         if (evaluator == null) {
             throw new IllegalStateException("evaluator may not be null");
         }
@@ -80,7 +80,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     }
 
     protected Collection<?> getResult(Replacement replacement, QueryEvaluationParameters parameters)
-            throws NotEvaluatableException {
+        throws NotEvaluatableException {
         if (replacement.getReplacement() == null) {
             throw new NotEvaluatableException("No replacement found for alias '" + replacement.getTypeDefinition().getAlias() + "'");
         }
@@ -160,15 +160,15 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         for (Replacement replacement: replacements) {
             Collection<?> result = getResult(replacement, parameters);
             for (Object value: result) {
-              if (replacement.getTypeDefinition().getType().isAssignableFrom(value.getClass())) {
-                  aliasValues.add(replacement.getTypeDefinition().getAlias(), value);
-              } else {
-                //Value is of wrong type, ignoring...
-                //We have to store the ignored aliases,
-                //because when no replacement is found for an ignored alias,
-                //it is ruled out by an inner join. We have to return an empty result then.
-                ignoredAliases.add(replacement.getTypeDefinition().getAlias());
-              }
+                if (replacement.getTypeDefinition().getType().isAssignableFrom(value.getClass())) {
+                    aliasValues.add(replacement.getTypeDefinition().getAlias(), value);
+                } else {
+                    //Value is of wrong type, ignoring...
+                    //We have to store the ignored aliases,
+                    //because when no replacement is found for an ignored alias,
+                    //it is ruled out by an inner join. We have to return an empty result then.
+                    ignoredAliases.add(replacement.getTypeDefinition().getAlias());
+                }
             }
         }
         for (Alias ignoredAlias: ignoredAliases) {
