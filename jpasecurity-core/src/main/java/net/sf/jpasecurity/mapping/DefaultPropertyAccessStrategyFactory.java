@@ -44,9 +44,9 @@ public class DefaultPropertyAccessStrategyFactory implements PropertyAccessStrat
         }
         String interFieldname = fieldname.intern();
         for (Field field : type.getDeclaredFields()) {
-           if (field.getName() == interFieldname) {
-              return field;
-           }
+            if (field.getName() == interFieldname) {
+                return field;
+            }
         }
         return getField(type.getSuperclass(), fieldname);
     }
