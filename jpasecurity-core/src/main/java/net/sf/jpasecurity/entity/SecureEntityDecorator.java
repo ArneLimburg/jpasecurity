@@ -20,13 +20,12 @@ import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.proxy.Decorator;
-import net.sf.jpasecurity.util.AbstractInvocationHandler;
 
 /**
  * A class to decorate a bean to become a {@link SecureEntity}.
  * @author Arne Limburg
  */
-public class SecureEntityDecorator extends AbstractInvocationHandler implements SecureEntity, Decorator<SecureEntity> {
+public class SecureEntityDecorator implements SecureEntity, Decorator<SecureEntity> {
 
     private ClassMappingInformation mapping;
     private ObjectWrapper objectWrapper;
