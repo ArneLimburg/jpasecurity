@@ -106,7 +106,7 @@ public class SecureQuery extends DelegatingQuery {
 
     private Object getSecureResult(Object result) {
         if (result == null) {
-           return null;
+            return null;
         }
         if (isSimplePropertyType(result.getClass())) {
             return result;

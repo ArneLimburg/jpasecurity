@@ -47,7 +47,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         map = createPersistenceProviderProperty(map, persistenceProvider);
         EntityManagerFactory nativeEntityManagerFactory
             = persistenceProvider.createContainerEntityManagerFactory(info, map);
-       return createSecureEntityManagerFactory(nativeEntityManagerFactory, info, map);
+        return createSecureEntityManagerFactory(nativeEntityManagerFactory, info, map);
     }
 
     public EntityManagerFactory createEntityManagerFactory(String persistenceUnitName, Map map) {
@@ -116,14 +116,14 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         try {
             PersistenceXmlParser persistenceXmlParser = new PersistenceXmlParser();
             for (Enumeration<URL> persistenceFiles
-                = Thread.currentThread().getContextClassLoader().getResources("META-INF/persistence.xml");
-                 persistenceFiles.hasMoreElements();) {
+                    = Thread.currentThread().getContextClassLoader().getResources("META-INF/persistence.xml");
+                persistenceFiles.hasMoreElements();) {
                 URL persistenceFile = persistenceFiles.nextElement();
                 persistenceXmlParser.parse(persistenceFile);
                 if (persistenceXmlParser.containsPersistenceUnitInfo(persistenceUnitName)) {
-                   final PersistenceUnitInfo persistenceUnitInfo =
-                      persistenceXmlParser.getPersistenceUnitInfo(persistenceUnitName);
-                   return persistenceUnitInfo;
+                    PersistenceUnitInfo persistenceUnitInfo
+                        = persistenceXmlParser.getPersistenceUnitInfo(persistenceUnitName);
+                    return persistenceUnitInfo;
                 }
             }
             return null;
