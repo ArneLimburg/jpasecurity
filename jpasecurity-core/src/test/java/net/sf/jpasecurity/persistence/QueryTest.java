@@ -49,7 +49,7 @@ public class QueryTest extends TestCase {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         Query query = entityManager.createQuery("select bean from Privilege bean WHERE bean.type=:TYPE");
         query.setParameter("TYPE", PrivilegeType.DATA);
-       query.getResultList();
+        query.getResultList();
     }
 
     public void testEnumParameterList() {
