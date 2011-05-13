@@ -52,6 +52,13 @@ public class SecureEntityInterceptor implements MethodInterceptor {
             }
             entity = objectWrapper.unwrap(entity);
             return entity.equals(value);
+        } else if (isCompareTo(method) && (entity instanceof Comparable)) {
+            Object value = args[0];
+            if (objectManager.isSecureObject(value)) {
+                value = objectManager.getUnsecureObject(value);
+            }
+            entity = objectWrapper.unwrap(entity);
+            return compare((Comparable<?>)entity, value);
         } else if (isToString(method)) {
             entity = objectWrapper.unwrap(entity);
             return entity.toString();
@@ -80,5 +87,15 @@ public class SecureEntityInterceptor implements MethodInterceptor {
     private boolean isToString(Method method) {
         return method.getName().equals("toString")
             && method.getParameterTypes().length == 0;
+    }
+
+    private boolean isCompareTo(Method method) {
+        return method.getName().equals("compareTo")
+            && method.getParameterTypes().length == 1
+            && method.getReturnType().equals(Integer.TYPE);
+    }
+
+    private <T> int compare(Comparable<T> comparable, Object object) {
+        return comparable.compareTo((T)object);
     }
 }

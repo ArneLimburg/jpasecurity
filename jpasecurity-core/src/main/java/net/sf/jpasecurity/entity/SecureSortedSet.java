@@ -98,7 +98,11 @@ public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>
 
         @Override
         public Iterator<E> iterator() {
-            return new SecureSubSetIterator(getFiltered().subSet(from, to).iterator());
+            if (tailSet) {
+                return new SecureSubSetIterator(getFiltered().tailSet(from).iterator());
+            } else {
+                return new SecureSubSetIterator(getFiltered().subSet(from, to).iterator());
+            }
         }
 
         public boolean add(E entry) {
@@ -140,7 +144,11 @@ public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>
         }
 
         public int size() {
-            return getFiltered().subSet(from, to).size();
+            if (tailSet) {
+                return getFiltered().tailSet(from).size();
+            } else {
+                return getFiltered().subSet(from, to).size();
+            }
         }
 
         public Comparator<? super E> comparator() {
@@ -152,7 +160,11 @@ public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>
         }
 
         public E last() {
-            return getFiltered().subSet(from, to).last();
+            if (tailSet) {
+                return getFiltered().tailSet(from).last();
+            } else {
+                return getFiltered().subSet(from, to).last();
+            }
         }
 
         public SortedSet<E> headSet(E to) {

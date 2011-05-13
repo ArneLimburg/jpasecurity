@@ -20,6 +20,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.getCurrentArguments;
 import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -43,6 +44,8 @@ import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.persistence.JpaEntityWrapper;
 import net.sf.jpasecurity.proxy.Decorator;
 
+import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -61,33 +64,23 @@ public abstract class AbstractSecureCollectionTestCase {
 
     @Before
     public void createTestData() {
-        ClassMappingInformation classMapping = createMock(ClassMappingInformation.class);
         mapping = createMock(MappingInformation.class);
         entityManager = createMock(EntityManager.class);
         accessManager = createMock(AccessManager.class);
+        objectWrapper = new JpaEntityWrapper();
         objectManager = new EntityPersister(mapping,
                                             new JpaBeanStore(entityManager),
                                             accessManager,
                                             new Configuration(),
-                                            new JpaEntityWrapper());
+                                            objectWrapper);
 
-        expect(classMapping.<Object>getEntityType()).andReturn(Object.class).anyTimes();
-        expect(classMapping.getPropertyMappings())
-            .andReturn(Collections.<PropertyMappingInformation>emptyList()).anyTimes();
-        classMapping.postLoad(anyObject());
-        expectLastCall().anyTimes();
-        expect(mapping.getClassMapping((Class<?>)anyObject())).andReturn(classMapping).anyTimes();
+        expect(mapping.getClassMapping((Class<?>)anyObject())).andAnswer(new ClassMappingAnswer()).anyTimes();
         expect(accessManager.isAccessible(eq(AccessType.READ), anyObject())).andReturn(true).anyTimes();
 
-        replay(classMapping, mapping, entityManager, accessManager);
+        replay(mapping, entityManager, accessManager);
 
         unsecureEntity = new Object();
-
-        objectWrapper = new JpaEntityWrapper();
-        SecureEntityInterceptor interceptor = new SecureEntityInterceptor(objectWrapper, objectManager, unsecureEntity);
-        Decorator<SecureEntity> decorator
-            = new SecureEntityDecorator(classMapping, objectWrapper, accessManager, objectManager, unsecureEntity);
-        secureEntity = (SecureEntity)objectManager.createSecureEntity(Object.class, interceptor, decorator);
+        secureEntity = (SecureEntity)objectManager.getSecureObject(unsecureEntity);
     }
 
     public abstract SecureCollection<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
@@ -366,5 +359,24 @@ public abstract class AbstractSecureCollectionTestCase {
         assertEquals(1, unsecureCollection.size());
         assertEquals(secureEntity, secureCollection.iterator().next());
         assertEquals(unsecureEntity, unsecureCollection.iterator().next());
+    }
+
+    private static class ClassMappingAnswer implements IAnswer<ClassMappingInformation> {
+
+        public ClassMappingInformation answer() throws Throwable {
+            ClassMappingInformation classMapping = createMock((Class<?>)getCurrentArguments()[0]);
+            replay(classMapping);
+            return classMapping;
+        }
+
+        private <T> ClassMappingInformation createMock(Class<T> type) {
+            ClassMappingInformation classMapping = EasyMock.createMock(ClassMappingInformation.class);
+            expect(classMapping.<T>getEntityType()).andReturn(type).anyTimes();
+            expect(classMapping.getPropertyMappings())
+                .andReturn(Collections.<PropertyMappingInformation>emptyList()).anyTimes();
+            classMapping.postLoad(anyObject());
+            expectLastCall().anyTimes();
+            return classMapping;
+        }
     }
 }
