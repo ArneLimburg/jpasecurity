@@ -22,36 +22,36 @@ import javax.persistence.Enumerated;
 
 @Entity
 public class Privilege extends AbstractEntity {
-   @Column(name = "NAME")
-   private String name;
+    @Column(name = "NAME")
+    private String name;
 
-   @Column(name = "DESCRIPTION")
-   private String description;
+    @Column(name = "DESCRIPTION")
+    private String description;
 
-   @Enumerated(value = EnumType.STRING)
-   private PrivilegeType type;
+    @Enumerated(value = EnumType.STRING)
+    private PrivilegeType type;
 
-   public String getName() {
-      return name;
-   }
+    public String getName() {
+        return name;
+    }
 
-   public void setName(String name) {
-      this.name = name;
-   }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-   public String getDescription() {
-      return description;
-   }
+    public String getDescription() {
+        return description;
+    }
 
-   public void setDescription(String description) {
-      this.description = description;
-   }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-   public PrivilegeType getType() {
-      return type;
-   }
+    public PrivilegeType getType() {
+        return type;
+    }
 
-   public void setType(PrivilegeType type) {
-      this.type = type;
-   }
+    public void setType(PrivilegeType type) {
+        this.type = type;
+    }
 }

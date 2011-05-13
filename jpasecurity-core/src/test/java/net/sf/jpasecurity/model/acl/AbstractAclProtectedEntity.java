@@ -21,14 +21,14 @@ import javax.persistence.OneToOne;
 
 @MappedSuperclass
 public class AbstractAclProtectedEntity extends AbstractTrademarkRelatedEntity {
-   @OneToOne(fetch = FetchType.EAGER)
-   private Acl accessControlList;
+    @OneToOne(fetch = FetchType.EAGER)
+    private Acl accessControlList;
 
-   public Acl getAccessControlList() {
-      return accessControlList;
-   }
+    public Acl getAccessControlList() {
+        return accessControlList;
+    }
 
-   public void setAccessControlList(Acl accessControlList) {
-      this.accessControlList = accessControlList;
-   }
+    public void setAccessControlList(Acl accessControlList) {
+        this.accessControlList = accessControlList;
+    }
 }

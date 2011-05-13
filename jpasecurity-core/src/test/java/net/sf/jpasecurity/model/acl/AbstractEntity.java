@@ -26,26 +26,26 @@ import javax.persistence.Version;
 @MappedSuperclass
 public class AbstractEntity implements Serializable {
 
-   @Id
-   @GeneratedValue(strategy = GenerationType.AUTO)
-   private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
 
-   @Version
-   private int version;
+    @Version
+    private int version;
 
-   public long getId() {
-      return id;
-   }
+    public long getId() {
+        return id;
+    }
 
-   public void setId(long id) {
-      this.id = id;
-   }
+    public void setId(long id) {
+        this.id = id;
+    }
 
-   public int getVersion() {
-      return version;
-   }
+    public int getVersion() {
+        return version;
+    }
 
-   public void setVersion(int version) {
-      this.version = version;
-   }
+    public void setVersion(int version) {
+        this.version = version;
+    }
 }
