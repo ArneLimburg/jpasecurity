@@ -26,41 +26,41 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "tbl_group")
 public class Group extends AbstractEntity {
-   private String name;
+    private String name;
 
-   private String description;
+    private String description;
 
-   private String groupType;
+    private String groupType;
 
     @ManyToMany
-   @JoinTable(name = "GROUP_HIERARCHY",
-       joinColumns = @JoinColumn(name = "PARENT_ID"),
-       inverseJoinColumns = @JoinColumn(name = "CHILD_ID"))
-   private List<Group> fullHierarchy;
+    @JoinTable(name = "GROUP_HIERARCHY",
+               joinColumns = @JoinColumn(name = "PARENT_ID"),
+               inverseJoinColumns = @JoinColumn(name = "CHILD_ID"))
+    private List<Group> fullHierarchy;
 
-   public String getName() {
-      return name;
-   }
+    public String getName() {
+        return name;
+    }
 
-   public void setName(String name) {
-      this.name = name;
-   }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-   public String getGroupType() {
-      return groupType;
-   }
+    public String getGroupType() {
+        return groupType;
+    }
 
-   public void setGroupType(String groupType) {
-      this.groupType = groupType;
-   }
+    public void setGroupType(String groupType) {
+        this.groupType = groupType;
+    }
 
-   public String getDescription() {
-      return description;
-   }
+    public String getDescription() {
+        return description;
+    }
 
-   public void setDescription(String description) {
-      this.description = description;
-   }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public List<Group> getFullHierarchy() {
         return fullHierarchy;
