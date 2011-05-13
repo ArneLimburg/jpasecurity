@@ -23,7 +23,6 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.jpasecurity.SecureEntity;
-import net.sf.jpasecurity.util.ReflectionUtils;
 
 /**
  * An implementation of {@link SecureEntityProxyFactory} that uses CGLib
@@ -80,7 +79,7 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
       if (entity instanceof Factory) {
          return ((Factory)entity).getCallbacks();
       }
-      return (Callback[])ReflectionUtils.invokeMethod(entity, "getCallbacks");
+      throw new IllegalArgumentException("The specified object was not created by this factory");
    }
 
    private class CgLibMethodInterceptor implements net.sf.cglib.proxy.MethodInterceptor {
