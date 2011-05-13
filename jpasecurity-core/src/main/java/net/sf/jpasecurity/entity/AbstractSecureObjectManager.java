@@ -184,9 +184,9 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             } else {
                 Object newValue;
                 if (secureValue instanceof Collection) {
-                   newValue = createUnsecureCollection((Collection<?>)secureValue);
+                    newValue = createUnsecureCollection((Collection<?>)secureValue);
                 } else if (secureValue instanceof Map) {
-                   newValue = createUnsecureMap((Map<?, ?>)secureValue);
+                    newValue = createUnsecureMap((Map<?, ?>)secureValue);
                 } else if (propertyMapping.isRelationshipMapping()) {
                     newValue = getUnsecureObject(secureValue);
                 } else {
