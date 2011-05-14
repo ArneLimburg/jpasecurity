@@ -206,7 +206,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
     }
 
     public Object newInstance() {
-        return ReflectionUtils.invokeConstructor(getEntityType());
+        return ReflectionUtils.newInstance(getEntityType());
     }
 
     public Object getId(Object entity) {

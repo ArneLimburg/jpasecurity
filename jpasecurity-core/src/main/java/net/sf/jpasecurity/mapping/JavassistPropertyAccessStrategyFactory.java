@@ -71,7 +71,7 @@ public class JavassistPropertyAccessStrategyFactory extends DefaultPropertyAcces
             String propertyAccessStrategyClassName = getPropertyAccessStrategyClassName(className, propertyName);
             Class<PropertyAccessStrategy> propertyAccessStrategyClass
                 = (Class<PropertyAccessStrategy>)Class.forName(propertyAccessStrategyClassName);
-            return ReflectionUtils.instantiate(propertyAccessStrategyClass);
+            return ReflectionUtils.newInstance(propertyAccessStrategyClass);
         } catch (ClassNotFoundException e) {
             return null;
         }
@@ -82,7 +82,7 @@ public class JavassistPropertyAccessStrategyFactory extends DefaultPropertyAcces
                                                                 Member readMember,
                                                                 Member writeMember,
                                                                 boolean usesFieldAccess) {
-        return ReflectionUtils.instantiate(createPropertyAccessStrategyClass(className,
+        return ReflectionUtils.newInstance(createPropertyAccessStrategyClass(className,
                                                                              propertyName,
                                                                              readMember,
                                                                              writeMember,
