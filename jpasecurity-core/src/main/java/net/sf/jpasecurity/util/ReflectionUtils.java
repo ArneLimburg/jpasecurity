@@ -57,15 +57,20 @@ public abstract class ReflectionUtils {
     public static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... parameterTypes)
         throws NoSuchMethodException {
         Constructor<T> result = null;
+        boolean ambiguous = false;
         for (Constructor<T> constructor: getConstructors(type)) {
             if (match(constructor.getParameterTypes(), parameterTypes)) {
                 if (result == null || isMoreSpecific(constructor.getParameterTypes(), result.getParameterTypes())) {
-                    if (result != null && isMoreSpecific(result.getParameterTypes(), constructor.getParameterTypes())) {
-                        throw new IllegalArgumentException("ambigious constructors for parameters");
-                    }
                     result = constructor;
+                    ambiguous = false;
+                } else if (!isMoreSpecific(constructor.getParameterTypes(), result.getParameterTypes())
+                           && !isMoreSpecific(result.getParameterTypes(), constructor.getParameterTypes())) {
+                    ambiguous = true;
                 }
             }
+        }
+        if (ambiguous) {
+            throw new InstantiationError("ambigious constructors for parameters " + Arrays.asList(parameterTypes));
         }
         if (result == null) {
             throw new NoSuchMethodException("<init>(" + Arrays.toString(parameterTypes) + ") of " + type.getName());
@@ -112,7 +117,7 @@ public abstract class ReflectionUtils {
     private static Class<?>[] getTypes(Object[] parameters) {
         Class<?>[] types = new Class<?>[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
-            types[i] = parameters[i].getClass();
+            types[i] = parameters[i] == null? null: parameters[i].getClass();
         }
         return types;
     }

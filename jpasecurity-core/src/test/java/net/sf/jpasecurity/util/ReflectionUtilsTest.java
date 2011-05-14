@@ -16,8 +16,10 @@
 package net.sf.jpasecurity.util;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -29,7 +31,8 @@ public class ReflectionUtilsTest {
     @Test
     public void newInstance() {
 
-        assertTrue(ReflectionUtils.newInstance(ClassWithDefaultConstructor.class).isObjectConstructorCalled());
+        assertEquals(new ClassWithDefaultConstructor().getConstructor(),
+                     ReflectionUtils.newInstance(ClassWithDefaultConstructor.class).getConstructor());
 
         try {
             ReflectionUtils.newInstance(ClassWithoutDefaultConstructor.class);
@@ -40,73 +43,89 @@ public class ReflectionUtilsTest {
 
         Object o = new Object();
         String s = new String();
-        ClassWithAmbigiousConstructors instance;
 
-        instance = ReflectionUtils.newInstance(ClassWithAmbigiousConstructors.class, o, o, o);
-        assertTrue(instance.isObjectConstructorCalled());
+        assertEquals(new ClassWithAmbigiousConstructors(o, o, o).getConstructor(),
+                     ReflectionUtils.newInstance(ClassWithAmbigiousConstructors.class, o, o, o).getConstructor());
 
-        instance = ReflectionUtils.newInstance(ClassWithAmbigiousConstructors.class, o, o, s);
-        assertTrue(instance.isStringConstructorCalled());
+        assertEquals(new ClassWithAmbigiousConstructors(s, o, o).getConstructor(),
+                     ReflectionUtils.newInstance(ClassWithAmbigiousConstructors.class, s, o, o).getConstructor());
+
+        assertEquals(new ClassWithAmbigiousConstructors(s, s, o).getConstructor(),
+                     ReflectionUtils.newInstance(ClassWithAmbigiousConstructors.class, s, s, o).getConstructor());
+
+        assertEquals(new ClassWithAmbigiousConstructors(o, o, s).getConstructor(),
+                     ReflectionUtils.newInstance(ClassWithAmbigiousConstructors.class, o, o, s).getConstructor());
+
+        assertEquals(new ClassWithAmbigiousConstructors(s, null, o).getConstructor(),
+                     ReflectionUtils.newInstance(ClassWithAmbigiousConstructors.class, s, null, o).getConstructor());
 
         try {
             ReflectionUtils.newInstance(ClassWithAmbigiousConstructors.class, o, s);
+            fail("expected SecurityException");
         } catch (SecurityException e) {
             assertEquals(NoSuchMethodException.class, e.getCause().getClass());
         }
 
         try {
-            ReflectionUtils.newInstance(ClassWithAmbigiousConstructors.class, s, s, o);
-        } catch (SecurityException e) {
-            assertEquals(InstantiationException.class, e.getCause().getClass());
+            ReflectionUtils.newInstance(ClassWithAmbigiousConstructors.class, s, o, s);
+            fail("expected InstantiationError");
+        } catch (InstantiationError e) {
+            //expected
         }
     }
 
     public static class ReflectionUtilsTestClass {
 
-        boolean objectConstructorCalled = false;
+        Constructor<?> calledConstructor;
 
-        public boolean isObjectConstructorCalled() {
-            return objectConstructorCalled;
+        void setCalledConstructor(Class<?> type, Class<?>... parameterTypes) {
+            try {
+                calledConstructor = type.getConstructor(parameterTypes);
+            } catch (NoSuchMethodException e) {
+                throw new IllegalArgumentException("No matching constructor found for parameter types "
+                                                   + Arrays.asList(parameterTypes));
+            }
+        }
+
+        public Constructor<?> getConstructor() {
+            return calledConstructor;
         }
     }
 
     public static class ClassWithDefaultConstructor extends ReflectionUtilsTestClass {
 
         public ClassWithDefaultConstructor() {
-            objectConstructorCalled = true;
+            setCalledConstructor(ClassWithDefaultConstructor.class);
         }
     }
 
     public static class ClassWithoutDefaultConstructor extends ReflectionUtilsTestClass {
 
         public ClassWithoutDefaultConstructor(Object parameter) {
-            objectConstructorCalled = true;
+            setCalledConstructor(ClassWithoutDefaultConstructor.class, Object.class);
         }
     }
 
     public static class ClassWithAmbigiousConstructors extends ReflectionUtilsTestClass {
 
-        private boolean stringConstructorCalled = false;
-
         public ClassWithAmbigiousConstructors(Object parameter1, Object parameter2, Object parameter3) {
-            objectConstructorCalled = true;
+            setCalledConstructor(ClassWithAmbigiousConstructors.class, Object.class, Object.class, Object.class);
         }
 
         public ClassWithAmbigiousConstructors(String parameter1, Object parameter2, Object parameter3) {
+            setCalledConstructor(ClassWithAmbigiousConstructors.class, String.class, Object.class, Object.class);
         }
 
         public ClassWithAmbigiousConstructors(Object parameter1, String parameter2, Object parameter3) {
+            setCalledConstructor(ClassWithAmbigiousConstructors.class, Object.class, String.class, Object.class);
         }
 
         public ClassWithAmbigiousConstructors(String parameter1, String parameter2, Object parameter3) {
+            setCalledConstructor(ClassWithAmbigiousConstructors.class, String.class, String.class, Object.class);
         }
 
         public ClassWithAmbigiousConstructors(Object parameter1, Object parameter2, String parameter3) {
-            stringConstructorCalled = true;
-        }
-
-        public boolean isStringConstructorCalled() {
-            return stringConstructorCalled;
+            setCalledConstructor(ClassWithAmbigiousConstructors.class, Object.class, Object.class, String.class);
         }
     }
 }
