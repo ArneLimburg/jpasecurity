@@ -272,7 +272,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                 transientParameters[i] = parameters[i];
             }
         }
-        Object entity = ReflectionUtils.invokeConstructor(classMapping.getEntityType(), transientParameters);
+        Object entity = ReflectionUtils.newInstance(classMapping.getEntityType(), transientParameters);
         return isAccessible(accessType, entity);
     }
 

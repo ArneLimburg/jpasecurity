@@ -27,23 +27,15 @@ import java.util.Arrays;
  */
 public abstract class ReflectionUtils {
 
-    public static <T> T instantiate(Class<T> type) {
+    public static <T> T newInstance(Class<T> type, Object... parameters) {
         try {
-            return type.newInstance();
-        } catch (Exception e) {
-            return (T)throwThrowable(e);
-        }
-    }
-
-    public static Object invokeConstructor(Class<?> type, Object... parameters) {
-        try {
-            Constructor<?> constructor = getConstructor(type, parameters);
+            Constructor<T> constructor = getConstructor(type, parameters);
             constructor.setAccessible(true);
             return constructor.newInstance(parameters);
         } catch (InvocationTargetException e) {
-            return throwThrowable(e.getCause());
+            return ReflectionUtils.<T>throwThrowable(e.getCause());
         } catch (Exception e) {
-            return throwThrowable(e);
+            return ReflectionUtils.<T>throwThrowable(e);
         }
     }
 
@@ -58,14 +50,14 @@ public abstract class ReflectionUtils {
         }
     }
 
-    public static Constructor<?> getConstructor(Class<?> type, Object... parameters) throws NoSuchMethodException {
+    public static <T> Constructor<T> getConstructor(Class<T> type, Object... parameters) throws NoSuchMethodException {
         return getConstructor(type, getTypes(parameters));
     }
 
-    public static Constructor<?> getConstructor(Class<?> type, Class<?>... parameterTypes)
+    public static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... parameterTypes)
         throws NoSuchMethodException {
-        Constructor<?> result = null;
-        for (Constructor<?> constructor: type.getDeclaredConstructors()) {
+        Constructor<T> result = null;
+        for (Constructor<T> constructor: getConstructors(type)) {
             if (match(constructor.getParameterTypes(), parameterTypes)) {
                 if (result == null || isMoreSpecific(constructor.getParameterTypes(), result.getParameterTypes())) {
                     if (result != null && isMoreSpecific(result.getParameterTypes(), constructor.getParameterTypes())) {
@@ -101,16 +93,20 @@ public abstract class ReflectionUtils {
         }
     }
 
-    public static Object throwThrowable(Throwable throwable) {
+    public static <T> T throwThrowable(Throwable throwable) {
         if (throwable instanceof Error) {
             throw (Error)throwable;
         } else if (throwable instanceof RuntimeException) {
             throw (RuntimeException)throwable;
         } else if (throwable instanceof InvocationTargetException) {
-            return throwThrowable(((InvocationTargetException)throwable).getTargetException());
+            return ReflectionUtils.<T>throwThrowable(((InvocationTargetException)throwable).getTargetException());
         } else {
             throw new SecurityException(throwable);
         }
+    }
+
+    private static <T> Constructor<T>[] getConstructors(Class<T> type) {
+        return (Constructor<T>[])type.getDeclaredConstructors();
     }
 
     private static Class<?>[] getTypes(Object[] parameters) {
