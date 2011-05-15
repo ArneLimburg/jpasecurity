@@ -20,9 +20,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.PersistenceException;
-
 import net.sf.jpasecurity.CascadeType;
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.FetchType;
 
 /**
@@ -49,12 +48,14 @@ public abstract class RelationshipMappingInformation extends PropertyMappingInfo
                                    ClassMappingInformation relatedClassMapping,
                                    ClassMappingInformation declaringClassMapping,
                                    PropertyAccessStrategy propertyAccessStrategy,
-                                   boolean isIdProperty,
+                                   ExceptionFactory exceptionFactory,
                                    FetchType fetchType,
                                    CascadeType... cascadeTypes) {
-        super(propertyName, declaringClassMapping, isIdProperty, false, propertyAccessStrategy);
+        super(propertyName, declaringClassMapping, propertyAccessStrategy, exceptionFactory);
         if (relatedClassMapping == null) {
-            throw new PersistenceException("could not determine target class for property \"" + propertyName + "\" of class " + declaringClassMapping.getEntityName());
+            throw exceptionFactory.createMappingException("could not determine target class for property \""
+                                                          + propertyName + "\" of class "
+                                                          + declaringClassMapping.getEntityName());
         }
         if (fetchType == null) {
             throw new IllegalArgumentException("fetchType may not be null");

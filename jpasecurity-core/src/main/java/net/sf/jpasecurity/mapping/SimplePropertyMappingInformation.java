@@ -15,7 +15,7 @@
  */
 package net.sf.jpasecurity.mapping;
 
-import javax.persistence.PersistenceException;
+import net.sf.jpasecurity.ExceptionFactory;
 
 /**
  * This class holds mapping information for simple property mappings.
@@ -28,12 +28,13 @@ public final class SimplePropertyMappingInformation extends PropertyMappingInfor
     public SimplePropertyMappingInformation(String propertyName,
                                             Class<?> simpleType,
                                             ClassMappingInformation classMapping,
-                                            boolean isIdProperty,
-                                            boolean isVersionProperty,
-                                            PropertyAccessStrategy propertyAccessStrategy) {
-        super(propertyName, classMapping, isIdProperty, isVersionProperty, propertyAccessStrategy);
+                                            PropertyAccessStrategy propertyAccessStrategy,
+                                            ExceptionFactory exceptionFactory) {
+        super(propertyName, classMapping, propertyAccessStrategy, exceptionFactory);
         if (simpleType == null) {
-            throw new PersistenceException("could not determine type of property \"" + propertyName + "\" of class " + classMapping.getEntityName());
+            throw exceptionFactory.createMappingException("could not determine type of property \""
+                                                          + propertyName + "\" of class "
+                                                          + classMapping.getEntityName());
         }
         type = simpleType;
     }
