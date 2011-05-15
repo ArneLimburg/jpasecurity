@@ -226,22 +226,12 @@ public abstract class AbstractMappingParser {
     private void parse(DefaultClassMappingInformation classMapping, Member property) {
         String name = getName(property);
         Class<?> type = getType(property);
-        boolean isIdProperty = isIdProperty(property);
-        boolean isVersionProperty = isVersionProperty(property);
         boolean isSingleValuedRelationshipProperty = isSingleValuedRelationshipProperty(property);
         boolean isCollectionValuedRelationshipProperty = isCollectionValuedRelationshipProperty(property);
         boolean createPropertyMapping = !classMapping.containsPropertyMapping(name);
         PropertyMappingInformation propertyMapping = null;
         if (!createPropertyMapping) {
             propertyMapping = classMapping.getPropertyMapping(name);
-        }
-        if (propertyMapping != null) {
-            if (isIdProperty) {
-                propertyMapping.setIdProperty(isIdProperty);
-            }
-            if (isVersionProperty) {
-                propertyMapping.setVersionProperty(isVersionProperty);
-            }
         }
         if (isSingleValuedRelationshipProperty || isCollectionValuedRelationshipProperty) {
             if (propertyMapping != null) {
@@ -262,7 +252,7 @@ public abstract class AbstractMappingParser {
                                                                                      typeMapping,
                                                                                      classMapping,
                                                                                      propertyAccessStrategy,
-                                                                                     isIdProperty,
+                                                                                     exceptionFactory,
                                                                                      getFetchType(property),
                                                                                      getCascadeTypes(property));
                 } else if (isCollectionValuedRelationshipProperty) {
@@ -274,7 +264,7 @@ public abstract class AbstractMappingParser {
                                                                                          targetMapping,
                                                                                          classMapping,
                                                                                          propertyAccessStrategy,
-                                                                                         isIdProperty,
+                                                                                         exceptionFactory,
                                                                                          getFetchType(property),
                                                                                          getCascadeTypes(property));
                 }
@@ -286,14 +276,19 @@ public abstract class AbstractMappingParser {
             propertyMapping = new SimplePropertyMappingInformation(name,
                                                                    type,
                                                                    classMapping,
-                                                                   isIdProperty,
-                                                                   isVersionProperty,
-                                                                   propertyAccessStrategy);
+                                                                   propertyAccessStrategy,
+                                                                   exceptionFactory);
             classMapping.addPropertyMapping(propertyMapping);
         } else if (propertyMapping == null) {
             String error = "could not determine mapping for property \"" + name
                          + "\" of class " + property.getDeclaringClass().getName();
             throw exceptionFactory.createMappingException(error);
+        }
+        if (isIdProperty(property)) {
+            propertyMapping.setIdProperty(true);
+        }
+        if (isVersionProperty(property)) {
+            propertyMapping.setVersionProperty(true);
         }
     }
 

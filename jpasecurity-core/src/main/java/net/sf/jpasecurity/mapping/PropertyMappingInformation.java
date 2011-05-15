@@ -18,9 +18,8 @@ package net.sf.jpasecurity.mapping;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.persistence.PersistenceException;
-
 import net.sf.jpasecurity.CascadeType;
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.FetchType;
 
 /**
@@ -37,22 +36,19 @@ public abstract class PropertyMappingInformation {
 
     PropertyMappingInformation(String propertyName,
                                ClassMappingInformation classMapping,
-                               boolean isIdProperty,
-                               boolean isVersionProperty,
-                               PropertyAccessStrategy accessStrategy) {
+                               PropertyAccessStrategy accessStrategy,
+                               ExceptionFactory exceptionFactory) {
         if (propertyName == null) {
             throw new IllegalArgumentException("property name not specified");
         }
         if (classMapping == null) {
-            throw new PersistenceException("class is no entity class");
+            throw exceptionFactory.createMappingException("class is no entity class");
         }
         if (accessStrategy == null) {
             throw new IllegalArgumentException("PropertyAccessStrategy may not be null");
         }
         name = propertyName;
         containingClassMapping = classMapping;
-        idProperty = isIdProperty;
-        versionProperty = isVersionProperty;
         propertyAccessStrategy = accessStrategy;
     }
 

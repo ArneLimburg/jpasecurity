@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.mapping;
 
 import net.sf.jpasecurity.CascadeType;
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.FetchType;
 
 /**
@@ -30,14 +31,14 @@ public final class CollectionValuedRelationshipMappingInformation extends Relati
                                                           ClassMappingInformation relatedClassMapping,
                                                           ClassMappingInformation declaringClassMapping,
                                                           PropertyAccessStrategy propertyAccessStrategy,
-                                                          boolean isIdProperty,
+                                                          ExceptionFactory exceptionFactory,
                                                           FetchType fetchType,
                                                           CascadeType... cascadeTypes) {
         super(propertyName,
               relatedClassMapping,
               declaringClassMapping,
               propertyAccessStrategy,
-              isIdProperty,
+              exceptionFactory,
               fetchType,
               cascadeTypes);
         if (collectionType == null) {
