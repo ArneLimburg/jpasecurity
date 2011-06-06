@@ -24,7 +24,6 @@ import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
-import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.spi.LoadState;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
@@ -45,7 +44,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT = "default";
 
     private PersistenceProvider persistenceProvider;
-    
+
     public ProviderUtil getProviderUtil() {
         if (persistenceProvider == null) {
             return new EmptyProviderUtil();
@@ -206,7 +205,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         }
         return Thread.currentThread().getContextClassLoader();
     }
-    
+
     private static class EmptyProviderUtil implements ProviderUtil {
 
         public LoadState isLoaded(Object entity) {
