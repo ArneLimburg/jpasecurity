@@ -28,6 +28,7 @@ public interface ClassMappingInformation {
     <E> Class<E> getEntityType();
     Set<ClassMappingInformation> getSubclassMappings();
     Class<?> getIdClass();
+    boolean isEmbeddable();
     boolean usesFieldAccess();
     boolean usesPropertyAccess();
     boolean isMetadataComplete();

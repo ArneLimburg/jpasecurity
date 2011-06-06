@@ -143,7 +143,7 @@ public class DefaultSecureObjectCache extends EntityPersister {
             return (E)entity;
         }
         Object secureObject = super.getSecureObject(unsecureObject);
-        if (secureObject instanceof SecureEntity) {
+        if ((secureObject instanceof SecureEntity) && id != null) {
             entities.put(id, (SecureEntity)secureObject);
         }
         return (E)secureObject;

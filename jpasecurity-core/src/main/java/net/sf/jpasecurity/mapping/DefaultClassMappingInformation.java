@@ -38,6 +38,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
     private DefaultClassMappingInformation superclassMapping;
     private Set<ClassMappingInformation> subclassMappings = new HashSet<ClassMappingInformation>();
     private Class<?> idClass;
+    private boolean embeddable;
     private boolean fieldAccess;
     private boolean metadataComplete;
     private boolean excludeSuperclassEntityListeners;
@@ -52,6 +53,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
                                           Class<?> entityType,
                                           DefaultClassMappingInformation superclassMapping,
                                           Class<?> idClass,
+                                          boolean embeddable,
                                           boolean usesFieldAccess,
                                           boolean metadataComplete,
                                           ExceptionFactory exceptionFactory) {
@@ -68,6 +70,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
             superclassMapping.subclassMappings.add(this);
         }
         this.idClass = idClass;
+        this.embeddable = embeddable;
         this.fieldAccess = usesFieldAccess;
         this.metadataComplete = metadataComplete;
         this.exceptionFactory = exceptionFactory;
@@ -98,6 +101,10 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
 
     void setIdClass(Class<?> idClass) {
         this.idClass = idClass;
+    }
+
+    public boolean isEmbeddable() {
+        return embeddable;
     }
 
     public boolean usesFieldAccess() {
@@ -210,6 +217,9 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
     }
 
     public Object getId(Object entity) {
+        if (embeddable) {
+            return null;
+        }
         List<PropertyMappingInformation> idProperties = getIdPropertyMappings();
         if (idProperties.size() == 0) {
             String error = "Id property required for class " + getEntityType().getName();
