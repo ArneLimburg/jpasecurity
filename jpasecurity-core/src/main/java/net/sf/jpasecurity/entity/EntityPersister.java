@@ -395,30 +395,32 @@ public class EntityPersister extends AbstractSecureObjectManager {
                 && (propertyMapping.getCascadeTypes().contains(cascadeType)
                     || propertyMapping.getCascadeTypes().contains(CascadeType.ALL))) {
                 Object secureValue = propertyMapping.getPropertyValue(secureEntity);
-                if (propertyMapping.isSingleValued()) {
-                    initialize(secureValue,
-                               getUnsecureObject(secureValue),
-                               isNew(secureValue),
-                               cascadeType,
-                               alreadyInitializedEntities);
-                } else {
-                    if (secureValue instanceof AbstractSecureCollection) {
-                        AbstractSecureCollection<?, Collection<?>> secureCollection
-                            = (AbstractSecureCollection<?, Collection<?>>)secureValue;
-                        secureCollection.initialize(!isNew);
-                    } else if (secureValue instanceof SecureList) {
-                        SecureList<?> secureList = (SecureList<?>)secureValue;
-                        secureList.initialize(!isNew);
-                    } else if (secureValue instanceof DefaultSecureMap) {
-                        DefaultSecureMap<?, ?> secureMap = (DefaultSecureMap<?, ?>)secureValue;
-                        secureMap.initialize(!isNew);
-                    }
-                    for (Object secureEntry: ((Collection<Object>)secureValue)) {
-                        initialize(secureEntry,
-                                   getUnsecureObject(secureEntry),
-                                   isNew(secureEntity),
+                if (secureValue != null) {
+                    if (propertyMapping.isSingleValued()) {
+                        initialize(secureValue,
+                                   getUnsecureObject(secureValue),
+                                   isNew(secureValue),
                                    cascadeType,
                                    alreadyInitializedEntities);
+                    } else {
+                        if (secureValue instanceof AbstractSecureCollection) {
+                            AbstractSecureCollection<?, Collection<?>> secureCollection
+                                = (AbstractSecureCollection<?, Collection<?>>)secureValue;
+                            secureCollection.initialize(!isNew);
+                        } else if (secureValue instanceof SecureList) {
+                            SecureList<?> secureList = (SecureList<?>)secureValue;
+                            secureList.initialize(!isNew);
+                        } else if (secureValue instanceof DefaultSecureMap) {
+                            DefaultSecureMap<?, ?> secureMap = (DefaultSecureMap<?, ?>)secureValue;
+                            secureMap.initialize(!isNew);
+                        }
+                        for (Object secureEntry: ((Collection<Object>)secureValue)) {
+                            initialize(secureEntry,
+                                       getUnsecureObject(secureEntry),
+                                       isNew(secureEntity),
+                                       cascadeType,
+                                       alreadyInitializedEntities);
+                        }
                     }
                 }
             }
