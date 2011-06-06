@@ -24,6 +24,8 @@ import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
+import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.spi.LoadState;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.ProviderUtil;
@@ -42,8 +44,17 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_LIGHT = "light";
     public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT = "default";
 
+    private PersistenceProvider persistenceProvider;
+    
+    public ProviderUtil getProviderUtil() {
+        if (persistenceProvider == null) {
+            return new EmptyProviderUtil();
+        }
+        return persistenceProvider.getProviderUtil();
+    }
+
     public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map map) {
-        PersistenceProvider persistenceProvider = createNativePersistenceProvider(info, map);
+        persistenceProvider = createNativePersistenceProvider(info, map);
         map = createPersistenceProviderProperty(map, persistenceProvider);
         EntityManagerFactory nativeEntityManagerFactory
             = persistenceProvider.createContainerEntityManagerFactory(info, map);
@@ -57,7 +68,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         }
         if (getClass().getName().equals(info.getPersistenceProviderClassName())
             || (map != null && getClass().getName().equals(map.get(PERSISTENCE_PROVIDER_PROPERTY)))) {
-            PersistenceProvider persistenceProvider = createNativePersistenceProvider(info, map);
+            persistenceProvider = createNativePersistenceProvider(info, map);
             map = createPersistenceProviderProperty(map, persistenceProvider);
             EntityManagerFactory nativeEntityManagerFactory
                 = persistenceProvider.createEntityManagerFactory(persistenceUnitName, map);
@@ -195,9 +206,19 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         }
         return Thread.currentThread().getContextClassLoader();
     }
+    
+    private static class EmptyProviderUtil implements ProviderUtil {
 
-    public ProviderUtil getProviderUtil() {
-        // TODO Auto-generated method stub
-        return null;
+        public LoadState isLoaded(Object entity) {
+            return LoadState.UNKNOWN;
+        }
+
+        public LoadState isLoadedWithReference(Object entity, String property) {
+            return LoadState.UNKNOWN;
+        }
+
+        public LoadState isLoadedWithoutReference(Object entity, String property) {
+            return LoadState.UNKNOWN;
+        }
     }
 }
