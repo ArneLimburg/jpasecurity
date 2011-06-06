@@ -172,6 +172,7 @@ public abstract class AbstractMappingParser {
                                                               mappedClass,
                                                               (DefaultClassMappingInformation)superclassMapping,
                                                               idClass,
+                                                              isEmbeddable(mappedClass),
                                                               usesFieldAccess,
                                                               metadataComplete,
                                                               exceptionFactory);
