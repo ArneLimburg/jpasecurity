@@ -134,27 +134,22 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
     }
 
     public CriteriaBuilder getCriteriaBuilder() {
-        // TODO Auto-generated method stub
-        return null;
+        return nativeEntityManagerFactory.getCriteriaBuilder();
     }
 
     public Metamodel getMetamodel() {
-        // TODO Auto-generated method stub
-        return null;
+        return nativeEntityManagerFactory.getMetamodel();
     }
 
     public Map<String, Object> getProperties() {
-        // TODO Auto-generated method stub
-        return null;
+        return nativeEntityManagerFactory.getProperties();
     }
 
     public Cache getCache() {
-        // TODO Auto-generated method stub
-        return null;
+        return nativeEntityManagerFactory.getCache();
     }
 
     public PersistenceUnitUtil getPersistenceUnitUtil() {
-        // TODO Auto-generated method stub
-        return null;
+        return nativeEntityManagerFactory.getPersistenceUnitUtil();
     }
 }
