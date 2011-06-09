@@ -30,10 +30,15 @@ import java.util.Set;
 
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
+import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
+import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
+import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
+import net.sf.jpasecurity.jpql.parser.JpqlSelectExpressions;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
+import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.security.PermitWhere;
@@ -69,7 +74,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
         compileRules(rules);
     }
 
-    private Collection<String> parseAllowedRoles(Class<?> annotatedClass) {
+    Collection<String> parseAllowedRoles(Class<?> annotatedClass) {
         SetMap<Set<AccessType>, String> accessTypes = rolesAllowedParser.parseAllowedRoles(annotatedClass);
         Set<String> rules = new HashSet<String>();
         for (Map.Entry<Set<AccessType>, Set<String>> roles: accessTypes.entrySet()) {
@@ -102,7 +107,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
         return rules;
     }
 
-    private Collection<String> parsePermissions(Class<?> annotatedClass) {
+    Collection<String> parsePermissions(Class<?> annotatedClass) {
         try {
             Set<String> rules = new HashSet<String>();
             ListMap<Class<?>, PermitWhere> permissions = permissionParser.parsePermissions(annotatedClass);
@@ -151,10 +156,36 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
     private class PathVisitor extends JpqlVisitorAdapter<String> {
 
         private final QueryPreparator queryPreparator = new QueryPreparator();
+        private Set<Alias> declaredAliases = new HashSet<Alias>();
+
+        public boolean visit(JpqlSelectExpressions select, String alias) {
+            return false;
+        }
+
+        public boolean visit(JpqlFromItem from, String alias) {
+            return visitAlias(from);
+        }
+
+        public boolean visit(JpqlInnerJoin join, String alias) {
+            return visitAlias(join);
+        }
+
+        public boolean visit(JpqlOuterJoin join, String alias) {
+            return visitAlias(join);
+        }
+
+        public boolean visitAlias(Node node) {
+            if (node.jjtGetNumChildren() == 2) {
+                declaredAliases.add(new Alias(node.jjtGetChild(1).getValue()));
+            }
+            return false;
+        }
 
         public boolean visit(JpqlPath path, String alias) {
-            if (path.jjtGetNumChildren() > 1
-                || !getSecurityContext().getAliases().contains(new Alias(path.jjtGetChild(0).getValue()))) {
+            Alias a = new Alias(path.jjtGetChild(0).getValue());
+            if (!declaredAliases.contains(a)
+                && (path.jjtGetNumChildren() > 1
+                    || (!getSecurityContext().getAliases().contains(a)))) {
                 queryPreparator.prepend(alias, path);
             }
             return true;
