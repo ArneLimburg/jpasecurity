@@ -127,7 +127,7 @@ public class EntityFilter {
             }
         }
 
-        LOG.debug("Using access rules " + accessDefinition);
+        LOG.debug("Using access definition " + accessDefinition);
 
         try {
             QueryEvaluationParameters evaluationParameters
@@ -424,6 +424,10 @@ public class EntityFilter {
 
         public void mergeNode(Node node) {
             accessRules = queryPreparator.createAnd(node, accessRules);
+        }
+        
+        public String toString() {
+            return "[query=\"" + accessRules.toString() + "\",parameters=" + queryParameters.toString() + "]";
         }
     }
 }
