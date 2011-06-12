@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.configuration;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.PersistenceException;
@@ -64,15 +65,29 @@ public class Configuration {
     }
 
     public Configuration(Map<String, Object> properties) {
-        this.properties = properties;
-        if (this.properties == null) {
-            this.properties = Collections.emptyMap();
+        if (properties != null) {
+            this.properties = new HashMap<String, Object>(properties);
+        } else {
+            this.properties = Collections.<String, Object>emptyMap();
         }
         Object maxFetchDepth = this.properties.get(FetchManager.MAX_FETCH_DEPTH);
         if (maxFetchDepth != null) {
             this.maxFetchDepth = Integer.parseInt(maxFetchDepth.toString());
         } else {
             this.maxFetchDepth = Integer.MAX_VALUE;
+        }
+    }
+
+    public Configuration(Configuration configuration, Map<String, Object> additionalProperties) {
+        properties = new HashMap<String, Object>(configuration.properties);
+        accessRulesProvider = configuration.getAccessRulesProvider();
+        securityContext = configuration.getSecurityContext();
+        secureEntityProxyFactory = configuration.getSecureEntityProxyFactory();
+        propertyAccessStrategyFactory = configuration.getPropertyAccessStrategyFactory();
+        exceptionFactory = configuration.getExceptionFactory();
+        maxFetchDepth = configuration.getMaxFetchDepth();
+        if (additionalProperties != null) {
+            properties.putAll(additionalProperties);
         }
     }
 
