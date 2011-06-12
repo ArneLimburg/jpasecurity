@@ -93,13 +93,16 @@ public class EntityFilter {
     public boolean isAccessible(Object entity, AccessType accessType, SecurityContext securityContext)
         throws NotEvaluatableException {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
+        LOG.debug("Evaluating " + accessType + " access for entity of type " + mapping.getEntityName());
         Alias alias = new Alias(Character.toLowerCase(mapping.getEntityName().charAt(0))
                                 + mapping.getEntityName().substring(1));
         AccessDefinition accessDefinition
             = createAccessDefinition(alias, mapping.getEntityType(), accessType, securityContext);
         if (accessDefinition == null) {
+            LOG.info("No access rules defined for access type " + accessType + ". Returning true.");
             return true;
         }
+        LOG.debug("Using access definition " + accessDefinition);
         QueryEvaluationParameters evaluationParameters
             = new QueryEvaluationParameters(mappingInformation,
                                             Collections.singletonMap(alias, entity),
@@ -425,7 +428,7 @@ public class EntityFilter {
         public void mergeNode(Node node) {
             accessRules = queryPreparator.createAnd(node, accessRules);
         }
-        
+
         public String toString() {
             return "[query=\"" + accessRules.toString() + "\",parameters=" + queryParameters.toString() + "]";
         }
