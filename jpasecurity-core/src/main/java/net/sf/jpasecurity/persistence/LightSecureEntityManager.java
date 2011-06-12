@@ -20,7 +20,6 @@ import static net.sf.jpasecurity.AccessType.READ;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.ExceptionFactory;
@@ -43,28 +42,35 @@ import net.sf.jpasecurity.security.FilterResult;
  */
 public class LightSecureEntityManager extends DelegatingEntityManager {
 
+    private LightSecureEntityManagerFactory entityManagerFactory;
     private MappingInformation mappingInformation;
     private SecurityContext securityContext;
     private EntityFilter entityFilter;
 
-    LightSecureEntityManager(EntityManager entityManager,
-                             EntityManagerFactory entityManagerFactory,
+    LightSecureEntityManager(LightSecureEntityManagerFactory parent,
+                             EntityManager entityManager,
                              MappingInformation mappingInformation,
                              Configuration configuration) {
         super(entityManager);
+        entityManagerFactory = parent;
         this.mappingInformation = mappingInformation;
         this.securityContext = configuration.getSecurityContext();
         SecureObjectCache emptyObjectCache = new EmptyObjectCache();
         ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
         PathEvaluator pathEvaluator = new MappedPathEvaluator(mappingInformation, exceptionFactory);
         SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator(exceptionFactory);
-        SubselectEvaluator entityManagerEvaluator = new EntityManagerEvaluator(entityManagerFactory, pathEvaluator);
+        SubselectEvaluator entityManagerEvaluator = new EntityManagerEvaluator(entityManager, pathEvaluator);
         this.entityFilter = new EntityFilter(emptyObjectCache,
                                              mappingInformation,
                                              configuration.getExceptionFactory(),
                                              configuration.getAccessRulesProvider().getAccessRules(),
                                              simpleSubselectEvaluator,
                                              entityManagerEvaluator);
+    }
+
+    @Override
+    public LightSecureEntityManagerFactory getEntityManagerFactory() {
+        return entityManagerFactory;
     }
 
     public Query createNamedQuery(String name) {

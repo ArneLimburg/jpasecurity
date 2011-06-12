@@ -81,14 +81,11 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
 
     public EntityManager createEntityManager() {
         return createSecureEntityManager(nativeEntityManagerFactory.createEntityManager(),
-                                         nativeEntityManagerFactory,
-                                         Collections.EMPTY_MAP);
+                                         Collections.<String, Object>emptyMap());
     }
 
     public EntityManager createEntityManager(Map map) {
-        return createSecureEntityManager(nativeEntityManagerFactory.createEntityManager(map),
-                                         nativeEntityManagerFactory,
-                                         map);
+        return createSecureEntityManager(nativeEntityManagerFactory.createEntityManager(map), map);
     }
 
     public boolean isOpen() {
@@ -100,10 +97,11 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
         nativeEntityManagerFactory.close();
     }
 
-    protected EntityManager createSecureEntityManager(EntityManager entityManager,
-                                                      EntityManagerFactory entityManagerFactory,
-                                                      Map<String, Object> properties) {
-        return new DefaultSecureEntityManager(entityManager, entityManagerFactory, configuration, mappingInformation);
+    protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, Object> properties) {
+        return new DefaultSecureEntityManager(this,
+                                              entityManager,
+                                              new Configuration(configuration, properties),
+                                              mappingInformation);
     }
 
     private void injectPersistenceInformation(Map<String, Object> persistenceProperties) {

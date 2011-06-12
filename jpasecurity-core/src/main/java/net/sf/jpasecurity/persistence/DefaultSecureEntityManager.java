@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
@@ -70,25 +69,27 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
 
     private static final Log LOG = LogFactory.getLog(DefaultSecureEntityManager.class);
 
+    private SecureEntityManagerFactory entityManagerFactory;
     private Configuration configuration;
     private MappingInformation mappingInformation;
     private SecureObjectManager secureObjectManager;
     private EntityFilter entityFilter;
     private ObjectWrapper objectWrapper;
 
-    protected DefaultSecureEntityManager(EntityManager entityManager,
-                                         EntityManagerFactory entityManagerFactory,
+    protected DefaultSecureEntityManager(SecureEntityManagerFactory parent,
+                                         EntityManager entityManager,
                                          Configuration configuration,
                                          MappingInformation mapping) {
-        this(entityManager, entityManagerFactory, configuration, mapping, null);
+        this(parent, entityManager, configuration, mapping, null);
     }
 
-    protected DefaultSecureEntityManager(EntityManager entityManager,
-                                         EntityManagerFactory entityManagerFactory,
+    protected DefaultSecureEntityManager(SecureEntityManagerFactory parent,
+                                         EntityManager entityManager,
                                          Configuration configuration,
                                          MappingInformation mapping,
                                          SecureObjectManager secureObjectManager) {
         super(entityManager);
+        entityManagerFactory = parent;
         if (secureObjectManager == null) {
             secureObjectManager = new DefaultSecureObjectCache(mapping,
                                                                new JpaBeanStore(entityManager),
@@ -105,7 +106,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         SubselectEvaluator objectCacheEvaluator
             = new ObjectCacheSubselectEvaluator(secureObjectManager, exceptionFactory);
         SubselectEvaluator entityManagerEvaluator
-            = new EntityManagerEvaluator(entityManagerFactory, secureObjectManager, pathEvaluator);
+            = new EntityManagerEvaluator(entityManager, secureObjectManager, pathEvaluator);
         this.entityFilter = new EntityFilter(secureObjectManager,
                                              mappingInformation,
                                              exceptionFactory,
@@ -114,6 +115,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                                              objectCacheEvaluator,
                                              entityManagerEvaluator);
         this.objectWrapper = new JpaEntityWrapper();
+    }
+
+    @Override
+    public SecureEntityManagerFactory getEntityManagerFactory() {
+        return entityManagerFactory;
     }
 
     public void persist(Object entity) {

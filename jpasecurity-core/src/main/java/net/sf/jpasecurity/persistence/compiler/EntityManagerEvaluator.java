@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpa.JpaQuery;
@@ -35,37 +34,37 @@ import net.sf.jpasecurity.jpql.compiler.QueryEvaluationParameters;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.mapping.Alias;
+import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * This class evaluates JPQL queries. If in-memory-evaluation
- * cannot be performed a call to a specified <tt>EntityManager</tt> is used.
+ * This class evaluates JPQL subselect-queries via a call to a specified <tt>EntityManager</tt>.
  * @author Arne Limburg
  */
 public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
 
     private static final Log LOG = LogFactory.getLog(EntityManagerEvaluator.class);
 
-    private final EntityManagerFactory entityManagerFactory;
+    private final EntityManager entityManager;
     private final SecureObjectManager objectManager;
     private final QueryPreparator queryPreparator;
     private final PathEvaluator pathEvaluator;
 
-    public EntityManagerEvaluator(EntityManagerFactory entityManagerFactory,
+    public EntityManagerEvaluator(EntityManager entityManager,
                                   PathEvaluator pathEvaluator) {
-        this(entityManagerFactory, null, pathEvaluator);
+        this(entityManager, null, pathEvaluator);
     }
 
-    public EntityManagerEvaluator(EntityManagerFactory entityManagerFactory,
+    public EntityManagerEvaluator(EntityManager entityManager,
                                   SecureObjectManager objectManager,
                                   PathEvaluator pathEvaluator) {
         if (pathEvaluator == null) {
             throw new IllegalArgumentException("PathEvaluator may not be null");
         }
-        this.entityManagerFactory = entityManagerFactory;
+        this.entityManager = entityManager;
         this.objectManager = objectManager;
         this.queryPreparator = new QueryPreparator();
         this.pathEvaluator = pathEvaluator;
@@ -77,9 +76,9 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
      */
     public Collection<?> evaluate(JpqlCompiledStatement statement,
                                   QueryEvaluationParameters data) throws NotEvaluatableException {
-        if (entityManagerFactory == null || !entityManagerFactory.isOpen() || data.isInMemory()) {
+        if (entityManager == null || !entityManager.isOpen() || data.isInMemory()) {
             data.setResultUndefined();
-            throw new NotEvaluatableException("No open EntityManager available");
+            throw new NotEvaluatableException("No open EntityManage available");
         }
         LOG.trace("Evaluating subselect with query");
         Set<Alias> aliases = getAliases(statement.getTypeDefinitions());
@@ -87,13 +86,13 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
         Map<String, String> namedPathParameters = new HashMap<String, String>();
         Map<String, Object> namedParameterValues = new HashMap<String, Object>();
         for (JpqlPath jpqlPath: statement.getWhereClausePaths()) {
-            String path = jpqlPath.toString();
-            Alias alias = getAlias(path);
+            Path path = new Path(jpqlPath.toString());
+            Alias alias = path.getRootAlias();
             if (!aliases.contains(alias)) {
-                String namedParameter = namedPathParameters.get(path);
+                String namedParameter = namedPathParameters.get(alias.getName());
                 if (namedParameter == null) {
                     namedParameter = createNamedParameter(namedParameters);
-                    namedPathParameters.put(path, namedParameter);
+                    namedPathParameters.put(alias.getName(), namedParameter);
                     namedParameterValues.put(namedParameter, getPathValue(path, data.getAliasValues()));
                 }
                 queryPreparator.replace(jpqlPath, queryPreparator.createNamedParameter(namedParameter));
@@ -101,8 +100,6 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
         }
         String queryString = statement.getStatement().toString();
         LOG.info("executing query " + queryString);
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
         try {
             JpaQuery query = new JpaQuery(entityManager.createQuery(queryString));
             for (String namedParameter: statement.getNamedParameters()) {
@@ -125,24 +122,16 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
         } catch (RuntimeException e) {
             data.setResultUndefined();
             throw new NotEvaluatableException(e);
-        } finally {
-            entityManager.getTransaction().rollback();
-            entityManager.close();
         }
     }
 
-    private Object getPathValue(String path, Map<Alias, Object> aliases) {
-        Alias alias = getAlias(path);
+    private Object getPathValue(Path path, Map<Alias, Object> aliases) {
+        Alias alias = path.getRootAlias();
         Object aliasValue = aliases.get(alias);
-        if (path.length() == alias.getName().length()) {
+        if (!path.hasSubpath()) {
             return aliasValue;
         }
-        return pathEvaluator.evaluate(aliasValue, path.substring(alias.getName().length() + 1));
-    }
-
-    private Alias getAlias(String path) {
-        int index = path.indexOf('.');
-        return index == -1? new Alias(path): new Alias(path.substring(0, index));
+        return pathEvaluator.evaluate(aliasValue, path.getSubpath());
     }
 
     private Set<Alias> getAliases(Set<TypeDefinition> typeDefinitions) {
