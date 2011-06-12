@@ -189,8 +189,8 @@ public class EntityFilter {
                                                     AccessType accessType,
                                                     SecurityContext securityContext) {
         return createAccessDefinition(getSelectedEntityTypes(statement),
-                                    accessType,
-                                    securityContext);
+                                      accessType,
+                                      securityContext);
     }
 
     private AccessDefinition createAccessDefinition(Alias alias,

@@ -40,6 +40,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.JpqlWith;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.mapping.Alias;
+import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.util.SetHashMap;
 import net.sf.jpasecurity.util.SetMap;
@@ -410,35 +411,6 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         public boolean visit(JpqlHaving node, ValueHolder<JpqlHaving> data) {
             data.setValue(node);
             return false;
-        }
-    }
-
-    private class Path {
-
-        private Alias rootAlias;
-        private String subpath;
-
-        public Path(String path) {
-            int index = path.indexOf('.');
-            if (index == -1) {
-                rootAlias = new Alias(path);
-                subpath = null;
-            } else {
-                rootAlias = new Alias(path.substring(0, index));
-                subpath = path.substring(index + 1);
-            }
-        }
-
-        public boolean hasSubpath() {
-            return subpath != null;
-        }
-
-        public Alias getRootAlias() {
-            return rootAlias;
-        }
-
-        public String getSubpath() {
-            return subpath;
         }
     }
 }
