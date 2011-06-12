@@ -3,9 +3,9 @@
 
   <parent>
     <groupId>net.sf.jpasecurity</groupId>
-    <artifactId>jpasecurity-modules</artifactId>
+    <artifactId>jpasecurity-parent</artifactId>
     <version>0.4.0-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../../jpasecurity-parent/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jpasecurity-simple-sample</artifactId>
