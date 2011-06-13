@@ -52,10 +52,10 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.ExceptionFactory;
+import net.sf.jpasecurity.SecurityUnit;
 import net.sf.jpasecurity.mapping.AbstractMappingParser;
 import net.sf.jpasecurity.mapping.DefaultClassMappingInformation;
 import net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory;
@@ -81,10 +81,10 @@ public class JpaAnnotationParser extends AbstractMappingParser {
         super(propertyAccessStrategyFactory, exceptionFactory);
     }
 
-    protected void parsePersistenceUnit(PersistenceUnitInfo persistenceUnit) {
+    protected void parseSecurityUnit(SecurityUnit persistenceUnit) {
         if (!persistenceUnit.excludeUnlistedClasses()) {
-            if (persistenceUnit.getPersistenceUnitRootUrl() != null) {
-                parse(persistenceUnit.getPersistenceUnitRootUrl());
+            if (persistenceUnit.getSecurityUnitRootUrl() != null) {
+                parse(persistenceUnit.getSecurityUnitRootUrl());
             }
         }
         for (URL url: persistenceUnit.getJarFileUrls()) {

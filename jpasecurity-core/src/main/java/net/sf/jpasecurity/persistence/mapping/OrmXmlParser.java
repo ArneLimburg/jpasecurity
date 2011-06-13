@@ -29,7 +29,6 @@ import javassist.bytecode.CodeAttribute.RuntimeCopyException;
 
 import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
-import javax.persistence.spi.PersistenceUnitInfo;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -41,6 +40,7 @@ import javax.xml.xpath.XPathFactory;
 
 import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.ExceptionFactory;
+import net.sf.jpasecurity.SecurityUnit;
 import net.sf.jpasecurity.mapping.AbstractMappingParser;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.DefaultClassMappingInformation;
@@ -200,10 +200,10 @@ public class OrmXmlParser extends AbstractMappingParser {
         super(propertyAccessStrategyFactory, exceptionFactory);
     }
 
-    public void parsePersistenceUnit(PersistenceUnitInfo persistenceUnit) {
-        parse(persistenceUnit, "META-INF/orm.xml");
-        for (String mappingFilename: persistenceUnit.getMappingFileNames()) {
-            parse(persistenceUnit, mappingFilename);
+    public void parseSecurityUnit(SecurityUnit securityUnit) {
+        parse(securityUnit, "META-INF/orm.xml");
+        for (String mappingFilename: securityUnit.getMappingFileNames()) {
+            parse(securityUnit, mappingFilename);
         }
     }
 
@@ -408,21 +408,21 @@ public class OrmXmlParser extends AbstractMappingParser {
         }
     }
 
-    private void parse(PersistenceUnitInfo persistenceUnit, String mappingFilename) {
+    private void parse(SecurityUnit securityUnit, String mappingFilename) {
         try {
             for (Enumeration<URL> mappings = getResources(mappingFilename); mappings.hasMoreElements();) {
-                parse(persistenceUnit, mappings.nextElement().openStream());
+                parse(securityUnit, mappings.nextElement().openStream());
             }
         } catch (IOException e) {
             throw exceptionFactory.createRuntimeException(e);
         }
     }
 
-    private void parse(PersistenceUnitInfo persistenceUnit, InputStream stream) throws IOException {
+    private void parse(SecurityUnit securityUnit, InputStream stream) throws IOException {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            parse(persistenceUnit, builder.parse(stream));
+            parse(securityUnit, builder.parse(stream));
         } catch (ParserConfigurationException e) {
             throw exceptionFactory.createRuntimeException(e);
         } catch (SAXException e) {
@@ -434,7 +434,7 @@ public class OrmXmlParser extends AbstractMappingParser {
         }
     }
 
-    private void parse(PersistenceUnitInfo persistenceUnit, Document mappingDocument) {
+    private void parse(SecurityUnit securityUnit, Document mappingDocument) {
         ormDocument = mappingDocument;
         parseNamedQueries();
         parseDefaultEntityListeners();
