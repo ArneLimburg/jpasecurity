@@ -81,4 +81,16 @@
       GRANT ACCESS TO net.sf.jpasecurity.model.TestInterface t WHERE t.name = CURRENT_PRINCIPAL 
     </access-rule>
   </persistence-unit>
+  
+  <persistence-unit name="client">
+    <access-rule>GRANT CREATE ACCESS TO Client client</access-rule>
+    <access-rule>
+      GRANT ACCESS TO Client client WHERE EXISTS (
+          SELECT c FROM Client c INNER JOIN c.staffing cs
+          WHERE c = client
+            AND cs.employee.email = CURRENT_PRINCIPAL
+            AND cs.endDate IS NULL
+            AND (c.currentStatus IS NULL OR c.currentStatus.name IS NULL OR c.currentStatus.name &lt;> 'Closed'))
+    </access-rule>
+  </persistence-unit>
 </security>
