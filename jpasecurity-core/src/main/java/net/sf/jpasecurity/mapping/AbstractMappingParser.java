@@ -40,11 +40,10 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.persistence.spi.PersistenceUnitInfo;
-
 import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.FetchType;
+import net.sf.jpasecurity.SecurityUnit;
 
 /**
  * Parses persistence units and created mapping information.
@@ -84,23 +83,23 @@ public abstract class AbstractMappingParser {
     }
 
     /**
-     * Parses the specified persistence unit information and returns mapping information.
+     * Parses the specified security unit information and returns mapping information.
      */
-    public MappingInformation parse(PersistenceUnitInfo persistenceUnitInfo) {
-        return parse(persistenceUnitInfo, null);
+    public MappingInformation parse(SecurityUnit securityUnitInformation) {
+        return parse(securityUnitInformation, null);
     }
 
     /**
-     * Parses the specified persistence unit information and returns mapping information,
+     * Parses the specified security unit information and returns mapping information,
      * merging the specified mapping information.
-     * @param persistenceUnitInfo the persistence unit information
+     * @param securityUnitInformation the security unit information
      * @param mappingInformation the mapping information to merge, may be <tt>null</tt>
      */
-    public MappingInformation parse(PersistenceUnitInfo persistenceUnitInfo, MappingInformation mappingInformation) {
+    public MappingInformation parse(SecurityUnit securityUnitInformation, MappingInformation mappingInformation) {
         classMappings = new HashMap<Class<?>, DefaultClassMappingInformation>();
         namedQueries = new HashMap<String, String>();
         defaultEntityListeners = new ArrayList<EntityListener>();
-        classLoader = findClassLoader(persistenceUnitInfo);
+        classLoader = findClassLoader(securityUnitInformation);
         if (mappingInformation != null) {
             for (Class<?> type: mappingInformation.getPersistentClasses()) {
                 classMappings.put(type, (DefaultClassMappingInformation)mappingInformation.getClassMapping(type));
@@ -109,8 +108,8 @@ public abstract class AbstractMappingParser {
                 namedQueries.put(name, mappingInformation.getNamedQuery(name));
             }
         }
-        parsePersistenceUnit(persistenceUnitInfo);
-        String persistenceUnitName = persistenceUnitInfo.getPersistenceUnitName();
+        parseSecurityUnit(securityUnitInformation);
+        String persistenceUnitName = securityUnitInformation.getSecurityUnitName();
         return new DefaultMappingInformation(persistenceUnitName, classMappings, namedQueries, exceptionFactory);
     }
 
@@ -373,7 +372,7 @@ public abstract class AbstractMappingParser {
         return false;
     }
 
-    protected abstract void parsePersistenceUnit(PersistenceUnitInfo persistenceUnitInfo);
+    protected abstract void parseSecurityUnit(SecurityUnit securityUnitInformation);
 
     protected void parseNamedQueries(Class<?> mappedClass) {
     }
@@ -473,8 +472,8 @@ public abstract class AbstractMappingParser {
         return hasPropertySetter(entityClass.getSuperclass(), propertySetterName, propertyType);
     }
 
-    private ClassLoader findClassLoader(PersistenceUnitInfo persistenceUnit) {
-        ClassLoader classLoader = persistenceUnit.getClassLoader();
+    private ClassLoader findClassLoader(SecurityUnit securityUnitInformation) {
+        ClassLoader classLoader = securityUnitInformation.getClassLoader();
         if (classLoader != null) {
             return classLoader;
         }

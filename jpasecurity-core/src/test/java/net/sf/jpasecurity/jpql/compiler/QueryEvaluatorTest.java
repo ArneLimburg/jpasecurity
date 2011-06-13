@@ -34,7 +34,9 @@ import javax.persistence.PersistenceException;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.ExceptionFactory;
+import net.sf.jpasecurity.SecurityUnit;
 import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.jpa.JpaSecurityUnit;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
 import net.sf.jpasecurity.jpql.parser.JpqlGroupBy;
@@ -94,7 +96,8 @@ public class QueryEvaluatorTest {
         replay(objectManager, exceptionFactory);
         PersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
-        mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(persistenceUnitInfo);
+        SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
+        mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(securityUnitInformation);
         parser = new JpqlParser();
         compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
         SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator(exceptionFactory);

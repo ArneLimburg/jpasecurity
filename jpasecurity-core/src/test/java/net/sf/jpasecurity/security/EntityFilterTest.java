@@ -29,6 +29,7 @@ import javax.persistence.EntityManager;
 
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.ExceptionFactory;
+import net.sf.jpasecurity.SecurityUnit;
 import net.sf.jpasecurity.configuration.AccessRule;
 import net.sf.jpasecurity.configuration.AuthenticationProviderSecurityContext;
 import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
@@ -36,6 +37,7 @@ import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.jpa.JpaSecurityUnit;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.mapping.MappingInformation;
@@ -61,7 +63,8 @@ public class EntityFilterTest {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(Contact.class.getName());
         persistenceUnitInfo.getManagedClassNames().add(User.class.getName());
-        mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(persistenceUnitInfo);
+        SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
+        mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(securityUnitInformation);
         JpqlParser parser = new JpqlParser();
         JpqlAccessRule rule
             = parser.parseRule("GRANT READ ACCESS TO Contact contact WHERE contact.owner = CURRENT_PRINCIPAL");

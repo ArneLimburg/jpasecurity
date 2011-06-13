@@ -27,6 +27,8 @@ import java.util.Set;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.ExceptionFactory;
+import net.sf.jpasecurity.SecurityUnit;
+import net.sf.jpasecurity.jpa.JpaSecurityUnit;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
@@ -148,9 +150,10 @@ public class AclValueIteratorTest {
         persistenceUnitInfo.getManagedClassNames().add(Acl.class.getName());
         persistenceUnitInfo.getManagedClassNames().add(AclEntry.class.getName());
         persistenceUnitInfo.getManagedClassNames().add(User.class.getName());
+        SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
         ExceptionFactory exceptionFactory = new JpaExceptionFactory();
         JpaAnnotationParser parser = new JpaAnnotationParser(exceptionFactory);
-        final MappingInformation mappingInformation = parser.parse(persistenceUnitInfo);
+        final MappingInformation mappingInformation = parser.parse(securityUnitInformation);
         return new MappedPathEvaluator(mappingInformation, exceptionFactory);
     }
 }

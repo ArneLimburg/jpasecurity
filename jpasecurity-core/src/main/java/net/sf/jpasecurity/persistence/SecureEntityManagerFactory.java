@@ -27,9 +27,11 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import net.sf.jpasecurity.SecurityUnit;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.configuration.ConfigurationReceiver;
 import net.sf.jpasecurity.configuration.SecurityContextReceiver;
+import net.sf.jpasecurity.jpa.JpaSecurityUnit;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
 import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
@@ -65,8 +67,9 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
                                       configuration.getExceptionFactory());
         OrmXmlParser xmlParser = new OrmXmlParser(configuration.getPropertyAccessStrategyFactory(),
                                                   configuration.getExceptionFactory());
-        this.mappingInformation = annotationParser.parse(persistenceUnitInfo);
-        this.mappingInformation = xmlParser.parse(persistenceUnitInfo, mappingInformation);
+        SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
+        this.mappingInformation = annotationParser.parse(securityUnitInformation);
+        this.mappingInformation = xmlParser.parse(securityUnitInformation, mappingInformation);
         Map<String, Object> persistenceProperties
             = new HashMap<String, Object>((Map)persistenceUnitInfo.getProperties());
         if (properties != null) {
