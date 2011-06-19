@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Arne Limburg
+ * Copyright 2009 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
 package net.sf.jpasecurity.util;
 
 import java.lang.reflect.Constructor;
@@ -29,8 +28,17 @@ public abstract class ReflectionUtils {
 
     public static <T> T newInstance(Class<T> type, Object... parameters) {
         try {
-            Constructor<T> constructor = getConstructor(type, parameters);
-            constructor.setAccessible(true);
+            return invokeConstructor(getConstructor(type, parameters), parameters);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static <T> T invokeConstructor(Constructor<T> constructor, Object... parameters) {
+        try {
+            if (!constructor.isAccessible()) {
+                constructor.setAccessible(true);
+            }
             return constructor.newInstance(parameters);
         } catch (InvocationTargetException e) {
             return ReflectionUtils.<T>throwThrowable(e.getCause());

@@ -36,8 +36,8 @@ public class ReflectionUtilsTest {
 
         try {
             ReflectionUtils.newInstance(ClassWithoutDefaultConstructor.class);
-            fail("expected SecurityException");
-        } catch (SecurityException e) {
+            fail("expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
             assertEquals(NoSuchMethodException.class, e.getCause().getClass());
         }
 
@@ -61,8 +61,8 @@ public class ReflectionUtilsTest {
 
         try {
             ReflectionUtils.newInstance(ClassWithAmbigiousConstructors.class, o, s);
-            fail("expected SecurityException");
-        } catch (SecurityException e) {
+            fail("expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
             assertEquals(NoSuchMethodException.class, e.getCause().getClass());
         }
 
