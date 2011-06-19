@@ -19,12 +19,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.PersistenceException;
-
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
+import net.sf.jpasecurity.util.ReflectionUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -155,111 +154,53 @@ public class Configuration {
     }
 
     private AccessRulesProvider createAccessRulesProvider() {
-        try {
-            Object accessRulesProviderClassName = properties.get(ACCESS_RULES_PROVIDER_PROPERTY);
-            if (accessRulesProviderClassName == null) {
-                accessRulesProviderClassName = DEFAULT_ACCESS_RULES_PROVIDER_CLASS;
-            }
-            LOG.info("using " + accessRulesProviderClassName + " as access rules provider");
-            Class<?> accessRulesProviderClass
-                = getClass().getClassLoader().loadClass(accessRulesProviderClassName.toString());
-            return (AccessRulesProvider)accessRulesProviderClass.newInstance();
-        } catch (InstantiationException e) {
-            throw new PersistenceException(e);
-        } catch (IllegalAccessException e) {
-            throw new PersistenceException(e);
-        } catch (ClassNotFoundException e) {
-            throw new PersistenceException(e);
-        }
+        return newInstance(AccessRulesProvider.class,
+                           ACCESS_RULES_PROVIDER_PROPERTY,
+                           DEFAULT_ACCESS_RULES_PROVIDER_CLASS);
     }
 
     private SecurityContext createSecurityContext() {
-        try {
-            Object securityContextClassName = null;
-            if (properties != null) {
-                securityContextClassName = properties.get(SECURITY_CONTEXT_PROPERTY);
+        if (!properties.containsKey(SECURE_ENTITY_PROXY_FACTORY_PROPERTY)) {
+            AuthenticationProvider authenticationProvider = createAuthenticationProvider();
+            if (authenticationProvider != null) {
+                return new AuthenticationProviderSecurityContext(authenticationProvider);
             }
-            if (securityContextClassName == null) {
-                securityContextClassName
-                    = properties.get(SECURITY_CONTEXT_PROPERTY);
-            }
-            if (securityContextClassName == null) {
-                AuthenticationProvider authenticationProvider = createAuthenticationProvider();
-                if (authenticationProvider != null) {
-                    return new AuthenticationProviderSecurityContext(authenticationProvider);
-                }
-                securityContextClassName = DEFAULT_SECURITY_CONTEXT_CLASS;
-            }
-            LOG.info("using " + securityContextClassName + " as security context");
-            Class<?> authenticationProviderClass
-                = getClass().getClassLoader().loadClass(securityContextClassName.toString());
-            return (SecurityContext)authenticationProviderClass.newInstance();
-        } catch (InstantiationException e) {
-            throw getExceptionFactory().createRuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw getExceptionFactory().createRuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw getExceptionFactory().createRuntimeException(e);
         }
+        return newInstance(SecurityContext.class, SECURITY_CONTEXT_PROPERTY, DEFAULT_SECURITY_CONTEXT_CLASS);
     }
 
     private AuthenticationProvider createAuthenticationProvider() {
-        try {
-            Object authenticationProviderClassName;
-            authenticationProviderClassName = properties.get(AUTHENTICATION_PROVIDER_PROPERTY);
-            if (authenticationProviderClassName == null) {
-                return null;
-            }
-            LOG.info("using " + authenticationProviderClassName + " as authentication provider");
-            Class<?> authenticationProviderClass
-                = getClass().getClassLoader().loadClass(authenticationProviderClassName.toString());
-            return (AuthenticationProvider)authenticationProviderClass.newInstance();
-        } catch (InstantiationException e) {
-            throw new PersistenceException(e);
-        } catch (IllegalAccessException e) {
-            throw new PersistenceException(e);
-        } catch (ClassNotFoundException e) {
-            throw new PersistenceException(e);
-        }
+        return newInstance(AuthenticationProvider.class, AUTHENTICATION_PROVIDER_PROPERTY, null);
     }
 
     private SecureEntityProxyFactory createSecureEntityProxyFactory() {
-        try {
-            Object secureEntityProxyFactoryClassName = null;
-            secureEntityProxyFactoryClassName = properties.get(SECURE_ENTITY_PROXY_FACTORY_PROPERTY);
-            if (secureEntityProxyFactoryClassName == null) {
-                secureEntityProxyFactoryClassName = DEFAULT_SECURE_ENTITY_PROXY_FACTORY_CLASS;
-            }
-            LOG.info("using " + secureEntityProxyFactoryClassName + " as SecureEntity proxy factory");
-            Class<?> secureEntityProxyClass
-                = getClass().getClassLoader().loadClass(secureEntityProxyFactoryClassName.toString());
-            return (SecureEntityProxyFactory)secureEntityProxyClass.newInstance();
-        } catch (InstantiationException e) {
-            throw new PersistenceException(e);
-        } catch (IllegalAccessException e) {
-            throw new PersistenceException(e);
-        } catch (ClassNotFoundException e) {
-            throw new PersistenceException(e);
-        }
+        return newInstance(SecureEntityProxyFactory.class,
+                           SECURE_ENTITY_PROXY_FACTORY_PROPERTY,
+                           DEFAULT_SECURE_ENTITY_PROXY_FACTORY_CLASS);
     }
 
     private PropertyAccessStrategyFactory createPropertyAccessStrategyFactory() {
-        try {
-            Object propertyAccessStrategyFactoryClassName;
-            propertyAccessStrategyFactoryClassName = properties.get(PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY);
-            if (propertyAccessStrategyFactoryClassName == null) {
-                propertyAccessStrategyFactoryClassName = DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS;
-            }
-            LOG.info("using " + propertyAccessStrategyFactoryClassName + " as PropertyAccessStrategy factory");
-            Class<?> propertyAccessStrategyClass
-                = getClass().getClassLoader().loadClass(propertyAccessStrategyFactoryClassName.toString());
-            return (PropertyAccessStrategyFactory)propertyAccessStrategyClass.newInstance();
-        } catch (InstantiationException e) {
-            throw new PersistenceException(e);
-        } catch (IllegalAccessException e) {
-            throw new PersistenceException(e);
-        } catch (ClassNotFoundException e) {
-            throw new PersistenceException(e);
+        return newInstance(PropertyAccessStrategyFactory.class,
+                           PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY,
+                           DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS);
+    }
+
+    private <T> T newInstance(Class<T> type, String propertyName, String defaultPropertyValue, Object... parameters) {
+        Object className = properties.get(propertyName);
+        if (className == null) {
+            className = defaultPropertyValue;
         }
+        if (className == null) {
+            LOG.info("No " + type.getSimpleName() + " configured");
+            return null;
+        }
+        LOG.info("Using " + className + " as " + type.getSimpleName());
+        Class<T> instanceClass;
+        try {
+            instanceClass = (Class<T>)getClass().getClassLoader().loadClass(className.toString());
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e);
+        }
+        return ReflectionUtils.newInstance(instanceClass, parameters);
     }
 }
