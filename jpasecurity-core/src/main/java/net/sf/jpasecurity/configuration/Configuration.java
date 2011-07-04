@@ -21,7 +21,9 @@ import java.util.Map;
 
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.entity.FetchManager;
+import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
+import net.sf.jpasecurity.mapping.SecureBeanInitializer;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.util.ReflectionUtils;
 
@@ -56,6 +58,7 @@ public class Configuration {
     private SecurityContext securityContext;
     private SecureEntityProxyFactory secureEntityProxyFactory;
     private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
+    private BeanInitializer beanInitializer;
     private ExceptionFactory exceptionFactory;
     private int maxFetchDepth;
 
@@ -83,6 +86,7 @@ public class Configuration {
         securityContext = configuration.getSecurityContext();
         secureEntityProxyFactory = configuration.getSecureEntityProxyFactory();
         propertyAccessStrategyFactory = configuration.getPropertyAccessStrategyFactory();
+        beanInitializer = configuration.beanInitializer;
         exceptionFactory = configuration.getExceptionFactory();
         maxFetchDepth = configuration.getMaxFetchDepth();
         if (additionalProperties != null) {
@@ -153,6 +157,17 @@ public class Configuration {
         this.exceptionFactory = exceptionFactory;
     }
 
+    public BeanInitializer getBeanInitializer() {
+        if (beanInitializer == null) {
+            beanInitializer = new SecureBeanInitializer();
+        }
+        return beanInitializer;
+    }
+
+    public void setBeanInitializer(BeanInitializer initializer) {
+        beanInitializer = initializer;
+    }
+
     private AccessRulesProvider createAccessRulesProvider() {
         return newInstance(AccessRulesProvider.class,
                            ACCESS_RULES_PROVIDER_PROPERTY,
@@ -180,9 +195,16 @@ public class Configuration {
     }
 
     private PropertyAccessStrategyFactory createPropertyAccessStrategyFactory() {
-        return newInstance(PropertyAccessStrategyFactory.class,
-                           PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY,
-                           DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS);
+        try {
+            return newInstance(PropertyAccessStrategyFactory.class,
+                               PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY,
+                               DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS,
+                               getBeanInitializer());
+        } catch (IllegalArgumentException e) {
+            return newInstance(PropertyAccessStrategyFactory.class,
+                               PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY,
+                               DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS);
+        }
     }
 
     private <T> T newInstance(Class<T> type, String propertyName, String defaultPropertyValue, Object... parameters) {

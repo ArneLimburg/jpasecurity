@@ -62,6 +62,10 @@ public class User {
         this.name = name;
     }
 
+    public String toString() {
+        return getName();
+    }
+
     public boolean equals(Object object) {
         if (this == object) {
             return true;

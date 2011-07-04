@@ -38,20 +38,14 @@ public class SecureEntityDecorator implements SecureEntity, Decorator<SecureEnti
     private boolean isTransient;
     private transient ThreadLocal<Boolean> updating;
 
-    public SecureEntityDecorator(ClassMappingInformation mapping,
-                                 ObjectWrapper objectWrapper,
-                                 AccessManager accessManager,
-                                 AbstractSecureObjectManager objectManager,
-                                 Object entity) {
+    public SecureEntityDecorator(ClassMappingInformation mapping, ObjectWrapper objectWrapper,
+                    AccessManager accessManager, AbstractSecureObjectManager objectManager, Object entity) {
         this(mapping, objectWrapper, accessManager, objectManager, entity, false);
     }
 
-    public SecureEntityDecorator(ClassMappingInformation mapping,
-                                 ObjectWrapper objectWrapper,
-                                 AccessManager accessManager,
-                                 AbstractSecureObjectManager objectManager,
-                                 Object entity,
-                                 boolean isTransient) {
+    public SecureEntityDecorator(ClassMappingInformation mapping, ObjectWrapper objectWrapper,
+                    AccessManager accessManager, AbstractSecureObjectManager objectManager, Object entity,
+                    boolean isTransient) {
         this.mapping = mapping;
         this.objectWrapper = objectWrapper;
         this.accessManager = accessManager;
