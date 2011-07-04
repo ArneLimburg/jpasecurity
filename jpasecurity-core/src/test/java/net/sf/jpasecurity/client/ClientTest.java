@@ -57,11 +57,14 @@ public class ClientTest {
 
     @Before
     public void createTestData() {
+        Client parent = new Client();
         Client client = new Client();
+        client.setParent(parent);
         Employee employee = new Employee(EMAIL);
         ClientStaffing clientStaffing = new ClientStaffing(client, employee);
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
+        entityManager.persist(parent);
         entityManager.persist(employee);
         entityManager.persist(client);
         entityManager.persist(clientStaffing);
@@ -111,7 +114,10 @@ public class ClientTest {
         entityManager.close();
 
         entityManager = entityManagerFactory.createEntityManager();
-        entityManager.find(Client.class, clientId);
+        entityManager.getTransaction().begin();
+        Client foundClient = entityManager.find(Client.class, clientId);
+        foundClient.setAnotherProperty("new value");
+        entityManager.getTransaction().commit();
         entityManager.close();
     }
 }

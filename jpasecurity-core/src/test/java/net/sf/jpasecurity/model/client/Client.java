@@ -37,14 +37,25 @@ public class Client {
     @Id
     @GeneratedValue
     private int id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Client parent;
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<ClientStaffing> staffing = new ArrayList<ClientStaffing>();
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @Fetch(FetchMode.JOIN)
     private ClientStatus currentStatus;
+    private String anotherProperty;
 
     public int getId() {
         return id;
+    }
+
+    public Client getParent() {
+        return parent;
+    }
+
+    public void setParent(Client parent) {
+        this.parent = parent;
     }
 
     public ClientStatus getCurrentStatus() {
@@ -57,5 +68,13 @@ public class Client {
 
     public List<ClientStaffing> getStaffing() {
         return staffing;
+    }
+
+    public String getAnotherProperty() {
+        return anotherProperty;
+    }
+
+    public void setAnotherProperty(String value) {
+        this.anotherProperty = value;
     }
 }
