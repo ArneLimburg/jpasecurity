@@ -46,4 +46,19 @@ public class Path {
     public String getSubpath() {
         return subpath;
     }
+
+    public String toString() {
+        return hasSubpath()? rootAlias.getName() + '.' + getSubpath(): rootAlias.getName();
+    }
+
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    public boolean equals(Object object) {
+        if (!(object instanceof Path)) {
+            return false;
+        }
+        return toString().equals(object.toString());
+    }
 }
