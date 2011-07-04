@@ -30,6 +30,8 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.ProviderUtil;
 
 import net.sf.jpasecurity.configuration.Configuration;
+import net.sf.jpasecurity.mapping.BeanInitializer;
+import net.sf.jpasecurity.persistence.mapping.JpaBeanInitializerFactory;
 
 /**
  * @author Arne Limburg
@@ -42,6 +44,8 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         = "net.sf.jpasecurity.persistence.provider.type";
     public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_LIGHT = "light";
     public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT = "default";
+
+    private final JpaBeanInitializerFactory beanInitializerFactory = new JpaBeanInitializerFactory();
 
     private PersistenceProvider persistenceProvider;
 
@@ -83,6 +87,8 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         Map<String, Object> persistenceProperties = (Map<String, Object>)(Map<?, Object>)info.getProperties();
         persistenceProperties.putAll(properties);
         Configuration configuration = new Configuration(persistenceProperties);
+        BeanInitializer old = configuration.getBeanInitializer();
+        configuration.setBeanInitializer(beanInitializerFactory.createBeanInitializer(persistenceProvider, old));
         configuration.setExceptionFactory(new JpaExceptionFactory());
         return createSecureEntityManagerFactory(nativeEntityManagerFactory,
                                                 info,

@@ -33,7 +33,7 @@ public class ClientStaffing {
     private int id;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Client client;
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Employee employee;
     private Date endDate;
 

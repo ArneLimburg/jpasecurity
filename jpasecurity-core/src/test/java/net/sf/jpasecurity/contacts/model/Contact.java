@@ -72,6 +72,10 @@ public class Contact {
         this.text = text;
     }
 
+    public String toString() {
+        return getText();
+    }
+
     public boolean equals(Object object) {
         if (!(object instanceof Contact)) {
             return false;

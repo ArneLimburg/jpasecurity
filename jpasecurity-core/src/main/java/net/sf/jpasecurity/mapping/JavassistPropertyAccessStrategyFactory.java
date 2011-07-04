@@ -34,6 +34,13 @@ import net.sf.jpasecurity.util.ReflectionUtils;
  */
 public class JavassistPropertyAccessStrategyFactory extends DefaultPropertyAccessStrategyFactory {
 
+    public JavassistPropertyAccessStrategyFactory() {
+    }
+
+    public JavassistPropertyAccessStrategyFactory(BeanInitializer beanInitializer) {
+        super(beanInitializer);
+    }
+
     public PropertyAccessStrategy createPropertyAccessStrategy(ClassMappingInformation classMapping,
                                                                String propertyName) {
         Class<?> entityType = classMapping.getEntityType();

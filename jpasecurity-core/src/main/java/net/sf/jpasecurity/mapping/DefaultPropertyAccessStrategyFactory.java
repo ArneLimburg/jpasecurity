@@ -27,10 +27,21 @@ public class DefaultPropertyAccessStrategyFactory implements PropertyAccessStrat
     private static final String IS_METHOD_PREFIX = "is";
     private static final String SET_METHOD_PREFIX = "set";
 
+    private BeanInitializer beanInitializer;
+
+    public DefaultPropertyAccessStrategyFactory() {
+        this(new SecureBeanInitializer());
+    }
+
+    public DefaultPropertyAccessStrategyFactory(BeanInitializer initializer) {
+        beanInitializer = initializer;
+    }
+
     public PropertyAccessStrategy createPropertyAccessStrategy(ClassMappingInformation classMapping,
                                                                String propertyName) {
         if (classMapping.usesFieldAccess()) {
-            return new ReflectionFieldAccessStrategy(getField(classMapping.getEntityType(), propertyName));
+            Field field = getField(classMapping.getEntityType(), propertyName);
+            return new ReflectionFieldAccessStrategy(field, beanInitializer);
         } else {
             Method readMethod = getReadMethod(classMapping.getEntityType(), propertyName);
             Method writeMethod = getWriteMethod(classMapping.getEntityType(), propertyName);

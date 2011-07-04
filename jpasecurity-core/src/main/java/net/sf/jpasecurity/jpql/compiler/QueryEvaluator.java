@@ -87,6 +87,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.mapping.Alias;
+import net.sf.jpasecurity.mapping.Path;
 
 /**
  * This implementation of the {@link JpqlVisitorAdapter} evaluates queries in memory,
@@ -163,11 +164,10 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     public boolean visit(JpqlPath node, QueryEvaluationParameters data) {
         try {
             node.jjtGetChild(0).visit(this, data);
-            String path = node.toString();
-            int index = path.indexOf('.');
-            if (index != -1) {
+            Path path = new Path(node.toString());
+            if (path.hasSubpath()) {
                 PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMappingInformation(), exceptionFactory);
-                data.setResult(pathEvaluator.evaluate(data.getResult(), path.substring(index + 1)));
+                data.setResult(pathEvaluator.evaluate(data.getResult(), path.getSubpath()));
             }
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
