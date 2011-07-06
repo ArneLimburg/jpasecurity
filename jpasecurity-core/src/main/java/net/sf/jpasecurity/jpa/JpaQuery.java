@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.jpa;
 
+
+import javax.persistence.Parameter;
 import javax.persistence.Query;
 
 import net.sf.jpasecurity.Parameterizable;
@@ -42,6 +44,11 @@ public class JpaQuery implements Parameterizable {
 
     public JpaQuery setParameter(String name, Object bean) {
         query.setParameter(name, bean);
+        return this;
+    }
+
+    public <T> JpaQuery setParameter(net.sf.jpasecurity.Parameter<T> parameter, T value) {
+        query.setParameter((Parameter<T>)parameter.unwrap(Parameter.class), value);
         return this;
     }
 }

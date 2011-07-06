@@ -66,15 +66,12 @@ public class BeanSecurityContext implements SecurityContext {
 
     public Collection<?> getAliasValues(Alias alias) {
         Object aliasValue = getAliasValue(alias);
-        if (aliasValue == null) {
-            return null;
-        }
         if (aliasValue instanceof Collection) {
             return (Collection<?>)aliasValue;
-        } else if (aliasValue.getClass().isArray()) {
-            return Arrays.asList((Object[])aliasValue);
         } else if (aliasValue == null) {
             return null;
+        } else if (aliasValue.getClass().isArray()) {
+            return Arrays.asList((Object[])aliasValue);
         } else {
             return Collections.singleton(aliasValue);
         }

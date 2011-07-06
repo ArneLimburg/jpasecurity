@@ -19,73 +19,74 @@ import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.FlushModeType;
+import javax.persistence.Parameter;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.entity.SecureObjectManager;
+import net.sf.jpasecurity.jpa.JpaParameter;
 import net.sf.jpasecurity.jpa.JpaQuery;
-import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
-import net.sf.jpasecurity.mapping.TypeDefinition;
 
 
 /**
  * This class handles invocations on queries.
  * @author Arne Limburg
  */
-public class SecureQuery extends DelegatingQuery {
+public class SecureQuery<T> extends DelegatingQuery<T> {
 
     private SecureObjectManager objectManager;
     private FetchManager fetchManager;
     private List<String> selectedPaths;
-    private Set<TypeDefinition> types;
-    private PathEvaluator pathEvaluator;
     private FlushModeType flushMode;
 
     public SecureQuery(SecureObjectManager objectManager,
                        FetchManager fetchManager,
                        Query query,
                        List<String> selectedPaths,
-                       Set<TypeDefinition> types,
-                       PathEvaluator pathEvaluator,
                        FlushModeType flushMode) {
         super(query);
         this.objectManager = objectManager;
         this.fetchManager = fetchManager;
         this.selectedPaths = selectedPaths;
-        this.types = types;
-        this.pathEvaluator = pathEvaluator;
         this.flushMode = flushMode;
     }
 
-    public Query setFlushMode(FlushModeType flushMode) {
+    public TypedQuery<T> setFlushMode(FlushModeType flushMode) {
         this.flushMode = flushMode;
         return super.setFlushMode(flushMode);
     }
 
-    public Query setParameter(int index, Object parameter) {
-        return objectManager.setParameter(new JpaQuery(getDelegate()), index, parameter).getWrappedQuery();
+    public TypedQuery<T> setParameter(int index, Object parameter) {
+        objectManager.setParameter(new JpaQuery(getDelegate()), index, parameter);
+        return this;
     }
 
-    public Query setParameter(String name, Object parameter) {
-        return objectManager.setParameter(new JpaQuery(getDelegate()), name, parameter).getWrappedQuery();
+    public TypedQuery<T> setParameter(String name, Object parameter) {
+        objectManager.setParameter(new JpaQuery(getDelegate()), name, parameter);
+        return this;
     }
 
-    public Object getSingleResult() {
+    public <P> TypedQuery<T> setParameter(Parameter<P> parameter, P value) {
+        objectManager.setParameter(new JpaQuery(getDelegate()), new JpaParameter<P>(parameter), value);
+        return this;
+    }
+
+    public T getSingleResult() {
         preFlush();
-        Object result = getSecureResult(getDelegate().getSingleResult());
+        T result = getSecureResult(super.getSingleResult());
         postFlush();
         return result;
     }
 
-    public List getResultList() {
+    public List<T> getResultList() {
         preFlush();
-        List targetResult = super.getResultList();
+        List<T> targetResult = super.getResultList();
         postFlush();
-        List proxyResult = new ArrayList();
-        for (Object entity: targetResult) {
+        List<T> proxyResult = new ArrayList<T>();
+        for (T entity: targetResult) {
             proxyResult.add(getSecureResult(entity));
         }
         return proxyResult;
@@ -103,7 +104,7 @@ public class SecureQuery extends DelegatingQuery {
         }
     }
 
-    private Object getSecureResult(Object result) {
+    private <R> R getSecureResult(R result) {
         if (result == null) {
             return null;
         }
@@ -124,6 +125,6 @@ public class SecureQuery extends DelegatingQuery {
                 }
             }
         }
-        return scalarResult;
+        return (R)scalarResult;
     }
 }

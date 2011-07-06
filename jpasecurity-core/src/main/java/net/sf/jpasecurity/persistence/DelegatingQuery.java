@@ -26,14 +26,12 @@ import javax.persistence.LockModeType;
 import javax.persistence.Parameter;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
+import javax.persistence.TypedQuery;
 
 /**
  * @author Arne Limburg
  */
-/**
- * TODO KSC Change query to TypedQuery<X>
- */
-public class DelegatingQuery implements Query {
+public class DelegatingQuery<T> implements TypedQuery<T> {
 
     private Query delegate;
 
@@ -44,59 +42,66 @@ public class DelegatingQuery implements Query {
         delegate = query;
     }
 
-    public Query setParameter(int position, Calendar value,
-            TemporalType temporalType) {
-        return delegate.setParameter(position, value, temporalType);
+    public TypedQuery<T> setParameter(int position, Calendar value, TemporalType temporalType) {
+        delegate.setParameter(position, value, temporalType);
+        return this;
     }
 
-    public Query setParameter(int position, Date value,
-            TemporalType temporalType) {
-        return delegate.setParameter(position, value, temporalType);
+    public TypedQuery<T> setParameter(int position, Date value, TemporalType temporalType) {
+        delegate.setParameter(position, value, temporalType);
+        return this;
     }
 
-    public Query setParameter(int position, Object value) {
-        return delegate.setParameter(position, value);
+    public TypedQuery<T> setParameter(int position, Object value) {
+        delegate.setParameter(position, value);
+        return this;
     }
 
-    public Query setParameter(String name, Calendar value,
-            TemporalType temporalType) {
-        return delegate.setParameter(name, value, temporalType);
+    public TypedQuery<T> setParameter(String name, Calendar value, TemporalType temporalType) {
+        delegate.setParameter(name, value, temporalType);
+        return this;
     }
 
-    public Query setParameter(String name, Date value, TemporalType temporalType) {
-        return delegate.setParameter(name, value, temporalType);
+    public TypedQuery<T> setParameter(String name, Date value, TemporalType temporalType) {
+        delegate.setParameter(name, value, temporalType);
+        return this;
     }
 
-    public Query setParameter(String name, Object value) {
-        return delegate.setParameter(name, value);
+    public TypedQuery<T> setParameter(String name, Object value) {
+        delegate.setParameter(name, value);
+        return this;
     }
 
-    public Query setFirstResult(int startPosition) {
-        return delegate.setFirstResult(startPosition);
+    public TypedQuery<T> setFirstResult(int startPosition) {
+        delegate.setFirstResult(startPosition);
+        return this;
     }
 
-    public Query setMaxResults(int maxResult) {
-        return delegate.setMaxResults(maxResult);
+    public TypedQuery<T> setMaxResults(int maxResult) {
+        delegate.setMaxResults(maxResult);
+        return this;
     }
 
-    public Query setFlushMode(FlushModeType flushMode) {
-        return delegate.setFlushMode(flushMode);
+    public TypedQuery<T> setFlushMode(FlushModeType flushMode) {
+        delegate.setFlushMode(flushMode);
+        return this;
     }
 
-    public Query setHint(String hintName, Object value) {
-        return delegate.setHint(hintName, value);
+    public TypedQuery<T> setHint(String hintName, Object value) {
+        delegate.setHint(hintName, value);
+        return this;
     }
 
     public int executeUpdate() {
         return delegate.executeUpdate();
     }
 
-    public List getResultList() {
+    public List<T> getResultList() {
         return delegate.getResultList();
     }
 
-    public Object getSingleResult() {
-        return delegate.getSingleResult();
+    public T getSingleResult() {
+        return (T)delegate.getSingleResult();
     }
 
     protected Query getDelegate() {
@@ -115,16 +120,19 @@ public class DelegatingQuery implements Query {
         return delegate.getHints();
     }
 
-    public <T> Query setParameter(Parameter<T> param, T value) {
-        return delegate.setParameter(param, value);
+    public <P> TypedQuery<T> setParameter(Parameter<P> param, P value) {
+        delegate.setParameter(param, value);
+        return this;
     }
 
-    public Query setParameter(Parameter<Calendar> param, Calendar value, TemporalType temporalType) {
-        return delegate.setParameter(param, value, temporalType);
+    public TypedQuery<T> setParameter(Parameter<Calendar> param, Calendar value, TemporalType temporalType) {
+        delegate.setParameter(param, value, temporalType);
+        return this;
     }
 
-    public Query setParameter(Parameter<Date> param, Date value, TemporalType temporalType) {
-        return delegate.setParameter(param, value, temporalType);
+    public TypedQuery<T> setParameter(Parameter<Date> param, Date value, TemporalType temporalType) {
+        delegate.setParameter(param, value, temporalType);
+        return this;
     }
 
     public Set<Parameter<?>> getParameters() {
@@ -135,7 +143,7 @@ public class DelegatingQuery implements Query {
         return delegate.getParameter(name);
     }
 
-    public <T> Parameter<T> getParameter(String name, Class<T> type) {
+    public <P> Parameter<P> getParameter(String name, Class<P> type) {
         return delegate.getParameter(name, type);
     }
 
@@ -143,7 +151,7 @@ public class DelegatingQuery implements Query {
         return delegate.getParameter(position);
     }
 
-    public <T> Parameter<T> getParameter(int position, Class<T> type) {
+    public <P> Parameter<P> getParameter(int position, Class<P> type) {
         return delegate.getParameter(position, type);
     }
 
@@ -151,7 +159,7 @@ public class DelegatingQuery implements Query {
         return delegate.isBound(param);
     }
 
-    public <T> T getParameterValue(Parameter<T> param) {
+    public <P> P getParameterValue(Parameter<P> param) {
         return delegate.getParameterValue(param);
     }
 
@@ -167,15 +175,19 @@ public class DelegatingQuery implements Query {
         return delegate.getFlushMode();
     }
 
-    public Query setLockMode(LockModeType lockMode) {
-        return delegate.setLockMode(lockMode);
+    public TypedQuery<T> setLockMode(LockModeType lockMode) {
+        delegate.setLockMode(lockMode);
+        return this;
     }
 
     public LockModeType getLockMode() {
         return delegate.getLockMode();
     }
 
-    public <T> T unwrap(Class<T> cls) {
+    public <P> P unwrap(Class<P> cls) {
+        if (cls.isAssignableFrom(getClass())) {
+            return (P)this;
+        }
         return delegate.unwrap(cls);
     }
 }
