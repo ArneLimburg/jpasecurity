@@ -24,4 +24,5 @@ public interface Parameterizable {
 
     Parameterizable setParameter(int index, Object bean);
     Parameterizable setParameter(String name, Object bean);
+    <T> Parameterizable setParameter(Parameter<T> parameter, T value);
 }

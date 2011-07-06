@@ -31,6 +31,7 @@ import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.BeanStore;
 import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.LockModeType;
+import net.sf.jpasecurity.Parameter;
 import net.sf.jpasecurity.Parameterizable;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.configuration.Configuration;
@@ -139,7 +140,12 @@ public class EntityPersister extends AbstractSecureObjectManager {
         return parameterizable;
     }
 
-    private Object convertParameter(Object value) {
+    public <P extends Parameterizable, T> P setParameter(P parameterizable, Parameter<T> parameter, T value) {
+        parameterizable.setParameter(parameter, convertParameter(value));
+        return null;
+    }
+
+    private <T> T convertParameter(T value) {
         if (value == null || isSimplePropertyType(value.getClass())) {
             return value;
         } else if (value instanceof Collection) {
@@ -151,7 +157,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
                     parameter.add(convertParameter(entry));
                 }
             }
-            return parameter;
+            return (T)parameter;
         } else if (containsUnsecureObject(value)) {
             return getUnsecureObject(value);
         } else {
@@ -161,7 +167,7 @@ public class EntityPersister extends AbstractSecureObjectManager {
                 return value;
             }
             Object managedValue = beanStore.find(classMapping.getEntityType(), id);
-            return managedValue == null? value: managedValue;
+            return (T)(managedValue == null? value: managedValue);
         }
     }
 

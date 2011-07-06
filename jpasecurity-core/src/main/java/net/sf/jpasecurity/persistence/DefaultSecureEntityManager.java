@@ -195,14 +195,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         if (filterResult.getQuery() == null) {
             return new EmptyResultQuery();
         } else {
-            Query query = new SecureQuery(secureObjectManager,
-                                          this,
-                                          super.createQuery(filterResult.getQuery()),
-                                          filterResult.getSelectedPaths(),
-                                          filterResult.getTypeDefinitions(),
-                                          new MappedPathEvaluator(mappingInformation,
-                                                                  configuration.getExceptionFactory()),
-                                          super.getFlushMode());
+            Query query = new SecureQuery<Object>(secureObjectManager,
+                                                  this,
+                                                  super.createQuery(filterResult.getQuery()),
+                                                  filterResult.getSelectedPaths(),
+                                                  super.getFlushMode());
             if (filterResult.getParameters() != null) {
                 for (Map.Entry<String, Object> parameter: filterResult.getParameters().entrySet()) {
                     query.setParameter(parameter.getKey(), parameter.getValue());

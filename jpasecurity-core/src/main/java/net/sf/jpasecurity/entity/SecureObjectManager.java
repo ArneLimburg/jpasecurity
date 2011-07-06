@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.entity;
 
 import net.sf.jpasecurity.LockModeType;
+import net.sf.jpasecurity.Parameter;
 import net.sf.jpasecurity.Parameterizable;
 
 /**
@@ -33,6 +34,7 @@ public interface SecureObjectManager extends SecureObjectCache {
     void remove(Object entity);
     <P extends Parameterizable> P setParameter(P parameterizable, int index, Object value);
     <P extends Parameterizable> P setParameter(P parameterizable, String name, Object value);
+    <P extends Parameterizable, T> P setParameter(P parameterizable, Parameter<T> parameter, T value);
     void preFlush();
     void postFlush();
     void clear();
