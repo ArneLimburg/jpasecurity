@@ -18,6 +18,7 @@ package net.sf.jpasecurity.entity;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntity;
+import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.proxy.Decorator;
 
@@ -28,7 +29,7 @@ import net.sf.jpasecurity.proxy.Decorator;
 public class SecureEntityDecorator implements SecureEntity, Decorator<SecureEntity> {
 
     private ClassMappingInformation mapping;
-    private ObjectWrapper objectWrapper;
+    private BeanInitializer beanInitializer;
     private AccessManager accessManager;
     private AbstractSecureObjectManager objectManager;
     private boolean initialized;
@@ -38,16 +39,16 @@ public class SecureEntityDecorator implements SecureEntity, Decorator<SecureEnti
     private boolean isTransient;
     private transient ThreadLocal<Boolean> updating;
 
-    public SecureEntityDecorator(ClassMappingInformation mapping, ObjectWrapper objectWrapper,
+    public SecureEntityDecorator(ClassMappingInformation mapping, BeanInitializer beanInitializer,
                     AccessManager accessManager, AbstractSecureObjectManager objectManager, Object entity) {
-        this(mapping, objectWrapper, accessManager, objectManager, entity, false);
+        this(mapping, beanInitializer, accessManager, objectManager, entity, false);
     }
 
-    public SecureEntityDecorator(ClassMappingInformation mapping, ObjectWrapper objectWrapper,
+    public SecureEntityDecorator(ClassMappingInformation mapping, BeanInitializer beanInitializer,
                     AccessManager accessManager, AbstractSecureObjectManager objectManager, Object entity,
                     boolean isTransient) {
         this.mapping = mapping;
-        this.objectWrapper = objectWrapper;
+        this.beanInitializer = beanInitializer;
         this.accessManager = accessManager;
         this.objectManager = objectManager;
         this.entity = entity;
@@ -91,7 +92,7 @@ public class SecureEntityDecorator implements SecureEntity, Decorator<SecureEnti
         try {
             setUpdating(true);
             boolean oldInitialized = initialized;
-            entity = objectWrapper.unwrap(entity);
+            entity = beanInitializer.initialize(entity);
             if (checkAccess && !accessManager.isAccessible(AccessType.READ, entity)) {
                 throw new SecurityException("The current user is not permitted to access the specified object");
             }

@@ -38,10 +38,11 @@ import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.jpa.JpaBeanStore;
+import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
-import net.sf.jpasecurity.persistence.JpaEntityWrapper;
+import net.sf.jpasecurity.mapping.SecureBeanInitializer;
 import net.sf.jpasecurity.proxy.Decorator;
 
 import org.easymock.EasyMock;
@@ -56,7 +57,7 @@ public abstract class AbstractSecureCollectionTestCase {
 
     private MappingInformation mapping;
     private EntityManager entityManager;
-    private ObjectWrapper objectWrapper;
+    private BeanInitializer beanInitializer;
     private AccessManager accessManager;
     private AbstractSecureObjectManager objectManager;
     private SecureEntity secureEntity;
@@ -67,12 +68,11 @@ public abstract class AbstractSecureCollectionTestCase {
         mapping = createMock(MappingInformation.class);
         entityManager = createMock(EntityManager.class);
         accessManager = createMock(AccessManager.class);
-        objectWrapper = new JpaEntityWrapper();
+        beanInitializer = new SecureBeanInitializer();
         objectManager = new EntityPersister(mapping,
                                             new JpaBeanStore(entityManager),
                                             accessManager,
-                                            new Configuration(),
-                                            objectWrapper);
+                                            new Configuration());
 
         expect(mapping.getClassMapping((Class<?>)anyObject())).andAnswer(new ClassMappingAnswer()).anyTimes();
         expect(accessManager.isAccessible(eq(AccessType.READ), anyObject())).andReturn(true).anyTimes();
@@ -226,9 +226,9 @@ public abstract class AbstractSecureCollectionTestCase {
         Object unsecureEntity2 = new Object();
         ClassMappingInformation classMapping = mapping.getClassMapping(Object.class);
         SecureEntityInterceptor interceptor
-            = new SecureEntityInterceptor(objectWrapper, objectManager, unsecureEntity2);
+            = new SecureEntityInterceptor(beanInitializer, objectManager, unsecureEntity2);
         Decorator<SecureEntity> decorator
-            = new SecureEntityDecorator(classMapping, objectWrapper, accessManager, objectManager, unsecureEntity2);
+            = new SecureEntityDecorator(classMapping, beanInitializer, accessManager, objectManager, unsecureEntity2);
         SecureEntity secureEntity2
             = (SecureEntity)objectManager.createSecureEntity(Object.class, interceptor, decorator);
         final SecureCollection<Object> secureCollection
@@ -246,9 +246,9 @@ public abstract class AbstractSecureCollectionTestCase {
         Object unsecureEntity2 = new Object();
         ClassMappingInformation classMapping = mapping.getClassMapping(Object.class);
         SecureEntityInterceptor interceptor
-            = new SecureEntityInterceptor(objectWrapper, objectManager, unsecureEntity2);
+            = new SecureEntityInterceptor(beanInitializer, objectManager, unsecureEntity2);
         Decorator<SecureEntity> decorator
-            = new SecureEntityDecorator(classMapping, objectWrapper, accessManager, objectManager, unsecureEntity2);
+            = new SecureEntityDecorator(classMapping, beanInitializer, accessManager, objectManager, unsecureEntity2);
         SecureEntity secureEntity2
             = (SecureEntity)objectManager.createSecureEntity(Object.class, interceptor, decorator);
         final SecureCollection<Object> secureCollection
@@ -268,9 +268,9 @@ public abstract class AbstractSecureCollectionTestCase {
         Object unsecureEntity2 = new Object();
         ClassMappingInformation classMapping = mapping.getClassMapping(Object.class);
         SecureEntityInterceptor interceptor
-            = new SecureEntityInterceptor(objectWrapper, objectManager, unsecureEntity2);
+            = new SecureEntityInterceptor(beanInitializer, objectManager, unsecureEntity2);
         Decorator<SecureEntity> decorator
-            = new SecureEntityDecorator(classMapping, objectWrapper, accessManager, objectManager, unsecureEntity2);
+            = new SecureEntityDecorator(classMapping, beanInitializer, accessManager, objectManager, unsecureEntity2);
         SecureEntity secureEntity2
             = (SecureEntity)objectManager.createSecureEntity(Object.class, interceptor, decorator);
         final SecureCollection<Object> secureCollection

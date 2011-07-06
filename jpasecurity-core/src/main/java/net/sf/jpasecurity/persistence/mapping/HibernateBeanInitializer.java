@@ -31,9 +31,10 @@ public class HibernateBeanInitializer implements BeanInitializer {
     }
 
     public Object initialize(Object bean) {
+        bean = next.initialize(bean);
         if (bean instanceof HibernateProxy) {
             bean = ((HibernateProxy)bean).getHibernateLazyInitializer().getImplementation();
         }
-        return next == null? bean: next.initialize(bean);
+        return bean;
     }
 }

@@ -53,10 +53,17 @@ public class EntityPersister extends AbstractSecureObjectManager {
     public EntityPersister(MappingInformation mappingInformation,
                            BeanStore beanStore,
                            AccessManager accessManager,
-                           Configuration configuration,
-                           ObjectWrapper objectWrapper) {
-        super(mappingInformation, accessManager, configuration, objectWrapper);
+                           Configuration configuration) {
+        super(mappingInformation, accessManager, configuration);
         this.beanStore = beanStore;
+    }
+
+    public boolean isLoaded(Object object) {
+        return beanStore.isLoaded(getUnsecureObject(object));
+    }
+
+    public boolean isLoaded(Object object, String property) {
+        return beanStore.isLoaded(getUnsecureObject(object), property);
     }
 
     public void persist(Object secureEntity) {

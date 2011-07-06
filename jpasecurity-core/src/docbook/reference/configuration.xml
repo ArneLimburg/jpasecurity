@@ -26,14 +26,5 @@
         the class name of the implementation of an access rules provider.
       </para>
     </listitem>
-    <listitem>
-      <para>
-        <systemitem>net.sf.jpasecurity.maxFetchDepth</systemitem> - This property specifies up to which depth
-        the object graph of secure entities shall be prefetched (that means, up to which depth secure entities
-        are initialized as they come out of the entity manager). Secure entities that are not prefetched will
-        be initialized on the fly (that means as they are retrieved by a property access of another secure entity).
-        The default-value is <computeroutput>0</computeroutput>. 
-      </para>
-    </listitem>
   </itemizedlist>
 </article>

@@ -36,6 +36,7 @@ import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureMap;
 import net.sf.jpasecurity.SecureObject;
 import net.sf.jpasecurity.configuration.Configuration;
+import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
@@ -54,17 +55,14 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     private final MappingInformation mappingInformation;
     private final AccessManager accessManager;
     private final Configuration configuration;
-    private final ObjectWrapper objectWrapper;
     private final List<Runnable> postFlushOperations = new ArrayList<Runnable>();
 
     public AbstractSecureObjectManager(MappingInformation mappingInformation,
                                        AccessManager accessManager,
-                                       Configuration configuration,
-                                       ObjectWrapper objectWrapper) {
+                                       Configuration configuration) {
         this.mappingInformation = mappingInformation;
         this.accessManager = accessManager;
         this.configuration = configuration;
-        this.objectWrapper = objectWrapper;
     }
 
     protected void addPostFlushOperation(Runnable operation) {
@@ -101,9 +99,10 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             return (T)createSecureMap((Map<?, ?>)object, this, accessManager);
         } else {
             ClassMappingInformation mapping = getClassMapping(object.getClass());
-            SecureEntityInterceptor interceptor = new SecureEntityInterceptor(objectWrapper, this, object);
+            BeanInitializer beanInitializer = configuration.getBeanInitializer();
+            SecureEntityInterceptor interceptor = new SecureEntityInterceptor(beanInitializer, this, object);
             Decorator<SecureEntity> decorator
-                = new SecureEntityDecorator(mapping, objectWrapper, accessManager, this, object);
+                = new SecureEntityDecorator(mapping, beanInitializer, accessManager, this, object);
             return createSecureEntity(mapping.<T>getEntityType(), interceptor, decorator);
         }
     }
