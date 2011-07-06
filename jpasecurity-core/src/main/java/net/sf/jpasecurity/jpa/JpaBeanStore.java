@@ -32,6 +32,14 @@ public class JpaBeanStore implements BeanStore {
         this.entityManager = entityManager;
     }
 
+    public boolean isLoaded(Object bean) {
+        return entityManager.getEntityManagerFactory().getPersistenceUnitUtil().isLoaded(bean);
+    }
+
+    public boolean isLoaded(Object bean, String property) {
+        return entityManager.getEntityManagerFactory().getPersistenceUnitUtil().isLoaded(bean, property);
+    }
+
     public boolean contains(Object bean) {
         return entityManager.contains(bean);
     }

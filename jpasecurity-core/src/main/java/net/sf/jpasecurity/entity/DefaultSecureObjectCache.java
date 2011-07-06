@@ -46,9 +46,8 @@ public class DefaultSecureObjectCache extends EntityPersister {
     public DefaultSecureObjectCache(MappingInformation mappingInformation,
                                     BeanStore beanStore,
                                     AccessManager accessManager,
-                                    Configuration configuration,
-                                    ObjectWrapper objectWrapper) {
-        super(mappingInformation, beanStore, accessManager, configuration, objectWrapper);
+                                    Configuration configuration) {
+        super(mappingInformation, beanStore, accessManager, configuration);
     }
 
     public SecureCollection<?> getSecureCollection(Collection<?> unsecureCollection) {

@@ -29,12 +29,12 @@ import javax.persistence.Query;
 
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.ExceptionFactory;
+import net.sf.jpasecurity.FetchType;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
 import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
 import net.sf.jpasecurity.entity.FetchManager;
-import net.sf.jpasecurity.entity.ObjectWrapper;
 import net.sf.jpasecurity.entity.SecureEntityDecorator;
 import net.sf.jpasecurity.entity.SecureEntityInterceptor;
 import net.sf.jpasecurity.entity.SecureObjectManager;
@@ -45,6 +45,7 @@ import net.sf.jpasecurity.jpql.compiler.ObjectCacheSubselectEvaluator;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.SimpleSubselectEvaluator;
 import net.sf.jpasecurity.jpql.compiler.SubselectEvaluator;
+import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
@@ -74,7 +75,6 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     private MappingInformation mappingInformation;
     private SecureObjectManager secureObjectManager;
     private EntityFilter entityFilter;
-    private ObjectWrapper objectWrapper;
 
     protected DefaultSecureEntityManager(SecureEntityManagerFactory parent,
                                          EntityManager entityManager,
@@ -94,8 +94,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
             secureObjectManager = new DefaultSecureObjectCache(mapping,
                                                                new JpaBeanStore(entityManager),
                                                                this,
-                                                               configuration,
-                                                               new JpaEntityWrapper());
+                                                               configuration);
         }
         this.configuration = configuration;
         this.mappingInformation = mapping;
@@ -114,7 +113,6 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                                              simpleSubselectEvaluator,
                                              objectCacheEvaluator,
                                              entityManagerEvaluator);
-        this.objectWrapper = new JpaEntityWrapper();
     }
 
     @Override
@@ -153,7 +151,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                 secureEntity.refresh();
             }
         }
-        fetch(entity, getMaximumFetchDepth());
+        fetch(entity);
         return entity;
     }
 
@@ -218,19 +216,14 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         return new SecureTransaction(super.getTransaction(), secureObjectManager);
     }
 
-    public int getMaximumFetchDepth() {
-        return configuration.getMaxFetchDepth();
+    public void fetch(Object entity) {
+        fetch(entity, new HashSet<SystemMapKey>());
     }
 
-    public void fetch(Object entity, int depth) {
-        fetch(entity, depth, new HashSet<SystemMapKey>());
-    }
-
-    private void fetch(Object entity, int depth, Set<SystemMapKey> alreadyFetchedEntities) {
-        if (entity == null || depth == 0 || alreadyFetchedEntities.contains(new SystemMapKey(entity))) {
+    private void fetch(Object entity, Set<SystemMapKey> alreadyFetchedEntities) {
+        if (entity == null || alreadyFetchedEntities.contains(new SystemMapKey(entity))) {
             return;
         }
-        depth = Math.min(depth, getMaximumFetchDepth());
         alreadyFetchedEntities.add(new SystemMapKey(entity));
         if (!mappingInformation.containsClassMapping(entity.getClass())) {
             LOG.debug("No class mapping found for entity " + entity);
@@ -238,21 +231,21 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
-            if (propertyMapping.isRelationshipMapping()) {
-                if (propertyMapping.getFetchType() == net.sf.jpasecurity.FetchType.EAGER) {
+            if (propertyMapping.isRelationshipMapping() && propertyMapping.getFetchType() == FetchType.EAGER) {
+                if (secureObjectManager.isLoaded(entity, propertyMapping.getPropertyName())) {
                     Object value = propertyMapping.getPropertyValue(entity);
                     if (value instanceof Collection) {
                         Collection<?> collection = (Collection<?>)value;
                         for (Object entry: collection) {
-                            fetch(entry, depth - 1, alreadyFetchedEntities);
+                            fetch(entry, alreadyFetchedEntities);
                         }
                     } else if (value instanceof Map) {
                         Map<?, ?> map = (Map<?, ?>)value;
                         for (Object entry: map.values()) {
-                            fetch(entry, depth - 1, alreadyFetchedEntities);
+                            fetch(entry, alreadyFetchedEntities);
                         }
                     } else {
-                        fetch(value, depth - 1, alreadyFetchedEntities);
+                        fetch(value, alreadyFetchedEntities);
                     }
                 }
             }
@@ -266,12 +259,12 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         for (int i = 0; i < transientParameters.length; i++) {
             if (mappingInformation.containsClassMapping(parameters[i].getClass())) {
                 ClassMappingInformation mapping = mappingInformation.getClassMapping(parameters[i].getClass());
+                BeanInitializer beanInitializer = configuration.getBeanInitializer();
                 MethodInterceptor interceptor
-                    = new SecureEntityInterceptor(objectWrapper, objectManager, parameters[i]);
+                    = new SecureEntityInterceptor(beanInitializer, objectManager, parameters[i]);
                 Decorator<SecureEntity> decorator
-                    = new SecureEntityDecorator(mapping, objectWrapper, this, objectManager, parameters[i], true);
-                SecureEntityProxyFactory factory
-                    = configuration.getSecureEntityProxyFactory();
+                    = new SecureEntityDecorator(mapping, beanInitializer, this, objectManager, parameters[i], true);
+                SecureEntityProxyFactory factory = configuration.getSecureEntityProxyFactory();
                 transientParameters[i]
                     = factory.createSecureEntityProxy(mapping.getEntityType(), interceptor, decorator);
             } else {

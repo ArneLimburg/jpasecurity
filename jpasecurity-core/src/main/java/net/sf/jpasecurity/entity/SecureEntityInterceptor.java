@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import net.sf.jpasecurity.SecureEntity;
+import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityMethods;
 import net.sf.jpasecurity.proxy.SuperMethod;
@@ -29,38 +30,38 @@ import net.sf.jpasecurity.proxy.SuperMethod;
  */
 public class SecureEntityInterceptor implements MethodInterceptor {
 
-    private ObjectWrapper objectWrapper;
+    private BeanInitializer beanInitializer;
     private AbstractSecureObjectManager objectManager;
     Object entity;
 
-    public SecureEntityInterceptor(ObjectWrapper objectWrapper,
+    public SecureEntityInterceptor(BeanInitializer beanInitializer,
                                    AbstractSecureObjectManager objectManager,
                                    Object entity) {
-        this.objectWrapper = objectWrapper;
+        this.beanInitializer = beanInitializer;
         this.objectManager = objectManager;
         this.entity = entity;
     }
 
     public Object intercept(Object object, Method method, SuperMethod superMethod, Object... args) throws Throwable {
         if (isHashCode(method)) {
-            entity = objectWrapper.unwrap(entity);
+            entity = beanInitializer.initialize(entity);
             return entity.hashCode();
         } else if (isEquals(method)) {
             Object value = args[0];
             if (objectManager.isSecureObject(value)) {
                 value = objectManager.getUnsecureObject(value);
             }
-            entity = objectWrapper.unwrap(entity);
+            entity = beanInitializer.initialize(entity);
             return entity.equals(value);
         } else if (isCompareTo(method) && (entity instanceof Comparable)) {
             Object value = args[0];
             if (objectManager.isSecureObject(value)) {
                 value = objectManager.getUnsecureObject(value);
             }
-            entity = objectWrapper.unwrap(entity);
+            entity = beanInitializer.initialize(entity);
             return compare((Comparable<?>)entity, value);
         } else if (isToString(method)) {
-            entity = objectWrapper.unwrap(entity);
+            entity = beanInitializer.initialize(entity);
             return entity.toString();
         }
         try {

@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.jpasecurity.ExceptionFactory;
-import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.mapping.SecureBeanInitializer;
@@ -60,7 +59,6 @@ public class Configuration {
     private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
     private BeanInitializer beanInitializer;
     private ExceptionFactory exceptionFactory;
-    private int maxFetchDepth;
 
     public Configuration() {
         this(null);
@@ -72,12 +70,6 @@ public class Configuration {
         } else {
             this.properties = Collections.<String, Object>emptyMap();
         }
-        Object maxFetchDepth = this.properties.get(FetchManager.MAX_FETCH_DEPTH);
-        if (maxFetchDepth != null) {
-            this.maxFetchDepth = Integer.parseInt(maxFetchDepth.toString());
-        } else {
-            this.maxFetchDepth = Integer.MAX_VALUE;
-        }
     }
 
     public Configuration(Configuration configuration, Map<String, Object> additionalProperties) {
@@ -88,7 +80,6 @@ public class Configuration {
         propertyAccessStrategyFactory = configuration.getPropertyAccessStrategyFactory();
         beanInitializer = configuration.beanInitializer;
         exceptionFactory = configuration.getExceptionFactory();
-        maxFetchDepth = configuration.getMaxFetchDepth();
         if (additionalProperties != null) {
             properties.putAll(additionalProperties);
         }
@@ -136,14 +127,6 @@ public class Configuration {
 
     public void setPropertyAccessStrategyFactory(PropertyAccessStrategyFactory propertyAccessStrategyFactory) {
         this.propertyAccessStrategyFactory = propertyAccessStrategyFactory;
-    }
-
-    public int getMaxFetchDepth() {
-        return maxFetchDepth;
-    }
-
-    public void setMaxFetchDepth(int maxFetchDepth) {
-        this.maxFetchDepth = maxFetchDepth;
     }
 
     public ExceptionFactory getExceptionFactory() {

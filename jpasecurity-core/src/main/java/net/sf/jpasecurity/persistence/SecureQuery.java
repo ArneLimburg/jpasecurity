@@ -28,7 +28,6 @@ import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpa.JpaQuery;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
-import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
 
@@ -113,9 +112,7 @@ public class SecureQuery extends DelegatingQuery {
         }
         if (!(result instanceof Object[])) {
             result = objectManager.getSecureObject(result);
-            if (selectedPaths != null) {
-                executeFetchPlan(result, selectedPaths.get(0));
-            }
+            fetchManager.fetch(result);
             return result;
         }
         Object[] scalarResult = (Object[])result;
@@ -123,54 +120,10 @@ public class SecureQuery extends DelegatingQuery {
             if (scalarResult[i] != null && !isSimplePropertyType(scalarResult[i].getClass())) {
                 scalarResult[i] = objectManager.getSecureObject(scalarResult[i]);
                 if (selectedPaths != null) {
-                    executeFetchPlan(scalarResult[i], selectedPaths.get(i));
+                    fetchManager.fetch(scalarResult[i]);
                 }
             }
         }
         return scalarResult;
-    }
-
-    private void executeFetchPlan(Object entity, String selectedPath) {
-        selectedPath = resolveAliases(selectedPath);
-        fetchManager.fetch(entity, fetchManager.getMaximumFetchDepth() - getPathLength(selectedPath) + 1);
-        for (TypeDefinition typeDefinition: types) {
-            if (typeDefinition.isFetchJoin()) {
-                String fetchPath = resolveAliases(typeDefinition.getJoinPath());
-                if (fetchPath.startsWith(selectedPath)) {
-                    Object result = pathEvaluator.evaluate(entity, fetchPath.substring(selectedPath.length() + 1));
-                    fetchManager.fetch(result, fetchManager.getMaximumFetchDepth() - getPathLength(fetchPath) + 1);
-                }
-            }
-        }
-    }
-
-    private String resolveAliases(String aliasedPath) {
-        int index = aliasedPath.indexOf('.');
-        Alias alias;
-        String path;
-        if (index == -1) {
-            alias = new Alias(aliasedPath);
-            path = null;
-        } else {
-            alias = new Alias(aliasedPath.substring(0, index));
-            path = aliasedPath.substring(index + 1);
-        }
-        for (TypeDefinition typeDefinition: types) {
-            if (alias.equals(typeDefinition.getAlias())) {
-                if (typeDefinition.getJoinPath() == null) {
-                    return aliasedPath;
-                }
-                return resolveAliases(typeDefinition.getJoinPath() + '.' + path);
-            }
-        }
-        throw new IllegalStateException("alias '" + alias + "' not found in type definitions");
-    }
-
-    private int getPathLength(String path) {
-        int pathLength = 1;
-        for (int index = path.indexOf('.'); index != -1; index = path.indexOf('.', index + 1)) {
-            pathLength++;
-        }
-        return pathLength;
     }
 }

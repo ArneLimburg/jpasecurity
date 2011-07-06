@@ -21,6 +21,10 @@ package net.sf.jpasecurity;
  */
 public interface BeanStore {
 
+    boolean isLoaded(Object bean);
+
+    boolean isLoaded(Object bean, String property);
+
     void persist(Object bean);
 
     <B> B merge(B bean);
