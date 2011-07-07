@@ -26,6 +26,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaQuery;
 
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.ExceptionFactory;
@@ -175,6 +177,10 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         return createQuery(mappingInformation.getNamedQuery(name));
     }
 
+    public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+        return createQuery(mappingInformation.getNamedQuery(name), resultClass);
+    }
+
     public void flush() {
         secureObjectManager.preFlush();
         super.flush();
@@ -187,19 +193,29 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     /**
-     * This implementation filters the query according to the provided access rules
-     * and the authenticated user and its roles.
+     * This implementation filters the query according to the provided security context
      */
     public Query createQuery(String qlString) {
+        return createQuery(qlString, Object.class, Query.class);
+    }
+
+    /**
+     * This implementation filters the query according to the provided security context
+     */
+    public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+        return createQuery(qlString, resultClass, TypedQuery.class);
+    }
+
+    private <T, Q extends Query> Q createQuery(String qlString, Class<T> resultClass, Class<Q> queryClass) {
         FilterResult filterResult = entityFilter.filterQuery(qlString, READ, configuration.getSecurityContext());
         if (filterResult.getQuery() == null) {
-            return new EmptyResultQuery();
+            return (Q)new EmptyResultQuery<T>(createDelegateQuery(qlString, resultClass, queryClass));
         } else {
-            Query query = new SecureQuery<Object>(secureObjectManager,
-                                                  this,
-                                                  super.createQuery(filterResult.getQuery()),
-                                                  filterResult.getSelectedPaths(),
-                                                  super.getFlushMode());
+            Q query = (Q)new SecureQuery<T>(secureObjectManager,
+                                            this,
+                                            createDelegateQuery(filterResult.getQuery(), resultClass, queryClass),
+                                            filterResult.getSelectedPaths(),
+                                            super.getFlushMode());
             if (filterResult.getParameters() != null) {
                 for (Map.Entry<String, Object> parameter: filterResult.getParameters().entrySet()) {
                     query.setParameter(parameter.getKey(), parameter.getValue());
@@ -207,6 +223,19 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
             }
             return query;
         }
+    }
+
+    private <Q extends Query> Q createDelegateQuery(String qlString, Class<?> resultClass, Class<Q> queryClass) {
+        if (TypedQuery.class.equals(queryClass)) {
+            return (Q)super.createQuery(qlString, resultClass);
+        } else {
+            return (Q)super.createQuery(qlString);
+        }
+    }
+
+    public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+        //TODO implement Criteria filtering
+        return super.createQuery(criteriaQuery);
     }
 
     public EntityTransaction getTransaction() {
