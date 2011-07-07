@@ -21,6 +21,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.configuration.Configuration;
@@ -77,22 +78,46 @@ public class LightSecureEntityManager extends DelegatingEntityManager {
         return createQuery(mappingInformation.getNamedQuery(name));
     }
 
+    public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+        return createQuery(mappingInformation.getNamedQuery(name), resultClass);
+    }
+
     /**
      * This implementation filters the query according to the provided access rules
      * and the authenticated user and its roles.
      */
     public Query createQuery(String qlString) {
+        return createQuery(qlString, Object.class, Query.class);
+    }
+
+    /**
+     * This implementation filters the query according to the provided access rules
+     * and the authenticated user and its roles.
+     */
+    public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+        return createQuery(qlString, resultClass, TypedQuery.class);
+    }
+
+    private <Q extends Query, T> Q createQuery(String qlString, Class<T> resultClass, Class<Q> queryType) {
         FilterResult filterResult = entityFilter.filterQuery(qlString, READ, securityContext);
         if (filterResult.getQuery() == null) {
-            return new EmptyResultQuery();
+            return (Q)new EmptyResultQuery<T>(createDelegateQuery(qlString, resultClass, queryType));
         } else {
-            Query query = super.createQuery(filterResult.getQuery());
+            Q query = createDelegateQuery(filterResult.getQuery(), resultClass, queryType);
             if (filterResult.getParameters() != null) {
                 for (Map.Entry<String, Object> roleParameter: filterResult.getParameters().entrySet()) {
                     query.setParameter(roleParameter.getKey(), roleParameter.getValue());
                 }
             }
-            return query;
+            return (Q)query;
+        }
+    }
+
+    private <Q extends Query> Q createDelegateQuery(String qlString, Class<?> resultClass, Class<Q> queryClass) {
+        if (TypedQuery.class.equals(queryClass)) {
+            return (Q)super.createQuery(qlString, resultClass);
+        } else {
+            return (Q)super.createQuery(qlString);
         }
     }
 }

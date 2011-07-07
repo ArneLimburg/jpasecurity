@@ -40,9 +40,8 @@ public class EasyMockPersistenceProvider implements PersistenceProvider {
 
     public EntityManagerFactory createEntityManagerFactory(String emName, Map map) {
         if (map != null
-                        && map.containsKey(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY)
-                        && getClass().getName()
-                                        .equals(map.get(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY))) {
+            && map.containsKey(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY)
+            && getClass().getName().equals(map.get(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY))) {
             return new EasyMockEntityManagerFactory();
         }
         PersistenceXmlParser persistenceXmlParser = new PersistenceXmlParser();

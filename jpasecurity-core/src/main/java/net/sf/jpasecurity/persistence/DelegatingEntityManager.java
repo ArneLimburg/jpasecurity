@@ -106,8 +106,20 @@ public class DelegatingEntityManager implements EntityManager {
         return delegate.createQuery(qlString);
     }
 
+    public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+        return delegate.createQuery(criteriaQuery);
+    }
+
+    public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+        return delegate.createQuery(qlString, resultClass);
+    }
+
     public Query createNamedQuery(String name) {
         return delegate.createNamedQuery(name);
+    }
+
+    public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+        return delegate.createNamedQuery(name, resultClass);
     }
 
     public Query createNativeQuery(String sqlString) {
@@ -172,18 +184,6 @@ public class DelegatingEntityManager implements EntityManager {
 
     public Map<String, Object> getProperties() {
         return delegate.getProperties();
-    }
-
-    public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
-        return delegate.createQuery(criteriaQuery);
-    }
-
-    public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
-        return delegate.createQuery(qlString, resultClass);
-    }
-
-    public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
-        return delegate.createNamedQuery(name, resultClass);
     }
 
     public <T> T unwrap(Class<T> cls) {
