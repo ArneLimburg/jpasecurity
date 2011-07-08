@@ -19,12 +19,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.Cache;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnitUtil;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.metamodel.Metamodel;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import net.sf.jpasecurity.AccessManager;
@@ -47,9 +44,8 @@ import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
  * This class is a factory that creates {@link net.sf.jpasecurity.persistence.SecureEntityManager}s.
  * @author Arne Limburg
  */
-public class SecureEntityManagerFactory implements EntityManagerFactory {
+public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory implements EntityManagerFactory {
 
-    private EntityManagerFactory nativeEntityManagerFactory;
     private MappingInformation mappingInformation;
     private Configuration configuration;
     private PersistenceUnitUtil securePersistenceUnitUtil;
@@ -58,7 +54,7 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
                                          PersistenceUnitInfo persistenceUnitInfo,
                                          Map<String, Object> properties,
                                          Configuration configuration) {
-        this.nativeEntityManagerFactory = entityManagerFactory;
+        super(entityManagerFactory);
         if (entityManagerFactory == null) {
             throw new IllegalArgumentException("entityManagerFactory may not be null");
         }
@@ -95,21 +91,20 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
     }
 
     public EntityManager createEntityManager() {
-        return createSecureEntityManager(nativeEntityManagerFactory.createEntityManager(),
-                                         Collections.<String, Object>emptyMap());
+        return createSecureEntityManager(super.createEntityManager(), Collections.<String, Object>emptyMap());
     }
 
     public EntityManager createEntityManager(Map map) {
-        return createSecureEntityManager(nativeEntityManagerFactory.createEntityManager(map), map);
-    }
-
-    public boolean isOpen() {
-        return nativeEntityManagerFactory.isOpen();
+        return createSecureEntityManager(super.createEntityManager(map), map);
     }
 
     public void close() {
         configuration = null;
-        nativeEntityManagerFactory.close();
+        super.close();
+    }
+
+    public PersistenceUnitUtil getPersistenceUnitUtil() {
+        return securePersistenceUnitUtil;
     }
 
     protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, Object> properties) {
@@ -144,25 +139,5 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
 
     protected MappingInformation getMappingInformation() {
         return mappingInformation;
-    }
-
-    public CriteriaBuilder getCriteriaBuilder() {
-        return nativeEntityManagerFactory.getCriteriaBuilder();
-    }
-
-    public Metamodel getMetamodel() {
-        return nativeEntityManagerFactory.getMetamodel();
-    }
-
-    public Map<String, Object> getProperties() {
-        return nativeEntityManagerFactory.getProperties();
-    }
-
-    public Cache getCache() {
-        return nativeEntityManagerFactory.getCache();
-    }
-
-    public PersistenceUnitUtil getPersistenceUnitUtil() {
-        return securePersistenceUnitUtil;
     }
 }
