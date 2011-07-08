@@ -60,7 +60,12 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>jpasecurity-core</artifactId>
+      <artifactId>jpasecurity-jpa</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>jpasecurity-jpa</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
     </dependency>
