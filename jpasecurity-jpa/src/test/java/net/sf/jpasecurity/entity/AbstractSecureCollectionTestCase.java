@@ -30,14 +30,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
-import javax.persistence.EntityManager;
-
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.BeanStore;
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.configuration.Configuration;
-import net.sf.jpasecurity.jpa.JpaBeanStore;
 import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
@@ -56,7 +54,7 @@ import org.junit.Test;
 public abstract class AbstractSecureCollectionTestCase {
 
     private MappingInformation mapping;
-    private EntityManager entityManager;
+    private BeanStore beanStore;
     private BeanInitializer beanInitializer;
     private AccessManager accessManager;
     private AbstractSecureObjectManager objectManager;
@@ -66,18 +64,18 @@ public abstract class AbstractSecureCollectionTestCase {
     @Before
     public void createTestData() {
         mapping = createMock(MappingInformation.class);
-        entityManager = createMock(EntityManager.class);
+        beanStore = createMock(BeanStore.class);
         accessManager = createMock(AccessManager.class);
         beanInitializer = new SecureBeanInitializer();
         objectManager = new DefaultSecureObjectManager(mapping,
-                                            new JpaBeanStore(entityManager),
+                                            beanStore,
                                             accessManager,
                                             new Configuration());
 
         expect(mapping.getClassMapping((Class<?>)anyObject())).andAnswer(new ClassMappingAnswer()).anyTimes();
         expect(accessManager.isAccessible(eq(AccessType.READ), anyObject())).andReturn(true).anyTimes();
 
-        replay(mapping, entityManager, accessManager);
+        replay(mapping, beanStore, accessManager);
 
         unsecureEntity = new Object();
         secureEntity = (SecureEntity)objectManager.getSecureObject(unsecureEntity);
