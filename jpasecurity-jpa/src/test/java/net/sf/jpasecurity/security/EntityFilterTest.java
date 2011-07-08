@@ -25,8 +25,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.persistence.EntityManager;
-
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecurityUnit;
@@ -74,13 +72,12 @@ public class EntityFilterTest {
 
     @Test
     public void access() throws Exception {
-        EntityManager entityManager = createMock(EntityManager.class);
         SecureObjectManager secureObjectManager = createMock(SecureObjectManager.class);
         DefaultAuthenticationProvider authenticationProvider = new DefaultAuthenticationProvider();
         SecurityContext securityContext = new AuthenticationProviderSecurityContext(authenticationProvider);
         expect(secureObjectManager.getSecureObjects((Class<Object>)anyObject()))
             .andReturn(Collections.<Object>emptySet()).anyTimes();
-        replay(entityManager, secureObjectManager);
+        replay(secureObjectManager);
         ExceptionFactory exceptionFactory = new DefaultExceptionFactory();
         EntityFilter filter = new EntityFilter(secureObjectManager, mappingInformation, exceptionFactory, accessRules);
         User john = new User("John");
