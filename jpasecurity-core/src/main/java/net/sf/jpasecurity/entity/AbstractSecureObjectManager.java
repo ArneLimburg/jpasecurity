@@ -29,7 +29,6 @@ import java.util.TreeSet;
 
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
-import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
@@ -45,12 +44,11 @@ import net.sf.jpasecurity.proxy.Decorator;
 import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
-import net.sf.jpasecurity.util.SystemMapKey;
 
 /**
  * @author Arne Limburg
  */
-public abstract class AbstractSecureObjectManager implements SecureObjectManager {
+public abstract class AbstractSecureObjectManager {
 
     private final MappingInformation mappingInformation;
     private final AccessManager accessManager;
@@ -343,11 +341,6 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             propertyMapping.setPropertyValue(secureObject, newVersion);
         }
     }
-
-    abstract void cascade(Object secureEntity,
-                          Object unsecureEntity,
-                          CascadeType cascadeType,
-                          Set<SystemMapKey> alreadyCascadedEntities);
 
     boolean isDirty(Object newEntity, Object oldEntity) {
         final ClassMappingInformation classMapping = getClassMapping(newEntity.getClass());

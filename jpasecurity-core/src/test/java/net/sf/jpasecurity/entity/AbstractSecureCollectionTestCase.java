@@ -69,7 +69,7 @@ public abstract class AbstractSecureCollectionTestCase {
         entityManager = createMock(EntityManager.class);
         accessManager = createMock(AccessManager.class);
         beanInitializer = new SecureBeanInitializer();
-        objectManager = new EntityPersister(mapping,
+        objectManager = new DefaultSecureObjectManager(mapping,
                                             new JpaBeanStore(entityManager),
                                             accessManager,
                                             new Configuration());

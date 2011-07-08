@@ -27,10 +27,16 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import net.sf.jpasecurity.AccessManager;
+import net.sf.jpasecurity.AlwaysPermittingAccessManager;
+import net.sf.jpasecurity.BeanLoader;
 import net.sf.jpasecurity.SecurityUnit;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.configuration.ConfigurationReceiver;
 import net.sf.jpasecurity.configuration.SecurityContextReceiver;
+import net.sf.jpasecurity.entity.DefaultSecureObjectLoader;
+import net.sf.jpasecurity.entity.SecureObjectLoader;
+import net.sf.jpasecurity.jpa.JpaBeanLoader;
 import net.sf.jpasecurity.jpa.JpaSecurityUnit;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
@@ -46,6 +52,7 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
     private EntityManagerFactory nativeEntityManagerFactory;
     private MappingInformation mappingInformation;
     private Configuration configuration;
+    private PersistenceUnitUtil securePersistenceUnitUtil;
 
     protected SecureEntityManagerFactory(EntityManagerFactory entityManagerFactory,
                                          PersistenceUnitInfo persistenceUnitInfo,
@@ -71,11 +78,16 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
         this.mappingInformation = annotationParser.parse(securityUnitInformation);
         this.mappingInformation = xmlParser.parse(securityUnitInformation, mappingInformation);
         Map<String, Object> persistenceProperties
-            = new HashMap<String, Object>((Map)persistenceUnitInfo.getProperties());
+            = new HashMap<String, Object>((Map<String, Object>)(Map<?, Object>)persistenceUnitInfo.getProperties());
         if (properties != null) {
             persistenceProperties.putAll(properties);
         }
         injectPersistenceInformation(persistenceProperties);
+        BeanLoader beanLoader = new JpaBeanLoader(entityManagerFactory.getPersistenceUnitUtil());
+        AccessManager accessManager = new AlwaysPermittingAccessManager();
+        SecureObjectLoader secureObjectLoader
+            = new DefaultSecureObjectLoader(mappingInformation, beanLoader, accessManager, configuration);
+        securePersistenceUnitUtil = new SecurePersistenceUnitUtil(secureObjectLoader);
     }
 
     protected Configuration getConfiguration() {
@@ -151,6 +163,6 @@ public class SecureEntityManagerFactory implements EntityManagerFactory {
     }
 
     public PersistenceUnitUtil getPersistenceUnitUtil() {
-        return nativeEntityManagerFactory.getPersistenceUnitUtil();
+        return securePersistenceUnitUtil;
     }
 }
