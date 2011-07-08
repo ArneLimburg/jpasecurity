@@ -22,10 +22,8 @@ import net.sf.jpasecurity.Parameterizable;
 /**
  * @author Arne Limburg
  */
-public interface SecureObjectManager extends SecureObjectCache {
+public interface SecureObjectManager extends SecureObjectCache, SecureObjectLoader {
 
-    boolean isLoaded(Object object);
-    boolean isLoaded(Object object, String property);
     void persist(Object object);
     <E> E merge(E entity);
     boolean contains(Object entity);

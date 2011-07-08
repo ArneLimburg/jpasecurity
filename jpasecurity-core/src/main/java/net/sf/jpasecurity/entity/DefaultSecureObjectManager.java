@@ -45,26 +45,18 @@ import net.sf.jpasecurity.util.SystemMapKey;
 /**
  * @author Arne Limburg
  */
-public class EntityPersister extends AbstractSecureObjectManager {
+public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implements SecureObjectManager {
 
     protected final BeanStore beanStore;
     private Map<SystemMapKey, Object> secureEntities = new HashMap<SystemMapKey, Object>();
     private Map<SystemMapKey, Object> unsecureEntities = new HashMap<SystemMapKey, Object>();
 
-    public EntityPersister(MappingInformation mappingInformation,
+    public DefaultSecureObjectManager(MappingInformation mappingInformation,
                            BeanStore beanStore,
                            AccessManager accessManager,
                            Configuration configuration) {
-        super(mappingInformation, accessManager, configuration);
+        super(mappingInformation, beanStore, accessManager, configuration);
         this.beanStore = beanStore;
-    }
-
-    public boolean isLoaded(Object object) {
-        return beanStore.isLoaded(getUnsecureObject(object));
-    }
-
-    public boolean isLoaded(Object object, String property) {
-        return beanStore.isLoaded(getUnsecureObject(object), property);
     }
 
     public void persist(Object secureEntity) {

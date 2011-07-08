@@ -34,7 +34,7 @@ import net.sf.jpasecurity.util.SystemMapKey;
 /**
  * @author Arne Limburg
  */
-public class DefaultSecureObjectCache extends EntityPersister {
+public class DefaultSecureObjectCache extends DefaultSecureObjectManager {
 
     private Map<ClassMappingInformation, Map<Object, SecureEntity>> secureEntities
         = new HashMap<ClassMappingInformation, Map<Object, SecureEntity>>();

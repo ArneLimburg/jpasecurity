@@ -19,11 +19,7 @@ package net.sf.jpasecurity;
  * Implementations of this interface are able to load and store beans.
  * @author Arne Limburg
  */
-public interface BeanStore {
-
-    boolean isLoaded(Object bean);
-
-    boolean isLoaded(Object bean, String property);
+public interface BeanStore extends BeanLoader {
 
     void persist(Object bean);
 
