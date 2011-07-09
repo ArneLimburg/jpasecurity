@@ -60,7 +60,7 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         verify(mock);
     }
 
-    public void testAutodetectEjbAuthenticationProvider() throws Exception {
+    public void ignoreTestAutodetectEjbAuthenticationProvider() throws Exception {
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY, javaURLContextFactory.class.getName());
         System.setProperty(Context.URL_PKG_PREFIXES, NamingContext.class.getPackage().getName());
 
