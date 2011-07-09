@@ -205,5 +205,10 @@
       <artifactId>easymock</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>commons-naming</groupId>
+      <artifactId>commons-naming-core</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
