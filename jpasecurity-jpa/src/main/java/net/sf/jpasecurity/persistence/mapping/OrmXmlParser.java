@@ -41,7 +41,7 @@ import javax.xml.xpath.XPathFactory;
 import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecurityUnit;
-import net.sf.jpasecurity.mapping.AbstractMappingParser;
+import net.sf.jpasecurity.mapping.AbstractSecurityUnitParser;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.DefaultClassMappingInformation;
 import net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory;
@@ -65,7 +65,7 @@ import org.xml.sax.SAXException;
  * @author Arne Limburg
  * @author Johannes Siemer
  */
-public class OrmXmlParser extends AbstractMappingParser {
+public class OrmXmlParser extends AbstractSecurityUnitParser {
 
     private static final Log LOG = LogFactory.getLog(OrmXmlParser.class);
 
@@ -191,13 +191,14 @@ public class OrmXmlParser extends AbstractMappingParser {
 
     private Document ormDocument;
 
-    public OrmXmlParser(ExceptionFactory exceptionFactory) {
-        this(new DefaultPropertyAccessStrategyFactory(), exceptionFactory);
+    public OrmXmlParser(SecurityUnit securityUnit, ExceptionFactory exceptionFactory) {
+        this(securityUnit, new DefaultPropertyAccessStrategyFactory(), exceptionFactory);
     }
 
-    public OrmXmlParser(PropertyAccessStrategyFactory propertyAccessStrategyFactory,
+    public OrmXmlParser(SecurityUnit securityUnit,
+                        PropertyAccessStrategyFactory propertyAccessStrategyFactory,
                         ExceptionFactory exceptionFactory) {
-        super(propertyAccessStrategyFactory, exceptionFactory);
+        super(securityUnit, propertyAccessStrategyFactory, exceptionFactory);
     }
 
     public void parseSecurityUnit(SecurityUnit securityUnit) {
@@ -515,7 +516,7 @@ public class OrmXmlParser extends AbstractMappingParser {
         for (int i = 0; i < entityListeners.getLength(); i++) {
             Class<?> type = getEntityListenerType(entityListeners.item(i));
             JpaAnnotationParser parser
-                = new JpaAnnotationParser(getPropertyAccessStrategyFactory(), getExceptionFactory());
+                = new JpaAnnotationParser(getSecurityUnit(), getPropertyAccessStrategyFactory(), getExceptionFactory());
             EntityLifecycleMethods entityLifecycleMethods = parser.parseEntityLifecycleMethods(type);
             EntityListenerWrapper entityListener
                 = parseEntityListener(entityListeners.item(i), type, entityLifecycleMethods);

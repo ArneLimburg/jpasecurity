@@ -62,7 +62,7 @@ public class EntityFilterTest {
         persistenceUnitInfo.getManagedClassNames().add(Contact.class.getName());
         persistenceUnitInfo.getManagedClassNames().add(User.class.getName());
         SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
-        mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(securityUnitInformation);
+        mappingInformation = new JpaAnnotationParser(securityUnitInformation, new JpaExceptionFactory()).parse();
         JpqlParser parser = new JpqlParser();
         JpqlAccessRule rule
             = parser.parseRule("GRANT READ ACCESS TO Contact contact WHERE contact.owner = CURRENT_PRINCIPAL");

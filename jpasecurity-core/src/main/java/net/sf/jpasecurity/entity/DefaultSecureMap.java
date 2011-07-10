@@ -16,7 +16,7 @@
 package net.sf.jpasecurity.entity;
 
 import static net.sf.jpasecurity.AccessType.READ;
-import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
+import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;

@@ -45,7 +45,7 @@ public class AccessRulesCompilerTest {
         PersistenceXmlParser parser = new PersistenceXmlParser();
         parser.parse(persistenceXml);
         SecurityUnit securityUnit = new JpaSecurityUnit(parser.getPersistenceUnitInfo("interface"));
-        mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(securityUnit);
+        mappingInformation = new JpaAnnotationParser(securityUnit, new JpaExceptionFactory()).parse();
     }
 
     @Test

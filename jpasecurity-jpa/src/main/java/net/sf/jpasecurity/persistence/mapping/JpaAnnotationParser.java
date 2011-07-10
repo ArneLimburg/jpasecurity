@@ -18,7 +18,6 @@ package net.sf.jpasecurity.persistence.mapping;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.net.URL;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -56,7 +55,7 @@ import javax.persistence.Version;
 import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecurityUnit;
-import net.sf.jpasecurity.mapping.AbstractMappingParser;
+import net.sf.jpasecurity.mapping.AbstractSecurityUnitParser;
 import net.sf.jpasecurity.mapping.DefaultClassMappingInformation;
 import net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory;
 import net.sf.jpasecurity.mapping.EntityLifecycleMethods;
@@ -64,35 +63,21 @@ import net.sf.jpasecurity.mapping.EntityListener;
 import net.sf.jpasecurity.mapping.EntityListenerWrapper;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 
-
 /**
  * Parses a persistence unit for persistence annotations.
  * <strong>This class is not thread-safe</strong>
  * @author Arne Limburg
  */
-public class JpaAnnotationParser extends AbstractMappingParser {
+public class JpaAnnotationParser extends AbstractSecurityUnitParser {
 
-    public JpaAnnotationParser(ExceptionFactory exceptionFactory) {
-        this(new DefaultPropertyAccessStrategyFactory(), exceptionFactory);
+    public JpaAnnotationParser(SecurityUnit securityUnit, ExceptionFactory exceptionFactory) {
+        this(securityUnit, new DefaultPropertyAccessStrategyFactory(), exceptionFactory);
     }
 
-    public JpaAnnotationParser(PropertyAccessStrategyFactory propertyAccessStrategyFactory,
+    public JpaAnnotationParser(SecurityUnit securityUnit,
+                               PropertyAccessStrategyFactory propertyAccessStrategyFactory,
                                ExceptionFactory exceptionFactory) {
-        super(propertyAccessStrategyFactory, exceptionFactory);
-    }
-
-    protected void parseSecurityUnit(SecurityUnit persistenceUnit) {
-        if (!persistenceUnit.excludeUnlistedClasses()) {
-            if (persistenceUnit.getSecurityUnitRootUrl() != null) {
-                parse(persistenceUnit.getSecurityUnitRootUrl());
-            }
-        }
-        for (URL url: persistenceUnit.getJarFileUrls()) {
-            parse(url);
-        }
-        for (String className: persistenceUnit.getManagedClassNames()) {
-            parse(getClass(className));
-        }
+        super(securityUnit, propertyAccessStrategyFactory, exceptionFactory);
     }
 
     protected void parseNamedQueries(Class<?> entityClass) {

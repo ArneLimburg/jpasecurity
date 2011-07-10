@@ -19,8 +19,8 @@ import static org.junit.Assert.assertEquals;
 
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecurityUnit;
-import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.jpa.JpaSecurityUnit;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
@@ -47,10 +47,11 @@ public class JpqlCompilerTest {
     public void initialize() {
         PersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
-        SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
-        mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(securityUnitInformation);
+        SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
+        ExceptionFactory exceptionFactory = new JpaExceptionFactory();
+        mappingInformation = new JpaAnnotationParser(securityUnit, exceptionFactory).parse();
         parser = new JpqlParser();
-        compiler = new JpqlCompiler(mappingInformation, new DefaultExceptionFactory());
+        compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
     }
 
     @Test
