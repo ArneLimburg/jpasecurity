@@ -19,15 +19,15 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * This interface represents mapping information for a specific persistence unit.
+ * This interface represents mapping information for a specific security unit.
  * @author Arne Limburg
  */
 public interface MappingInformation {
 
-    String getPersistenceUnitName();
+    String getSecurityUnitName();
     Set<String> getNamedQueryNames();
     String getNamedQuery(String name);
-    Collection<Class<?>> getPersistentClasses();
+    Collection<Class<?>> getSecureClasses();
     boolean containsClassMapping(Class<?> entityType);
     boolean containsClassMapping(String entityName);
     ClassMappingInformation getClassMapping(Class<?> entityType);

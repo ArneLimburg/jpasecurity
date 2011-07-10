@@ -33,7 +33,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
+import net.sf.jpasecurity.mapping.MappingInformationReceiver;
 
 /**
  * A base class for implementations of the {@link AccessRulesProvider} interface
@@ -43,7 +43,7 @@ import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
  * @author Arne Limburg
  */
 public abstract class AbstractAccessRulesProvider implements AccessRulesProvider,
-                                                             PersistenceInformationReceiver,
+                                                             MappingInformationReceiver,
                                                              ConfigurationReceiver,
                                                              SecurityContextReceiver {
 
@@ -57,7 +57,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
         return persistenceMapping;
     }
 
-    public final void setPersistenceMapping(MappingInformation persistenceMapping) {
+    public final void setMappingInformation(MappingInformation persistenceMapping) {
         this.persistenceMapping = persistenceMapping;
     }
 
@@ -65,7 +65,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
         return persistenceProperties;
     }
 
-    public final void setPersistenceProperties(Map<String, Object> properties) {
+    public final void setMappingProperties(Map<String, Object> properties) {
         this.persistenceProperties = properties;
     }
 

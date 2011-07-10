@@ -51,7 +51,7 @@ public class AccessRulesCompilerTest {
     @Test
     public void rulesOnInterfaces() {
         XmlAccessRulesProvider accessRulesProvider = new XmlAccessRulesProvider();
-        accessRulesProvider.setPersistenceMapping(mappingInformation);
+        accessRulesProvider.setMappingInformation(mappingInformation);
         accessRulesProvider.setConfiguration(new Configuration());
         accessRulesProvider.setSecurityContext(new AutodetectingSecurityContext());
         assertEquals(2, accessRulesProvider.getAccessRules().size());

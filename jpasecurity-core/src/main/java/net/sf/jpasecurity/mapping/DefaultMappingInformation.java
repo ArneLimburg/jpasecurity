@@ -52,7 +52,7 @@ public class DefaultMappingInformation implements MappingInformation {
         this.exceptionFactory = exceptionFactory;
     }
 
-    public String getPersistenceUnitName() {
+    public String getSecurityUnitName() {
         return persistenceUnitName;
     }
 
@@ -64,7 +64,7 @@ public class DefaultMappingInformation implements MappingInformation {
         return namedQueries.get(name);
     }
 
-    public Collection<Class<?>> getPersistentClasses() {
+    public Collection<Class<?>> getSecureClasses() {
         return Collections.unmodifiableSet(entityTypeMappings.keySet());
     }
 

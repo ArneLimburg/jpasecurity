@@ -101,7 +101,7 @@ public abstract class AbstractMappingParser {
         defaultEntityListeners = new ArrayList<EntityListener>();
         classLoader = findClassLoader(securityUnitInformation);
         if (mappingInformation != null) {
-            for (Class<?> type: mappingInformation.getPersistentClasses()) {
+            for (Class<?> type: mappingInformation.getSecureClasses()) {
                 classMappings.put(type, (DefaultClassMappingInformation)mappingInformation.getClassMapping(type));
             }
             for (String name: mappingInformation.getNamedQueryNames()) {
@@ -109,8 +109,8 @@ public abstract class AbstractMappingParser {
             }
         }
         parseSecurityUnit(securityUnitInformation);
-        String persistenceUnitName = securityUnitInformation.getSecurityUnitName();
-        return new DefaultMappingInformation(persistenceUnitName, classMappings, namedQueries, exceptionFactory);
+        String securityUnitName = securityUnitInformation.getSecurityUnitName();
+        return new DefaultMappingInformation(securityUnitName, classMappings, namedQueries, exceptionFactory);
     }
 
     protected void parse(URL url) {

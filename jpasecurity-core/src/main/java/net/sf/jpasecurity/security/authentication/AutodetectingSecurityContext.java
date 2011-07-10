@@ -30,17 +30,9 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * This class tries to detect the security context for an application.
- * Internally it uses an {@link AutodetectingSecurityContext}.
+ * Internally it uses an {@link AuthenticationProviderSecurityContext}.
  * For that security context the following authentication providers are used in the specified order:
  * <ol>
- *   <li>
- *     If a <tt>org.springframework.security.context.SecurityContextHolder</tt> is present in the classpath,
- *     a {@link SpringAuthenticationProvider} is used.
- *   </li>
- *   <li>
- *     If a <tt>org.acegisecurity.context.SecurityContextHolder</tt> is present in the classpath,
- *     a {@link AcegiAuthenticationProvider} is used.
- *   </li>
  *   <li>
  *     If an <tt>javax.ejb.EJBContext</tt> is accessible via JNDI lookup,
  *     an {@link EjbAuthenticationProvider} is used.

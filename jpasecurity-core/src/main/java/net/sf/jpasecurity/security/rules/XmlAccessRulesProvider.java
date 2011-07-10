@@ -38,7 +38,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
 
     protected void initializeAccessRules() {
-        String persistenceUnitName = getPersistenceMapping().getPersistenceUnitName();
+        String persistenceUnitName = getPersistenceMapping().getSecurityUnitName();
         ExceptionFactory exceptionFactory = getConfiguration().getExceptionFactory();
         RulesParser parser = new RulesParser(persistenceUnitName, exceptionFactory);
         try {

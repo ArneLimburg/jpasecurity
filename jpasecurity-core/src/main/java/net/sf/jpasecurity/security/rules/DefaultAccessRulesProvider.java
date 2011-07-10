@@ -27,14 +27,14 @@ import net.sf.jpasecurity.configuration.ConfigurationReceiver;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.configuration.SecurityContextReceiver;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
+import net.sf.jpasecurity.mapping.MappingInformationReceiver;
 
 /**
  * This implementation of the {@link AccessRulesProvider} interface.
  * @author Arne Limburg
  */
 public class DefaultAccessRulesProvider implements AccessRulesProvider,
-                                                   PersistenceInformationReceiver,
+                                                   MappingInformationReceiver,
                                                    SecurityContextReceiver,
                                                    ConfigurationReceiver {
 
@@ -52,14 +52,14 @@ public class DefaultAccessRulesProvider implements AccessRulesProvider,
         return accessRules;
     }
 
-    public void setPersistenceMapping(MappingInformation persistenceMapping) {
-        annotationRulesProvider.setPersistenceMapping(persistenceMapping);
-        xmlRulesProvider.setPersistenceMapping(persistenceMapping);
+    public void setMappingInformation(MappingInformation persistenceMapping) {
+        annotationRulesProvider.setMappingInformation(persistenceMapping);
+        xmlRulesProvider.setMappingInformation(persistenceMapping);
     }
 
-    public void setPersistenceProperties(Map<String, Object> properties) {
-        annotationRulesProvider.setPersistenceProperties(properties);
-        xmlRulesProvider.setPersistenceProperties(properties);
+    public void setMappingProperties(Map<String, Object> properties) {
+        annotationRulesProvider.setMappingProperties(properties);
+        xmlRulesProvider.setMappingProperties(properties);
     }
 
     public void setSecurityContext(SecurityContext securityContext) {
