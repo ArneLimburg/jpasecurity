@@ -17,7 +17,6 @@ package net.sf.jpasecurity.mapping;
 
 import java.util.Map;
 
-
 /**
  * This interface may be implemented by {@link net.net.sf.jpasecurity.configuration.AuthenticationProvider}s
  * and {@link net.sf.jpasecurity.configuration.net.sf.jpasecurity.security.AccessRulesProvider}s
@@ -25,8 +24,8 @@ import java.util.Map;
  *
  * @author Arne Limburg
  */
-public interface PersistenceInformationReceiver {
+public interface MappingInformationReceiver {
 
-    void setPersistenceMapping(MappingInformation persistenceMapping);
-    void setPersistenceProperties(Map<String, Object> properties);
+    void setMappingInformation(MappingInformation persistenceMapping);
+    void setMappingProperties(Map<String, Object> properties);
 }

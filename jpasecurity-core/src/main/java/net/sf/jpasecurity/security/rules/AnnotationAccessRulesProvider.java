@@ -66,7 +66,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
      */
     protected void initializeAccessRules() {
         Set<String> rules = new HashSet<String>();
-        for (Class<?> annotatedClass: getPersistenceMapping().getPersistentClasses()) {
+        for (Class<?> annotatedClass: getPersistenceMapping().getSecureClasses()) {
             rules.addAll(parseAllowedRoles(annotatedClass));
             rules.addAll(parsePermissions(annotatedClass));
         }

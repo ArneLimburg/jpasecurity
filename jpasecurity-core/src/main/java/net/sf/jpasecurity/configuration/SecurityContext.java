@@ -26,7 +26,7 @@ import net.sf.jpasecurity.mapping.Alias;
  * If the <tt>SecurityContext</tt> needs information about the configured
  * persistence information like entity mapping information or persistence properties,
  * it may also implement the
- * {@link net.sf.jpasecurity.mapping.PersistenceInformationReceiver} interface
+ * {@link net.sf.jpasecurity.mapping.MappingInformationReceiver} interface
  * to get this information injected during runtime.
  * @author Arne Limburg
  */

@@ -25,7 +25,7 @@ import java.util.List;
  * If the <tt>AuthenticationProvider</tt> needs information about the configured
  * persistence information like entity mapping information or persistence properties,
  * it may also implement the
- * {@link net.sf.jpasecurity.mapping.PersistenceInformationReceiver} interface
+ * {@link net.sf.jpasecurity.mapping.MappingInformationReceiver} interface
  * to become this information injected during runtime.
  *
  * @author Arne Limburg

@@ -36,7 +36,7 @@ import net.sf.jpasecurity.entity.SecureObjectLoader;
 import net.sf.jpasecurity.jpa.JpaBeanLoader;
 import net.sf.jpasecurity.jpa.JpaSecurityUnit;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
+import net.sf.jpasecurity.mapping.MappingInformationReceiver;
 import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 
@@ -121,11 +121,11 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
     }
 
     private void injectPersistenceInformation(Object injectionTarget, Map<String, Object> persistenceProperties) {
-        if (injectionTarget instanceof PersistenceInformationReceiver) {
-            PersistenceInformationReceiver persistenceInformationReceiver
-                = (PersistenceInformationReceiver)injectionTarget;
-            persistenceInformationReceiver.setPersistenceProperties(persistenceProperties);
-            persistenceInformationReceiver.setPersistenceMapping(mappingInformation);
+        if (injectionTarget instanceof MappingInformationReceiver) {
+            MappingInformationReceiver persistenceInformationReceiver
+                = (MappingInformationReceiver)injectionTarget;
+            persistenceInformationReceiver.setMappingProperties(persistenceProperties);
+            persistenceInformationReceiver.setMappingInformation(mappingInformation);
         }
         if (injectionTarget instanceof SecurityContextReceiver) {
             SecurityContextReceiver securityContextReceiver = (SecurityContextReceiver)injectionTarget;

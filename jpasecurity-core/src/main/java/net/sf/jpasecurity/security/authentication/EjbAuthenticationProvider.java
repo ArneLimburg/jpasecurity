@@ -28,17 +28,17 @@ import javax.naming.NamingException;
 
 import net.sf.jpasecurity.configuration.AuthenticationProvider;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
+import net.sf.jpasecurity.mapping.MappingInformationReceiver;
 
 /**
  * @author Arne Limburg
  */
-public class EjbAuthenticationProvider implements AuthenticationProvider, PersistenceInformationReceiver {
+public class EjbAuthenticationProvider implements AuthenticationProvider, MappingInformationReceiver {
 
     private Set<String> roles;
 
-    public void setPersistenceMapping(MappingInformation persistenceMapping) {
-        roles = new DeclareRolesParser().parseDeclaredRoles(persistenceMapping.getPersistentClasses());
+    public void setMappingInformation(MappingInformation mappingInformation) {
+        roles = new DeclareRolesParser().parseDeclaredRoles(mappingInformation.getSecureClasses());
     }
 
     public Object getPrincipal() {
@@ -65,7 +65,7 @@ public class EjbAuthenticationProvider implements AuthenticationProvider, Persis
         }
     }
 
-    public void setPersistenceProperties(Map<String, Object> properties) {
+    public void setMappingProperties(Map<String, Object> properties) {
         //not needed
     }
 }

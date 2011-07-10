@@ -18,13 +18,13 @@ package net.sf.jpasecurity.security.authentication;
 import java.util.Map;
 
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
+import net.sf.jpasecurity.mapping.MappingInformationReceiver;
 
 /**
  * @author Arne Limburg
  */
 public class TestAuthenticationProvider extends StaticAuthenticationProvider
-                                        implements PersistenceInformationReceiver {
+                                        implements MappingInformationReceiver {
 
     private static MappingInformation persistenceMapping;
     private static Map<String, Object> persistenceProperties;
@@ -33,7 +33,7 @@ public class TestAuthenticationProvider extends StaticAuthenticationProvider
         return persistenceMapping;
     }
 
-    public void setPersistenceMapping(MappingInformation persistenceMapping) {
+    public void setMappingInformation(MappingInformation persistenceMapping) {
         TestAuthenticationProvider.persistenceMapping = persistenceMapping;
     }
 
@@ -41,7 +41,7 @@ public class TestAuthenticationProvider extends StaticAuthenticationProvider
         return persistenceProperties;
     }
 
-    public void setPersistenceProperties(Map<String, Object> properties) {
+    public void setMappingProperties(Map<String, Object> properties) {
         TestAuthenticationProvider.persistenceProperties = properties;
     }
 }

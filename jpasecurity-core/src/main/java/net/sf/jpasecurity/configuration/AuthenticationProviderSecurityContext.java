@@ -22,7 +22,7 @@ import java.util.Map;
 
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
+import net.sf.jpasecurity.mapping.MappingInformationReceiver;
 
 /**
  * An implementation of the {@link SecurityContext} interface,
@@ -31,30 +31,30 @@ import net.sf.jpasecurity.mapping.PersistenceInformationReceiver;
  *
  * @author Arne Limburg
  */
-public class AuthenticationProviderSecurityContext implements SecurityContext, PersistenceInformationReceiver {
+public class AuthenticationProviderSecurityContext implements SecurityContext, MappingInformationReceiver {
 
     private static final Alias CURRENT_PRINCIPAL = new Alias("CURRENT_PRINCIPAL");
     private static final Alias CURRENT_ROLES = new Alias("CURRENT_ROLES");
 
     private AuthenticationProvider authenticationProvider;
-    private PersistenceInformationReceiver persistenceInformationReceiver;
+    private MappingInformationReceiver persistenceInformationReceiver;
 
     public AuthenticationProviderSecurityContext(AuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
-        if (authenticationProvider instanceof PersistenceInformationReceiver) {
-            this.persistenceInformationReceiver = (PersistenceInformationReceiver)authenticationProvider;
+        if (authenticationProvider instanceof MappingInformationReceiver) {
+            this.persistenceInformationReceiver = (MappingInformationReceiver)authenticationProvider;
         }
     }
 
-    public void setPersistenceMapping(MappingInformation persistenceMapping) {
+    public void setMappingInformation(MappingInformation persistenceMapping) {
         if (persistenceInformationReceiver != null) {
-            persistenceInformationReceiver.setPersistenceMapping(persistenceMapping);
+            persistenceInformationReceiver.setMappingInformation(persistenceMapping);
         }
     }
 
-    public void setPersistenceProperties(Map<String, Object> properties) {
+    public void setMappingProperties(Map<String, Object> properties) {
         if (persistenceInformationReceiver != null) {
-            persistenceInformationReceiver.setPersistenceProperties(properties);
+            persistenceInformationReceiver.setMappingProperties(properties);
         }
     }
 
