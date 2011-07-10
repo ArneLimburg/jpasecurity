@@ -10,7 +10,6 @@
   </para>
   <para>
     With model-driven development business logic should be expressed in the objects of your domain model.
-    When working with JPA this objects normally are Entity Beans or Embeddables.
     As for now there is no convenient way to express access control requirements through your domain model.
     Hence access control-code is normally written into the service layer or data-access layer.
   </para>
@@ -22,10 +21,33 @@
     domain model via configuration (Annotations or XML).
   </para>
   <para>
-	It is designed to extend current security solutions like J2EE Security
-    and Spring Security (formerly known as Acegi-Security),
-    but may be used on its own, too. It enables you to configure rules defining access control
-    for your JPA Entity Beans and Embeddables based on the currently authenticated user
-    and/or its roles in the application.
+	Due to it's smooth integration into current Java standards,
+	it may be integrated into every layer of your application.
+	It enables you to configure rules defining access control for your Java Beans
+	(like JSF 2 Managed Beans, CDI Beans, EJBs and JPA 2 Entity Beans or Embeddables)
+    based on the current security context
+    (i.e. the currently authenticated user and/or its roles in the application).
+  </para>
+  <para>
+    JPA Security uses the notion of <emphasis>security unit</emphasis> to refer
+    to a set of Java bean classes and their corresponding access rules. A security unit
+    may be completely decoupled from other concepts like this in the Java universe,
+    but it may correspond i.e. to a servlet context (in a web environment)
+    or to a persistence context (in a JPA environment). The content of a security context
+    is defined at deployment time and may not change at runtime.
+  </para>
+  <para>
+    In contrast to the <emphasis>security unit</emphasis>, the <emphasis>security context</emphasis>
+    starts at runtime with the authentication of a user. As of version 0.4.0 of JPA Security
+    the content of this context is completely customizable and you can do so by implementing the
+    <computeroutput>SecurityContext</computeroutput> interface. The security context
+    i.e. contains information like i.e. the current user, its roles and/or the current mandator,
+    but any kind of context information that is needed to specify the authorization of the current
+    user to access beans, may be made available through the security context.
+  </para>
+  <para>
+    JPA Security smoothly integrates with existing authentication solutions like specified in the
+    servlet specification, with EJB or Spring Security. JPA Security may be configured to
+    take the current user and its roles provided by this technologies and fill the security context with it.
   </para>
 </article>
