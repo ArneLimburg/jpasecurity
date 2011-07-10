@@ -65,14 +65,16 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
             throw new IllegalArgumentException("configuration may not be null");
         }
         this.configuration = configuration;
-        JpaAnnotationParser annotationParser
-            = new JpaAnnotationParser(configuration.getPropertyAccessStrategyFactory(),
-                                      configuration.getExceptionFactory());
-        OrmXmlParser xmlParser = new OrmXmlParser(configuration.getPropertyAccessStrategyFactory(),
-                                                  configuration.getExceptionFactory());
         SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
-        this.mappingInformation = annotationParser.parse(securityUnitInformation);
-        this.mappingInformation = xmlParser.parse(securityUnitInformation, mappingInformation);
+        JpaAnnotationParser annotationParser
+            = new JpaAnnotationParser(securityUnitInformation,
+                                      configuration.getPropertyAccessStrategyFactory(),
+                                      configuration.getExceptionFactory());
+        OrmXmlParser xmlParser = new OrmXmlParser(securityUnitInformation,
+                                                  configuration.getPropertyAccessStrategyFactory(),
+                                                  configuration.getExceptionFactory());
+        this.mappingInformation = annotationParser.parse();
+        this.mappingInformation = xmlParser.parse(mappingInformation);
         Map<String, Object> persistenceProperties
             = new HashMap<String, Object>((Map<String, Object>)(Map<?, Object>)persistenceUnitInfo.getProperties());
         if (properties != null) {

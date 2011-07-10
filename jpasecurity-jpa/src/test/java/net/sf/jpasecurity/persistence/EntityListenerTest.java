@@ -41,9 +41,9 @@ public class EntityListenerTest {
     public void parseEntityListenerAnnotations() {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(MethodAccessAnnotationTestBean.class.getName());
-        SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
+        SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
         MappingInformation mappingInformation
-            = new JpaAnnotationParser(new JpaExceptionFactory()).parse(securityUnitInformation);
+            = new JpaAnnotationParser(securityUnit, new JpaExceptionFactory()).parse();
         try {
             mappingInformation.getClassMapping(MethodAccessAnnotationTestBean.class).prePersist(null);
             fail("expected call to publicTestMethod");
@@ -71,12 +71,11 @@ public class EntityListenerTest {
     @Test
     public void xmlEntityListeners() {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
-        SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
+        SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
         ExceptionFactory exceptionFactory = new JpaExceptionFactory();
-        MappingInformation mappingInformation
-            = new JpaAnnotationParser(exceptionFactory).parse(securityUnitInformation);
-        mappingInformation = new OrmXmlParser(exceptionFactory).parse(securityUnitInformation, mappingInformation);
+        MappingInformation mappingInformation = new JpaAnnotationParser(securityUnit, exceptionFactory).parse();
+        mappingInformation = new OrmXmlParser(securityUnit, exceptionFactory).parse(mappingInformation);
         try {
             mappingInformation.getClassMapping(FieldAccessXmlTestBean.class).prePersist(null);
             fail("expected call to publicTestMethod");

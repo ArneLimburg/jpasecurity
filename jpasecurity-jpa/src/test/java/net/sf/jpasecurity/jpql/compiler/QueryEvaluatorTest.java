@@ -96,8 +96,8 @@ public class QueryEvaluatorTest {
         replay(objectManager, exceptionFactory);
         PersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
-        SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
-        mappingInformation = new JpaAnnotationParser(new JpaExceptionFactory()).parse(securityUnitInformation);
+        SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
+        mappingInformation = new JpaAnnotationParser(securityUnit, new JpaExceptionFactory()).parse();
         parser = new JpqlParser();
         compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
         SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator(exceptionFactory);

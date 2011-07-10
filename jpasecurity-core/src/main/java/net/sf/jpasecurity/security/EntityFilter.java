@@ -16,7 +16,7 @@
 
 package net.sf.jpasecurity.security;
 
-import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
+import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
 
 import java.util.ArrayList;
 import java.util.Collection;

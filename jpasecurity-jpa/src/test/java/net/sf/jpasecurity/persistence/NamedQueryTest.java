@@ -69,9 +69,8 @@ public class NamedQueryTest {
     public void parseNamedQueriesInOrmXml() throws Exception {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getMappingFileNames().add("META-INF/named-queries.xml");
-        SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
-        MappingInformation mappingInformation
-            = new OrmXmlParser(new JpaExceptionFactory()).parse(securityUnitInformation);
+        SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
+        MappingInformation mappingInformation = new OrmXmlParser(securityUnit, new JpaExceptionFactory()).parse();
 
         assertEquals(4, mappingInformation.getNamedQueryNames().size());
 

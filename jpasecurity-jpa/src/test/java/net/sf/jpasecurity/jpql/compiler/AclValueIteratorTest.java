@@ -150,10 +150,10 @@ public class AclValueIteratorTest {
         persistenceUnitInfo.getManagedClassNames().add(Acl.class.getName());
         persistenceUnitInfo.getManagedClassNames().add(AclEntry.class.getName());
         persistenceUnitInfo.getManagedClassNames().add(User.class.getName());
-        SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
+        SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
         ExceptionFactory exceptionFactory = new JpaExceptionFactory();
-        JpaAnnotationParser parser = new JpaAnnotationParser(exceptionFactory);
-        final MappingInformation mappingInformation = parser.parse(securityUnitInformation);
+        JpaAnnotationParser parser = new JpaAnnotationParser(securityUnit, exceptionFactory);
+        final MappingInformation mappingInformation = parser.parse();
         return new MappedPathEvaluator(mappingInformation, exceptionFactory);
     }
 }

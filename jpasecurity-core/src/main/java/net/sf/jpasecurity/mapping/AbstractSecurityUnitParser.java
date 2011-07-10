@@ -15,7 +15,7 @@
  */
 package net.sf.jpasecurity.mapping;
 
-import static net.sf.jpasecurity.util.JpaTypes.isSimplePropertyType;
+import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
 
 import java.beans.Introspector;
 import java.io.IOException;
@@ -44,13 +44,14 @@ import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.FetchType;
 import net.sf.jpasecurity.SecurityUnit;
+import static net.sf.jpasecurity.util.Validate.*;
 
 /**
- * Parses persistence units and created mapping information.
+ * Parses security units and created mapping information.
  * <strong>This class is not thread-safe</strong>
  * @author Arne Limburg
  */
-public abstract class AbstractMappingParser {
+public abstract class AbstractSecurityUnitParser {
 
     private static final String CLASS_ENTRY_SUFFIX = ".class";
     private static final String IS_PROPERTY_PREFIX = "is";
@@ -60,18 +61,25 @@ public abstract class AbstractMappingParser {
     protected final PropertyAccessStrategyFactory propertyAccessStrategyFactory;
     protected final ExceptionFactory exceptionFactory;
 
+    private SecurityUnit securityUnit;
     private Map<Class<?>, DefaultClassMappingInformation> classMappings;
     private Map<String, String> namedQueries;
     private List<EntityListener> defaultEntityListeners;
     private ClassLoader classLoader;
 
-    public AbstractMappingParser(PropertyAccessStrategyFactory propertyAccessStrategyFactory,
-                                 ExceptionFactory exceptionFactory) {
-        if (propertyAccessStrategyFactory == null) {
-            throw new IllegalArgumentException("PropertyAccessStrategyFactory may not be null");
-        }
+    public AbstractSecurityUnitParser(SecurityUnit securityUnit,
+                                      PropertyAccessStrategyFactory propertyAccessStrategyFactory,
+                                      ExceptionFactory exceptionFactory) {
+        notNull(SecurityUnit.class, securityUnit);
+        notNull(PropertyAccessStrategyFactory.class, propertyAccessStrategyFactory);
+        notNull(ExceptionFactory.class, exceptionFactory);
+        this.securityUnit = securityUnit;
         this.propertyAccessStrategyFactory = propertyAccessStrategyFactory;
         this.exceptionFactory = exceptionFactory;
+    }
+
+    protected SecurityUnit getSecurityUnit() {
+        return securityUnit;
     }
 
     protected PropertyAccessStrategyFactory getPropertyAccessStrategyFactory() {
@@ -85,8 +93,8 @@ public abstract class AbstractMappingParser {
     /**
      * Parses the specified security unit information and returns mapping information.
      */
-    public MappingInformation parse(SecurityUnit securityUnitInformation) {
-        return parse(securityUnitInformation, null);
+    public MappingInformation parse() {
+        return parse((MappingInformation)null);
     }
 
     /**
@@ -95,11 +103,11 @@ public abstract class AbstractMappingParser {
      * @param securityUnitInformation the security unit information
      * @param mappingInformation the mapping information to merge, may be <tt>null</tt>
      */
-    public MappingInformation parse(SecurityUnit securityUnitInformation, MappingInformation mappingInformation) {
+    public MappingInformation parse(MappingInformation mappingInformation) {
         classMappings = new HashMap<Class<?>, DefaultClassMappingInformation>();
         namedQueries = new HashMap<String, String>();
         defaultEntityListeners = new ArrayList<EntityListener>();
-        classLoader = findClassLoader(securityUnitInformation);
+        classLoader = findClassLoader(securityUnit);
         if (mappingInformation != null) {
             for (Class<?> type: mappingInformation.getSecureClasses()) {
                 classMappings.put(type, (DefaultClassMappingInformation)mappingInformation.getClassMapping(type));
@@ -108,12 +116,27 @@ public abstract class AbstractMappingParser {
                 namedQueries.put(name, mappingInformation.getNamedQuery(name));
             }
         }
-        parseSecurityUnit(securityUnitInformation);
-        String securityUnitName = securityUnitInformation.getSecurityUnitName();
+        parseSecurityUnit(securityUnit);
+        String securityUnitName = securityUnit.getSecurityUnitName();
         return new DefaultMappingInformation(securityUnitName, classMappings, namedQueries, exceptionFactory);
     }
 
+    protected void parseSecurityUnit(SecurityUnit securityUnit) {
+        if (!securityUnit.excludeUnlistedClasses()) {
+            if (securityUnit.getSecurityUnitRootUrl() != null) {
+                parse(securityUnit.getSecurityUnitRootUrl());
+            }
+        }
+        for (URL url: securityUnit.getJarFileUrls()) {
+            parse(url);
+        }
+        for (String className: securityUnit.getManagedClassNames()) {
+            parse(getClass(className));
+        }
+    }
+
     protected void parse(URL url) {
+        //TODO support file urls
         try {
             InputStream in = url.openStream();
             try {
@@ -371,8 +394,6 @@ public abstract class AbstractMappingParser {
         }
         return false;
     }
-
-    protected abstract void parseSecurityUnit(SecurityUnit securityUnitInformation);
 
     protected void parseNamedQueries(Class<?> mappedClass) {
     }

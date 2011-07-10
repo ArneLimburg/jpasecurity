@@ -24,7 +24,7 @@ import java.util.Calendar;
 /**
  * @author Arne Limburg
  */
-public abstract class JpaTypes {
+public abstract class Types {
 
     public static boolean isSimplePropertyType(Class<?> type) {
         return type.isPrimitive()
