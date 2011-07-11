@@ -29,7 +29,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
 import net.sf.jpasecurity.persistence.JpaExceptionFactory;
-import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
+import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class JpqlCompilerTest {
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
         SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
         ExceptionFactory exceptionFactory = new JpaExceptionFactory();
-        mappingInformation = new JpaAnnotationParser(securityUnit, exceptionFactory).parse();
+        mappingInformation = new OrmXmlParser(securityUnit, exceptionFactory).parse();
         parser = new JpqlParser();
         compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
     }

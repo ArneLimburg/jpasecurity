@@ -98,6 +98,7 @@ public class AclSyntaxTest {
         entityManager.persist(acl);
         AclEntry entry = new AclEntry();
         entry.setAccessControlList(acl);
+        entry.setTrademarkId(TRADEMARK_ID);
         acl.getEntries().add(entry);
         //       entry.setPrivilege(privilege1);
         entry.setGroup(group);

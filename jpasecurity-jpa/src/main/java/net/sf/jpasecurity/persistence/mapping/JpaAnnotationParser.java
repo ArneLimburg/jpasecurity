@@ -68,7 +68,7 @@ import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
  * <strong>This class is not thread-safe</strong>
  * @author Arne Limburg
  */
-public class JpaAnnotationParser extends AbstractSecurityUnitParser {
+public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
 
     public JpaAnnotationParser(SecurityUnit securityUnit, ExceptionFactory exceptionFactory) {
         this(securityUnit, new DefaultPropertyAccessStrategyFactory(), exceptionFactory);

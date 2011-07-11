@@ -14,33 +14,5 @@
   </named-query>
   <named-query name="myQuery4">
       <query>select test from Contact test</query>
-  </named-query>  
-  <entity class="net.sf.jpasecurity.model.MethodAccessXmlTestBean" access="PROPERTY">
-    <attributes>
-      <id name="id"/>
-      <basic name="name"/>
-      <many-to-one name="parent" fetch="LAZY"/>
-      <one-to-many name="children" fetch="EAGER">
-        <cascade>
-          <cascade-persist/>
-          <cascade-merge/>
-          <cascade-remove/>
-          <cascade-refresh/>
-        </cascade>
-      </one-to-many>
-    </attributes>
-  </entity>
-  <entity class="net.sf.jpasecurity.model.FieldAccessXmlTestBean" access="FIELD">
-    <attributes>
-      <id name="id"/>
-      <basic name="name"/>
-      <many-to-one name="parent" fetch="LAZY"/>
-      <one-to-many name="children" fetch="EAGER">
-        <cascade>
-          <cascade-all/>
-        </cascade>
-      </one-to-many>
-    </attributes>
-  </entity>
-
+  </named-query>
 </entity-mappings>

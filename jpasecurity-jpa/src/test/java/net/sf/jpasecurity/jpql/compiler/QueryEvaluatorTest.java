@@ -54,7 +54,7 @@ import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
 import net.sf.jpasecurity.persistence.JpaExceptionFactory;
-import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
+import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 import net.sf.jpasecurity.util.SetHashMap;
 import net.sf.jpasecurity.util.SetMap;
 
@@ -97,7 +97,7 @@ public class QueryEvaluatorTest {
         PersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
         SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
-        mappingInformation = new JpaAnnotationParser(securityUnit, new JpaExceptionFactory()).parse();
+        mappingInformation = new OrmXmlParser(securityUnit, new JpaExceptionFactory()).parse();
         parser = new JpqlParser();
         compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
         SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator(exceptionFactory);

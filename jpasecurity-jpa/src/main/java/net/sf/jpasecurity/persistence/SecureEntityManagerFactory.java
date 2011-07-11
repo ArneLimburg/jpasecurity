@@ -37,7 +37,6 @@ import net.sf.jpasecurity.jpa.JpaBeanLoader;
 import net.sf.jpasecurity.jpa.JpaSecurityUnit;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformationReceiver;
-import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 
 /**
@@ -66,15 +65,10 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
         }
         this.configuration = configuration;
         SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
-        JpaAnnotationParser annotationParser
-            = new JpaAnnotationParser(securityUnitInformation,
-                                      configuration.getPropertyAccessStrategyFactory(),
-                                      configuration.getExceptionFactory());
-        OrmXmlParser xmlParser = new OrmXmlParser(securityUnitInformation,
+        OrmXmlParser jpaParser = new OrmXmlParser(securityUnitInformation,
                                                   configuration.getPropertyAccessStrategyFactory(),
                                                   configuration.getExceptionFactory());
-        this.mappingInformation = annotationParser.parse();
-        this.mappingInformation = xmlParser.parse(mappingInformation);
+        mappingInformation = jpaParser.parse();
         Map<String, Object> persistenceProperties
             = new HashMap<String, Object>((Map<String, Object>)(Map<?, Object>)persistenceUnitInfo.getProperties());
         if (properties != null) {

@@ -26,7 +26,7 @@ import net.sf.jpasecurity.jpa.JpaSecurityUnit;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.persistence.JpaExceptionFactory;
 import net.sf.jpasecurity.persistence.PersistenceXmlParser;
-import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
+import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 import net.sf.jpasecurity.security.authentication.AutodetectingSecurityContext;
 
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class AccessRulesCompilerTest {
         PersistenceXmlParser parser = new PersistenceXmlParser();
         parser.parse(persistenceXml);
         SecurityUnit securityUnit = new JpaSecurityUnit(parser.getPersistenceUnitInfo("interface"));
-        mappingInformation = new JpaAnnotationParser(securityUnit, new JpaExceptionFactory()).parse();
+        mappingInformation = new OrmXmlParser(securityUnit, new JpaExceptionFactory()).parse();
     }
 
     @Test

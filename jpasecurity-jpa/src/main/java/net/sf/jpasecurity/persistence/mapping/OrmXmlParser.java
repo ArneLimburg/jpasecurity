@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -41,13 +42,14 @@ import javax.xml.xpath.XPathFactory;
 import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecurityUnit;
-import net.sf.jpasecurity.mapping.AbstractSecurityUnitParser;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.DefaultClassMappingInformation;
 import net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory;
 import net.sf.jpasecurity.mapping.EntityLifecycleMethods;
 import net.sf.jpasecurity.mapping.EntityListenerWrapper;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
+import net.sf.jpasecurity.xml.ComposedNodeList;
+import net.sf.jpasecurity.xml.SingletonNodeList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -65,7 +67,7 @@ import org.xml.sax.SAXException;
  * @author Arne Limburg
  * @author Johannes Siemer
  */
-public class OrmXmlParser extends AbstractSecurityUnitParser {
+public class OrmXmlParser extends JpaAnnotationParser {
 
     private static final Log LOG = LogFactory.getLog(OrmXmlParser.class);
 
@@ -189,7 +191,7 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
 
     private static final XPath XPATH = XPathFactory.newInstance().newXPath();;
 
-    private Document ormDocument;
+    private Collection<Document> mappingDocuments = new ArrayList<Document>();
 
     public OrmXmlParser(SecurityUnit securityUnit, ExceptionFactory exceptionFactory) {
         this(securityUnit, new DefaultPropertyAccessStrategyFactory(), exceptionFactory);
@@ -201,84 +203,56 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
         super(securityUnit, propertyAccessStrategyFactory, exceptionFactory);
     }
 
+    @Override
     public void parseSecurityUnit(SecurityUnit securityUnit) {
         parse(securityUnit, "META-INF/orm.xml");
         for (String mappingFilename: securityUnit.getMappingFileNames()) {
             parse(securityUnit, mappingFilename);
         }
+        super.parseSecurityUnit(securityUnit);
+        for (Document mappingDocument: mappingDocuments) {
+            parse(securityUnit, mappingDocument);
+        }
     }
 
+    @Override
     protected String getEntityName(Class<?> entityClass) {
         Node entityNode = evaluateNode(ENTITY_XPATH, entityClass);
-        if (entityNode == null) {
+        Node entityName = entityNode == null? null: entityNode.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME);
+        if (entityName != null) {
+            return entityName.getNodeValue();
+        }
+        if (!isMetadataComplete(entityClass)) {
             return super.getEntityName(entityClass);
         }
-        Node entityName = entityNode.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME);
-        return entityName == null? super.getEntityName(entityClass): entityName.getNodeValue();
+        return entityClass.getSimpleName();
     }
 
     /**
      * {@inheritDoc}
      */
-    protected Class<?> getIdClass(Class<?> entityClass, boolean useFieldAccess) {
+    @Override
+    protected Class<?> getIdClass(Class<?> entityClass, boolean usesFieldAccess) {
         Node idClassNode = evaluateNode(ID_CLASS_XPATH, entityClass);
-        return idClassNode == null? null: getClass(idClassNode.getTextContent());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected boolean isEmbeddable(Class<?> type) {
-        return evaluateNode(EMBEDDABLE_XPATH, type.getName()) != null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected boolean usesFieldAccess(Class<?> mappedClass) {
-        Node accessNode = getAccessTypeNode(mappedClass);
-        if (accessNode == null) {
-            return super.usesFieldAccess(mappedClass);
+        if (idClassNode != null) {
+            return getClass(idClassNode.getTextContent());
         }
-        return FIELD_ACCESS.equals(accessNode.getTextContent().toUpperCase());
-    }
-
-    protected boolean excludeDefaultEntityListeners(Class<?> entityClass) {
-        return evaluateNode(EXCLUDE_DEFAULT_LISTENERS_XPATH, entityClass) != null;
-    }
-
-    protected boolean excludeSuperclassEntityListeners(Class<?> entityClass) {
-        return evaluateNode(EXCLUDE_SUPERCLASS_LISTENERS_XPATH, entityClass) != null;
+        if (!isMetadataComplete(entityClass)) {
+            return super.getIdClass(entityClass, usesFieldAccess);
+        }
+        return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    protected boolean isMapped(Class<?> mappedClass) {
-        return getMappedClassNode(mappedClass) != null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected boolean isMapped(Member member) {
-        String name = getName(member);
-        Node classNode = getMappedClassNode(member.getDeclaringClass());
-        Node attributesNode = getAttributesNode(classNode);
-        for (int index = 0; index < attributesNode.getChildNodes().getLength(); index++) {
-            Node child = attributesNode.getChildNodes().item(index);
-            if (!TRANSIENT_TAG_NAME.equals(child.getNodeName())) {
-                NodeList children = child.getChildNodes();
-                for (int i = 0; i < children.getLength(); i++) {
-                    NamedNodeMap attributes = children.item(i).getAttributes();
-                    if (attributes != null) {
-                        Node namedItem = attributes.getNamedItem(NAME_ATTRIBUTE_NAME);
-                        if (namedItem != null && namedItem.getTextContent().equals(name)) {
-                            return true;
-                        }
-                    }
-                }
-            }
+    @Override
+    protected boolean isEmbeddable(Class<?> type) {
+        if (evaluateNode(EMBEDDABLE_XPATH, type.getName()) != null) {
+            return true;
+        }
+        if (!isMetadataComplete()) {
+            return super.isEmbeddable(type);
         }
         return false;
     }
@@ -286,22 +260,113 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
     /**
      * {@inheritDoc}
      */
+    @Override
+    protected boolean usesFieldAccess(Class<?> mappedClass) {
+        Node accessNode = getAccessTypeNode(mappedClass);
+        if (accessNode != null) {
+            return FIELD_ACCESS.equals(accessNode.getTextContent().toUpperCase());
+        }
+        if (!isMetadataComplete(mappedClass)) {
+            return super.usesFieldAccess(mappedClass);
+        }
+        return false;
+    }
+
+    @Override
+    protected boolean excludeDefaultEntityListeners(Class<?> entityClass) {
+        if (evaluateNode(EXCLUDE_DEFAULT_LISTENERS_XPATH, entityClass) != null) {
+            return true;
+        }
+        if (!isMetadataComplete(entityClass)) {
+            return super.excludeDefaultEntityListeners(entityClass);
+        }
+        return false;
+    }
+
+    @Override
+    protected boolean excludeSuperclassEntityListeners(Class<?> entityClass) {
+        if (evaluateNode(EXCLUDE_SUPERCLASS_LISTENERS_XPATH, entityClass) != null) {
+            return true;
+        }
+        if (!isMetadataComplete(entityClass)) {
+            return super.excludeSuperclassEntityListeners(entityClass);
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean isMapped(Class<?> mappedClass) {
+        if (getMappedClassNode(mappedClass) != null) {
+            return true;
+        }
+        if (!isMetadataComplete(mappedClass)) {
+            return super.isMapped(mappedClass);
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean isMapped(Member member) {
+        String name = getName(member);
+        Node classNode = getMappedClassNode(member.getDeclaringClass());
+        Node attributesNode = getAttributesNode(classNode);
+        if (attributesNode != null) {
+            for (int index = 0; index < attributesNode.getChildNodes().getLength(); index++) {
+                Node child = attributesNode.getChildNodes().item(index);
+                if (!TRANSIENT_TAG_NAME.equals(child.getNodeName())) {
+                    NodeList children = child.getChildNodes();
+                    for (int i = 0; i < children.getLength(); i++) {
+                        NamedNodeMap attributes = children.item(i).getAttributes();
+                        if (attributes != null) {
+                            Node namedItem = attributes.getNamedItem(NAME_ATTRIBUTE_NAME);
+                            if (namedItem != null && namedItem.getTextContent().equals(name)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (!isMetadataComplete(member.getDeclaringClass())) {
+            return super.isMapped(member);
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected boolean isIdProperty(Member property) {
         String name = getName(property);
         if (evaluateNode(ID_PROPERTY_XPATH, property.getDeclaringClass(), name) != null) {
             return true;
-        } else {
-            return evaluateNode(EMBEDDED_ID_PROPERTY_XPATH, property.getDeclaringClass(), name) != null;
         }
+        if (evaluateNode(EMBEDDED_ID_PROPERTY_XPATH, property.getDeclaringClass(), name) != null) {
+            return true;
+        }
+        if (!isMetadataComplete(property.getDeclaringClass())) {
+            return super.isIdProperty(property);
+        }
+        return false;
+    }
+
+    protected boolean isMetadataComplete() {
+        return evaluateNode(XML_MAPPING_METADATA_COMPLETE_XPATH) != null;
     }
 
     @Override
     protected boolean isMetadataComplete(Class<?> entityClass) {
-        Node metadataCompleteNode = evaluateNode(XML_MAPPING_METADATA_COMPLETE_XPATH);
-        if (metadataCompleteNode != null) {
+        if (isMetadataComplete()) {
             return true;
         }
-        metadataCompleteNode = evaluateNode(METADATA_COMPLETE_XPATH, entityClass);
+        Node metadataCompleteNode = evaluateNode(METADATA_COMPLETE_XPATH, entityClass);
         if (metadataCompleteNode == null) {
             return false;
         }
@@ -317,13 +382,21 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected boolean isFetchTypePresent(Member property) {
-        return getXmlFetchType(property) != null;
+        if (getXmlFetchType(property) != null) {
+            return true;
+        }
+        if (!isMetadataComplete(property.getDeclaringClass())) {
+            return super.isFetchTypePresent(property);
+        }
+        return false;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     protected net.sf.jpasecurity.FetchType getFetchType(Member property) {
         FetchType fetchType = getXmlFetchType(property);
         if (fetchType != null) {
@@ -343,11 +416,12 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected CascadeType[] getCascadeTypes(Member property) {
         NodeList list
             = evaluateNodes(CASCADE_TYPE_XPATH, property.getDeclaringClass(), getName(property));
-        if (list == null) {
-            return new CascadeType[0];
+        if (list == null && !isMetadataComplete(property.getDeclaringClass())) {
+            return super.getCascadeTypes(property);
         }
         List<CascadeType> cascadeTypes = new ArrayList<CascadeType>(list.getLength());
         for (int i = 0; i < list.getLength(); i++) {
@@ -362,19 +436,25 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected boolean isSingleValuedRelationshipProperty(Member property) {
         String name = getName(property);
         Node classNode = getMappedClassNode(property.getDeclaringClass());
         Node attributesNode = getAttributesNode(classNode);
-        for (int i = 0; i < attributesNode.getChildNodes().getLength(); i++) {
-            Node child = attributesNode.getChildNodes().item(i);
-            if (EMBEDDED_ID_TAG_NAME.equals(child.getNodeName())
-                || MANY_TO_ONE_TAG_NAME.equals(child.getNodeName())
-                || ONE_TO_ONE_TAG_NAME.equals(child.getNodeName())) {
-                if (child.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getNodeValue().equals(name)) {
-                    return true;
+        if (attributesNode != null) {
+            for (int i = 0; i < attributesNode.getChildNodes().getLength(); i++) {
+                Node child = attributesNode.getChildNodes().item(i);
+                if (EMBEDDED_ID_TAG_NAME.equals(child.getNodeName())
+                                || MANY_TO_ONE_TAG_NAME.equals(child.getNodeName())
+                                || ONE_TO_ONE_TAG_NAME.equals(child.getNodeName())) {
+                    if (child.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getNodeValue().equals(name)) {
+                        return true;
+                    }
                 }
             }
+        }
+        if (!isMetadataComplete(property.getDeclaringClass())) {
+            return super.isSingleValuedRelationshipProperty(property);
         }
         return false;
     }
@@ -382,18 +462,24 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected boolean isCollectionValuedRelationshipProperty(Member property) {
         String name = getName(property);
         Node classNode = getMappedClassNode(property.getDeclaringClass());
         Node attributesNode = getAttributesNode(classNode);
-        for (int i = 0; i < attributesNode.getChildNodes().getLength(); i++) {
-            Node child = attributesNode.getChildNodes().item(i);
-            if (ONE_TO_MANY_TAG_NAME.equals(child.getNodeName())
-                || MANY_TO_MANY_TAG_NAME.equals(child.getNodeName())) {
-                if (child.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getNodeValue().equals(name)) {
-                    return true;
+        if (attributesNode != null) {
+            for (int i = 0; i < attributesNode.getChildNodes().getLength(); i++) {
+                Node child = attributesNode.getChildNodes().item(i);
+                if (ONE_TO_MANY_TAG_NAME.equals(child.getNodeName())
+                                || MANY_TO_MANY_TAG_NAME.equals(child.getNodeName())) {
+                    if (child.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME).getNodeValue().equals(name)) {
+                        return true;
+                    }
                 }
             }
+        }
+        if (!isMetadataComplete(property.getDeclaringClass())) {
+            return super.isCollectionValuedRelationshipProperty(property);
         }
         return false;
     }
@@ -401,6 +487,7 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected boolean isMappable(Member property) {
         if (evaluateNode(TRANSIENT_PROPERTY_XPATH, property.getDeclaringClass(), getName(property)) != null) {
             return false;
@@ -412,18 +499,18 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
     private void parse(SecurityUnit securityUnit, String mappingFilename) {
         try {
             for (Enumeration<URL> mappings = getResources(mappingFilename); mappings.hasMoreElements();) {
-                parse(securityUnit, mappings.nextElement().openStream());
+                mappingDocuments.add(parse(securityUnit, mappings.nextElement().openStream()));
             }
         } catch (IOException e) {
             throw exceptionFactory.createRuntimeException(e);
         }
     }
 
-    private void parse(SecurityUnit securityUnit, InputStream stream) throws IOException {
+    private Document parse(SecurityUnit securityUnit, InputStream stream) throws IOException {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            parse(securityUnit, builder.parse(stream));
+            return builder.parse(stream);
         } catch (ParserConfigurationException e) {
             throw exceptionFactory.createRuntimeException(e);
         } catch (SAXException e) {
@@ -436,21 +523,26 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
     }
 
     private void parse(SecurityUnit securityUnit, Document mappingDocument) {
-        ormDocument = mappingDocument;
         parseNamedQueries();
         parseDefaultEntityListeners();
         String packageName = getPackageName();
         NodeList list = evaluateNodes(ENTITIES_XPATH);
-        for (int i = 0; i < list.getLength(); i++) {
-            parse(list.item(i), packageName);
+        if (list != null) {
+            for (int i = 0; i < list.getLength(); i++) {
+                parse(list.item(i), packageName);
+            }
         }
         list = evaluateNodes(MAPPED_SUPERCLASSES_XPATH);
-        for (int i = 0; i < list.getLength(); i++) {
-            parse(list.item(i), packageName);
+        if (list != null) {
+            for (int i = 0; i < list.getLength(); i++) {
+                parse(list.item(i), packageName);
+            }
         }
         list = evaluateNodes(EMBEDDABLES_XPATH);
-        for (int i = 0; i < list.getLength(); i++) {
-            parse(list.item(i), packageName);
+        if (list != null) {
+            for (int i = 0; i < list.getLength(); i++) {
+                parse(list.item(i), packageName);
+            }
         }
     }
 
@@ -478,6 +570,9 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
 
     private void parseNamedQueries() {
         NodeList entries = evaluateNodes(NAMED_QUERY_XPATH);
+        if (entries == null) {
+            return;
+        }
         for (int i = 0; i < entries.getLength(); i++) {
             Element namedQueryElement = (Element)entries.item(i);
             String name = namedQueryElement.getAttribute("name");
@@ -491,7 +586,14 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
         }
     }
 
+    @Override
     protected void parseEntityLifecycleMethods(DefaultClassMappingInformation classMapping) {
+        EntityLifecycleMethods entityLifecycleMethods = null;
+        if (isMetadataComplete(classMapping.getEntityType())) {
+            entityLifecycleMethods = new EntityLifecycleMethods();
+        } else {
+            entityLifecycleMethods = super.parseEntityLifecycleMethods(classMapping.getEntityType());
+        }
         Node prePersistNode = evaluateNode(PRE_PERSIST_XPATH, classMapping.getEntityType());
         Node postPersistNode = evaluateNode(POST_PERSIST_XPATH, classMapping.getEntityType());
         Node preRemoveNode = evaluateNode(PRE_REMOVE_XPATH, classMapping.getEntityType());
@@ -499,25 +601,43 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
         Node preUpdateNode = evaluateNode(PRE_UPDATE_XPATH, classMapping.getEntityType());
         Node postUpdateNode = evaluateNode(POST_UPDATE_XPATH, classMapping.getEntityType());
         Node postLoadNode = evaluateNode(POST_LOAD_XPATH, classMapping.getEntityType());
-        EntityLifecycleMethods entityLifecycleMethods = new EntityLifecycleMethods();
-        entityLifecycleMethods.setPrePersistMethod(getMethod(classMapping.getEntityType(), prePersistNode, 0));
-        entityLifecycleMethods.setPostPersistMethod(getMethod(classMapping.getEntityType(), postPersistNode, 0));
-        entityLifecycleMethods.setPreRemoveMethod(getMethod(classMapping.getEntityType(), preRemoveNode, 0));
-        entityLifecycleMethods.setPostRemoveMethod(getMethod(classMapping.getEntityType(), postRemoveNode, 0));
-        entityLifecycleMethods.setPreUpdateMethod(getMethod(classMapping.getEntityType(), preUpdateNode, 0));
-        entityLifecycleMethods.setPostUpdateMethod(getMethod(classMapping.getEntityType(), postUpdateNode, 0));
-        entityLifecycleMethods.setPostLoadMethod(getMethod(classMapping.getEntityType(), postLoadNode, 0));
+        if (prePersistNode != null) {
+            entityLifecycleMethods.setPrePersistMethod(getMethod(classMapping.getEntityType(), prePersistNode, 0));
+        }
+        if (postPersistNode != null) {
+            entityLifecycleMethods.setPostPersistMethod(getMethod(classMapping.getEntityType(), postPersistNode, 0));
+        }
+        if (preRemoveNode != null) {
+            entityLifecycleMethods.setPreRemoveMethod(getMethod(classMapping.getEntityType(), preRemoveNode, 0));
+        }
+        if (postRemoveNode != null) {
+            entityLifecycleMethods.setPostRemoveMethod(getMethod(classMapping.getEntityType(), postRemoveNode, 0));
+        }
+        if (preUpdateNode != null) {
+            entityLifecycleMethods.setPreUpdateMethod(getMethod(classMapping.getEntityType(), preUpdateNode, 0));
+        }
+        if (postUpdateNode != null) {
+            entityLifecycleMethods.setPostUpdateMethod(getMethod(classMapping.getEntityType(), postUpdateNode, 0));
+        }
+        if (postLoadNode != null) {
+            entityLifecycleMethods.setPostLoadMethod(getMethod(classMapping.getEntityType(), postLoadNode, 0));
+        }
         setEntityLifecycleMethods(classMapping, entityLifecycleMethods);
     }
 
+    @Override
     protected void parseEntityListeners(DefaultClassMappingInformation classMapping) {
+        if (!isMetadataComplete(classMapping.getEntityType())) {
+            super.parseEntityListeners(classMapping);
+        }
         Element classNode = (Element)evaluateNode(CLASS_XPATH, classMapping.getEntityType());
+        if (classNode == null) {
+            return;
+        }
         NodeList entityListeners = classNode.getElementsByTagName("entity-listener");
         for (int i = 0; i < entityListeners.getLength(); i++) {
             Class<?> type = getEntityListenerType(entityListeners.item(i));
-            JpaAnnotationParser parser
-                = new JpaAnnotationParser(getSecurityUnit(), getPropertyAccessStrategyFactory(), getExceptionFactory());
-            EntityLifecycleMethods entityLifecycleMethods = parser.parseEntityLifecycleMethods(type);
+            EntityLifecycleMethods entityLifecycleMethods = super.parseEntityLifecycleMethods(type);
             EntityListenerWrapper entityListener
                 = parseEntityListener(entityListeners.item(i), type, entityLifecycleMethods);
             addEntityListener(classMapping, type, entityListener);
@@ -630,6 +750,9 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
     }
 
     private Node getAttributesNode(Node classNode) {
+        if (classNode == null) {
+            return null;
+        }
         for (int i = 0; i < classNode.getChildNodes().getLength(); i++) {
             Node child = classNode.getChildNodes().item(i);
             if (ATTRIBUTES_TAG_NAME.equals(child.getNodeName())) {
@@ -691,11 +814,39 @@ public class OrmXmlParser extends AbstractSecurityUnitParser {
     }
 
     private Object evaluate(String query, QName resultType, Object... parameters) {
+        query = MessageFormat.format(query, parameters);
         try {
-            query = MessageFormat.format(query, parameters);
-            return (NodeList)XPATH.evaluate(query, ormDocument, resultType);
+            ComposedNodeList nodeList = new ComposedNodeList();
+            for (Document mappingDocument: mappingDocuments) {
+                Object result = XPATH.evaluate(query, mappingDocument, resultType);
+                if (resultType.equals(XPathConstants.NODESET)) {
+                    nodeList.add((NodeList)result);
+                } else if (result != null) {
+                    nodeList.add(new SingletonNodeList((Node)result));
+                }
+            }
+            return convert(nodeList, resultType);
         } catch (XPathExpressionException e) {
             throw exceptionFactory.createRuntimeException(e);
         }
+    }
+
+    private Object convert(NodeList nodeList, QName resultType) {
+        if (nodeList.getLength() == 0) {
+            return null;
+        }
+        if (nodeList.getLength() == 1) {
+            Object item = nodeList.item(0);
+            if (resultType.equals(XPathConstants.NODE) && item instanceof Node) {
+                return (Node)item;
+            }
+            if (resultType.equals(XPathConstants.NODESET) && item instanceof NodeList) {
+                return (NodeList)item;
+            }
+        }
+        if (!resultType.equals(XPathConstants.NODESET)) {
+            throw new IllegalArgumentException("NodeList cannot be converted to type " + resultType.getLocalPart());
+        }
+        return nodeList;
     }
 }

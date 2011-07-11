@@ -27,7 +27,6 @@ import net.sf.jpasecurity.model.TestEntityListener.PackageProtectedTestMethodCal
 import net.sf.jpasecurity.model.TestEntityListener.PrivateTestMethodCalledException;
 import net.sf.jpasecurity.model.TestEntityListener.ProtectedTestMethodCalledException;
 import net.sf.jpasecurity.model.TestEntityListener.PublicTestMethodCalledException;
-import net.sf.jpasecurity.persistence.mapping.JpaAnnotationParser;
 import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 
 import org.junit.Test;
@@ -42,8 +41,7 @@ public class EntityListenerTest {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getManagedClassNames().add(MethodAccessAnnotationTestBean.class.getName());
         SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
-        MappingInformation mappingInformation
-            = new JpaAnnotationParser(securityUnit, new JpaExceptionFactory()).parse();
+        MappingInformation mappingInformation = new OrmXmlParser(securityUnit, new JpaExceptionFactory()).parse();
         try {
             mappingInformation.getClassMapping(MethodAccessAnnotationTestBean.class).prePersist(null);
             fail("expected call to publicTestMethod");
@@ -74,8 +72,7 @@ public class EntityListenerTest {
         SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
         persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
         ExceptionFactory exceptionFactory = new JpaExceptionFactory();
-        MappingInformation mappingInformation = new JpaAnnotationParser(securityUnit, exceptionFactory).parse();
-        mappingInformation = new OrmXmlParser(securityUnit, exceptionFactory).parse(mappingInformation);
+        MappingInformation mappingInformation = new OrmXmlParser(securityUnit, exceptionFactory).parse();
         try {
             mappingInformation.getClassMapping(FieldAccessXmlTestBean.class).prePersist(null);
             fail("expected call to publicTestMethod");
