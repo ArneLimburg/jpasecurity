@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.mapping;
 
 import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
+import static net.sf.jpasecurity.util.Validate.notNull;
 
 import java.beans.Introspector;
 import java.io.IOException;
@@ -44,7 +45,6 @@ import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.FetchType;
 import net.sf.jpasecurity.SecurityUnit;
-import static net.sf.jpasecurity.util.Validate.*;
 
 /**
  * Parses security units and created mapping information.
@@ -91,31 +91,16 @@ public abstract class AbstractSecurityUnitParser {
     }
 
     /**
-     * Parses the specified security unit information and returns mapping information.
-     */
-    public MappingInformation parse() {
-        return parse((MappingInformation)null);
-    }
-
-    /**
      * Parses the specified security unit information and returns mapping information,
      * merging the specified mapping information.
      * @param securityUnitInformation the security unit information
      * @param mappingInformation the mapping information to merge, may be <tt>null</tt>
      */
-    public MappingInformation parse(MappingInformation mappingInformation) {
+    public MappingInformation parse() {
         classMappings = new HashMap<Class<?>, DefaultClassMappingInformation>();
         namedQueries = new HashMap<String, String>();
         defaultEntityListeners = new ArrayList<EntityListener>();
         classLoader = findClassLoader(securityUnit);
-        if (mappingInformation != null) {
-            for (Class<?> type: mappingInformation.getSecureClasses()) {
-                classMappings.put(type, (DefaultClassMappingInformation)mappingInformation.getClassMapping(type));
-            }
-            for (String name: mappingInformation.getNamedQueryNames()) {
-                namedQueries.put(name, mappingInformation.getNamedQuery(name));
-            }
-        }
         parseSecurityUnit(securityUnit);
         String securityUnitName = securityUnit.getSecurityUnitName();
         return new DefaultMappingInformation(securityUnitName, classMappings, namedQueries, exceptionFactory);
