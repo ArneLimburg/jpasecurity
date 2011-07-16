@@ -33,6 +33,6 @@ public interface MappingInformation {
     ClassMappingInformation getClassMapping(Class<?> entityType);
     ClassMappingInformation getClassMapping(String entityName);
     Collection<ClassMappingInformation> resolveClassMappings(Class<?> type);
-    Class<?> getType(String path, Set<TypeDefinition> typeDefinitions);
+    <T> Class<T> getType(String path, Set<TypeDefinition> typeDefinitions);
 
 }

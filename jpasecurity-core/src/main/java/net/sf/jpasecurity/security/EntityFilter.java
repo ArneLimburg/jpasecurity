@@ -314,11 +314,11 @@ public class EntityFilter {
 
     private void expand(AccessRule accessRule, SecurityContext securityContext, Map<String, Object> queryParameters) {
         for (Alias alias: securityContext.getAliases()) {
-            Collection<JpqlIn> inNodes = accessRule.getInNodes(alias.getName());
+            Collection<JpqlIn> inNodes = accessRule.getInNodes(alias);
             if (inNodes.size() > 0) {
                 expand(alias.getName(), inNodes, securityContext.getAliasValues(alias), queryParameters);
             } else {
-                for (JpqlIdentifier identifier: accessRule.getIdentifierNodes(alias.getName())) {
+                for (JpqlIdentifier identifier: accessRule.getIdentifierNodes(alias)) {
                     Node nodeToReplace = identifier;
                     if (nodeToReplace.jjtGetParent() instanceof JpqlPath) {
                         nodeToReplace = nodeToReplace.jjtGetParent();

@@ -119,13 +119,13 @@ public class DefaultMappingInformation implements MappingInformation {
         return Collections.unmodifiableCollection(resolvedMappings);
     }
 
-    public Class<?> getType(String path, Set<TypeDefinition> typeDefinitions) {
+    public <T> Class<T> getType(String path, Set<TypeDefinition> typeDefinitions) {
         String[] entries = path.split("\\.");
         Class<?> type = getAliasType(new Alias(entries[0]), typeDefinitions);
         for (int i = 1; i < entries.length; i++) {
             type = getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
         }
-        return type;
+        return (Class<T>)type;
     }
 
     private void initializeEntityNameMappings() {
