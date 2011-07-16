@@ -35,6 +35,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlIn;
 import net.sf.jpasecurity.jpql.parser.JpqlRead;
 import net.sf.jpasecurity.jpql.parser.JpqlUpdate;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
@@ -66,15 +67,15 @@ public class AccessRule extends JpqlCompiledStatement {
         return getSelectedTypes(mappingInformation).values().iterator().next();
     }
 
-    public Collection<JpqlIdentifier> getIdentifierNodes(String alias) {
+    public Collection<JpqlIdentifier> getIdentifierNodes(Alias alias) {
         List<JpqlIdentifier> identifierNodes = new ArrayList<JpqlIdentifier>();
-        visit(new IdentifierVisitor(alias), identifierNodes);
+        visit(new IdentifierVisitor(alias.getName()), identifierNodes);
         return Collections.unmodifiableCollection(identifierNodes);
     }
 
-    public Collection<JpqlIn> getInNodes(String alias) {
+    public Collection<JpqlIn> getInNodes(Alias alias) {
         List<JpqlIn> inNodes = new ArrayList<JpqlIn>();
-        visit(new CollectionIdentifierVisitor(alias), inNodes);
+        visit(new CollectionIdentifierVisitor(alias.getName()), inNodes);
         return Collections.unmodifiableCollection(inNodes);
     }
 
