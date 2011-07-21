@@ -67,6 +67,7 @@ public class EntityFilter {
     private static final Log LOG = LogFactory.getLog(EntityFilter.class);
 
     private final MappingInformation mappingInformation;
+    private final SecurityContext securityContext;
     private final JpqlParser parser;
     private final JpqlCompiler compiler;
     private final SecureObjectCache objectCache;
@@ -78,10 +79,12 @@ public class EntityFilter {
 
     public EntityFilter(SecureObjectCache objectCache,
                         MappingInformation mappingInformation,
+                        SecurityContext securityContext,
                         ExceptionFactory exceptionFactory,
                         Collection<AccessRule> accessRules,
                         SubselectEvaluator... evaluators) {
         this.mappingInformation = mappingInformation;
+        this.securityContext = securityContext;
         this.parser = new JpqlParser();
         this.compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
         this.objectCache = objectCache;
@@ -90,14 +93,13 @@ public class EntityFilter {
         this.exceptionFactory = exceptionFactory;
     }
 
-    public boolean isAccessible(Object entity, AccessType accessType, SecurityContext securityContext)
+    public boolean isAccessible(Object entity, AccessType accessType)
         throws NotEvaluatableException {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         LOG.debug("Evaluating " + accessType + " access for entity of type " + mapping.getEntityName());
         Alias alias = new Alias(Character.toLowerCase(mapping.getEntityName().charAt(0))
                                 + mapping.getEntityName().substring(1));
-        AccessDefinition accessDefinition
-            = createAccessDefinition(alias, mapping.getEntityType(), accessType, securityContext);
+        AccessDefinition accessDefinition = createAccessDefinition(alias, mapping.getEntityType(), accessType);
         if (accessDefinition == null) {
             LOG.info("No access rules defined for access type " + accessType + ". Returning true.");
             return true;
@@ -111,13 +113,13 @@ public class EntityFilter {
         return queryEvaluator.<Boolean>evaluate(accessDefinition.getAccessRules(), evaluationParameters);
     }
 
-    public FilterResult filterQuery(String query, AccessType accessType, SecurityContext securityContext) {
+    public FilterResult filterQuery(String query, AccessType accessType) {
 
         LOG.debug("Filtering query " + query);
 
         JpqlCompiledStatement statement = compile(query);
 
-        AccessDefinition accessDefinition = createAccessDefinition(statement, accessType, securityContext);
+        AccessDefinition accessDefinition = createAccessDefinition(statement, accessType);
         if (accessDefinition.getAccessRules() instanceof JpqlBooleanLiteral) {
             JpqlBooleanLiteral booleanLiteral = (JpqlBooleanLiteral)accessDefinition.getAccessRules();
             boolean accessRestricted = !Boolean.parseBoolean(booleanLiteral.getValue());
@@ -188,26 +190,15 @@ public class EntityFilter {
                                 statement.getTypeDefinitions());
     }
 
-    private AccessDefinition createAccessDefinition(JpqlCompiledStatement statement,
-                                                    AccessType accessType,
-                                                    SecurityContext securityContext) {
-        return createAccessDefinition(getSelectedEntityTypes(statement),
-                                      accessType,
-                                      securityContext);
+    protected AccessDefinition createAccessDefinition(JpqlCompiledStatement statement, AccessType accessType) {
+        return createAccessDefinition(getSelectedEntityTypes(statement), accessType);
     }
 
-    private AccessDefinition createAccessDefinition(Alias alias,
-                                                    Class<?> type,
-                                                    AccessType accessType,
-                                                    SecurityContext securityContext) {
-        return createAccessDefinition(Collections.<String, Class<?>>singletonMap(alias.getName(), type),
-                                      accessType,
-                                      securityContext);
+    private AccessDefinition createAccessDefinition(Alias alias, Class<?> type, AccessType accessType) {
+        return createAccessDefinition(Collections.<String, Class<?>>singletonMap(alias.getName(), type), accessType);
     }
 
-    private AccessDefinition createAccessDefinition(Map<String, Class<?>> selectedTypes,
-                                                    AccessType accessType,
-                                                    SecurityContext securityContext) {
+    protected AccessDefinition createAccessDefinition(Map<String, Class<?>> selectedTypes, AccessType accessType) {
         Set<Class<?>> restrictedTypes = new HashSet<Class<?>>();
         AccessDefinition accessDefinition = null;
         for (Map.Entry<String, Class<?>> selectedType: selectedTypes.entrySet()) {
@@ -370,7 +361,7 @@ public class EntityFilter {
         return selectedTypes;
     }
 
-    private class AccessDefinition {
+    public class AccessDefinition {
 
         private Node accessRules;
         private Map<String, Object> queryParameters;

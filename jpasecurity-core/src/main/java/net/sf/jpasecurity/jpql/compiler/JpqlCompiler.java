@@ -24,6 +24,7 @@ import java.util.Set;
 
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
+import net.sf.jpasecurity.jpql.parser.JpqlConstructorParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlCount;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
@@ -131,6 +132,11 @@ public class JpqlCompiler {
         private final SelectPathVisitor selectPathVisitor = new SelectPathVisitor();
 
         public boolean visit(JpqlSelectExpression node, List<String> selectedPaths) {
+            node.visit(selectPathVisitor, selectedPaths);
+            return false;
+        }
+
+        public boolean visit(JpqlConstructorParameter node, List<String> selectedPaths) {
             node.visit(selectPathVisitor, selectedPaths);
             return false;
         }
