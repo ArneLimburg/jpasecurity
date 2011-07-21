@@ -52,10 +52,10 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.persistence.compiler.EntityManagerEvaluator;
+import net.sf.jpasecurity.persistence.security.CriteriaEntityFilter;
 import net.sf.jpasecurity.proxy.Decorator;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
-import net.sf.jpasecurity.security.EntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.util.ReflectionUtils;
 import net.sf.jpasecurity.util.SystemMapKey;
@@ -68,7 +68,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Arne Limburg
  */
 public class DefaultSecureEntityManager extends DelegatingEntityManager
-                                            implements SecureEntityManager, FetchManager {
+                                        implements SecureEntityManager, FetchManager {
 
     private static final Log LOG = LogFactory.getLog(DefaultSecureEntityManager.class);
 
@@ -76,7 +76,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     private Configuration configuration;
     private MappingInformation mappingInformation;
     private SecureObjectManager secureObjectManager;
-    private EntityFilter entityFilter;
+    private CriteriaEntityFilter entityFilter;
 
     protected DefaultSecureEntityManager(SecureEntityManagerFactory parent,
                                          EntityManager entityManager,
@@ -108,14 +108,15 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
             = new ObjectCacheSubselectEvaluator(secureObjectManager, exceptionFactory);
         SubselectEvaluator entityManagerEvaluator
             = new EntityManagerEvaluator(entityManager, secureObjectManager, pathEvaluator);
-        this.entityFilter = new EntityFilter(secureObjectManager,
-                                             mappingInformation,
-                                             configuration.getSecurityContext(),
-                                             exceptionFactory,
-                                             configuration.getAccessRulesProvider().getAccessRules(),
-                                             simpleSubselectEvaluator,
-                                             objectCacheEvaluator,
-                                             entityManagerEvaluator);
+        this.entityFilter = new CriteriaEntityFilter(secureObjectManager,
+                                                     mappingInformation,
+                                                     configuration.getSecurityContext(),
+                                                     entityManager.getCriteriaBuilder(),
+                                                     exceptionFactory,
+                                                     configuration.getAccessRulesProvider().getAccessRules(),
+                                                     simpleSubselectEvaluator,
+                                                     objectCacheEvaluator,
+                                                     entityManagerEvaluator);
     }
 
     @Override
@@ -235,8 +236,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
-        //TODO implement Criteria filtering
-        return super.createQuery(criteriaQuery);
+        return super.createQuery(entityFilter.filterQuery(criteriaQuery));
     }
 
     public EntityTransaction getTransaction() {
