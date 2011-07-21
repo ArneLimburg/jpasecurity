@@ -79,6 +79,8 @@ public class EasyMockPersistenceProvider implements PersistenceProvider {
                 throw new IllegalStateException("already closed");
             }
             EntityManager entityManager = EasyMock.createMock(EntityManager.class);
+            CriteriaBuilder criteriaBuilder = EasyMock.createMock(CriteriaBuilder.class);
+            EasyMock.expect(entityManager.getCriteriaBuilder()).andReturn(criteriaBuilder).anyTimes();
             EasyMock.expect(entityManager.getDelegate()).andReturn(entityManager).anyTimes();
             EasyMock.replay(entityManager);
             return entityManager;
