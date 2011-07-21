@@ -79,13 +79,17 @@ public class EntityFilterTest {
             .andReturn(Collections.<Object>emptySet()).anyTimes();
         replay(secureObjectManager);
         ExceptionFactory exceptionFactory = new DefaultExceptionFactory();
-        EntityFilter filter = new EntityFilter(secureObjectManager, mappingInformation, exceptionFactory, accessRules);
+        EntityFilter filter = new EntityFilter(secureObjectManager,
+                                               mappingInformation,
+                                               securityContext,
+                                               exceptionFactory,
+                                               accessRules);
         User john = new User("John");
         Contact contact = new Contact(john, "123456789");
 
         authenticationProvider.authenticate(john);
-        assertTrue(filter.isAccessible(contact, AccessType.READ, securityContext));
+        assertTrue(filter.isAccessible(contact, AccessType.READ));
         authenticationProvider.authenticate(new User("Mary"));
-        assertFalse(filter.isAccessible(contact, AccessType.READ, securityContext));
+        assertFalse(filter.isAccessible(contact, AccessType.READ));
     }
 }

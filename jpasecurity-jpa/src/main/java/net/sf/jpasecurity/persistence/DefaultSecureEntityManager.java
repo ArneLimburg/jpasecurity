@@ -110,6 +110,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
             = new EntityManagerEvaluator(entityManager, secureObjectManager, pathEvaluator);
         this.entityFilter = new EntityFilter(secureObjectManager,
                                              mappingInformation,
+                                             configuration.getSecurityContext(),
                                              exceptionFactory,
                                              configuration.getAccessRulesProvider().getAccessRules(),
                                              simpleSubselectEvaluator,
@@ -207,7 +208,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     private <T, Q extends Query> Q createQuery(String qlString, Class<T> resultClass, Class<Q> queryClass) {
-        FilterResult filterResult = entityFilter.filterQuery(qlString, READ, configuration.getSecurityContext());
+        FilterResult filterResult = entityFilter.filterQuery(qlString, READ);
         if (filterResult.getQuery() == null) {
             return (Q)new EmptyResultQuery<T>(createDelegateQuery(qlString, resultClass, queryClass));
         } else {
@@ -303,7 +304,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
 
     public boolean isAccessible(AccessType accessType, Object entity) {
         try {
-            return entityFilter.isAccessible(entity, accessType, configuration.getSecurityContext());
+            return entityFilter.isAccessible(entity, accessType);
         } catch (NotEvaluatableException e) {
             throw new SecurityException(e);
         }
