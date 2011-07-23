@@ -22,6 +22,6 @@ public class DefaultExceptionFactory extends AbstractExceptionFactory {
 
     @Override
     public RuntimeException createRuntimeException(String errorMessage, Throwable cause) {
-        throw new IllegalStateException(errorMessage, cause);
+        return new IllegalStateException(errorMessage, cause);
     }
 }
