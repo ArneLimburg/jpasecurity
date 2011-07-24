@@ -56,7 +56,7 @@ public class AuthenticationProviderSecurityContextTest {
         Object currentPrincipal = new Object();
         expect(authenticationProvider.getPrincipal()).andReturn(currentPrincipal);
         replay(authenticationProvider);
-        
+
         assertEquals(currentPrincipal, securityContext.getAliasValue(CURRENT_PRINCIPAL));
         assertNull(securityContext.getAliasValue(null));
         assertNull(securityContext.getAliasValue(CURRENT_ROLES));
@@ -67,7 +67,7 @@ public class AuthenticationProviderSecurityContextTest {
         Object currentRole = new Object();
         expect(authenticationProvider.<Object>getRoles()).andReturn(Collections.<Object>singleton(currentRole));
         replay(authenticationProvider);
-        
+
         Collection<Object> currentRoles = securityContext.getAliasValues(CURRENT_ROLES);
         assertEquals(1, currentRoles.size());
         assertEquals(currentRole, currentRoles.iterator().next());
