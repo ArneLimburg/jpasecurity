@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.sf.jpasecurity.ExceptionFactory;
+import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlConstructorParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlCount;
@@ -62,6 +63,10 @@ public class JpqlCompiler {
     private final PathVisitor pathVisitor = new PathVisitor();
     private final NamedParameterVisitor namedParameterVisitor = new NamedParameterVisitor();
     private final PositionalParameterVisitor positionalParameterVisitor = new PositionalParameterVisitor();
+
+    public JpqlCompiler(MappingInformation mappingInformation) {
+        this(mappingInformation, new DefaultExceptionFactory());
+    }
 
     public JpqlCompiler(MappingInformation mappingInformation, ExceptionFactory exceptionFactory) {
         this.mappingInformation = mappingInformation;
