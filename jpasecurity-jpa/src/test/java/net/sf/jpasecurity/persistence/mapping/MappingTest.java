@@ -31,7 +31,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.FieldAccessXmlTestBean;
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
-import net.sf.jpasecurity.model.MethodAccessXmlTestBean;
+import net.sf.jpasecurity.model.MethodAccessTestBean;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 import org.junit.Test;
@@ -57,7 +57,7 @@ public class MappingTest {
     }
 
     public void testXmlMethodAccess() {
-        testAccess("xml-based-method-access", false, MethodAccessXmlTestBean.class);
+        testAccess("xml-based-method-access", false, MethodAccessTestBean.class);
     }
 
     public void testAnnotationFieldAccess() {

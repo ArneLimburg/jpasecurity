@@ -11,7 +11,7 @@
     </persistence-unit-defaults>
   </persistence-unit-metadata>
   <package>net.sf.jpasecurity.model</package>
-  <entity class="MethodAccessXmlTestBean" access="PROPERTY">
+  <entity class="MethodAccessTestBean" access="PROPERTY">
     <attributes>
       <id name="id"/>
       <basic name="name"/>
