@@ -22,6 +22,7 @@ import java.util.Set;
 
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.configuration.AccessRule;
+import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.jpql.compiler.JpqlCompiler;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.mapping.Alias;
@@ -35,6 +36,10 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
 public class AccessRulesCompiler extends JpqlCompiler {
 
     private ExceptionFactory exceptionFactory;
+
+    public AccessRulesCompiler(MappingInformation mappingInformation) {
+        this(mappingInformation, new DefaultExceptionFactory());
+    }
 
     public AccessRulesCompiler(MappingInformation mappingInformation, ExceptionFactory exceptionFactory) {
         super(mappingInformation, exceptionFactory);
