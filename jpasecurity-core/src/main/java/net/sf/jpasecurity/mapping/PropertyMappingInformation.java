@@ -15,84 +15,26 @@
  */
 package net.sf.jpasecurity.mapping;
 
-import java.util.Collections;
 import java.util.Set;
 
 import net.sf.jpasecurity.CascadeType;
-import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.FetchType;
 
 /**
- * This class holds mapping information for property mappings.
+ * This interface holds mapping information for property mappings.
  * @author Arne Limburg
  */
-public abstract class PropertyMappingInformation {
+public interface PropertyMappingInformation {
 
-    private String name;
-    private ClassMappingInformation containingClassMapping;
-    private boolean idProperty;
-    private boolean versionProperty;
-    private PropertyAccessStrategy propertyAccessStrategy;
-
-    PropertyMappingInformation(String propertyName,
-                               ClassMappingInformation classMapping,
-                               PropertyAccessStrategy accessStrategy,
-                               ExceptionFactory exceptionFactory) {
-        if (propertyName == null) {
-            throw new IllegalArgumentException("property name not specified");
-        }
-        if (classMapping == null) {
-            throw exceptionFactory.createMappingException("class is no entity class");
-        }
-        if (accessStrategy == null) {
-            throw new IllegalArgumentException("PropertyAccessStrategy may not be null");
-        }
-        name = propertyName;
-        containingClassMapping = classMapping;
-        propertyAccessStrategy = accessStrategy;
-    }
-
-    public boolean isSingleValued() {
-        return true;
-    }
-
-    public boolean isManyValued() {
-        return !isSingleValued();
-    }
-
-    public boolean isRelationshipMapping() {
-        return false;
-    }
-
-    public boolean isIdProperty() {
-        return idProperty;
-    }
-
-    void setIdProperty(boolean idProperty) {
-        this.idProperty = idProperty;
-    }
-
-    public boolean isVersionProperty() {
-        return versionProperty;
-    }
-
-    void setVersionProperty(boolean versionProperty) {
-        this.versionProperty = versionProperty;
-    }
-
-    public String getPropertyName() {
-        return name;
-    }
-
-    public abstract Class<?> getProperyType();
-
-    public FetchType getFetchType() {
-        return FetchType.EAGER;
-    }
-
-    public Set<CascadeType> getCascadeTypes() {
-        return Collections.emptySet();
-    }
+    boolean isSingleValued();
+    boolean isManyValued();
+    boolean isRelationshipMapping();
+    boolean isIdProperty();
+    boolean isVersionProperty();
+    String getPropertyName();
+    Class<?> getProperyType();
+    FetchType getFetchType();
+    Set<CascadeType> getCascadeTypes();
 
     /**
      * Returns the property value respecting the
@@ -102,9 +44,7 @@ public abstract class PropertyMappingInformation {
      * @see ClassMappingInformation#usesFieldAccess()
      * @see ClassMappingInformation#usesPropertyAccess()
      */
-    public Object getPropertyValue(Object target) {
-        return this.propertyAccessStrategy.getPropertyValue(target);
-    }
+    Object getPropertyValue(Object target);
 
     /**
      * Sets the property value respecting the
@@ -114,17 +54,7 @@ public abstract class PropertyMappingInformation {
      * @see ClassMappingInformation#usesFieldAccess()
      * @see ClassMappingInformation#usesPropertyAccess()
      */
-    public void setPropertyValue(Object target, Object value) {
-        this.propertyAccessStrategy.setPropertyValue(target, value);
-    }
+    void setPropertyValue(Object target, Object value);
 
-    public ClassMappingInformation getContainingClassMapping() {
-        return containingClassMapping;
-    }
-
-    public String toString() {
-        return getClass().getSimpleName()
-             + "[name=" + name
-             + ",containingClassMapping=" + containingClassMapping.getEntityType().getSimpleName() + "]";
-    }
+    ClassMappingInformation getContainingClassMapping();
 }

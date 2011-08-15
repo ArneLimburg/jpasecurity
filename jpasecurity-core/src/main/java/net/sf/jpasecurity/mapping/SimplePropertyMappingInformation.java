@@ -21,7 +21,7 @@ import net.sf.jpasecurity.ExceptionFactory;
  * This class holds mapping information for simple property mappings.
  * @author Arne Limburg
  */
-public final class SimplePropertyMappingInformation extends PropertyMappingInformation {
+public final class SimplePropertyMappingInformation extends AbstractPropertyMappingInformation {
 
     private Class<?> type;
 
