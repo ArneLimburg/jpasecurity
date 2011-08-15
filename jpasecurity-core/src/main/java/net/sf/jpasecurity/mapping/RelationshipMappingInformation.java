@@ -28,7 +28,7 @@ import net.sf.jpasecurity.FetchType;
  * This class holds mapping information for relationship property mappings.
  * @author Arne Limburg
  */
-public abstract class RelationshipMappingInformation extends PropertyMappingInformation {
+public abstract class RelationshipMappingInformation extends AbstractPropertyMappingInformation {
 
     private ClassMappingInformation relatedClassMapping;
     private FetchType fetchType;

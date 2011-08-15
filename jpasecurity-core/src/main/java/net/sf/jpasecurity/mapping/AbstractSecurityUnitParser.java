@@ -237,7 +237,7 @@ public abstract class AbstractSecurityUnitParser {
         boolean isSingleValuedRelationshipProperty = isSingleValuedRelationshipProperty(property);
         boolean isCollectionValuedRelationshipProperty = isCollectionValuedRelationshipProperty(property);
         boolean createPropertyMapping = !classMapping.containsPropertyMapping(name);
-        PropertyMappingInformation propertyMapping = null;
+        AbstractPropertyMappingInformation propertyMapping = null;
         if (!createPropertyMapping) {
             propertyMapping = classMapping.getPropertyMapping(name);
         }

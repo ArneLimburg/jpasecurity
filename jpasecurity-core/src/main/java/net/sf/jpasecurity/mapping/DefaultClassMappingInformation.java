@@ -42,8 +42,8 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
     private boolean fieldAccess;
     private boolean metadataComplete;
     private boolean excludeSuperclassEntityListeners;
-    private Map<String, PropertyMappingInformation> propertyMappings
-        = new HashMap<String, PropertyMappingInformation>();
+    private Map<String, AbstractPropertyMappingInformation> propertyMappings
+        = new HashMap<String, AbstractPropertyMappingInformation>();
     private List<EntityListener> defaultEntityListeners = Collections.EMPTY_LIST;
     private Map<Class<?>, EntityListener> entityListeners = new LinkedHashMap<Class<?>, EntityListener>();
     private EntityListener entityLifecyleAdapter;
@@ -144,8 +144,8 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
                || (superclassMapping != null && superclassMapping.containsPropertyMapping(propertyName));
     }
 
-    public PropertyMappingInformation getPropertyMapping(String propertyName) {
-        PropertyMappingInformation propertyMapping = propertyMappings.get(propertyName);
+    public AbstractPropertyMappingInformation getPropertyMapping(String propertyName) {
+        AbstractPropertyMappingInformation propertyMapping = propertyMappings.get(propertyName);
         if (propertyMapping == null && superclassMapping != null) {
             return superclassMapping.getPropertyMapping(propertyName);
         }
@@ -164,7 +164,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
         return Collections.unmodifiableList(propertyMappings);
     }
 
-    void addPropertyMapping(PropertyMappingInformation propertyMappingInformation) {
+    void addPropertyMapping(AbstractPropertyMappingInformation propertyMappingInformation) {
         propertyMappings.put(propertyMappingInformation.getPropertyName(), propertyMappingInformation);
     }
 
