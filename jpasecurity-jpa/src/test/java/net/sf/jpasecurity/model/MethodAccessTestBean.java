@@ -20,12 +20,12 @@ import java.util.List;
 /**
  * @author Arne Limburg
  */
-public class MethodAccessXmlTestBean {
+public class MethodAccessTestBean {
 
     private int identifier;
     private String beanName;
-    private MethodAccessXmlTestBean parentBean;
-    private List<MethodAccessXmlTestBean> childBeans;
+    private MethodAccessTestBean parentBean;
+    private List<MethodAccessTestBean> childBeans;
 
     public int getId() {
         return identifier;
@@ -43,19 +43,19 @@ public class MethodAccessXmlTestBean {
         beanName = name;
     }
 
-    public MethodAccessXmlTestBean getParent() {
+    public MethodAccessTestBean getParent() {
         return parentBean;
     }
 
-    public void setParent(MethodAccessXmlTestBean parent) {
+    public void setParent(MethodAccessTestBean parent) {
         parentBean = parent;
     }
 
-    public List<MethodAccessXmlTestBean> getChildren() {
+    public List<MethodAccessTestBean> getChildren() {
         return childBeans;
     }
 
-    public void setChildren(List<MethodAccessXmlTestBean> children) {
+    public void setChildren(List<MethodAccessTestBean> children) {
         childBeans = children;
     }
 }
