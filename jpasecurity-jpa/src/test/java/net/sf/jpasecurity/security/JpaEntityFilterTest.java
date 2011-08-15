@@ -51,7 +51,7 @@ import org.junit.Test;
 /**
  * @author Arne Limburg
  */
-public class EntityFilterTest {
+public class JpaEntityFilterTest {
 
     private MappingInformation mappingInformation;
     private Collection<AccessRule> accessRules;
