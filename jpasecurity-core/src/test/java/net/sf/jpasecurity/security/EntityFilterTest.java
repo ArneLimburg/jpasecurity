@@ -60,7 +60,7 @@ public class EntityFilterTest {
     private static final Alias CURRENT_PRINCIPAL = new Alias("CURRENT_PRINCIPAL");
     private static final String NAME = "JUnit";
     private EntityFilter entityFilter;
-    
+
     @Before
     public void initialize() throws ParseException {
         SecureObjectCache objectCache = createMock(SecureObjectCache.class);
@@ -121,7 +121,7 @@ public class EntityFilterTest {
         assertTrue(entityFilter.isAccessible(testBean, AccessType.READ));
         assertFalse(entityFilter.isAccessible(testBean, AccessType.UPDATE));
     }
-    
+
     private static class TypeAnswer<T> implements IAnswer<Class<T>> {
 
         public Class<T> answer() throws Throwable {
