@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Arne Limburg
+ * Copyright 2009 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,16 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
-
-import javax.persistence.spi.PersistenceUnitInfo;
-
-import net.sf.jpasecurity.ExceptionFactory;
-import net.sf.jpasecurity.SecurityUnit;
-import net.sf.jpasecurity.jpa.JpaSecurityUnit;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
-import net.sf.jpasecurity.persistence.DefaultPersistenceUnitInfo;
-import net.sf.jpasecurity.persistence.JpaExceptionFactory;
-import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -45,13 +40,16 @@ public class JpqlCompilerTest {
 
     @Before
     public void initialize() {
-        PersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
-        persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
-        SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
-        ExceptionFactory exceptionFactory = new JpaExceptionFactory();
-        mappingInformation = new OrmXmlParser(securityUnit, exceptionFactory).parse();
+        mappingInformation = createMock(MappingInformation.class);
+        ClassMappingInformation classMapping = createMock(ClassMappingInformation.class);
+        String className = FieldAccessAnnotationTestBean.class.getSimpleName();
+        expect(mappingInformation.containsClassMapping(className)).andReturn(true).anyTimes();
+        expect(mappingInformation.getClassMapping(className)).andReturn(classMapping).anyTimes();
+        expect(classMapping.<FieldAccessAnnotationTestBean>getEntityType())
+            .andReturn(FieldAccessAnnotationTestBean.class).anyTimes();
+        replay(mappingInformation, classMapping);
         parser = new JpqlParser();
-        compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
+        compiler = new JpqlCompiler(mappingInformation);
     }
 
     @Test
