@@ -15,16 +15,9 @@
  */
 package net.sf.jpasecurity.mapping.bean;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-
+import net.sf.jpasecurity.DefaultSecurityUnit;
 import net.sf.jpasecurity.SecurityUnit;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
@@ -42,14 +35,8 @@ public class JavaBeanSecurityUnitParserTest {
 
     @Before
     public void initialize() {
-        SecurityUnit securityUnit = createMock(SecurityUnit.class);
-        expect(securityUnit.getSecurityUnitName()).andReturn("test").anyTimes();
-        expect(securityUnit.getClassLoader()).andReturn(Thread.currentThread().getContextClassLoader()).anyTimes();
-        expect(securityUnit.excludeUnlistedClasses()).andReturn(true).anyTimes();
-        expect(securityUnit.getJarFileUrls()).andReturn(Collections.<URL>emptyList()).anyTimes();
-        List<String> managedClassNames = Collections.singletonList(MethodAccessTestBean.class.getName());
-        expect(securityUnit.getManagedClassNames()).andReturn(managedClassNames).anyTimes();
-        replay(securityUnit);
+        SecurityUnit securityUnit = new DefaultSecurityUnit("test");
+        securityUnit.getManagedClassNames().add(MethodAccessTestBean.class.getName());
         parser = new JavaBeanSecurityUnitParser(securityUnit);
     }
 
