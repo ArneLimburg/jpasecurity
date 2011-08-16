@@ -18,15 +18,15 @@ package net.sf.jpasecurity.security.rules;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.net.URL;
 
+import net.sf.jpasecurity.DefaultSecurityUnit;
 import net.sf.jpasecurity.SecurityUnit;
 import net.sf.jpasecurity.configuration.Configuration;
-import net.sf.jpasecurity.jpa.JpaSecurityUnit;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.persistence.JpaExceptionFactory;
-import net.sf.jpasecurity.persistence.PersistenceXmlParser;
-import net.sf.jpasecurity.persistence.mapping.OrmXmlParser;
+import net.sf.jpasecurity.mapping.bean.JavaBeanSecurityUnitParser;
+import net.sf.jpasecurity.model.ChildTestBean;
+import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
+import net.sf.jpasecurity.model.ParentTestBean;
 import net.sf.jpasecurity.security.authentication.AutodetectingSecurityContext;
 
 import org.junit.Before;
@@ -41,11 +41,11 @@ public class AccessRulesCompilerTest {
 
     @Before
     public void createMappingInformation() throws IOException {
-        URL persistenceXml = Thread.currentThread().getContextClassLoader().getResource("META-INF/persistence.xml");
-        PersistenceXmlParser parser = new PersistenceXmlParser();
-        parser.parse(persistenceXml);
-        SecurityUnit securityUnit = new JpaSecurityUnit(parser.getPersistenceUnitInfo("interface"));
-        mappingInformation = new OrmXmlParser(securityUnit, new JpaExceptionFactory()).parse();
+        SecurityUnit securityUnit = new DefaultSecurityUnit("interface");
+        securityUnit.getManagedClassNames().add(ParentTestBean.class.getName());
+        securityUnit.getManagedClassNames().add(ChildTestBean.class.getName());
+        securityUnit.getManagedClassNames().add(MethodAccessAnnotationTestBean.class.getName());
+        mappingInformation = new JavaBeanSecurityUnitParser(securityUnit).parse();
     }
 
     @Test

@@ -18,30 +18,14 @@ package net.sf.jpasecurity.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Version;
-
 /**
  * @author Stefan Hildebrandt
  */
-@Entity
 public class ParentTestBean implements TestInterface {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-
     private String name;
-
-    @Version
     private int version;
-
-    @OneToMany(cascade = CascadeType.ALL)
     private List<ChildTestBean> children = new ArrayList<ChildTestBean>();
 
     public ParentTestBean() {

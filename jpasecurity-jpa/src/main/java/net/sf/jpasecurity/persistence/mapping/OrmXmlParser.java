@@ -248,10 +248,11 @@ public class OrmXmlParser extends JpaAnnotationParser {
      */
     @Override
     protected boolean isEmbeddable(Class<?> type) {
-        if (evaluateNode(EMBEDDABLE_XPATH, type.getName()) != null) {
+        Document mappingDocument = getMappingDocument(type);
+        if (evaluateNode(mappingDocument, EMBEDDABLE_XPATH, type.getName()) != null) {
             return true;
         }
-        if (!isMetadataComplete()) {
+        if (!isMetadataComplete(mappingDocument)) {
             return super.isEmbeddable(type);
         }
         return false;
@@ -357,13 +358,13 @@ public class OrmXmlParser extends JpaAnnotationParser {
         return false;
     }
 
-    protected boolean isMetadataComplete() {
-        return evaluateNode(XML_MAPPING_METADATA_COMPLETE_XPATH) != null;
+    protected boolean isMetadataComplete(Document mappingDocument) {
+        return evaluateNode(mappingDocument, XML_MAPPING_METADATA_COMPLETE_XPATH) != null;
     }
 
     @Override
     protected boolean isMetadataComplete(Class<?> entityClass) {
-        if (isMetadataComplete()) {
+        if (isMetadataComplete(getMappingDocument(entityClass))) {
             return true;
         }
         Node metadataCompleteNode = evaluateNode(METADATA_COMPLETE_XPATH, entityClass);
@@ -418,8 +419,9 @@ public class OrmXmlParser extends JpaAnnotationParser {
      */
     @Override
     protected CascadeType[] getCascadeTypes(Member property) {
-        NodeList list
-            = evaluateNodes(CASCADE_TYPE_XPATH, property.getDeclaringClass(), getName(property));
+        Class<?> declaringClass = property.getDeclaringClass();
+        Document mappingDocument = getMappingDocument(declaringClass);
+        NodeList list = evaluateNodes(mappingDocument, CASCADE_TYPE_XPATH, declaringClass, getName(property));
         if (list == null && !isMetadataComplete(property.getDeclaringClass())) {
             return super.getCascadeTypes(property);
         }
@@ -523,22 +525,22 @@ public class OrmXmlParser extends JpaAnnotationParser {
     }
 
     private void parse(SecurityUnit securityUnit, Document mappingDocument) {
-        parseNamedQueries();
-        parseDefaultEntityListeners();
-        String packageName = getPackageName();
-        NodeList list = evaluateNodes(ENTITIES_XPATH);
+        parseNamedQueries(mappingDocument);
+        parseDefaultEntityListeners(mappingDocument);
+        String packageName = getPackageName(mappingDocument);
+        NodeList list = evaluateNodes(mappingDocument, ENTITIES_XPATH);
         if (list != null) {
             for (int i = 0; i < list.getLength(); i++) {
                 parse(list.item(i), packageName);
             }
         }
-        list = evaluateNodes(MAPPED_SUPERCLASSES_XPATH);
+        list = evaluateNodes(mappingDocument, MAPPED_SUPERCLASSES_XPATH);
         if (list != null) {
             for (int i = 0; i < list.getLength(); i++) {
                 parse(list.item(i), packageName);
             }
         }
-        list = evaluateNodes(EMBEDDABLES_XPATH);
+        list = evaluateNodes(mappingDocument, EMBEDDABLES_XPATH);
         if (list != null) {
             for (int i = 0; i < list.getLength(); i++) {
                 parse(list.item(i), packageName);
@@ -568,8 +570,8 @@ public class OrmXmlParser extends JpaAnnotationParser {
         }
     }
 
-    private void parseNamedQueries() {
-        NodeList entries = evaluateNodes(NAMED_QUERY_XPATH);
+    private void parseNamedQueries(Document mappingDocument) {
+        NodeList entries = evaluateNodes(mappingDocument, NAMED_QUERY_XPATH);
         if (entries == null) {
             return;
         }
@@ -644,8 +646,8 @@ public class OrmXmlParser extends JpaAnnotationParser {
         }
     }
 
-    private void parseDefaultEntityListeners() {
-        NodeList entityListeners = evaluateNodes(DEFAULT_ENTITY_LISTENER_XPATH);
+    private void parseDefaultEntityListeners(Document mappingDocument) {
+        NodeList entityListeners = evaluateNodes(mappingDocument, DEFAULT_ENTITY_LISTENER_XPATH);
         for (int i = 0; i < entityListeners.getLength(); i++) {
             Class<?> type = getEntityListenerType(entityListeners.item(i));
             EntityLifecycleMethods entityLifecycleMethods = new EntityLifecycleMethods();
@@ -735,8 +737,8 @@ public class OrmXmlParser extends JpaAnnotationParser {
         return null;
     }
 
-    private String getPackageName() {
-        Node packageNode = evaluateNode(PACKAGE_XPATH);
+    private String getPackageName(Document mappingDocument) {
+        Node packageNode = evaluateNode(mappingDocument, PACKAGE_XPATH);
         return packageNode == null? null: packageNode.getTextContent().trim();
     }
 
@@ -764,45 +766,70 @@ public class OrmXmlParser extends JpaAnnotationParser {
 
     private Node getAccessTypeNode(Class<?> mappedClass) {
         Node accessNode = evaluateNode(ACCESS_TYPE_XPATH, mappedClass);
-        return accessNode != null? accessNode: evaluateNode(GLOBAL_ACCESS_TYPE_XPATH);
+        return accessNode != null? accessNode: evaluateNode(getMappingDocument(mappedClass), GLOBAL_ACCESS_TYPE_XPATH);
+    }
+
+    private Document getMappingDocument(Class<?> mappedClass) {
+        Document foundDocument = null;
+        for (Document mappingDocument: mappingDocuments) {
+            if (evaluateNode(mappingDocument, ENTITY_XPATH, mappedClass) != null
+                || evaluateNode(mappingDocument, EMBEDDABLE_XPATH, mappedClass) != null
+                || evaluateNode(mappingDocument, MAPPED_SUPERCLASS_XPATH, mappedClass) != null) {
+                checkDuplicateDefinition(mappedClass, foundDocument, mappingDocument);
+                foundDocument = mappingDocument;
+            }
+        }
+        return foundDocument;
+    }
+
+    private void checkDuplicateDefinition(Class<?> mappedClass, Document document1, Document document2) {
+        if (document1 != null && document2 != null) {
+            String message = "class " + mappedClass.getName() + " is definied in more than one xml-files";
+            throw exceptionFactory.createRuntimeException(message);
+        }
     }
 
     private Node evaluateNode(String query, Class<?> mappedClass, Object... parameters) {
-        Object[] extendedParameters = extendParameters(mappedClass, parameters);
+        return evaluateNode(getMappingDocument(mappedClass), query, mappedClass, parameters);
+    }
+
+    private Node evaluateNode(Document document, String query, Class<?> mappedClass, Object... parameters) {
+        Object[] extendedParameters = extendParameters(document, mappedClass, parameters);
         if (!mappedClass.getName().equals(extendedParameters[0])) {
-            Node node = evaluateNode(query, extendedParameters);
+            Node node = evaluateNode(document, query, extendedParameters);
             if (node != null) {
                 return node;
             }
         }
         extendedParameters[0] = mappedClass.getName();
-        return evaluateNode(query, extendedParameters);
+        return evaluateNode(document, query, extendedParameters);
     }
 
-    private Node evaluateNode(String query, Object... parameters) {
-        return (Node)evaluate(query, XPathConstants.NODE, parameters);
+    private Node evaluateNode(Document document, String query, Object... parameters) {
+        return (Node)evaluate(document, query, XPathConstants.NODE, parameters);
     }
 
-    private NodeList evaluateNodes(String query, Class<?> mappedClass, Object... parameters) {
-        Object[] extendedParameters = extendParameters(mappedClass, parameters);
+    private NodeList evaluateNodes(Document document, String query, Class<?> mappedClass, Object... parameters) {
+        Object[] extendedParameters = extendParameters(document, mappedClass, parameters);
         if (!mappedClass.getName().equals(extendedParameters[0])) {
-            NodeList node = (NodeList)evaluateNode(query, extendedParameters);
+            NodeList node = (NodeList)evaluateNode(getMappingDocument(mappedClass), query, extendedParameters);
             if (node != null) {
                 return node;
             }
         }
         extendedParameters[0] = mappedClass.getName();
-        return (NodeList)evaluateNode(query, extendedParameters);
+        return (NodeList)evaluateNode(getMappingDocument(mappedClass), query, extendedParameters);
     }
 
-    private NodeList evaluateNodes(String query, Object... parameters) {
-        return (NodeList)evaluate(query, XPathConstants.NODESET, parameters);
+    private NodeList evaluateNodes(Document document, String query, Object... parameters) {
+        Object nodeList = evaluate(document, query, XPathConstants.NODESET, parameters);
+        return nodeList == null? new ComposedNodeList(): (NodeList)nodeList;
     }
 
-    private Object[] extendParameters(Class<?> mappedClass, Object... parameters) {
+    private Object[] extendParameters(Document document, Class<?> mappedClass, Object... parameters) {
         Object[] extendedParameters = new Object[parameters.length + 1];
         System.arraycopy(parameters, 0, extendedParameters, 1, parameters.length);
-        String packageName = getPackageName();
+        String packageName = getPackageName(document);
         String className = mappedClass.getName();
         String prefix = packageName + '.';
         if (className.startsWith(prefix)) {
@@ -813,17 +840,20 @@ public class OrmXmlParser extends JpaAnnotationParser {
         return extendedParameters;
     }
 
-    private Object evaluate(String query, QName resultType, Object... parameters) {
+    private Object evaluate(Document mappingDocument, String query, QName resultType, Object... parameters) {
+        if (mappingDocument == null) {
+            return null;
+        }
         query = MessageFormat.format(query, parameters);
         try {
-            ComposedNodeList nodeList = new ComposedNodeList();
-            for (Document mappingDocument: mappingDocuments) {
-                Object result = XPATH.evaluate(query, mappingDocument, resultType);
-                if (resultType.equals(XPathConstants.NODESET)) {
-                    nodeList.add((NodeList)result);
-                } else if (result != null) {
-                    nodeList.add(new SingletonNodeList((Node)result));
-                }
+            NodeList nodeList;
+            Object result = XPATH.evaluate(query, mappingDocument, resultType);
+            if (resultType.equals(XPathConstants.NODESET)) {
+                nodeList = (NodeList)result;
+            } else if (result != null) {
+                nodeList = new SingletonNodeList((Node)result);
+            } else {
+                nodeList = null;
             }
             return convert(nodeList, resultType);
         } catch (XPathExpressionException e) {
@@ -832,7 +862,7 @@ public class OrmXmlParser extends JpaAnnotationParser {
     }
 
     private Object convert(NodeList nodeList, QName resultType) {
-        if (nodeList.getLength() == 0) {
+        if (nodeList == null || nodeList.getLength() == 0) {
             return null;
         }
         if (nodeList.getLength() == 1) {
