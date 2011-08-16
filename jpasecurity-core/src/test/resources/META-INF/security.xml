@@ -1,0 +1,10 @@
+<security xmlns="http://jpasecurity.sf.net/xml/ns/security"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://jpasecurity.sf.net/xml/ns/security http://jpasecurity.sf.net/xml/ns/security/security_1_0.xsd"
+          version="1.0">
+  <persistence-unit name="interface">
+    <access-rule>
+      GRANT ACCESS TO net.sf.jpasecurity.model.TestInterface t WHERE t.name = CURRENT_PRINCIPAL 
+    </access-rule>
+  </persistence-unit>
+</security>
