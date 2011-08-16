@@ -207,7 +207,7 @@ public class JpqlCompiler {
                         types.add(classMapping.getEntityType());
                     }
                 } catch (ClassNotFoundException e) {
-                    throw exceptionFactory.createRuntimeException(e);
+                    throw exceptionFactory.createTypeNotFoundException(abstractSchemaName.trim());
                 }
             }
             if (types.isEmpty()) {
