@@ -15,22 +15,13 @@
  */
 package net.sf.jpasecurity.model;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 /**
  * @author Stefan Hildebrandt
  */
-@Entity
 public class ChildTestBean implements TestInterface {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    @Basic
     private String name;
 
     public ChildTestBean() {
