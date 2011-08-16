@@ -25,7 +25,7 @@ import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.bean.JavaBeanSecurityUnitParser;
 import net.sf.jpasecurity.model.ChildTestBean;
-import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
+import net.sf.jpasecurity.model.MethodAccessTestBean;
 import net.sf.jpasecurity.model.ParentTestBean;
 import net.sf.jpasecurity.security.authentication.AutodetectingSecurityContext;
 
@@ -44,7 +44,7 @@ public class AccessRulesCompilerTest {
         SecurityUnit securityUnit = new DefaultSecurityUnit("interface");
         securityUnit.getManagedClassNames().add(ParentTestBean.class.getName());
         securityUnit.getManagedClassNames().add(ChildTestBean.class.getName());
-        securityUnit.getManagedClassNames().add(MethodAccessAnnotationTestBean.class.getName());
+        securityUnit.getManagedClassNames().add(MethodAccessTestBean.class.getName());
         mappingInformation = new JavaBeanSecurityUnitParser(securityUnit).parse();
     }
 
