@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * This interface may be implemented by {@link net.net.sf.jpasecurity.configuration.AuthenticationProvider}s
- * and {@link net.sf.jpasecurity.configuration.net.sf.jpasecurity.security.AccessRulesProvider}s
+ * and {@link net.sf.jpasecurity.configuration.AccessRulesProvider}s
  * to obtain the specified persistence informations.
  *
  * @author Arne Limburg
