@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,7 +26,14 @@ public class MethodAccessTestBean {
     private int identifier;
     private String beanName;
     private MethodAccessTestBean parentBean;
-    private List<MethodAccessTestBean> childBeans;
+    private List<MethodAccessTestBean> childBeans = new ArrayList<MethodAccessTestBean>();
+
+    public MethodAccessTestBean() {
+    }
+
+    public MethodAccessTestBean(String name) {
+        beanName = name;
+    }
 
     public int getId() {
         return identifier;

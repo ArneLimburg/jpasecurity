@@ -74,7 +74,7 @@ public class JavaBeanSecurityUnitParser extends AbstractSecurityUnitParser {
     }
 
     protected boolean isMapped(Class<?> mappedClass) {
-        return getBeanInfo(mappedClass) != null;
+        return mappedClass != Object.class && getBeanInfo(mappedClass) != null;
     }
 
     protected boolean isMapped(Member member) {
