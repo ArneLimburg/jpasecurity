@@ -33,7 +33,6 @@ import java.util.TreeSet;
 
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
-import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
 
 import org.junit.Before;
@@ -42,7 +41,7 @@ import org.junit.Test;
 /**
  * @author Arne Limburg
  */
-public class SecureSortedSetTest extends AbstractSecureCollectionTestCase {
+public class SecureSortedSetTest extends AbstractSecureCollectionTestCase<SecureSortedSet<Object>> {
 
     private List<Object> testDataWithComparator;
     private List<ComparableObject> testDataWithoutComparator;
@@ -167,8 +166,8 @@ public class SecureSortedSetTest extends AbstractSecureCollectionTestCase {
         assertTrue(tailSetWithComparator.last().equals(testDataWithComparator.get(2)));
     }
 
-    public SecureCollection<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
-                                                           SecureEntity... secureEntities) {
+    public SecureSortedSet<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
+                                                          SecureEntity... secureEntities) {
         SortedSet<Object> original = new TreeSet<Object>(new HashCodeComparator());
         SortedSet<Object> filtered = new TreeSet<Object>(new HashCodeComparator());
         for (SecureEntity secureEntity: secureEntities) {

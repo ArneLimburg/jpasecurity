@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.sf.jpasecurity.AccessManager;
-import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
 
 import org.junit.Test;
@@ -35,10 +34,10 @@ import org.junit.Test;
 /**
  * @author Arne Limburg
  */
-public class SecureSetTest extends AbstractSecureCollectionTestCase {
+public class SecureSetTest extends AbstractSecureCollectionTestCase<SecureSet<Object>> {
 
-    public SecureCollection<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
-                                                           SecureEntity... secureEntities) {
+    public SecureSet<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
+                                                    SecureEntity... secureEntities) {
         Set<Object> original = new HashSet<Object>();
         Set<Object> filtered = new HashSet<Object>();
         for (SecureEntity secureEntity: secureEntities) {
