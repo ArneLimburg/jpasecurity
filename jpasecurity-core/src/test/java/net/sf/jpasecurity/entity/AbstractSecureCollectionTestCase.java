@@ -15,13 +15,6 @@
  */
 package net.sf.jpasecurity.entity;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.getCurrentArguments;
-import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -31,58 +24,21 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import net.sf.jpasecurity.AccessManager;
-import net.sf.jpasecurity.AccessType;
-import net.sf.jpasecurity.BeanStore;
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
-import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
-import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.PropertyMappingInformation;
-import net.sf.jpasecurity.mapping.SecureBeanInitializer;
 import net.sf.jpasecurity.proxy.Decorator;
 
-import org.easymock.EasyMock;
-import org.easymock.IAnswer;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
-public abstract class AbstractSecureCollectionTestCase {
+public abstract class AbstractSecureCollectionTestCase<C extends SecureCollection<Object>>
+        extends AbstractSecureObjectTestCase {
 
-    private MappingInformation mapping;
-    private BeanStore beanStore;
-    private BeanInitializer beanInitializer;
-    private AccessManager accessManager;
-    private AbstractSecureObjectManager objectManager;
-    private SecureEntity secureEntity;
-    private Object unsecureEntity;
-
-    @Before
-    public void createTestData() {
-        mapping = createMock(MappingInformation.class);
-        beanStore = createMock(BeanStore.class);
-        accessManager = createMock(AccessManager.class);
-        beanInitializer = new SecureBeanInitializer();
-        objectManager = new DefaultSecureObjectManager(mapping,
-                                            beanStore,
-                                            accessManager,
-                                            new Configuration());
-
-        expect(mapping.getClassMapping((Class<?>)anyObject())).andAnswer(new ClassMappingAnswer()).anyTimes();
-        expect(accessManager.isAccessible(eq(AccessType.READ), anyObject())).andReturn(true).anyTimes();
-
-        replay(mapping, beanStore, accessManager);
-
-        unsecureEntity = new Object();
-        secureEntity = (SecureEntity)objectManager.getSecureObject(unsecureEntity);
-    }
-
-    public abstract SecureCollection<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
-                                                                    SecureEntity... secureEntities);
+    public abstract C createSecureCollection(AbstractSecureObjectManager objectManager, SecureEntity... entities);
 
     public void flush(SecureCollection<Object> secureCollection) {
         ((AbstractSecureCollection<Object, Collection<Object>>)secureCollection).flush();
@@ -90,71 +46,71 @@ public abstract class AbstractSecureCollectionTestCase {
 
     @Test
     public void add() {
-        final SecureCollection<Object> secureCollection = createSecureCollection(objectManager);
-        final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
-        testAdd(secureCollection, unsecureCollection, new Runnable() {
+        final SecureCollection<Object> secureCollection = createSecureCollection(getObjectManager());
+        final Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
+        add(secureCollection, unsecureCollection, new Runnable() {
             public void run() {
-                secureCollection.add(secureEntity);
+                secureCollection.add(getSecureEntity());
             }
         });
     }
 
     @Test
     public void addAll() {
-        final SecureCollection<Object> secureCollection = createSecureCollection(objectManager);
-        final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
-        testAdd(secureCollection, unsecureCollection, new Runnable() {
+        final SecureCollection<Object> secureCollection = createSecureCollection(getObjectManager());
+        final Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
+        add(secureCollection, unsecureCollection, new Runnable() {
             public void run() {
-                secureCollection.addAll(Collections.singleton(secureEntity));
+                secureCollection.addAll(Collections.singleton(getSecureEntity()));
             }
         });
     }
 
     @Test
     public void addAllSecureCollection() {
-        final SecureCollection<Object> secureCollection = createSecureCollection(objectManager);
-        final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
-        testAdd(secureCollection, unsecureCollection, new Runnable() {
+        final SecureCollection<Object> secureCollection = createSecureCollection(getObjectManager());
+        final Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
+        add(secureCollection, unsecureCollection, new Runnable() {
             public void run() {
-                secureCollection.addAll(new SecureSet<Object>(Collections.singleton(unsecureEntity),
-                                                              Collections.singleton((Object)secureEntity),
-                                                              objectManager));
+                secureCollection.addAll(new SecureSet<Object>(Collections.singleton(getUnsecureEntity()),
+                                                              Collections.singleton((Object)getSecureEntity()),
+                                                              getObjectManager()));
             }
         });
     }
 
     @Test
     public void addAllSecureList() {
-        final SecureCollection<Object> secureCollection = createSecureCollection(objectManager);
-        final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
-        testAdd(secureCollection, unsecureCollection, new Runnable() {
+        final SecureCollection<Object> secureCollection = createSecureCollection(getObjectManager());
+        final Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
+        add(secureCollection, unsecureCollection, new Runnable() {
             public void run() {
-                secureCollection.addAll(new SecureList<Object>(Collections.singletonList(unsecureEntity),
-                                                               Collections.singletonList((Object)secureEntity),
-                                                               objectManager));
+                secureCollection.addAll(new SecureList<Object>(Collections.singletonList(getUnsecureEntity()),
+                                                               Collections.singletonList((Object)getSecureEntity()),
+                                                               getObjectManager()));
             }
         });
     }
 
     @Test
     public void remove() {
-        final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity);
-        final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
-        testRemove(secureCollection, unsecureCollection, new Runnable() {
+        final SecureCollection<Object> secureCollection = createSecureCollection(getObjectManager(), getSecureEntity());
+        final Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
+        remove(secureCollection, unsecureCollection, new Runnable() {
             public void run() {
-                secureCollection.remove(secureEntity);
+                secureCollection.remove(getSecureEntity());
             }
         });
     }
 
     @Test
     public void iteratorRemove() {
-        final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity);
-        final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
-        testRemove(secureCollection, unsecureCollection, new Runnable() {
+        final SecureCollection<Object> secureCollection = createSecureCollection(getObjectManager(), getSecureEntity());
+        final Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
+        remove(secureCollection, unsecureCollection, new Runnable() {
             public void run() {
                 Iterator<Object> i = secureCollection.iterator();
-                assertEquals(secureEntity, i.next());
+                assertEquals(getSecureEntity(), i.next());
                 i.remove();
             }
         });
@@ -162,8 +118,8 @@ public abstract class AbstractSecureCollectionTestCase {
 
     @Test(expected = IllegalStateException.class)
     public void iteratorRemoveIllegalState() {
-        SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity);
-        Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
+        SecureCollection<Object> secureCollection = createSecureCollection(getObjectManager(), getSecureEntity());
+        Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
 
         assertEquals(1, secureCollection.size());
         assertEquals(1, unsecureCollection.size());
@@ -184,37 +140,37 @@ public abstract class AbstractSecureCollectionTestCase {
 
     @Test
     public void removeAll() {
-        final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity);
-        final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
-        testRemove(secureCollection, unsecureCollection, new Runnable() {
+        final SecureCollection<Object> secureCollection = createSecureCollection(getObjectManager(), getSecureEntity());
+        final Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
+        remove(secureCollection, unsecureCollection, new Runnable() {
             public void run() {
-                secureCollection.removeAll(Collections.singleton(secureEntity));
+                secureCollection.removeAll(Collections.singleton(getSecureEntity()));
             }
         });
     }
 
     @Test
     public void removeAllSecureCollection() {
-        final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity);
-        final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
-        testRemove(secureCollection, unsecureCollection, new Runnable() {
+        final SecureCollection<Object> secureCollection = createSecureCollection(getObjectManager(), getSecureEntity());
+        final Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
+        remove(secureCollection, unsecureCollection, new Runnable() {
             public void run() {
-                secureCollection.removeAll(new SecureSet<Object>(Collections.singleton(unsecureEntity),
-                                                                 Collections.singleton((Object)secureEntity),
-                                                                 objectManager));
+                secureCollection.removeAll(new SecureSet<Object>(Collections.singleton(getUnsecureEntity()),
+                                                                 Collections.singleton((Object)getSecureEntity()),
+                                                                 getObjectManager()));
             }
         });
     }
 
     @Test
     public void removeAllSecureList() {
-        final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity);
-        final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
-        testRemove(secureCollection, unsecureCollection, new Runnable() {
+        final SecureCollection<Object> secureCollection = createSecureCollection(getObjectManager(), getSecureEntity());
+        final Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
+        remove(secureCollection, unsecureCollection, new Runnable() {
             public void run() {
-                secureCollection.removeAll(new SecureList<Object>(Collections.singletonList(unsecureEntity),
-                                                                  Collections.singletonList((Object)secureEntity),
-                                                                  objectManager));
+                secureCollection.removeAll(new SecureList<Object>(Collections.singletonList(getUnsecureEntity()),
+                                                                  Collections.singletonList((Object)getSecureEntity()),
+                                                                  getObjectManager()));
             }
         });
     }
@@ -222,19 +178,22 @@ public abstract class AbstractSecureCollectionTestCase {
     @Test
     public void retainAll() {
         Object unsecureEntity2 = new Object();
-        ClassMappingInformation classMapping = mapping.getClassMapping(Object.class);
+        ClassMappingInformation classMapping = getMapping().getClassMapping(Object.class);
         SecureEntityInterceptor interceptor
-            = new SecureEntityInterceptor(beanInitializer, objectManager, unsecureEntity2);
-        Decorator<SecureEntity> decorator
-            = new SecureEntityDecorator(classMapping, beanInitializer, accessManager, objectManager, unsecureEntity2);
+            = new SecureEntityInterceptor(getBeanInitializer(), getObjectManager(), unsecureEntity2);
+        Decorator<SecureEntity> decorator = new SecureEntityDecorator(classMapping,
+                                                                      getBeanInitializer(),
+                                                                      getAccessManager(),
+                                                                      getObjectManager(),
+                                                                      unsecureEntity2);
         SecureEntity secureEntity2
-            = (SecureEntity)objectManager.createSecureEntity(Object.class, interceptor, decorator);
+            = (SecureEntity)getObjectManager().createSecureEntity(Object.class, interceptor, decorator);
         final SecureCollection<Object> secureCollection
-            = createSecureCollection(objectManager, secureEntity, secureEntity2);
-        final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
-        testRetain(secureCollection, unsecureCollection, new Runnable() {
+            = createSecureCollection(getObjectManager(), getSecureEntity(), secureEntity2);
+        final Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
+        retain(secureCollection, unsecureCollection, new Runnable() {
             public void run() {
-                secureCollection.retainAll(Collections.singleton(secureEntity));
+                secureCollection.retainAll(Collections.singleton(getSecureEntity()));
             }
         });
     }
@@ -242,21 +201,24 @@ public abstract class AbstractSecureCollectionTestCase {
     @Test
     public void retainAllSecureCollection() {
         Object unsecureEntity2 = new Object();
-        ClassMappingInformation classMapping = mapping.getClassMapping(Object.class);
+        BeanInitializer beanInitializer = getBeanInitializer();
+        AccessManager accessManager = getAccessManager();
+        AbstractSecureObjectManager objectManager = getObjectManager();
+        ClassMappingInformation classMapping = getMapping().getClassMapping(Object.class);
         SecureEntityInterceptor interceptor
             = new SecureEntityInterceptor(beanInitializer, objectManager, unsecureEntity2);
         Decorator<SecureEntity> decorator
             = new SecureEntityDecorator(classMapping, beanInitializer, accessManager, objectManager, unsecureEntity2);
         SecureEntity secureEntity2
-            = (SecureEntity)objectManager.createSecureEntity(Object.class, interceptor, decorator);
+            = (SecureEntity)getObjectManager().createSecureEntity(Object.class, interceptor, decorator);
         final SecureCollection<Object> secureCollection
-            = createSecureCollection(objectManager, secureEntity, secureEntity2);
-        final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
-        testRetain(secureCollection, unsecureCollection, new Runnable() {
+            = createSecureCollection(getObjectManager(), getSecureEntity(), secureEntity2);
+        final Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
+        retain(secureCollection, unsecureCollection, new Runnable() {
             public void run() {
-                secureCollection.retainAll(new SecureSet<Object>(Collections.singleton(unsecureEntity),
-                                                                 Collections.singleton((Object)secureEntity),
-                                                                 objectManager));
+                secureCollection.retainAll(new SecureSet<Object>(Collections.singleton(getUnsecureEntity()),
+                                                                 Collections.singleton((Object)getSecureEntity()),
+                                                                 getObjectManager()));
             }
         });
     }
@@ -264,62 +226,61 @@ public abstract class AbstractSecureCollectionTestCase {
     @Test
     public void retainAllSecureList() {
         Object unsecureEntity2 = new Object();
-        ClassMappingInformation classMapping = mapping.getClassMapping(Object.class);
+        BeanInitializer beanInitializer = getBeanInitializer();
+        AccessManager accessManager = getAccessManager();
+        AbstractSecureObjectManager objectManager = getObjectManager();
+        ClassMappingInformation classMapping = getMapping().getClassMapping(Object.class);
         SecureEntityInterceptor interceptor
             = new SecureEntityInterceptor(beanInitializer, objectManager, unsecureEntity2);
         Decorator<SecureEntity> decorator
             = new SecureEntityDecorator(classMapping, beanInitializer, accessManager, objectManager, unsecureEntity2);
         SecureEntity secureEntity2
-            = (SecureEntity)objectManager.createSecureEntity(Object.class, interceptor, decorator);
+            = (SecureEntity)getObjectManager().createSecureEntity(Object.class, interceptor, decorator);
         final SecureCollection<Object> secureCollection
-            = createSecureCollection(objectManager, secureEntity, secureEntity2);
-        final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
-        testRetain(secureCollection, unsecureCollection, new Runnable() {
+            = createSecureCollection(getObjectManager(), getSecureEntity(), secureEntity2);
+        final Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
+        retain(secureCollection, unsecureCollection, new Runnable() {
             public void run() {
-                secureCollection.retainAll(new SecureList<Object>(Collections.singletonList(unsecureEntity),
-                                                                  Collections.singletonList((Object)secureEntity),
-                                                                  objectManager));
+                secureCollection.retainAll(new SecureList<Object>(Collections.singletonList(getUnsecureEntity()),
+                                                                  Collections.singletonList((Object)getSecureEntity()),
+                                                                  getObjectManager()));
             }
         });
     }
 
     @Test
     public void clear() {
-        final SecureCollection<Object> secureCollection = createSecureCollection(objectManager, secureEntity);
-        final Collection<Object> unsecureCollection = objectManager.getUnsecureObject(secureCollection);
-        testRemove(secureCollection, unsecureCollection, new Runnable() {
+        final SecureCollection<Object> secureCollection = createSecureCollection(getObjectManager(), getSecureEntity());
+        final Collection<Object> unsecureCollection = getObjectManager().getUnsecureObject(secureCollection);
+        remove(secureCollection, unsecureCollection, new Runnable() {
             public void run() {
                 secureCollection.clear();
             }
         });
     }
 
-    protected AbstractSecureObjectManager getObjectManager() {
-        return objectManager;
-    }
-
-    private void testAdd(SecureCollection<Object> secureCollection,
-                         Collection<Object> unsecureCollection,
-                         Runnable addOperation) {
+    protected void add(SecureCollection<Object> secureCollection,
+                       Collection<Object> unsecureCollection,
+                       Runnable addOperation) {
         assertEquals(0, secureCollection.size());
 
         addOperation.run();
 
         assertEquals(1, secureCollection.size());
         assertEquals(0, unsecureCollection.size());
-        assertEquals(secureEntity, secureCollection.iterator().next());
+        assertEquals(getSecureEntity(), secureCollection.iterator().next());
 
         flush(secureCollection);
 
         assertEquals(1, secureCollection.size());
         assertEquals(1, unsecureCollection.size());
-        assertEquals(secureEntity, secureCollection.iterator().next());
-        assertEquals(unsecureEntity, unsecureCollection.iterator().next());
+        assertEquals(getSecureEntity(), secureCollection.iterator().next());
+        assertEquals(getUnsecureEntity(), unsecureCollection.iterator().next());
     }
 
-    private void testRemove(SecureCollection<Object> secureCollection,
-                            Collection<Object> unsecureCollection,
-                            Runnable removeOperation) {
+    protected void remove(SecureCollection<Object> secureCollection,
+                          Collection<Object> unsecureCollection,
+                          Runnable removeOperation) {
         assertEquals(1, secureCollection.size());
         assertEquals(1, unsecureCollection.size());
 
@@ -328,7 +289,7 @@ public abstract class AbstractSecureCollectionTestCase {
         assertEquals(0, secureCollection.size());
         assertEquals(1, unsecureCollection.size());
         assertFalse(secureCollection.iterator().hasNext());
-        assertEquals(unsecureEntity, unsecureCollection.iterator().next());
+        assertEquals(getUnsecureEntity(), unsecureCollection.iterator().next());
 
         flush(secureCollection);
 
@@ -338,9 +299,9 @@ public abstract class AbstractSecureCollectionTestCase {
         assertFalse(unsecureCollection.iterator().hasNext());
     }
 
-    private void testRetain(SecureCollection<Object> secureCollection,
-                            Collection<Object> unsecureCollection,
-                            Runnable retainOperation) {
+    protected void retain(SecureCollection<Object> secureCollection,
+                          Collection<Object> unsecureCollection,
+                          Runnable retainOperation) {
         assertEquals(2, secureCollection.size());
         assertEquals(2, unsecureCollection.size());
 
@@ -348,33 +309,14 @@ public abstract class AbstractSecureCollectionTestCase {
 
         assertEquals(1, secureCollection.size());
         assertEquals(2, unsecureCollection.size());
-        assertEquals(secureEntity, secureCollection.iterator().next());
-        assertTrue(unsecureCollection.contains(unsecureEntity));
+        assertEquals(getSecureEntity(), secureCollection.iterator().next());
+        assertTrue(unsecureCollection.contains(getUnsecureEntity()));
 
         flush(secureCollection);
 
         assertEquals(1, secureCollection.size());
         assertEquals(1, unsecureCollection.size());
-        assertEquals(secureEntity, secureCollection.iterator().next());
-        assertEquals(unsecureEntity, unsecureCollection.iterator().next());
-    }
-
-    private static class ClassMappingAnswer implements IAnswer<ClassMappingInformation> {
-
-        public ClassMappingInformation answer() throws Throwable {
-            ClassMappingInformation classMapping = createMock((Class<?>)getCurrentArguments()[0]);
-            replay(classMapping);
-            return classMapping;
-        }
-
-        private <T> ClassMappingInformation createMock(Class<T> type) {
-            ClassMappingInformation classMapping = EasyMock.createMock(ClassMappingInformation.class);
-            expect(classMapping.<T>getEntityType()).andReturn(type).anyTimes();
-            expect(classMapping.getPropertyMappings())
-                .andReturn(Collections.<PropertyMappingInformation>emptyList()).anyTimes();
-            classMapping.postLoad(anyObject());
-            expectLastCall().anyTimes();
-            return classMapping;
-        }
+        assertEquals(getSecureEntity(), secureCollection.iterator().next());
+        assertEquals(getUnsecureEntity(), unsecureCollection.iterator().next());
     }
 }

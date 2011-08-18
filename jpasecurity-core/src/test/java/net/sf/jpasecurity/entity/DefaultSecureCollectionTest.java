@@ -19,16 +19,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
 
 /**
  * @author Arne Limburg
  */
-public class DefaultSecureCollectionTest extends AbstractSecureCollectionTestCase {
+public class DefaultSecureCollectionTest
+    extends AbstractSecureCollectionTestCase<DefaultSecureCollection<Object, Collection<Object>>> {
 
-    public SecureCollection<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
-                                                           SecureEntity... secureEntities) {
+    public DefaultSecureCollection<Object, Collection<Object>> createSecureCollection(
+                    AbstractSecureObjectManager objectManager,
+                    SecureEntity... secureEntities) {
         List<Object> original = new ArrayList<Object>();
         List<Object> filtered = new ArrayList<Object>();
         for (SecureEntity secureEntity: secureEntities) {

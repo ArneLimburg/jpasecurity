@@ -15,19 +15,106 @@
  */
 package net.sf.jpasecurity.entity;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
 
+import org.junit.Test;
+
 /**
  * @author Arne Limburg
  */
-public class SecureListTest extends AbstractSecureCollectionTestCase {
+public class SecureListTest extends AbstractSecureCollectionTestCase<SecureList<Object>> {
 
-    public SecureCollection<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
-                                                           SecureEntity... secureEntities) {
+    @Test
+    public void set() {
+        AbstractSecureObjectManager objectManager = getObjectManager();
+        SecureList<Object> secureList = createSecureCollection(objectManager);
+        List<Object> unsecureList = objectManager.getUnsecureObject(secureList);
+        secureList.add(null);
+        flush(secureList);
+        assertEquals(1, secureList.size());
+        assertEquals(1, unsecureList.size());
+        assertNull(secureList.iterator().next());
+        assertNull(unsecureList.iterator().next());
+
+        secureList.set(0, getSecureEntity());
+
+        assertEquals(1, secureList.size());
+        assertEquals(1, unsecureList.size());
+        assertEquals(getSecureEntity(), secureList.iterator().next());
+        assertNull(unsecureList.iterator().next());
+
+        flush(secureList);
+
+        assertEquals(1, secureList.size());
+        assertEquals(1, unsecureList.size());
+        assertEquals(getSecureEntity(), secureList.iterator().next());
+        assertEquals(getUnsecureEntity(), unsecureList.iterator().next());
+    }
+
+    @Test
+    public void add() {
+        super.add();
+        final AbstractSecureObjectManager objectManager = getObjectManager();
+        final SecureList<Object> secureList = createSecureCollection(objectManager);
+        final List<Object> unsecureList = objectManager.getUnsecureObject(secureList);
+        assertEquals(objectManager, secureList.getObjectManager());
+        add(secureList, unsecureList, new Runnable() {
+            public void run() {
+                secureList.add(0, getSecureEntity());
+            }
+        });
+
+        secureList.add(0, null);
+        assertEquals(2, secureList.size());
+        assertEquals(1, unsecureList.size());
+        assertNull(secureList.iterator().next());
+        assertEquals(getUnsecureEntity(), unsecureList.iterator().next());
+
+        flush(secureList);
+
+        assertEquals(2, secureList.size());
+        assertEquals(2, unsecureList.size());
+        assertNull(secureList.iterator().next());
+        assertNull(unsecureList.iterator().next());
+    }
+
+    @Test
+    public void addAll() {
+        super.addAll();
+        final AbstractSecureObjectManager objectManager = getObjectManager();
+        final SecureList<Object> secureList = createSecureCollection(objectManager);
+        final List<Object> unsecureList = objectManager.getUnsecureObject(secureList);
+        assertEquals(objectManager, secureList.getObjectManager());
+        add(secureList, unsecureList, new Runnable() {
+            public void run() {
+                secureList.addAll(0, Collections.singletonList(getSecureEntity()));
+            }
+        });
+
+        secureList.addAll(0, Collections.singletonList(null));
+        assertEquals(2, secureList.size());
+        assertEquals(1, unsecureList.size());
+        assertNull(secureList.iterator().next());
+        assertEquals(getUnsecureEntity(), unsecureList.iterator().next());
+
+        flush(secureList);
+
+        assertEquals(2, secureList.size());
+        assertEquals(2, unsecureList.size());
+        assertNull(secureList.iterator().next());
+        assertNull(unsecureList.iterator().next());
+    }
+
+    public SecureList<Object> createSecureCollection(AbstractSecureObjectManager objectManager,
+                                                     SecureEntity... secureEntities) {
         List<Object> original = new ArrayList<Object>();
         List<Object> filtered = new ArrayList<Object>();
         for (SecureEntity secureEntity: secureEntities) {
