@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+  Copyright (C) 2011 Raffaela Ferrari open knowledge GmbH
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      >
+  <h:head>
+    <title>E-learning sample</title>
+  </h:head>
+  <h:body>
+    <f:view>
+      <h:outputStylesheet library="styles" name="style.css"/>
+      
+      <div id="header">
+        <div id="headerImg">
+            <div id="logo">
+              <h:outputLink value="index.xhtml">
+                <h:graphicImage library="images" name="ok-logo.png" alt="open knowledge" style="width:70%"/>
+              </h:outputLink>
+            </div>
+            <div id="titel">
+                E-Learning Platform
+            </div>
+        </div>
+      </div>
+      
+      <div id="content">
+      <h1 id="loginTitel">Welcome to the E-learning sample application</h1>
+        <h:form id="loginForm" prependId="false">
+            <h:outputLabel value="Username:" for="login"/>
+            <h:inputText id="login" value="#{authenticationBean.login}" tabindex="101"/>
+            <h:message for="login" errorClass="contenthlerror"/>
+            <br class="clearBr" />
+            <h:outputLabel value="Password:" for="password"/>
+            <h:inputSecret id="password" value="#{authenticationBean.password}" tabindex="101"/>
+            <h:message for="password" errorClass="contenthlerror"/>
+            <br />
+            <h:panelGroup layout="block" prpendId="false" id="buttons">
+              <h:commandButton id="cancel" value="cancel" action="#{authenticationBean.cancel}" styleClass="submit"/>
+              <h:commandButton id="loginButton" value="login" action="#{authenticationBean.login}" styleClass="submit" />
+            </h:panelGroup>
+        </h:form>
+      </div>
+      
+      <div id="footer">
+        <ui:insert name="footer">
+          <ui:include src="footer.xhtml" />
+        </ui:insert>
+      </div>
+    </f:view>
+  </h:body>
+</html>

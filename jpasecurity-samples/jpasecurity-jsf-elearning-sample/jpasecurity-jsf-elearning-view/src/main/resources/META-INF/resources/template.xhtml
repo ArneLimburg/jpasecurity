@@ -18,24 +18,29 @@
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets">
-  <h:head>
-    <title>Available courses</title>
-  </h:head>
-  <h:body>
-    <ui:composition template="/template.xhtml">
-      <ui:define name="content">
-        <h1>Available courses</h1>
-        <ul>
-          <ui:repeat var="course" value="#{courseRepository.allCourses}">
-            <li>
-              <h:outputLink value="course.xhtml" >
-                <f:param name="id" value="#{course.id}" />
-                <h:outputText value="#{course.name}" />
-              </h:outputLink>
-           </li>
-          </ui:repeat>
-        </ul>
-      </ui:define>
-    </ui:composition>
-  </h:body>
+    <h:head id="head">
+        <title><ui:insert name="title">E-Learning Platform</ui:insert></title>
+
+    </h:head>
+    <h:body>
+        <f:view>
+            <h:outputStylesheet library="styles" name="style.css"/>
+            <div id="header">
+                <ui:insert name="header">
+                    <ui:include src="header.xhtml" />
+                </ui:insert>
+            </div>
+
+            <div id="content">
+                <ui:insert name="content">No content available</ui:insert>
+            </div>
+
+            <div id="footer">
+                <ui:insert name="footer">
+                    <ui:include src="footer.xhtml" />
+                </ui:insert>
+            </div>
+
+        </f:view>
+    </h:body>
 </html>

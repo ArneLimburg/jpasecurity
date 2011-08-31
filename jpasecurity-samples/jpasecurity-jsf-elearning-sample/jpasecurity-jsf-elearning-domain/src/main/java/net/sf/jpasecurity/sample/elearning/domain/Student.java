@@ -15,12 +15,33 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author Arne Limburg
  */
-public interface Student extends Entity {
+public class Student extends User {
 
-    List<Course> getCourses();
+    private List<Course> courses = new LinkedList<Course>();
+
+    public Student() {
+        super();
+    }
+
+    public Student(int id, String name, String username, String password) {
+        super(id, name, username, password);
+    }
+
+    public List<Course> getCourses() {
+        return courses;
+    }
+
+    public void addCourse(Course course) {
+        this.courses.add(course);
+    }
+
+    public void removeCourse(Course course) {
+        this.courses.remove(course);
+    }
 }

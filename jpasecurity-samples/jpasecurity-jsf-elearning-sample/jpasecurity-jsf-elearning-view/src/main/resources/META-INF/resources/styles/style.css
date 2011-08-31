@@ -1,0 +1,178 @@
+* {
+    margin : 0;
+    padding : 0;
+    border : 0;
+    outline : 0;
+    font-size : 100%;
+    vertical-align : baseline;
+    background : transparent
+}
+body {
+    width : 960px;
+    margin : 0 auto;
+    position : relative;
+    /* background : rgb(255, 255, 255);*/
+    color : rgb(64, 64, 64);
+    line-height : 1;
+    font : normal normal normal 16px / 1em Arial, "Helvetica Neue", Helvetica, sans-serif
+}
+
+label {
+    display : block;
+    height : 22px;
+    width : 100px;
+    padding : 0 1em 0 0;
+    font-size : .8em;
+    font-weight : bold;
+    line-height : 32px;
+    text-align : right;
+    float : left
+}
+
+#content input[type = "submit"] {
+    background : rgb(160, 160, 160);
+    margin-right : 1.2em;
+    padding : .5em 1em;
+    color : rgb(255, 255, 255);
+    font : normal normal bold .8em / 1em Arial, Helvetica, sans-serif;
+    border : none
+}
+#content input[type = "text"],
+#content input[type = "password"] {
+    height : 22px;
+    width : 300px;
+    padding : .25em .25em .25em .35em;
+    font : normal normal normal 1em / 1.5em Arial, Helvetica, sans-serif;
+    border : 1px solid rgb(160, 160, 160);
+    margin : 0.25em 0.5em;
+}
+
+#content input[type = "submit"]:hover,
+input.submit:hover{
+    background : rgb(0, 175, 240);
+    cursor : pointer
+}
+
+a{
+    color : rgb(0, 175, 240);
+    text-decoration : none;
+    border-bottom : 1px solid rgb(0, 175, 240)
+}
+
+a:hover,{
+    background : rgb(0, 175, 240);
+    color : rgb(255, 255, 255);
+}
+
+.textsmall {
+    font : 70% / 1.2 verdana, arial, helvetica, sans-serif;
+}
+
+.texterror {
+    color : red;
+    margin-left : 1em;
+}
+
+#header {
+    border-bottom : 2px solid rgb(160, 160, 160);
+}
+
+#header #headerImg #logo{
+    margin-top:20px;
+    float:right;
+    width : 313px;
+    height : 111px;
+}
+#header #headerImg #titel {
+    color : rgb(38,38,38);
+    font-size : 1em;
+    line-height : 1em;
+    text-transform : uppercase;
+    padding : 0 0 0 40px;
+    float:left;
+    margin-top:40px;
+}
+#header #headerImg #titel:first-letter {
+    color : rgb(0, 175, 240);
+    font-weight : bold
+}
+#header #headerMenu {
+	clear:both;
+    border-top : 7px solid rgb(160, 160, 160);
+    float : left;
+    margin-top : 8px;
+    padding : 1.55em 0;
+    width: 100%;
+}
+#header #headerMenu label{
+	line-height : normal; 
+	float :left;
+}
+#header #headerMenu a {
+    margin-left : 5px;
+    float:left;
+}
+#messages {
+    margin-top : 20px;
+    border-top : 7px solid rgb(160, 160, 160);
+}
+.errormessages {
+    float : left;
+    margin : 10px 0 20px 10px;
+}
+.errormessages li {
+    background : url(images/list-bullet-blue.1290081156.png) no-repeat 0 4px;
+    margin : 0 0 1em 1em;
+    padding : 0 0 0 1.25em;
+    list-style-type : none
+}
+.errormessages li:last-child {
+    margin : 0 0 0 1em;
+}
+
+#footer {
+    width : 960px;
+    margin : 50px 0 0 0;
+    font-size : .75em;
+    border-top : 1px solid rgb(160, 160, 160)
+}
+#footer a {
+    padding : .15em;
+    border : none
+}
+#footerLeft,
+#footerRight {
+    display : block;
+    padding : 1em 0 1em 1em;
+}
+
+#loginTitel{
+	margin: 1em 0 2em 0;
+	text-align : center;
+}
+
+#loginForm input.submit {
+    background : rgb(160, 160, 160);
+    margin-right : 1.2em;
+    padding : .5em 1em;
+    color : rgb(255, 255, 255);
+    font : normal normal bold .8em / 1emArial, Helvetica, sans-serif;
+    border : none
+}
+
+#buttons{
+	margin-left: 3em;
+}
+h1{
+	font-size : 1.75em;
+	margin : 0.25em 0 1em 0;
+}
+
+h2{
+	font-size : 1.5em;
+	margin : 0.25em 0 0.5em 0;
+}	
+
+li{
+	margin : 0.25em 0;
+}
