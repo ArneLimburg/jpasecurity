@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 Raffaela Ferrari open knowledge GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.service;
 
+/**
+ * @author Raffaela Ferrari
+ */
 public class UserNotFoundException extends Exception {
 
     public UserNotFoundException() {
