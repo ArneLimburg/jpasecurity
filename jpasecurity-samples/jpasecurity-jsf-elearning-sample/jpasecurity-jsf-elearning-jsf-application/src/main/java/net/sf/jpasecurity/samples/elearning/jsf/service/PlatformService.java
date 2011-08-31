@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 Raffaela Ferrari open knowledge GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,9 @@ import net.sf.jpasecurity.sample.elearning.domain.Platform;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 
+/**
+ * @author Raffaela Ferrari
+ */
 public interface PlatformService {
 
     Platform getPlatform();

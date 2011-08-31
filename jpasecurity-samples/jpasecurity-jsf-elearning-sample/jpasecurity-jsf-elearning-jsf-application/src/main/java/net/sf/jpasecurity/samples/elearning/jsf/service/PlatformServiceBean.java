@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 Raffaela Ferrari open knowledge GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,9 @@ import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @author Raffaela Ferrari
+ */
 @ManagedBean
 @ApplicationScoped
 public class PlatformServiceBean implements PlatformService, Serializable {
