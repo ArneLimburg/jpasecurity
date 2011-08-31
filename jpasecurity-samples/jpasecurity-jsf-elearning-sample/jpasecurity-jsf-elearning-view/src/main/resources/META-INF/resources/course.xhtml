@@ -28,15 +28,15 @@
 
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
+       <h1 id="courseTitle">#{course.name}</h1>
        <h:panelGroup rendered="#{authenticationBean.authenticatedStudent and !course.studentInCourse}">
-        <h1>#{course.name}</h1>
-           <h:form>
+           <h:form id="joinForm" prependId="false">
              <h:commandButton id="join" value="join this course" action="#{course.addStudentToCourse}" styleClass="submit"/>   
            </h:form>
        </h:panelGroup>
        
        <h:panelGroup rendered="#{authenticationBean.authenticatedStudent and course.studentInCourse}">
-           <h:form>
+           <h:form id="leaveForm" prependId="false">
              <h:commandButton id="leave" value="leave this course" action="#{course.removeStudentToCourse}" styleClass="submit"/>   
            </h:form>    
        </h:panelGroup>

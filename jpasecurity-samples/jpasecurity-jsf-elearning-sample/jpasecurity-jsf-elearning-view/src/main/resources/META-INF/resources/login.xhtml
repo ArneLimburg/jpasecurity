@@ -26,7 +26,7 @@
     <f:view>
       <h:outputStylesheet library="styles" name="style.css"/>
       
-      <div id="header">
+      <div id="loginHeader">
         <div id="headerImg">
             <div id="logo">
               <h:outputLink value="index.xhtml">
@@ -41,7 +41,8 @@
       
       <div id="content">
       <h1 id="loginTitel">Welcome to the E-learning sample application</h1>
-        <h:form id="loginForm" prependId="false">
+        <h:panelGroup layout="block" id="loginForm">
+          <h:form  prependId="false">
             <h:outputLabel value="Username:" for="login"/>
             <h:inputText id="login" value="#{authenticationBean.login}" tabindex="101"/>
             <h:message for="login" errorClass="contenthlerror"/>
@@ -50,11 +51,12 @@
             <h:inputSecret id="password" value="#{authenticationBean.password}" tabindex="101"/>
             <h:message for="password" errorClass="contenthlerror"/>
             <br />
-            <h:panelGroup layout="block" prpendId="false" id="buttons">
+            <h:panelGroup layout="block" id="buttons">
               <h:commandButton id="cancel" value="cancel" action="#{authenticationBean.cancel}" styleClass="submit"/>
               <h:commandButton id="loginButton" value="login" action="#{authenticationBean.login}" styleClass="submit" />
             </h:panelGroup>
-        </h:form>
+          </h:form>
+        </h:panelGroup>
       </div>
       
       <div id="footer">

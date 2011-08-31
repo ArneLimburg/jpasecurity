@@ -11,7 +11,6 @@ body {
     width : 960px;
     margin : 0 auto;
     position : relative;
-    /* background : rgb(255, 255, 255);*/
     color : rgb(64, 64, 64);
     line-height : 1;
     font : normal normal normal 16px / 1em Arial, "Helvetica Neue", Helvetica, sans-serif
@@ -22,16 +21,24 @@ label {
     height : 22px;
     width : 100px;
     padding : 0 1em 0 0;
-    font-size : .8em;
+    font-size : .9em;
     font-weight : bold;
     line-height : 32px;
     text-align : right;
     float : left
 }
+#content {	
+	margin-top : 10px;
+	clear : both;
+}
+
+#loginHeader + #content {
+	border-top : 7px solid rgb(160, 160, 160);
+}
 
 #content input[type = "submit"] {
     background : rgb(160, 160, 160);
-    margin-right : 1.2em;
+    margin : 0.25em 0.5em;
     padding : .5em 1em;
     color : rgb(255, 255, 255);
     font : normal normal bold .8em / 1em Arial, Helvetica, sans-serif;
@@ -39,7 +46,7 @@ label {
 }
 #content input[type = "text"],
 #content input[type = "password"] {
-    height : 22px;
+
     width : 300px;
     padding : .25em .25em .25em .35em;
     font : normal normal normal 1em / 1.5em Arial, Helvetica, sans-serif;
@@ -59,11 +66,16 @@ a{
     border-bottom : 1px solid rgb(0, 175, 240)
 }
 
-a:hover,{
+a:hover{
     background : rgb(0, 175, 240);
     color : rgb(255, 255, 255);
 }
 
+#logo a,
+#logo a:hover {
+	border : none;
+	background : transparent;
+}
 .textsmall {
     font : 70% / 1.2 verdana, arial, helvetica, sans-serif;
 }
@@ -72,46 +84,65 @@ a:hover,{
     color : red;
     margin-left : 1em;
 }
-
 #header {
-    border-bottom : 2px solid rgb(160, 160, 160);
+	height : 10.5em;
 }
-
-#header #headerImg #logo{
-    margin-top:20px;
-    float:right;
+#headerImg #logo{
+    margin-top : 20px;
+    float : right;
     width : 313px;
-    height : 111px;
+    padding-bottom : 8px;
+
 }
-#header #headerImg #titel {
+#headerImg #titel {
     color : rgb(38,38,38);
     font-size : 1em;
     line-height : 1em;
     text-transform : uppercase;
     padding : 0 0 0 40px;
-    float:left;
-    margin-top:40px;
-}
-#header #headerImg #titel:first-letter {
+    float : left;
+    margin-top : 40px;
+} 
+#headerImg #titel:first-letter {
     color : rgb(0, 175, 240);
     font-weight : bold
 }
-#header #headerMenu {
-	clear:both;
+#headerLeft {
     border-top : 7px solid rgb(160, 160, 160);
-    float : left;
+    border-bottom : 2px solid rgb(160, 160, 160);
     margin-top : 8px;
-    padding : 1.55em 0;
-    width: 100%;
+    float : left;
+    padding : 1em 0;
+    width : 50%;
+    clear : both;
+    text-align : left;
 }
-#header #headerMenu label{
-	line-height : normal; 
-	float :left;
+#headerRight{
+    border-top : 7px solid rgb(160, 160, 160);
+    border-bottom : 2px solid rgb(160, 160, 160);
+    margin-top : 8px;
+    float : right;
+    padding : 1em 0;
+    width : 50%;
+    text-align : right;
 }
-#header #headerMenu a {
+
+#headerRight form {
     margin-left : 5px;
-    float:left;
+    margin-left
+    width : 50px;
+    float : right;
 }
+
+#headerRight label{
+	display : inline;
+	line-height : normal; 
+	font-size : inherit;
+	text-align : right;
+	width : auto;
+	height : auto;
+}
+
 #messages {
     margin-top : 20px;
     border-top : 7px solid rgb(160, 160, 160);
@@ -147,32 +178,60 @@ a:hover,{
 }
 
 #loginTitel{
-	margin: 1em 0 2em 0;
+	margin : 1em 0 2em 0;
 	text-align : center;
 }
 
+#loginForm{
+	width : 500px;
+	margin : auto;
+}
 #loginForm input.submit {
     background : rgb(160, 160, 160);
-    margin-right : 1.2em;
+    margin-right :0.5em;
     padding : .5em 1em;
+    margin-top: 0.25em;
     color : rgb(255, 255, 255);
     font : normal normal bold .8em / 1emArial, Helvetica, sans-serif;
     border : none
 }
 
 #buttons{
-	margin-left: 3em;
+	margin-left : 7.22em;
+	width : auto;
 }
+#leaveForm #leave,
+#joinForm #join{
+	float : right;
+	margin-top : 2em;
+}
+
 h1{
 	font-size : 1.75em;
-	margin : 0.25em 0 1em 0;
+	margin : 1em 0 0.5em 0;
 }
 
 h2{
-	font-size : 1.5em;
-	margin : 0.25em 0 0.5em 0;
+	clear : both;
+	font-size : 1.25em;
+	line-height : 1.75em;
+	margin : 0.5em 0 0.25em 0;
 }	
 
 li{
-	margin : 0.25em 0;
+	margin : 0.25em 0 0.25em 0em;
+	padding : 0 0 0 1em;
+	background : url(../images/list-bullet-blue.1290081156.png) no-repeat 0 4px;
+	list-style : none;
+}
+#courseform label {
+	text-align : left;
+}
+
+#courseform input.submit {
+	margin-top : -1em;
+}
+#courseTitle {
+	float : left;
+	width: 80%;
 }

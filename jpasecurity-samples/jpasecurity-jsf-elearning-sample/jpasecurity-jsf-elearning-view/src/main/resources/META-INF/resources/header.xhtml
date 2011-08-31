@@ -33,12 +33,16 @@
                     E-Learning Platform
                 </div>
             </div>
-            <div id="headerMenu">
-                <h:outputLabel for="userName" value="User:"/>
-                <h:outputText id="userName" value="#{authenticationBean.currentUser.name}" rendered="#{authenticationBean.authenticated}"/>
+            <div id="headerLeft">
+                <h:form>
+                    <h:commandLink action="index.xhtml" value="Index"/>
+                </h:form>
+            </div>
+            <div id="headerRight">
                 <h:form>
                     <h:commandLink action="#{authenticationBean.logout}" value="(logout)" rendered="#{authenticationBean.authenticated}"/>
                 </h:form>
+                <h:outputText id="userName" value="#{authenticationBean.currentUser.name}" rendered="#{authenticationBean.authenticated}"/>
             </div>
         </ui:composition>
     </body>
