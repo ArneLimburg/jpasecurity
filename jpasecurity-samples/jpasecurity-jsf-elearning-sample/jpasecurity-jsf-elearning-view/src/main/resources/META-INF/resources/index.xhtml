@@ -29,17 +29,20 @@
     </f:metadata>
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
-        <h1>Available courses</h1>
-        <ul>
-          <ui:repeat var="c" value="#{platform.courses}" rendered="#{authenticationBean.authenticatedStudent}">
-            <li>
-              <h:outputLink value="course.xhtml" >
-                <f:param name="id" value="#{c.id}" />
-                <h:outputText value="#{c.name}" />
-              </h:outputLink>
-           </li>
-          </ui:repeat>
-        </ul>
+      
+        <h:panelGroup rendered="#{authenticationBean.authenticatedStudent}">
+          <h1>Available courses</h1>
+          <ul>
+            <ui:repeat var="c" value="#{platform.courses}">
+              <li>
+                <h:outputLink value="course.xhtml" >
+                  <f:param name="id" value="#{c.id}" />
+                  <h:outputText value="#{c.name}" />
+                </h:outputLink>
+              </li>
+            </ui:repeat>
+          </ul>
+        </h:panelGroup>
         
         <h1>My courses</h1>
         <ul>
@@ -54,8 +57,8 @@
         </ul>
         
         <h:panelGroup rendered="#{authenticationBean.authenticatedTeacher}">
-          <h1>Create new Course</h1>
-          <h:form>
+          <h1>Create new course</h1>
+          <h:form id="courseform" prependId="false">
             <h:outputLabel value="Coursename:" for="coursename"/>
             <h:inputText id="coursename" value="#{course.coursename}" tabindex="101"/>
             <h:message for="coursename" errorClass="contenthlerror" /> 
