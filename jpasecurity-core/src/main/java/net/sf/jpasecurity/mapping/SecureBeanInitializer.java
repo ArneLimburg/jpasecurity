@@ -22,7 +22,7 @@ import net.sf.jpasecurity.SecureEntity;
  */
 public class SecureBeanInitializer implements BeanInitializer {
 
-    public Object initialize(Object bean) {
+    public <T> T initialize(T bean) {
         if ((bean instanceof SecureEntity) && !((SecureEntity)bean).isInitialized()) {
             ((SecureEntity)bean).refresh();
         }

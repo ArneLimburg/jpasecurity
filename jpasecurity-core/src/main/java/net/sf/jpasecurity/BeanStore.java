@@ -33,7 +33,10 @@ public interface BeanStore extends BeanLoader {
 
     void remove(Object unsecureEntity);
 
+    void detach(Object bean);
+
     <B> B getReference(Class<B> entityType, Object id);
 
     <B> B find(Class<B> entityType, Object id);
+
 }

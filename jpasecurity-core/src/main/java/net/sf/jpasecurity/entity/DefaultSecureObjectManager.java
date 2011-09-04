@@ -52,9 +52,9 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
     private Map<SystemMapKey, Object> unsecureEntities = new HashMap<SystemMapKey, Object>();
 
     public DefaultSecureObjectManager(MappingInformation mappingInformation,
-                           BeanStore beanStore,
-                           AccessManager accessManager,
-                           Configuration configuration) {
+                                      BeanStore beanStore,
+                                      AccessManager accessManager,
+                                      Configuration configuration) {
         super(mappingInformation, beanStore, accessManager, configuration);
         this.beanStore = beanStore;
     }
@@ -120,6 +120,13 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
             setRemoved((SecureEntity)entity);
         }
         beanStore.remove(unsecureEntity);
+    }
+
+    public void detach(Object secureBean) {
+        Object unsecureBean = getUnsecureObject(secureBean);
+        unsecureEntities.remove(new SystemMapKey(secureBean));
+        secureEntities.remove(new SystemMapKey(unsecureBean));
+        beanStore.detach(unsecureBean);
     }
 
     public <P extends Parameterizable> P setParameter(P parameterizable, int index, Object value) {

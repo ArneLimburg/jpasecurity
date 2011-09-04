@@ -30,10 +30,10 @@ public class OpenJpaBeanInitializer implements BeanInitializer {
         next = wrapped;
     }
 
-    public Object initialize(Object bean) {
+    public <T> T initialize(T bean) {
         bean = next.initialize(bean);
         if (bean instanceof Proxy) {
-            bean = ((Proxy)bean).copy(bean);
+            bean = (T)((Proxy)bean).copy(bean);
         }
         return bean;
     }

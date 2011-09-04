@@ -74,6 +74,18 @@ public class DefaultSecureObjectCache extends DefaultSecureObjectManager {
         return getSecureEntity(beanStore.getReference(type, id), id);
     }
 
+    public void detach(Object secureBean) {
+        if (secureBean instanceof SecureEntity) {
+            ClassMappingInformation classMapping = getClassMapping(secureBean.getClass());
+            Map<Object, SecureEntity> entities = secureEntities.get(classMapping);
+            if (entities != null) {
+                Object id = getIdentifier(secureBean);
+                entities.remove(id);
+            }
+        }
+        super.detach(secureBean);
+    }
+
     public <E> E getSecureObject(E unsecureObject) {
         if (unsecureObject == null) {
             return null;
