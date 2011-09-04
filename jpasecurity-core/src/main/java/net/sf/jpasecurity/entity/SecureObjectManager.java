@@ -30,6 +30,7 @@ public interface SecureObjectManager extends SecureObjectCache, SecureObjectLoad
     void refresh(Object entity);
     void lock(Object entity, LockModeType lockMode);
     void remove(Object entity);
+    void detach(Object entity);
     <P extends Parameterizable> P setParameter(P parameterizable, int index, Object value);
     <P extends Parameterizable> P setParameter(P parameterizable, String name, Object value);
     <P extends Parameterizable, T> P setParameter(P parameterizable, Parameter<T> parameter, T value);

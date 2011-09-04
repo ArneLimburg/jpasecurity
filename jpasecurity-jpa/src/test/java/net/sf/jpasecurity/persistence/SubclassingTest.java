@@ -16,6 +16,8 @@
 package net.sf.jpasecurity.persistence;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -44,8 +46,11 @@ public class SubclassingTest {
         factory = Persistence.createEntityManagerFactory("subclassing-test");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
-        entityManager.persist(new TestBean());
-        entityManager.persist(new TestBeanSubclass(USER));
+        TestBean testBean = new TestBean();
+        entityManager.persist(testBean);
+        TestBeanSubclass testBeanSubclass = new TestBeanSubclass(USER);
+        entityManager.persist(testBeanSubclass);
+        testBean.setParent(testBeanSubclass);
         entityManager.getTransaction().commit();
         entityManager.close();
         TestAuthenticationProvider.authenticate(null);
@@ -64,6 +69,18 @@ public class SubclassingTest {
         TestAuthenticationProvider.authenticate(USER);
         assertEquals(2, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
         entityManager.getTransaction().commit();
+        entityManager.close();
+    }
+
+    @Test
+    public void loadingOfRelatedSubclass() {
+        TestAuthenticationProvider.authenticate(USER);
+        EntityManager entityManager = factory.createEntityManager();
+        TestBean child
+            = entityManager.createQuery("SELECT bean FROM TestBean bean WHERE bean.parent IS NOT NULL", TestBean.class)
+                .getSingleResult();
+        assertFalse(child.getParent() instanceof TestBeanSubclass);
+        assertTrue(entityManager.find(TestBean.class, child.getParent().getId()) instanceof TestBeanSubclass);
         entityManager.close();
     }
 }

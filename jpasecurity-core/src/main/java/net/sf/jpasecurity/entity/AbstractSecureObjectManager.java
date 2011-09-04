@@ -141,7 +141,7 @@ public abstract class AbstractSecureObjectManager {
     abstract <T> T createUnsecureObject(T secureObject);
 
     void secureCopy(Object unsecureObject, Object secureObject) {
-        ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
+        ClassMappingInformation classMapping = getClassMapping(secureObject.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
             Object value = propertyMapping.getPropertyValue(unsecureObject);
             if (propertyMapping.isRelationshipMapping()) {
@@ -156,7 +156,7 @@ public abstract class AbstractSecureObjectManager {
             return;
         }
         boolean modified = false;
-        final ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
+        final ClassMappingInformation classMapping = getClassMapping(secureObject.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
             if (propertyMapping.isIdProperty() || propertyMapping.isVersionProperty()) {
                 continue; //don't change id or version property

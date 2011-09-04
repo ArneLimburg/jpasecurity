@@ -138,9 +138,20 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         secureObjectManager.postFlush();
     }
 
+    public void detach(Object entity) {
+        secureObjectManager.detach(entity);
+    }
+
     public <T> T find(Class<T> type, Object id) {
         secureObjectManager.preFlush();
         T entity = super.find(type, id);
+
+        //bean already should be initialized by spec,
+        //but hibernate sometimes returns an initialized proxy of wrong type
+        //beanInitializer.initialize always returns an object of correct type
+        BeanInitializer beanInitializer = configuration.getBeanInitializer();
+        entity = beanInitializer.initialize(entity);
+
         secureObjectManager.postFlush();
         if (entity == null) {
             return null;
@@ -150,6 +161,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
         entity = secureObjectManager.getSecureObject(entity);
         if (entity instanceof SecureEntity) {
+            configuration.getBeanInitializer().initialize(entity);
             SecureEntity secureEntity = (SecureEntity)entity;
             if (!secureEntity.isInitialized()) {
                 secureEntity.refresh();

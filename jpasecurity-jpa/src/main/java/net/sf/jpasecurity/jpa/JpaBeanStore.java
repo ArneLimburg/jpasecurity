@@ -75,4 +75,8 @@ public class JpaBeanStore implements BeanStore {
     public void remove(Object bean) {
         entityManager.remove(bean);
     }
+
+    public void detach(Object bean) {
+        entityManager.detach(bean);
+    }
 }

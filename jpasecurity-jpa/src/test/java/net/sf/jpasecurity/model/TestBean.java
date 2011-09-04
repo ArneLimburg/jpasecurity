@@ -21,6 +21,7 @@ import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -40,7 +41,7 @@ public class TestBean {
     private Integer id;
     @Basic
     private String name;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private TestBean parent;
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<TestBean> children = new ArrayList<TestBean>();

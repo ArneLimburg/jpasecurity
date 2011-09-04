@@ -23,6 +23,6 @@ public interface BeanInitializer {
     /**
      * Returns the initialized instance of the specified bean
      */
-    Object initialize(Object bean);
+    <T> T initialize(T bean);
 
 }
