@@ -150,7 +150,6 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         //but hibernate sometimes returns an initialized proxy of wrong type
         //beanInitializer.initialize always returns an object of correct type
         BeanInitializer beanInitializer = configuration.getBeanInitializer();
-        entity = beanInitializer.initialize(entity);
 
         secureObjectManager.postFlush();
         if (entity == null) {
@@ -159,6 +158,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         if (!isAccessible(READ, entity)) {
             throw new SecurityException("The current user is not permitted to find the specified entity of type " + entity.getClass());
         }
+        entity = beanInitializer.initialize(entity);
         entity = secureObjectManager.getSecureObject(entity);
         if (entity instanceof SecureEntity) {
             configuration.getBeanInitializer().initialize(entity);
