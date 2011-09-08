@@ -24,7 +24,7 @@ import javax.faces.bean.SessionScoped;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
-import net.sf.jpasecurity.samples.elearning.jsf.service.PlatformService;
+import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
 
 /**
  * @author Raffaela Ferrari
@@ -33,14 +33,13 @@ import net.sf.jpasecurity.samples.elearning.jsf.service.PlatformService;
 @SessionScoped
 public class TeacherBean extends UserBean {
 
-    @ManagedProperty(value = "#{platformServiceBean}")
-    private PlatformService platformService;
+    @ManagedProperty(value = "#{elearningRepository}")
+    private ElearningRepository elearningRepository;
 
     private Teacher teacher;
-    private List<Course> courses;
 
     public void setId(int id) {
-        this.teacher = platformService.findTeacherById(id);
+        this.teacher = elearningRepository.findTeacherById(id);
     }
 
     public int getId() {
@@ -59,8 +58,8 @@ public class TeacherBean extends UserBean {
         return teacher.getCourses();
     }
 
-    public void setPlatformService(PlatformService platformService) {
-        this.platformService = platformService;
+    public void setElearningRepository(ElearningRepository elearningRepository) {
+        this.elearningRepository = elearningRepository;
     }
 
     @PostConstruct

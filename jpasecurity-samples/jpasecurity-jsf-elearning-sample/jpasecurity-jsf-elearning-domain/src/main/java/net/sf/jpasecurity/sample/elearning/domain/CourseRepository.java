@@ -13,24 +13,13 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.samples.elearning.jsf.presentation;
+package net.sf.jpasecurity.sample.elearning.domain;
 
-import javax.faces.bean.ManagedBean;
+import java.util.List;
 
-/**
- * @author Raffaela Ferrari
- */
-@ManagedBean(name = "user")
-public class UserBean {
+public interface CourseRepository {
 
-    private String password;
-    private String username;
+    Course findCourseById(int id);
 
-    public String getPassword() {
-        return password;
-    }
-
-    public String getUserName() {
-        return username;
-    }
+    List<Course> findAllCourses();
 }

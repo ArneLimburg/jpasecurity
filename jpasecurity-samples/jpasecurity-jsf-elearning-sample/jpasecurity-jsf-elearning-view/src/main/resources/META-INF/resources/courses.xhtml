@@ -26,7 +26,7 @@
       <ui:define name="content">
         <h1>Available courses</h1>
         <ul>
-          <ui:repeat var="course" value="#{courseRepository.allCourses}">
+          <ui:repeat var="course" value="#{platform.courses}">
             <li>
               <h:outputLink value="course.xhtml" >
                 <f:param name="id" value="#{course.id}" />

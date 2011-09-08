@@ -15,43 +15,24 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
-import java.util.List;
-
 /**
  * @author Raffaela Ferrari
  */
-public abstract class User extends Entity {
+public class UserNotFoundException extends Exception {
 
-    private String username;
-    private String password;
-
-    public User() {
+    public UserNotFoundException() {
         super();
     }
 
-    public User(int id, String name, String username, String password) {
-        super(id, name);
-        this.username = username;
-        this.password = password;
+    public UserNotFoundException(String message) {
+        super(message);
     }
 
-    public String getPassword() {
-        return this.password;
+    public UserNotFoundException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public UserNotFoundException(Throwable cause) {
+        super(cause);
     }
-
-    public String getUsername() {
-        return this.username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public abstract List<Course> getCourses();
-
-    public abstract void addCourse(Course course);
 }

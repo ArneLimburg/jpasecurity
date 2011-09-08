@@ -16,7 +16,6 @@
 package net.sf.jpasecurity.samples.elearning.jsf.service;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -25,9 +24,14 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
+import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Platform;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
+import net.sf.jpasecurity.sample.elearning.domain.StudentRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
+import net.sf.jpasecurity.sample.elearning.domain.TeacherRepository;
+import net.sf.jpasecurity.sample.elearning.domain.UserNotFoundException;
+import net.sf.jpasecurity.sample.elearning.domain.UserService;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,9 +39,9 @@ import java.util.logging.Logger;
 /**
  * @author Raffaela Ferrari
  */
-@ManagedBean
+@ManagedBean(name = "elearningRepository")
 @ApplicationScoped
-public class PlatformServiceBean implements PlatformService, Serializable {
+public class ElearningRepository implements CourseRepository, StudentRepository, TeacherRepository, Serializable {
 
     private Platform platform;
     @ManagedProperty(value = "#{userServiceBean}")
@@ -54,48 +58,8 @@ public class PlatformServiceBean implements PlatformService, Serializable {
         return newId;
     }
 
-    public Course addCourse(Course course) {
-        Course newCourse = course;
-        Platform platform = getPlatform();
-        platform.getCourses().add(newCourse);
-        return newCourse;
-    }
-
-    public List<Course> findCoursesByStudent(String studentName) {
-        List<Course> matchingCourses = new ArrayList<Course>();
-        if (studentName == null || studentName.trim().length() == 0) {
-            matchingCourses.addAll(platform.getCourses());
-        } else {
-            List<Course> courses = platform.getCourses();
-            for (Course course : courses) {
-                List<Student> courseStudents = course.getParticipants();
-                for (Student student : courseStudents) {
-                    if (student.getUsername().equals(studentName)) {
-                        matchingCourses.add(course);
-                    }
-                }
-            }
-        }
-        return matchingCourses;
-    }
-
-    public List<Course> findCoursesByTeacher(String teacherName) {
-        List<Course> matchingCourses = new ArrayList<Course>();
-        if (teacherName == null || teacherName.trim().length() == 0) {
-            matchingCourses.addAll(platform.getCourses());
-        } else {
-            List<Course> courses = platform.getCourses();
-            for (Course course : courses) {
-                if (course.getTeacher().getUsername().equals(teacherName)) {
-                    matchingCourses.add(course);
-                }
-            }
-        }
-        return matchingCourses;
-    }
-
     public Course findCourseById(int id) {
-        List<Course> courses = platform.getCourses();
+        List<Course> courses = findAllCourses();
         for (Course course : courses) {
             if (course.getId() == id) {
                 return course;
@@ -122,6 +86,18 @@ public class PlatformServiceBean implements PlatformService, Serializable {
             }
         }
         return null;
+    }
+
+    public List<Course> findAllCourses() {
+        return platform.getCourses();
+    }
+
+    public List<Student> findAllStudents() {
+        return platform.getStudents();
+    }
+
+    public List<Teacher> findAllTeachers() {
+        return platform.getTeachers();
     }
 
     public void setUserService(UserService userservice) {
@@ -171,12 +147,8 @@ public class PlatformServiceBean implements PlatformService, Serializable {
             teacher4Course.addParticipant(marie);
             teacher4Course.addParticipant(lisa);
             teacher4Course.addParticipant(anne);
-            platform.getCourses().add(teacherCourse);
-            platform.getCourses().add(teacher2Course);
-            platform.getCourses().add(teacher3Course);
-            platform.getCourses().add(teacher4Course);
         } catch (UserNotFoundException ex) {
-            Logger.getLogger(PlatformServiceBean.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ElearningRepository.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

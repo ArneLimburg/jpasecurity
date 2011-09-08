@@ -17,89 +17,63 @@ package net.sf.jpasecurity.samples.elearning.jsf.presentation;
 
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
-import net.sf.jpasecurity.sample.elearning.domain.Platform;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
-import net.sf.jpasecurity.samples.elearning.jsf.service.PlatformService;
+import net.sf.jpasecurity.sample.elearning.domain.User;
+import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
 
 /**
  * @author Raffaela Ferrari
  */
 @ManagedBean(name = "platform")
 @SessionScoped
-public class PlatformBean extends EntityBean {
+public class PlatformBean {
 
-    @ManagedProperty(value = "#{platformServiceBean}")
-    private PlatformService platformService;
+    @ManagedProperty(value = "#{elearningRepository}")
+    private ElearningRepository elearningRepository;
+
     @ManagedProperty(value = "#{authenticationBean}")
     private AuthenticationBean authenticationBean;
 
-    private Platform platform;
-
     public String getName() {
-        return platform.getName();
+        return elearningRepository.getPlatform().getName();
     }
 
     public List<Course> getCourses() {
-        return platform.getCourses();
+        return elearningRepository.findAllCourses();
     }
 
     public List<Course> getMyCourses() {
-        Student student = getCurrentStudent();
-        Teacher teacher = getCurrentTeacher();
-        List<Course> myCourses = null;
-        if (student != null) {
-            myCourses = platformService.findCoursesByStudent(student.getUsername());
-        } else {
-            if (teacher != null) {
-                myCourses = platformService.findCoursesByTeacher(teacher.getUsername());
+        if (authenticationBean.isAuthenticated()) {
+            User user = authenticationBean.getCurrentUser();
+            List<Course> myCourses = null;
+            if (user != null) {
+                myCourses = user.getCourses();
             }
+            return myCourses;
+        } else {
+            return null;
         }
-        return myCourses;
     }
 
     public List<Student> getStudents() {
-        return platform.getStudents();
+        return elearningRepository.findAllStudents();
     }
 
     public List<Teacher> getTeachers() {
-        return platform.getTeachers();
+        return elearningRepository.findAllTeachers();
     }
 
-    public void setPlatformService(PlatformService platformService) {
-        this.platformService = platformService;
+    public void setElearningRepository(ElearningRepository elearningRepository) {
+        this.elearningRepository = elearningRepository;
     }
 
     public void setAuthenticationBean(AuthenticationBean aAuthenticationBean) {
         this.authenticationBean = aAuthenticationBean;
-    }
-
-    public Teacher getCurrentTeacher() {
-        if (authenticationBean.isAuthenticatedTeacher()) {
-            int id = authenticationBean.getCurrentUser().getId();
-            return platformService.findTeacherById(id);
-        } else {
-            return null;
-        }
-    }
-
-    public Student getCurrentStudent() {
-        if (authenticationBean.isAuthenticatedStudent()) {
-            int id = authenticationBean.getCurrentUser().getId();
-            return platformService.findStudentById(id);
-        } else {
-            return null;
-        }
-    }
-
-    @PostConstruct
-    private void preloadData() {
-        platform = platformService.getPlatform();
     }
 }
