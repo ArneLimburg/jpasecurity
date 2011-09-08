@@ -30,41 +30,19 @@
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
       
-        <h:panelGroup rendered="#{authenticationBean.authenticatedStudent}">
-          <h1>Available courses</h1>
+        <h1 id="loginTitel">Welcome to the E-learning sample application</h1>
           <ul>
-            <ui:repeat var="c" value="#{platform.courses}">
-              <li>
-                <h:outputLink value="course.xhtml" >
-                  <f:param name="id" value="#{c.id}" />
-                  <h:outputText value="#{c.name}" />
-                </h:outputLink>
-              </li>
-            </ui:repeat>
-          </ul>
-        </h:panelGroup>
-        
-        <h1>My courses</h1>
-        <ul>
-          <ui:repeat var="mycourse" value="#{platform.myCourses}">
             <li>
-              <h:outputLink value="course.xhtml" >
-                <f:param name="id" value="#{mycourse.id}" />
-                <h:outputText value="#{mycourse.name}" />
+              <h:outputLink value="courses.xhtml" >
+                <h:outputText value="Courses" />
               </h:outputLink>
-           </li>
-          </ui:repeat>
-        </ul>
-        
-        <h:panelGroup rendered="#{authenticationBean.authenticatedTeacher}">
-          <h1>Create new course</h1>
-          <h:form id="courseform" prependId="false">
-            <h:outputLabel value="Coursename:" for="coursename"/>
-            <h:inputText id="coursename" value="#{course.coursename}" tabindex="101"/>
-            <h:message for="coursename" errorClass="contenthlerror" /> 
-            <h:commandButton id="create" value="create" action="#{course.createCourse}" styleClass="submit"/>  
-          </h:form> 
-        </h:panelGroup>
+            </li>
+            <li>
+              <h:outputLink value="teachers.xhtml" >
+                <h:outputText value="Teachers" />
+              </h:outputLink>
+            </li>
+          </ul>
         
       </ui:define>
     </ui:composition>

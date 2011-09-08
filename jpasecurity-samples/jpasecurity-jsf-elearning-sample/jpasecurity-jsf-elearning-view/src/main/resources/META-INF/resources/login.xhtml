@@ -23,23 +23,9 @@
     <title>E-learning sample</title>
   </h:head>
   <h:body>
-    <f:view>
-      <h:outputStylesheet library="styles" name="style.css"/>
+    <ui:composition template="/template.xhtml">
+      <ui:define name="content">
       
-      <div id="loginHeader">
-        <div id="headerImg">
-            <div id="logo">
-              <h:outputLink value="index.xhtml">
-                <h:graphicImage library="images" name="ok-logo.png" alt="open knowledge" style="width:70%"/>
-              </h:outputLink>
-            </div>
-            <div id="titel">
-                E-Learning Platform
-            </div>
-        </div>
-      </div>
-      
-      <div id="content">
       <h1 id="loginTitel">Welcome to the E-learning sample application</h1>
         <h:panelGroup layout="block" id="loginForm">
           <h:form  prependId="false">
@@ -57,13 +43,8 @@
             </h:panelGroup>
           </h:form>
         </h:panelGroup>
-      </div>
       
-      <div id="footer">
-        <ui:insert name="footer">
-          <ui:include src="footer.xhtml" />
-        </ui:insert>
-      </div>
-    </f:view>
+	  </ui:define>
+    </ui:composition>
   </h:body>
 </html>

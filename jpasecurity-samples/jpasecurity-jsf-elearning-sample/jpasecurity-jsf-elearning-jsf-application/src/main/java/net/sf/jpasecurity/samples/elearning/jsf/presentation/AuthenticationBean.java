@@ -25,7 +25,7 @@ import javax.faces.bean.ManagedProperty;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.User;
-import net.sf.jpasecurity.samples.elearning.jsf.service.UserService;
+import net.sf.jpasecurity.sample.elearning.domain.UserService;
 
 /**
  * @author Raffaela Ferrari
@@ -71,7 +71,7 @@ public class AuthenticationBean implements Serializable {
     }
 
     public String cancel() {
-        return "login.xhtml";
+        return "index.xhtml";
     }
 
     public boolean isAuthenticated() {
@@ -113,7 +113,7 @@ public class AuthenticationBean implements Serializable {
             User user = userService.findUserByName(login);
             if (user.getPassword().equals(password)) {
                 currentUser = user;
-                return "index.xhtml";
+                return "dashboard.xhtml";
             } else {
                 return "login.xhtml";
             }
@@ -126,6 +126,6 @@ public class AuthenticationBean implements Serializable {
         login = "";
         password = "";
         currentUser = null;
-        return "login.xhtml";
+        return "index.xhtml";
     }
 }

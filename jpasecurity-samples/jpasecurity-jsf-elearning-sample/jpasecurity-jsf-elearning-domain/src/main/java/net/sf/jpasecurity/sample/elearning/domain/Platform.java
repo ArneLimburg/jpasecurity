@@ -48,10 +48,14 @@ public class Platform extends Entity {
     }
 
     public List<Course> getCourses() {
-        return courses;
-    }
-
-    public void setCourses(List<Course> courses) {
-        this.courses = courses;
+        List<Teacher> platformTeacher = getTeachers();
+        List<Course> platformCourses = new LinkedList<Course>();
+        for (Teacher teacher : platformTeacher) {
+            List<Course> teacherCourses = teacher.getCourses();
+            for (Course course : teacherCourses) {
+                platformCourses.add(course);
+            }
+        }
+        return platformCourses;
     }
 }

@@ -13,24 +13,13 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.samples.elearning.jsf.presentation;
-
-import javax.faces.bean.ManagedBean;
+package net.sf.jpasecurity.sample.elearning.domain;
 
 /**
  * @author Raffaela Ferrari
  */
-@ManagedBean(name = "user")
-public class UserBean {
+public interface UserService {
 
-    private String password;
-    private String username;
+    User findUserByName(String name)throws UserNotFoundException;
 
-    public String getPassword() {
-        return password;
-    }
-
-    public String getUserName() {
-        return username;
-    }
 }

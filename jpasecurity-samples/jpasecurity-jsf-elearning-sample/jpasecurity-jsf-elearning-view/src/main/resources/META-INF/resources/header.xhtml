@@ -25,7 +25,10 @@
         <ui:composition>
             <div id="headerImg">
                 <div id="logo">
-                  <h:outputLink value="index.xhtml">
+                  <h:outputLink value="index.xhtml" rendered="#{!authenticationBean.authenticated}">
+                    <h:graphicImage library="images" name="ok-logo.png" alt="open knowledge" style="width:70%"/>
+                  </h:outputLink>
+                  <h:outputLink value="dashboard.xhtml" rendered="#{authenticationBean.authenticated}">
                     <h:graphicImage library="images" name="ok-logo.png" alt="open knowledge" style="width:70%"/>
                   </h:outputLink>
                 </div>
@@ -35,12 +38,14 @@
             </div>
             <div id="headerLeft">
                 <h:form>
-                    <h:commandLink action="index.xhtml" value="Index"/>
+                    <h:commandLink action="index.xhtml" value="Index" rendered="#{!authenticationBean.authenticated}"/>
+                    <h:commandLink action="dashboard.xhtml" value="Dashboard" rendered="#{authenticationBean.authenticated}"/>
                 </h:form>
             </div>
             <div id="headerRight">
                 <h:form>
-                    <h:commandLink action="#{authenticationBean.logout}" value="(logout)" rendered="#{authenticationBean.authenticated}"/>
+                  <h:commandLink action="login.xhtml" value="login" rendered="#{!authenticationBean.authenticated}" />
+                  <h:commandLink action="#{authenticationBean.logout}" value="(logout)" rendered="#{authenticationBean.authenticated}"/>
                 </h:form>
                 <h:outputText id="userName" value="#{authenticationBean.currentUser.name}" rendered="#{authenticationBean.authenticated}"/>
             </div>

@@ -19,6 +19,8 @@ package net.sf.jpasecurity.samples.elearning.jsf.service;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.User;
+import net.sf.jpasecurity.sample.elearning.domain.UserNotFoundException;
+import net.sf.jpasecurity.sample.elearning.domain.UserService;
 
 import java.io.Serializable;
 import java.util.HashMap;

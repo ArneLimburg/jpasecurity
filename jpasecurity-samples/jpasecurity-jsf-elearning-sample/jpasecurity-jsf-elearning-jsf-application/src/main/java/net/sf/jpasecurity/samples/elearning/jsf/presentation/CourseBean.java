@@ -25,17 +25,17 @@ import javax.faces.bean.SessionScoped;
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
-import net.sf.jpasecurity.samples.elearning.jsf.service.PlatformService;
+import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
 
 /**
  * @author Raffaela Ferrari
  */
 @ManagedBean(name = "course")
 @SessionScoped
-public class CourseBean extends EntityBean {
+public class CourseBean {
 
-    @ManagedProperty(value = "#{platformServiceBean}")
-    private PlatformService platformService;
+    @ManagedProperty(value = "#{elearningRepository}")
+    private ElearningRepository elearningRepository;
 
     @ManagedProperty(value = "#{authenticationBean}")
     private AuthenticationBean authenticationBean;
@@ -46,26 +46,25 @@ public class CourseBean extends EntityBean {
     // create "new course"
     public String createCourse() {
         course = new Course();
-        course.setTeacher(getCurrentTeacher());
         course.setName(coursename);
-        course.setId(platformService.getNewId());
-        platformService.addCourse(course);
+        course.setId(elearningRepository.getNewId());
+        course.setTeacher(getCurrentTeacher());
         coursename = "";
-        return "index.xhtml";
+        return "dashboard.xhtml";
     }
 
     // add student to a course
     public String addStudentToCourse() {
         Student student = getCurrentStudent();
         course.addParticipant(student);
-        return "index.xhtml";
+        return "dashboard.xhtml";
     }
 
     // add student to a course
     public String removeStudentToCourse() {
         Student student = getCurrentStudent();
         course.removeParticipant(student);
-        return "index.xhtml";
+        return "dashboard.xhtml";
     }
 
     public boolean isStudentInCourse() {
@@ -111,8 +110,8 @@ public class CourseBean extends EntityBean {
         return course.getParticipants();
     }
 
-    public void setPlatformService(PlatformService platformService) {
-        this.platformService = platformService;
+    public void setElearningRepository(ElearningRepository elearningRepository) {
+        this.elearningRepository = elearningRepository;
     }
 
     public void setAuthenticationBean(AuthenticationBean aAuthenticationBean) {
@@ -120,7 +119,7 @@ public class CourseBean extends EntityBean {
     }
 
     public void setId(int id) {
-        this.course = this.platformService.findCourseById(id);
+        this.course = this.elearningRepository.findCourseById(id);
     }
 
     public int getId() {
@@ -130,7 +129,7 @@ public class CourseBean extends EntityBean {
     public Teacher getCurrentTeacher() {
         if (authenticationBean.isAuthenticatedTeacher()) {
             int id = authenticationBean.getCurrentUser().getId();
-            return platformService.findTeacherById(id);
+            return elearningRepository.findTeacherById(id);
         } else {
             return null;
         }
@@ -139,7 +138,7 @@ public class CourseBean extends EntityBean {
     public Student getCurrentStudent() {
         if (authenticationBean.isAuthenticatedStudent()) {
             int id = authenticationBean.getCurrentUser().getId();
-            return platformService.findStudentById(id);
+            return elearningRepository.findStudentById(id);
         } else {
             return null;
         }
