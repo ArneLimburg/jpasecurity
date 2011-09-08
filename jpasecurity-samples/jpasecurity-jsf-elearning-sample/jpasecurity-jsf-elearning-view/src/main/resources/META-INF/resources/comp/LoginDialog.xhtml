@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="http://java.sun.com/jsf/composite"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html">
+
+    <!-- INTERFACE -->
+    <cc:interface name="loginDialog">
+        <cc:attribute name="loginButtonText" default="login" required="true"/>
+        <cc:attribute name="cancelButtonText" default="abbrechen" required="true"/>
+        <cc:attribute name="nameLabel" />
+        <cc:attribute name="passwordLabel" />
+        <cc:attribute name="loginAction" method-signature="java.lang.String action()" />
+        <cc:attribute name="cancelAction" method-signature="java.lang.String action()" />
+        <cc:attribute name="managedBean" />
+    </cc:interface>
+
+    <!-- IMPLEMENTATION -->
+    <cc:implementation>
+        <h:outputStylesheet library="styles" name="style.css"/>
+
+        <h:form>
+          <h:outputLabel value="#{cc.attrs.nameLabel}" for="login"/>
+          <h:inputText id="login" value="#{cc.attrs.managedBean.login}" />
+
+          <h:outputLabel value="#{cc.attrs.passwordLabel}" for="password"/>
+          <h:inputSecret id="password" value="#{cc.attrs.managedBean.password}"/>
+		  <br />
+		  
+          <h:panelGroup layout="block" styleClass="buttons">
+            <h:commandButton id="cancel"
+                           value="#{cc.attrs.cancelButtonText}"
+                           action="#{authenticationBean.cancel}"
+                           immediate="true" styleClass="submit"/>
+            <h:commandButton id="loginButton"
+                           value="#{cc.attrs.loginButtonText}"
+                           action="#{authenticationBean.login}" styleClass="submit">
+            </h:commandButton>
+          </h:panelGroup>
+        </h:form>
+        
+    </cc:implementation>
+</html>

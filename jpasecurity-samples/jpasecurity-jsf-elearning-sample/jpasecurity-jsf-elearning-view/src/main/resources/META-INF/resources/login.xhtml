@@ -18,6 +18,7 @@
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:comp="http://java.sun.com/jsf/composite/comp"
       >
   <h:head>
     <title>E-learning sample</title>
@@ -27,21 +28,15 @@
       <ui:define name="content">
       
       <h1 id="loginTitel">Welcome to the E-learning sample application</h1>
-        <h:panelGroup layout="block" id="loginForm">
-          <h:form  prependId="false">
-            <h:outputLabel value="Username:" for="login"/>
-            <h:inputText id="login" value="#{authenticationBean.login}" tabindex="101"/>
-            <h:message for="login" errorClass="contenthlerror"/>
-            <br class="clearBr" />
-            <h:outputLabel value="Password:" for="password"/>
-            <h:inputSecret id="password" value="#{authenticationBean.password}" tabindex="101"/>
-            <h:message for="password" errorClass="contenthlerror"/>
-            <br />
-            <h:panelGroup layout="block" id="buttons">
-              <h:commandButton id="cancel" value="cancel" action="#{authenticationBean.cancel}" styleClass="submit"/>
-              <h:commandButton id="loginButton" value="login" action="#{authenticationBean.login}" styleClass="submit" />
-            </h:panelGroup>
-          </h:form>
+        <h:panelGroup layout="block" id="loginForm" prependId="false">
+          <comp:LoginDialog loginButtonText="login"
+                  cancelButtonText="cancel"
+                  nameLabel="Username"
+                  passwordLabel="Password"
+                  loginAction="#{authenticationBean.login}"
+                  cancelAction="#{authenticationBean.cancel}"
+                  managedBean="#{authenticationBean}">
+          </comp:LoginDialog>
         </h:panelGroup>
       
 	  </ui:define>
