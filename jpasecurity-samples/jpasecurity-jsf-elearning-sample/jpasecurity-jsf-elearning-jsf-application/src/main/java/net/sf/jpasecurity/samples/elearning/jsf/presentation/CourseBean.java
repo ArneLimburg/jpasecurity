@@ -23,6 +23,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
+import net.sf.jpasecurity.sample.elearning.domain.Lesson;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
@@ -42,6 +43,8 @@ public class CourseBean {
 
     private Course course;
     private String coursename;
+    private String lessonName;
+    private String lessonBody;
 
     // create "new course"
     public String createCourse() {
@@ -60,11 +63,23 @@ public class CourseBean {
         return "dashboard.xhtml";
     }
 
-    // add student to a course
-    public String removeStudentToCourse() {
+    // remove student from a course
+    public String removeStudentFromCourse() {
         Student student = getCurrentStudent();
         course.removeParticipant(student);
         return "dashboard.xhtml";
+    }
+
+    // add lesson to a course
+    public String addLessonToCourse() {
+        Lesson lesson = new Lesson();
+        lesson.setName(lessonName);
+        lesson.setLessonBody(lessonBody);
+        lesson.setId(elearningRepository.getNewId());
+        course.addLesson(lesson);
+        lessonName = "";
+        lessonBody = "";
+        return "course.xhtml";
     }
 
     public boolean isStudentInCourse() {
@@ -94,6 +109,22 @@ public class CourseBean {
         coursename = name;
     }
 
+    public String getLessonname() {
+        return lessonName;
+    }
+
+    public void setLessonname(String name) {
+        lessonName = name;
+    }
+
+    public String getLessonbody() {
+        return lessonBody;
+    }
+
+    public void setLessonbody(String body) {
+        lessonBody = body;
+    }
+
     public Teacher getTeacher() {
         Teacher teacher = course.getTeacher();
         if (teacher != null) {
@@ -108,6 +139,10 @@ public class CourseBean {
 
     public List<Student> getStudents() {
         return course.getParticipants();
+    }
+
+    public List<Lesson> getLessons() {
+        return course.getLessons();
     }
 
     public void setElearningRepository(ElearningRepository elearningRepository) {
@@ -147,5 +182,14 @@ public class CourseBean {
     @PostConstruct
     private void init() {
         course = new Course();
+    }
+
+    public Lesson findLessonById(int id) {
+        for (Lesson lesson : course.getLessons()) {
+            if (lesson.getId() == id) {
+                return lesson;
+            }
+        }
+        return null;
     }
 }
