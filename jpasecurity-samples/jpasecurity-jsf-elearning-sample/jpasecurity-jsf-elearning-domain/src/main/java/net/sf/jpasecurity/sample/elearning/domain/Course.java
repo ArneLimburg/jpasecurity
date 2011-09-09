@@ -25,6 +25,7 @@ public class Course extends Entity {
 
     private Teacher teacher;
     private List<Student> participants = new LinkedList<Student>();
+    private List<Lesson> lessons = new LinkedList<Lesson>();
 
     public Course() {
         super();
@@ -51,10 +52,27 @@ public class Course extends Entity {
     public void addParticipant(Student student) {
         getParticipants().add(student);
         student.addCourse(this);
+        for (Lesson lesson : lessons) {
+            lesson.addStudent(student);
+        }
     }
 
     public void removeParticipant(Student student) {
         getParticipants().remove(student);
         student.removeCourse(this);
+        for (Lesson lesson : lessons) {
+            lesson.removeStudent(student);
+        }
+    }
+
+    public List<Lesson>getLessons() {
+        return lessons;
+    }
+
+    public void addLesson(Lesson lesson) {
+        this.lessons.add(lesson);
+        for (Student student : this.participants) {
+            lesson.addStudent(student);
+        }
     }
 }

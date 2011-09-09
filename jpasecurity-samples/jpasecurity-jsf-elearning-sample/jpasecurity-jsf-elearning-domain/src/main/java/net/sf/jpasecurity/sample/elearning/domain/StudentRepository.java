@@ -17,6 +17,9 @@ package net.sf.jpasecurity.sample.elearning.domain;
 
 import java.util.List;
 
+/**
+ * @author Raffaela Ferrari
+ */
 public interface StudentRepository {
 
     Student findStudentById(int id);

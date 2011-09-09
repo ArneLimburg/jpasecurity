@@ -37,7 +37,7 @@
        
        <h:panelGroup rendered="#{authenticationBean.authenticatedStudent and course.studentInCourse}">
            <h:form id="leaveForm" prependId="false">
-             <h:commandButton id="leave" value="leave this course" action="#{course.removeStudentToCourse}" styleClass="submit"/>   
+             <h:commandButton id="leave" value="leave this course" action="#{course.removeStudentFromCourse}" styleClass="submit"/>   
            </h:form>    
        </h:panelGroup>
        
@@ -57,7 +57,21 @@
             </li>
           </ui:repeat>
         </ul>
-       
+        
+        <h2>Lessons</h2>
+        <ul>
+          <ui:repeat var="lesson" value="#{course.lessons}">
+            <li >
+                <h:outputLink value="lesson.xhtml">
+                  <f:param name="id" value="#{lesson.id}" />
+                  <h:outputText value="#{lesson.name}" />
+                </h:outputLink>
+            </li>
+          </ui:repeat>
+        </ul>  
+        <h:outputLink value="lessonCreater.xhtml" rendered="#{authenticationBean.authenticatedTeacher}">
+          <h:outputText value="Create new Lesson" />
+        </h:outputLink> 
       </ui:define>
     </ui:composition>
   </h:body>

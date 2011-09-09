@@ -32,11 +32,10 @@
             <h:commandButton id="cancel"
                            value="#{cc.attrs.cancelButtonText}"
                            action="#{authenticationBean.cancel}"
-                           immediate="true" styleClass="submit"/>
+                           immediate="true"/>
             <h:commandButton id="loginButton"
                            value="#{cc.attrs.loginButtonText}"
-                           action="#{authenticationBean.login}" styleClass="submit">
-            </h:commandButton>
+                           action="#{authenticationBean.login}"/>
           </h:panelGroup>
         </h:form>
         
