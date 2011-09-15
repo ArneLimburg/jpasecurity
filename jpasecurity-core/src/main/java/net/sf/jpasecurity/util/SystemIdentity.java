@@ -20,11 +20,11 @@ package net.sf.jpasecurity.util;
  * {@link java.lang.System#identityHashCode(Object)} and == shall be used.
  * @author Arne Limburg
  */
-public class SystemMapKey {
+public class SystemIdentity {
 
     private Object object;
 
-    public SystemMapKey(Object object) {
+    public SystemIdentity(Object object) {
         this.object = object;
     }
 
@@ -33,10 +33,10 @@ public class SystemMapKey {
     }
 
     public boolean equals(Object object) {
-        if (!(object instanceof SystemMapKey)) {
+        if (!(object instanceof SystemIdentity)) {
             return false;
         }
-        SystemMapKey systemMapKey = (SystemMapKey)object;
+        SystemIdentity systemMapKey = (SystemIdentity)object;
         return this.object == systemMapKey.object;
     }
 

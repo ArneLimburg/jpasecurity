@@ -29,7 +29,7 @@ import net.sf.jpasecurity.SecureMap;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.util.SystemMapKey;
+import net.sf.jpasecurity.util.SystemIdentity;
 
 /**
  * @author Arne Limburg
@@ -38,10 +38,10 @@ public class DefaultSecureObjectCache extends DefaultSecureObjectManager {
 
     private Map<ClassMappingInformation, Map<Object, SecureEntity>> secureEntities
         = new HashMap<ClassMappingInformation, Map<Object, SecureEntity>>();
-    private Map<SystemMapKey, SecureCollection<?>> secureCollections
-        = new HashMap<SystemMapKey, SecureCollection<?>>();
-    private Map<SystemMapKey, SecureMap<?, ?>> secureMaps
-        = new HashMap<SystemMapKey, SecureMap<?, ?>>();
+    private Map<SystemIdentity, SecureCollection<?>> secureCollections
+        = new HashMap<SystemIdentity, SecureCollection<?>>();
+    private Map<SystemIdentity, SecureMap<?, ?>> secureMaps
+        = new HashMap<SystemIdentity, SecureMap<?, ?>>();
 
     public DefaultSecureObjectCache(MappingInformation mappingInformation,
                                     BeanStore beanStore,
@@ -51,22 +51,22 @@ public class DefaultSecureObjectCache extends DefaultSecureObjectManager {
     }
 
     public SecureCollection<?> getSecureCollection(Collection<?> unsecureCollection) {
-        SecureCollection<?> secureCollection = secureCollections.get(new SystemMapKey(unsecureCollection));
+        SecureCollection<?> secureCollection = secureCollections.get(new SystemIdentity(unsecureCollection));
         if (secureCollection != null) {
             return secureCollection;
         }
         secureCollection = (SecureCollection<?>)super.getSecureObject(unsecureCollection);
-        secureCollections.put(new SystemMapKey(unsecureCollection), secureCollection);
+        secureCollections.put(new SystemIdentity(unsecureCollection), secureCollection);
         return secureCollection;
     }
 
     public SecureMap<?, ?> getSecureMap(Map<?, ?> unsecureMap) {
-        SecureMap<?, ?> secureMap = secureMaps.get(new SystemMapKey(unsecureMap));
+        SecureMap<?, ?> secureMap = secureMaps.get(new SystemIdentity(unsecureMap));
         if (secureMap != null) {
             return secureMap;
         }
         secureMap = (SecureMap<?, ?>)super.getSecureObject(unsecureMap);
-        secureMaps.put(new SystemMapKey(unsecureMap), secureMap);
+        secureMaps.put(new SystemIdentity(unsecureMap), secureMap);
         return secureMap;
     }
 
