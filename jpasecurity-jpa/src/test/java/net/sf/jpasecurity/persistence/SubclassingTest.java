@@ -23,6 +23,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import net.sf.jpasecurity.model.AbstractSuperclass;
+import net.sf.jpasecurity.model.Subclass1;
+import net.sf.jpasecurity.model.SuperclassReferencingBean;
 import net.sf.jpasecurity.model.TestBean;
 import net.sf.jpasecurity.model.TestBeanSubclass;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
@@ -51,6 +54,9 @@ public class SubclassingTest {
         TestBeanSubclass testBeanSubclass = new TestBeanSubclass(USER);
         entityManager.persist(testBeanSubclass);
         testBean.setParent(testBeanSubclass);
+        AbstractSuperclass subclass = new Subclass1();
+        entityManager.persist(subclass);
+        entityManager.persist(new SuperclassReferencingBean(subclass));
         entityManager.getTransaction().commit();
         entityManager.close();
         TestAuthenticationProvider.authenticate(null);
@@ -68,6 +74,18 @@ public class SubclassingTest {
         assertEquals(1, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
         TestAuthenticationProvider.authenticate(USER);
         assertEquals(2, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
+        entityManager.getTransaction().commit();
+        entityManager.close();
+    }
+
+    @Test
+    public void referenceToSuperclass() {
+        EntityManager entityManager = factory.createEntityManager();
+        AbstractSuperclass superclass = entityManager.find(SuperclassReferencingBean.class, 1).getSuperclass();
+        entityManager.close();
+        entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.merge(superclass);
         entityManager.getTransaction().commit();
         entityManager.close();
     }
