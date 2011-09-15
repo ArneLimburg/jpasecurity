@@ -9,6 +9,10 @@
 
     <class>net.sf.jpasecurity.model.TestBean</class>
     <class>net.sf.jpasecurity.model.TestBeanSubclass</class>
+    <class>net.sf.jpasecurity.model.SuperclassReferencingBean</class>
+    <class>net.sf.jpasecurity.model.AbstractSuperclass</class>
+    <class>net.sf.jpasecurity.model.Subclass1</class>
+    <class>net.sf.jpasecurity.model.Subclass2</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
