@@ -322,7 +322,9 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         }
     }
 
-    private void cascadeRemove(Object secureEntity, Object unsecureEntity, Set<SystemIdentity> alreadyCascadedEntities) {
+    private void cascadeRemove(Object secureEntity,
+                               Object unsecureEntity,
+                               Set<SystemIdentity> alreadyCascadedEntities) {
         if (secureEntity == null || alreadyCascadedEntities.contains(new SystemIdentity(secureEntity))) {
             return;
         }
@@ -356,7 +358,9 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         }
     }
 
-    private void cascadeRefresh(Object secureEntity, Object unsecureEntity, Set<SystemIdentity> alreadyCascadedEntities) {
+    private void cascadeRefresh(Object secureEntity,
+                                Object unsecureEntity,
+                                Set<SystemIdentity> alreadyCascadedEntities) {
         if (secureEntity == null || alreadyCascadedEntities.contains(new SystemIdentity(secureEntity))) {
             return;
         }
