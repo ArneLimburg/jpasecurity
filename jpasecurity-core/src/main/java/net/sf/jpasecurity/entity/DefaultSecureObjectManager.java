@@ -40,7 +40,7 @@ import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.proxy.EntityProxy;
-import net.sf.jpasecurity.util.SystemMapKey;
+import net.sf.jpasecurity.util.SystemIdentity;
 
 /**
  * @author Arne Limburg
@@ -48,8 +48,8 @@ import net.sf.jpasecurity.util.SystemMapKey;
 public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implements SecureObjectManager {
 
     protected final BeanStore beanStore;
-    private Map<SystemMapKey, Object> secureEntities = new HashMap<SystemMapKey, Object>();
-    private Map<SystemMapKey, Object> unsecureEntities = new HashMap<SystemMapKey, Object>();
+    private Map<SystemIdentity, Object> secureEntities = new HashMap<SystemIdentity, Object>();
+    private Map<SystemIdentity, Object> unsecureEntities = new HashMap<SystemIdentity, Object>();
 
     public DefaultSecureObjectManager(MappingInformation mappingInformation,
                                       BeanStore beanStore,
@@ -61,7 +61,7 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
 
     public void persist(Object secureEntity) {
         Object unsecureEntity = getUnsecureObject(secureEntity);
-        cascade(secureEntity, unsecureEntity, CascadeType.PERSIST, new HashSet<SystemMapKey>());
+        cascade(secureEntity, unsecureEntity, CascadeType.PERSIST, new HashSet<SystemIdentity>());
         preFlush();
         beanStore.persist(unsecureEntity);
         postFlush();
@@ -72,17 +72,17 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         preFlush();
         T unsecureEntity = getUnsecureObject(entity);
         if (isNew) {
-            cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<SystemMapKey>());
+            cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<SystemIdentity>());
         }
         unsecureEntity = beanStore.merge(unsecureEntity);
         postFlush();
         if (!isNew) {
-            cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<SystemMapKey>());
+            cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<SystemIdentity>());
         }
         T secureEntity = getSecureObject(unsecureEntity);
         initialize(secureEntity, unsecureEntity, isNew, CascadeType.MERGE, new HashSet<Object>());
         if (isNew) {
-            unsecureEntities.put(new SystemMapKey(secureEntity), unsecureEntity);
+            unsecureEntities.put(new SystemIdentity(secureEntity), unsecureEntity);
         }
         return secureEntity;
     }
@@ -100,7 +100,7 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         if (entity instanceof SecureEntity) {
             initialize((SecureEntity)entity, true);
         }
-        cascadeRefresh(entity, unsecureEntity, new HashSet<SystemMapKey>());
+        cascadeRefresh(entity, unsecureEntity, new HashSet<SystemIdentity>());
     }
 
     public void lock(Object entity, LockModeType lockMode) {
@@ -115,7 +115,7 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
     public void remove(Object entity) {
         checkAccess(AccessType.DELETE, entity);
         Object unsecureEntity = getUnsecureObject(entity);
-        cascadeRemove(entity, unsecureEntity, new HashSet<SystemMapKey>());
+        cascadeRemove(entity, unsecureEntity, new HashSet<SystemIdentity>());
         if (entity instanceof SecureEntity) {
             setRemoved((SecureEntity)entity);
         }
@@ -124,8 +124,8 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
 
     public void detach(Object secureBean) {
         Object unsecureBean = getUnsecureObject(secureBean);
-        unsecureEntities.remove(new SystemMapKey(secureBean));
-        secureEntities.remove(new SystemMapKey(unsecureBean));
+        unsecureEntities.remove(new SystemIdentity(secureBean));
+        secureEntities.remove(new SystemIdentity(unsecureBean));
         beanStore.detach(unsecureBean);
     }
 
@@ -171,15 +171,15 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
     }
 
     public void preFlush() {
-        Collection<Map.Entry<SystemMapKey, Object>> entities = unsecureEntities.entrySet();
-        for (Map.Entry<SystemMapKey, Object> unsecureEntity: entities.toArray(new Map.Entry[entities.size()])) {
+        Collection<Map.Entry<SystemIdentity, Object>> entities = unsecureEntities.entrySet();
+        for (Map.Entry<SystemIdentity, Object> unsecureEntity: entities.toArray(new Map.Entry[entities.size()])) {
             unsecureCopy(AccessType.UPDATE, unsecureEntity.getKey().getObject(), unsecureEntity.getValue());
         }
     }
 
     public void postFlush() {
         //copy over ids and version ids
-        for (Map.Entry<SystemMapKey, Object> secureEntity: secureEntities.entrySet()) {
+        for (Map.Entry<SystemIdentity, Object> secureEntity: secureEntities.entrySet()) {
             copyIdAndVersion(secureEntity.getKey().getObject(), secureEntity.getValue());
         }
         super.postFlush();
@@ -197,7 +197,7 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         if (object instanceof EntityProxy) {
             object = ((EntityProxy)object).getEntity();
         }
-        return unsecureEntities.containsKey(new SystemMapKey(object));
+        return unsecureEntities.containsKey(new SystemIdentity(object));
     }
 
     public <E> Collection<E> getSecureObjects(Class<E> type) {
@@ -218,7 +218,7 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         if (unsecureObject == null) {
             return null;
         }
-        T secureEntity = (T)secureEntities.get(new SystemMapKey(unsecureObject));
+        T secureEntity = (T)secureEntities.get(new SystemIdentity(unsecureObject));
         if (secureEntity != null) {
             return secureEntity;
         }
@@ -232,7 +232,7 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         if (secureObject instanceof EntityProxy) {
             secureObject = ((EntityProxy)secureObject).getEntity();
         }
-        if (unsecureEntities.containsKey(new SystemMapKey(secureObject))) {
+        if (unsecureEntities.containsKey(new SystemIdentity(secureObject))) {
             return true;
         }
         return super.containsUnsecureObject(secureObject);
@@ -245,7 +245,7 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         if (secureObject instanceof EntityProxy) {
             secureObject = (T)((EntityProxy)secureObject).getEntity();
         }
-        Object unsecureEntity = unsecureEntities.get(new SystemMapKey(secureObject));
+        Object unsecureEntity = unsecureEntities.get(new SystemIdentity(secureObject));
         if (unsecureEntity != null) {
             return (T)unsecureEntity;
         }
@@ -260,8 +260,8 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         final ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
         checkAccess(accessType, secureEntity);
         Object unsecureEntity = classMapping.newInstance();
-        secureEntities.put(new SystemMapKey(unsecureEntity), secureEntity);
-        unsecureEntities.put(new SystemMapKey(secureEntity), unsecureEntity);
+        secureEntities.put(new SystemIdentity(unsecureEntity), secureEntity);
+        unsecureEntities.put(new SystemIdentity(secureEntity), unsecureEntity);
         unsecureCopy(accessType, secureEntity, unsecureEntity);
         copyIdAndVersion(secureEntity, unsecureEntity);
         return (T)unsecureEntity;
@@ -282,15 +282,15 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
     void cascade(Object secureEntity,
                  Object unsecureEntity,
                  CascadeType cascadeType,
-                 Set<SystemMapKey> alreadyCascadedEntities) {
+                 Set<SystemIdentity> alreadyCascadedEntities) {
         if (cascadeType == CascadeType.REMOVE) {
             cascadeRemove(secureEntity, unsecureEntity, alreadyCascadedEntities);
             return;
         }
-        if (secureEntity == null || alreadyCascadedEntities.contains(new SystemMapKey(secureEntity))) {
+        if (secureEntity == null || alreadyCascadedEntities.contains(new SystemIdentity(secureEntity))) {
             return;
         }
-        alreadyCascadedEntities.add(new SystemMapKey(secureEntity));
+        alreadyCascadedEntities.add(new SystemIdentity(secureEntity));
         AccessType accessType = isNew(secureEntity)? AccessType.CREATE: AccessType.UPDATE;
         unsecureCopy(accessType, secureEntity, unsecureEntity);
         ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
@@ -322,16 +322,16 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         }
     }
 
-    private void cascadeRemove(Object secureEntity, Object unsecureEntity, Set<SystemMapKey> alreadyCascadedEntities) {
-        if (secureEntity == null || alreadyCascadedEntities.contains(new SystemMapKey(secureEntity))) {
+    private void cascadeRemove(Object secureEntity, Object unsecureEntity, Set<SystemIdentity> alreadyCascadedEntities) {
+        if (secureEntity == null || alreadyCascadedEntities.contains(new SystemIdentity(secureEntity))) {
             return;
         }
-        alreadyCascadedEntities.add(new SystemMapKey(secureEntity));
+        alreadyCascadedEntities.add(new SystemIdentity(secureEntity));
         checkAccess(AccessType.DELETE, secureEntity);
         ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
         fireRemove(classMapping, secureEntity);
-        secureEntities.remove(new SystemMapKey(unsecureEntity));
-        unsecureEntities.remove(new SystemMapKey(secureEntity));
+        secureEntities.remove(new SystemIdentity(unsecureEntity));
+        unsecureEntities.remove(new SystemIdentity(secureEntity));
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
             if (propertyMapping.isRelationshipMapping()
                 && (propertyMapping.getCascadeTypes().contains(CascadeType.REMOVE)
@@ -356,11 +356,11 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         }
     }
 
-    private void cascadeRefresh(Object secureEntity, Object unsecureEntity, Set<SystemMapKey> alreadyCascadedEntities) {
-        if (secureEntity == null || alreadyCascadedEntities.contains(new SystemMapKey(secureEntity))) {
+    private void cascadeRefresh(Object secureEntity, Object unsecureEntity, Set<SystemIdentity> alreadyCascadedEntities) {
+        if (secureEntity == null || alreadyCascadedEntities.contains(new SystemIdentity(secureEntity))) {
             return;
         }
-        alreadyCascadedEntities.add(new SystemMapKey(secureEntity));
+        alreadyCascadedEntities.add(new SystemIdentity(secureEntity));
         ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
             if (propertyMapping.isRelationshipMapping()
