@@ -58,7 +58,7 @@ import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.util.ReflectionUtils;
-import net.sf.jpasecurity.util.SystemMapKey;
+import net.sf.jpasecurity.util.SystemIdentity;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -256,14 +256,14 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public void fetch(Object entity) {
-        fetch(entity, new HashSet<SystemMapKey>());
+        fetch(entity, new HashSet<SystemIdentity>());
     }
 
-    private void fetch(Object entity, Set<SystemMapKey> alreadyFetchedEntities) {
-        if (entity == null || alreadyFetchedEntities.contains(new SystemMapKey(entity))) {
+    private void fetch(Object entity, Set<SystemIdentity> alreadyFetchedEntities) {
+        if (entity == null || alreadyFetchedEntities.contains(new SystemIdentity(entity))) {
             return;
         }
-        alreadyFetchedEntities.add(new SystemMapKey(entity));
+        alreadyFetchedEntities.add(new SystemIdentity(entity));
         if (!mappingInformation.containsClassMapping(entity.getClass())) {
             LOG.debug("No class mapping found for entity " + entity);
             return;
