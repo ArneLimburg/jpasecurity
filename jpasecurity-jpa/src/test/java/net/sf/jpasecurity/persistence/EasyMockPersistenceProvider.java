@@ -38,7 +38,7 @@ import org.easymock.EasyMock;
  */
 public class EasyMockPersistenceProvider implements PersistenceProvider {
 
-    public EntityManagerFactory createEntityManagerFactory(String emName, Map map) {
+    public EntityManagerFactory createEntityManagerFactory(String emName, @SuppressWarnings("rawtypes") Map map) {
         if (map != null
             && map.containsKey(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY)
             && getClass().getName().equals(map.get(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY))) {
@@ -66,7 +66,8 @@ public class EasyMockPersistenceProvider implements PersistenceProvider {
         return null;
     }
 
-    public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map map) {
+    public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info,
+                                                                    @SuppressWarnings("rawtypes") Map map) {
         return createEntityManagerFactory(info.getPersistenceUnitName(), map);
     }
 
@@ -86,7 +87,7 @@ public class EasyMockPersistenceProvider implements PersistenceProvider {
             return entityManager;
         }
 
-        public EntityManager createEntityManager(Map map) {
+        public EntityManager createEntityManager(@SuppressWarnings("rawtypes") Map map) {
             return createEntityManager();
         }
 
