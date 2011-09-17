@@ -42,7 +42,7 @@ public class DelegatingEntityManagerFactory {
         return delegate.createEntityManager();
     }
 
-    public EntityManager createEntityManager(Map map) {
+    public EntityManager createEntityManager(@SuppressWarnings("rawtypes") Map map) {
         return delegate.createEntityManager(map);
     }
 

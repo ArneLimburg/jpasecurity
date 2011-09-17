@@ -90,7 +90,7 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
         return createSecureEntityManager(super.createEntityManager(), Collections.<String, Object>emptyMap());
     }
 
-    public EntityManager createEntityManager(Map map) {
+    public EntityManager createEntityManager(@SuppressWarnings("rawtypes") Map map) {
         return createSecureEntityManager(super.createEntityManager(map), map);
     }
 

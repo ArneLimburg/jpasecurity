@@ -126,7 +126,7 @@ public class DelegatingEntityManager implements EntityManager {
         return delegate.createNativeQuery(sqlString);
     }
 
-    public Query createNativeQuery(String sqlString, Class resultClass) {
+    public Query createNativeQuery(String sqlString, @SuppressWarnings("rawtypes") Class resultClass) {
         return delegate.createNativeQuery(sqlString, resultClass);
     }
 

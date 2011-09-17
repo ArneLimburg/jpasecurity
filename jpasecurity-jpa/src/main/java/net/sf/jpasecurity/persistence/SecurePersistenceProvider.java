@@ -56,7 +56,8 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         return persistenceProvider.getProviderUtil();
     }
 
-    public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map map) {
+    public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info,
+                                                                    @SuppressWarnings("rawtypes") Map map) {
         persistenceProvider = createNativePersistenceProvider(info, map);
         map = createPersistenceProviderProperty(map, persistenceProvider);
         EntityManagerFactory nativeEntityManagerFactory
@@ -64,7 +65,8 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         return createSecureEntityManagerFactory(nativeEntityManagerFactory, info, map);
     }
 
-    public EntityManagerFactory createEntityManagerFactory(String persistenceUnitName, Map map) {
+    public EntityManagerFactory createEntityManagerFactory(String persistenceUnitName,
+                                                           @SuppressWarnings("rawtypes") Map map) {
         PersistenceUnitInfo info = createPersistenceUnitInfo(persistenceUnitName);
         if (info == null) {
             return null;
