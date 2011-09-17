@@ -37,6 +37,7 @@ import javax.servlet.jsp.el.VariableResolver;
 /**
  * @author Arne Limburg
  */
+@SuppressWarnings("deprecation")
 public class MockPageContext extends PageContext {
 
     private Map<Integer, Map<String, Object>> attributes = new HashMap<Integer, Map<String, Object>>();
