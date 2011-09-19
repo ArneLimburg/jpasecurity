@@ -28,7 +28,29 @@
           <scanIntervalSeconds>5</scanIntervalSeconds>
           <stopKey>elearning</stopKey>
           <stopPort>1199</stopPort>
+          <loginServices>
+            <loginService implementation="org.eclipse.jetty.plus.jaas.JAASLoginService">
+              <name>ELearning</name>
+              <loginModuleName>ELearning</loginModuleName>
+              <roleClassNames>
+                <value>net.sf.jpasecurity.sample.elearning.domain.authentication.RolePrincipal</value>
+              </roleClassNames>
+            </loginService>
+          </loginServices>
+          <systemProperties>
+            <systemProperty>
+              <name>java.security.auth.login.config</name>
+              <value>jaas.properties</value>
+            </systemProperty>
+          </systemProperties>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jpasecurity-jsf-elearning-domain</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>
