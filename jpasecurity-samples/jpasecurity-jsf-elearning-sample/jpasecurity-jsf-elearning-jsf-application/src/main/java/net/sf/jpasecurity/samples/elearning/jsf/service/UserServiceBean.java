@@ -16,25 +16,25 @@
 
 package net.sf.jpasecurity.samples.elearning.jsf.service;
 
-import net.sf.jpasecurity.sample.elearning.domain.Student;
-import net.sf.jpasecurity.sample.elearning.domain.Teacher;
-import net.sf.jpasecurity.sample.elearning.domain.User;
-import net.sf.jpasecurity.sample.elearning.domain.UserNotFoundException;
-import net.sf.jpasecurity.sample.elearning.domain.UserService;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
+
+import net.sf.jpasecurity.sample.elearning.domain.Student;
+import net.sf.jpasecurity.sample.elearning.domain.Teacher;
+import net.sf.jpasecurity.sample.elearning.domain.User;
+import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 
 /**
  * @author Raffaela Ferrari
  */
 @ManagedBean(name = "userServiceBean")
 @ApplicationScoped
-public class UserServiceBean implements UserService, Serializable  {
+public class UserServiceBean implements UserRepository, Serializable  {
 
     private Map<String, User> userMap = new HashMap<String, User>();
 
@@ -50,12 +50,10 @@ public class UserServiceBean implements UserService, Serializable  {
         userMap.put(hans.getUsername(), hans);
     }
 
-    public User findUserByName(String name) throws UserNotFoundException {
-        User user = userMap.get(name);
-        if (user == null) {
-            throw new UserNotFoundException(name);
-        } else {
-            return user;
+    public User findUser(String name) {
+        if (userMap.isEmpty()) {
+            init();
         }
+        return userMap.get(name);
     }
 }

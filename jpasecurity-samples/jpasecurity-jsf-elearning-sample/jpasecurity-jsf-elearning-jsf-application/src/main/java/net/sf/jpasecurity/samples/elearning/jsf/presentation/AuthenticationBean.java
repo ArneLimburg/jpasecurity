@@ -25,7 +25,7 @@ import javax.faces.bean.ManagedProperty;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.User;
-import net.sf.jpasecurity.sample.elearning.domain.UserService;
+import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 
 /**
  * @author Raffaela Ferrari
@@ -40,13 +40,13 @@ public class AuthenticationBean implements Serializable {
     private User currentUser;
 
     @ManagedProperty(value = "#{userServiceBean}")
-    private UserService userService;
+    private UserRepository userService;
 
-    public UserService getUserService() {
+    public UserRepository getUserService() {
         return userService;
     }
 
-    public void setUserService(UserService userService) {
+    public void setUserService(UserRepository userService) {
         this.userService = userService;
     }
 
@@ -110,7 +110,7 @@ public class AuthenticationBean implements Serializable {
 
         // authenticate author
         try {
-            User user = userService.findUserByName(login);
+            User user = userService.findUser(login);
             if (user.getPassword().equals(password)) {
                 currentUser = user;
                 return "dashboard.xhtml";

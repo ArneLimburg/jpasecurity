@@ -13,26 +13,14 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.samples.elearning.jsf.service;
+package net.sf.jpasecurity.sample.elearning.domain;
 
 /**
  * @author Raffaela Ferrari
+ * @author Arne Limburg
  */
-public class UserNotFoundException extends Exception {
+public interface UserRepository {
 
-    public UserNotFoundException() {
-        super();
-    }
+    User findUser(String name);
 
-    public UserNotFoundException(String message) {
-        super(message);
-    }
-
-    public UserNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public UserNotFoundException(Throwable cause) {
-        super(cause);
-    }
 }

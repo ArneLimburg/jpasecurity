@@ -15,15 +15,20 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
+import java.security.Principal;
 import java.util.List;
+
+import javax.persistence.Transient;
 
 /**
  * @author Raffaela Ferrari
  */
-public abstract class User extends Entity {
+public abstract class User extends Entity implements Principal {
 
     private String username;
     private String password;
+    @Transient
+    private boolean authenticated;
 
     public User() {
         super();
@@ -54,4 +59,13 @@ public abstract class User extends Entity {
     public abstract List<Course> getCourses();
 
     public abstract void addCourse(Course course);
+
+    public boolean isAuthenticated() {
+        return authenticated;
+    }
+
+    public boolean authenticate(String password) {
+        authenticated = this.password.equals(password);
+        return authenticated;
+    }
 }
