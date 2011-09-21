@@ -29,14 +29,7 @@
       
       <h1 id="loginTitel">Welcome to the E-learning sample application</h1>
         <h:panelGroup layout="block" id="loginForm" prependId="false">
-          <comp:LoginDialog loginButtonText="login"
-                  cancelButtonText="cancel"
-                  nameLabel="Username :"
-                  passwordLabel="Password :"
-                  loginAction="#{authenticationBean.login}"
-                  cancelAction="#{authenticationBean.cancel}"
-                  managedBean="#{authenticationBean}">
-          </comp:LoginDialog>
+          <comp:LoginDialog/>
         </h:panelGroup>
       
 	  </ui:define>

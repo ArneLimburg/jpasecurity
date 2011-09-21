@@ -7,37 +7,50 @@
 
     <!-- INTERFACE -->
     <cc:interface name="loginDialog">
-        <cc:attribute name="loginButtonText" default="login" required="true"/>
-        <cc:attribute name="cancelButtonText" default="abbrechen" required="true"/>
-        <cc:attribute name="nameLabel" />
-        <cc:attribute name="passwordLabel" />
-        <cc:attribute name="loginAction" method-signature="java.lang.String action()" />
-        <cc:attribute name="cancelAction" method-signature="java.lang.String action()" />
-        <cc:attribute name="managedBean" />
+      <cc:attribute name="usernameLabel" default="Username: "/>
+      <cc:attribute name="passwordLabel" default="Password: "/>
+      <cc:attribute name="loginButtonText" default="Login"/>
+      <cc:attribute name="cancelButtonText" default="Cancel"/>
+      <cc:attribute name="loginAction" method-signature="java.lang.String action(java.lang.String, java.lang.String)" default="#{facesContext.externalContext.request.login}"/>
+      <cc:attribute name="cancelAction" method-signature="java.lang.String action()" default="#{net_sf_jpasecurity_jsf_LoginBean.cancel}"/>
     </cc:interface>
 
     <!-- IMPLEMENTATION -->
     <cc:implementation>
-        <h:outputStylesheet library="styles" name="style.css"/>
-
+      <h:panelGroup rendered="#{facesContext.externalContext.request.queryString == 'form-based'}">
+        <form name="loginForm"
+              method="post"
+              action="j_security_check"
+              enctype="application/x-www-form-urlencoded">
+          <label for="username"><h:outputText value="#{cc.attrs.usernameLabel}"/></label>
+          <input id="username" type="text" name="j_username" title="#{cc.attrs.usernameLabel}"/>  
+          <label for="password"><h:outputText value="#{cc.attrs.passwordLabel}"/></label>
+          <input id="password" type="password" name="j_password" title="#{cc.attrs.passwordLabel}"/>  
+		  <br />
+		  <div class="buttons">
+		    <input type="submit" value="#{cc.attrs.loginButtonText}" />
+		    <input type="reset" value="#{cc.attrs.cancelButtonText}" />
+		  </div>
+		</form>        
+      </h:panelGroup>
+      <h:panelGroup rendered="#{facesContext.externalContext.request.queryString != 'form-based'}">
         <h:form>
-          <h:outputLabel value="#{cc.attrs.nameLabel}" for="login"/>
-          <h:inputText id="login" value="#{cc.attrs.managedBean.login}" />
+          <h:outputLabel value="#{cc.attrs.usernameLabel}" for="username"/>
+          <h:inputText id="username" value="#{net_sf_jpasecurity_jsf_LoginBean.username}" />
 
           <h:outputLabel value="#{cc.attrs.passwordLabel}" for="password"/>
-          <h:inputSecret id="password" value="#{cc.attrs.managedBean.password}"/>
+          <h:inputSecret id="password" value="#{net_sf_jpasecurity_jsf_LoginBean.password}"/>
 		  <br />
 		  
           <h:panelGroup layout="block" styleClass="buttons">
-            <h:commandButton id="cancel"
-                           value="#{cc.attrs.cancelButtonText}"
-                           action="#{authenticationBean.cancel}"
-                           immediate="true"/>
             <h:commandButton id="loginButton"
-                           value="#{cc.attrs.loginButtonText}"
-                           action="#{authenticationBean.login}"/>
+                             value="#{cc.attrs.loginButtonText}"
+                             action="#{net_sf_jpasecurity_jsf_LoginBean.login}"/>
+            <h:commandButton id="cancel"
+                             value="#{cc.attrs.cancelButtonText}"
+                             action="#{net_sf_jpasecurity_jsf_LoginBean.reset}"/>
           </h:panelGroup>
         </h:form>
-        
+      </h:panelGroup>
     </cc:implementation>
 </html>

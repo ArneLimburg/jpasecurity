@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="http://java.sun.com/jsf/composite"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html">
+
+    <!-- INTERFACE -->
+    <cc:interface name="loginLink">
+      <cc:attribute name="loginLabel" default="Login"/>
+      <cc:attribute name="logoutLabel" default="Logout"/>
+      <cc:attribute name="loginPage" />
+      <cc:attribute name="loginAction" method-signature="java.lang.String action()" />
+      <cc:attribute name="logoutAction" method-signature="java.lang.String action()" default="#{facesContext.externalContext.request.logout}"/>
+    </cc:interface>
+
+    <!-- IMPLEMENTATION -->
+    <cc:implementation>
+      <h:form>
+        <h:commandLink value="#{cc.attrs.loginLabel}" action="#{cc.attrs.loginAction}" rendered="#{facesContext.externalContext.request.remoteUser == null}">
+          <f:param name="return" value="#{facesContext.externalContext.request.requestURI}"/>
+        </h:commandLink>
+        <h:commandLink value="#{cc.attrs.logoutLabel}" action="#{cc.attrs.logoutAction}" rendered="#{facesContext.externalContext.request.remoteUser != null}" />
+      </h:form>
+    </cc:implementation>
+</html>
