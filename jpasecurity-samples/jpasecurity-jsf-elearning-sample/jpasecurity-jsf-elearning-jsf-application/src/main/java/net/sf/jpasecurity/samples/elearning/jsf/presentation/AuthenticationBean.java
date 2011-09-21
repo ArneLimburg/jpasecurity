@@ -100,7 +100,7 @@ public class AuthenticationBean implements Serializable {
      * @return SUCCESS outcome, if authenticated
      *         FAILURE outcome, else
      */
-    public String login() {
+    public String login(String userName, String password) {
 
         // check for "empty" input - stay on page, if true
         if ((login == null || login.trim().length() < 1)
