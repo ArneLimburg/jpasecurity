@@ -17,7 +17,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:ui="http://java.sun.com/jsf/facelets" >
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:comp="http://java.sun.com/jsf/composite/comp">
     <head>
         <title>Header</title>
     </head>
@@ -43,10 +44,7 @@
                 </h:form>
             </div>
             <div id="headerRight">
-                <h:form>
-                  <h:commandLink action="login.xhtml" value="login" rendered="#{!authenticationBean.authenticated}" />
-                  <h:commandLink action="#{authenticationBean.logout}" value="(logout)" rendered="#{authenticationBean.authenticated}"/>
-                </h:form>
+                <comp:loginLink loginAction="login.xhtml"/>
                 <h:outputText id="userName" value="#{authenticationBean.currentUser.name}" rendered="#{authenticationBean.authenticated}"/>
             </div>
         </ui:composition>
