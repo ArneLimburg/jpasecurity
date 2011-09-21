@@ -57,6 +57,36 @@
           </dependency>
         </dependencies>
       </plugin>
+      <plugin>
+        <groupId>com.googlecode.t7mp</groupId>
+        <artifactId>maven-t7-plugin</artifactId>
+        <version>0.9.7.M1</version>
+        <configuration>
+          <tomcatShutdownPort>1199</tomcatShutdownPort>
+          <tomcatShutdownCommand>elearning</tomcatShutdownCommand>
+          <systemProperties>
+            <systemProperty>
+              <key>java.security.auth.login.config</key>
+              <value>jaas.properties</value>
+            </systemProperty>
+          </systemProperties>
+          <libs>
+            <jarArtifact>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>jpasecurity-jsf-elearning-domain</artifactId>
+              <version>${project.version}</version>
+            </jarArtifact>
+          </libs>
+          <webapps>
+            <webappArtifact>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>jpasecurity-jsf-elearning-jsf-application</artifactId>
+              <version>${project.version}</version>
+              <contextPath>/elearning</contextPath>
+            </webappArtifact>
+          </webapps>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -68,5 +98,4 @@
       <scope>runtime</scope>
     </dependency>
   </dependencies>
-
 </project>
