@@ -18,6 +18,7 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:sec="http://jpasecurity.sf.net/facelets"
       >
   <h:head>
     <title>E-learning sample</title>
@@ -26,7 +27,7 @@
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
       
-        <h:panelGroup rendered="#{authenticationBean.authenticatedStudent}">
+        <sec:rolesAllowed roles="student">
           <h1>Available courses</h1>
           <ul>
             <ui:repeat var="c" value="#{platform.courses}">
@@ -38,7 +39,7 @@
               </li>
             </ui:repeat>
           </ul>
-        </h:panelGroup>
+        </sec:rolesAllowed>
         
         <h1>My courses</h1>
         <ul>
@@ -52,7 +53,7 @@
           </ui:repeat>
         </ul>
         
-        <h:panelGroup rendered="#{authenticationBean.authenticatedTeacher}">
+        <h:panelGroup rendered="#{sec:userInRole('teacher')}">
           <h1>Create new course</h1>
           <h:form id="courseform" prependId="false">
             <h:outputLabel value="Coursename:" for="coursename"/>
