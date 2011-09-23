@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE facelet-taglib PUBLIC "-//Sun Microsystems, Inc.//DTD Facelet Taglib 1.0//EN" "http://java.sun.com/dtd/facelet-taglib_1_0.dtd">
+<facelet-taglib>
+  <namespace>http://jpasecurity.sf.net/facelets</namespace>
+  <tag>
+    <tag-name>rolesAllowed</tag-name>
+    <handler-class>net.sf.jpasecurity.jsf.RolesAllowedTagHandler</handler-class>
+  </tag>
+  <function>
+    <function-name>userInRole</function-name>
+    <function-class>net.sf.jpasecurity.jsf.RolesAllowedTagHandler</function-class>
+    <function-signature>boolean isUserInRole(java.lang.String)</function-signature>
+  </function>
+</facelet-taglib>
