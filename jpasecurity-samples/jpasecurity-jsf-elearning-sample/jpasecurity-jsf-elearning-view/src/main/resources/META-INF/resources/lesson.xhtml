@@ -17,7 +17,9 @@
  <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:ui="http://java.sun.com/jsf/facelets">
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:sec="http://jpasecurity.sf.net/facelets"
+      >
   <h:head>
     <title>#{lesson.name}</title>
   </h:head>
@@ -29,13 +31,13 @@
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
        <h1 id="lessonTitle">#{lesson.name}</h1>
-       <h:panelGroup rendered="#{authenticationBean.authenticatedStudent and course.studentInCourse and !lesson.studentFinished}">
+       <h:panelGroup rendered="#{sec:userInRole('student') and course.studentInCourse and !lesson.studentFinished}">
 	            <h:form id="resolveForm" prependId="false">
 	              <h:commandButton id="resolve" value="resolve this lesson" action="#{lesson.studentFinishesLesson}" styleClass="submit"/>   
 	            </h:form> 
        </h:panelGroup>
        
-       <h:panelGroup layout="block" id="resolved" rendered="#{authenticationBean.authenticatedStudent and course.studentInCourse and lesson.studentFinished}">
+       <h:panelGroup layout="block" id="resolved" rendered="#{sec:userInRole('student') and course.studentInCourse and lesson.studentFinished}">
            <h:outputText value="Lesson is resolved" />   
        </h:panelGroup>
 
