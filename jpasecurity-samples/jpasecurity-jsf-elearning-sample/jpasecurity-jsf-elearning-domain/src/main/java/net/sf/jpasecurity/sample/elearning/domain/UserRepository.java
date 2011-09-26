@@ -21,6 +21,6 @@ package net.sf.jpasecurity.sample.elearning.domain;
  */
 public interface UserRepository {
 
-    User findUser(String name);
+    <U extends User> U findUser(String name);
 
 }
