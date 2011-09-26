@@ -38,7 +38,11 @@ import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
  */
 @ManagedBean(name = "elearningRepository")
 @ApplicationScoped
-public class ElearningRepository implements UserRepository, CourseRepository, StudentRepository, TeacherRepository, Serializable {
+public class ElearningRepository implements UserRepository,
+                                            CourseRepository,
+                                            StudentRepository,
+                                            TeacherRepository,
+                                            Serializable {
 
     private Platform platform;
     @ManagedProperty(value = "#{userServiceBean}")
