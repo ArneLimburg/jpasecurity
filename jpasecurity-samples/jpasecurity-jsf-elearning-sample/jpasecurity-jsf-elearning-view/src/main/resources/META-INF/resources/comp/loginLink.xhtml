@@ -18,7 +18,7 @@
     <cc:implementation>
       <h:form>
         <h:commandLink value="#{cc.attrs.loginLabel}" action="#{cc.attrs.loginAction}" rendered="#{facesContext.externalContext.request.remoteUser == null}">
-          <f:param name="return" value="#{facesContext.externalContext.request.requestURI}"/>
+          <f:param name="return" value="#{facesContext.viewRoot.viewId}"/>
         </h:commandLink>
         <h:commandLink value="#{cc.attrs.logoutLabel}" action="#{cc.attrs.logoutAction}" rendered="#{facesContext.externalContext.request.remoteUser != null}" />
       </h:form>
