@@ -30,6 +30,7 @@ import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.StudentRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.TeacherRepository;
+import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 
 /**
@@ -37,7 +38,7 @@ import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
  */
 @ManagedBean(name = "elearningRepository")
 @ApplicationScoped
-public class ElearningRepository implements CourseRepository, StudentRepository, TeacherRepository, Serializable {
+public class ElearningRepository implements UserRepository, CourseRepository, StudentRepository, TeacherRepository, Serializable {
 
     private Platform platform;
     @ManagedProperty(value = "#{userServiceBean}")
@@ -79,6 +80,20 @@ public class ElearningRepository implements CourseRepository, StudentRepository,
         for (Student student : students) {
             if (student.getId() == id) {
                 return student;
+            }
+        }
+        return null;
+    }
+
+    public <U extends User> U findUser(String name) {
+        for (Student student: platform.getStudents()) {
+            if (student.getName().equals(name)) {
+                return (U)student;
+            }
+        }
+        for (Teacher teacher: platform.getTeachers()) {
+            if (teacher.getName().equals(teacher)) {
+                return (U)teacher;
             }
         }
         return null;

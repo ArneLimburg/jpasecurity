@@ -21,6 +21,8 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Lesson;
@@ -37,9 +39,6 @@ public class CourseBean {
 
     @ManagedProperty(value = "#{elearningRepository}")
     private ElearningRepository elearningRepository;
-
-    @ManagedProperty(value = "#{authenticationBean}")
-    private AuthenticationBean authenticationBean;
 
     private Course course;
     private String coursename;
@@ -149,10 +148,6 @@ public class CourseBean {
         this.elearningRepository = elearningRepository;
     }
 
-    public void setAuthenticationBean(AuthenticationBean aAuthenticationBean) {
-        authenticationBean = aAuthenticationBean;
-    }
-
     public void setId(int id) {
         this.course = this.elearningRepository.findCourseById(id);
     }
@@ -162,18 +157,18 @@ public class CourseBean {
     }
 
     public Teacher getCurrentTeacher() {
-        if (authenticationBean.isAuthenticatedTeacher()) {
-            int id = authenticationBean.getCurrentUser().getId();
-            return elearningRepository.findTeacherById(id);
+        ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+        if (context.isUserInRole("teacher")) {
+            return elearningRepository.<Teacher>findUser(context.getUserPrincipal().getName());
         } else {
             return null;
         }
     }
 
     public Student getCurrentStudent() {
-        if (authenticationBean.isAuthenticatedStudent()) {
-            int id = authenticationBean.getCurrentUser().getId();
-            return elearningRepository.findStudentById(id);
+        ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+        if (context.isUserInRole("student")) {
+            return elearningRepository.<Student>findUser(context.getUserPrincipal().getName());
         } else {
             return null;
         }

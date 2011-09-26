@@ -15,16 +15,18 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.presentation;
 
+import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
-import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
 
 /**
@@ -36,9 +38,8 @@ public class PlatformBean {
 
     @ManagedProperty(value = "#{elearningRepository}")
     private ElearningRepository elearningRepository;
-
-    @ManagedProperty(value = "#{authenticationBean}")
-    private AuthenticationBean authenticationBean;
+    @ManagedProperty(value = "#{course}")
+    private CourseBean course;
 
     public String getName() {
         return elearningRepository.getPlatform().getName();
@@ -49,16 +50,11 @@ public class PlatformBean {
     }
 
     public List<Course> getMyCourses() {
-        if (authenticationBean.isAuthenticated()) {
-            User user = authenticationBean.getCurrentUser();
-            List<Course> myCourses = null;
-            if (user != null) {
-                myCourses = user.getCourses();
-            }
-            return myCourses;
-        } else {
-            return null;
+        Principal principal = FacesContext.getCurrentInstance().getExternalContext().getUserPrincipal();
+        if (principal == null) {
+            return Collections.emptyList();
         }
+        return elearningRepository.findUser(principal.getName()).getCourses();
     }
 
     public List<Student> getStudents() {
@@ -71,9 +67,5 @@ public class PlatformBean {
 
     public void setElearningRepository(ElearningRepository elearningRepository) {
         this.elearningRepository = elearningRepository;
-    }
-
-    public void setAuthenticationBean(AuthenticationBean aAuthenticationBean) {
-        this.authenticationBean = aAuthenticationBean;
     }
 }
