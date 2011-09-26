@@ -18,7 +18,9 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:ui="http://java.sun.com/jsf/facelets"
-      xmlns:comp="http://java.sun.com/jsf/composite/comp">
+      xmlns:comp="http://java.sun.com/jsf/composite/comp"
+      xmlns:sec="http://jpasecurity.sf.net/facelets"
+      >
     <head>
         <title>Header</title>
     </head>
@@ -26,10 +28,10 @@
         <ui:composition>
             <div id="headerImg">
                 <div id="logo">
-                  <h:outputLink value="index.xhtml" rendered="#{!authenticationBean.authenticated}">
+                  <h:outputLink value="index.xhtml" rendered="#{!sec:userInRole('student, teacher')}">
                     <h:graphicImage library="images" name="ok-logo.png" alt="open knowledge" style="width:70%"/>
                   </h:outputLink>
-                  <h:outputLink value="dashboard.xhtml" rendered="#{authenticationBean.authenticated}">
+                  <h:outputLink value="dashboard.xhtml" rendered="#{sec:userInRole('student, teacher')}">
                     <h:graphicImage library="images" name="ok-logo.png" alt="open knowledge" style="width:70%"/>
                   </h:outputLink>
                 </div>
@@ -39,13 +41,13 @@
             </div>
             <div id="headerLeft">
                 <h:form>
-                    <h:commandLink action="index.xhtml" value="Index" rendered="#{!authenticationBean.authenticated}"/>
-                    <h:commandLink action="dashboard.xhtml" value="Dashboard" rendered="#{authenticationBean.authenticated}"/>
+                    <h:commandLink action="index.xhtml" value="Index" rendered="#{!sec:userInRole('student, teacher')}"/>
+                    <h:commandLink action="dashboard.xhtml" value="Dashboard" rendered="#{sec:userInRole('student, teacher')}"/>
                 </h:form>
             </div>
             <div id="headerRight">
                 <comp:loginLink loginAction="login.xhtml"/>
-                <h:outputText id="userName" value="#{authenticationBean.currentUser.name}" rendered="#{authenticationBean.authenticated}"/>
+                <h:outputText id="userName" value="#{facesContext.externalContext.request.userPrincipal.name}" rendered="#{sec:userInRole('student, teacher')}"/>
             </div>
         </ui:composition>
     </body>

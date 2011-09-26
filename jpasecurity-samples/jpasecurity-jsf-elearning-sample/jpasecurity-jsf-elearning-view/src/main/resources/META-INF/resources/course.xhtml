@@ -17,7 +17,9 @@
  <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:ui="http://java.sun.com/jsf/facelets">
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:sec="http://jpasecurity.sf.net/facelets"
+      >
   <h:head>
     <title>#{course.name}</title>
   </h:head>
@@ -29,13 +31,13 @@
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
        <h1 id="courseTitle">#{course.name}</h1>
-       <h:panelGroup rendered="#{authenticationBean.authenticatedStudent and !course.studentInCourse}">
+       <h:panelGroup rendered="#{sec:userInRole('student') and !course.studentInCourse}">
            <h:form id="joinForm" prependId="false">
              <h:commandButton id="join" value="join this course" action="#{course.addStudentToCourse}" styleClass="submit"/>   
            </h:form>
        </h:panelGroup>
        
-       <h:panelGroup rendered="#{authenticationBean.authenticatedStudent and course.studentInCourse}">
+       <h:panelGroup rendered="#{sec:userInRole('student') and course.studentInCourse}">
            <h:form id="leaveForm" prependId="false">
              <h:commandButton id="leave" value="leave this course" action="#{course.removeStudentFromCourse}" styleClass="submit"/>   
            </h:form>    
@@ -69,7 +71,7 @@
             </li>
           </ui:repeat>
         </ul>  
-        <h:outputLink value="lessonCreater.xhtml" rendered="#{authenticationBean.authenticatedTeacher}">
+        <h:outputLink value="lessonCreater.xhtml" rendered="#{sec:userInRole('teacher')}">
           <h:outputText value="Create new Lesson" />
         </h:outputLink> 
       </ui:define>

@@ -41,7 +41,7 @@ public class RolesAllowedTagHandler extends TagHandler {
         ValueExpression expression = roles.getValueExpression(ctx, String.class);
         String[] roles = ((String)expression.getValue(ctx.getFacesContext().getELContext())).split(",");
         for (String role: roles) {
-            if (isUserInRole(role)) {
+            if (isUserInRole(role.trim())) {
                 nextHandler.apply(ctx, parent);
                 return;
             }
