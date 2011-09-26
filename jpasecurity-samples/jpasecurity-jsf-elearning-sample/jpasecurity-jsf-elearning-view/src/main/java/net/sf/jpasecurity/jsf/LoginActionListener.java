@@ -38,8 +38,8 @@ public class LoginActionListener implements ActionListener {
         FacesContext context = FacesContext.getCurrentInstance();
         UINamingContainer loginComponent
             = (UINamingContainer)context.getAttributes().get(UIComponent.CURRENT_COMPOSITE_COMPONENT);
-        UIInput username = (UIInput)loginComponent.findComponent("loginView:usernamePasswordForm:username");
-        UIInput password = (UIInput)loginComponent.findComponent("loginView:usernamePasswordForm:password");
+        UIInput username = (UIInput)loginComponent.findComponent("loginDialog:loginForm:username");
+        UIInput password = (UIInput)loginComponent.findComponent("loginDialog:loginForm:password");
         MethodExpression loginAction = (MethodExpression)loginComponent.getAttributes().get("loginAction");
         try {
             loginAction.invoke(context.getELContext(), new Object[] {username.getValue(), password.getValue()});
@@ -50,7 +50,9 @@ public class LoginActionListener implements ActionListener {
                 LOG.info("Login could not be established: " + e.getMessage());
             }
             MethodExpression cancelAction = (MethodExpression)loginComponent.getAttributes().get("cancelAction");
-            cancelAction.invoke(context.getELContext(), new Object[0]);
+            if (cancelAction != null) {
+                cancelAction.invoke(context.getELContext(), new Object[0]);
+            }
         }
         NavigationHandler navigationHandler = context.getApplication().getNavigationHandler();
         String outcome = (String)context.getExternalContext().getRequestParameterMap().get("outcome");
