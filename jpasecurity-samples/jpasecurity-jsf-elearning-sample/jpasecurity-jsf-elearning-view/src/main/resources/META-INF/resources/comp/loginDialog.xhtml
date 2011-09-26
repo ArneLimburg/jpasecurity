@@ -12,11 +12,12 @@
       <cc:attribute name="loginButtonText" default="Login"/>
       <cc:attribute name="cancelButtonText" default="Cancel"/>
       <cc:attribute name="loginAction" method-signature="java.lang.String action(java.lang.String, java.lang.String)" default="#{facesContext.externalContext.request.login}"/>
-      <cc:attribute name="cancelAction" method-signature="java.lang.String action()" default="#{net_sf_jpasecurity_jsf_LoginBean.cancel}"/>
+      <cc:attribute name="cancelAction" method-signature="java.lang.String action()"/>
     </cc:interface>
 
     <!-- IMPLEMENTATION -->
     <cc:implementation>
+      <f:subview id="loginView">
       <h:panelGroup rendered="#{facesContext.externalContext.request.queryString == 'form-based'}">
         <form name="loginForm"
               method="post"
@@ -34,23 +35,26 @@
 		</form>        
       </h:panelGroup>
       <h:panelGroup rendered="#{facesContext.externalContext.request.queryString != 'form-based'}">
-        <h:form>
+        <h:form id="usernamePasswordForm">
           <h:outputLabel value="#{cc.attrs.usernameLabel}" for="username"/>
-          <h:inputText id="username" value="#{net_sf_jpasecurity_jsf_LoginBean.username}" />
+          <h:inputText id="username"/>
 
           <h:outputLabel value="#{cc.attrs.passwordLabel}" for="password"/>
-          <h:inputSecret id="password" value="#{net_sf_jpasecurity_jsf_LoginBean.password}"/>
+          <h:inputSecret id="password"/>
 		  <br />
 		  
           <h:panelGroup layout="block" styleClass="buttons">
             <h:commandButton id="loginButton"
-                             value="#{cc.attrs.loginButtonText}"
-                             action="#{net_sf_jpasecurity_jsf_LoginBean.login}"/>
+                             value="#{cc.attrs.loginButtonText}">
+              <f:param name="outcome" value="${facesContext.externalContext.requestParameterMap['return']}"/>
+              <f:actionListener type="net.sf.jpasecurity.jsf.LoginActionListener"/>
+            </h:commandButton>
             <h:commandButton id="cancel"
                              value="#{cc.attrs.cancelButtonText}"
                              action="#{net_sf_jpasecurity_jsf_LoginBean.reset}"/>
           </h:panelGroup>
         </h:form>
       </h:panelGroup>
+    </f:subview>
     </cc:implementation>
 </html>

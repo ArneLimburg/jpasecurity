@@ -16,11 +16,13 @@
 package net.sf.jpasecurity.jsf;
 
 import javax.el.MethodExpression;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
+import javax.faces.application.NavigationHandler;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
 import javax.faces.component.UINamingContainer;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,43 +30,19 @@ import org.apache.commons.logging.LogFactory;
 /**
  * @author Arne Limburg
  */
-@RequestScoped
-@ManagedBean(name = "net_sf_jpasecurity_jsf_LoginBean")
-public class LoginBean {
+public class LoginActionListener implements ActionListener {
 
-    private static final Log LOG = LogFactory.getLog(LoginBean.class);
+    private static final Log LOG = LogFactory.getLog(LoginActionListener.class);
 
-    private String username;
-    private String password;
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void reset() {
-        username = null;
-        password = null;
-    }
-
-    public String login() {
+    public void processAction(ActionEvent actionEvent) {
         FacesContext context = FacesContext.getCurrentInstance();
         UINamingContainer loginComponent
             = (UINamingContainer)context.getAttributes().get(UIComponent.CURRENT_COMPOSITE_COMPONENT);
+        UIInput username = (UIInput)loginComponent.findComponent("loginView:usernamePasswordForm:username");
+        UIInput password = (UIInput)loginComponent.findComponent("loginView:usernamePasswordForm:password");
         MethodExpression loginAction = (MethodExpression)loginComponent.getAttributes().get("loginAction");
         try {
-            return getOutcome((String)loginAction.invoke(context.getELContext(), new Object[] {username, password}));
+            loginAction.invoke(context.getELContext(), new Object[] {username.getValue(), password.getValue()});
         } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Login could not be established.", e);
@@ -72,17 +50,12 @@ public class LoginBean {
                 LOG.info("Login could not be established: " + e.getMessage());
             }
             MethodExpression cancelAction = (MethodExpression)loginComponent.getAttributes().get("cancelAction");
-            return getOutcome((String)cancelAction.invoke(context.getELContext(), new Object[0]));
+            cancelAction.invoke(context.getELContext(), new Object[0]);
         }
-    }
-
-    public void cancel() {
-        username = null;
-        password = null;
-    }
-
-    private String getOutcome(String result) {
-        String outcome = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("return");
-        return outcome == null? result: outcome;
+        NavigationHandler navigationHandler = context.getApplication().getNavigationHandler();
+        String outcome = (String)context.getExternalContext().getRequestParameterMap().get("outcome");
+        if (outcome != null) {
+            navigationHandler.handleNavigation(context, null, outcome);
+        }
     }
 }
