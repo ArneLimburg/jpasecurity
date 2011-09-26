@@ -9,7 +9,6 @@
     <cc:interface name="loginLink">
       <cc:attribute name="loginLabel" default="Login"/>
       <cc:attribute name="logoutLabel" default="Logout"/>
-      <cc:attribute name="loginPage" />
       <cc:attribute name="loginAction" method-signature="java.lang.String action()" />
       <cc:attribute name="logoutAction" method-signature="java.lang.String action()" default="#{facesContext.externalContext.request.logout}"/>
     </cc:interface>
@@ -20,7 +19,9 @@
         <h:commandLink value="#{cc.attrs.loginLabel}" action="#{cc.attrs.loginAction}" rendered="#{facesContext.externalContext.request.remoteUser == null}">
           <f:param name="return" value="#{facesContext.viewRoot.viewId}"/>
         </h:commandLink>
-        <h:commandLink value="#{cc.attrs.logoutLabel}" action="#{cc.attrs.logoutAction}" rendered="#{facesContext.externalContext.request.remoteUser != null}" />
+        <h:commandLink value="#{cc.attrs.logoutLabel}" action="#{cc.attrs.logoutAction}" rendered="#{facesContext.externalContext.request.remoteUser != null}">
+          <f:actionListener type="net.sf.jpasecurity.jsf.LogoutActionListener"/>
+        </h:commandLink>
       </h:form>
     </cc:implementation>
 </html>
