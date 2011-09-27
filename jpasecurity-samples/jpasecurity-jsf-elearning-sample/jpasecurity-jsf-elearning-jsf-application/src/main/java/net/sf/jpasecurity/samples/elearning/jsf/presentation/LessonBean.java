@@ -18,16 +18,21 @@ package net.sf.jpasecurity.samples.elearning.jsf.presentation;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.RequestScoped;
 
 import net.sf.jpasecurity.sample.elearning.domain.Lesson;
+import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
+import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
 
 /**
  * @author Raffaela Ferrari
  */
+@RequestScoped
 @ManagedBean(name = "lesson")
-@SessionScoped
 public class LessonBean {
+
+    @ManagedProperty(value = "#{elearningRepository}")
+    private ElearningRepository elearningRepository;
 
     @ManagedProperty(value = "#{course}")
     private CourseBean course;
@@ -70,17 +75,24 @@ public class LessonBean {
 
     // student finishes a lesson
     public String studentFinishesLesson() {
-        lesson.studentFinishesLesson(course.getCurrentStudent());
-        return "course.xhtml";
+        return elearningRepository.executeTransactional(new Callable<String>() {
+            public String call() {
+                lesson.studentFinishesLesson(course.getCurrentStudent());
+                return "course.xhtml";
+            }
+        });
     }
 
     public void setCourse(CourseBean aCourseBean) {
         course = aCourseBean;
     }
 
+    public void setElearningRepository(ElearningRepository elearningRepository) {
+        this.elearningRepository = elearningRepository;
+    }
 
     @PostConstruct
-    private void init() {
+    public void init() {
         lesson = new Lesson();
     }
 }

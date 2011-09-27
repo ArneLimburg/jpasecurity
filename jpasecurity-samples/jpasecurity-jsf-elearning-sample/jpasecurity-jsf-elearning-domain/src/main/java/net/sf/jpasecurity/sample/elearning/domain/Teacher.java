@@ -18,19 +18,24 @@ package net.sf.jpasecurity.sample.elearning.domain;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.OneToMany;
+
 /**
  * @author Raffaela Ferrari
  */
+@javax.persistence.Entity
 public class Teacher extends User {
 
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Course> courses = new LinkedList<Course>();
 
     public Teacher() {
        super();
     }
 
-    public Teacher(int id, String name, String username, String password) {
-        super(id, name, username, password);
+    public Teacher(String name, String username, String password) {
+        super(name, username, password);
     }
 
     public List<Course> getCourses() {

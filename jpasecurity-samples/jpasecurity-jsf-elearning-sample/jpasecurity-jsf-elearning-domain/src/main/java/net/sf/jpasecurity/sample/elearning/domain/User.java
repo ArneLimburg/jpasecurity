@@ -18,24 +18,31 @@ package net.sf.jpasecurity.sample.elearning.domain;
 import java.security.Principal;
 import java.util.List;
 
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.NamedQuery;
 import javax.persistence.Transient;
 
 /**
  * @author Raffaela Ferrari
  */
+@javax.persistence.Entity
+@NamedQuery(name = "User.findByName",
+            query = "SELECT u FROM net.sf.jpasecurity.sample.elearning.domain.User u WHERE u.name = :name")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class User extends Entity implements Principal {
 
+    public static final String BY_NAME = User.class.getAnnotation(NamedQuery.class).name();
     private String username;
     private String password;
     @Transient
     private boolean authenticated;
 
-    public User() {
-        super();
+    protected User() {
     }
 
-    public User(int id, String name, String username, String password) {
-        super(id, name);
+    public User(String name, String username, String password) {
+        super(name);
         this.username = username;
         this.password = password;
     }

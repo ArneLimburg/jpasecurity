@@ -20,7 +20,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.RequestScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
@@ -29,12 +29,13 @@ import net.sf.jpasecurity.sample.elearning.domain.Lesson;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
+import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
 
 /**
  * @author Raffaela Ferrari
  */
+@RequestScoped
 @ManagedBean(name = "course")
-@SessionScoped
 public class CourseBean {
 
     @ManagedProperty(value = "#{elearningRepository}")
@@ -47,38 +48,52 @@ public class CourseBean {
 
     // create "new course"
     public String createCourse() {
-        course = new Course();
-        course.setName(coursename);
-        course.setId(elearningRepository.getNewId());
-        course.setTeacher(getCurrentTeacher());
-        coursename = "";
-        return "dashboard.xhtml";
+        return elearningRepository.executeTransactional(new Callable<String>() {
+            public String call() {
+                course = new Course();
+                course.setName(coursename);
+                course.setTeacher(getCurrentTeacher());
+                coursename = "";
+                return "dashboard.xhtml";
+            }
+        });
     }
 
     // add student to a course
     public String addStudentToCourse() {
-        Student student = getCurrentStudent();
-        course.addParticipant(student);
-        return "dashboard.xhtml";
+        return elearningRepository.executeTransactional(new Callable<String>() {
+            public String call() {
+                Student student = getCurrentStudent();
+                course.addParticipant(student);
+                return "dashboard.xhtml";
+            }
+        });
     }
 
     // remove student from a course
     public String removeStudentFromCourse() {
-        Student student = getCurrentStudent();
-        course.removeParticipant(student);
-        return "dashboard.xhtml";
+        return elearningRepository.executeTransactional(new Callable<String>() {
+            public String call() {
+                Student student = getCurrentStudent();
+                course.removeParticipant(student);
+                return "dashboard.xhtml";
+            }
+        });
     }
 
     // add lesson to a course
     public String addLessonToCourse() {
-        Lesson lesson = new Lesson();
-        lesson.setName(lessonName);
-        lesson.setLessonBody(lessonBody);
-        lesson.setId(elearningRepository.getNewId());
-        course.addLesson(lesson);
-        lessonName = "";
-        lessonBody = "";
-        return "course.xhtml";
+        return elearningRepository.executeTransactional(new Callable<String>() {
+            public String call() {
+                Lesson lesson = new Lesson();
+                lesson.setName(lessonName);
+                lesson.setLessonBody(lessonBody);
+                course.addLesson(lesson);
+                lessonName = "";
+                lessonBody = "";
+                return "course.xhtml";
+            }
+        });
     }
 
     public boolean isStudentInCourse() {
@@ -174,11 +189,6 @@ public class CourseBean {
         }
     }
 
-    @PostConstruct
-    private void init() {
-        course = new Course();
-    }
-
     public Lesson findLessonById(int id) {
         for (Lesson lesson : course.getLessons()) {
             if (lesson.getId() == id) {
@@ -186,5 +196,10 @@ public class CourseBean {
             }
         }
         return null;
+    }
+
+    @PostConstruct
+    public void init() {
+        course = new Course();
     }
 }

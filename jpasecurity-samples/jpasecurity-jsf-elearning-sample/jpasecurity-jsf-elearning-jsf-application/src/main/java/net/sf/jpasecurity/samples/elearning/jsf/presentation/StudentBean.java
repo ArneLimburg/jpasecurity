@@ -20,6 +20,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
@@ -28,8 +29,9 @@ import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
 /**
  * @author Raffaela Ferrari
  */
+@RequestScoped
 @ManagedBean(name = "student")
-public class StudentBean extends UserBean {
+public class StudentBean {
 
     @ManagedProperty(value = "#{elearningRepository}")
     private ElearningRepository elearningRepository;
@@ -56,12 +58,16 @@ public class StudentBean extends UserBean {
         return student.getCourses();
     }
 
+    public ElearningRepository getElearningRepository() {
+        return elearningRepository;
+    }
+
     public void setElearningRepository(ElearningRepository elearningRepository) {
         this.elearningRepository = elearningRepository;
     }
 
     @PostConstruct
-    private void init() {
-        student = new Student();
+    public void init() {
+        student = new Student("");
     }
 }

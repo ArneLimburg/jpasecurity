@@ -18,21 +18,31 @@ package net.sf.jpasecurity.sample.elearning.domain;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+
 /**
  * @author Raffaela Ferrari
  */
+@javax.persistence.Entity
 public class Course extends Entity {
 
+    @ManyToOne
     private Teacher teacher;
+    @ManyToMany(cascade = CascadeType.ALL)
     private List<Student> participants = new LinkedList<Student>();
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "lecturer")
     private List<Lesson> lessons = new LinkedList<Lesson>();
 
     public Course() {
         super();
     }
 
-    public Course(int id, String name, Teacher lecturer) {
-        super(id, name);
+    public Course(String name, Teacher lecturer) {
+        super(name);
         setTeacher(lecturer);
     }
 
@@ -52,9 +62,6 @@ public class Course extends Entity {
     public void addParticipant(Student student) {
         getParticipants().add(student);
         student.addCourse(this);
-        for (Lesson lesson : lessons) {
-            lesson.addStudent(student);
-        }
     }
 
     public void removeParticipant(Student student) {
@@ -71,8 +78,5 @@ public class Course extends Entity {
 
     public void addLesson(Lesson lesson) {
         this.lessons.add(lesson);
-        for (Student student : this.participants) {
-            lesson.addStudent(student);
-        }
     }
 }
