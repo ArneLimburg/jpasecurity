@@ -18,16 +18,29 @@ package net.sf.jpasecurity.sample.elearning.domain;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.Basic;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+
 /**
  * @author Raffaela Ferrari
  */
+@javax.persistence.Entity
 public class Lesson extends Entity {
 
-    private List<FinishedLesson> students = new LinkedList<FinishedLesson>();
+    @ManyToOne
+    private Teacher lecturer;
+    @ManyToMany
+    private List<Student> students = new LinkedList<Student>();
+    @Basic (optional = false)
     private String lessonBody;
 
     public Lesson() {
         super();
+    }
+
+    public Teacher getLecturer() {
+        return lecturer;
     }
 
     public String getLessonBody() {
@@ -38,58 +51,24 @@ public class Lesson extends Entity {
         this.lessonBody = lessonbody;
     }
 
-    public void addStudent(Student student) {
-        students.add(new FinishedLesson(student, false));
-    }
-
     public void removeStudent(Student student) {
-        for (FinishedLesson finishedLesson : this.students) {
-            Student studentLesson = finishedLesson.getStudent();
-            if (student.equals(studentLesson)) {
-                students.remove(finishedLesson);
+        for (Student finishedStudent : this.students) {
+            if (student.equals(finishedStudent)) {
+                students.remove(student);
             }
         }
     }
 
     public boolean haveStudentFinishedLesson(Student student) {
-        for (FinishedLesson finishedLesson : this.students) {
-            Student studentLesson = finishedLesson.getStudent();
-            if (student.equals(studentLesson)) {
-                return finishedLesson.isFinished();
+        for (Student finishedStudent : this.students) {
+            if (student.equals(finishedStudent)) {
+                return true;
             }
         }
         return false;
     }
 
     public void studentFinishesLesson(Student student) {
-        for (FinishedLesson finishedLesson : this.students) {
-            Student studentLesson = finishedLesson.getStudent();
-            if (student.equals(studentLesson)) {
-                finishedLesson.setFinished();
-            }
-        }
-    }
-
-    private class FinishedLesson {
-
-        private Student student;
-        private boolean finished;
-
-        public FinishedLesson(Student student, boolean finished) {
-            this.student = student;
-            this.finished = finished;
-        }
-
-        public boolean isFinished() {
-            return finished;
-        }
-
-        public void setFinished() {
-            this.finished = true;
-        }
-
-        public Student getStudent() {
-            return this.student;
-        }
+        students.add(student);
     }
 }

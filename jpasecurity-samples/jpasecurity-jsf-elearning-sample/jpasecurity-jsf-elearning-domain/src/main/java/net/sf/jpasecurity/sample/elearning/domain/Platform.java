@@ -18,14 +18,17 @@ package net.sf.jpasecurity.sample.elearning.domain;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.OneToMany;
+
 /**
  * @author Raffaela Ferrari
  */
 public class Platform extends Entity {
 
+    @OneToMany
     private List<Teacher> teachers = new LinkedList<Teacher>();
+    @OneToMany
     private List<Student> students = new LinkedList<Student>();
-    private List<Course> courses = new LinkedList<Course>();
 
     public Platform() {
         super();

@@ -20,7 +20,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.RequestScoped;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
@@ -29,9 +29,9 @@ import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
 /**
  * @author Raffaela Ferrari
  */
+@RequestScoped
 @ManagedBean(name = "teacher")
-@SessionScoped
-public class TeacherBean extends UserBean {
+public class TeacherBean {
 
     @ManagedProperty(value = "#{elearningRepository}")
     private ElearningRepository elearningRepository;
@@ -63,7 +63,7 @@ public class TeacherBean extends UserBean {
     }
 
     @PostConstruct
-    private void init() {
+    public void init() {
         teacher = new Teacher();
     }
 }

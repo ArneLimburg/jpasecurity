@@ -1,0 +1,24 @@
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+
+  <persistence-unit name="elearning" transaction-type="RESOURCE_LOCAL">
+
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+    <class>net.sf.jpasecurity.sample.elearning.domain.Course</class>
+    <class>net.sf.jpasecurity.sample.elearning.domain.Teacher</class>
+    <class>net.sf.jpasecurity.sample.elearning.domain.Student</class>
+    <class>net.sf.jpasecurity.sample.elearning.domain.User</class>
+    <class>net.sf.jpasecurity.sample.elearning.domain.Entity</class>
+
+    <properties>
+      <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:elearning"/>
+      <property name="javax.persistence.jdbc.user" value="sa"/>
+      <property name="javax.persistence.jdbc.password" value=""/>
+      <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+    </properties>
+  </persistence-unit>
+</persistence>

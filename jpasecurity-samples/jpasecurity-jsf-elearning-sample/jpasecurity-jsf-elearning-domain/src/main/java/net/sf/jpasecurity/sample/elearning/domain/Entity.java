@@ -15,22 +15,28 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
+import javax.persistence.Basic;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+
 /**
  * @author Raffaela Ferrari
  */
-
+@MappedSuperclass
 public class Entity {
 
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+    @Basic(optional = false)
     private String name;
 
-    public Entity() {
-        super();
+    protected Entity() {
     }
 
-    public Entity(int id, String name) {
+    public Entity(String name) {
         super();
-        this.id = id;
         this.name = name;
     }
 

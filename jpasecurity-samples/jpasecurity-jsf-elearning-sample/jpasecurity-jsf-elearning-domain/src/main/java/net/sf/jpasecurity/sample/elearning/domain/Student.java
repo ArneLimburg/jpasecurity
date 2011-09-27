@@ -18,19 +18,27 @@ package net.sf.jpasecurity.sample.elearning.domain;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.ManyToMany;
+
 /**
  * @author Raffaela Ferrari
  */
+@javax.persistence.Entity
 public class Student extends User {
 
+    @ManyToMany(mappedBy = "participants")
     private List<Course> courses = new LinkedList<Course>();
 
-    public Student() {
+    protected Student() {
         super();
     }
 
-    public Student(int id, String name, String username, String password) {
-        super(id, name, username, password);
+    public Student(String name) {
+        super(name, name, "");
+    }
+
+    public Student(String name, String username, String password) {
+        super(name, username, password);
     }
 
     public List<Course> getCourses() {
