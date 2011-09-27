@@ -15,10 +15,6 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.service;
 
-import javax.el.ELContext;
-import javax.el.ELResolver;
-import javax.faces.context.FacesContext;
-
 import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 
