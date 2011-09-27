@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.service;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -26,22 +27,25 @@ import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
+import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
+import net.sf.jpasecurity.sample.elearning.domain.StudentRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
+import net.sf.jpasecurity.sample.elearning.domain.TeacherRepository;
 import net.sf.jpasecurity.sample.elearning.domain.User;
-import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
+import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 
 /**
  * @author Raffaela Ferrari
  */
 @ManagedBean(name = "elearningRepository")
 @RequestScoped
-public class ElearningRepository /*implements UserRepository,
+public class ElearningRepository implements UserRepository,
                                             CourseRepository,
                                             StudentRepository,
                                             TeacherRepository,
                                             TransactionService,
-                                            Serializable*/ {
+                                            Serializable {
 
     private static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("elearning");
 
