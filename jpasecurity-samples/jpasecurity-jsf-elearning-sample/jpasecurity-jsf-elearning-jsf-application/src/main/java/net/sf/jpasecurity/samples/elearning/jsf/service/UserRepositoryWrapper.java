@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.service;
 
+import javax.faces.context.FacesContext;
+
 import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 
@@ -24,7 +26,7 @@ import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 public class UserRepositoryWrapper implements UserRepository {
 
     public <U extends User> U findUser(String name) {
-//        FacesContext context = FacesContext.getCurrentInstance();
+        FacesContext context = FacesContext.getCurrentInstance();
 //        ELResolver elResolver = context.getApplication().getELResolver();
 //        ELContext elContext = context.getELContext();
 //        UserRepository userRepository = (UserRepository)elResolver.getValue(elContext, null, "elearningRepository");
