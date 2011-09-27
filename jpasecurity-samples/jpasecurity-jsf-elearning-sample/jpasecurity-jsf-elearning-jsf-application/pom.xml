@@ -23,6 +23,7 @@
           <target>1.6</target>
           <excludes>
             <exclude>**/presentation/*.java</exclude>
+            <exclude>**/UserRepositoryWrapper.java</exclude>
           </excludes>
         </configuration>
       </plugin>
