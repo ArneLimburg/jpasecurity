@@ -15,17 +15,18 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.service;
 
-import org.junit.Test;
+import org.junit.Ignore;
 
 /**
  * @author Arne Limburg
  */
+@Ignore
 public class ElearningRepositoryTest {
-
-    private ElearningRepository elearningRepository = new ElearningRepository();
-
-    @Test
-    public void init() {
-        elearningRepository.init();
-    }
+//
+//    private ElearningRepository elearningRepository = new ElearningRepository();
+//
+//    @Test
+//    public void init() {
+//        elearningRepository.init();
+//    }
 }
