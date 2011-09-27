@@ -26,6 +26,6 @@ public class ElearningRepositoryTest {
 
     @Test
     public void init() {
-        elearningRepository.init();
+//        elearningRepository.init();
     }
 }
