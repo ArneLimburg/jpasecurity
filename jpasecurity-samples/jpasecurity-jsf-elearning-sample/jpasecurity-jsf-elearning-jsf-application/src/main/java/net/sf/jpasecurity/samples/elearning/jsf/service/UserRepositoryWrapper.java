@@ -31,7 +31,9 @@ public class UserRepositoryWrapper implements UserRepository {
         FacesContext context = FacesContext.getCurrentInstance();
         ELResolver elResolver = context.getApplication().getELResolver();
         ELContext elContext = context.getELContext();
-        UserRepository userRepository = (UserRepository)elResolver.getValue(elContext, null, "elearningRepository");
-        return userRepository.findUser(name);
+        elResolver.getValue(elContext, null, "elearningRepository");
+        return null;
+//        UserRepository userRepository = (UserRepository)
+//        return userRepository.findUser(name);
     }
 }
