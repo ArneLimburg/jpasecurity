@@ -52,39 +52,48 @@ public class ElearningRepository implements UserRepository,
     private EntityManager entityManager;
 
     public Course findCourseById(int id) {
-        return entityManager.find(Course.class, id);
+        return getEntityManager().createQuery("SELECT course FROM Course course "
+                                            + "LEFT OUTER JOIN FETCH course.participants "
+                                            + "LEFT OUTER JOIN FETCH course.lessons "
+                                            + "WHERE course.id = :id", Course.class)
+                                 .setParameter("id", id)
+                                 .getSingleResult();
     }
 
     public Teacher findTeacherById(int id) {
-        return entityManager.find(Teacher.class, id);
+        return getEntityManager().createQuery("SELECT teacher FROM Teacher teacher "
+                                            + "LEFT OUTER JOIN FETCH teacher.courses "
+                                            + "WHERE teacher.id = :id", Teacher.class)
+                                 .setParameter("id", id)
+                                 .getSingleResult();
     }
 
     public Student findStudentById(int id) {
-        return entityManager.find(Student.class, id);
+        return getEntityManager().find(Student.class, id);
     }
 
     public <U extends User> U findUser(String name) {
-        User user
-            = entityManager.createNamedQuery(User.BY_NAME, User.class).setParameter("name", name).getSingleResult();
-        return (U)user;
+        return (U)getEntityManager().createNamedQuery(User.BY_NAME, User.class)
+                                    .setParameter("name", name)
+                                    .getSingleResult();
     }
 
     public List<Course> findAllCourses() {
-        CriteriaQuery<Course> allCourses = entityManager.getCriteriaBuilder().createQuery(Course.class);
+        CriteriaQuery<Course> allCourses = getEntityManager().getCriteriaBuilder().createQuery(Course.class);
         allCourses.from(Course.class);
-        return entityManager.createQuery(allCourses).getResultList();
+        return getEntityManager().createQuery(allCourses).getResultList();
     }
 
     public List<Student> findAllStudents() {
-        CriteriaQuery<Student> allStudents = entityManager.getCriteriaBuilder().createQuery(Student.class);
+        CriteriaQuery<Student> allStudents = getEntityManager().getCriteriaBuilder().createQuery(Student.class);
         allStudents.from(Student.class);
-        return entityManager.createQuery(allStudents).getResultList();
+        return getEntityManager().createQuery(allStudents).getResultList();
     }
 
     public List<Teacher> findAllTeachers() {
-        CriteriaQuery<Teacher> allTeachers = entityManager.getCriteriaBuilder().createQuery(Teacher.class);
+        CriteriaQuery<Teacher> allTeachers = getEntityManager().getCriteriaBuilder().createQuery(Teacher.class);
         allTeachers.from(Teacher.class);
-        return entityManager.createQuery(allTeachers).getResultList();
+        return getEntityManager().createQuery(allTeachers).getResultList();
     }
 
     public void executeTransactional(final Runnable runnable) {
@@ -121,7 +130,12 @@ public class ElearningRepository implements UserRepository,
         }
     }
 
-    //----------------------------------------------------------------//
+    private EntityManager getEntityManager() {
+        if (entityManager == null) {
+            throw new IllegalStateException("No active transaction");
+        }
+        return entityManager;
+    }
 
     @PostConstruct
     public void init() {
