@@ -15,8 +15,11 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.ManyToMany;
@@ -33,7 +36,7 @@ public class Course extends Entity {
     @ManyToOne
     private Teacher teacher;
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<Student> participants = new LinkedList<Student>();
+    private Set<Student> participants = new HashSet<Student>();
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "lecturer")
     private List<Lesson> lessons = new LinkedList<Lesson>();
 
@@ -55,7 +58,7 @@ public class Course extends Entity {
         teacher.addCourse(this);
     }
 
-    public List<Student> getParticipants() {
+    public Collection<Student> getParticipants() {
         return participants;
     }
 
