@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.presentation;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -97,7 +99,7 @@ public class CourseBean {
     }
 
     public boolean isStudentInCourse() {
-        List<Student> courseStudents = course.getParticipants();
+        Collection<Student> courseStudents = course.getParticipants();
         Student currentStudent = getCurrentStudent();
         for (Student student : courseStudents) {
             if (student.equals(currentStudent)) {
@@ -152,7 +154,7 @@ public class CourseBean {
     }
 
     public List<Student> getStudents() {
-        return course.getParticipants();
+        return new ArrayList<Student>(course.getParticipants());
     }
 
     public List<Lesson> getLessons() {
@@ -163,8 +165,12 @@ public class CourseBean {
         this.elearningRepository = elearningRepository;
     }
 
-    public void setId(int id) {
-        this.course = this.elearningRepository.findCourseById(id);
+    public void setId(final int id) {
+        elearningRepository.executeTransactional(new Runnable() {
+            public void run() {
+                course = elearningRepository.findCourseById(id);
+            }
+        });
     }
 
     public int getId() {
