@@ -158,7 +158,7 @@ public class Configuration {
     }
 
     private SecurityContext createSecurityContext() {
-        if (!properties.containsKey(SECURE_ENTITY_PROXY_FACTORY_PROPERTY)) {
+        if (!properties.containsKey(SECURITY_CONTEXT_PROPERTY)) {
             AuthenticationProvider authenticationProvider = createAuthenticationProvider();
             if (authenticationProvider != null) {
                 return new AuthenticationProviderSecurityContext(authenticationProvider);
