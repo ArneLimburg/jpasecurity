@@ -15,64 +15,135 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
-import java.security.Principal;
-import java.util.List;
+import static org.apache.commons.lang.Validate.notNull;
 
+import java.security.Principal;
+import java.util.Collection;
+
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.NamedQuery;
 import javax.persistence.Transient;
 
 /**
- * @author Raffaela Ferrari
+ * @author Arne Limburg - open knowledge GmbH (arne.limburg@openknowledge.de)
+ * @author Raffaela Ferrari - open knowledge GmbH (raffaela.ferrari@openknowledge.de)
  */
-@javax.persistence.Entity
+@Entity
 @NamedQuery(name = "User.findByName",
-            query = "SELECT u FROM net.sf.jpasecurity.sample.elearning.domain.User u WHERE u.name = :name")
+            query = "SELECT u FROM User u WHERE u.name.nick = :nick")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public abstract class User extends Entity implements Principal {
+public abstract class User implements Principal {
 
     public static final String BY_NAME = User.class.getAnnotation(NamedQuery.class).name();
-    private String username;
-    private String password;
+    @Id
+    @GeneratedValue
+    private Integer id;
+    @Embedded
+    private Name name;
+    @Embedded
+    private Password password;
     @Transient
     private boolean authenticated;
 
     protected User() {
     }
 
-    public User(String name, String username, String password) {
-        super(name);
-        this.username = username;
-        this.password = password;
+    public User(Name name) {
+        notNull(name, "name may not be null");
+        this.name = name;
     }
 
-    public String getPassword() {
+    public User(Name name, Password password) {
+        this(name);
+        setPassword(password);
+    }
+
+    public int getId() {
+        return id == null? -1: id;
+    }
+
+    public Password getPassword() {
         return this.password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(Password password) {
         this.password = password;
     }
 
-    public String getUsername() {
-        return this.username;
+    public String getName() {
+        return this.name.getNick();
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getFirstName() {
+        return this.name.getFirst();
     }
 
-    public abstract List<Course> getCourses();
+    public void setFirstName(String firstName) {
+        this.name = this.name.newFirst(firstName);
+    }
 
-    public abstract void addCourse(Course course);
+    public String getLastName() {
+        return this.name.getLast();
+    }
+
+    public void setLastName(String lastName) {
+        this.name = this.name.newLast(lastName);
+    }
+
+    public abstract Collection<Course> getCourses();
 
     public boolean isAuthenticated() {
         return authenticated;
     }
 
-    public boolean authenticate(String password) {
-        authenticated = this.password.equals(password);
+    public boolean authenticate(Password password) {
+        notNull(password, "the password may not be null");
+        authenticated = password.equals(this.password);
         return authenticated;
+    }
+
+    public int hashCode() {
+        if (id == null) {
+            return System.identityHashCode(this);
+        }
+        return getId();
+    }
+
+    public boolean equals(Object object) {
+        if (!(object instanceof User)) {
+            return false;
+        }
+        if (id == null) {
+            return this == object;
+        }
+        User user = (User)object;
+        return id.equals(user.getId());
+    }
+
+    public String toString() {
+        if (id == null) {
+            return getEntityClass().getName() + "<unsaved>";
+        } else {
+            return getEntityClass().getName() + "#" + id;
+        }
+    }
+
+    /* We don't want to use a proxy-class for #toString(),
+     * so we search for an entity class in the class hierarchy
+     */
+    private Class<?> getEntityClass() {
+        return getEntityClass(getClass());
+    }
+
+    private Class<?> getEntityClass(Class<?> subclass) {
+        if (subclass == null || subclass.isAnnotationPresent(Entity.class)) {
+            return subclass;
+        }
+        return getEntityClass(subclass.getSuperclass());
     }
 }

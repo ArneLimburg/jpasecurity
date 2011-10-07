@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Raffaela Ferrari open knowledge GmbH
+ * Copyright 2011 Arne Limburg - open knowledge GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,41 +15,63 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
-import java.util.LinkedList;
-import java.util.List;
+import static org.apache.commons.lang.Validate.notNull;
 
-import javax.persistence.ManyToMany;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.persistence.Entity;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
+
+import net.sf.jpasecurity.sample.elearning.domain.course.Participation;
 
 /**
- * @author Raffaela Ferrari
+ * An entity that represents a student.
+ *
+ * @author Arne Limburg - open knowledge GmbH (arne.limburg@openknowledge.de)
+ * @author Raffaela Ferrari - open knowledge GmbH (raffaela.ferrari@openknowledge.de)
  */
-@javax.persistence.Entity
+@Entity
 public class Student extends User {
 
-    @ManyToMany(mappedBy = "participants")
-    private List<Course> courses = new LinkedList<Course>();
+    @MapKey(name = "course")
+    @OneToMany(mappedBy = "participant", targetEntity = Participation.class)
+    private Map<Course, Object> courses = new HashMap<Course, Object>();
 
     protected Student() {
-        super();
+        // to satisfy @Entity-contract
     }
 
-    public Student(String name) {
-        super(name, name, "");
+    public Student(Name name) {
+        super(name);
     }
 
-    public Student(String name, String username, String password) {
-        super(name, username, password);
+    public Student(Name name, Password password) {
+        super(name, password);
     }
 
-    public List<Course> getCourses() {
-        return courses;
+    public Collection<Course> getCourses() {
+        return Collections.unmodifiableCollection(courses.keySet());
     }
 
-    public void addCourse(Course course) {
-        this.courses.add(course);
+    public void subscribe(Course course) {
+        notNull(course, "course may not be null");
+        if (getCourses().contains(course)) {
+            throw new IllegalArgumentException("The student " + this + " is already subscribed for course " + course);
+        }
+        courses.put(course, null);
+        course.subscribe(this);
     }
 
-    public void removeCourse(Course course) {
-        this.courses.remove(course);
+    public void startLesson(Lesson lesson) {
+        notNull(lesson, "lesson may not be null");
+        if (!getCourses().contains(lesson.getCourse())) {
+            throw new IllegalArgumentException("The student " + this + " must be subscribed for course "
+                            + lesson.getCourse());
+        }
+        lesson.getCourse().startLesson(this, lesson);
     }
 }

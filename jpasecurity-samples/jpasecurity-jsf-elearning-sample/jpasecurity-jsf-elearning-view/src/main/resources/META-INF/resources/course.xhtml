@@ -21,7 +21,7 @@
       xmlns:sec="http://jpasecurity.sf.net/facelets"
       >
   <h:head>
-    <title>#{course.name}</title>
+    <title>#{course.title}</title>
   </h:head>
   <h:body>
     <f:metadata>
@@ -30,7 +30,7 @@
 
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
-       <h1 id="courseTitle">#{course.name}</h1>
+       <h1 id="courseTitle">#{course.title}</h1>
        <h:panelGroup rendered="#{sec:userInRole('student') and !course.studentInCourse}">
            <h:form id="joinForm" prependId="false">
              <h:commandButton id="join" value="join this course" action="#{course.addStudentToCourse}" styleClass="submit"/>   
@@ -54,7 +54,7 @@
             <li>
               <h:outputLink value="student.xhtml" >
                 <f:param name="id" value="#{participant.id}" />
-                <h:outputText value="#{participant.name}" />
+                <h:outputText value="#{participant.name}"/>
               </h:outputLink>
             </li>
           </ui:repeat>
@@ -66,7 +66,7 @@
             <li >
                 <h:outputLink value="lesson.xhtml">
                   <f:param name="id" value="#{lesson.id}" />
-                  <h:outputText value="#{lesson.name}" />
+                  <h:outputText value="#{lesson.title}" />
                 </h:outputLink>
             </li>
           </ui:repeat>

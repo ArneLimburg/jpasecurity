@@ -19,6 +19,7 @@ import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.faces.context.FacesContext;
 
+import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
@@ -28,7 +29,7 @@ import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Calla
  */
 public class UserRepositoryWrapper implements UserRepository {
 
-    public <U extends User> U findUser(final String name) {
+    public <U extends User> U findUser(final Name name) {
         FacesContext context = FacesContext.getCurrentInstance();
         ELResolver elResolver = context.getApplication().getELResolver();
         ELContext elContext = context.getELContext();

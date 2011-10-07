@@ -15,7 +15,6 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.presentation;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
@@ -47,37 +46,20 @@ public class LessonBean {
         return lesson.getId();
     }
 
-    public void setName(String name) {
-        this.lesson.setName(name);
-    }
-
     public String getName() {
-        return this.lesson.getName();
-    }
-
-    public void setLessonBody(String lessonbody) {
-        this.lesson.setLessonBody(lessonbody);
-    }
-
-    public String getLessonBody() {
-        return this.lesson.getLessonBody();
+        return this.lesson.getTitle().getText();
     }
 
     // is true, if the student have finished lesson
     public boolean isStudentFinished() {
-        for (Lesson finishedLesson : course.getLessons()) {
-            if (finishedLesson.equals(lesson)) {
-                return lesson.haveStudentFinishedLesson(course.getCurrentStudent());
-            }
-        }
-        return false;
+        return course.isLessonFinished(lesson);
     }
 
     // student finishes a lesson
     public String studentFinishesLesson() {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
-                lesson.studentFinishesLesson(course.getCurrentStudent());
+                course.studentFinishesLesson();
                 return "course.xhtml";
             }
         });
@@ -89,10 +71,5 @@ public class LessonBean {
 
     public void setElearningRepository(ElearningRepository elearningRepository) {
         this.elearningRepository = elearningRepository;
-    }
-
-    @PostConstruct
-    public void init() {
-        lesson = new Lesson();
     }
 }

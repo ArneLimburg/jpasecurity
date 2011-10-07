@@ -21,6 +21,13 @@ package net.sf.jpasecurity.sample.elearning.domain;
  */
 public interface UserRepository {
 
-    <U extends User> U findUser(String name);
+    /**
+     * Search a user by it's name.
+     * When first name and last name are <tt>null</tt>,
+     * they are ignored
+     * @param name
+     * @return
+     */
+    <U extends User> U findUser(Name name);
 
 }

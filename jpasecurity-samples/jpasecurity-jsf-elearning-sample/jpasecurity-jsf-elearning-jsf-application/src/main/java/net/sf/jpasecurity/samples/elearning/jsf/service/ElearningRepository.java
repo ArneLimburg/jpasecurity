@@ -16,7 +16,9 @@
 package net.sf.jpasecurity.samples.elearning.jsf.service;
 
 import java.io.Serializable;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
@@ -26,14 +28,21 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 
+import net.sf.jpasecurity.sample.elearning.domain.Content;
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
+import net.sf.jpasecurity.sample.elearning.domain.LessonWithoutCourse;
+import net.sf.jpasecurity.sample.elearning.domain.Name;
+import net.sf.jpasecurity.sample.elearning.domain.Password;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.StudentRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.TeacherRepository;
+import net.sf.jpasecurity.sample.elearning.domain.Title;
 import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
+import net.sf.jpasecurity.sample.elearning.domain.course.CourseAggregate;
+import net.sf.jpasecurity.sample.elearning.domain.course.LessonFactoryBuilder;
 
 /**
  * @author Raffaela Ferrari
@@ -52,8 +61,9 @@ public class ElearningRepository implements UserRepository,
     private EntityManager entityManager;
 
     public Course findCourseById(int id) {
-        return getEntityManager().createQuery("SELECT course FROM Course course "
-                                            + "LEFT OUTER JOIN FETCH course.participants "
+        return getEntityManager().createQuery("SELECT course FROM CourseAggregate course "
+                                            + "LEFT OUTER JOIN FETCH course.participations participation "
+                                            + "LEFT OUTER JOIN FETCH participation.participant "
                                             + "LEFT OUTER JOIN FETCH course.lessons "
                                             + "WHERE course.id = :id", Course.class)
                                  .setParameter("id", id)
@@ -69,19 +79,24 @@ public class ElearningRepository implements UserRepository,
     }
 
     public Student findStudentById(int id) {
-        return getEntityManager().find(Student.class, id);
+        return getEntityManager().createQuery("SELECT student FROM Student student "
+                                            + "LEFT OUTER JOIN FETCH student.courses "
+                                            + "WHERE student.id = :id", Student.class)
+                                 .setParameter("id", id)
+                                 .getSingleResult();
     }
 
-    public <U extends User> U findUser(String name) {
+    public <U extends User> U findUser(Name name) {
         return (U)getEntityManager().createNamedQuery(User.BY_NAME, User.class)
-                                    .setParameter("name", name)
+                                    .setParameter("nick", name.getNick())
                                     .getSingleResult();
     }
 
-    public List<Course> findAllCourses() {
-        CriteriaQuery<Course> allCourses = getEntityManager().getCriteriaBuilder().createQuery(Course.class);
-        allCourses.from(Course.class);
-        return getEntityManager().createQuery(allCourses).getResultList();
+    public Set<Course> getAllCourses() {
+        CriteriaQuery<CourseAggregate> allCourses
+            = getEntityManager().getCriteriaBuilder().createQuery(CourseAggregate.class);
+        allCourses.from(CourseAggregate.class);
+        return new LinkedHashSet<Course>(getEntityManager().createQuery(allCourses).getResultList());
     }
 
     public List<Student> findAllStudents() {
@@ -141,14 +156,14 @@ public class ElearningRepository implements UserRepository,
     public void init() {
         executeTransactional(new Runnable() {
             public void run() {
-                Teacher peter = new Teacher("Peter B.", "peter", "peter");
-                Student stefan = new Student("Stefan A.", "stefan", "stefan");
-                Teacher hans = new Teacher("Hans L.", "hans", "hans");
-                Student tassimo = new Student("Tassimo B.", "tassimo", "tassimo");
-                Student ulli = new Student("Ulli D.", "ulli", "ulli");
-                Student anne = new Student("Anne G.", "anne", "anne");
-                Student lisa = new Student("Lisa T.", "lisa", "lisa");
-                Student marie = new Student("Marie M.", "marie", "marie");
+                Teacher peter = new Teacher(new Name("peter", "Peter", "B."), new Password("peter"));
+                Student stefan = new Student(new Name("stefan", "Stefan", "A."), new Password("stefan"));
+                Teacher hans = new Teacher(new Name("hans", "Hans", "L."), new Password("hans"));
+                Student tassimo = new Student(new Name("tassimo", "Tassimo", "B."), new Password("tassimo"));
+                Student ulli = new Student(new Name("ulli", "Ulli", "D."), new Password("ulli"));
+                Student anne = new Student(new Name("anne", "Anne", "G."), new Password("anne"));
+                Student lisa = new Student(new Name("lisa", "Lisa", "T."), new Password("lisa"));
+                Student marie = new Student(new Name("marie", "Marie", "M."), new Password("marie"));
                 entityManager.persist(peter);
                 entityManager.persist(stefan);
                 entityManager.persist(hans);
@@ -157,24 +172,45 @@ public class ElearningRepository implements UserRepository,
                 entityManager.persist(anne);
                 entityManager.persist(lisa);
                 entityManager.persist(marie);
-                Course teacherCourse = new Course("Shakespeare course", peter);
-                Course teacher2Course = new Course("Da Vinci course", hans);
-                Course teacher3Course = new Course("Analysis", peter);
-                Course teacher4Course = new Course("Algbra", hans);
-                teacherCourse.addParticipant(stefan);
-                teacherCourse.addParticipant(anne);
-                teacherCourse.addParticipant(tassimo);
-                teacherCourse.addParticipant(lisa);
-                teacher2Course.addParticipant(marie);
-                teacher2Course.addParticipant(lisa);
-                teacher2Course.addParticipant(ulli);
-                teacher3Course.addParticipant(marie);
-                teacher3Course.addParticipant(ulli);
-                teacher3Course.addParticipant(stefan);
-                teacher3Course.addParticipant(tassimo);
-                teacher4Course.addParticipant(marie);
-                teacher4Course.addParticipant(lisa);
-                teacher4Course.addParticipant(anne);
+                LessonWithoutCourse shakespeareLesson
+                    = LessonFactoryBuilder.newLession()
+                                          .withTitle(new Title("Shakespeare introduction"))
+                                          .andContent(new Content("Welcome to the Shakespear course."));
+                Course teacherCourse = new CourseAggregate(new Title("Shakespeare course"), peter, shakespeareLesson);
+                entityManager.persist(teacherCourse);
+                LessonWithoutCourse daVinciLesson
+                    = LessonFactoryBuilder.newLession()
+                                          .withTitle(new Title("Da Vinci introduction"))
+                                          .andContent(new Content("Welcome to the Da Vinci course."));
+                Course teacher2Course = new CourseAggregate(new Title("Da Vinci course"), hans, daVinciLesson);
+                entityManager.persist(teacher2Course);
+                LessonWithoutCourse analysisLesson
+                    = LessonFactoryBuilder.newLession()
+                                          .withTitle(new Title("Analysis introduction"))
+                                          .andContent(new Content("Welcome to the Analysis course."));
+                Course teacher3Course = new CourseAggregate(new Title("Analysis"), peter, analysisLesson);
+                entityManager.persist(teacher3Course);
+                LessonWithoutCourse algebraLesson
+                    = LessonFactoryBuilder.newLession()
+                                          .withTitle(new Title("Algebra introduction"))
+                                          .andContent(new Content("Welcome to the Algebra course."));
+                Course teacher4Course = new CourseAggregate(new Title("Algbra"), hans, algebraLesson);
+                entityManager.persist(teacher4Course);
+                teacherCourse.subscribe(stefan);
+                entityManager.flush();
+                teacherCourse.subscribe(anne);
+//                teacherCourse.subscribe(tassimo);
+//                teacherCourse.subscribe(lisa);
+//                teacher2Course.subscribe(marie);
+//                teacher2Course.subscribe(lisa);
+//                teacher2Course.subscribe(ulli);
+//                teacher3Course.subscribe(marie);
+//                teacher3Course.subscribe(ulli);
+//                teacher3Course.subscribe(stefan);
+//                teacher3Course.subscribe(tassimo);
+//                teacher4Course.subscribe(marie);
+//                teacher4Course.subscribe(lisa);
+//                teacher4Course.subscribe(anne);
             }
         });
     }
