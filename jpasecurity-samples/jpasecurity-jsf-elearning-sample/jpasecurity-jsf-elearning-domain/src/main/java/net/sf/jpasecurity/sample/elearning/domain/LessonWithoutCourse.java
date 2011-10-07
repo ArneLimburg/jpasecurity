@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg - open knowledge GmbH
+ * Copyright 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,12 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
-import java.util.List;
-import java.util.Set;
-
 /**
- * @author Arne Limburg - open knowledge GmbH (arne.limburg@openknowledge.de)
+ * This is a marker interface for a temporarily existing lesson that does not yet has a course assigned.
+ * Such lesson may not be used anywhere so this interface has no methods.
+ *
+ * @author Arne Limburg
  */
-public interface Course {
+public interface LessonWithoutCourse {
 
-    int getId();
-    Title getTitle();
-    Teacher getLecturer();
-    List<Lesson> getLessons();
-    void addLesson(LessonWithoutCourse lesson);
-    Set<Student> getParticipants();
-    void subscribe(Student student);
-    void unsubscribe(Student student);
-    Lesson getCurrentLession(Student student);
-    void startLesson(Student student, Lesson lesson);
-    void finishLesson(Student student, Lesson lesson);
 }

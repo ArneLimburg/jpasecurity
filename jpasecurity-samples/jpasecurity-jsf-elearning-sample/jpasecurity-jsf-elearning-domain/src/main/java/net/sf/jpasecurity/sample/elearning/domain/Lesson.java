@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Raffaela Ferrari open knowledge GmbH
+ * Copyright 2011 Arne Limburg - open knowledge GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,60 +15,19 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.persistence.Basic;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 
 /**
- * @author Raffaela Ferrari
+ * A read-only view to a lesson. This interface is read-only since the lesson belongs to the
+ * {@link net.sf.jpasecurity.sample.elearning.domain.course.CourseAggregate}
+ * and thus may not be modified from outside the course
+ * (entities that belong to an aggregate may only be modified through that aggregate to maintain integrity).
+ *
+ * @author Arne Limburg - open knowledge GmbH (arne.limburg@openknowledge.de)
  */
-@javax.persistence.Entity
-public class Lesson extends Entity {
+public interface Lesson {
 
-    @ManyToOne
-    private Teacher lecturer;
-    @ManyToMany
-    private List<Student> students = new LinkedList<Student>();
-    @Basic (optional = false)
-    private String lessonBody;
-
-    public Lesson() {
-        super();
-    }
-
-    public Teacher getLecturer() {
-        return lecturer;
-    }
-
-    public String getLessonBody() {
-        return lessonBody;
-    }
-
-    public void setLessonBody(String lessonbody) {
-        this.lessonBody = lessonbody;
-    }
-
-    public void removeStudent(Student student) {
-        for (Student finishedStudent : this.students) {
-            if (student.equals(finishedStudent)) {
-                students.remove(student);
-            }
-        }
-    }
-
-    public boolean haveStudentFinishedLesson(Student student) {
-        for (Student finishedStudent : this.students) {
-            if (student.equals(finishedStudent)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void studentFinishesLesson(Student student) {
-        students.add(student);
-    }
+    int getId();
+    Title getTitle();
+    Content getContent();
+    Course getCourse();
 }

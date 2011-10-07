@@ -15,9 +15,9 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.presentation;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
@@ -47,11 +47,14 @@ public class TeacherBean {
     }
 
     public int getId() {
+        if (teacher == null) {
+            return -1;
+        }
         return teacher.getId();
     }
 
     public void setName(String name) {
-        this.teacher.setName(name);
+        this.teacher.setLastName(name);
     }
 
     public String getName() {
@@ -59,15 +62,10 @@ public class TeacherBean {
     }
 
     public List<Course> getCourses() {
-        return teacher.getCourses();
+        return new ArrayList<Course>(teacher.getCourses());
     }
 
     public void setElearningRepository(ElearningRepository elearningRepository) {
         this.elearningRepository = elearningRepository;
-    }
-
-    @PostConstruct
-    public void init() {
-        teacher = new Teacher();
     }
 }

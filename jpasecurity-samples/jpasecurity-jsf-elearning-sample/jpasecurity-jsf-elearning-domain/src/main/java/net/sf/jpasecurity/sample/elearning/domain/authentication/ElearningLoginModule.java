@@ -28,6 +28,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import net.sf.jpasecurity.sample.elearning.domain.Name;
+import net.sf.jpasecurity.sample.elearning.domain.Password;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.User;
@@ -59,11 +61,11 @@ public class ElearningLoginModule implements LoginModule {
             UserRepository userRepository = ServiceLoader.load(UserRepository.class).iterator().next();
             String username = ((NameCallback)callbacks[0]).getName();
             String password = new String(((PasswordCallback)callbacks[1]).getPassword());
-            user = userRepository.findUser(username);
+            user = userRepository.findUser(new Name(username));
             if (user == null) {
                 return false;
             }
-            return user.authenticate(password);
+            return user.authenticate(new Password(password));
         } catch (IOException e) {
             throw (LoginException)new LoginException().initCause(e);
         } catch (UnsupportedCallbackException e) {

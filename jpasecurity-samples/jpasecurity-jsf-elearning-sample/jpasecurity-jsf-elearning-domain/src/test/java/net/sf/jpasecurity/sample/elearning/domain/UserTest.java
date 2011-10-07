@@ -15,53 +15,30 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import java.util.List;
+
 import javax.persistence.TypedQuery;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
-public class UserTest {
-
-    private static EntityManagerFactory entityManagerFactory;
-    private EntityManager entityManager;
-
-    @BeforeClass
-    public static void createEntityManagerFactory() {
-        entityManagerFactory = Persistence.createEntityManagerFactory("elearning");
-    }
-
-    @Before
-    public void createEntityManager() {
-        entityManager = entityManagerFactory.createEntityManager();
-    }
-
-    @After
-    public void closeEntityManager() {
-        entityManager.close();
-        entityManager = null;
-    }
-
-    @AfterClass
-    public static void closeEntityManagerFactory() {
-        entityManagerFactory.close();
-        entityManagerFactory = null;
-    }
+public class UserTest extends AbstractEntityTestCase {
 
     @Test
     public void findByName() {
-        TypedQuery<User> query = entityManager.createNamedQuery(User.BY_NAME, User.class);
-        query.setParameter("name", "test");
-        assertTrue(query.getResultList().isEmpty());
+        Teacher teacher = new Teacher(new Name("test", "Mr.", "Tester"));
+        getEntityManager().getTransaction().begin();
+        getEntityManager().persist(teacher);
+        getEntityManager().getTransaction().commit();
+
+        TypedQuery<User> query = getEntityManager().createNamedQuery(User.BY_NAME, User.class);
+        query.setParameter("nick", "test");
+        List<User> users = query.getResultList();
+        assertEquals(1, users.size());
+        assertEquals(teacher, users.iterator().next());
     }
 }

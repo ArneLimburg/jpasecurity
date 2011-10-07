@@ -16,20 +16,24 @@
 package net.sf.jpasecurity.samples.elearning.jsf.presentation;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
+import net.sf.jpasecurity.sample.elearning.domain.Content;
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Lesson;
+import net.sf.jpasecurity.sample.elearning.domain.LessonWithoutCourse;
+import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
+import net.sf.jpasecurity.sample.elearning.domain.Title;
+import net.sf.jpasecurity.sample.elearning.domain.course.CourseAggregate;
+import net.sf.jpasecurity.sample.elearning.domain.course.LessonFactoryBuilder;
 import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
 import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
 
@@ -52,9 +56,7 @@ public class CourseBean {
     public String createCourse() {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
-                course = new Course();
-                course.setName(coursename);
-                course.setTeacher(getCurrentTeacher());
+                course = new CourseAggregate(new Title(coursename), getCurrentTeacher());
                 coursename = "";
                 return "dashboard.xhtml";
             }
@@ -66,7 +68,7 @@ public class CourseBean {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
                 Student student = getCurrentStudent();
-                course.addParticipant(student);
+                course.subscribe(student);
                 return "dashboard.xhtml";
             }
         });
@@ -77,7 +79,7 @@ public class CourseBean {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
                 Student student = getCurrentStudent();
-                course.removeParticipant(student);
+                course.unsubscribe(student);
                 return "dashboard.xhtml";
             }
         });
@@ -87,9 +89,9 @@ public class CourseBean {
     public String addLessonToCourse() {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
-                Lesson lesson = new Lesson();
-                lesson.setName(lessonName);
-                lesson.setLessonBody(lessonBody);
+                LessonWithoutCourse lesson = LessonFactoryBuilder.newLession()
+                                                                 .withTitle(new Title(lessonName))
+                                                                 .andContent(new Content(lessonBody));
                 course.addLesson(lesson);
                 lessonName = "";
                 lessonBody = "";
@@ -99,22 +101,11 @@ public class CourseBean {
     }
 
     public boolean isStudentInCourse() {
-        Collection<Student> courseStudents = course.getParticipants();
-        Student currentStudent = getCurrentStudent();
-        for (Student student : courseStudents) {
-            if (student.equals(currentStudent)) {
-                return true;
-            }
-        }
-        return false;
+        return course.getParticipants().contains(getCurrentStudent());
     }
 
-    public String getName() {
-        return course.getName();
-    }
-
-    public void setName(String name) {
-        course.setName(name);
+    public Title getTitle() {
+        return course.getTitle();
     }
 
     public String getCoursename() {
@@ -142,15 +133,7 @@ public class CourseBean {
     }
 
     public Teacher getTeacher() {
-        Teacher teacher = course.getTeacher();
-        if (teacher != null) {
-            return teacher;
-        }
-        return null;
-    }
-
-    public void setTeacher(Teacher teacher) {
-        course.setTeacher(teacher);
+        return course.getLecturer();
     }
 
     public List<Student> getStudents() {
@@ -159,6 +142,20 @@ public class CourseBean {
 
     public List<Lesson> getLessons() {
         return course.getLessons();
+    }
+
+    public boolean isLessonFinished(Lesson lesson) {
+        Student student = getCurrentStudent();
+        if (!course.getParticipants().contains(student)) {
+            return false;
+        }
+        int currentIndex = course.getLessons().indexOf(course.getCurrentLession(student));
+        return currentIndex > course.getLessons().indexOf(lesson);
+    }
+
+    public void studentFinishesLesson() {
+        Student student = getCurrentStudent();
+        course.finishLesson(student, course.getCurrentLession(student));
     }
 
     public void setElearningRepository(ElearningRepository elearningRepository) {
@@ -174,13 +171,16 @@ public class CourseBean {
     }
 
     public int getId() {
+        if (course == null) {
+            return -1;
+        }
         return course.getId();
     }
 
     public Teacher getCurrentTeacher() {
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
         if (context.isUserInRole("teacher")) {
-            return elearningRepository.<Teacher>findUser(context.getUserPrincipal().getName());
+            return elearningRepository.<Teacher>findUser(new Name(context.getUserPrincipal().getName()));
         } else {
             return null;
         }
@@ -189,7 +189,7 @@ public class CourseBean {
     public Student getCurrentStudent() {
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
         if (context.isUserInRole("student")) {
-            return elearningRepository.<Student>findUser(context.getUserPrincipal().getName());
+            return elearningRepository.<Student>findUser(new Name(context.getUserPrincipal().getName()));
         } else {
             return null;
         }
@@ -202,10 +202,5 @@ public class CourseBean {
             }
         }
         return null;
-    }
-
-    @PostConstruct
-    public void init() {
-        course = new Course();
     }
 }

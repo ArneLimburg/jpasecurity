@@ -15,34 +15,45 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
-import java.util.LinkedList;
-import java.util.List;
+import static org.apache.commons.lang.Validate.notNull;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+
+import net.sf.jpasecurity.sample.elearning.domain.course.CourseAggregate;
 
 /**
  * @author Raffaela Ferrari
  */
-@javax.persistence.Entity
+@Entity
 public class Teacher extends User {
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Course> courses = new LinkedList<Course>();
+    @OneToMany(mappedBy = "lecturer", cascade = CascadeType.ALL, targetEntity = CourseAggregate.class)
+    private Set<Course> courses = new LinkedHashSet<Course>();
 
-    public Teacher() {
-       super();
+    protected Teacher() {
     }
 
-    public Teacher(String name, String username, String password) {
-        super(name, username, password);
+    public Teacher(Name name) {
+        super(name);
     }
 
-    public List<Course> getCourses() {
-        return courses;
+    public Teacher(Name name, Password password) {
+        super(name, password);
+    }
+
+    public Collection<Course> getCourses() {
+        return Collections.unmodifiableSet(courses);
     }
 
     public void addCourse(Course course) {
+        notNull(course, "course may not be null");
         this.courses.add(course);
     }
 }

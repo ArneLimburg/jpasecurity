@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.samples.elearning.jsf.presentation;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
+import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
@@ -47,7 +49,7 @@ public class PlatformBean {
     public List<Course> getCourses() {
         return elearningRepository.executeTransactional(new Callable<List<Course>>() {
             public List<Course> call() {
-                return elearningRepository.findAllCourses();
+                return new ArrayList<Course>(elearningRepository.getAllCourses());
             }
         });
     }
@@ -59,7 +61,7 @@ public class PlatformBean {
                 if (principal == null) {
                     return Collections.emptyList();
                 }
-                return elearningRepository.findUser(principal.getName()).getCourses();
+                return new ArrayList<Course>(elearningRepository.findUser(new Name(principal.getName())).getCourses());
             }
         });
     }

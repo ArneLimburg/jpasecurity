@@ -15,9 +15,10 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.presentation;
 
+import java.awt.GraphicsEnvironment;
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
@@ -38,36 +39,39 @@ public class StudentBean {
 
     private Student student;
 
-    public void setId(int id) {
-        this.student = elearningRepository.findStudentById(id);
+    public void setId(final int id) {
+        elearningRepository.executeTransactional(new Runnable() {
+            public void run() {
+                student = elearningRepository.findStudentById(id);
+            }
+        });
     }
 
     public int getId() {
+        if (student == null) {
+            return -1;
+        }
         return student.getId();
     }
 
     public void setName(String name) {
-        this.student.setName(name);
+        student.setLastName(name);
     }
 
     public String getName() {
-        return this.student.getName();
+        return student.getFirstName() + " " + student.getLastName();
     }
 
     public List<Course> getCourses() {
-        return student.getCourses();
+        return new ArrayList<Course>(student.getCourses());
     }
 
     public ElearningRepository getElearningRepository() {
+        GraphicsEnvironment.isHeadless();
         return elearningRepository;
     }
 
     public void setElearningRepository(ElearningRepository elearningRepository) {
         this.elearningRepository = elearningRepository;
-    }
-
-    @PostConstruct
-    public void init() {
-        student = new Student("");
     }
 }
