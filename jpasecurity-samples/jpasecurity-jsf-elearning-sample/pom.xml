@@ -25,6 +25,7 @@
         <artifactId>jetty-maven-plugin</artifactId>
         <version>8.0.1.v20110908</version>
         <configuration>
+          <daemon>true</daemon>
           <scanIntervalSeconds>5</scanIntervalSeconds>
           <stopKey>elearning</stopKey>
           <stopPort>1199</stopPort>
@@ -62,7 +63,9 @@
         <artifactId>maven-t7-plugin</artifactId>
         <version>0.9.7.M1</version>
         <configuration>
-          <tomcatShutdownPort>1199</tomcatShutdownPort>
+          <tomcatHttpPort>8282</tomcatHttpPort>
+          <tomcatSetAwait>false</tomcatSetAwait>
+          <tomcatShutdownPort>2299</tomcatShutdownPort>
           <tomcatShutdownCommand>elearning</tomcatShutdownCommand>
           <systemProperties>
             <systemProperty>
