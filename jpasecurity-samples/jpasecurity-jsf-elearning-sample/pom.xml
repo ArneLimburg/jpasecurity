@@ -41,7 +41,7 @@
           <systemProperties>
             <systemProperty>
               <name>java.security.auth.login.config</name>
-              <value>jaas.properties</value>
+              <value>${basedir}/jaas.properties</value>
             </systemProperty>
           </systemProperties>
         </configuration>
@@ -70,7 +70,7 @@
           <systemProperties>
             <systemProperty>
               <key>java.security.auth.login.config</key>
-              <value>jaas.properties</value>
+              <value>${basedir}/jaas.properties</value>
             </systemProperty>
           </systemProperties>
           <libs>
