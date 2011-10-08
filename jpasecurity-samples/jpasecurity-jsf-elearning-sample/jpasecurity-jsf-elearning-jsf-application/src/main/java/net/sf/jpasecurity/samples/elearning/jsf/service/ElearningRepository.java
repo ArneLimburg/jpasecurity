@@ -20,7 +20,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.persistence.EntityManager;
@@ -28,21 +27,16 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 
-import net.sf.jpasecurity.sample.elearning.domain.Content;
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
-import net.sf.jpasecurity.sample.elearning.domain.LessonWithoutCourse;
 import net.sf.jpasecurity.sample.elearning.domain.Name;
-import net.sf.jpasecurity.sample.elearning.domain.Password;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.StudentRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.TeacherRepository;
-import net.sf.jpasecurity.sample.elearning.domain.Title;
 import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 import net.sf.jpasecurity.sample.elearning.domain.course.CourseAggregate;
-import net.sf.jpasecurity.sample.elearning.domain.course.LessonFactoryBuilder;
 
 /**
  * @author Raffaela Ferrari
@@ -145,73 +139,10 @@ public class ElearningRepository implements UserRepository,
         }
     }
 
-    private EntityManager getEntityManager() {
+    EntityManager getEntityManager() {
         if (entityManager == null) {
             throw new IllegalStateException("No active transaction");
         }
         return entityManager;
-    }
-
-    @PostConstruct
-    public void init() {
-        executeTransactional(new Runnable() {
-            public void run() {
-                Teacher peter = new Teacher(new Name("peter", "Peter", "B."), new Password("peter"));
-                Student stefan = new Student(new Name("stefan", "Stefan", "A."), new Password("stefan"));
-                Teacher hans = new Teacher(new Name("hans", "Hans", "L."), new Password("hans"));
-                Student tassimo = new Student(new Name("tassimo", "Tassimo", "B."), new Password("tassimo"));
-                Student ulli = new Student(new Name("ulli", "Ulli", "D."), new Password("ulli"));
-                Student anne = new Student(new Name("anne", "Anne", "G."), new Password("anne"));
-                Student lisa = new Student(new Name("lisa", "Lisa", "T."), new Password("lisa"));
-                Student marie = new Student(new Name("marie", "Marie", "M."), new Password("marie"));
-                entityManager.persist(peter);
-                entityManager.persist(stefan);
-                entityManager.persist(hans);
-                entityManager.persist(tassimo);
-                entityManager.persist(ulli);
-                entityManager.persist(anne);
-                entityManager.persist(lisa);
-                entityManager.persist(marie);
-                LessonWithoutCourse shakespeareLesson
-                    = LessonFactoryBuilder.newLession()
-                                          .withTitle(new Title("Shakespeare introduction"))
-                                          .andContent(new Content("Welcome to the Shakespear course."));
-                Course teacherCourse = new CourseAggregate(new Title("Shakespeare course"), peter, shakespeareLesson);
-                entityManager.persist(teacherCourse);
-                LessonWithoutCourse daVinciLesson
-                    = LessonFactoryBuilder.newLession()
-                                          .withTitle(new Title("Da Vinci introduction"))
-                                          .andContent(new Content("Welcome to the Da Vinci course."));
-                Course teacher2Course = new CourseAggregate(new Title("Da Vinci course"), hans, daVinciLesson);
-                entityManager.persist(teacher2Course);
-                LessonWithoutCourse analysisLesson
-                    = LessonFactoryBuilder.newLession()
-                                          .withTitle(new Title("Analysis introduction"))
-                                          .andContent(new Content("Welcome to the Analysis course."));
-                Course teacher3Course = new CourseAggregate(new Title("Analysis"), peter, analysisLesson);
-                entityManager.persist(teacher3Course);
-                LessonWithoutCourse algebraLesson
-                    = LessonFactoryBuilder.newLession()
-                                          .withTitle(new Title("Algebra introduction"))
-                                          .andContent(new Content("Welcome to the Algebra course."));
-                Course teacher4Course = new CourseAggregate(new Title("Algbra"), hans, algebraLesson);
-                entityManager.persist(teacher4Course);
-                teacherCourse.subscribe(stefan);
-                entityManager.flush();
-                teacherCourse.subscribe(anne);
-//                teacherCourse.subscribe(tassimo);
-//                teacherCourse.subscribe(lisa);
-//                teacher2Course.subscribe(marie);
-//                teacher2Course.subscribe(lisa);
-//                teacher2Course.subscribe(ulli);
-//                teacher3Course.subscribe(marie);
-//                teacher3Course.subscribe(ulli);
-//                teacher3Course.subscribe(stefan);
-//                teacher3Course.subscribe(tassimo);
-//                teacher4Course.subscribe(marie);
-//                teacher4Course.subscribe(lisa);
-//                teacher4Course.subscribe(anne);
-            }
-        });
     }
 }

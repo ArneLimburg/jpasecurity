@@ -102,8 +102,7 @@ public abstract class User implements Principal {
     }
 
     public boolean authenticate(Password password) {
-        notNull(password, "the password may not be null");
-        authenticated = password.equals(this.password);
+        authenticated = password != null && password.equals(this.password);
         return authenticated;
     }
 

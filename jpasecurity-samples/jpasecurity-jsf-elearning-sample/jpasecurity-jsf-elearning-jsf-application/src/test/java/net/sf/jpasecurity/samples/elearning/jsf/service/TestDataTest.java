@@ -20,12 +20,12 @@ import org.junit.Test;
 /**
  * @author Arne Limburg
  */
-public class ElearningRepositoryTest {
+public class TestDataTest {
 
-    private ElearningRepository elearningRepository = new ElearningRepository();
+    private TestData testData = new TestData();
 
     @Test
     public void init() {
-        elearningRepository.init();
+        testData.create();
     }
 }
