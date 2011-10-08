@@ -15,10 +15,6 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.service;
 
-import javax.el.ELContext;
-import javax.el.ELResolver;
-import javax.faces.context.FacesContext;
-
 import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
@@ -30,12 +26,11 @@ import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Calla
 public class UserRepositoryWrapper implements UserRepository {
 
     public <U extends User> U findUser(final Name name) {
-        FacesContext context = FacesContext.getCurrentInstance();
-        ELResolver elResolver = context.getApplication().getELResolver();
-        ELContext elContext = context.getELContext();
-        TransactionService transactionService
-            = (TransactionService)elResolver.getValue(elContext, null, "elearningRepository");
-        final UserRepository userRepository = (UserRepository)transactionService;
+        //Don't receive ElearingRepository from faces context
+        //since no faces context is available during j_security_check
+        final ElearningRepository elearningRepository = new ElearningRepository();
+        final TransactionService transactionService = elearningRepository;
+        final UserRepository userRepository = elearningRepository;
         return transactionService.executeTransactional(new Callable<U>() {
             public U call() {
                 return userRepository.<U>findUser(name);
