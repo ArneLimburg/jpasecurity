@@ -16,7 +16,7 @@
 package net.sf.jpasecurity.sample.elearning.domain.course;
 
 import static org.junit.Assert.assertEquals;
-import net.sf.jpasecurity.sample.elearning.domain.AbstractEntityTestCase;
+import net.sf.jpasecurity.persistence.AbstractEntityTestCase;
 import net.sf.jpasecurity.sample.elearning.domain.Content;
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.LessonWithoutCourse;
@@ -25,12 +25,18 @@ import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.Title;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
 public class CourseTest extends AbstractEntityTestCase {
+
+    @BeforeClass
+    public static void createEntityManagerFactory() {
+        createEntityManagerFactory("elearning");
+    }
 
     @Test
     public void persist() {

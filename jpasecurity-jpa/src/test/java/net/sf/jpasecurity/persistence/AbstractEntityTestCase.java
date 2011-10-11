@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.sample.elearning.domain;
-
-import java.sql.SQLException;
+package net.sf.jpasecurity.persistence;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -24,7 +22,6 @@ import javax.persistence.Persistence;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 
 /**
  * @author Arne Limburg
@@ -38,9 +35,8 @@ public class AbstractEntityTestCase {
         return entityManager;
     }
 
-    @BeforeClass
-    public static void createEntityManagerFactory() throws SQLException {
-        entityManagerFactory = Persistence.createEntityManagerFactory("elearning");
+    public static void createEntityManagerFactory(String persistenceUnitName) {
+        entityManagerFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
     }
 
     @Before
@@ -56,7 +52,9 @@ public class AbstractEntityTestCase {
 
     @AfterClass
     public static void closeEntityManagerFactory() {
-        entityManagerFactory.close();
-        entityManagerFactory = null;
+        if (entityManagerFactory != null) {
+            entityManagerFactory.close();
+            entityManagerFactory = null;
+        }
     }
 }
