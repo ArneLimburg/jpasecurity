@@ -21,12 +21,20 @@ import java.util.List;
 
 import javax.persistence.TypedQuery;
 
+import net.sf.jpasecurity.persistence.AbstractEntityTestCase;
+
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
 public class UserTest extends AbstractEntityTestCase {
+
+    @BeforeClass
+    public static void createEntityManagerFactory() {
+        createEntityManagerFactory("elearning");
+    }
 
     @Test
     public void findByName() {
