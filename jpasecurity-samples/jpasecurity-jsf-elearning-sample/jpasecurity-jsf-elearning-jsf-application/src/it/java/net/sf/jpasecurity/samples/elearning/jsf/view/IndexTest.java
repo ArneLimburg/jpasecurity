@@ -18,7 +18,6 @@ package net.sf.jpasecurity.samples.elearning.jsf.view;
 import static org.junit.Assert.assertEquals;
 
 import org.jaxen.JaxenException;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -26,7 +25,6 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 /**
  * @author Arne Limburg
  */
-@Ignore
 public class IndexTest extends AbstractHtmlTestCase {
 
     public IndexTest() {
