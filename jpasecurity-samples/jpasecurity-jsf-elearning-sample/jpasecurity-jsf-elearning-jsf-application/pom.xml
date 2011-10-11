@@ -82,7 +82,6 @@
             <id>tomcat-start</id>
             <phase>pre-integration-test</phase>
             <goals>
-              <goal>stop</goal>
               <goal>run</goal>
             </goals>
           </execution>
