@@ -1,0 +1,34 @@
+<book>
+    <id>elearning-manual</id>
+    <title>E-Learning platform</title>
+    <chapters>
+        <chapter>
+            <id>overview</id>
+            <title>Overview</title>
+            <sections>
+                <section>
+                    <id>introduction</id>
+                    <title>Introduction</title>
+                </section>
+            </sections>
+        </chapter>
+        <chapter>
+            <id>views</id>
+            <title>Views</title>
+            <sections>
+                <section>
+                    <id>unloggedUser</id>
+                    <title>Unlogged user</title>
+                </section>
+                <section>
+                    <id>teacher</id>
+                    <title>Teacher</title>
+                </section>
+                <section>
+                    <id>student</id>
+                    <title>Students</title>
+                </section>
+            </sections>
+        </chapter>
+    </chapters>
+</book>
