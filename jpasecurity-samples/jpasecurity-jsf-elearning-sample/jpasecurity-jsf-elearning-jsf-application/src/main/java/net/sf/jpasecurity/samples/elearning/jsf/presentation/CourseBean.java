@@ -101,11 +101,11 @@ public class CourseBean {
     }
 
     public boolean isStudentInCourse() {
-        return course.getParticipants().contains(getCurrentStudent());
+        return course == null? false: course.getParticipants().contains(getCurrentStudent());
     }
 
     public Title getTitle() {
-        return course.getTitle();
+        return course == null? null: course.getTitle();
     }
 
     public String getCoursename() {
@@ -133,15 +133,15 @@ public class CourseBean {
     }
 
     public Teacher getTeacher() {
-        return course.getLecturer();
+        return course == null? null: course.getLecturer();
     }
 
     public List<Student> getStudents() {
-        return new ArrayList<Student>(course.getParticipants());
+        return course == null? null: new ArrayList<Student>(course.getParticipants());
     }
 
     public List<Lesson> getLessons() {
-        return course.getLessons();
+        return course == null? null: course.getLessons();
     }
 
     public boolean isLessonFinished(Lesson lesson) {
