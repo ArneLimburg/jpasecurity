@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
+<article id="unloggedUser">
+    <title>Unlogged user view</title>
+    <para>While you are unlogged, you can see the basic elements of this application, which are described below.</para>
+    <section>
+        <title>Index</title>
+        <para>On this page the unlogged user can only switch to the login site or view courses and teachers by clicking
+            on the respective link.</para>
+        <para>By clicking on the "courses" or "teachers" link, you get an overview of all courses and teachers
+            respectively.</para>
+    </section>
+    <section>
+        <title>Teacher and student</title>
+        <para>For every teacher and student you can see their courses, which they have subscribed and lecture
+            respectively.</para>
+    </section>
+    <section>
+        <title>Course</title>
+        <para>For every course you can see on the survey the lecturer and participants, who are the students. Moreover
+            you can see on this survey all lessons of this course.</para>
+    </section>
+    <section>
+        <title>Lesson</title>
+        <para>For every lesson you can see its topic and problem definition respectively.</para>
+    </section>
+    <section>
+        <title>Login</title>
+        <para>If you are an student or teacher, you can login on this site.</para>
+    </section>
+</article>
