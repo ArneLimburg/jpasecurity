@@ -93,6 +93,10 @@ public class EntityFilter {
         this.exceptionFactory = exceptionFactory;
     }
 
+    public QueryPreparator getQueryPreparator() {
+        return queryPreparator;
+    }
+
     public boolean isAccessible(Object entity, AccessType accessType)
         throws NotEvaluatableException {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
@@ -173,13 +177,7 @@ public class EntityFilter {
 
         LOG.debug("Optimizing filtered query " + statement.getStatement());
 
-        QueryOptimizer optimizer = new QueryOptimizer(mappingInformation,
-                                                      Collections.EMPTY_MAP,
-                                                      accessDefinition.getQueryParameters(),
-                                                      Collections.EMPTY_MAP,
-                                                      queryEvaluator,
-                                                      objectCache);
-        optimizer.optimize(accessDefinition.getAccessRules());
+        optimize(accessDefinition);
         Set<String> parameterNames = compiler.getNamedParameters(accessDefinition.getAccessRules());
         Map<String, Object> parameters = accessDefinition.getQueryParameters();
         parameters.keySet().retainAll(parameterNames);
@@ -258,6 +256,16 @@ public class EntityFilter {
             accessDefinition.setAccessRules(queryPreparator.createBrackets(accessDefinition.getAccessRules()));
             return accessDefinition;
         }
+    }
+
+    protected void optimize(AccessDefinition accessDefinition) {
+        QueryOptimizer optimizer = new QueryOptimizer(mappingInformation,
+                                                      Collections.EMPTY_MAP,
+                                                      accessDefinition.getQueryParameters(),
+                                                      Collections.EMPTY_MAP,
+                                                      queryEvaluator,
+                                                      objectCache);
+        optimizer.optimize(accessDefinition.getAccessRules());
     }
 
     private AccessDefinition appendAccessDefinition(AccessDefinition accessDefinition,
