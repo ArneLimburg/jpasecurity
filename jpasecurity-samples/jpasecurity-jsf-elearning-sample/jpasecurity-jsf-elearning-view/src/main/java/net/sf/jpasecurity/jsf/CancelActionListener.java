@@ -18,7 +18,6 @@ package net.sf.jpasecurity.jsf;
 import javax.el.MethodExpression;
 import javax.faces.application.NavigationHandler;
 import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
 import javax.faces.component.UINamingContainer;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -30,30 +29,28 @@ import org.apache.commons.logging.LogFactory;
 /**
  * @author Arne Limburg
  */
-public class LoginActionListener implements ActionListener {
+public class CancelActionListener implements ActionListener {
 
-    private static final Log LOG = LogFactory.getLog(LoginActionListener.class);
+    private static final Log LOG = LogFactory.getLog(CancelActionListener.class);
 
     public void processAction(ActionEvent actionEvent) {
         FacesContext context = FacesContext.getCurrentInstance();
         UINamingContainer loginComponent
             = (UINamingContainer)context.getAttributes().get(UIComponent.CURRENT_COMPOSITE_COMPONENT);
-        UIInput username = (UIInput)loginComponent.findComponent("loginDialog:loginForm:username");
-        UIInput password = (UIInput)loginComponent.findComponent("loginDialog:loginForm:password");
-        MethodExpression loginAction = (MethodExpression)loginComponent.getAttributes().get("loginAction");
+        MethodExpression loginAction = (MethodExpression)loginComponent.getAttributes().get("cancelAction");
         try {
-            loginAction.invoke(context.getELContext(), new Object[] {username.getValue(), password.getValue()});
-            NavigationHandler navigationHandler = context.getApplication().getNavigationHandler();
-            String outcome = (String)context.getExternalContext().getRequestParameterMap().get("outcome");
-            if (outcome != null) {
-                navigationHandler.handleNavigation(context, null, outcome);
-            }
+            loginAction.invoke(context.getELContext(), new Object[] {});
         } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Login could not be established.", e);
+                LOG.debug("Login-cancellation could not be fulfilled.", e);
             } else {
-                LOG.info("Login could not be established: " + e.getMessage());
+                LOG.info("Login-cancellation could not be fulfilled: " + e.getMessage());
             }
+        }
+        NavigationHandler navigationHandler = context.getApplication().getNavigationHandler();
+        String outcome = (String)context.getExternalContext().getRequestParameterMap().get("outcome");
+        if (outcome != null) {
+            navigationHandler.handleNavigation(context, null, outcome);
         }
     }
 }
