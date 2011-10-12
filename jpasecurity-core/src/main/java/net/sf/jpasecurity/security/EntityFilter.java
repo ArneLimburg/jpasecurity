@@ -117,16 +117,16 @@ public class EntityFilter {
         return queryEvaluator.<Boolean>evaluate(accessDefinition.getAccessRules(), evaluationParameters);
     }
 
-    public FilterResult filterQuery(String query, AccessType accessType) {
+    public FilterResult<String> filterQuery(String query, AccessType accessType) {
 
         LOG.debug("Filtering query " + query);
 
         JpqlCompiledStatement statement = compile(query);
 
         AccessDefinition accessDefinition = createAccessDefinition(statement, accessType);
-        Evaluatable evaluatable = isAlwaysEvaluatable(accessDefinition);
-        if (evaluatable != Evaluatable.DEPENDING) {
-            return evaluatable == Evaluatable.ALWAYS_TRUE? new FilterResult(query): new FilterResult();
+        FilterResult<String> filterResult = getAlwaysEvaluatableResult(query, accessDefinition);
+        if (filterResult != null) {
+            return filterResult;
         }
 
         JpqlWhere where = statement.getWhereClause();
@@ -154,10 +154,10 @@ public class EntityFilter {
         Map<String, Object> parameters = accessDefinition.getQueryParameters();
         parameters.keySet().retainAll(parameterNames);
         LOG.debug("Returning optimized query " + statement.getStatement());
-        return new FilterResult(statement.getStatement().toString(),
-                                parameters.size() > 0? parameters: null,
-                                statement.getSelectedPaths(),
-                                statement.getTypeDefinitions());
+        return new FilterResult<String>(statement.getStatement().toString(),
+                                        parameters.size() > 0? parameters: null,
+                                        statement.getSelectedPaths(),
+                                        statement.getTypeDefinitions());
     }
 
     protected AccessDefinition createAccessDefinition(JpqlCompiledStatement statement, AccessType accessType) {
@@ -230,16 +230,16 @@ public class EntityFilter {
         }
     }
 
-    protected Evaluatable isAlwaysEvaluatable(AccessDefinition accessDefinition) {
+    protected <Q> FilterResult<Q> getAlwaysEvaluatableResult(Q query, AccessDefinition accessDefinition) {
         if (accessDefinition.getAccessRules() instanceof JpqlBooleanLiteral) {
             JpqlBooleanLiteral booleanLiteral = (JpqlBooleanLiteral)accessDefinition.getAccessRules();
             boolean accessRestricted = !Boolean.parseBoolean(booleanLiteral.getValue());
             if (accessRestricted) {
-                LOG.info("No access rules defined");
-                return Evaluatable.ALWAYS_FALSE;
+                LOG.info("No access rules defined for access type. Returning <null> query.");
+                return new FilterResult<Q>();
             } else {
-                LOG.info("No access rules defined for selected type.");
-                return Evaluatable.ALWAYS_TRUE;
+                LOG.info("No access rules defined for selected type. Returning unfiltered query");
+                return new FilterResult<Q>(query);
             }
         }
 
@@ -254,14 +254,15 @@ public class EntityFilter {
                                                 true);
             boolean result = queryEvaluator.<Boolean>evaluate(accessDefinition.getAccessRules(), evaluationParameters);
             if (result) {
-                LOG.debug("Access rules are always true for current user and roles.");
-                return Evaluatable.ALWAYS_TRUE;
+                LOG.debug("Access rules are always true for current user and roles. Returning unfiltered query");
+                return new FilterResult<Q>(query);
             } else {
-                LOG.debug("Access rules are always false for current user and roles.");
-                return Evaluatable.ALWAYS_FALSE;
+                LOG.debug("Access rules are always false for current user and roles. Returning empty result");
+                return new FilterResult<Q>();
             }
         } catch (NotEvaluatableException e) {
-            return Evaluatable.DEPENDING;
+            //access rules need to be applied then
+            return null;
         }
     }
 
