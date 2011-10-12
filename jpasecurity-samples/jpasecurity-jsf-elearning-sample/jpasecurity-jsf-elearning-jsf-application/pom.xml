@@ -84,6 +84,9 @@
             <goals>
               <goal>run</goal>
             </goals>
+            <configuration>
+              <tomcatSetAwait>false</tomcatSetAwait>
+            </configuration>
           </execution>
           <execution>
             <id>tomcat-stop</id>

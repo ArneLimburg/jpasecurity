@@ -64,7 +64,6 @@
         <version>0.9.7.M1</version>
         <configuration>
           <tomcatHttpPort>8282</tomcatHttpPort>
-          <tomcatSetAwait>false</tomcatSetAwait>
           <tomcatShutdownPort>2299</tomcatShutdownPort>
           <tomcatShutdownCommand>elearning</tomcatShutdownCommand>
           <systemProperties>
