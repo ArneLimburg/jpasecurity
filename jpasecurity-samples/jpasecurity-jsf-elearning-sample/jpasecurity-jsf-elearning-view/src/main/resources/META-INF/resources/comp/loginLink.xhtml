@@ -3,13 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:cc="http://java.sun.com/jsf/composite"
       xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:h="http://java.sun.com/jsf/html">
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <!-- INTERFACE -->
     <cc:interface name="loginLink">
       <cc:attribute name="loginLabel" default="Login"/>
       <cc:attribute name="logoutLabel" default="Logout"/>
-      <cc:attribute name="loginAction" method-signature="java.lang.String action()" />
+      <cc:attribute name="loginAction" method-signature="java.lang.String action()"/>
       <cc:attribute name="logoutAction" method-signature="java.lang.String action()" default="#{facesContext.externalContext.request.logout}"/>
     </cc:interface>
 
@@ -18,6 +19,7 @@
       <h:form>
         <h:commandLink value="#{cc.attrs.loginLabel}" action="#{cc.attrs.loginAction}" rendered="#{facesContext.externalContext.request.remoteUser == null}">
           <f:param name="return" value="#{facesContext.viewRoot.viewId}"/>
+          <f:param name="query" value="#{facesContext.externalContext.request.queryString}"/>
         </h:commandLink>
         <h:commandLink value="#{cc.attrs.logoutLabel}" action="#{cc.attrs.logoutAction}" rendered="#{facesContext.externalContext.request.remoteUser != null}">
           <f:actionListener type="net.sf.jpasecurity.jsf.LogoutActionListener"/>
