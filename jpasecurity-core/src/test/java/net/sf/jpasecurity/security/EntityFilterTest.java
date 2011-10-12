@@ -105,7 +105,7 @@ public class EntityFilterTest {
     public void filterQuery() {
         String plainQuery = "SELECT tb FROM MethodAccessTestBean tb";
         String restrictedQuery = "SELECT tb FROM MethodAccessTestBean tb WHERE (tb.name = :CURRENT_PRINCIPAL)";
-        FilterResult result = entityFilter.filterQuery(plainQuery, AccessType.READ);
+        FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
         assertEquals(restrictedQuery, result.getQuery().trim());
         Map<String, Object> parameters = result.getParameters();
         assertEquals(1, parameters.size());

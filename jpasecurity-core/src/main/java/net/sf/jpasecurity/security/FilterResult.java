@@ -24,9 +24,9 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
 /**
  * @author Arne Limburg
  */
-public class FilterResult {
+public class FilterResult<Q> {
 
-    private String query;
+    private Q query;
     private Map<String, Object> parameters;
     private List<String> selectedPaths;
     private Set<TypeDefinition> types;
@@ -34,11 +34,11 @@ public class FilterResult {
     public FilterResult() {
     }
 
-    public FilterResult(String query) {
+    public FilterResult(Q query) {
         this.query = query;
     }
 
-    public FilterResult(String query,
+    public FilterResult(Q query,
                         Map<String, Object> parameters,
                         List<String> selectedPaths,
                         Set<TypeDefinition> types) {
@@ -48,7 +48,7 @@ public class FilterResult {
         this.types = types;
     }
 
-    public String getQuery() {
+    public Q getQuery() {
         return query;
     }
 
