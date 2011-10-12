@@ -3,7 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:cc="http://java.sun.com/jsf/composite"
       xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:h="http://java.sun.com/jsf/html">
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <!-- INTERFACE -->
     <cc:interface name="loginDialog">
@@ -44,7 +45,7 @@
             <h:panelGroup layout="block" styleClass="buttons">
               <h:commandButton id="loginButton"
                                value="#{cc.attrs.loginButtonText}">
-                <f:param name="outcome" value="${facesContext.externalContext.requestParameterMap['return']}"/>
+                <f:param name="outcome" value="#{facesContext.externalContext.requestParameterMap['return']}?#{facesContext.externalContext.requestParameterMap['query']}&amp;faces-redirect=true&amp;includeViewParams=true}"/>
                 <f:actionListener type="net.sf.jpasecurity.jsf.LoginActionListener"/>
               </h:commandButton>
               <h:commandButton id="cancelButton"
