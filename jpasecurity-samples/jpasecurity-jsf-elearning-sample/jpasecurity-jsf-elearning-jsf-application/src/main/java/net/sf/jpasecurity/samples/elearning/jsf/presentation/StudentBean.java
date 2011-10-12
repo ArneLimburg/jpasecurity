@@ -15,7 +15,6 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.presentation;
 
-import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,10 +47,7 @@ public class StudentBean {
     }
 
     public int getId() {
-        if (student == null) {
-            return -1;
-        }
-        return student.getId();
+        return student == null? -1: student.getId();
     }
 
     public void setName(String name) {
@@ -63,11 +59,10 @@ public class StudentBean {
     }
 
     public List<Course> getCourses() {
-        return new ArrayList<Course>(student.getCourses());
+        return student == null? null: new ArrayList<Course>(student.getCourses());
     }
 
     public ElearningRepository getElearningRepository() {
-        GraphicsEnvironment.isHeadless();
         return elearningRepository;
     }
 

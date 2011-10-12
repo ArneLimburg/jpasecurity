@@ -47,10 +47,7 @@ public class TeacherBean {
     }
 
     public int getId() {
-        if (teacher == null) {
-            return -1;
-        }
-        return teacher.getId();
+        return teacher == null? -1: teacher.getId();
     }
 
     public void setName(String name) {
@@ -58,11 +55,11 @@ public class TeacherBean {
     }
 
     public String getName() {
-        return this.teacher.getName();
+        return teacher == null? null: this.teacher.getName();
     }
 
     public List<Course> getCourses() {
-        return new ArrayList<Course>(teacher.getCourses());
+        return teacher == null? null: new ArrayList<Course>(teacher.getCourses());
     }
 
     public void setElearningRepository(ElearningRepository elearningRepository) {
