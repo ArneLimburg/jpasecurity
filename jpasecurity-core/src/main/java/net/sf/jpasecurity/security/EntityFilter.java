@@ -124,37 +124,9 @@ public class EntityFilter {
         JpqlCompiledStatement statement = compile(query);
 
         AccessDefinition accessDefinition = createAccessDefinition(statement, accessType);
-        if (accessDefinition.getAccessRules() instanceof JpqlBooleanLiteral) {
-            JpqlBooleanLiteral booleanLiteral = (JpqlBooleanLiteral)accessDefinition.getAccessRules();
-            boolean accessRestricted = !Boolean.parseBoolean(booleanLiteral.getValue());
-            if (accessRestricted) {
-                LOG.info("No access rules defined for access type " + accessType + ". Returning <null> query.");
-                return new FilterResult();
-            } else {
-                LOG.info("No access rules defined for selected type. Returning unfiltered query");
-                return new FilterResult(query);
-            }
-        }
-
-        LOG.debug("Using access definition " + accessDefinition);
-
-        try {
-            QueryEvaluationParameters evaluationParameters
-                = new QueryEvaluationParameters(mappingInformation,
-                                                Collections.<Alias, Object>emptyMap(),
-                                                accessDefinition.getQueryParameters(),
-                                                Collections.<Integer, Object>emptyMap(),
-                                                true);
-            boolean result = queryEvaluator.<Boolean>evaluate(accessDefinition.getAccessRules(), evaluationParameters);
-            if (result) {
-                LOG.debug("Access rules are always true for current user and roles. Returning unfiltered query");
-                return new FilterResult(query);
-            } else {
-                LOG.debug("Access rules are always false for current user and roles. Returning empty result");
-                return new FilterResult();
-            }
-        } catch (NotEvaluatableException e) {
-            //access rules need to be applied then
+        Evaluatable evaluatable = isAlwaysEvaluatable(accessDefinition);
+        if (evaluatable != Evaluatable.DEPENDING) {
+            return evaluatable == Evaluatable.ALWAYS_TRUE? new FilterResult(query): new FilterResult();
         }
 
         JpqlWhere where = statement.getWhereClause();
@@ -255,6 +227,41 @@ public class EntityFilter {
         } else {
             accessDefinition.setAccessRules(queryPreparator.createBrackets(accessDefinition.getAccessRules()));
             return accessDefinition;
+        }
+    }
+
+    protected Evaluatable isAlwaysEvaluatable(AccessDefinition accessDefinition) {
+        if (accessDefinition.getAccessRules() instanceof JpqlBooleanLiteral) {
+            JpqlBooleanLiteral booleanLiteral = (JpqlBooleanLiteral)accessDefinition.getAccessRules();
+            boolean accessRestricted = !Boolean.parseBoolean(booleanLiteral.getValue());
+            if (accessRestricted) {
+                LOG.info("No access rules defined");
+                return Evaluatable.ALWAYS_FALSE;
+            } else {
+                LOG.info("No access rules defined for selected type.");
+                return Evaluatable.ALWAYS_TRUE;
+            }
+        }
+
+        LOG.debug("Using access definition " + accessDefinition);
+
+        try {
+            QueryEvaluationParameters evaluationParameters
+                = new QueryEvaluationParameters(mappingInformation,
+                                                Collections.<Alias, Object>emptyMap(),
+                                                accessDefinition.getQueryParameters(),
+                                                Collections.<Integer, Object>emptyMap(),
+                                                true);
+            boolean result = queryEvaluator.<Boolean>evaluate(accessDefinition.getAccessRules(), evaluationParameters);
+            if (result) {
+                LOG.debug("Access rules are always true for current user and roles.");
+                return Evaluatable.ALWAYS_TRUE;
+            } else {
+                LOG.debug("Access rules are always false for current user and roles.");
+                return Evaluatable.ALWAYS_FALSE;
+            }
+        } catch (NotEvaluatableException e) {
+            return Evaluatable.DEPENDING;
         }
     }
 
@@ -431,5 +438,9 @@ public class EntityFilter {
         public String toString() {
             return "[query=\"" + accessRules.toString() + "\",parameters=" + queryParameters.toString() + "]";
         }
+    }
+
+    protected enum Evaluatable {
+        ALWAYS_TRUE, ALWAYS_FALSE, DEPENDING;
     }
 }
