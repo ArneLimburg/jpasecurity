@@ -9,23 +9,16 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jpasecurity-core</artifactId>
   <name>JPA Security Core</name>
-  <description>
-    JPA Security is an Access Control Solution for the Java Persistence API (JPA).
-    With JPA Security your access control takes place
-    in the database. You may query the database for all objects of a certain type
-    and will get only the objects you have read access for. This filtering will
-    take place in the database. Unaccessible queried objects will not be loaded into memory.
-    JPA Security enables you to completely remove
-    security-related code from your code-base. All access control may be configured
-    via Annotations or XML.
-    With JPA Security you do not have to change
-    your access control paradigm (but maybe you want to, when you see the great
-    capability of JPA Security). You even can mix access control paradigms easily.
-    JPA Security is not designed to replace current security solutions, but to extend them.
-    It integrates smoothly into JavaEE Security or Spring Security, but may be used on its own, too.
-    With the extensibility of JPA Security it is easy to provide
-    your own access control paradigm, access rules storage or login mechanism.
-  </description>
+  <description> JPA Security is an Access Control Solution for the Java Persistence API (JPA). With JPA Security your
+    access control takes place in the database. You may query the database for all objects of a certain type and will
+    get only the objects you have read access for. This filtering will take place in the database. Unaccessible queried
+    objects will not be loaded into memory. JPA Security enables you to completely remove security-related code from
+    your code-base. All access control may be configured via Annotations or XML. With JPA Security you do not have to
+    change your access control paradigm (but maybe you want to, when you see the great capability of JPA Security). You
+    even can mix access control paradigms easily. JPA Security is not designed to replace current security solutions,
+    but to extend them. It integrates smoothly into JavaEE Security or Spring Security, but may be used on its own, too.
+    With the extensibility of JPA Security it is easy to provide your own access control paradigm, access rules storage
+    or login mechanism. </description>
 
   <build>
     <plugins>
@@ -51,8 +44,8 @@
         <artifactId>jdepend-maven-plugin</artifactId>
       </plugin>
       <plugin>
-      	<groupId>org.apache.maven.plugins</groupId>
-      	<artifactId>maven-antrun-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
             <id>process-generated-sources</id>
@@ -65,8 +58,8 @@
                   </fileset>
                 </delete>
                 <replace dir="target/generated-sources/jjtree/net/sf/jpasecurity/jpql/parser/"
-                         token="public Object jjtAccept(JpqlParserVisitor visitor, Object data)"
-                         value="public &lt;T&gt; boolean jjtAccept(JpqlParserVisitor&lt;T&gt; visitor, T data)" />
+                  token="public Object jjtAccept(JpqlParserVisitor visitor, Object data)"
+                  value="public &lt;T&gt; boolean jjtAccept(JpqlParserVisitor&lt;T&gt; visitor, T data)"/>
               </target>
             </configuration>
             <goals>
@@ -78,10 +71,9 @@
             <phase>site</phase>
             <configuration>
               <target>
-                <copy file="target/generated-site/pdf/reference/reference.pdf"
-                      tofile="target/site/reference/manual.pdf"/>
+                <copy file="target/generated-site/pdf/reference/reference.pdf" tofile="target/site/reference/manual.pdf"/>
                 <copy file="target/generated-site/xhtml/reference/reference.xhtml"
-                      tofile="target/site/reference/manual.html"/>
+                  tofile="target/site/reference/manual.html"/>
               </target>
             </configuration>
             <goals>
@@ -143,6 +135,15 @@
             <book>
               <directory>src/docbook/tutorial/petclinic</directory>
               <descriptor>src/site/petclinic-tutorial.xml</descriptor>
+              <formats>
+                <format>
+                  <id>xdoc</id>
+                </format>
+              </formats>
+            </book>
+            <book>
+              <directory>src/docbook/tutorial/elearning</directory>
+              <descriptor>src/site/elearning-manual.xml</descriptor>
               <formats>
                 <format>
                   <id>xdoc</id>
