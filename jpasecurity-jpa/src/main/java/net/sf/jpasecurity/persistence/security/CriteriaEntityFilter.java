@@ -18,6 +18,7 @@ package net.sf.jpasecurity.persistence.security;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -36,6 +37,7 @@ import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.compiler.SubselectEvaluator;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.security.EntityFilter;
+import net.sf.jpasecurity.security.FilterResult;
 
 /**
  * This class extends {@link EntityFilter} by the ability to filter
@@ -45,7 +47,7 @@ import net.sf.jpasecurity.security.EntityFilter;
  */
 public class CriteriaEntityFilter extends EntityFilter {
 
-    private CriteriaVisitor criteriaVisitor;
+    private final CriteriaVisitor criteriaVisitor;
 
     public CriteriaEntityFilter(SecureObjectCache objectCache,
                                 MappingInformation mappingInformation,
@@ -58,7 +60,7 @@ public class CriteriaEntityFilter extends EntityFilter {
         criteriaVisitor = new CriteriaVisitor(mappingInformation, criteriaBuilder, securityContext);
     }
 
-    public <R> CriteriaQuery<R> filterQuery(CriteriaQuery<R> query) {
+    public <R> FilterResult<CriteriaQuery<R>> filterQuery(CriteriaQuery<R> query) {
         Selection<R> selection = query.getSelection();
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         if (selection == null) {
@@ -77,42 +79,52 @@ public class CriteriaEntityFilter extends EntityFilter {
                 }
             }
         } else if (!selection.isCompoundSelection()) {
-            selectedTypes.put(getPath(selection), selection.getJavaType());
+            selectedTypes.put(getPath(0, selection), selection.getJavaType());
         } else {
-            for (Selection<?> s: selection.getCompoundSelectionItems()) {
-                selectedTypes.put(getPath(s), s.getJavaType());
+            List<Selection<?>> compoundSelectionItems = selection.getCompoundSelectionItems();
+            for (int i = 0; i < compoundSelectionItems.size(); i++) {
+                Selection<?> s = compoundSelectionItems.get(i);
+                selectedTypes.put(getPath(i, s), s.getJavaType());
             }
         }
         AccessDefinition accessDefinition = createAccessDefinition(selectedTypes, AccessType.READ);
+        FilterResult<CriteriaQuery<R>> filterResult = getAlwaysEvaluatableResult(query, accessDefinition);
+        if (filterResult != null) {
+            return filterResult;
+        }
+        optimize(accessDefinition);
         CriteriaHolder criteriaHolder = new CriteriaHolder(query);
-        accessDefinition.getAccessRules().visit(criteriaVisitor, criteriaHolder);
-        return query;
+        getQueryPreparator().createWhere(accessDefinition.getAccessRules()).visit(criteriaVisitor, criteriaHolder);
+        return new FilterResult<CriteriaQuery<R>>(query);
     }
 
-    private String getPath(Selection<?> selection) {
+    private String getPath(int index, Selection<?> selection) {
         if (selection instanceof Expression) {
-            return getPath((Expression<?>)selection);
-        } else if (selection.getAlias() != null) {
-            return selection.getAlias();
-        } else {
-            throw new UnsupportedOperationException("Unsupported type of selection, please define an alias "
-                                                    + selection.getClass().getSimpleName());
+            return getPath(index, (Expression<?>)selection);
         }
+        if (selection.getAlias() == null) {
+            selection.alias("alias" + index);
+        }
+        return selection.getAlias();
     }
 
-    private String getPath(Expression<?> expression) {
+    private String getPath(int index, Expression<?> expression) {
         if (expression instanceof Path) {
-            return getPath((Path<?>)expression);
-        } else {
-            throw new UnsupportedOperationException("Unsupported type of selection, please define an alias "
-                                                    + expression.getClass().getSimpleName());
+            return getPath(index, (Path<?>)expression);
         }
+        if (expression.getAlias() == null) {
+            expression.alias("alias" + index);
+        }
+        return expression.getAlias();
     }
 
-    private String getPath(Path<?> path) {
-        if (path.getParentPath() == null) {
-            return path.getAlias();
+    private String getPath(int index, Path<?> path) {
+        if (path.getParentPath() != null) {
+            return getPath(index, path.getParentPath()) + '.' + ((Attribute<?, ?>)path.getModel()).getName();
         }
-        return getPath(path.getParentPath()) + '.' + ((Attribute<?, ?>)path.getModel()).getName();
+        if (path.getAlias() == null) {
+            path.alias("alias" + index);
+        }
+        return path.getAlias();
     }
 }

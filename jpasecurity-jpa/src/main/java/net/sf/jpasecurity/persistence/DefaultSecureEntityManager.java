@@ -248,7 +248,16 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
-        return super.createQuery(entityFilter.filterQuery(criteriaQuery));
+        FilterResult<CriteriaQuery<T>> filterResult = entityFilter.filterQuery(criteriaQuery);
+        if (filterResult.getQuery() == null) {
+            return new EmptyResultQuery<T>(super.createQuery(criteriaQuery));
+        } else {
+            return new SecureQuery<T>(secureObjectManager,
+                                      this,
+                                      super.createQuery(filterResult.getQuery()),
+                                      filterResult.getSelectedPaths(),
+                                      super.getFlushMode());
+        }
     }
 
     public EntityTransaction getTransaction() {

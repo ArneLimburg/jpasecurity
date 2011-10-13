@@ -23,6 +23,8 @@ import java.util.List;
 import javax.persistence.FlushModeType;
 import javax.persistence.Parameter;
 import javax.persistence.Query;
+import javax.persistence.Tuple;
+import javax.persistence.TupleElement;
 import javax.persistence.TypedQuery;
 
 import net.sf.jpasecurity.entity.FetchManager;
@@ -111,6 +113,9 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
         if (isSimplePropertyType(result.getClass())) {
             return result;
         }
+        if (result instanceof Tuple) {
+            return (R)new SecureTuple((Tuple)result);
+        }
         if (!(result instanceof Object[])) {
             result = objectManager.getSecureObject(result);
             fetchManager.fetch(result);
@@ -126,5 +131,42 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
             }
         }
         return (R)scalarResult;
+    }
+
+    private class SecureTuple implements Tuple {
+
+        private Tuple tuple;
+
+        private SecureTuple(Tuple tuple) {
+            this.tuple = tuple;
+        }
+        
+        public List<TupleElement<?>> getElements() {
+            return tuple.getElements();
+        }
+
+        public <X> X get(TupleElement<X> tupleElement) {
+            return getSecureResult(tuple.get(tupleElement));
+        }
+
+        public Object get(String alias) {
+            return getSecureResult(tuple.get(alias));
+        }
+
+        public Object get(int index) {
+            return getSecureResult(tuple.get(index));
+        }
+
+        public <X> X get(String alias, Class<X> type) {
+            return getSecureResult(tuple.get(alias, type));
+        }
+
+        public <X> X get(int index, Class<X> type) {
+            return getSecureResult(tuple.get(index, type));
+        }
+
+        public Object[] toArray() {
+            return getSecureResult(tuple.toArray());
+        }
     }
 }
