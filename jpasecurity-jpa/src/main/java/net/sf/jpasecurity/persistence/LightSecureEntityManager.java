@@ -22,6 +22,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaQuery;
 
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.configuration.Configuration;
@@ -34,7 +35,7 @@ import net.sf.jpasecurity.jpql.compiler.SimpleSubselectEvaluator;
 import net.sf.jpasecurity.jpql.compiler.SubselectEvaluator;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.persistence.compiler.EntityManagerEvaluator;
-import net.sf.jpasecurity.security.EntityFilter;
+import net.sf.jpasecurity.persistence.security.CriteriaEntityFilter;
 import net.sf.jpasecurity.security.FilterResult;
 
 /**
@@ -46,7 +47,7 @@ public class LightSecureEntityManager extends DelegatingEntityManager {
     private LightSecureEntityManagerFactory entityManagerFactory;
     private MappingInformation mappingInformation;
     private SecurityContext securityContext;
-    private EntityFilter entityFilter;
+    private CriteriaEntityFilter entityFilter;
 
     LightSecureEntityManager(LightSecureEntityManagerFactory parent,
                              EntityManager entityManager,
@@ -61,13 +62,14 @@ public class LightSecureEntityManager extends DelegatingEntityManager {
         PathEvaluator pathEvaluator = new MappedPathEvaluator(mappingInformation, exceptionFactory);
         SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator(exceptionFactory);
         SubselectEvaluator entityManagerEvaluator = new EntityManagerEvaluator(entityManager, pathEvaluator);
-        this.entityFilter = new EntityFilter(emptyObjectCache,
-                                             mappingInformation,
-                                             securityContext,
-                                             configuration.getExceptionFactory(),
-                                             configuration.getAccessRulesProvider().getAccessRules(),
-                                             simpleSubselectEvaluator,
-                                             entityManagerEvaluator);
+        this.entityFilter = new CriteriaEntityFilter(emptyObjectCache,
+                                                     mappingInformation,
+                                                     securityContext,
+                                                     entityManager.getCriteriaBuilder(),
+                                                     configuration.getExceptionFactory(),
+                                                     configuration.getAccessRulesProvider().getAccessRules(),
+                                                     simpleSubselectEvaluator,
+                                                     entityManagerEvaluator);
     }
 
     @Override
@@ -119,6 +121,15 @@ public class LightSecureEntityManager extends DelegatingEntityManager {
             return (Q)super.createQuery(qlString, resultClass);
         } else {
             return (Q)super.createQuery(qlString);
+        }
+    }
+
+    public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+        FilterResult<CriteriaQuery<T>> filterResult = entityFilter.filterQuery(criteriaQuery);
+        if (filterResult.getQuery() == null) {
+            return new EmptyResultQuery<T>(super.createQuery(criteriaQuery));
+        } else {
+            return super.createQuery(filterResult.getQuery());
         }
     }
 }
