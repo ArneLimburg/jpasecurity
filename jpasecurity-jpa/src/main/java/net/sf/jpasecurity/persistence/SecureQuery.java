@@ -133,14 +133,14 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
         return (R)scalarResult;
     }
 
-    private class SecureTuple implements Tuple {
+    private final class SecureTuple implements Tuple {
 
         private Tuple tuple;
 
         private SecureTuple(Tuple tuple) {
             this.tuple = tuple;
         }
-        
+
         public List<TupleElement<?>> getElements() {
             return tuple.getElements();
         }
