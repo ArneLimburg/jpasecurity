@@ -100,7 +100,7 @@ public class LightSecureEntityManager extends DelegatingEntityManager {
     }
 
     private <Q extends Query, T> Q createQuery(String qlString, Class<T> resultClass, Class<Q> queryType) {
-        FilterResult filterResult = entityFilter.filterQuery(qlString, READ);
+        FilterResult<String> filterResult = entityFilter.filterQuery(qlString, READ);
         if (filterResult.getQuery() == null) {
             return (Q)new EmptyResultQuery<T>(createDelegateQuery(qlString, resultClass, queryType));
         } else {
