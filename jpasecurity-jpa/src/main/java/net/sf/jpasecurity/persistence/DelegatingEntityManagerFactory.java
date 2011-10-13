@@ -27,7 +27,7 @@ import javax.persistence.metamodel.Metamodel;
 /**
  * @author Arne Limburg
  */
-public class DelegatingEntityManagerFactory {
+public class DelegatingEntityManagerFactory implements EntityManagerFactory {
 
     private EntityManagerFactory delegate;
 
