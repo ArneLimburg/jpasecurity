@@ -52,6 +52,10 @@ public abstract class AbstractPropertyMappingInformation implements PropertyMapp
         propertyAccessStrategy = accessStrategy;
     }
 
+    public PropertyAccessStrategy getPropertyAccessStrategy() {
+        return propertyAccessStrategy;
+    }
+
     public boolean isSingleValued() {
         return true;
     }

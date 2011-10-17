@@ -178,7 +178,7 @@ public abstract class AbstractSecureCollectionTestCase<C extends SecureCollectio
     @Test
     public void retainAll() {
         Object unsecureEntity2 = new Object();
-        ClassMappingInformation classMapping = getMapping().getClassMapping(Object.class);
+        ClassMappingInformation classMapping = getMapping().getClassMapping(Entity.class);
         SecureEntityInterceptor interceptor
             = new SecureEntityInterceptor(getBeanInitializer(), getObjectManager(), unsecureEntity2);
         Decorator<SecureEntity> decorator = new SecureEntityDecorator(classMapping,
@@ -195,6 +195,7 @@ public abstract class AbstractSecureCollectionTestCase<C extends SecureCollectio
             public void run() {
                 secureCollection.retainAll(Collections.singleton(getSecureEntity()));
             }
+
         });
     }
 

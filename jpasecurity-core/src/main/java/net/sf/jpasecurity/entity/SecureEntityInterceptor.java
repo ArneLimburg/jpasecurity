@@ -30,6 +30,7 @@ import net.sf.jpasecurity.proxy.SuperMethod;
  */
 public class SecureEntityInterceptor implements MethodInterceptor {
 
+    private boolean touched = false;
     private BeanInitializer beanInitializer;
     private AbstractSecureObjectManager objectManager;
     Object entity;
@@ -63,14 +64,26 @@ public class SecureEntityInterceptor implements MethodInterceptor {
         } else if (isToString(method)) {
             entity = beanInitializer.initialize(entity);
             return entity.toString();
+        } else if (isFlush(method) && !touched) {
+            //ignore a call to flush() if this proxy was not touched
+            return null;
         }
         try {
-            if (!SecureEntityMethods.contains(method) && !((SecureEntity)object).isInitialized()) {
-                ((SecureEntity)object).refresh();
+            if (!SecureEntityMethods.contains(method)) {
+                if (!((SecureEntity)object).isInitialized()) {
+                    ((SecureEntity)object).refresh();
+                    touched = false;
+                } else {
+                    touched = true;
+                }
             }
             return superMethod.invoke(object, args);
         } catch (InvocationTargetException e) {
             throw e.getTargetException();
+        } finally {
+            if (isFlush(method)) {
+                touched = false;
+            }
         }
     }
 
@@ -94,6 +107,11 @@ public class SecureEntityInterceptor implements MethodInterceptor {
         return method.getName().equals("compareTo")
             && method.getParameterTypes().length == 1
             && method.getReturnType().equals(Integer.TYPE);
+    }
+
+    private boolean isFlush(Method method) {
+        return method.getName().equals("flush")
+            && method.getParameterTypes().length == 0;
     }
 
     private <T> int compare(Comparable<T> comparable, Object object) {
