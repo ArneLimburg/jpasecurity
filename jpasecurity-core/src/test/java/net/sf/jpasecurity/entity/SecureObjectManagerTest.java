@@ -17,7 +17,9 @@ package net.sf.jpasecurity.entity;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -36,11 +38,18 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import net.sf.jpasecurity.AccessManager;
+import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureMap;
 import net.sf.jpasecurity.configuration.Configuration;
+import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
+import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.PropertyAccessStrategy;
+import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.mapping.SimplePropertyMappingInformation;
 import net.sf.jpasecurity.proxy.EntityProxy;
 
 import org.junit.Before;
@@ -50,6 +59,11 @@ import org.junit.Test;
  * @author Arne Limburg
  */
 public class SecureObjectManagerTest extends AbstractSecureObjectTestCase {
+
+    public static final String ID_PROPERTY_NAME = "idProperty";
+    public static final int ID_PROPERTY_VALUE = 42;
+    public static final String VERSION_PROPERTY_NAME = "versionProperty";
+    public static final int VERSION_PROPERTY_VALUE = 1;
 
     private AbstractSecureObjectManager secureObjectManager;
 
@@ -123,46 +137,49 @@ public class SecureObjectManagerTest extends AbstractSecureObjectTestCase {
 
     @Test
     public void secureCopy() {
-//        secureObjectManager.secureCopy(getUnsecureEntity(), getSecureEntity());
+        expectSecureCopy(getUnsecureEntity(), getSecureEntity());
+        replaySecureCopy(getUnsecureEntity(), getSecureEntity());
+        secureObjectManager.secureCopy(getUnsecureEntity(), getSecureEntity());
+        verifySecureCopy(getUnsecureEntity(), getSecureEntity());
     }
 
     @Test
     public void unsecureCopy() {
+        expectUnsecureCopy(getSecureEntity(), getSecureEntity());
+        replayUnsecureCopy(getSecureEntity(), getSecureEntity());
+        secureObjectManager.unsecureCopy(AccessType.UPDATE, getSecureEntity(), getUnsecureEntity());
+        verifyUnsecureCopy(getSecureEntity(), getUnsecureEntity());
     }
 
     @Test
     public void copyIdAndVersion() {
-//        secureObjectManager.copyIdAndVersion(unsecureObject, secureObject)
+        ClassMappingInformation classMapping = getMapping().getClassMapping(Entity.class);
+        reset(classMapping);
+        ExceptionFactory exceptionFactory = new DefaultExceptionFactory();
+        PropertyAccessStrategy idPropertyAccessStrategy = createMock(PropertyAccessStrategy.class);
+        PropertyMappingInformation idPropertyMapping = new SimplePropertyMappingInformation(ID_PROPERTY_NAME,
+                                                                                            Integer.TYPE,
+                                                                                            classMapping,
+                                                                                            idPropertyAccessStrategy,
+                                                                                            exceptionFactory);
+        expect(idPropertyAccessStrategy.getPropertyValue(getUnsecureEntity())).andReturn(ID_PROPERTY_NAME);
+        idPropertyAccessStrategy.setPropertyValue(getSecureEntity(), ID_PROPERTY_NAME);
+        expectLastCall();
+        PropertyAccessStrategy vPropertyAccessStrategy = createMock(PropertyAccessStrategy.class);
+        PropertyMappingInformation vPropertyMapping = new SimplePropertyMappingInformation(VERSION_PROPERTY_NAME,
+                                                                                           Integer.TYPE,
+                                                                                           classMapping,
+                                                                                           vPropertyAccessStrategy,
+                                                                                           exceptionFactory);
+        expect(vPropertyAccessStrategy.getPropertyValue(getUnsecureEntity())).andReturn(VERSION_PROPERTY_NAME);
+        vPropertyAccessStrategy.setPropertyValue(getSecureEntity(), VERSION_PROPERTY_NAME);
+        expectLastCall();
+        expect(classMapping.getIdPropertyMappings()).andReturn(Collections.singletonList(idPropertyMapping));
+        expect(classMapping.getVersionPropertyMappings()).andReturn(Collections.singletonList(vPropertyMapping));
+        replay(classMapping, idPropertyAccessStrategy, vPropertyAccessStrategy);
+        secureObjectManager.copyIdAndVersion(getUnsecureEntity(), getSecureEntity());
+        verify(classMapping, idPropertyAccessStrategy, vPropertyAccessStrategy);
     }
-
-    @Test
-    public void isDirty() {
-//        secureObjectManager.isDirty(newEntity, oldEntity);
-    }
-
-//    @Test
-//    public void getClassMapping() {
-//    }
-
-//    @Test
-//    public void isAccessible() {
-//    }
-
-//    @Test
-//    public void checkAccess() {
-//    }
-
-//    @Test
-//    public void fireLifecycleEvent() {
-//    }
-//
-//    @Test
-//    public void createSecureEntity() {
-//    }
-//
-//    @Test
-//    public void setRemoved() {
-//    }
 
     public static interface UnsecureObjectFactory {
         <T> T createUnsecureObject(T secureObject);
