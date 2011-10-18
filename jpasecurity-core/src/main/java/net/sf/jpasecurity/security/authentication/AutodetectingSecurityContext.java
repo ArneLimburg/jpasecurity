@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 package net.sf.jpasecurity.security.authentication;
 
+import java.util.ArrayList;
 import java.util.Collection;
-
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+import java.util.Collections;
+import java.util.List;
 
 import net.sf.jpasecurity.configuration.AuthenticationProvider;
 import net.sf.jpasecurity.configuration.AuthenticationProviderSecurityContext;
@@ -34,6 +34,14 @@ import org.apache.commons.logging.LogFactory;
  * For that security context the following authentication providers are used in the specified order:
  * <ol>
  *   <li>
+ *     If a <tt>org.springframework.security.context.SecurityContextHolder</tt> is present in the classpath,
+ *     a {@link net.sf.jpasecurity.spring.authentication.SpringAuthenticationProvider} is used.
+ *   </li>
+ *   <li>
+ *     If an <tt>javax.faces.context.FacesContext</tt> is present in the classpath,
+ *     a {@link net.sf.jpasecurity.jsf.authentication.JsfAuthenticationProvider} is used.
+ *   </li>
+ *   <li>
  *     If an <tt>javax.ejb.EJBContext</tt> is accessible via JNDI lookup,
  *     an {@link EjbAuthenticationProvider} is used.
  *   </li>
@@ -47,6 +55,14 @@ public class AutodetectingSecurityContext implements SecurityContext {
 
     private static final Log LOG = LogFactory.getLog(AutodetectingSecurityContext.class);
 
+    private static final List<String> AUTHENTICATION_PROVIDER_CLASS_NAMES;
+    static {
+        List<String> authenticationProviderClassNames = new ArrayList<String>();
+        authenticationProviderClassNames.add("net.sf.jpasecurity.spring.authentication.SpringAuthenticationProvider");
+        authenticationProviderClassNames.add("net.sf.jpasecurity.security.authentication.EjbAuthenticationProvider");
+        authenticationProviderClassNames.add("net.sf.jpasecurity.jsf.authentication.JsfAuthenticationProvider");
+        AUTHENTICATION_PROVIDER_CLASS_NAMES = Collections.unmodifiableList(authenticationProviderClassNames);
+    }
     private SecurityContext securityContext;
 
     public AutodetectingSecurityContext() {
@@ -54,15 +70,27 @@ public class AutodetectingSecurityContext implements SecurityContext {
     }
 
     protected AuthenticationProvider autodetectAuthenticationProvider() {
-        try {
-            InitialContext context = new InitialContext();
-            context.lookup("java:comp/EJBContext");
-            LOG.info("autodetected presence of EJB, using EJBAuthenticationProvider");
-            return new EjbAuthenticationProvider();
-        } catch (NamingException ejbSecurityNotFoundException) {
-            LOG.info("falling back to DefaultAuthenticationPovider");
-            return new DefaultAuthenticationProvider();
+        for (String providerClassName: AUTHENTICATION_PROVIDER_CLASS_NAMES) {
+            try {
+                ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+                Class<? extends AuthenticationProvider> authenticationProviderClass
+                    = (Class<? extends AuthenticationProvider>)currentClassLoader.loadClass(providerClassName);
+                LOG.info("autodetected presence of class " + providerClassName);
+                AuthenticationProvider authenticationProvider = authenticationProviderClass.newInstance();
+                LOG.info("using " + providerClassName);
+                return authenticationProvider;
+            } catch (IllegalAccessException e) {
+                throw new SecurityException(e);
+            } catch (ClassNotFoundException e) {
+                //ignore and try next authentication provider
+            } catch (InstantiationException e) {
+                LOG.debug("could not instantiate class " + providerClassName, e);
+            } catch (IllegalStateException e) {
+                LOG.debug("constructor of class " + providerClassName + " threw exception", e);
+            }
         }
+        LOG.info("falling back to DefaultAuthenticationPovider");
+        return new DefaultAuthenticationProvider();
     }
 
     public Collection<Alias> getAliases() {
