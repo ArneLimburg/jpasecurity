@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.ejb.EJBContext;
-import javax.ejb.EJBException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -35,18 +34,27 @@ import net.sf.jpasecurity.mapping.MappingInformationReceiver;
  */
 public class EjbAuthenticationProvider implements AuthenticationProvider, MappingInformationReceiver {
 
+    private EJBContext context;
     private Set<String> roles;
+
+    public EjbAuthenticationProvider() {
+        try {
+            InitialContext initialContext = new InitialContext();
+            context = (EJBContext)initialContext.lookup("java:comp/EJBContext");
+        } catch (NamingException e) {
+            throw new IllegalStateException("EJBContext not found", e);
+        }
+    }
 
     public void setMappingInformation(MappingInformation mappingInformation) {
         roles = new DeclareRolesParser().parseDeclaredRoles(mappingInformation.getSecureClasses());
     }
 
     public Object getPrincipal() {
-        return getContext().getCallerPrincipal().getName();
+        return context.getCallerPrincipal().getName();
     }
 
     public Collection<String> getRoles() {
-        EJBContext context = getContext();
         List<String> filteredRoles = new ArrayList<String>();
         for (String role: roles) {
             if (context.isCallerInRole(role)) {
@@ -54,15 +62,6 @@ public class EjbAuthenticationProvider implements AuthenticationProvider, Mappin
             }
         }
         return filteredRoles;
-    }
-
-    protected EJBContext getContext() {
-        try {
-            InitialContext context = new InitialContext();
-            return (EJBContext)context.lookup("java:comp/EJBContext");
-        } catch (NamingException e) {
-            throw new EJBException(e);
-        }
     }
 
     public void setMappingProperties(Map<String, Object> properties) {

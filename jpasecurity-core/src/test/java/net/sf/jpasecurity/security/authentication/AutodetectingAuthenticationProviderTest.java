@@ -20,6 +20,8 @@ import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
@@ -29,19 +31,21 @@ import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 import javax.naming.NoInitialContextException;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.configuration.AuthenticationProvider;
 import net.sf.jpasecurity.mapping.Alias;
 
 import org.apache.commons.naming.NamingContext;
 import org.apache.commons.naming.java.javaURLContextFactory;
+import org.junit.After;
+import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
-public class AutodetectingAuthenticationProviderTest extends TestCase {
+public class AutodetectingAuthenticationProviderTest {
 
-    public void testAutodetectAuthenticationProvider() {
+    @Test
+    public void autodetectAuthenticationProvider() {
         final AuthenticationProvider mock = createMock(AuthenticationProvider.class);
         AutodetectingSecurityContext authenticationProvider = new AutodetectingSecurityContext() {
             protected AuthenticationProvider autodetectAuthenticationProvider() {
@@ -60,7 +64,8 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         verify(mock);
     }
 
-    public void testAutodetectEjbAuthenticationProvider() throws Exception {
+    @Test
+    public void autodetectEjbAuthenticationProvider() throws Exception {
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY, javaURLContextFactory.class.getName());
         System.setProperty(Context.URL_PKG_PREFIXES, NamingContext.class.getPackage().getName());
 
@@ -75,12 +80,14 @@ public class AutodetectingAuthenticationProviderTest extends TestCase {
         assertTrue(authenticationProvider instanceof EjbAuthenticationProvider);
     }
 
-    public void testFallbackToDefaultAuthenticationProvider() throws Exception {
+    @Test
+    public void fallbackToDefaultAuthenticationProvider() throws Exception {
         AuthenticationProvider authenticationProvider
             = new AutodetectingSecurityContext().autodetectAuthenticationProvider();
         assertTrue(authenticationProvider instanceof DefaultAuthenticationProvider);
     }
 
+    @After
     public void tearDown() throws Exception {
         try {
             InitialContext initialContext = new InitialContext();
