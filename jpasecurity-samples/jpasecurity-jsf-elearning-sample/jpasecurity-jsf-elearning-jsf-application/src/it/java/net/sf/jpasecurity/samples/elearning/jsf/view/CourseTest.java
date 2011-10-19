@@ -18,7 +18,6 @@ package net.sf.jpasecurity.samples.elearning.jsf.view;
 import static org.junit.Assert.assertEquals;
 
 import org.jaxen.JaxenException;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -42,13 +41,15 @@ public class CourseTest extends AbstractHtmlTestCase {
     @Ignore
     @Test
     public void authenticated() throws JaxenException {
-        authenticate();
+        assertCoursePage("course.xhtml", false);
+        assertCoursePage(authenticate("course.xhtml"), true);
         assertCoursePage("course.xhtml", true);
     }
 
     @Ignore
     @Test
     public void formBasedAuthenticated() throws JaxenException {
+        assertCoursePage("course.xhtml", false);
         authenticateFormBased();
         assertCoursePage("course.xhtml", true);
     }

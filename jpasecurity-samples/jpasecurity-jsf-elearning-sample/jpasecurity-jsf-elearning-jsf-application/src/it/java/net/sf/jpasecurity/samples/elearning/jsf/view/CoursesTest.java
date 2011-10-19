@@ -42,13 +42,15 @@ public class CoursesTest extends AbstractHtmlTestCase {
     @Ignore
     @Test
     public void authenticated() throws JaxenException {
-        authenticate();
+        assertCoursesPage("courses.xhtml", false);
+        assertCoursesPage(authenticate("courses.xhtml"), true);
         assertCoursesPage("courses.xhtml", true);
     }
 
     @Ignore
     @Test
     public void formBasedAuthenticated() throws JaxenException {
+        assertCoursesPage("courses.xhtml", false);
         authenticateFormBased();
         assertCoursesPage("courses.xhtml", true);
     }
