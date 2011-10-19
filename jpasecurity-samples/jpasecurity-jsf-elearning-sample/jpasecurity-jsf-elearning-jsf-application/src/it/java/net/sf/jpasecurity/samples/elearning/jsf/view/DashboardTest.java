@@ -41,13 +41,15 @@ public class DashboardTest extends AbstractHtmlTestCase {
     @Ignore
     @Test
     public void authenticated() throws JaxenException {
-        authenticate();
+        assertDashboardPage("dashboard.xhtml", false);
+        assertDashboardPage(authenticate("dashboard.xhtml"), true);
         assertDashboardPage("dashboard.xhtml", true);
     }
 
     @Ignore
     @Test
     public void formBasedAuthenticated() throws JaxenException {
+        assertDashboardPage("dashboard.xhtml", false);
         authenticateFormBased();
         assertDashboardPage("dashboard.xhtml", true);
     }

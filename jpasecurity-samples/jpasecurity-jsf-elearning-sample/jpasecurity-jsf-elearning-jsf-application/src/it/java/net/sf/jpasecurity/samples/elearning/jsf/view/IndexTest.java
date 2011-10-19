@@ -39,13 +39,15 @@ public class IndexTest extends AbstractHtmlTestCase {
 
     @Test
     public void authenticated() throws JaxenException {
-        authenticate();
+        assertIndexPage("", false);
+        assertIndexPage(authenticate(""), true);
         assertIndexPage("", true);
         assertIndexPage("index.xhtml", true);
     }
 
     @Test
     public void formBasedAuthenticated() throws JaxenException {
+        assertIndexPage("", false);
         authenticateFormBased();
         assertIndexPage("", true);
         assertIndexPage("index.xhtml", true);

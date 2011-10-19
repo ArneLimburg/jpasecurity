@@ -24,6 +24,7 @@ import org.junit.Before;
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
@@ -55,25 +56,31 @@ public abstract class AbstractHtmlTestCase {
         }
     }
 
-    public void authenticate() {
-        HtmlPage login = getPage("login.xhtml");
-        HtmlForm form = getFormByJsfId(login, "loginForm");
-        getInputByJsfId(form, "username").setValueAttribute("peter");
-        getInputByJsfId(form, "password").setValueAttribute("peter");
+    public HtmlPage authenticate(String page) {
+        return authenticate(getPage(page));
+    }
+
+    public HtmlPage authenticate(HtmlPage currentPage) {
         try {
-            getInputByJsfId(form, "loginButton").click();
+            HtmlAnchor loginLink = (HtmlAnchor)getByXPath(currentPage, "//a[text() = 'Login']").iterator().next();
+            HtmlPage loginPage = (HtmlPage)loginLink.click();
+
+            HtmlForm form = getFormByJsfId(loginPage, "loginForm");
+            getInputByJsfId(form, "username").setValueAttribute("peter");
+            getInputByJsfId(form, "password").setValueAttribute("peter");
+            return (HtmlPage)getInputByJsfId(form, "loginButton").click();
         } catch (IOException e) {
             throw new AssertionError(e);
         }
     }
 
-    public void authenticateFormBased() {
+    public HtmlPage authenticateFormBased() {
         HtmlPage dashboard = getPage("dashboard.xhtml");
         HtmlForm form = dashboard.getFormByName("j_security_check");
         form.getInputByName("j_username").setValueAttribute("peter");
         form.getInputByName("j_password").setValueAttribute("peter");
         try {
-            form.getInputByName("j_security_check_submit").click();
+            return (HtmlPage)form.getInputByName("j_security_check_submit").click();
         } catch (IOException e) {
             throw new AssertionError(e);
         }

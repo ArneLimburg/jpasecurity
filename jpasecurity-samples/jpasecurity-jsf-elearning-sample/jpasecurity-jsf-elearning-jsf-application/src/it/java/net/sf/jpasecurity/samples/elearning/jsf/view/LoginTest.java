@@ -40,13 +40,15 @@ public class LoginTest extends AbstractHtmlTestCase {
     @Ignore
     @Test
     public void authenticated() throws JaxenException {
-        authenticate();
+        assertLoginPage("login.xhtml", false);
+        assertLoginPage(authenticate("login.xhtml"), true);
         assertLoginPage("login.xhtml", true);
     }
 
     @Ignore
     @Test
     public void formBasedAuthenticated() throws JaxenException {
+        assertLoginPage("login.xhtml", false);
         authenticateFormBased();
         assertLoginPage("login.xhtml", true);
     }
