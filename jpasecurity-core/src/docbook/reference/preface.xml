@@ -30,20 +30,25 @@
   </para>
   <para>
     JPA Security uses the notion of <emphasis>security unit</emphasis> to refer
-    to a set of Java bean classes and their corresponding access rules. A security unit
+    to a set of Java bean classes and their corresponding access rules.
+    <!-- 
+    A security unit
     may be completely decoupled from other concepts like this in the Java universe,
     but it may correspond i.e. to a servlet context (in a web environment)
-    or to a persistence context (in a JPA environment). The content of a security context
-    is defined at deployment time and may not change at runtime.
+    or to a persistence context (in a JPA environment).
+     -->
+    In the current version of JPA Security a security unit directly corresponds to a
+    persistence unit of JPA.
+    The content of a security unit is defined at deployment time and may not change at runtime.
   </para>
   <para>
     In contrast to the <emphasis>security unit</emphasis>, the <emphasis>security context</emphasis>
     starts at runtime with the authentication of a user. As of version 0.4.0 of JPA Security
     the content of this context is completely customizable and you can do so by implementing the
     <computeroutput>SecurityContext</computeroutput> interface. The security context
-    i.e. contains information like i.e. the current user, its roles and/or the current mandator,
+    contains information like i.e. the current user, its roles and/or the current tenant,
     but any kind of context information that is needed to specify the authorization of the current
-    user to access beans, may be made available through the security context.
+    user to access beans may be made available through the security context.
   </para>
   <para>
     JPA Security smoothly integrates with existing authentication solutions like specified in the

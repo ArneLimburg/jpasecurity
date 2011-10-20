@@ -73,8 +73,8 @@
     <title>Access Control: Authorization in Action</title>
     <para>
       Access Control is the process of allowing and forbidding access to resources
-      based on the authorization of the current user. There are different levels of
-      access control.
+      based on the authorization of the current security context. There are different
+      levels of access control.
     </para>
     <itemizedlist>
       <listitem>
@@ -144,10 +144,10 @@
     <title>Access Control in JPA Security</title>
     <para>
       In JPA Security the access to entities and embeddables is defined by access rules.
-      There is one set of access rules per persistence unit. This set of access rules
-      applies to every JPA query and every entity and embeddable you get out of your
-      <systemitem>EntityManager</systemitem>. Every rule may be restricted to be valid
-      for just one user or role or a group of users or roles.
+      There is one set of access rules per security unit. This set of access rules
+      applies to every JPA query and every entity and embeddable you get out of an
+      <systemitem>EntityManager</systemitem> of the persistence unit that corresponds
+      to that security unit.
     </para>
     <section>
       <title>Example: Access Rule</title>
@@ -166,7 +166,7 @@
         JPA Security allows the definition of rules that grant create, read, update and/or delete access.
         Currently there is no explicit way to deny access. Although this is not needed,
         since every entity or embeddable to which no access is granted may not be accessed.
-        An exception from this behaviour are classes for which no access rule exists at all.
+        An exception from this behavior are classes for which no access rule exists at all.
         Objects of such class may be accessed without any restriction.
       </para>
     </section>
@@ -181,18 +181,20 @@
       </para>
       <para>
 	    The syntax of the <replaceable>where_clause</replaceable> is derived from the syntax of <command>WHERE</command> clauses of JPQL, the query
-        language of JPA. Within the clause there are two functions that are not specified by JPA but may be used in JPA Security access rules, 
-        which are <command>CURRENT_PRINCIPAL</command> and <command>CURRENT_ROLES</command>.
-        The <command>CURRENT_PRINCIPAL</command> function will be evaluated to the currently authenticated
-        principal during runtime and the <command>CURRENT_ROLES</command> function will be expanded to a list
+        language of JPA. Within the clause any alias may be used that is defined by your current security context. The build-in security contexts
+        define two aliases, which are <command>CURRENT_PRINCIPAL</command> and <command>CURRENT_ROLES</command>.
+        The <command>CURRENT_PRINCIPAL</command> alias will be evaluated to the currently authenticated
+        principal during runtime and the <command>CURRENT_ROLES</command> alias will be expanded to a list
         of roles that the current principal belongs to. No input parameters may be used in the <command>WHERE</command> clause of access rules.
+        If you need more aliases to be defined (i.e. <command>CURRENT_TENANT</command>),
+        you will have to implement your own security context like described later.
       </para>
     </section>
     <section>
       <title>Providing access rules</title>
       <para>
         With JPA Security there are two predefined ways to provide access rules:
-        via XML configuration or via Annotations. In a later chapter we will describe 
+        via XML configuration or via Annotations. In a later chapter we will see 
         how to implement your own way of providing access rules.
       </para>
       <section id="rules-xml">
@@ -239,6 +241,15 @@
           With this parameter you can specify your restrictions for entities
           of the annotated class.
         </para>
+        <para>
+          Example:
+        </para>
+        <programlisting>
+@Permit(where = "owner = CURRENT_PRINCIPAL")
+public class Account {
+    ...
+}
+        </programlisting>
       </section>
       <section id="access-rules-application">
         <title>Applying of access rules</title>
@@ -282,6 +293,7 @@
 GRAND ACCESS TO TestBean bean WHERE EXISTS (SELECT b FROM TestBean b WHERE b = bean AND b.accessControlList = CURRENT_PRINCIPAL)
           ]]>
         </programlisting>
+<!-- TODO: Test this restriction, it is likely to be gone
         <para>
           Sub-selects that contain collection-joins cannot directly evaluated in memory and the
           result of the evaluation depends on the content of the (first-level) entity-manager-cache.
@@ -292,6 +304,7 @@ GRAND ACCESS TO TestBean bean WHERE EXISTS (SELECT b FROM TestBean b WHERE b = b
 GRAND ACCESS TO TestBean bean WHERE EXISTS (SELECT b FROM TestBean b, IN(b.accessControlList.entries) entry WHERE b = bean AND entry IN (CURRENT_ROLES)
           ]]>
         </programlisting>
+ -->
         <para>
           Since the alias from within the sub-select cannot directly replaced by the alias from outside,
           the following query cannot be evaluated in memory:
@@ -302,7 +315,7 @@ GRAND ACCESS TO TestBean bean WHERE EXISTS (SELECT entry FROM AccessControlListE
           ]]>
         </programlisting>
         <para>
-		  Although there can be no guarantee in general that the last two queries can be evaluated in memory,
+		  Although there can be no guarantee in general that the last query can be evaluated in memory,
 		  in-memory-evaluation can still be achieved by ensuring that the entities that are needed to evaluate
 		  the sub-select are contained in the (first-level) entity-manager-cache. For example the last rule
 		  can be evaluated in memory if there exists an <systemitem>AccessContolListEntry</systemitem> in the

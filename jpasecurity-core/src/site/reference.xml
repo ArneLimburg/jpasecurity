@@ -35,8 +35,12 @@
           <title>Modifying your persistence.xml</title>
         </section>
         <section>
-          <id>javaee-security</id>
-          <title>Integration with JavaEE Security</title>
+          <id>java-ee-security</id>
+          <title>Integration with Java EE Security</title>
+        </section>
+        <section>
+          <id>jsf-security</id>
+          <title>Integration with JSF Security</title>
         </section>
         <section>
           <id>spring-security</id>
