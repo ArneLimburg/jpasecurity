@@ -17,21 +17,20 @@
   <section>
     <title>Authentication in JPA Security</title>
     <para>
-      JPA Security uses an implementation of the <systemitem>net.sf.jpasecurity.authentication.AuthenticationProvider</systemitem>
-      interface to be aware of the currently authenticated user and/or it's roles at runtime.
+      JPA Security uses an implementation of the
+      <systemitem>net.sf.jpasecurity.configuration.SecurityContext</systemitem>
+      interface to be aware of the currently authenticated user
+      and other related information (like its roles, tenant, ...) at runtime.
     </para>
     <section>
       <title>Default-Configuration for Authentication</title>
       <para>
-        By default JPA Security will try to auto-detect your authentication provider.
+        By default JPA Security will try to auto-detect your security context.
+        This is done via the indirection of an authentication provider. An authentication
+        provider provides access to the current authenticated user and its roles.
         The detection follows the following rules (The first matching rule is taken): 
       </para>
       <orderedlist>
-        <listitem>
-          <para>
-            When acegi-security is in the classpath, the <systemitem>AcegiAuthenticationProvider</systemitem> is used.
-          </para>
-        </listitem>
         <listitem>
           <para>
             When spring-security is in the classpath, the <systemitem>SpringAuthenticationProvider</systemitem> is used.
@@ -40,7 +39,12 @@
         <listitem>
           <para>
             When <systemitem>java:comp/EJBContext</systemitem> is available in the JNDI-context,
-            the <systemitem>EJBAuthenticationProvider</systemitem> is used.
+            the <systemitem>EjbAuthenticationProvider</systemitem> is used.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            When JSF is available in the classpath, the <systemitem>JsfAuthenticationProvider</systemitem> is used.
           </para>
         </listitem>
         <listitem>
@@ -55,10 +59,14 @@
       <para>
         When the described auto-detection strategy does not work for your environment,
         you may specify the class name of any implementation of the
-        <systemitem>net.sf.jpasecurity.security.AuthenticationProvider</systemitem> interface as value
-        of the persistence-property <systemitem>net.sf.jpasecurity.security.authentication.provider</systemitem>
-        in your <filename>persistence.xml</filename>.
-        You may use any of the above described authentication providers or implement your own.
+        <systemitem>net.sf.jpasecurity.configuration.SecurityContext</systemitem> interface as value
+        of the persistence-property <systemitem>net.sf.jpasecurity.security.context</systemitem>
+        in your <filename>persistence.xml</filename>. To provide backward compatibility to JPA Security 0.3
+        <systemitem>net.sf.jpasecurity.security.authentication.provider</systemitem> is also valid,
+        if you specify a class name of an implementation of the
+        <systemitem>net.sf.jpasecurity.configuration.AuthenticationProvider</systemitem> interface,
+        but any specification of the <systemitem>net.sf.jpasecurity.security.context</systemitem> property
+        will take precedence.
       </para>
     </section>
   </section>

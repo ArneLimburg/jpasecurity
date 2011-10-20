@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
+<article>
+  <title>Integration with JSF Security</title>
+  <para>
+    To use Servlet authentication information for JPA Security within your JSF application
+    you may integrate JPA Security like described in the previous chapter and specify
+    <systemitem>net.sf.jpasecurity.jsf.authentication.JsfAuthenticationProvider</systemitem>
+    as authentication provider in your persistence properties.
+    You need to define all the roles your application is using
+    with the <systemitem>@DeclareRoles</systemitem> annotation at at least one of your entity beans
+    in order to make the <systemitem>JsfAuthenticationProvider</systemitem> work correctly.
+  </para>
+  <para>
+    If you do not have one of <filename>spring-security.jar</filename> in your classpath
+    usually you do not need to define your own authentication provider as the auto-detection
+    mechanism of JPA Security should automatically install the <systemitem>EjbAuthenticationProvider</systemitem>
+    (if you are in a Java EE server) or the <systemitem>JsfAuthenticationProvider</systemitem> if you are
+    using JSF outside a Java EE server, both using Servlet authentication information.
+  </para>
+  <para>
+    You need to have the jpasecurity-jsf module in your classpath
+    in order to make the <systemitem>JsfAuthenticationProvider</systemitem> work.
+  </para>
+</article>

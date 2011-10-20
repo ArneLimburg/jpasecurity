@@ -3,7 +3,8 @@ Documentation
 * Tutorials
 
   A simple tutorial can be found {{{simple-tutorial/introduction.html}here}}
-  and a more complex tutorial based on the Springframework's petclinic sample can be found {{{petclinic-tutorial/introduction.html}here}}
+  and a more complex tutorial based on the Springframework's petclinic sample can be found {{{petclinic-tutorial/introduction.html}here}}.
+  A documentation of a sample application using JPA Security with JSF can be found {{{elearning-sample/introduction.html}here}}.
     
 * Manual
 

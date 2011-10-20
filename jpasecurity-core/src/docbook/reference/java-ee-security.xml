@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
 <article>
-  <title>Integration with JavaEE Security</title>
+  <title>Integration with Java EE Security</title>
   <para>
-    To use JavaEE Authentication for JPA Security you may integrate JPA Security like
+    To use Java EE authentication information for JPA Security you may integrate JPA Security like
     described in the previous chapter and specify
     <systemitem>net.sf.jpasecurity.security.authentication.EjbAuthenticationProvider</systemitem>
     as authentication provider in your persistence properties.
     You need to define all the roles your application is using
     with the <systemitem>@DeclareRoles</systemitem> annotation at at least one of your entity beans
-    in order to make the <systemitem>EjbAuthenticationProvider</systemitem> to work correctly.
+    in order to make the <systemitem>EjbAuthenticationProvider</systemitem> work correctly.
   </para>
   <para>
-    If you do not have one of <filename>acegi-security.jar</filename> or <filename>spring-security.jar</filename>
-    in your classpath usually you do not need to define your own authentication provider as the auto-detection
+    If you do not have one of <filename>spring-security.jar</filename> in your classpath
+    usually you do not need to define your own authentication provider as the auto-detection
     mechanism of JPA Security should automatically install the <systemitem>EjbAuthenticationProvider</systemitem>.
   </para>
 </article>
