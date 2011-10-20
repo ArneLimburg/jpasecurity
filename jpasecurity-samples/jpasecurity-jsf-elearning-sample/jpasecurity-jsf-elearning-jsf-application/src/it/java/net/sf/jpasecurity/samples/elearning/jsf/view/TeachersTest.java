@@ -32,21 +32,18 @@ public class TeachersTest extends AbstractHtmlTestCase {
         super("http://localhost:8282/elearning/");
     }
 
-    @Ignore
     @Test
     public void unauthenticated() throws JaxenException {
         assertTeachersPage("teachers.xhtml", false);
     }
 
-    @Ignore
     @Test
     public void authenticated() throws JaxenException {
         assertTeachersPage("teachers.xhtml", false);
         assertTeachersPage(authenticate("teachers.xhtml"), true);
         assertTeachersPage("teachers.xhtml", true);
     }
-
-    @Ignore
+    
     @Test
     public void formBasedAuthenticated() throws JaxenException {
         assertTeachersPage("teachers.xhtml", false);
@@ -66,7 +63,7 @@ public class TeachersTest extends AbstractHtmlTestCase {
         } else {
             assertEquals(1, page.getByXPath("//a[text() = 'Login']").size());
         }
-        assertEquals(1, page.getByXPath("//a[@href = 'teacher.xhtml'][text() = 'peter']").size());
-        assertEquals(1, page.getByXPath("//a[@href = 'teacher.xhtml'][text() = 'hans']").size());
+        assertEquals(1, page.getByXPath("//a[@href = 'teacher.xhtml?id=1'][text() = 'Peter B.']").size());
+        assertEquals(1, page.getByXPath("//a[@href = 'teacher.xhtml?id=3'][text() = 'Hans L.']").size());
     }
 }

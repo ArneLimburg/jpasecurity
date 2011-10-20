@@ -18,8 +18,8 @@ package net.sf.jpasecurity.samples.elearning.jsf.view;
 import static org.junit.Assert.assertEquals;
 
 import org.jaxen.JaxenException;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
@@ -27,31 +27,29 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @auhtor Raffaela Ferrari
  */
 
+
 public class StudentTest extends AbstractHtmlTestCase {
     public StudentTest() {
         super("http://localhost:8282/elearning/");
     }
 
-    @Ignore
     @Test
     public void unauthenticated() throws JaxenException {
-        assertStudentPage("student.xhtml", false);
+        assertStudentPage("student.xhtml?id=8", false);
     }
 
-    @Ignore
     @Test
     public void authenticated() throws JaxenException {
-        assertStudentPage("student.xhtml", false);
-        assertStudentPage(authenticate("student.xhtml"), true);
-        assertStudentPage("student.xhtml", true);
+        assertStudentPage("student.xhtml?id=8", false);
+        assertStudentPage(authenticate("student.xhtml?id=8"), true);
+        assertStudentPage("student.xhtml?id=8", true);
     }
 
-    @Ignore
     @Test
     public void formBasedAuthenticated() throws JaxenException {
-        assertStudentPage("student.xhtml", false);
+        assertStudentPage("student.xhtml?id=8", false);
         authenticateFormBased();
-        assertStudentPage("student.xhtml", true);
+        assertStudentPage("student.xhtml?id=8", true);
     }
 
     private void assertStudentPage(String name, boolean authenticated) throws JaxenException {
@@ -60,11 +58,16 @@ public class StudentTest extends AbstractHtmlTestCase {
 
     private void assertStudentPage(HtmlPage page, boolean authenticated) throws JaxenException {
         assertEquals("E-Learning Platform", page.getTitleText());
+        assertEquals(1, page.getByXPath("//h1[text() = 'Marie M.']").size());
         if (authenticated) {
             assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
         } else {
             assertEquals(1, page.getByXPath("//a[text() = 'Login']").size());
         }
         assertEquals(1, page.getByXPath("//h2[text() = 'Selected Courses']").size());
+        assertEquals(0, page.getByXPath("//a[@href = 'course.xhtml?id=1'][text() = 'Shakespeare course']").size());
+        assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?id=2'][text() = 'Da Vinci course']").size());
+        assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?id=3'][text() = 'Analysis']").size());
+        assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?id=4'][text() = 'Algebra']").size());
     }
 }

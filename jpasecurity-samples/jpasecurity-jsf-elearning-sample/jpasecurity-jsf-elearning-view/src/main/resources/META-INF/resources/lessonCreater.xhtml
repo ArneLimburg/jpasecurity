@@ -22,14 +22,19 @@
     <title>Create new lesson</title>
   </head>
   <h:body>
+  
+    <f:metadata>
+     <f:viewParam name="id" value="#{course.id}" required="true"/>
+    </f:metadata>
+    
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
         <h1 id="createLesson">Create new lesson</h1>
         <h:form id="lessonCreateForm">
 
 		  <h:panelGrid columns="2">
-            <h:outputLabel value="course name:" for="courseName"/>
-            <h:outputText id="courseName" value="#{course.name}" />		  
+            <h:outputLabel value="Course name:" for="coursename"/>
+            <h:outputText id="coursename" value="#{course.coursename}" />		  
             <h:outputLabel value="Lesson name:" for="lessonName"/>
             <h:inputText id="lessonName" value="#{course.lessonname}" />
             <h:outputLabel value="Text:" for="lessonText"/>

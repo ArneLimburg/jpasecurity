@@ -32,13 +32,11 @@ public class DashboardTest extends AbstractHtmlTestCase {
         super("http://localhost:8282/elearning/");
     }
 
-    @Ignore
     @Test
     public void unauthenticated() throws JaxenException {
         assertDashboardPage("dashboard.xhtml", false);
     }
 
-    @Ignore
     @Test
     public void authenticated() throws JaxenException {
         assertDashboardPage("dashboard.xhtml", false);
@@ -46,7 +44,6 @@ public class DashboardTest extends AbstractHtmlTestCase {
         assertDashboardPage("dashboard.xhtml", true);
     }
 
-    @Ignore
     @Test
     public void formBasedAuthenticated() throws JaxenException {
         assertDashboardPage("dashboard.xhtml", false);
@@ -63,12 +60,15 @@ public class DashboardTest extends AbstractHtmlTestCase {
         if (authenticated) {
             assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
             assertEquals(1, page.getByXPath("//h1[text() = 'Create new course']").size());
+            assertEquals(0, page.getByXPath("//h1[text() = 'My courses']").size());
             assertEquals(0, page.getByXPath("//h1[text() = 'Available courses']").size());
             assertEquals(1, page.getByXPath("//input[@type = 'submit'][@value = 'create']").size());
         } else {
             assertEquals(1, page.getByXPath("//a[text() = 'Login']").size());
-            assertEquals(0, page.getByXPath("//h1[text() = 'Create new course']").size());
-            assertEquals(0, page.getByXPath("//input[@type = 'submit'][@value = 'create']").size());
+            assertEquals(1, page.getByXPath("//label[text() = 'Username:']").size());
+            assertEquals(1, page.getByXPath("//label[text() = 'Password:']").size());
+            assertEquals(1, page.getByXPath("//input[@type = 'submit'][@value = 'Login']").size());
+            assertEquals(1, page.getByXPath("//input[@type = 'reset'][@value = 'Cancel']").size());
         }
     }
 }
