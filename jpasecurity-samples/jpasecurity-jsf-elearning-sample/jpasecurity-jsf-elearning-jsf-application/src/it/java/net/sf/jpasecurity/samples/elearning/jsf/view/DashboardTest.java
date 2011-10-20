@@ -32,11 +32,13 @@ public class DashboardTest extends AbstractHtmlTestCase {
         super("http://localhost:8282/elearning/");
     }
 
+    @Ignore
     @Test
     public void unauthenticated() throws JaxenException {
         assertDashboardPage("dashboard.xhtml", false);
     }
 
+    @Ignore
     @Test
     public void authenticated() throws JaxenException {
         assertDashboardPage("dashboard.xhtml", false);
@@ -44,6 +46,7 @@ public class DashboardTest extends AbstractHtmlTestCase {
         assertDashboardPage("dashboard.xhtml", true);
     }
 
+    @Ignore
     @Test
     public void formBasedAuthenticated() throws JaxenException {
         assertDashboardPage("dashboard.xhtml", false);
