@@ -40,7 +40,8 @@ label {
 	border-top : 7px solid rgb(160, 160, 160);
 }
 
-#content input[type = "submit"] {
+#content input[type = "submit"],
+#content input[type = "reset"] {
     background : rgb(160, 160, 160);
     margin : 0.25em 0.5em;
     padding : .5em 1em;
@@ -63,6 +64,7 @@ label {
     height : 200px;
 }
 #content input[type = "submit"]:hover,
+#content input[type = "reset"]:hover,
 input.submit:hover{
     background : rgb(0, 175, 240);
     cursor : pointer

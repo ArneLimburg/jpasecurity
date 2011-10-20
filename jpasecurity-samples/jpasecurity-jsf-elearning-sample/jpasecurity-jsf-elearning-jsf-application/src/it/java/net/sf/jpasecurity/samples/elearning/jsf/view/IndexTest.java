@@ -19,12 +19,14 @@ import static org.junit.Assert.assertEquals;
 
 import org.jaxen.JaxenException;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 /**
  * @author Arne Limburg
  */
+
 public class IndexTest extends AbstractHtmlTestCase {
 
     public IndexTest() {
@@ -48,7 +50,7 @@ public class IndexTest extends AbstractHtmlTestCase {
     @Test
     public void formBasedAuthenticated() throws JaxenException {
         assertIndexPage("", false);
-        authenticateFormBased();
+        HtmlPage authenticateFormBased = authenticateFormBased();
         assertIndexPage("", true);
         assertIndexPage("index.xhtml", true);
     }

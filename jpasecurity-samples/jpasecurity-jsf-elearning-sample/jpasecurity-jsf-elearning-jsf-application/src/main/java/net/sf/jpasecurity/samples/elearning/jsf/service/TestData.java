@@ -83,7 +83,7 @@ public class TestData {
                     = LessonFactoryBuilder.newLession()
                                           .withTitle(new Title("Algebra introduction"))
                                           .andContent(new Content("Welcome to the Algebra course."));
-                Course teacher4Course = new CourseAggregate(new Title("Algbra"), hans, algebraLesson);
+                Course teacher4Course = new CourseAggregate(new Title("Algebra"), hans, algebraLesson);
                 entityManager.persist(teacher4Course);
                 teacherCourse.subscribe(stefan);
                 entityManager.flush();

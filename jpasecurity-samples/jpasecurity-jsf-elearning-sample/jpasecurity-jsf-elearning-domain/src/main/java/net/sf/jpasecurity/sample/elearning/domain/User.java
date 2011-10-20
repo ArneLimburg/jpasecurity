@@ -79,6 +79,10 @@ public abstract class User implements Principal {
         return this.name.getNick();
     }
 
+    public String getFullname() {
+        return this.name.toString();
+    }
+
     public String getFirstName() {
         return this.name.getFirst();
     }

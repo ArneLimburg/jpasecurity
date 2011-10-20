@@ -55,7 +55,7 @@ public class TeacherBean {
     }
 
     public String getName() {
-        return teacher == null? null: this.teacher.getName();
+        return teacher == null? null: this.teacher.getFullname();
     }
 
     public List<Course> getCourses() {
