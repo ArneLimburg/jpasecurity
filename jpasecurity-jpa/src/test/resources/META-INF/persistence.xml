@@ -211,6 +211,7 @@
 
   <persistence-unit name="ejb-contacts" transaction-type="RESOURCE_LOCAL">
 
+<!--     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider> -->
     <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
     <class>net.sf.jpasecurity.contacts.model.User</class>
@@ -219,15 +220,16 @@
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>
-      <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+<!--       <property name="javax.persistence.provider" value="net.sf.jpasecurity.persistence.SecurePersistenceProvider"/> -->
+      <property name="net.sf.jpasecurity.persistence.provider" value="org.eclipse.persistence.jpa.PersistenceProvider"/>
       <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.EjbAuthenticationProvider"/>
       <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.AnnotationAccessRulesProvider"/>
-      <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-      <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
-      <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
-      <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:contacts" />
-      <property name="hibernate.connection.username" value="sa" />
-      <property name="hibernate.connection.password" value="" />
+      <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
+      <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:contacts" />
+      <property name="javax.persistence.jdbc.user" value="sa" />
+      <property name="javax.persistence.jdbc.password" value="" />
+      <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
+      <property name="eclipselink.ddl-generation.output-mode" value="both"/>
     </properties>
 
   </persistence-unit>
