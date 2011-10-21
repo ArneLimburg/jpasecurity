@@ -28,26 +28,26 @@ import org.eclipse.persistence.internal.jpa.deployment.JavaSECMPInitializer;
  */
 public class PersistenceProvider extends org.eclipse.persistence.jpa.PersistenceProvider {
 
-    public JPAInitializer getInitializer(String emName, @SuppressWarnings("rawtypes") Map m){
+    public JPAInitializer getInitializer(String emName, @SuppressWarnings("rawtypes") Map m) {
         ClassLoader classLoader = getClassLoader(emName, m);
         return SecureJPAInitializer.getJavaSECMPInitializer(classLoader);
     }
 
     public static class SecureJPAInitializer extends JavaSECMPInitializer {
-        
+
         public SecureJPAInitializer(ClassLoader classLoader) {
             super(classLoader);
         }
 
-        public boolean isPersistenceProviderSupported(String providerClassName){
+        public boolean isPersistenceProviderSupported(String providerClassName) {
             return true;
         }
 
         public static JavaSECMPInitializer getJavaSECMPInitializer(ClassLoader classLoader) {
-            if(!isInitialized) {
-                if(globalInstrumentation != null) {
-                    synchronized(initializationLock) {
-                        if(!isInitialized) {
+            if (!isInitialized) {
+                if (globalInstrumentation != null) {
+                    synchronized (initializationLock) {
+                        if (!isInitialized) {
                             initializeTopLinkLoggingFile();
                             usesAgent = true;
                             initializer = new SecureJPAInitializer(classLoader);
@@ -59,7 +59,9 @@ public class PersistenceProvider extends org.eclipse.persistence.jpa.Persistence
                 }
                 isInitialized = true;
             }
-            if(initializer != null && initializer.getInitializationClassLoader() == classLoader && initializer instanceof SecureJPAInitializer) {
+            if (initializer != null
+                && initializer.getInitializationClassLoader() == classLoader
+                && initializer instanceof SecureJPAInitializer) {
                 return initializer;
             } else {
                 return new SecureJPAInitializer(classLoader);
