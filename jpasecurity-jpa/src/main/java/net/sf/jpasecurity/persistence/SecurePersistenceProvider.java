@@ -44,6 +44,9 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         = "net.sf.jpasecurity.persistence.provider.type";
     public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_LIGHT = "light";
     public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT = "default";
+    private static final String ECLIPSELINK_PERSISTENCE_PROVIDER = "org.eclipse.persistence.jpa.PersistenceProvider";
+    private static final String SECURE_ECLIPSELINK_PERSISTENCE_PROVIDER
+        = "net.sf.jpasecurity.persistence.eclipselink.PersistenceProvider";
 
     private final JpaBeanInitializerFactory beanInitializerFactory = new JpaBeanInitializerFactory();
 
@@ -194,6 +197,9 @@ public class SecurePersistenceProvider implements PersistenceProvider {
                 throw new PersistenceException(
                     "No persistence provider specified for net.sf.jpasecurity.persistence.SecureEntityManagerFactory. "
                         + "Specify its class name via property \"" + NATIVE_PERSISTENCE_PROVIDER_PROPERTY + "\"");
+            }
+            if (ECLIPSELINK_PERSISTENCE_PROVIDER.equals(persistenceProviderClassName)) {
+                persistenceProviderClassName = SECURE_ECLIPSELINK_PERSISTENCE_PROVIDER;
             }
             Class<?> persistenceProviderClass
                 = getClassLoader(persistenceUnitInfo).loadClass(persistenceProviderClassName);
