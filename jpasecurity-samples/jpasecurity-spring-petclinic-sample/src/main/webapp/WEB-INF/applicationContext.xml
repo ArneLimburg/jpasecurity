@@ -34,7 +34,7 @@
 			p:password="${jdbc.password}"/>
 
 	<!-- JPA EntityManagerFactory -->
-	<bean id="entityManagerFactory" class="net.sf.jpasecurity.persistence.SecureContainerEntityManagerFactoryBean"
+	<bean id="entityManagerFactory" class="net.sf.jpasecurity.spring.persistence.SecureContainerEntityManagerFactoryBean"
 			p:dataSource-ref="dataSource">
         <property name="persistenceUnitName" value="PetClinic" />
   		<property name="jpaVendorAdapter">
@@ -85,10 +85,12 @@
         <sec:logout />
     </sec:http>
 
-	<sec:authentication-provider user-service-ref="userService" alias="authenticationManager">
-        <sec:password-encoder hash="md5"/>
-    </sec:authentication-provider>
-	
 	<bean id="userService" class="org.springframework.samples.petclinic.security.CredentialService"/>
+
+	<sec:authentication-manager alias="authenticationManager">
+		<sec:authentication-provider user-service-ref="userService" >
+        	<sec:password-encoder hash="md5"/>
+    	</sec:authentication-provider>
+    </sec:authentication-manager>
 
 </beans>
