@@ -15,18 +15,26 @@
  */
 package net.sf.jpasecurity.contacts;
 
+import javax.annotation.security.DeclareRoles;
+import javax.ejb.DependsOn;
+import javax.ejb.Singleton;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
 
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
 
-import junit.framework.TestCase;
-
 /**
  * @author Arne Limburg
  */
-public class ContactsTestData extends TestCase {
+@Singleton
+@DependsOn("ContactsDatabase")
+@DeclareRoles("admin")
+public class ContactsTestData {
 
+    @PersistenceContext(name = "ejb-contacts", unitName = "ejb-contacts")
+    private EntityManager entityManager;
     protected User john;
     protected User mary;
     protected Contact johnsContact1;
@@ -34,7 +42,12 @@ public class ContactsTestData extends TestCase {
     protected Contact marysContact1;
     protected Contact marysContact2;
 
-    public ContactsTestData(EntityManager entityManager) {
+    public void createTestData() {
+        createTestData(entityManager);
+    }
+
+    public void createTestData(EntityManagerFactory entityManagerFactory) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         createTestData(entityManager);
         entityManager.getTransaction().commit();
@@ -80,7 +93,8 @@ public class ContactsTestData extends TestCase {
         return marysContact2;
     }
 
-    public void clear(EntityManager entityManager) {
+    public void clearTestData(EntityManagerFactory entityManagerFactory) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         clearTestData(entityManager);
         entityManager.getTransaction().commit();

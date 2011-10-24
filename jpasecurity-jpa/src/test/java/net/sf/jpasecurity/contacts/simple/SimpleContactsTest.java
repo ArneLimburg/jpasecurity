@@ -59,16 +59,15 @@ public class SimpleContactsTest {
 
     @Before
     public void createTestData() {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
         StaticAuthenticationProvider.authenticate(null, "admin");
-        testData = new ContactsTestData(entityManager);
+        testData = new ContactsTestData();
+        testData.createTestData(entityManagerFactory);
         StaticAuthenticationProvider.authenticate(null);
     }
 
     @After
     public void removeTestData() {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        testData.clear(entityManager);
+        testData.clearTestData(entityManagerFactory);
         StaticAuthenticationProvider.authenticate(null);
     }
 

@@ -15,132 +15,136 @@
  */
 package net.sf.jpasecurity.contacts.ejb;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.lang.reflect.Field;
-import java.security.Principal;
+import java.io.File;
 import java.util.List;
 
-import javax.ejb.EJBContext;
+import javax.ejb.EJBException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
-import javax.persistence.Persistence;
 
 import net.sf.jpasecurity.contacts.ContactsTestData;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
 import net.sf.jpasecurity.persistence.SecureEntityTester;
 
-import org.apache.commons.naming.NamingContext;
-import org.apache.commons.naming.java.javaURLContextFactory;
-import org.easymock.IAnswer;
-import org.hsqldb.jdbc.jdbcDataSource;
+import org.glassfish.api.ActionReport;
+import org.glassfish.api.admin.CommandRunner;
+import org.glassfish.api.admin.ParameterMap;
+import org.glassfish.embeddable.Deployer;
+import org.glassfish.embeddable.GlassFish;
+import org.glassfish.embeddable.GlassFishProperties;
+import org.glassfish.embeddable.GlassFishRuntime;
+import org.glassfish.embeddable.archive.ScatteredArchive;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
+
+import com.sun.appserv.security.ProgrammaticLogin;
+import com.sun.corba.ee.impl.presentation.rmi.JNDIStateFactoryImpl;
+import com.sun.enterprise.naming.SerialInitContextFactory;
 
 /**
  * @author Arne Limburg
  */
+@Ignore
 public class EjbContactsTest {
 
-    private ContactsDaoBean contactsDaoBean = new ContactsDaoBean();
-    private EntityManagerFactory entityManagerFactory;
-    private ContactsTestData testData;
+    private static final String ACTIVATE_DEFAULT_PRINCIPAL_TO_ROLE_MAPPING_PROPERTY
+        = "embedded-glassfish-config.server.security-service.activate-default-principal-to-role-mapping";
+    private static final String LOCAL_CONTACTS_DAO_JNDI_NAME
+        = "java:global/contacts/ContactsDaoBean!net.sf.jpasecurity.contacts.ejb.LocalContactsDao";
+    private static GlassFish glassFish;
+    private static ContactsTestData testData;
+    private static LocalContactsDao contactsDao;
 
-    @Before
-    public void initializeContainerMock() throws Exception {
+    @BeforeClass
+    public static void startGlassFish() throws Exception {
+        File loginConf = new File("target/test-classes/login.conf");
+        assertTrue(loginConf.exists());
+        System.setProperty("java.security.auth.login.config", loginConf.getAbsolutePath());
+        System.setProperty(Context.INITIAL_CONTEXT_FACTORY, SerialInitContextFactory.class.getName());
+        System.setProperty(Context.URL_PKG_PREFIXES, SerialInitContextFactory.class.getPackage().getName());
+        System.setProperty(Context.STATE_FACTORIES, JNDIStateFactoryImpl.class.getName());
+        GlassFishProperties properties = new GlassFishProperties();
+        properties.setProperty(ACTIVATE_DEFAULT_PRINCIPAL_TO_ROLE_MAPPING_PROPERTY, "true");
+        glassFish = GlassFishRuntime.bootstrap().newGlassFish(properties);
+        glassFish.start();
+        Deployer deployer = glassFish.getDeployer();
+        ScatteredArchive archive = new ScatteredArchive("contacts", ScatteredArchive.Type.WAR);
+        archive.addClassPath(new File("target", "test-classes"));
+        createUser("admin", "admin");
+        createUser("John", "user");
+        createUser("Mary", "user");
+        deployer.deploy(archive.toURI());
+        login("admin");
+        Context context = new InitialContext();
+        testData = (ContactsTestData)context.lookup("java:global/contacts/ContactsTestData");
+        testData.createTestData();
+        new ProgrammaticLogin().logout();
+        contactsDao = (LocalContactsDao)context.lookup(LOCAL_CONTACTS_DAO_JNDI_NAME);
+    }
 
-        System.setProperty(Context.INITIAL_CONTEXT_FACTORY, javaURLContextFactory.class.getName());
-        System.setProperty(Context.URL_PKG_PREFIXES, NamingContext.class.getPackage().getName());
+    private static void createUser(String name, String... roles) throws Exception {
+        StringBuilder rolesBuilder = new StringBuilder();
+        for (String role: roles) {
+            if (rolesBuilder.length() > 0) {
+                rolesBuilder.append(',');
+            }
+            rolesBuilder.append(role);
+        }
+        ParameterMap params = new ParameterMap();
+        params.add("userpassword", name);
+        params.add("groups", rolesBuilder.toString());
+        params.add("username", name);
+        CommandRunner commandRunner = glassFish.getService(CommandRunner.class);
+        ActionReport actionReport = glassFish.getService(ActionReport.class);
+        commandRunner.getCommandInvocation("create-file-user", actionReport).parameters(params).execute();
+    }
 
-        InitialContext initialContext = new InitialContext();
-        initialContext.createSubcontext("java:");
-        initialContext.createSubcontext("java:comp");
-        initialContext.createSubcontext("java:comp/env");
-        initialContext.createSubcontext("java:comp/env/ejb");
-        initialContext.createSubcontext("java:comp/env/ejb/ContactsDaoBean");
-        initialContext.bind("java:comp/env/ejb/ContactsDaoBean/remote", contactsDaoBean);
-
-        jdbcDataSource dataSource = new jdbcDataSource();
-        dataSource.setDatabase("jdbc:hsqldb:mem:contacts");
-        dataSource.setUser("sa");
-        dataSource.setPassword("");
-        initialContext.bind("java:/ContactsDataSource", dataSource);
-
-        Principal principal = createMock(Principal.class);
-        EJBContext ejbContext = createMock(EJBContext.class);
-        expect(ejbContext.getCallerPrincipal()).andReturn(principal).anyTimes();
-        expect(ejbContext.isCallerInRole("admin")).andAnswer(new IsPrincipalAdminAnswer()).anyTimes();
-        expect(ejbContext.isCallerInRole("user")).andAnswer(new IsPrincipalNotEmptyAnswer()).anyTimes();
-        expect(principal.getName()).andAnswer(new GetPrincipalNameAnswer()).anyTimes();
-        initialContext.bind("java:comp/EJBContext", ejbContext);
-
-        replay(ejbContext, principal);
-
-        entityManagerFactory = Persistence.createEntityManagerFactory("ejb-contacts");
-        Field entityManagerField = ContactsDaoBean.class.getDeclaredField("entityManager");
-        entityManagerField.setAccessible(true);
-        entityManagerField.set(contactsDaoBean, entityManagerFactory.createEntityManager());
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        System.setProperty(Context.SECURITY_PRINCIPAL, "admin");
-        System.setProperty(Context.SECURITY_CREDENTIALS, "admin");
-        testData = new ContactsTestData(entityManager);
-        System.clearProperty(Context.SECURITY_PRINCIPAL);
-        System.clearProperty(Context.SECURITY_CREDENTIALS);
+    public static void login(String username) throws Exception {
+        ProgrammaticLogin login = new ProgrammaticLogin();
+        login.login(username, username.toCharArray(), "file", true);
     }
 
     @After
-    public void shutdownContainerMock() throws Exception {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        testData.clear(entityManager);
-        entityManagerFactory.close();
-        InitialContext initialContext = new InitialContext();
-        initialContext.unbind("java:comp/env/ejb/ContactsDaoBean");
-        initialContext.unbind("java:comp/env/ejb");
-        initialContext.unbind("java:comp/env");
-        initialContext.unbind("java:comp");
-        initialContext.unbind("java:");
-        System.clearProperty(Context.SECURITY_PRINCIPAL);
-        System.clearProperty(Context.SECURITY_CREDENTIALS);
-        System.clearProperty(Context.INITIAL_CONTEXT_FACTORY);
-        System.clearProperty(Context.URL_PKG_PREFIXES);
+    public void logout() {
+        new ProgrammaticLogin().logout();
+    }
+
+    @AfterClass
+    public static void stopGlassFish() throws Exception {
+        glassFish.stop();
+        glassFish.dispose();
     }
 
     @Test
     public void getUnauthenticated() throws Exception {
-        InitialContext context = new InitialContext();
-        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("java:comp/env/ejb/ContactsDaoBean/remote");
         assertEquals(0, contactsDao.getAllUsers().size());
         try {
             contactsDao.getUser("John");
             fail("expected NoResultException");
-        } catch (NoResultException e) {
-            //expected...
+        } catch (EJBException e) {
+            assertTrue(e.getCause() instanceof NoResultException);
         }
         try {
             contactsDao.getUser("Mary");
             fail("expected NoResultException");
-        } catch (NoResultException e) {
-            //expected...
+        } catch (EJBException e) {
+            assertTrue(e.getCause() instanceof NoResultException);
         }
         assertEquals(0, contactsDao.getAllContacts().size());
     }
 
     @Test
     public void getAuthenticatedAsAdmin() throws Exception {
-        System.setProperty(Context.SECURITY_PRINCIPAL, "admin");
-        System.setProperty(Context.SECURITY_CREDENTIALS, "admin");
-        InitialContext context = new InitialContext();
-        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("java:comp/env/ejb/ContactsDaoBean/remote");
+        login("admin");
         assertEquals(2, contactsDao.getAllUsers().size());
         assertEquals(testData.getJohn(), contactsDao.getUser("John"));
         assertEquals(testData.getMary(), contactsDao.getUser("Mary"));
@@ -149,10 +153,7 @@ public class EjbContactsTest {
 
     @Test
     public void getAuthenticatedAsJohn() throws Exception {
-        System.setProperty(Context.SECURITY_PRINCIPAL, "John");
-        System.setProperty(Context.SECURITY_CREDENTIALS, "john");
-        InitialContext context = new InitialContext();
-        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("java:comp/env/ejb/ContactsDaoBean/remote");
+        login("John");
         List<User> allUsers = contactsDao.getAllUsers();
         assertEquals(1, allUsers.size());
         assertEquals(testData.getJohn(), allUsers.get(0));
@@ -160,8 +161,8 @@ public class EjbContactsTest {
         try {
             contactsDao.getUser("Mary");
             fail("expected NoResultException");
-        } catch (NoResultException e) {
-            //expected...
+        } catch (EJBException e) {
+            assertTrue(e.getCause() instanceof NoResultException);
         }
         List<Contact> contacts = contactsDao.getAllContacts();
         assertEquals(2, contacts.size());
@@ -171,18 +172,15 @@ public class EjbContactsTest {
 
     @Test
     public void getAuthenticatedAsMary() throws Exception {
-        System.setProperty(Context.SECURITY_PRINCIPAL, "Mary");
-        System.setProperty(Context.SECURITY_CREDENTIALS, "mary");
-        InitialContext context = new InitialContext();
-        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("java:comp/env/ejb/ContactsDaoBean/remote");
+        login("Mary");
         List<User> allUsers = contactsDao.getAllUsers();
         assertEquals(1, allUsers.size());
         assertEquals(testData.getMary(), allUsers.get(0));
         try {
             contactsDao.getUser("John");
             fail("expected NoResultException");
-        } catch (NoResultException e) {
-            //expected...
+        } catch (EJBException e) {
+            assertTrue(e.getCause() instanceof NoResultException);
         }
         assertEquals(testData.getMary(), contactsDao.getUser("Mary"));
         List<Contact> contacts = contactsDao.getAllContacts();
@@ -193,31 +191,7 @@ public class EjbContactsTest {
 
     @Test
     public void proxying() throws Exception {
-        System.setProperty(Context.SECURITY_PRINCIPAL, "admin");
-        System.setProperty(Context.SECURITY_CREDENTIALS, "admin");
-        InitialContext context = new InitialContext();
-        RemoteContactsDao contactsDao = (RemoteContactsDao)context.lookup("java:comp/env/ejb/ContactsDaoBean/remote");
+        login("admin");
         assertTrue(SecureEntityTester.isSecureEntity(contactsDao.getAllUsers().get(0)));
-    }
-
-    private class IsPrincipalAdminAnswer implements IAnswer<Boolean> {
-
-        public Boolean answer() throws Throwable {
-            return "admin".equals(System.getProperty(Context.SECURITY_PRINCIPAL));
-        }
-    }
-
-    private class IsPrincipalNotEmptyAnswer implements IAnswer<Boolean> {
-
-        public Boolean answer() throws Throwable {
-            return System.getProperty(Context.SECURITY_PRINCIPAL) != null;
-        }
-    }
-
-    private class GetPrincipalNameAnswer implements IAnswer<String> {
-
-        public String answer() throws Throwable {
-            return System.getProperty(Context.SECURITY_PRINCIPAL);
-        }
     }
 }

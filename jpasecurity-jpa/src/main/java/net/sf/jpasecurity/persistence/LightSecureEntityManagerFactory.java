@@ -41,6 +41,6 @@ public class LightSecureEntityManagerFactory extends SecureEntityManagerFactory 
         return new LightSecureEntityManager(this,
                                             entityManager,
                                             getMappingInformation(),
-                                            new Configuration(getConfiguration(), properties));
+                                            new Configuration(getConfiguration(properties), properties));
     }
 }

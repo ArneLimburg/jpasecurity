@@ -179,12 +179,12 @@
       <property name="net.sf.jpasecurity.persistence.provider" value="org.apache.openjpa.persistence.PersistenceProviderImpl"/>
       <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider"/>
       <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+      <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
+      <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:contacts" />
+      <property name="javax.persistence.jdbc.user" value="sa" />
+      <property name="javax.persistence.jdbc.password" value="" />
       <property name="openjpa.RuntimeUnenhancedClasses" value="supported"/>
       <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(SchemaAction='add,deleteTableContents')"/>
-      <property name="openjpa.ConnectionDriverName" value="org.hsqldb.jdbcDriver"/>
-      <property name="openjpa.ConnectionURL" value="jdbc:hsqldb:mem:contacts"/>
-      <property name="openjpa.ConnectionUserName" value="sa"/>
-      <property name="openjpa.ConnectionPassword" value=""/>
     </properties>
 
   </persistence-unit>
@@ -209,9 +209,8 @@
 
   </persistence-unit>
 
-  <persistence-unit name="ejb-contacts" transaction-type="RESOURCE_LOCAL">
+  <persistence-unit name="ejb-contacts" transaction-type="JTA">
 
-<!--     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider> -->
     <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
     <class>net.sf.jpasecurity.contacts.model.User</class>
@@ -220,16 +219,15 @@
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>
-<!--       <property name="javax.persistence.provider" value="net.sf.jpasecurity.persistence.SecurePersistenceProvider"/> -->
       <property name="net.sf.jpasecurity.persistence.provider" value="org.eclipse.persistence.jpa.PersistenceProvider"/>
       <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.EjbAuthenticationProvider"/>
       <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.AnnotationAccessRulesProvider"/>
-      <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
-      <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:contacts" />
-      <property name="javax.persistence.jdbc.user" value="sa" />
-      <property name="javax.persistence.jdbc.password" value="" />
-      <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
-      <property name="eclipselink.ddl-generation.output-mode" value="both"/>
+<!--       <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" /> -->
+<!--       <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:contacts" /> -->
+      <property name="eclipselink.weaving" value="false"/>
+      <property name="eclipselink.logging.level" value="FINEST"/>
+<!--       <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/> -->
+<!--       <property name="eclipselink.ddl-generation.output-mode" value="database"/> -->
     </properties>
 
   </persistence-unit>
