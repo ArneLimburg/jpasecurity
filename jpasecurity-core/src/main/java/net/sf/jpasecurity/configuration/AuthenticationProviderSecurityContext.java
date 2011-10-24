@@ -31,18 +31,35 @@ import net.sf.jpasecurity.mapping.MappingInformationReceiver;
  *
  * @author Arne Limburg
  */
-public class AuthenticationProviderSecurityContext implements SecurityContext, MappingInformationReceiver {
+public class AuthenticationProviderSecurityContext implements SecurityContext,
+                                                              ConfigurationReceiver,
+                                                              MappingInformationReceiver,
+                                                              SecurityContextReceiver {
 
     private static final Alias CURRENT_PRINCIPAL = new Alias("CURRENT_PRINCIPAL");
     private static final Alias CURRENT_ROLES = new Alias("CURRENT_ROLES");
 
     private AuthenticationProvider authenticationProvider;
+    private ConfigurationReceiver configurationReceiver;
     private MappingInformationReceiver persistenceInformationReceiver;
+    private SecurityContextReceiver securityContextReceiver;
 
     public AuthenticationProviderSecurityContext(AuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
+        if (authenticationProvider instanceof ConfigurationReceiver) {
+            configurationReceiver = (ConfigurationReceiver)authenticationProvider;
+        }
         if (authenticationProvider instanceof MappingInformationReceiver) {
-            this.persistenceInformationReceiver = (MappingInformationReceiver)authenticationProvider;
+            persistenceInformationReceiver = (MappingInformationReceiver)authenticationProvider;
+        }
+        if (authenticationProvider instanceof SecurityContextReceiver) {
+            securityContextReceiver = (SecurityContextReceiver)authenticationProvider;
+        }
+    }
+    
+    public void setConfiguration(Configuration configuration) {
+        if (configurationReceiver != null) {
+            configurationReceiver.setConfiguration(configuration);
         }
     }
 
@@ -55,6 +72,12 @@ public class AuthenticationProviderSecurityContext implements SecurityContext, M
     public void setMappingProperties(Map<String, Object> properties) {
         if (persistenceInformationReceiver != null) {
             persistenceInformationReceiver.setMappingProperties(properties);
+        }
+    }
+    
+    public void setSecurityContext(SecurityContext securityContext) {
+        if (securityContextReceiver != null) {
+            securityContextReceiver.setSecurityContext(securityContext);
         }
     }
 
