@@ -51,14 +51,22 @@ public class EjbAuthenticationProvider implements AuthenticationProvider, Mappin
     }
 
     public Object getPrincipal() {
-        return context.getCallerPrincipal().getName();
+        try {
+            return context.getCallerPrincipal().getName();
+        } catch (IllegalStateException e) {
+            return null;
+        }
     }
 
     public Collection<String> getRoles() {
         List<String> filteredRoles = new ArrayList<String>();
         for (String role: roles) {
-            if (context.isCallerInRole(role)) {
-                filteredRoles.add(role);
+            try {
+                if (context.isCallerInRole(role)) {
+                    filteredRoles.add(role);
+                }
+            } catch (IllegalStateException e) {
+                //ignore
             }
         }
         return filteredRoles;
