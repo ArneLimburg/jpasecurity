@@ -42,7 +42,7 @@ import org.junit.Test;
 /**
  * @author Arne Limburg
  */
-public class AutodetectingAuthenticationProviderTest {
+public class AutodetectingSecurityContextTest {
 
     @Test
     public void autodetectAuthenticationProvider() {
