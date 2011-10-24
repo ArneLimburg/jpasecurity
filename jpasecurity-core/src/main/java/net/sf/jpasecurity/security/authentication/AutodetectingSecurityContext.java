@@ -19,11 +19,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.jpasecurity.configuration.AuthenticationProvider;
 import net.sf.jpasecurity.configuration.AuthenticationProviderSecurityContext;
+import net.sf.jpasecurity.configuration.Configuration;
+import net.sf.jpasecurity.configuration.ConfigurationReceiver;
 import net.sf.jpasecurity.configuration.SecurityContext;
+import net.sf.jpasecurity.configuration.SecurityContextReceiver;
 import net.sf.jpasecurity.mapping.Alias;
+import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformationReceiver;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,7 +57,10 @@ import org.apache.commons.logging.LogFactory;
  * </ol>
  * @author Arne Limburg
  */
-public class AutodetectingSecurityContext implements SecurityContext {
+public class AutodetectingSecurityContext implements SecurityContext,
+                                                     ConfigurationReceiver,
+                                                     MappingInformationReceiver,
+                                                     SecurityContextReceiver {
 
     private static final Log LOG = LogFactory.getLog(AutodetectingSecurityContext.class);
 
@@ -63,7 +72,8 @@ public class AutodetectingSecurityContext implements SecurityContext {
         authenticationProviderClassNames.add("net.sf.jpasecurity.jsf.authentication.JsfAuthenticationProvider");
         AUTHENTICATION_PROVIDER_CLASS_NAMES = Collections.unmodifiableList(authenticationProviderClassNames);
     }
-    private SecurityContext securityContext;
+
+    private AuthenticationProviderSecurityContext securityContext;
 
     public AutodetectingSecurityContext() {
         securityContext = new AuthenticationProviderSecurityContext(autodetectAuthenticationProvider());
@@ -101,7 +111,23 @@ public class AutodetectingSecurityContext implements SecurityContext {
         return securityContext.getAliasValue(alias);
     }
 
-    public Collection<?> getAliasValues(Alias alias) {
+    public <T> Collection<T> getAliasValues(Alias alias) {
         return securityContext.getAliasValues(alias);
+    }
+    
+    public void setConfiguration(Configuration configuration) {
+        securityContext.setConfiguration(configuration);
+    }
+
+    public void setMappingInformation(MappingInformation persistenceMapping) {
+        securityContext.setMappingInformation(persistenceMapping);
+    }
+
+    public void setMappingProperties(Map<String, Object> properties) {
+        securityContext.setMappingProperties(properties);
+    }
+    
+    public void setSecurityContext(SecurityContext newSecurityContext) {
+        securityContext.setSecurityContext(newSecurityContext);
     }
 }
