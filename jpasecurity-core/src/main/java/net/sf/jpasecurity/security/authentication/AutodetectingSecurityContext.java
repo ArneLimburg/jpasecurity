@@ -114,7 +114,7 @@ public class AutodetectingSecurityContext implements SecurityContext,
     public <T> Collection<T> getAliasValues(Alias alias) {
         return securityContext.getAliasValues(alias);
     }
-    
+
     public void setConfiguration(Configuration configuration) {
         securityContext.setConfiguration(configuration);
     }
@@ -126,7 +126,7 @@ public class AutodetectingSecurityContext implements SecurityContext,
     public void setMappingProperties(Map<String, Object> properties) {
         securityContext.setMappingProperties(properties);
     }
-    
+
     public void setSecurityContext(SecurityContext newSecurityContext) {
         securityContext.setSecurityContext(newSecurityContext);
     }

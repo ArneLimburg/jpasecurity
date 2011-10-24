@@ -56,7 +56,7 @@ public class AuthenticationProviderSecurityContext implements SecurityContext,
             securityContextReceiver = (SecurityContextReceiver)authenticationProvider;
         }
     }
-    
+
     public void setConfiguration(Configuration configuration) {
         if (configurationReceiver != null) {
             configurationReceiver.setConfiguration(configuration);
@@ -74,7 +74,7 @@ public class AuthenticationProviderSecurityContext implements SecurityContext,
             persistenceInformationReceiver.setMappingProperties(properties);
         }
     }
-    
+
     public void setSecurityContext(SecurityContext securityContext) {
         if (securityContextReceiver != null) {
             securityContextReceiver.setSecurityContext(securityContext);
