@@ -42,8 +42,8 @@ import org.junit.Test;
 public class MappingTest {
 
     @Test
-    public void testAnnotatedNamedQueries() {
-        Persistence.createEntityManagerFactory("annotation-based-field-access");
+    public void annotatedNamedQueries() {
+        Persistence.createEntityManagerFactory("annotation-based-field-access").createEntityManager().close();
         MappingInformation mapping = TestAuthenticationProvider.getPersistenceMapping();
         assertEquals("select bean from FieldAccessAnnotationTestBean bean", mapping.getNamedQuery("findAll"));
         assertEquals("select bean from FieldAccessAnnotationTestBean bean where bean.id = :id",
@@ -52,24 +52,28 @@ public class MappingTest {
                      mapping.getNamedQuery("findByName"));
     }
 
-    public void testAnnotationMethodAccess() {
-        testAccess("annotation-based-method-access", false, MethodAccessAnnotationTestBean.class);
+    @Test
+    public void annotationMethodAccess() {
+        assertAccess("annotation-based-method-access", false, MethodAccessAnnotationTestBean.class);
     }
 
-    public void testXmlMethodAccess() {
-        testAccess("xml-based-method-access", false, MethodAccessTestBean.class);
+    @Test
+    public void xmlMethodAccess() {
+        assertAccess("xml-based-method-access", false, MethodAccessTestBean.class);
     }
 
-    public void testAnnotationFieldAccess() {
-        testAccess("annotation-based-field-access", true, FieldAccessAnnotationTestBean.class);
+    @Test
+    public void annotationFieldAccess() {
+        assertAccess("annotation-based-field-access", true, FieldAccessAnnotationTestBean.class);
     }
 
-    public void testXmlFieldAccess() {
-        testAccess("xml-based-field-access", true, FieldAccessXmlTestBean.class);
+    @Test
+    public void xmlFieldAccess() {
+        assertAccess("xml-based-field-access", true, FieldAccessXmlTestBean.class);
     }
 
-    public void testAccess(String persistenceUnit, boolean fieldAccess, Class<?> entityType) {
-        Persistence.createEntityManagerFactory(persistenceUnit);
+    public void assertAccess(String persistenceUnit, boolean fieldAccess, Class<?> entityType) {
+        Persistence.createEntityManagerFactory(persistenceUnit).createEntityManager().close();
         MappingInformation mapping = TestAuthenticationProvider.getPersistenceMapping();
         ClassMappingInformation classMapping = mapping.getClassMapping(entityType);
         assertEquals(entityType, classMapping.getEntityType());
