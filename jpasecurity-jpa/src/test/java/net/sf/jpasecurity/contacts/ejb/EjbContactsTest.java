@@ -43,7 +43,6 @@ import org.glassfish.embeddable.archive.ScatteredArchive;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sun.appserv.security.ProgrammaticLogin;
@@ -53,7 +52,6 @@ import com.sun.enterprise.naming.SerialInitContextFactory;
 /**
  * @author Arne Limburg
  */
-@Ignore
 public class EjbContactsTest {
 
     private static final String ACTIVATE_DEFAULT_PRINCIPAL_TO_ROLE_MAPPING_PROPERTY
