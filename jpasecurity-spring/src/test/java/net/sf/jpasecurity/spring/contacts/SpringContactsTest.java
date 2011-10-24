@@ -17,7 +17,6 @@ package net.sf.jpasecurity.spring.contacts;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 
@@ -48,17 +47,18 @@ public class SpringContactsTest extends TestCase {
         applicationContext = new ClassPathXmlApplicationContext("test-context.xml");
         contactsDao = (ContactsDao)applicationContext.getBean("contactsDao");
         authenticationManager = (AuthenticationManager)applicationContext.getBean("authenticationManager");
-        EntityManager entityManager
-            = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory")).createEntityManager();
+        EntityManagerFactory entityManagerFactory
+            = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory"));
         authenticate("admin");
-        testData = new ContactsTestData(entityManager);
+        testData = new ContactsTestData();
+        testData.createTestData(entityManagerFactory);
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void tearDown() {
-        EntityManager entityManager
-            = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory")).createEntityManager();
-        testData.clear(entityManager);
+        EntityManagerFactory entityManagerFactory
+            = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory"));
+        testData.clearTestData(entityManagerFactory);
         SecurityContextHolder.getContext().setAuthentication(null);
         applicationContext.close();
     }
