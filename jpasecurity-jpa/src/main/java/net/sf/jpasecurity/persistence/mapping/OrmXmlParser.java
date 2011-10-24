@@ -775,7 +775,7 @@ public class OrmXmlParser extends JpaAnnotationParser {
             if (evaluateNode(mappingDocument, ENTITY_XPATH, mappedClass) != null
                 || evaluateNode(mappingDocument, EMBEDDABLE_XPATH, mappedClass) != null
                 || evaluateNode(mappingDocument, MAPPED_SUPERCLASS_XPATH, mappedClass) != null) {
-                checkDuplicateDefinition(mappedClass, foundDocument, mappingDocument);
+//                checkDuplicateDefinition(mappedClass, foundDocument, mappingDocument);
                 foundDocument = mappingDocument;
             }
         }

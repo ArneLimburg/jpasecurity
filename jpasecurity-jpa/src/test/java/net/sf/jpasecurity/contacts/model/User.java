@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.contacts.model;
 
+import java.io.Serializable;
+
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.Basic;
@@ -22,6 +24,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import net.sf.jpasecurity.security.PermitWhere;
 
@@ -31,8 +34,9 @@ import net.sf.jpasecurity.security.PermitWhere;
 @Entity
 @DeclareRoles({ "admin", "user" })
 @RolesAllowed("admin")
+@Table(name = "USR")
 @PermitWhere("name = CURRENT_PRINCIPAL")
-public class User {
+public class User implements Serializable {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;

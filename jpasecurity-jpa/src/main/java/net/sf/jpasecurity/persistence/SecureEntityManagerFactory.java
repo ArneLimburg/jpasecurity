@@ -47,6 +47,7 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
 
     private MappingInformation mappingInformation;
     private Configuration configuration;
+    private boolean configurationInitialized;
     private PersistenceUnitUtil securePersistenceUnitUtil;
 
     protected SecureEntityManagerFactory(EntityManagerFactory entityManagerFactory,
@@ -74,7 +75,6 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
         if (properties != null) {
             persistenceProperties.putAll(properties);
         }
-        injectPersistenceInformation(persistenceProperties);
         BeanLoader beanLoader = new JpaBeanLoader(entityManagerFactory.getPersistenceUnitUtil());
         AccessManager accessManager = new AlwaysPermittingAccessManager();
         SecureObjectLoader secureObjectLoader
@@ -82,7 +82,11 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
         securePersistenceUnitUtil = new SecurePersistenceUnitUtil(secureObjectLoader);
     }
 
-    protected Configuration getConfiguration() {
+    protected Configuration getConfiguration(Map<String, Object> persistenceProperties) {
+        if (!configurationInitialized) {
+            injectPersistenceInformation(persistenceProperties);
+            configurationInitialized = true;
+        }
         return configuration;
     }
 
@@ -106,7 +110,7 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
     protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, Object> properties) {
         return new DefaultSecureEntityManager(this,
                                               entityManager,
-                                              new Configuration(configuration, properties),
+                                              new Configuration(getConfiguration(properties), properties),
                                               mappingInformation);
     }
 

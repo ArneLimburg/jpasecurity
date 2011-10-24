@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.contacts.model;
 
+import java.io.Serializable;
+
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
@@ -31,7 +33,7 @@ import net.sf.jpasecurity.security.PermitWhere;
 @Entity
 @RolesAllowed("admin")
 @PermitWhere("owner.name = CURRENT_PRINCIPAL")
-public class Contact {
+public class Contact implements Serializable {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
