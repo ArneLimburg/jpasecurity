@@ -20,6 +20,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
@@ -102,6 +104,7 @@ public class SecurePersistenceProviderTest {
 
     private PersistenceUnitInfo createPersistenceUnitInfo() {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
+        persistenceUnitInfo.setPersistenceUnitRootUrl(createPersistenceUnitRootUrl());
         persistenceUnitInfo.setPersistenceUnitName("annotation-based-field-access");
         persistenceUnitInfo.setPersistenceUnitTransactionType(PersistenceUnitTransactionType.RESOURCE_LOCAL);
         persistenceUnitInfo.setPersistenceProviderClassName(SecurePersistenceProvider.class.getName());
@@ -123,5 +126,13 @@ public class SecurePersistenceProviderTest {
         properties.put("hibernate.connection.username", "sa");
         properties.put("hibernate.connection.password", "");
         return persistenceUnitInfo;
+    }
+
+    private URL createPersistenceUnitRootUrl() {
+        try {
+            return new File("target/test-classes").toURI().toURL();
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
