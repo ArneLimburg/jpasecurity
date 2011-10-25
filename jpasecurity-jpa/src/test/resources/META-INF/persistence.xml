@@ -185,6 +185,7 @@
       <property name="javax.persistence.jdbc.password" value="" />
       <property name="openjpa.RuntimeUnenhancedClasses" value="supported"/>
       <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(SchemaAction='add,deleteTableContents')"/>
+      <property name="openjpa.Log" value="DefaultLevel=WARN"/>
     </properties>
 
   </persistence-unit>
@@ -222,12 +223,8 @@
       <property name="net.sf.jpasecurity.persistence.provider" value="org.eclipse.persistence.jpa.PersistenceProvider"/>
       <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.EjbAuthenticationProvider"/>
       <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.AnnotationAccessRulesProvider"/>
-<!--       <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" /> -->
-<!--       <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:contacts" /> -->
       <property name="eclipselink.weaving" value="false"/>
-      <property name="eclipselink.logging.level" value="FINEST"/>
-<!--       <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/> -->
-<!--       <property name="eclipselink.ddl-generation.output-mode" value="database"/> -->
+      <property name="eclipselink.logging.level" value="WARNING"/>
     </properties>
 
   </persistence-unit>

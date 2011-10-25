@@ -21,6 +21,8 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.ejb.EJBException;
 import javax.naming.Context;
@@ -73,6 +75,9 @@ public class EjbContactsTest {
         GlassFishProperties properties = new GlassFishProperties();
         properties.setProperty(ACTIVATE_DEFAULT_PRINCIPAL_TO_ROLE_MAPPING_PROPERTY, "true");
         glassFish = GlassFishRuntime.bootstrap().newGlassFish(properties);
+        Logger.getLogger("").getHandlers()[0].setLevel(Level.WARNING);
+        Logger.getLogger("javax.enterprise.system.tools.deployment").setLevel(Level.SEVERE);
+        Logger.getLogger("javax.enterprise.system").setLevel(Level.SEVERE);
         glassFish.start();
         Deployer deployer = glassFish.getDeployer();
         ScatteredArchive archive = new ScatteredArchive("contacts", ScatteredArchive.Type.WAR);
