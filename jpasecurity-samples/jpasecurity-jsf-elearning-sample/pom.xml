@@ -25,7 +25,7 @@
         <artifactId>jetty-maven-plugin</artifactId>
         <version>8.0.1.v20110908</version>
         <configuration>
-          <daemon>true</daemon>
+<!--           <daemon>true</daemon> -->
           <scanIntervalSeconds>5</scanIntervalSeconds>
           <stopKey>elearning</stopKey>
           <stopPort>1199</stopPort>
