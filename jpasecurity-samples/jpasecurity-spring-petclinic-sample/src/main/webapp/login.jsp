@@ -1,6 +1,6 @@
-<%@ page import="org.springframework.security.ui.AbstractProcessingFilter" %>
-<%@ page import="org.springframework.security.ui.webapp.AuthenticationProcessingFilter" %>
-<%@ page import="org.springframework.security.AuthenticationException" %>
+<%@ page import="org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter" %>
+<%@ page import="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter" %>
+<%@ page import="org.springframework.security.core.AuthenticationException" %>
 <%@ include file="/WEB-INF/jsp/includes.jsp" %>
 <%@ include file="/WEB-INF/jsp/header.jsp" %>
 
