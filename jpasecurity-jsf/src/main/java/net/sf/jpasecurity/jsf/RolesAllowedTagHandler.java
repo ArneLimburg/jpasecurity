@@ -19,17 +19,19 @@ import java.io.IOException;
 
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
-import javax.faces.view.facelets.TagHandler;
+
+import net.sf.jpasecurity.configuration.AuthenticationProviderSecurityContext;
+import net.sf.jpasecurity.mapping.Alias;
 
 /**
  * @author Arne Limburg
  */
-public class RolesAllowedTagHandler extends TagHandler {
+public class RolesAllowedTagHandler extends AbstractSecurityTagHandler {
 
+    private static final Alias CURRENT_ROLES = AuthenticationProviderSecurityContext.CURRENT_ROLES;
     private TagAttribute roles;
 
     public RolesAllowedTagHandler(TagConfig config) {
@@ -48,7 +50,7 @@ public class RolesAllowedTagHandler extends TagHandler {
         }
     }
 
-    public static boolean isUserInRole(java.lang.String roleName) {
-        return FacesContext.getCurrentInstance().getExternalContext().isUserInRole(roleName);
+    public static boolean isUserInRole(String roleName) {
+        return getSecurityContext().getAliasValues(CURRENT_ROLES).contains(roleName);
     }
 }

@@ -45,7 +45,7 @@ import org.apache.commons.logging.LogFactory;
  *   </li>
  *   <li>
  *     If an <tt>javax.faces.context.FacesContext</tt> is present in the classpath,
- *     a {@link net.sf.jpasecurity.jsf.authentication.JsfAuthenticationProvider} is used.
+ *     a {@link net.sf.jpasecurity.jsf.authentication} is used.
  *   </li>
  *   <li>
  *     If an <tt>javax.ejb.EJBContext</tt> is accessible via JNDI lookup,
