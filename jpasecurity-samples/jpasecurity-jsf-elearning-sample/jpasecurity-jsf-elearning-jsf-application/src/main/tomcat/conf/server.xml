@@ -27,19 +27,13 @@
   <!-- Global JNDI resources
        Documentation at /docs/jndi-resources-howto.html
   -->
-  <GlobalNamingResources>
-    <Resource name="UserDatabase" auth="Container"
-              type="org.apache.catalina.UserDatabase"
-              description="User database that can be updated and saved"
-              factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
-              pathname="conf/tomcat-users.xml" />
-  </GlobalNamingResources>
   <Service name="Catalina">
     <Connector port="${http.port}" protocol="HTTP/1.1" 
                connectionTimeout="20000" 
                redirectPort="8443" />
     <Engine name="Catalina" defaultHost="localhost">
-      <Realm className="org.apache.catalina.realm.JAASRealm"
+      <Realm name="JAAS"
+             className="org.apache.catalina.realm.JAASRealm"
              appName="ELearning"
              userClassNames="net.sf.jpasecurity.sample.elearning.domain.User,net.sf.jpasecurity.sample.elearning.domain.Student,net.sf.jpasecurity.sample.elearning.domain.Teacher"
              roleClassNames="net.sf.jpasecurity.sample.elearning.domain.authentication.RolePrincipal"/>
