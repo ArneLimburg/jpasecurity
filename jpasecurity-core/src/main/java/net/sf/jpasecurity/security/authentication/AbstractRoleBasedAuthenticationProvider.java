@@ -40,7 +40,7 @@ public abstract class AbstractRoleBasedAuthenticationProvider implements Authent
 
     public Object getPrincipal() {
         Principal principal = getCallerPrincipal();
-        return principal != null? principal: null;
+        return principal != null? principal.getName(): null;
     }
 
     public Collection<String> getRoles() {
