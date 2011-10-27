@@ -36,8 +36,8 @@ public class AuthenticationProviderSecurityContext implements SecurityContext,
                                                               MappingInformationReceiver,
                                                               SecurityContextReceiver {
 
-    private static final Alias CURRENT_PRINCIPAL = new Alias("CURRENT_PRINCIPAL");
-    private static final Alias CURRENT_ROLES = new Alias("CURRENT_ROLES");
+    public static final Alias CURRENT_PRINCIPAL = new Alias("CURRENT_PRINCIPAL");
+    public static final Alias CURRENT_ROLES = new Alias("CURRENT_ROLES");
 
     private AuthenticationProvider authenticationProvider;
     private ConfigurationReceiver configurationReceiver;
