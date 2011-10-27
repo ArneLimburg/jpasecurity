@@ -15,27 +15,19 @@
  */
 package net.sf.jpasecurity.security.authentication;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.security.Principal;
 
 import javax.ejb.EJBContext;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import net.sf.jpasecurity.configuration.AuthenticationProvider;
-import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.mapping.MappingInformationReceiver;
 
 /**
  * @author Arne Limburg
  */
-public class EjbAuthenticationProvider implements AuthenticationProvider, MappingInformationReceiver {
+public class EjbAuthenticationProvider extends AbstractRoleBasedAuthenticationProvider {
 
     private EJBContext context;
-    private Set<String> roles;
 
     public EjbAuthenticationProvider() {
         try {
@@ -46,33 +38,19 @@ public class EjbAuthenticationProvider implements AuthenticationProvider, Mappin
         }
     }
 
-    public void setMappingInformation(MappingInformation mappingInformation) {
-        roles = new DeclareRolesParser().parseDeclaredRoles(mappingInformation.getSecureClasses());
-    }
-
-    public Object getPrincipal() {
+    protected Principal getCallerPrincipal() {
         try {
-            return context.getCallerPrincipal().getName();
+            return context.getCallerPrincipal();
         } catch (IllegalStateException e) {
             return null;
         }
     }
 
-    public Collection<String> getRoles() {
-        List<String> filteredRoles = new ArrayList<String>();
-        for (String role: roles) {
-            try {
-                if (context.isCallerInRole(role)) {
-                    filteredRoles.add(role);
-                }
-            } catch (IllegalStateException e) {
-                //ignore
-            }
+    protected boolean isCallerInRole(String roleName) {
+        try {
+            return context.isCallerInRole(roleName);
+        } catch (IllegalStateException e) {
+            return false;
         }
-        return filteredRoles;
-    }
-
-    public void setMappingProperties(Map<String, Object> properties) {
-        //not needed
     }
 }
