@@ -256,6 +256,15 @@
           <groupId>com.googlecode.t7mp</groupId>
           <artifactId>maven-t7-plugin</artifactId>
           <version>0.9.7.M1</version>
+          <configuration>
+            <libs>
+              <jarArtifact>
+                <groupId>javax.el</groupId>
+                <artifactId>el-api</artifactId>
+                <version>2.2.1-b04</version>
+              </jarArtifact>
+            </libs>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.doxia</groupId>
@@ -457,6 +466,12 @@
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
         <version>1.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>log4j</groupId>
@@ -479,6 +494,11 @@
         <version>3.8.0.GA</version>
       </dependency>
       <dependency>
+        <groupId>net.sourceforge.htmlunit</groupId>
+        <artifactId>htmlunit</artifactId>
+        <version>1.14</version>
+      </dependency>
+      <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.8.2</version>
@@ -487,6 +507,11 @@
         <groupId>org.glassfish.extras</groupId>
         <artifactId>glassfish-embedded-all</artifactId>
         <version>3.1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.myfaces.core</groupId>
+        <artifactId>myfaces-api</artifactId>
+        <version>2.0.5</version>
       </dependency>
       <dependency>
         <groupId>org.apache.myfaces.core</groupId>
