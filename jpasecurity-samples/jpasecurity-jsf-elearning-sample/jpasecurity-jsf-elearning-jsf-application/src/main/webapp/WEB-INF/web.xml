@@ -49,7 +49,7 @@
  
   <login-config>
     <auth-method>FORM</auth-method>
-    <realm-name>JAAS Realm</realm-name>
+    <realm-name>JAAS</realm-name>
     <form-login-config>
       <form-login-page>/login.xhtml?form-based</form-login-page>
       <form-error-page>/index.xhtml</form-error-page>
