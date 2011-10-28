@@ -15,8 +15,8 @@
  */
 package net.sf.jpasecurity.security.rules;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
@@ -32,7 +32,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author Arne Limburg
  */
 public class WebXmlRolesParser extends AbstractXmlParser<XmlRolesHandler> {
-    
+
     public WebXmlRolesParser() {
         this(new DefaultExceptionFactory());
     }
@@ -41,7 +41,7 @@ public class WebXmlRolesParser extends AbstractXmlParser<XmlRolesHandler> {
         super(new XmlRolesHandler(), factory);
     }
 
-    public List<String> getRoles() {
+    public Set<String> getRoles() {
         return getHandler().getRoles();
     }
 
@@ -50,9 +50,9 @@ public class WebXmlRolesParser extends AbstractXmlParser<XmlRolesHandler> {
         private static final String ROLE_NAME_TAG = "role-name";
 
         private StringBuilder currentText = new StringBuilder();
-        private List<String> roles = new ArrayList<String>();
+        private Set<String> roles = new HashSet<String>();
 
-        public List<String> getRoles() {
+        public Set<String> getRoles() {
             return roles;
         }
 

@@ -25,6 +25,8 @@ import javax.xml.parsers.SAXParserFactory;
 
 import net.sf.jpasecurity.ExceptionFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -33,6 +35,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public abstract class AbstractXmlParser<H extends DefaultHandler> {
 
+    private static final Log LOG = LogFactory.getLog(AbstractXmlParser.class);
     private H handler;
     private ExceptionFactory exceptionFactory;
 
@@ -46,6 +49,7 @@ public abstract class AbstractXmlParser<H extends DefaultHandler> {
     }
 
     public void parse(URL url) throws IOException {
+        LOG.info("parsing " + url);
         InputStream stream = url.openStream();
         try {
             parse(stream);
