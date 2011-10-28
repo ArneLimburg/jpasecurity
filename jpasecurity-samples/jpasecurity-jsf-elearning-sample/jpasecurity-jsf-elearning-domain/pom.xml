@@ -57,6 +57,10 @@
       <artifactId>geronimo-jta_1.1_spec</artifactId>
     </dependency>
     <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>jsr250-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>jpasecurity-jpa</artifactId>
       <version>${project.version}</version>
