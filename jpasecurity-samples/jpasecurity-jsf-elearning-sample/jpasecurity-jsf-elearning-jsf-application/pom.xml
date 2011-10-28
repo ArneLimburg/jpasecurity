@@ -148,6 +148,10 @@
       <artifactId>myfaces-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.myfaces.core</groupId>
+      <artifactId>myfaces-impl</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
     </dependency>
