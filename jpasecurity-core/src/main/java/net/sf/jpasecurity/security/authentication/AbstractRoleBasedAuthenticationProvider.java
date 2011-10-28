@@ -45,9 +45,11 @@ public abstract class AbstractRoleBasedAuthenticationProvider implements Authent
 
     public Collection<String> getRoles() {
         List<String> filteredRoles = new ArrayList<String>();
-        for (String role: roles) {
-            if (isCallerInRole(role)) {
-                filteredRoles.add(role);
+        if (roles != null) {
+            for (String role: roles) {
+                if (isCallerInRole(role)) {
+                    filteredRoles.add(role);
+                }
             }
         }
         return filteredRoles;
