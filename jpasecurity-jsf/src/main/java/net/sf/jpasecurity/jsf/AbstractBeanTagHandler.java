@@ -24,26 +24,31 @@ import javax.faces.view.facelets.TagAttribute;
 import javax.faces.view.facelets.TagConfig;
 import javax.faces.view.facelets.TagHandler;
 
+import net.sf.jpasecurity.AccessType;
+
 /**
  * @author Arne Limburg
  */
-public class RolesAllowedTagHandler extends TagHandler {
+public abstract class AbstractBeanTagHandler extends TagHandler {
 
-    private TagAttribute roles;
+    private TagAttribute beanAttribute;
 
-    public RolesAllowedTagHandler(TagConfig config) {
+    public AbstractBeanTagHandler(TagConfig config) {
         super(config);
-        roles = getAttribute("roles");
+        beanAttribute = getAttribute("bean");
     }
 
-    public void apply(FaceletContext ctx, UIComponent parent) throws IOException {
-        ValueExpression expression = roles.getValueExpression(ctx, String.class);
-        String[] roles = ((String)expression.getValue(ctx.getFacesContext().getELContext())).split(",");
-        for (String role: roles) {
-            if (JsfAccessContext.isUserInRole(role.trim())) {
-                nextHandler.apply(ctx, parent);
-                return;
-            }
+    public void apply(FaceletContext context, UIComponent parent) throws IOException {
+        ValueExpression expression = beanAttribute.getValueExpression(context, Object.class);
+        Object bean = expression.getValue(context.getFacesContext().getELContext());
+        if (isAccessible(bean)) {
+            nextHandler.apply(context, parent);
         }
     }
+
+    protected boolean isAccessible(Object bean) {
+        return JsfAccessContext.getAccessManager().isAccessible(getAccessType(), bean);
+    }
+
+    protected abstract AccessType getAccessType();
 }

@@ -26,7 +26,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 /**
  * @author Arne Limburg
  */
-
+@Ignore
 public class IndexTest extends AbstractHtmlTestCase {
 
     public IndexTest() {

@@ -256,15 +256,6 @@
           <groupId>com.googlecode.t7mp</groupId>
           <artifactId>maven-t7-plugin</artifactId>
           <version>0.9.7.M1</version>
-          <configuration>
-            <libs>
-              <jarArtifact>
-                <groupId>javax.el</groupId>
-                <artifactId>el-api</artifactId>
-                <version>2.2.1-b04</version>
-              </jarArtifact>
-            </libs>
-          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.doxia</groupId>

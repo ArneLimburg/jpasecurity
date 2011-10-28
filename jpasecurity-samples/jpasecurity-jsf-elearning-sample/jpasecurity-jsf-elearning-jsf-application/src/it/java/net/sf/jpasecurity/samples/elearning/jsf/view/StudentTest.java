@@ -27,7 +27,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @auhtor Raffaela Ferrari
  */
 
-
+@Ignore
 public class StudentTest extends AbstractHtmlTestCase {
     public StudentTest() {
         super("http://localhost:8282/elearning/");

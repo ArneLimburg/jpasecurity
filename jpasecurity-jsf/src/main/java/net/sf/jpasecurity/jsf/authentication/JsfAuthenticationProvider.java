@@ -28,7 +28,7 @@ import net.sf.jpasecurity.security.authentication.AbstractRoleBasedAuthenticatio
 public class JsfAuthenticationProvider extends AbstractRoleBasedAuthenticationProvider {
 
     protected Principal getCallerPrincipal() {
-        return getRequest().getUserPrincipal(); 
+        return getRequest().getUserPrincipal();
     }
 
     protected boolean isCallerInRole(String roleName) {
