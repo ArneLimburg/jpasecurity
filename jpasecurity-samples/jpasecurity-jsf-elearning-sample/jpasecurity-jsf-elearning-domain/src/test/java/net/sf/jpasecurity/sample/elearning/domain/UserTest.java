@@ -24,6 +24,7 @@ import javax.persistence.TypedQuery;
 import net.sf.jpasecurity.persistence.AbstractEntityTestCase;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -31,11 +32,13 @@ import org.junit.Test;
  */
 public class UserTest extends AbstractEntityTestCase {
 
+    @Ignore
     @BeforeClass
     public static void createEntityManagerFactory() {
         createEntityManagerFactory("elearning");
     }
 
+    @Ignore
     @Test
     public void findByName() {
         Teacher teacher = new Teacher(new Name("test", "Mr.", "Tester"));

@@ -56,29 +56,71 @@ public abstract class AbstractHtmlTestCase {
         }
     }
 
-    public HtmlPage authenticate(String page) {
-        return authenticate(getPage(page));
+    public HtmlPage testLink(String page, String linkName) {
+        try {
+        HtmlAnchor link = (HtmlAnchor)getByXPath(getPage(page), "//a[text() = '" + linkName +"']").iterator().next();
+        HtmlPage linkPage = (HtmlPage)link.click();
+        return linkPage;
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
     }
 
-    public HtmlPage authenticate(HtmlPage currentPage) {
+    public HtmlPage testLink(HtmlPage page, String linkName) {
+        try {
+            HtmlAnchor link = (HtmlAnchor)getByXPath(page, "//a[text() = '" + linkName +"']").iterator().next();
+            HtmlPage linkPage = (HtmlPage)link.click();
+        return linkPage;
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    public HtmlPage authenticateAsStudent(String page) {
+        return authenticate(getPage(page), Role.STUDENT);
+    }
+    
+    public HtmlPage authenticateAsTeacher(String page) {
+        return authenticate(getPage(page), Role.TEACHER);
+    }
+
+    public HtmlPage authenticate(HtmlPage currentPage, Role role) {
         try {
             HtmlAnchor loginLink = (HtmlAnchor)getByXPath(currentPage, "//a[text() = 'Login']").iterator().next();
             HtmlPage loginPage = (HtmlPage)loginLink.click();
 
             HtmlForm form = getFormByJsfId(loginPage, "loginForm");
-            getInputByJsfId(form, "username").setValueAttribute("peter");
-            getInputByJsfId(form, "password").setValueAttribute("peter");
+            if(role == Role.TEACHER) {
+                getInputByJsfId(form, "username").setValueAttribute("peter");
+                getInputByJsfId(form, "password").setValueAttribute("peter");
+            } else {
+                getInputByJsfId(form, "username").setValueAttribute("stefan");
+                getInputByJsfId(form, "password").setValueAttribute("stefan");                
+            }
             return (HtmlPage)getInputByJsfId(form, "loginButton").click();
         } catch (IOException e) {
             throw new AssertionError(e);
         }
     }
 
-    public HtmlPage authenticateFormBased() {
+    public HtmlPage authenticateFormBasedAsStudent() {
+        return authenticateFormBased(Role.STUDENT);
+    }
+    
+    public HtmlPage authenticateFormBasedAsTeacher() {
+        return authenticateFormBased(Role.TEACHER);
+    }
+    
+    public HtmlPage authenticateFormBased(Role role) {
         HtmlPage dashboard = getPage("dashboard.xhtml");
         HtmlForm form = dashboard.getFormByName("j_security_check");
-        form.getInputByName("j_username").setValueAttribute("peter");
-        form.getInputByName("j_password").setValueAttribute("peter");
+        if(role == Role.TEACHER) {
+            getInputByJsfId(form, "username").setValueAttribute("peter");
+            getInputByJsfId(form, "password").setValueAttribute("peter");
+        } else {
+            getInputByJsfId(form, "username").setValueAttribute("stefan");
+            getInputByJsfId(form, "password").setValueAttribute("stefan");                
+        }
         try {
             return (HtmlPage)form.getInputByName("j_security_check_submit").click();
         } catch (IOException e) {
@@ -121,4 +163,5 @@ public abstract class AbstractHtmlTestCase {
             throw new AssertionError(e);
         }
     }
+    public static enum Role{TEACHER, STUDENT, GUEST};
 }
