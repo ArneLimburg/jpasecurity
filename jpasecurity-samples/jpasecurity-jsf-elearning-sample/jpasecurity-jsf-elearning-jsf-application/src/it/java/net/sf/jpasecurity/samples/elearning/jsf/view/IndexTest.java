@@ -16,14 +16,9 @@ package net.sf.jpasecurity.samples.elearning.jsf.view;
  */
 
 
-import static org.junit.Assert.assertEquals;
-
-
 import org.jaxen.JaxenException;
-import org.junit.Test;
 import org.junit.Ignore;
-
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.junit.Test;
 
 /**
  * @author Arne Limburg
@@ -35,14 +30,12 @@ public class IndexTest extends AbstractHtmlTestCase {
         super("http://localhost:8282/elearning/");
     }
 
-    @Ignore
     @Test
     public void unauthenticated() throws JaxenException {
         ElearningAssert.assertIndexPage(getPage(""), Role.GUEST);
         ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.GUEST);
     }
 
-    @Ignore
     @Test
     public void authenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.GUEST);
@@ -50,7 +43,6 @@ public class IndexTest extends AbstractHtmlTestCase {
         ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.TEACHER);
     }
 
-    @Ignore
     @Test
     public void authenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.GUEST);
