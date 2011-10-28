@@ -26,6 +26,7 @@ import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.Title;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -33,11 +34,13 @@ import org.junit.Test;
  */
 public class CourseTest extends AbstractEntityTestCase {
 
+    @Ignore
     @BeforeClass
     public static void createEntityManagerFactory() {
         createEntityManagerFactory("elearning");
     }
 
+    @Ignore
     @Test
     public void persist() {
         getEntityManager().getTransaction().begin();

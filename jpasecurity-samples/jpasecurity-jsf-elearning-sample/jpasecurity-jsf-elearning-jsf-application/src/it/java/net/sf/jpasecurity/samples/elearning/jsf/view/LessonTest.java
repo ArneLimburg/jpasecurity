@@ -1,3 +1,4 @@
+package net.sf.jpasecurity.samples.elearning.jsf.view;
 /*
  * Copyright 2011 Raffaela Ferrari open knowledge GmbH
  *
@@ -13,9 +14,12 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.samples.elearning.jsf.view;
+
 
 import static org.junit.Assert.assertEquals;
+
+
+import net.sf.jpasecurity.samples.elearning.jsf.view.AbstractHtmlTestCase.Role;
 
 import org.jaxen.JaxenException;
 
@@ -36,40 +40,38 @@ public class LessonTest extends AbstractHtmlTestCase {
     @Ignore
     @Test
     public void unauthenticated() throws JaxenException {
-        assertLessonPage("lesson.xhtml", false);
+        ElearningAssert.assertLessonPage(getPage("lesson.xhtml"), Role.GUEST);
     }
 
     @Ignore
     @Test
-    public void authenticated() throws JaxenException {
-        assertLessonPage("lesson.xhtml", false);
-        assertLessonPage(authenticate("lesson.xhtml"), true);
-        assertLessonPage("lesson.xhtml", true);
+    public void authenticatedAsTeacher() throws JaxenException {
+        ElearningAssert.assertLessonPage(getPage("lesson.xhtml"), Role.GUEST);
+        ElearningAssert.assertLessonPage(authenticateAsTeacher("lesson.xhtml"), Role.TEACHER);
+        ElearningAssert.assertLessonPage(getPage("lesson.xhtml"), Role.TEACHER);
     }
 
     @Ignore
     @Test
-    public void formBasedAuthenticated() throws JaxenException {
-        assertLessonPage("lesson.xhtml", false);
-        authenticateFormBased();
-        assertLessonPage("lesson.xhtml", true);
+    public void authenticatedAsStudent() throws JaxenException {
+        ElearningAssert.assertLessonPage(getPage("lesson.xhtml"), Role.GUEST);
+        ElearningAssert.assertLessonPage(authenticateAsStudent("lesson.xhtml"), Role.STUDENT);
+        ElearningAssert.assertLessonPage(getPage("lesson.xhtml"), Role.STUDENT);
     }
-
-    private void assertLessonPage(String name, boolean authenticated) throws JaxenException {
-        assertLessonPage(getPage(name), authenticated);
+    
+    @Ignore
+    @Test
+    public void formBasedAuthenticatedAsTeacher() throws JaxenException {
+        ElearningAssert.assertLessonPage(getPage("lesson.xhtml"), Role.GUEST);
+        authenticateFormBasedAsTeacher();
+        ElearningAssert.assertLessonPage(getPage("lesson.xhtml"), Role.TEACHER);
     }
-
-    private void assertLessonPage(HtmlPage page, boolean authenticated) throws JaxenException {
-        assertEquals("E-Learning Platform", page.getTitleText());
-        if (authenticated) {
-            assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
-        } else {
-            assertEquals(1, page.getByXPath("//a[text() = 'Login']").size());
-        }
-        assertEquals(1, page.getByXPath("//h2[text() = 'Content']").size());
-        assertEquals(1, page.getByXPath("//label[text() = 'Course:']").size());
-        assertEquals(1, page.getByXPath("//label[text() = 'Lecturer:']").size());
-        assertEquals(0, page.getByXPath("//input[@type = 'submit'][@value = 'resolve this lesson']").size());
-        assertEquals(0, page.getByXPath("//div[text() = 'Lesson is resolved']").size());
+    
+    @Ignore
+    @Test
+    public void formBasedAuthenticatedAsStudent() throws JaxenException {
+        ElearningAssert.assertLessonPage(getPage("lesson.xhtml"), Role.GUEST);
+        authenticateFormBasedAsStudent();
+        ElearningAssert.assertLessonPage(getPage("lesson.xhtml"), Role.STUDENT);
     }
 }
