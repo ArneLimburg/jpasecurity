@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.annotation.security.DeclareRoles;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
@@ -32,6 +33,7 @@ import net.sf.jpasecurity.sample.elearning.domain.course.CourseAggregate;
  * @author Raffaela Ferrari
  */
 @Entity
+@DeclareRoles("teacher")
 public class Teacher extends User {
 
     @OneToMany(mappedBy = "lecturer", cascade = CascadeType.ALL, targetEntity = CourseAggregate.class)

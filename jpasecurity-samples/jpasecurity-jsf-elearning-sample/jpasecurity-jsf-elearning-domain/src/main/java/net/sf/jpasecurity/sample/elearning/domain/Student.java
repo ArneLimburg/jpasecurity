@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.security.DeclareRoles;
 import javax.persistence.Entity;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
@@ -35,6 +36,7 @@ import net.sf.jpasecurity.sample.elearning.domain.course.Participation;
  * @author Raffaela Ferrari - open knowledge GmbH (raffaela.ferrari@openknowledge.de)
  */
 @Entity
+@DeclareRoles("student")
 public class Student extends User {
 
     @MapKey(name = "course")
