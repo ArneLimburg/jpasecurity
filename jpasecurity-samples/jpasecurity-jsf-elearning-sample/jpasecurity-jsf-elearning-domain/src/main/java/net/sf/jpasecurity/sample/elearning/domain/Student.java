@@ -17,6 +17,7 @@ package net.sf.jpasecurity.sample.elearning.domain;
 
 import static org.apache.commons.lang.Validate.notNull;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,7 +57,7 @@ public class Student extends User {
     }
 
     public Collection<Course> getCourses() {
-        return Collections.unmodifiableCollection(courses.keySet());
+        return Collections.unmodifiableList(new ArrayList<Course>(courses.keySet()));
     }
 
     public void subscribe(Course course) {

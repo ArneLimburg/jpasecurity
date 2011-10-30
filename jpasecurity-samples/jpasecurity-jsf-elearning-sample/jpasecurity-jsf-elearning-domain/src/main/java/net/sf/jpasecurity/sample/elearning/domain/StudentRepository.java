@@ -22,7 +22,7 @@ import java.util.List;
  */
 public interface StudentRepository {
 
-    Student findStudentById(int id);
+    Student findStudent(int id);
 
-    List<Student> findAllStudents();
+    List<Student> getAllStudents();
 }

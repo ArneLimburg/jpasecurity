@@ -30,7 +30,7 @@
         <sec:rolesAllowed roles="student">
           <h1>Available courses</h1>
           <ul>
-            <ui:repeat var="c" value="#{platform.courses}">
+            <ui:repeat var="c" value="#{courses}">
               <li>
                 <h:outputLink value="course.xhtml" >
                   <f:param name="id" value="#{c.id}" />
@@ -43,7 +43,7 @@
         
         <h1>My courses</h1>
         <ul>
-          <ui:repeat var="mycourse" value="#{platform.myCourses}">
+          <ui:repeat var="mycourse" value="#{user.courses}">
             <li>
               <h:outputLink value="course.xhtml" >
                 <f:param name="id" value="#{mycourse.id}" />

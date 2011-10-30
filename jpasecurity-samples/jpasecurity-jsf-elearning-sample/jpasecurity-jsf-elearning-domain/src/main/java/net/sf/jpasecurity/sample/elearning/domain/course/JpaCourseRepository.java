@@ -15,8 +15,7 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain.course;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -37,10 +36,10 @@ public class JpaCourseRepository implements CourseRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public Set<Course> getAllCourses() {
+    public List<? extends Course> getAllCourses() {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<CourseAggregate> query = cb.createQuery(CourseAggregate.class);
+        CriteriaQuery<? extends Course> query = cb.createQuery(CourseAggregate.class);
         query.from(CourseAggregate.class);
-        return new LinkedHashSet<Course>(entityManager.createQuery(query).getResultList());
+        return entityManager.createQuery(query).getResultList();
     }
 }

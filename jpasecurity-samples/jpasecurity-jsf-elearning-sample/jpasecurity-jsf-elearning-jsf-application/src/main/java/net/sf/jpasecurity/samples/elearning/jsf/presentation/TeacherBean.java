@@ -39,7 +39,7 @@ public class TeacherBean {
     private Teacher teacher;
 
     public void setId(final int id) {
-        teacher = elearningRepository.findTeacherById(id);
+        teacher = elearningRepository.findTeacher(id);
     }
 
     public int getId() {

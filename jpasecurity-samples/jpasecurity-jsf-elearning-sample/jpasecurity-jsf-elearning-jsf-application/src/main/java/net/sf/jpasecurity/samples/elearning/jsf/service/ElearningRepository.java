@@ -16,9 +16,7 @@
 package net.sf.jpasecurity.samples.elearning.jsf.service;
 
 import java.io.Serializable;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -55,30 +53,16 @@ public class ElearningRepository implements UserRepository,
 
     private EntityManager entityManager;
 
-    public Course findCourseById(int id) {
-        return getEntityManager().createQuery("SELECT course FROM CourseAggregate course "
-                                            + "LEFT OUTER JOIN FETCH course.participations participation "
-                                            + "LEFT OUTER JOIN FETCH participation.participant "
-                                            + "LEFT OUTER JOIN FETCH course.lessons "
-                                            + "WHERE course.id = :id", Course.class)
-                                 .setParameter("id", id)
-                                 .getSingleResult();
+    public Course findCourse(int id) {
+        return getEntityManager().find(CourseAggregate.class, id);
     }
 
-    public Teacher findTeacherById(int id) {
-        return getEntityManager().createQuery("SELECT teacher FROM Teacher teacher "
-                                            + "LEFT OUTER JOIN FETCH teacher.courses "
-                                            + "WHERE teacher.id = :id", Teacher.class)
-                                 .setParameter("id", id)
-                                 .getSingleResult();
+    public Teacher findTeacher(int id) {
+        return getEntityManager().find(Teacher.class, id);
     }
 
-    public Student findStudentById(int id) {
-        return getEntityManager().createQuery("SELECT student FROM Student student "
-                                            + "LEFT OUTER JOIN FETCH student.courses "
-                                            + "WHERE student.id = :id", Student.class)
-                                 .setParameter("id", id)
-                                 .getSingleResult();
+    public Student findStudent(int id) {
+        return getEntityManager().find(Student.class, id);
     }
 
     public <U extends User> U findUser(Name name) {
@@ -87,20 +71,20 @@ public class ElearningRepository implements UserRepository,
                                     .getSingleResult();
     }
 
-    public Set<Course> getAllCourses() {
-        CriteriaQuery<CourseAggregate> allCourses
+    public List<? extends Course> getAllCourses() {
+        CriteriaQuery<? extends Course> allCourses
             = getEntityManager().getCriteriaBuilder().createQuery(CourseAggregate.class);
         allCourses.from(CourseAggregate.class);
-        return new LinkedHashSet<Course>(getEntityManager().createQuery(allCourses).getResultList());
+        return getEntityManager().createQuery(allCourses).getResultList();
     }
 
-    public List<Student> findAllStudents() {
+    public List<Student> getAllStudents() {
         CriteriaQuery<Student> allStudents = getEntityManager().getCriteriaBuilder().createQuery(Student.class);
         allStudents.from(Student.class);
         return getEntityManager().createQuery(allStudents).getResultList();
     }
 
-    public List<Teacher> findAllTeachers() {
+    public List<Teacher> getAllTeachers() {
         CriteriaQuery<Teacher> allTeachers = getEntityManager().getCriteriaBuilder().createQuery(Teacher.class);
         allTeachers.from(Teacher.class);
         return getEntityManager().createQuery(allTeachers).getResultList();
@@ -141,8 +125,10 @@ public class ElearningRepository implements UserRepository,
 
     @PreDestroy
     public void closeEntityManager() {
-        entityManager.close();
-        entityManager = null;
+        if (entityManager != null) {
+            entityManager.close();
+            entityManager = null;
+        }
     }
 
     EntityManager getEntityManager() {

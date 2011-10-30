@@ -26,7 +26,7 @@
       <ui:define name="content">
         <h1>Teachers</h1>
         <ul>
-          <ui:repeat var="teacher" value="#{platform.teachers}">
+          <ui:repeat var="teacher" value="#{teachers}">
             <li>
               <h:outputLink value="teacher.xhtml" >
                 <f:param name="id" value="#{teacher.id}" />

@@ -17,6 +17,7 @@ package net.sf.jpasecurity.sample.elearning.domain;
 
 import static org.apache.commons.lang.Validate.notNull;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -51,7 +52,7 @@ public class Teacher extends User {
     }
 
     public Collection<Course> getCourses() {
-        return Collections.unmodifiableSet(courses);
+        return Collections.unmodifiableList(new ArrayList<Course>(courses));
     }
 
     public void addCourse(Course course) {
