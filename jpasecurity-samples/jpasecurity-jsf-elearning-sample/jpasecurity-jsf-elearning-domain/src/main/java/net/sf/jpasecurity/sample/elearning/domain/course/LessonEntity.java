@@ -43,6 +43,7 @@ class LessonEntity implements Lesson {
     @Id
     @GeneratedValue
     private Integer id;
+    private int number;
     @Embedded
     @AttributeOverride(name = "text", column = @Column(name = "TITLE"))
     private Title title;
@@ -60,12 +61,17 @@ class LessonEntity implements Lesson {
         notNull(course, "course may not be null");
         notNull(title, "title may not be null");
         notNull(content, "content may not be null");
-        course.addLesson(this);
         this.course = course;
+        this.number = course.getLessons().size();
+        course.addLesson(this);
     }
 
     public int getId() {
         return id == null? -1: id;
+    }
+
+    public int getNumber() {
+        return number;
     }
 
     public Title getTitle() {
