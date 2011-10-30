@@ -150,6 +150,10 @@ public class CourseAggregate implements Course {
         getParticipation(student).finishLesson(lesson);
     }
 
+    public boolean isLessonFinished(Student student, Lesson lesson) {
+        return getParticipation(student).isLessonFinished(lesson);
+    }
+
     public String toString() {
         return CourseAggregate.class.getName() + "#" + id;
     }

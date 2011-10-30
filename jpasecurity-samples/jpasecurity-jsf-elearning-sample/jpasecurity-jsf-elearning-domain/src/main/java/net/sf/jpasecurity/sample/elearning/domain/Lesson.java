@@ -26,7 +26,7 @@ package net.sf.jpasecurity.sample.elearning.domain;
  */
 public interface Lesson {
 
-    int getId();
+    int getNumber();
     Title getTitle();
     Content getContent();
     Course getCourse();

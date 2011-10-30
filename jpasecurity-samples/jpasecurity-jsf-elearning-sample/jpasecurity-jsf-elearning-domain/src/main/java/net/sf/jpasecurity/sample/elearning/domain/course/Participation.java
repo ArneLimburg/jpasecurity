@@ -94,6 +94,10 @@ public class Participation {
         currentLesson = null;
     }
 
+    boolean isLessonFinished(Lesson lesson) {
+        return finishedLessons.contains(lesson);
+    }
+
     private void validateUnfinished(Lesson lesson) {
         if (finishedLessons.contains(lesson)) {
             throw new IllegalArgumentException("lesson " + lesson + " already finished");
