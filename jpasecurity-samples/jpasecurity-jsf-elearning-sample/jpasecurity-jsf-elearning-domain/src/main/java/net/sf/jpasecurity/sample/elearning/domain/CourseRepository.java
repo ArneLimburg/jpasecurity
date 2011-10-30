@@ -15,7 +15,7 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * The repository to access courses.
@@ -24,5 +24,5 @@ import java.util.Set;
  */
 public interface CourseRepository {
 
-    Set<Course> getAllCourses();
+    List<? extends Course> getAllCourses();
 }
