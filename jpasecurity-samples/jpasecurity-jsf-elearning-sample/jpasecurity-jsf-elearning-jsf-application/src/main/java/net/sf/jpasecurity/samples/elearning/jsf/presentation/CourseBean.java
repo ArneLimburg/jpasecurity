@@ -163,11 +163,7 @@ public class CourseBean {
     }
 
     public void setId(final int id) {
-        elearningRepository.executeTransactional(new Runnable() {
-            public void run() {
-                course = elearningRepository.findCourseById(id);
-            }
-        });
+        course = elearningRepository.findCourseById(id);
     }
 
     public int getId() {

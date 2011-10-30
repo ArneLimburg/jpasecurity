@@ -18,7 +18,6 @@ package net.sf.jpasecurity.samples.elearning.jsf.service;
 import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
-import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
 
 /**
  * @author Arne Limburg
@@ -29,12 +28,11 @@ public class UserRepositoryWrapper implements UserRepository {
         //Don't receive ElearingRepository from faces context
         //since no faces context is available during j_security_check
         final ElearningRepository elearningRepository = new ElearningRepository();
-        final TransactionService transactionService = elearningRepository;
         final UserRepository userRepository = elearningRepository;
-        return transactionService.executeTransactional(new Callable<U>() {
-            public U call() {
-                return userRepository.<U>findUser(name);
-            }
-        });
+        try {
+            return userRepository.<U>findUser(name);
+        } finally {
+            elearningRepository.closeEntityManager();
+        }
     }
 }

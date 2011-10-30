@@ -30,7 +30,6 @@ import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
-import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
 
 /**
  * @author Raffaela Ferrari
@@ -47,42 +46,22 @@ public class PlatformBean {
     }
 
     public List<Course> getCourses() {
-        return elearningRepository.executeTransactional(new Callable<List<Course>>() {
-            public List<Course> call() {
-                return new ArrayList<Course>(elearningRepository.getAllCourses());
-            }
-        });
+        return new ArrayList<Course>(elearningRepository.getAllCourses());
     }
 
     public List<Course> getMyCourses() {
-        return elearningRepository.executeTransactional(new Callable<List<Course>>() {
-            public List<Course> call() {
-                Principal principal = FacesContext.getCurrentInstance().getExternalContext().getUserPrincipal();
-                if (principal == null) {
-                    return Collections.emptyList();
-                }
-                return new ArrayList<Course>(elearningRepository.findUser(new Name(principal.getName())).getCourses());
-            }
-        });
+        Principal principal = FacesContext.getCurrentInstance().getExternalContext().getUserPrincipal();
+        if (principal == null) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<Course>(elearningRepository.findUser(new Name(principal.getName())).getCourses());
     }
 
     public List<Student> getStudents() {
-        return elearningRepository.executeTransactional(new Callable<List<Student>>() {
-            public List<Student> call() {
-                return elearningRepository.findAllStudents();
-            }
-        });
+        return elearningRepository.findAllStudents();
     }
 
     public List<Teacher> getTeachers() {
-        return elearningRepository.executeTransactional(new Callable<List<Teacher>>() {
-            public List<Teacher> call() {
-                return elearningRepository.findAllTeachers();
-            }
-        });
-    }
-
-    public void setElearningRepository(ElearningRepository elearningRepository) {
-        this.elearningRepository = elearningRepository;
+        return elearningRepository.findAllTeachers();
     }
 }

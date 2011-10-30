@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.persistence.EntityManager;
@@ -115,10 +116,9 @@ public class ElearningRepository implements UserRepository,
     }
 
     public <R> R executeTransactional(Callable<R> callable) {
-        if (entityManager != null) {
+        if (getEntityManager().getTransaction().isActive()) {
             return callable.call();
         }
-        entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         try {
             return callable.call();
@@ -139,9 +139,15 @@ public class ElearningRepository implements UserRepository,
         }
     }
 
+    @PreDestroy
+    public void closeEntityManager() {
+        entityManager.close();
+        entityManager = null;
+    }
+
     EntityManager getEntityManager() {
         if (entityManager == null) {
-            throw new IllegalStateException("No active transaction");
+            entityManager = entityManagerFactory.createEntityManager();
         }
         return entityManager;
     }
