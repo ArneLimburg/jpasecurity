@@ -190,13 +190,4 @@ public class CourseBean {
             return null;
         }
     }
-
-    public Lesson findLessonById(int id) {
-        for (Lesson lesson : course.getLessons()) {
-            if (lesson.getId() == id) {
-                return lesson;
-            }
-        }
-        return null;
-    }
 }

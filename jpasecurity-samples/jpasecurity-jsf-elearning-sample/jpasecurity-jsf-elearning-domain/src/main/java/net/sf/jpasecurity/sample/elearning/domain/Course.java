@@ -34,4 +34,5 @@ public interface Course {
     Lesson getCurrentLession(Student student);
     void startLesson(Student student, Lesson lesson);
     void finishLesson(Student student, Lesson lesson);
+    boolean isLessonFinished(Student student, Lesson lesson);
 }

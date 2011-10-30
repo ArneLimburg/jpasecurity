@@ -18,8 +18,15 @@ package net.sf.jpasecurity.samples.elearning.jsf.presentation;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 
+import net.sf.jpasecurity.sample.elearning.domain.Content;
+import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Lesson;
+import net.sf.jpasecurity.sample.elearning.domain.Name;
+import net.sf.jpasecurity.sample.elearning.domain.Student;
+import net.sf.jpasecurity.sample.elearning.domain.Title;
 import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
 import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
 
@@ -33,40 +40,60 @@ public class LessonBean {
     @ManagedProperty(value = "#{elearningRepository}")
     private ElearningRepository elearningRepository;
 
-    @ManagedProperty(value = "#{course}")
-    private CourseBean course;
+    private Course course;
 
     private Lesson lesson;
 
-    public void setId(int id) {
-        this.lesson = course.findLessonById(id);
+    public int getCourseId() {
+        return course != null? course.getId(): -1;
+    }
+
+    public void setCourseId(int id) {
+        course = elearningRepository.findCourse(id);
+    }
+
+    public int getNumber() {
+        return lesson != null? lesson.getNumber(): -1;
+    }
+
+    public void setNumber(int number) {
+        lesson = course.getLessons().get(number);
     }
 
     public int getId() {
-        return lesson.getId();
+        return lesson.getNumber();
     }
 
-    public String getName() {
-        return this.lesson.getTitle().getText();
+    public Title getTitle() {
+        return lesson.getTitle();
+    }
+
+    public Content getContent() {
+        return lesson.getContent();
     }
 
     // is true, if the student have finished lesson
     public boolean isStudentFinished() {
-        return course.isLessonFinished(lesson);
+        return course.isLessonFinished(getCurrentStudent(), lesson);
     }
 
     // student finishes a lesson
     public String studentFinishesLesson() {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
-                course.studentFinishesLesson();
+                course.finishLesson(getCurrentStudent(), lesson);
                 return "course.xhtml";
             }
         });
     }
 
-    public void setCourse(CourseBean aCourseBean) {
-        course = aCourseBean;
+    public Student getCurrentStudent() {
+        ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+        if (context.isUserInRole("student")) {
+            return elearningRepository.<Student>findUser(new Name(context.getUserPrincipal().getName()));
+        } else {
+            return null;
+        }
     }
 
     public void setElearningRepository(ElearningRepository elearningRepository) {
