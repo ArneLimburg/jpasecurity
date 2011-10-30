@@ -21,16 +21,17 @@
       xmlns:sec="http://jpasecurity.sf.net/facelets"
       >
   <h:head>
-    <title>#{lesson.name}</title>
+    <title>#{lesson.title}</title>
   </h:head>
   <h:body>
     <f:metadata>
-       <f:viewParam name="id" value="#{lesson.id}" required="true"/>
+       <f:viewParam name="course" value="#{lesson.courseId}" required="true"/>
+       <f:viewParam name="lesson" value="#{lesson.number}" required="true"/>
     </f:metadata>
 
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
-       <h1 id="lessonTitle">#{lesson.name}</h1>
+       <h1 id="lessonTitle">#{lesson.title}</h1>
        <h:panelGroup rendered="#{sec:userInRole('student') and course.studentInCourse and !lesson.studentFinished}">
 	            <h:form id="resolveForm" prependId="false">
 	              <h:commandButton id="resolve" value="resolve this lesson" action="#{lesson.studentFinishesLesson}" styleClass="submit"/>   
@@ -44,14 +45,14 @@
         <h:form id="lessonForm">
 		  <h:panelGrid columns="2">
             <h:outputLabel value="Course:" for="courseName"/>
-            <h:outputText id="courseName" value="#{course.name}" />		  
+            <h:outputText id="courseName" value="#{course.title}" />		  
             <h:outputLabel value="Lecturer:" for="lecturer"/>
             <h:outputText id="lecturer" value="#{course.teacher.name}" />
           </h:panelGrid>
         </h:form>  
              
        <h2>Content</h2>
-       <h:outputText value="#{lesson.lessonBody}" escape="false" converter="bodyConverter"/>
+       <h:outputText value="#{lesson.content}" escape="false" converter="bodyConverter"/>
 
       </ui:define>
     </ui:composition>

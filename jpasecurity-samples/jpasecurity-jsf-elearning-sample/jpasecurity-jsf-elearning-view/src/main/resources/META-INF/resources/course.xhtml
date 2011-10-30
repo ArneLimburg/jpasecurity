@@ -65,7 +65,8 @@
           <ui:repeat var="lesson" value="#{course.lessons}">
             <li >
                 <h:outputLink value="lesson.xhtml">
-                  <f:param name="id" value="#{lesson.id}" />
+                  <f:param name="course" value="#{course.id}" />
+                  <f:param name="lesson" value="#{lesson.number}" />
                   <h:outputText value="#{lesson.title}" />
                 </h:outputLink>
             </li>
