@@ -63,6 +63,8 @@ class LessonEntity implements Lesson {
         notNull(content, "content may not be null");
         this.course = course;
         this.number = course.getLessons().size();
+        this.title = title;
+        this.content = content;
         course.addLesson(this);
     }
 
