@@ -37,6 +37,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -67,6 +68,7 @@ public class CourseAggregate implements Course {
     @ManyToOne
     private Teacher lecturer;
     @OneToMany(targetEntity = LessonEntity.class, mappedBy = "course", cascade = ALL, orphanRemoval = true)
+    @OrderColumn(name = "NUMBER")
     private List<Lesson> lessons = new ArrayList<Lesson>();
     @Transient
     private Set<Student> participants = new Participants();
@@ -171,6 +173,10 @@ public class CourseAggregate implements Course {
     }
 
     void addLesson(LessonEntity lesson) {
+        if (!lesson.getCourse().equals(this)) {
+            String message = "The specified lesson already belongs to Course#" + lesson.getCourse().getId();
+            throw new IllegalStateException(message);
+        }
         lessons.add(lesson);
     }
 
