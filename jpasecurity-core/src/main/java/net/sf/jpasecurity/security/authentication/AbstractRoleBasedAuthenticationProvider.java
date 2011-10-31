@@ -15,7 +15,8 @@
  */
 package net.sf.jpasecurity.security.authentication;
 
-import java.io.InputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,7 +65,7 @@ public abstract class AbstractRoleBasedAuthenticationProvider implements Authent
 
     protected abstract boolean isCallerInRole(String roleName);
 
-    protected void parseWebXml(InputStream webXml) {
+    protected void parseWebXml(URL webXml) throws IOException {
         WebXmlRolesParser parser = new WebXmlRolesParser();
         parser.parse(webXml);
         roles.addAll(parser.getRoles());
