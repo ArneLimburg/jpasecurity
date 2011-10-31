@@ -28,10 +28,10 @@
         <ui:composition>
             <div id="headerImg">
                 <div id="logo">
-                  <h:outputLink value="index.xhtml" rendered="#{!sec:userInRole('student, teacher')}">
+                  <h:outputLink value="index.xhtml" rendered="#{!sec:userInRole('student') and !sec:userInRole('teacher')}">
                     <h:graphicImage library="images" name="ok-logo.png" alt="open knowledge" style="width:70%"/>
                   </h:outputLink>
-                  <h:outputLink value="dashboard.xhtml" rendered="#{sec:userInRole('student, teacher')}">
+                  <h:outputLink value="dashboard.xhtml" rendered="#{sec:userInRole('student') or sec:userInRole('teacher')}">
                     <h:graphicImage library="images" name="ok-logo.png" alt="open knowledge" style="width:70%"/>
                   </h:outputLink>
                 </div>
@@ -41,13 +41,13 @@
             </div>
             <div id="headerLeft">
                 <h:form>
-                    <h:commandLink action="index.xhtml" value="Index" rendered="#{!sec:userInRole('student, teacher')}"/>
-                    <h:commandLink action="dashboard.xhtml" value="Dashboard" rendered="#{sec:userInRole('student, teacher')}"/>
+                    <h:commandLink action="index.xhtml" value="Index" rendered="#{!sec:userInRole('student') and !sec:userInRole('teacher')}"/>
+                    <h:commandLink action="dashboard.xhtml" value="Dashboard" rendered="#{sec:userInRole('student') or sec:userInRole('teacher')}"/>
                 </h:form>
             </div>
             <div id="headerRight">
                 <comp:loginLink loginAction="login.xhtml"/>
-                <h:outputText id="userName" value="#{facesContext.externalContext.request.userPrincipal.name}" rendered="#{sec:userInRole('student, teacher')}"/>
+                <h:outputText id="userName" value="#{facesContext.externalContext.request.userPrincipal.name}" rendered="#{sec:userInRole('student') or sec:userInRole('teacher')}"/>
             </div>
         </ui:composition>
     </body>
