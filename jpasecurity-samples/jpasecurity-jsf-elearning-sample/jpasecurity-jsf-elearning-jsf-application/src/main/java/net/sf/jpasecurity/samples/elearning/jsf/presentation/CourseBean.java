@@ -108,6 +108,10 @@ public class CourseBean {
         return course == null? null: course.getTitle();
     }
 
+    public Teacher getLecturer() {
+        return course == null? null: course.getLecturer();
+    }
+
     public String getCoursename() {
         return coursename;
     }

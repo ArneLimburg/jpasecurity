@@ -42,6 +42,7 @@ public class LessonBean {
 
     private Course course;
 
+    private int lessonNumber = -1;
     private Lesson lesson;
 
     public int getCourseId() {
@@ -50,6 +51,9 @@ public class LessonBean {
 
     public void setCourseId(int id) {
         course = elearningRepository.findCourse(id);
+        if (lessonNumber != -1) {
+            lesson = course.getLessons().get(lessonNumber);
+        }
     }
 
     public int getNumber() {
@@ -57,7 +61,10 @@ public class LessonBean {
     }
 
     public void setNumber(int number) {
-        lesson = course.getLessons().get(number);
+        lessonNumber = number;
+        if (course != null) {
+            lesson = course.getLessons().get(number);
+        }
     }
 
     public int getId() {
@@ -72,17 +79,19 @@ public class LessonBean {
         return lesson.getContent();
     }
 
-    // is true, if the student have finished lesson
-    public boolean isStudentFinished() {
-        return course.isLessonFinished(getCurrentStudent(), lesson);
+    public boolean isStarted() {
+        return lesson != null? lesson.equals(course.getCurrentLession(getCurrentStudent())): false;
     }
 
-    // student finishes a lesson
-    public String studentFinishesLesson() {
+    public boolean isFinished() {
+        return course != null? course.isLessonFinished(getCurrentStudent(), lesson): false;
+    }
+
+    public String finish() {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
                 course.finishLesson(getCurrentStudent(), lesson);
-                return "course.xhtml";
+                return "lesson.xhtml?faces-redirect=true&includeViewParams=true";
             }
         });
     }
