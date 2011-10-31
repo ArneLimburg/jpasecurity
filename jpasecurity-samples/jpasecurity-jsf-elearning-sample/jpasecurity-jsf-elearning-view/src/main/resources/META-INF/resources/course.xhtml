@@ -72,8 +72,8 @@
             </li>
           </ui:repeat>
         </ul>  
-        <h:outputLink value="lessonCreater.xhtml" rendered="#{sec:userInRole('teacher')}">
-          <f:param name="id" value="{course.id}" />
+        <h:outputLink value="lessonCreator.xhtml" rendered="#{sec:userInRole('teacher')}">
+          <f:param name="id" value="#{course.id}" />
           <h:outputText value="Create new Lesson" />
         </h:outputLink> 
       </ui:define>

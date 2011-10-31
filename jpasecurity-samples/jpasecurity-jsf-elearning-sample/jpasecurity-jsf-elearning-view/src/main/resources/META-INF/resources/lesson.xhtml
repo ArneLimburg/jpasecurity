@@ -32,7 +32,16 @@
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
         <h1 id="lessonTitle">#{lesson.title}</h1>
-        <h:panelGroup rendered="#{sec:userInRole('student') and !lesson.finished}">
+        
+        <h:panelGroup rendered="#{sec:userInRole('student') and !lesson.finished and !lesson.started}">
+	      <h:form id="startForm" prependId="false">
+	        <h:inputHidden value="#{lesson.courseId}" />
+	        <h:inputHidden value="#{lesson.number}" />
+	        <h:commandButton id="start" value="start this lesson" action="#{lesson.start}" styleClass="submit" />
+	      </h:form> 
+        </h:panelGroup>
+        
+        <h:panelGroup rendered="#{sec:userInRole('student') and !lesson.finished and lesson.started}">
 	      <h:form id="resolveForm" prependId="false">
 	        <h:inputHidden value="#{lesson.courseId}" />
 	        <h:inputHidden value="#{lesson.number}" />

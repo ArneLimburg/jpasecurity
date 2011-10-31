@@ -75,6 +75,16 @@ public abstract class AbstractHtmlTestCase {
             throw new AssertionError(e);
         }
     }
+    
+    public HtmlPage testInputLink(HtmlPage page, String linkName) {
+        try {
+            HtmlInput inputLink = (HtmlInput)getByXPath(page, "//input[@value = '" + linkName +"']").iterator().next();
+            HtmlPage inputLinkPage = (HtmlPage)inputLink.click();
+        return inputLinkPage;
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
+    }
 
     public HtmlPage authenticateAsStudent(String page) {
         return authenticate(getPage(page), Role.STUDENT);
@@ -94,8 +104,8 @@ public abstract class AbstractHtmlTestCase {
                 getInputByJsfId(form, "username").setValueAttribute("peter");
                 getInputByJsfId(form, "password").setValueAttribute("peter");
             } else {
-                getInputByJsfId(form, "username").setValueAttribute("stefan");
-                getInputByJsfId(form, "password").setValueAttribute("stefan");                
+                getInputByJsfId(form, "username").setValueAttribute("marie");
+                getInputByJsfId(form, "password").setValueAttribute("marie");                
             }
             return (HtmlPage)getInputByJsfId(form, "loginButton").click();
         } catch (IOException e) {
@@ -118,8 +128,8 @@ public abstract class AbstractHtmlTestCase {
             getInputByJsfId(form, "username").setValueAttribute("peter");
             getInputByJsfId(form, "password").setValueAttribute("peter");
         } else {
-            getInputByJsfId(form, "username").setValueAttribute("stefan");
-            getInputByJsfId(form, "password").setValueAttribute("stefan");                
+            getInputByJsfId(form, "username").setValueAttribute("marie");
+            getInputByJsfId(form, "password").setValueAttribute("marie");                
         }
         try {
             return (HtmlPage)form.getInputByName("j_security_check_submit").click();

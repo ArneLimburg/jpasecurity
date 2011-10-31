@@ -31,18 +31,17 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @auhtor Raffaela Ferrari
  */
 
+
 public class StudentTest extends AbstractHtmlTestCase {
     public StudentTest() {
         super("http://localhost:8282/elearning/");
     }
 
-    @Ignore
     @Test
     public void unauthenticated() throws JaxenException {
         ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.GUEST);
     }
 
-    @Ignore
     @Test
     public void authenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.GUEST);
@@ -50,7 +49,6 @@ public class StudentTest extends AbstractHtmlTestCase {
         ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.TEACHER);
     }
 
-    @Ignore
     @Test
     public void authenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.GUEST);
@@ -72,5 +70,23 @@ public class StudentTest extends AbstractHtmlTestCase {
         ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.GUEST);
         authenticateFormBasedAsStudent();
         ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.STUDENT);
+    }
+    
+    @Test
+    public void linkTest() throws JaxenException {
+        HtmlPage courseLink = testLink("student.xhtml?id=8", "Analysis");
+        ElearningAssert.assertCoursePage(courseLink, Role.GUEST);
+    }
+    
+    @Test
+    public void linkTestAsTeacher() throws JaxenException {
+        HtmlPage courseLink = testLink(authenticateAsTeacher("student.xhtml?id=8"), "Analysis");
+        ElearningAssert.assertCoursePage(courseLink, Role.TEACHER);
+    }
+    
+    @Test
+    public void linkTestAsStudent() throws JaxenException {
+        HtmlPage courseLink = testLink(authenticateAsStudent("student.xhtml?id=8"), "Analysis");
+        ElearningAssert.assertCoursePage(courseLink, Role.STUDENT);
     }
 }
