@@ -32,46 +32,43 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @auhtor Raffaela Ferrari
  */
 
-public class LessonCreaterTest extends AbstractHtmlTestCase {
-    public LessonCreaterTest() {
+public class LessonCreatorTest extends AbstractHtmlTestCase {
+    public LessonCreatorTest() {
         super("http://localhost:8282/elearning/");
     }
 
-    @Ignore
     @Test
     public void unauthenticated() throws JaxenException {
-        ElearningAssert.assertLessonCreaterPage(getPage("lessonCreater.xhtml"), Role.GUEST);
+        ElearningAssert.assertLessonCreatorPage(getPage("lessonCreater.xhtml"), Role.GUEST);
     }
 
-    @Ignore
     @Test
     public void authenticatedAsTeacher() throws JaxenException {
-        ElearningAssert.assertLessonCreaterPage(getPage("lessonCreater.xhtml"), Role.GUEST);
-        ElearningAssert.assertLessonCreaterPage(authenticateAsTeacher("lessonCreater.xhtml"), Role.TEACHER);
-        ElearningAssert.assertLessonCreaterPage(getPage("lessonCreater.xhtml"), Role.TEACHER);
+        ElearningAssert.assertLessonCreatorPage(getPage("lessonCreater.xhtml"), Role.GUEST);
+        ElearningAssert.assertLessonCreatorPage(authenticateAsTeacher("lessonCreater.xhtml"), Role.TEACHER);
+        ElearningAssert.assertLessonCreatorPage(getPage("lessonCreater.xhtml"), Role.TEACHER);
     }
 
-    @Ignore
     @Test
     public void authenticatedAsStudent() throws JaxenException {
-        ElearningAssert.assertLessonCreaterPage(getPage("lessonCreater.xhtml"), Role.GUEST);
-        ElearningAssert.assertLessonCreaterPage(authenticateAsStudent("lessonCreater.xhtml"), Role.STUDENT);
-        ElearningAssert.assertLessonCreaterPage(getPage("lessonCreater.xhtml"), Role.STUDENT);
+        ElearningAssert.assertLessonCreatorPage(getPage("lessonCreater.xhtml"), Role.GUEST);
+        ElearningAssert.assertLessonCreatorPage(authenticateAsStudent("lessonCreater.xhtml"), Role.STUDENT);
+        ElearningAssert.assertLessonCreatorPage(getPage("lessonCreater.xhtml"), Role.STUDENT);
     }
     
     @Ignore
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
-        ElearningAssert.assertLessonCreaterPage(getPage("lessonCreater.xhtml"), Role.GUEST);
+        ElearningAssert.assertLessonCreatorPage(getPage("lessonCreater.xhtml"), Role.GUEST);
         authenticateFormBasedAsTeacher();
-        ElearningAssert.assertLessonCreaterPage(getPage("lessonCreater.xhtml"), Role.TEACHER);
+        ElearningAssert.assertLessonCreatorPage(getPage("lessonCreater.xhtml"), Role.TEACHER);
     }
     
     @Ignore
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
-        ElearningAssert.assertLessonCreaterPage(getPage("lessonCreater.xhtml"), Role.GUEST);
+        ElearningAssert.assertLessonCreatorPage(getPage("lessonCreater.xhtml"), Role.GUEST);
         authenticateFormBasedAsStudent();
-        ElearningAssert.assertLessonCreaterPage(getPage("lessonCreater.xhtml"), Role.STUDENT);
+        ElearningAssert.assertLessonCreatorPage(getPage("lessonCreater.xhtml"), Role.STUDENT);
     }
 }
