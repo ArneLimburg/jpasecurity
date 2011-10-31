@@ -222,6 +222,7 @@ a:hover{
 #leaveForm #leave,
 #joinForm #join,
 #resolveForm #resolve,
+#startForm #start,
 #resolved{
 	float : right;
 	margin-top : 2em;

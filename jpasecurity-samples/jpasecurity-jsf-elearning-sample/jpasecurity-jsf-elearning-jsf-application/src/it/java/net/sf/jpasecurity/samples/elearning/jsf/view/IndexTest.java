@@ -16,13 +16,18 @@ package net.sf.jpasecurity.samples.elearning.jsf.view;
  */
 
 
+import net.sf.jpasecurity.samples.elearning.jsf.view.AbstractHtmlTestCase.Role;
+
 import org.jaxen.JaxenException;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+
 /**
  * @author Arne Limburg
  */
+
 
 public class IndexTest extends AbstractHtmlTestCase {
 
@@ -64,5 +69,17 @@ public class IndexTest extends AbstractHtmlTestCase {
         ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.GUEST);
         authenticateFormBasedAsStudent();
         ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.STUDENT);
+    }
+    
+    @Test
+    public void coursesLinkTest() throws JaxenException {
+        HtmlPage coursesLink = testLink("index.xhtml", "Courses");
+        ElearningAssert.assertCoursesPage(coursesLink, Role.GUEST);        
+    }
+    
+    @Test
+    public void teachersLinkTest() throws JaxenException {
+        HtmlPage teachersLink = testLink("index.xhtml", "Teachers");
+        ElearningAssert.assertTeachersPage(teachersLink, Role.GUEST);         
     }
 }

@@ -96,6 +96,15 @@ public class LessonBean {
         });
     }
 
+    public String start() {
+        return elearningRepository.executeTransactional(new Callable<String>() {
+            public String call() {
+                course.startLesson(getCurrentStudent(), lesson);
+                return "lesson.xhtml?faces-redirect=true&includeViewParams=true";
+            }
+        });
+    }
+
     public Student getCurrentStudent() {
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
         if (context.isUserInRole("student")) {

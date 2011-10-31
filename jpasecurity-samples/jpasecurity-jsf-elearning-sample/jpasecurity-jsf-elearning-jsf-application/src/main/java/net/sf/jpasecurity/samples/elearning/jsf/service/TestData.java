@@ -64,7 +64,7 @@ public class TestData {
                 LessonWithoutCourse shakespeareLesson
                     = LessonFactoryBuilder.newLession()
                                           .withTitle(new Title("Shakespeare introduction"))
-                                          .andContent(new Content("Welcome to the Shakespear course."));
+                                          .andContent(new Content("Welcome to the Shakespeare course."));
                 Course teacherCourse = new CourseAggregate(new Title("Shakespeare course"), peter, shakespeareLesson);
                 entityManager.persist(teacherCourse);
                 LessonWithoutCourse daVinciLesson

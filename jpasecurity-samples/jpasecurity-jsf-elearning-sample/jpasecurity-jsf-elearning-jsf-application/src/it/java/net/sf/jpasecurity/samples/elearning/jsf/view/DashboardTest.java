@@ -37,7 +37,6 @@ public class DashboardTest extends AbstractHtmlTestCase {
         super("http://localhost:8282/elearning/");
     }
 
-    @Ignore
     @Test
     public void unauthenticated() throws JaxenException {
         ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.GUEST);
@@ -73,5 +72,26 @@ public class DashboardTest extends AbstractHtmlTestCase {
         ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.GUEST);
         authenticateFormBasedAsStudent();
         ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.STUDENT);
+    }
+    
+    @Ignore
+    @Test
+    public void linkTestAsTeacher() throws JaxenException {
+        HtmlPage courseLink = testLink(authenticateAsTeacher("dashboard.xhtml"), "Analysis");
+        ElearningAssert.assertCoursePage(courseLink, Role.TEACHER);
+    }
+    
+    @Ignore
+    @Test
+    public void linkTestAsStudent() throws JaxenException {
+        HtmlPage courseLink = testLink(authenticateAsStudent("dashboard.xhtml"), "Analysis");
+        ElearningAssert.assertCoursePage(courseLink, Role.STUDENT);
+    }
+    
+    @Ignore
+    @Test
+    public void CreateLessonLinkTest() throws JaxenException {
+        HtmlPage lessonCreaterLink = testInputLink(authenticateAsStudent("dashboard.xhtml"), "Create new course");
+        ElearningAssert.assertLessonCreatorPage(lessonCreaterLink, Role.TEACHER);        
     }
 }
