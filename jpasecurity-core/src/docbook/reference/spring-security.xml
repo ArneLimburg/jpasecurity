@@ -3,7 +3,7 @@
 <article>
   <title>Integration with Spring Security</title>
   <para>
-    If you are using the Springframework with Spring Security,
+    If you are using the Spring-framework with Spring Security,
     you don't have to follow the chapter <emphasis>Getting started with JPA Security</emphasis>
     (also you can do and specify the
     <systemitem>net.sf.jpasecurity.security.authentication.SpringAuthenticationProvider</systemitem> in your

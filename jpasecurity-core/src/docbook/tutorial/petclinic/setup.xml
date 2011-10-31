@@ -4,27 +4,36 @@
   <title>Setup</title>
   <para>
     The application developed in this tutorial is based on the petclinic-sample of the Spring Framework.
-    Please download <systemitem>spring-framework-2.5.6-with-docs.zip</systemitem>
+    Please download <systemitem>spring-framework-3.0.6-with-docs.zip</systemitem>
     <ulink url="http://www.springsource.com/download/community?project=Spring%20Framework">from here</ulink>.
-    This tutorial was written with the sample delivered with version 2.5.6 of the Spring Framework
+    This tutorial was written with the sample delivered with version 3.0.6 of the Spring Framework
     and may or may not work with other versions. In the zip-file within the base-folder <filename>spring-framework-2.5.6/</filename>
     you find a folder named <filename>samples</filename>. Within that folder there is a folder named <filename>petclinic</filename>.
     Please unpack this folder. It is the only folder we need from that zip.
   </para>
   <para>
-    Like in the simple-tutorial we want to use maven 2 to build and deploy our application.
+    Like in the simple-tutorial we want to use maven 3 to build and deploy our application.
     So the first step is to put a <filename>pom.xml</filename> file into the folder <filename>petclinic</filename> with the following content.
+  </para>
+  <para>
+   As a sidenote it is important to notice that in previous version the specific versions of dependencies like the spring-framework
+   were written in the <filename>pom.xml</filename>. During the transition to version 3.0.x of spring jpasecurity was modularized and
+   all versions are now specified in <filename>/jpasecurity-parent/pom.xml</filename>.
   </para>
   <programlisting>
     <![CDATA[
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+  <parent>
+    <groupId>net.sf.jpasecurity</groupId>
+    <artifactId>jpasecurity-parent</artifactId>
+    <version>0.4.0-SNAPSHOT</version>
+    <relativePath>../../jpasecurity-parent/pom.xml</relativePath>
+  </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>net.sf.jpasecurity</groupId>
   <artifactId>jpasecurity-spring-petclinic-sample</artifactId>
   <packaging>war</packaging>
-  <version>0.4.0</version>
   <name>JPA Security Spring Petclinic Sample</name>
   <url>http://jpasecurity.sf.net</url>
 
@@ -57,8 +66,7 @@
       </plugin>
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
-        <artifactId>maven-jetty-plugin</artifactId>
-        <version>6.1.10</version>
+        <artifactId>jetty-maven-plugin</artifactId>
         <configuration>
           <stopKey>petclinic</stopKey>
           <stopPort>1199</stopPort>
@@ -67,41 +75,59 @@
     </plugins>
   </build>
 
+  <repositories>
+    <repository>
+      <id>central</id>
+      <name>Maven Plugin Repository</name>
+      <url>http://repo1.maven.org/maven2</url>
+    </repository>
+    <repository>
+      <id>EclipseLink Repo</id>
+      <url>http://www.eclipse.org/downloads/download.php?r=1&amp;nf=1&amp;file=/rt/eclipselink/maven.repo</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
-      <groupId>net.sf.jpasecurity</groupId>
-      <artifactId>jpasecurity</artifactId>
-      <version>0.4.0</version>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>jpasecurity-spring</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
-      <version>2.5.6</version>
+      <artifactId>spring-core</artifactId>
+    </dependency>
+        <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>2.5.6</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>2.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-config</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-web</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
-      <version>1.2.2</version>
     </dependency>
     <dependency>
       <groupId>org.apache.openjpa</groupId>
       <artifactId>openjpa</artifactId>
-      <version>1.2.1</version>
     </dependency>
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <version>1.8.0.7</version>
     </dependency>
   </dependencies>
 </project>

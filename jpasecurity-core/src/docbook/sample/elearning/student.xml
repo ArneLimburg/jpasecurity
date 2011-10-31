@@ -10,10 +10,12 @@
     </section>
     <section>
         <title>Course</title>
-        <para>For every course you can see its survey. Moreover, if you have subscribed this, you can unsubscribed by
-            clicking the "leaver this course" button. If you haven't unsubscribed a course, you can subscribe it by cklicking 
-            the "join this course" button.</para>
+        <para>For every course you can see its survey. Moreover, if you have subscribed this, you can unsubscribe by
+            clicking the "leave this course" button. If you haven't subscribed to a course, you can do so by clicking 
+            the button "join this course".
+        </para>
         <para>For every lesson of this course start and finish lessons of this course. At this, you can have
-            only one lesson in process at one time. Besides you can only work on a lesson one after another.</para>
+            only one lesson in process at any given time. Besides you can only work on a lesson one after another.
+        </para>
     </section>
 </article>
