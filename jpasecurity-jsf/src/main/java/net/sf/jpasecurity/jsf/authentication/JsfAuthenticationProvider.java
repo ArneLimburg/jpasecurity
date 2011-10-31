@@ -15,10 +15,15 @@
  */
 package net.sf.jpasecurity.jsf.authentication;
 
+import java.io.IOException;
 import java.security.Principal;
 
 import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import net.sf.jpasecurity.security.authentication.AbstractRoleBasedAuthenticationProvider;
 
@@ -26,6 +31,17 @@ import net.sf.jpasecurity.security.authentication.AbstractRoleBasedAuthenticatio
  * @author Arne Limburg
  */
 public class JsfAuthenticationProvider extends AbstractRoleBasedAuthenticationProvider {
+
+    private static final Log LOG = LogFactory.getLog(JsfAuthenticationProvider.class);
+
+    public JsfAuthenticationProvider() {
+        ServletContext context = (ServletContext)FacesContext.getCurrentInstance().getExternalContext().getContext();
+        try {
+            parseWebXml(context.getResource("/WEB-INF/web.xml"));
+        } catch (IOException e) {
+            LOG.warn("Could not parse web.xml, roles declared there will not be available.", e);
+        }
+    }
 
     protected Principal getCallerPrincipal() {
         return getRequest().getUserPrincipal();
