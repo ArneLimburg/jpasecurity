@@ -15,12 +15,10 @@
  */
 package net.sf.jpasecurity.security.authentication;
 
-import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,35 +29,13 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformationReceiver;
 import net.sf.jpasecurity.security.rules.WebXmlRolesParser;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * @author Arne Limburg
  */
 public abstract class AbstractRoleBasedAuthenticationProvider implements AuthenticationProvider,
                                                                          MappingInformationReceiver {
 
-    private static final Log LOG = LogFactory.getLog(AbstractRoleBasedAuthenticationProvider.class);
     private Set<String> roles = new HashSet<String>();
-
-    protected AbstractRoleBasedAuthenticationProvider() {
-        WebXmlRolesParser parser = new WebXmlRolesParser();
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            for (Enumeration<URL> e = classLoader.getResources("WEB-INF/web.xml"); e.hasMoreElements();) {
-                URL url = e.nextElement();
-                try {
-                    parser.parse(url);
-                } catch (IOException p) {
-                    LOG.warn("Could not parse " + url, p);
-                }
-            }
-        } catch (IOException e) {
-            LOG.warn("Could not parse web.xml", e);
-        }
-        roles.addAll(parser.getRoles());
-    }
 
     public void setMappingInformation(MappingInformation mappingInformation) {
         roles.addAll(new DeclareRolesParser().parseDeclaredRoles(mappingInformation.getSecureClasses()));
@@ -87,4 +63,10 @@ public abstract class AbstractRoleBasedAuthenticationProvider implements Authent
     protected abstract Principal getCallerPrincipal();
 
     protected abstract boolean isCallerInRole(String roleName);
+
+    protected void parseWebXml(InputStream webXml) {
+        WebXmlRolesParser parser = new WebXmlRolesParser();
+        parser.parse(webXml);
+        roles.addAll(parser.getRoles());
+    }
 }
