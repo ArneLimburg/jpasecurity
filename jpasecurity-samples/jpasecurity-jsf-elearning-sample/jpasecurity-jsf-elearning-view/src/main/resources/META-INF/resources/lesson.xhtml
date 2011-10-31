@@ -14,7 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
- <html xmlns="http://www.w3.org/1999/xhtml"
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
@@ -25,29 +25,37 @@
   </h:head>
   <h:body>
     <f:metadata>
-       <f:viewParam name="course" value="#{lesson.courseId}" required="true"/>
-       <f:viewParam name="lesson" value="#{lesson.number}" required="true"/>
+      <f:viewParam name="course" value="#{lesson.courseId}" required="true"/>
+      <f:viewParam name="lesson" value="#{lesson.number}" required="true"/>
     </f:metadata>
 
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
-       <h1 id="lessonTitle">#{lesson.title}</h1>
-       <h:panelGroup rendered="#{sec:userInRole('student') and course.studentInCourse and !lesson.studentFinished}">
-	            <h:form id="resolveForm" prependId="false">
-	              <h:commandButton id="resolve" value="resolve this lesson" action="#{lesson.studentFinishesLesson}" styleClass="submit"/>   
-	            </h:form> 
-       </h:panelGroup>
+        <h1 id="lessonTitle">#{lesson.title}</h1>
+        <h:panelGroup rendered="#{sec:userInRole('student') and !lesson.finished}">
+	      <h:form id="resolveForm" prependId="false">
+	        <h:inputHidden value="#{lesson.courseId}" />
+	        <h:inputHidden value="#{lesson.number}" />
+	        <h:commandButton id="resolve" value="resolve this lesson" action="#{lesson.finish}" styleClass="submit" />
+	      </h:form> 
+        </h:panelGroup>
        
-       <h:panelGroup layout="block" id="resolved" rendered="#{sec:userInRole('student') and course.studentInCourse and lesson.studentFinished}">
-           <h:outputText value="Lesson is resolved" />   
-       </h:panelGroup>
+        <h:panelGroup layout="block" id="resolved" rendered="#{sec:userInRole('student') and lesson.finished}">
+          <h:outputText value="Lesson is resolved" />   
+        </h:panelGroup>
 
         <h:form id="lessonForm">
 		  <h:panelGrid columns="2">
             <h:outputLabel value="Course:" for="courseName"/>
-            <h:outputText id="courseName" value="#{course.title}" />		  
+            <h:outputLink name="courseName" value="course.xhtml"> 
+              <f:param name="id" value="#{course.id}" />
+              <h:outputText value="#{course.title}" />
+            </h:outputLink>		  
             <h:outputLabel value="Lecturer:" for="lecturer"/>
-            <h:outputText id="lecturer" value="#{course.teacher.name}" />
+            <h:outputLink name="lecturer" value="teacher.xhtml"> 
+              <f:param name="id" value="#{course.lecturer.id}" />
+              <h:outputText id="lecturer" value="#{course.teacher.name}" />
+            </h:outputLink>
           </h:panelGrid>
         </h:form>  
              
