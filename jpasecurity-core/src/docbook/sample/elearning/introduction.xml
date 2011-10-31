@@ -2,7 +2,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
 <article id="introduction">
     <title>Introduction</title>
-    <para> This manual give you an overview of an application for an e-learning platform. In this application
+    <para> This manual provides you with an overview of an application for an e-learning platform. In this application
         students shall be able to manage their courses and their courses's lessons. </para>
     <para> Teachers shall be able to administrate their courses and courses's lessons. </para>
     <para> And these are the concrete requirements: </para>
