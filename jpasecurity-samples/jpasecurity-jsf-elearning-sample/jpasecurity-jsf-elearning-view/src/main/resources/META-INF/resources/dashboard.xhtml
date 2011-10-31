@@ -30,7 +30,7 @@
         <sec:rolesAllowed roles="student">
           <h1>Available courses</h1>
           <ul>
-            <ui:repeat var="c" value="#{courses}">
+            <ui:repeat var="c" value="#{elearningRepository.allCourses}">
               <li>
                 <h:outputLink value="course.xhtml" >
                   <f:param name="id" value="#{c.id}" />
