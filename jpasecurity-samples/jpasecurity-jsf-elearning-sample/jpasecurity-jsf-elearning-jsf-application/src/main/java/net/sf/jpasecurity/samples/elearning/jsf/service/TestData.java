@@ -62,25 +62,25 @@ public class TestData {
                 entityManager.persist(lisa);
                 entityManager.persist(marie);
                 LessonWithoutCourse shakespeareLesson
-                    = LessonFactoryBuilder.newLession()
+                    = LessonFactoryBuilder.newLesson()
                                           .withTitle(new Title("Shakespeare introduction"))
                                           .andContent(new Content("Welcome to the Shakespeare course."));
                 Course teacherCourse = new CourseAggregate(new Title("Shakespeare course"), peter, shakespeareLesson);
                 entityManager.persist(teacherCourse);
                 LessonWithoutCourse daVinciLesson
-                    = LessonFactoryBuilder.newLession()
+                    = LessonFactoryBuilder.newLesson()
                                           .withTitle(new Title("Da Vinci introduction"))
                                           .andContent(new Content("Welcome to the Da Vinci course."));
                 Course teacher2Course = new CourseAggregate(new Title("Da Vinci course"), hans, daVinciLesson);
                 entityManager.persist(teacher2Course);
                 LessonWithoutCourse analysisLesson
-                    = LessonFactoryBuilder.newLession()
+                    = LessonFactoryBuilder.newLesson()
                                           .withTitle(new Title("Analysis introduction"))
                                           .andContent(new Content("Welcome to the Analysis course."));
                 Course teacher3Course = new CourseAggregate(new Title("Analysis"), peter, analysisLesson);
                 entityManager.persist(teacher3Course);
                 LessonWithoutCourse algebraLesson
-                    = LessonFactoryBuilder.newLession()
+                    = LessonFactoryBuilder.newLesson()
                                           .withTitle(new Title("Algebra introduction"))
                                           .andContent(new Content("Welcome to the Algebra course."));
                 Course teacher4Course = new CourseAggregate(new Title("Algebra"), hans, algebraLesson);

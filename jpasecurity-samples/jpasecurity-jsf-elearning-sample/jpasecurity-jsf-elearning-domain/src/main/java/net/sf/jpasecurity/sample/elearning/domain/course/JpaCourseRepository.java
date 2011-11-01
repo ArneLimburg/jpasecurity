@@ -36,6 +36,10 @@ public class JpaCourseRepository implements CourseRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
+    public void persist(Course course) {
+        entityManager.persist(course);
+    }
+
     public List<? extends Course> getAllCourses() {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<? extends Course> query = cb.createQuery(CourseAggregate.class);

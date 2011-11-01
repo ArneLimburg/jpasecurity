@@ -30,7 +30,7 @@ import net.sf.jpasecurity.sample.elearning.domain.Title;
  */
 public class LessonFactoryBuilder {
 
-    public static LessonWithoutTitle newLession() {
+    public static LessonWithoutTitle newLesson() {
         return new LessonFactory();
     }
 

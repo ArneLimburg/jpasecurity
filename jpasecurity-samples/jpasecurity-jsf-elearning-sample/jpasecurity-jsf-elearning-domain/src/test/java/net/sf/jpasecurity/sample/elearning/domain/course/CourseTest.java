@@ -48,7 +48,7 @@ public class CourseTest extends AbstractEntityTestCase {
         Student student = new Student(new Name("Teststudent"));
         getEntityManager().persist(teacher);
         getEntityManager().persist(student);
-        LessonWithoutCourse lesson = LessonFactoryBuilder.newLession()
+        LessonWithoutCourse lesson = LessonFactoryBuilder.newLesson()
                                                          .withTitle(new Title("Testlesson"))
                                                          .andContent(new Content("Testcontent"));
         Course course = new CourseAggregate(new Title("Testcourse"), teacher, lesson);

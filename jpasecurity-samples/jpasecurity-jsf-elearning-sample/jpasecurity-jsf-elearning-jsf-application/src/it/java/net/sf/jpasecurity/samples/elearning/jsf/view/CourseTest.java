@@ -16,11 +16,6 @@ package net.sf.jpasecurity.samples.elearning.jsf.view;
  */
 
 
-import static org.junit.Assert.assertEquals;
-
-
-import net.sf.jpasecurity.samples.elearning.jsf.view.AbstractHtmlTestCase.Role;
-
 import org.jaxen.JaxenException;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -94,7 +89,7 @@ public class CourseTest extends AbstractHtmlTestCase {
     
     @Test
     public void lessonCreatorLinkTest() throws JaxenException {
-        HtmlPage lessonCreatorLink = testLink(authenticateAsTeacher("course.xhtml?id=3"), "Create new Lesson");
+        HtmlPage lessonCreatorLink = testLink(authenticateAsTeacher("course.xhtml?id=3"), "Create new lesson");
         ElearningAssert.assertLessonCreatorPage(lessonCreatorLink, Role.TEACHER);        
     }
     

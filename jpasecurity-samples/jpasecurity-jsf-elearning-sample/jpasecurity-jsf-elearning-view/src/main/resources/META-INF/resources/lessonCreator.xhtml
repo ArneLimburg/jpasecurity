@@ -24,7 +24,8 @@
   <h:body>
   
     <f:metadata>
-     <f:viewParam name="id" value="#{course.id}" required="true"/>
+      <f:viewParam name="newCourse" value="#{lessonFactory.newCourse}"/>
+      <f:viewParam name="course" value="#{lessonFactory.courseId}"/>
     </f:metadata>
     
     <ui:composition template="/template.xhtml">
@@ -33,18 +34,20 @@
         <h:form id="lessonCreateForm">
 
 		  <h:panelGrid columns="2">
-            <h:outputLabel value="Course name:" for="coursename"/>
-            <h:outputText id="coursename" value="#{course.title}" />		  
-            <h:outputLabel value="Lesson name:" for="lessonName"/>
-            <h:inputText id="lessonName" value="#{course.lessonname}" />
-            <h:outputLabel value="Text:" for="lessonText"/>
-            <h:inputTextarea id="lessonText" value="#{course.lessonbody}"  />
+            <h:outputLabel value="Course title:" for="courseTitle"/>
+            <h:outputText id="courseTitle" value="#{lessonFactory.courseTitle}" />		  
+            <h:outputLabel value="Lesson title:" for="lessonTitle"/>
+            <h:inputText id="lessonTitle" value="#{lessonFactory.title}" />
+            <h:outputLabel value="Content:" for="lessonContent"/>
+            <h:inputTextarea id="lessonContent" value="#{lessonFactory.content}" />
+            <h:inputHidden value="#{lessonFactory.courseId}" />
+            <h:inputHidden value="#{lessonFactory.newCourse}" />
           </h:panelGrid>
 		  <br />
 
           <h:panelGroup layout="block" styleClass="buttons">
             <h:commandButton id="cancel" value="cancel" action="course.html"  immediate="true"/>
-            <h:commandButton id="create" value="create new lesson" action="#{course.addLessonToCourse}"/>
+            <h:commandButton id="create" value="create new lesson" action="#{lessonFactory.create}"/>
           </h:panelGroup>
               
         </h:form>
