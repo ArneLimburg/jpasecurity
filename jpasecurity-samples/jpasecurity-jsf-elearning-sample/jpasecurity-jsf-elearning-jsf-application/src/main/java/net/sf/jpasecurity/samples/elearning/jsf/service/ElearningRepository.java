@@ -71,6 +71,10 @@ public class ElearningRepository implements UserRepository,
                                     .getSingleResult();
     }
 
+    public void persist(Course course) {
+        getEntityManager().persist(course);
+    }
+
     public List<? extends Course> getAllCourses() {
         CriteriaQuery<? extends Course> allCourses
             = getEntityManager().getCriteriaBuilder().createQuery(CourseAggregate.class);

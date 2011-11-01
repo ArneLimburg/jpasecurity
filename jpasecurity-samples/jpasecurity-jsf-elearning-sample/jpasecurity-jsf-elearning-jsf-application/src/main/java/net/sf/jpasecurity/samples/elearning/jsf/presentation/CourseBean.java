@@ -89,7 +89,7 @@ public class CourseBean {
     public String addLessonToCourse() {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
-                LessonWithoutCourse lesson = LessonFactoryBuilder.newLession()
+                LessonWithoutCourse lesson = LessonFactoryBuilder.newLesson()
                                                                  .withTitle(new Title(lessonName))
                                                                  .andContent(new Content(lessonBody));
                 course.addLesson(lesson);

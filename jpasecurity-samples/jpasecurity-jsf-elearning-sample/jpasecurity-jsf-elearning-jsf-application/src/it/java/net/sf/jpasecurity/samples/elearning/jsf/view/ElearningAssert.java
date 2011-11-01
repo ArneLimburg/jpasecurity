@@ -1,7 +1,6 @@
 package net.sf.jpasecurity.samples.elearning.jsf.view;
 
 import static org.junit.Assert.assertEquals;
-
 import net.sf.jpasecurity.samples.elearning.jsf.view.AbstractHtmlTestCase.Role;
 
 import org.jaxen.JaxenException;
@@ -38,13 +37,13 @@ public class ElearningAssert {
         switch (role) {
         case TEACHER:
             assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
-            assertEquals(1, page.getByXPath("//a[@href = 'lessonCreator.xhtml?id=3'][text() = 'Create new Lesson']").size());
+            assertEquals(1, page.getByXPath("//a[@href = 'lessonCreator.xhtml?course=3'][text() = 'Create new lesson']").size());
             assertEquals(0, page.getByXPath("//input[@type = 'submit'][@value = 'join this course']").size());
             assertEquals(0, page.getByXPath("//input[@type = 'submit'][@value = 'leave this course']").size());
             break;
         case STUDENT:
             assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
-            assertEquals(0, page.getByXPath("//a[@href = 'lessonCreater.xhtml?id=1'][text() = 'Create new Lesson']").size());
+            assertEquals(0, page.getByXPath("//a[@href = 'lessonCreater.xhtml?id=1'][text() = 'Create new lesson']").size());
             assertEquals(0, page.getByXPath("//input[@type = 'submit'][@value = 'join this course']").size());
             assertEquals(1, page.getByXPath("//input[@type = 'submit'][@value = 'leave this course']").size());
             break;
@@ -109,10 +108,10 @@ public class ElearningAssert {
         assertEquals(1, page.getByXPath("//h1[text() = 'Create new lesson']").size());        
         if (role == Role.TEACHER) {
             assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
-            assertEquals(1, page.getByXPath("//label[text() = 'Course name:']").size());
+            assertEquals(1, page.getByXPath("//label[text() = 'Course title:']").size());
             assertEquals(1, page.getByXPath("//span[text() = 'Analysis']").size());
-            assertEquals(1, page.getByXPath("//label[text() = 'Lesson name:']").size());
-            assertEquals(1, page.getByXPath("//label[text() = 'Text:']").size());
+            assertEquals(1, page.getByXPath("//label[text() = 'Lesson title:']").size());
+            assertEquals(1, page.getByXPath("//label[text() = 'Content:']").size());
             assertEquals(1, page.getByXPath("//input[@type = 'submit'][@value = 'cancel']").size());
             assertEquals(1, page.getByXPath("//input[@type = 'submit'][@value = 'create new lesson']").size());
         } else {

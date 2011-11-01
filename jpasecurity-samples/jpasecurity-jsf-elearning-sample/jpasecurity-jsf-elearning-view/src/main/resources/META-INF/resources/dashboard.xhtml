@@ -56,10 +56,10 @@
         <h:panelGroup rendered="#{sec:userInRole('teacher')}">
           <h1>Create new course</h1>
           <h:form id="courseform" prependId="false">
-            <h:outputLabel value="Coursename:" for="coursename"/>
-            <h:inputText id="coursename" value="#{course.coursename}" tabindex="101"/>
-            <h:message for="coursename" errorClass="contenthlerror" /> 
-            <h:commandButton id="create" value="create" action="#{course.createCourse}" styleClass="submit"/>  
+            <h:outputLabel value="Course title:" for="courseTitle"/>
+            <h:inputText id="courseTitle" value="#{lessonFactory.newCourse}" tabindex="101"/>
+            <h:message for="courseTitle" errorClass="contenthlerror" /> 
+            <h:commandButton id="create" value="create" action="lessonCreator.xhtml?faces-redirect=true&amp;includeViewParams=true" styleClass="submit"/>  
           </h:form> 
         </h:panelGroup>
         
