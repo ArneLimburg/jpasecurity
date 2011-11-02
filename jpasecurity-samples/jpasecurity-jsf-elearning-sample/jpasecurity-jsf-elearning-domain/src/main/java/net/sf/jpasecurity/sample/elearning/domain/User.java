@@ -27,7 +27,6 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.NamedQuery;
-import javax.persistence.Transient;
 
 /**
  * @author Arne Limburg - open knowledge GmbH (arne.limburg@openknowledge.de)
@@ -47,8 +46,6 @@ public abstract class User implements Principal {
     private Name name;
     @Embedded
     private Password password;
-    @Transient
-    private boolean authenticated;
 
     protected User() {
     }
@@ -101,13 +98,8 @@ public abstract class User implements Principal {
 
     public abstract Collection<Course> getCourses();
 
-    public boolean isAuthenticated() {
-        return authenticated;
-    }
-
-    public boolean authenticate(Password password) {
-        authenticated = password != null && password.equals(this.password);
-        return authenticated;
+    public boolean canAuthenticate(Password password) {
+        return password != null && password.equals(this.password);
     }
 
     public int hashCode() {
