@@ -36,7 +36,7 @@
              className="org.apache.catalina.realm.JAASRealm"
              appName="ELearning"
              userClassNames="net.sf.jpasecurity.sample.elearning.domain.User,net.sf.jpasecurity.sample.elearning.domain.Student,net.sf.jpasecurity.sample.elearning.domain.Teacher"
-             roleClassNames="net.sf.jpasecurity.sample.elearning.domain.authentication.RolePrincipal"/>
+             roleClassNames="net.sf.jpasecurity.security.authentication.jaas.RolePrincipal"/>
       <Host name="localhost"  appBase="webapps"
           unpackWARs="true" autoDeploy="true">
       <!-- Access log processes all example.

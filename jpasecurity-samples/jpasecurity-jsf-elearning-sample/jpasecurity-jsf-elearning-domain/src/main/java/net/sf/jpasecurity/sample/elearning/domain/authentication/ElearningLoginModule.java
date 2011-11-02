@@ -28,6 +28,8 @@ import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
+import net.sf.jpasecurity.security.authentication.jaas.AbstractLoginModule;
+import net.sf.jpasecurity.security.authentication.jaas.RolePrincipal;
 
 /**
  * @author Arne Limburg
