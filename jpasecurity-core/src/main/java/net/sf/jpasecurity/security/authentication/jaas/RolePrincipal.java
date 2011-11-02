@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.sample.elearning.domain.authentication;
+package net.sf.jpasecurity.security.authentication.jaas;
 
 import java.security.Principal;
 
