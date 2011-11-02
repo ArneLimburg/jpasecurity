@@ -15,18 +15,12 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain.authentication;
 
-import java.io.IOException;
-import java.util.Map;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ServiceLoader;
 
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
 
 import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Password;
@@ -38,66 +32,33 @@ import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 /**
  * @author Arne Limburg
  */
-public class ElearningLoginModule implements LoginModule {
+public class ElearningLoginModule extends AbstractLoginModule<User> {
 
-    private Subject subject;
-    private User user;
-    private CallbackHandler callbackHandler;
-
-    public void initialize(Subject subject,
-                           CallbackHandler callbackHandler,
-                           Map<String, ?> sharedState,
-                           Map<String, ?> options) {
-        this.subject = subject;
-        this.callbackHandler = callbackHandler;
-    }
-
-    public boolean login() throws LoginException {
-        try {
-            Callback[] callbacks = new Callback [] {
-                new NameCallback("Username"), new PasswordCallback("Password", false)
-            };
-            callbackHandler.handle(callbacks);
-            UserRepository userRepository = ServiceLoader.load(UserRepository.class).iterator().next();
-            String username = ((NameCallback)callbacks[0]).getName();
-            String password = new String(((PasswordCallback)callbacks[1]).getPassword());
-            user = userRepository.findUser(new Name(username));
-            if (user == null) {
-                return false;
-            }
-            return user.authenticate(new Password(password));
-        } catch (IOException e) {
-            throw (LoginException)new LoginException().initCause(e);
-        } catch (UnsupportedCallbackException e) {
-            throw (LoginException)new LoginException().initCause(e);
+    public User authenticate(String username, String password) throws LoginException {
+        UserRepository userRepository = ServiceLoader.load(UserRepository.class).iterator().next();
+        User user = userRepository.findUser(new Name(username));
+        if (user == null) {
+            return null;
         }
-    }
-
-    public boolean logout() throws LoginException {
-        user.authenticate(null);
-        return !user.isAuthenticated();
-    }
-
-    public boolean commit() throws LoginException {
-        if (user == null || !user.isAuthenticated()) {
-            return false;
+        if (!user.canAuthenticate(new Password(password))) {
+            return null;
         }
-        subject.getPrincipals().add(user);
+        return user;
+    }
+
+    @Override
+    protected Principal[] getAdditionalPrincipals() {
+        User user = getCurrentPrincipal();
+        if (user == null) {
+            return super.getAdditionalPrincipals();
+        }
+        List<Principal> roles = new ArrayList<Principal>();
         if (user instanceof Teacher) {
-            subject.getPrincipals().add(new RolePrincipal(Teacher.class.getSimpleName().toLowerCase()));
+            roles.add(new RolePrincipal(Teacher.class.getSimpleName().toLowerCase()));
         }
         if (user instanceof Student) {
-            subject.getPrincipals().add(new RolePrincipal(Student.class.getSimpleName().toLowerCase()));
+            roles.add(new RolePrincipal(Student.class.getSimpleName().toLowerCase()));
         }
-        return true;
-    }
-
-    public boolean abort() throws LoginException {
-        if (user == null || !user.isAuthenticated()) {
-            return false;
-        }
-        logout();
-        user = null;
-        return true;
+        return roles.toArray(new Principal[roles.size()]);
     }
 }
