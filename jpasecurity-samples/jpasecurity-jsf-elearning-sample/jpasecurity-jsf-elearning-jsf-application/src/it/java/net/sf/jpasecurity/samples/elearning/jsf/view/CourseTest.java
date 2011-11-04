@@ -50,7 +50,6 @@ public class CourseTest extends AbstractHtmlTestCase {
         ElearningAssert.assertCoursePage(getPage("course.xhtml?id=3"), Role.STUDENT);
     }
     
-    @Ignore
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertCoursePage(getPage("course.xhtml?id=3"), Role.GUEST);
@@ -58,7 +57,6 @@ public class CourseTest extends AbstractHtmlTestCase {
         ElearningAssert.assertCoursePage(getPage("course.xhtml?id=3"), Role.TEACHER);
     }
     
-    @Ignore
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertCoursePage(getPage("course.xhtml?id=3"), Role.GUEST);
@@ -93,8 +91,8 @@ public class CourseTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLessonCreatorPage(lessonCreatorLink, Role.TEACHER);        
     }
     
-    @Ignore
-    @Test
+
+    @Test(expected = AssertionError.class)
     public void JoinLinkTest() throws JaxenException {
         HtmlPage joinLink = testInputLink(authenticateAsStudent("course.xhtml?id=3"), "leave this course");
         ElearningAssert.assertCoursePage(joinLink, Role.STUDENT);        

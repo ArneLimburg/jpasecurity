@@ -54,7 +54,6 @@ public class CoursesTest extends AbstractHtmlTestCase {
         ElearningAssert.assertCoursesPage(getPage("courses.xhtml"), Role.STUDENT);
     }
     
-    @Ignore
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertCoursesPage(getPage("courses.xhtml"), Role.GUEST);
@@ -62,7 +61,6 @@ public class CoursesTest extends AbstractHtmlTestCase {
         ElearningAssert.assertCoursesPage(getPage("courses.xhtml"), Role.TEACHER);
     }
     
-    @Ignore
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertCoursesPage(getPage("courses.xhtml"), Role.GUEST);

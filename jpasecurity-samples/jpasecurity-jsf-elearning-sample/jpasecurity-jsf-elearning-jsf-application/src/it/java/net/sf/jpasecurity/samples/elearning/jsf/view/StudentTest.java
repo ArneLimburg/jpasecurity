@@ -31,7 +31,6 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @auhtor Raffaela Ferrari
  */
 
-
 public class StudentTest extends AbstractHtmlTestCase {
     public StudentTest() {
         super("http://localhost:8282/elearning/");
@@ -56,7 +55,6 @@ public class StudentTest extends AbstractHtmlTestCase {
         ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.STUDENT);
     }
     
-    @Ignore
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.GUEST);
@@ -64,7 +62,6 @@ public class StudentTest extends AbstractHtmlTestCase {
         ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.TEACHER);
     }
     
-    @Ignore
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.GUEST);

@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.jaxen.JaxenException;
 import org.junit.Before;
+import org.junit.Test;
 
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -125,11 +126,11 @@ public abstract class AbstractHtmlTestCase {
         HtmlPage dashboard = getPage("dashboard.xhtml");
         HtmlForm form = dashboard.getFormByName("j_security_check");
         if(role == Role.TEACHER) {
-            getInputByJsfId(form, "username").setValueAttribute("peter");
-            getInputByJsfId(form, "password").setValueAttribute("peter");
+            getInputById(form,"username").setValueAttribute("peter");
+            getInputById(form,"password").setValueAttribute("peter");
         } else {
-            getInputByJsfId(form, "username").setValueAttribute("marie");
-            getInputByJsfId(form, "password").setValueAttribute("marie");                
+            getInputById(form, "username").setValueAttribute("marie");
+            getInputById(form, "password").setValueAttribute("marie");                
         }
         try {
             return (HtmlPage)form.getInputByName("j_security_check_submit").click();
@@ -166,6 +167,28 @@ public abstract class AbstractHtmlTestCase {
         return result;
     }
 
+    public HtmlInput getInputById(DomNode node, String id) {
+        return getById(node, HtmlInput.class, id);
+    }
+    
+    public <T extends HtmlElement> T getById(DomNode page, Class<T> type, String id) {
+        String elementName = type.getSimpleName().substring(4).toLowerCase();
+        T result = null;
+        for (DomNode node: getByXPath(page, elementName + "[@id='" + id + "']")) {
+            if (type.isInstance(node)) {
+                T element = type.cast(node);
+                if (result != null) {
+                    throw new IllegalStateException("More that one form found with id " + id);
+                }
+                result = element;
+            }
+        }
+        if (result == null) {
+            throw new ElementNotFoundException(elementName, "id", id);
+        }
+        return result;
+    }
+
     protected List<DomNode> getByXPath(DomNode parent, String xPath) {
         try {
             return parent.getByXPath(xPath);
@@ -173,5 +196,6 @@ public abstract class AbstractHtmlTestCase {
             throw new AssertionError(e);
         }
     }
+    
     public static enum Role{TEACHER, STUDENT, GUEST};
 }

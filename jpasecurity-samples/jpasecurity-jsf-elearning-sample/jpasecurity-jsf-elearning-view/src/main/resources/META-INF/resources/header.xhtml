@@ -41,8 +41,12 @@
             </div>
             <div id="headerLeft">
                 <h:form>
-                    <h:commandLink action="index.xhtml" value="Index" rendered="#{!sec:userInRole('student') and !sec:userInRole('teacher')}"/>
-                    <h:commandLink action="dashboard.xhtml" value="Dashboard" rendered="#{sec:userInRole('student') or sec:userInRole('teacher')}"/>
+                    <h:outputLink value="index.xhtml" rendered="#{!sec:userInRole('student') and !sec:userInRole('teacher')}">
+                    	<h:outputText value="Index"/>
+                    </h:outputLink>
+                    <h:outputLink value="dashboard.xhtml" rendered="#{sec:userInRole('student') or sec:userInRole('teacher')}">
+                		<h:outputText value="Dashboard"/>	
+                	</h:outputLink>
                 </h:form>
             </div>
             <div id="headerRight">

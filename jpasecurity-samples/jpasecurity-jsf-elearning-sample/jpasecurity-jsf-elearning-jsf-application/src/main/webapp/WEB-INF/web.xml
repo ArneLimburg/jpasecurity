@@ -47,6 +47,17 @@
     </auth-constraint>
   </security-constraint>
  
+   <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Creation of Lesson</web-resource-name>
+      <url-pattern>/lessonCreator.xhtml</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+      <role-name>teacher</role-name>
+    </auth-constraint>
+  </security-constraint>
+  
   <login-config>
     <auth-method>FORM</auth-method>
     <realm-name>JAAS</realm-name>

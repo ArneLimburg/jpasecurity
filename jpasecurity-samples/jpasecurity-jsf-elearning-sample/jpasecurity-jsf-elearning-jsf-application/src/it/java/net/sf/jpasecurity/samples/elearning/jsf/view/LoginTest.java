@@ -57,7 +57,7 @@ public class LoginTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLoginPage(authenticateAsStudent("login.xhtml"), Role.STUDENT);
         ElearningAssert.assertLoginPage(getPage("login.xhtml"), Role.STUDENT);
     }
-    
+
     @Ignore
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
@@ -72,5 +72,26 @@ public class LoginTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLoginPage(getPage("login.xhtml"), Role.GUEST);
         authenticateFormBasedAsStudent();
         ElearningAssert.assertLoginPage(getPage("login.xhtml"), Role.STUDENT);
+    }
+    
+    @Ignore
+    @Test
+    public void authenticateLinkAsStudentTest() throws JaxenException {
+        HtmlPage authenticateLink = testInputLink(authenticateAsStudent("login.xhtml"), "Login");
+        ElearningAssert.assertIndexPage(authenticateLink, Role.STUDENT);         
+    }
+    
+    @Ignore
+    @Test
+    public void authenticateLinkAsTeacherTest() throws JaxenException {
+        HtmlPage authenticateAsTeacherLink = testInputLink(authenticateAsTeacher("login.xhtml"), "Login");
+        ElearningAssert.assertIndexPage(authenticateAsTeacherLink, Role.TEACHER);         
+    }
+    
+    @Ignore
+    @Test
+    public void cancelTest() throws JaxenException {
+        HtmlPage cancelLink = testInputLink(getPage("login.xhtml"), "Login");
+        ElearningAssert.assertLoginPage(cancelLink, Role.GUEST);         
     }
 }

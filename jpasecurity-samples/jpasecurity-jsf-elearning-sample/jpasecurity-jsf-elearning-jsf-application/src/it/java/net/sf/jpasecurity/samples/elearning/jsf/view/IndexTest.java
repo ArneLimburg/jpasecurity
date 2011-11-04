@@ -55,7 +55,6 @@ public class IndexTest extends AbstractHtmlTestCase {
         ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.STUDENT);
     }
     
-    @Ignore
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.GUEST);
@@ -63,7 +62,6 @@ public class IndexTest extends AbstractHtmlTestCase {
         ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.TEACHER);
     }
     
-    @Ignore
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.GUEST);

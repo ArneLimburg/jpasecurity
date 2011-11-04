@@ -75,4 +75,11 @@ public class LessonTest extends AbstractHtmlTestCase {
         authenticateFormBasedAsStudent();
         ElearningAssert.assertLessonPage(getPage("lesson.xhtml?course=3&lesson=0"), Role.STUDENT);
     }
+    
+    @Ignore
+    @Test
+    public void startLessonLink()throws JaxenException {
+        HtmlPage startLessonLink = testInputLink(authenticateAsTeacher("lesson.xhtml?course=3&lesson=0"), "start this lesson");
+        ElearningAssert.assertLessonCreatorPage(startLessonLink, Role.STUDENT); 
+    }
 }
