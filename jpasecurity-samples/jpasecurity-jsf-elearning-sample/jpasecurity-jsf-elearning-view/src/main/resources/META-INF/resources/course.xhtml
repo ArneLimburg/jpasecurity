@@ -33,12 +33,14 @@
        <h1 id="courseTitle">#{course.title}</h1>
        <h:panelGroup rendered="#{sec:userInRole('student') and !course.studentInCourse}">
            <h:form id="joinForm" prependId="false">
+             <h:inputHidden value="#{course.id}" />
              <h:commandButton id="join" value="join this course" action="#{course.addStudentToCourse}" styleClass="submit"/>   
            </h:form>
        </h:panelGroup>
        
        <h:panelGroup rendered="#{sec:userInRole('student') and course.studentInCourse}">
            <h:form id="leaveForm" prependId="false">
+             <h:inputHidden value="#{course.id}" />
              <h:commandButton id="leave" value="leave this course" action="#{course.removeStudentFromCourse}" styleClass="submit"/>   
            </h:form>    
        </h:panelGroup>

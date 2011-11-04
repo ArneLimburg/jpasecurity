@@ -105,8 +105,9 @@ public class ElearningAssert {
 
     public static void assertLessonCreatorPage(HtmlPage page,Role role) throws JaxenException {
         assertEquals("E-Learning Platform", page.getTitleText());
-        assertEquals(1, page.getByXPath("//h1[text() = 'Create new lesson']").size());        
-        if (role == Role.TEACHER) {
+        switch(role) {
+        case TEACHER:      
+            assertEquals(1, page.getByXPath("//h1[text() = 'Create new lesson']").size()); 
             assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
             assertEquals(1, page.getByXPath("//label[text() = 'Course title:']").size());
             assertEquals(1, page.getByXPath("//span[text() = 'Analysis']").size());
@@ -114,8 +115,16 @@ public class ElearningAssert {
             assertEquals(1, page.getByXPath("//label[text() = 'Content:']").size());
             assertEquals(1, page.getByXPath("//input[@type = 'submit'][@value = 'cancel']").size());
             assertEquals(1, page.getByXPath("//input[@type = 'submit'][@value = 'create new lesson']").size());
-        } else {
+            break;
+        case STUDENT:
+            break;
+        case GUEST:
             assertEquals(1, page.getByXPath("//a[text() = 'Login']").size());
+            assertEquals(1, page.getByXPath("//label[text() = 'Username: ']").size());
+            assertEquals(1, page.getByXPath("//label[text() = 'Password: ']").size());
+            assertEquals(1, page.getByXPath("//input[@type = 'submit'][@value = 'Login']").size());
+            assertEquals(1, page.getByXPath("//input[@type = 'reset'][@value = 'Cancel']").size());
+            break;
         }
     }
 
