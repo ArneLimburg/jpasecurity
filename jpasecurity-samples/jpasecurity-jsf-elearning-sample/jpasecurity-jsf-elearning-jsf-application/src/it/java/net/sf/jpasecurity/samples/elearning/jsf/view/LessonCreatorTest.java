@@ -1,4 +1,3 @@
-package net.sf.jpasecurity.samples.elearning.jsf.view;
 /*
  * Copyright 2011 Raffaela Ferrari open knowledge GmbH
  *
@@ -14,24 +13,17 @@ package net.sf.jpasecurity.samples.elearning.jsf.view;
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
-
-import static org.junit.Assert.assertEquals;
-
-
-import net.sf.jpasecurity.samples.elearning.jsf.view.AbstractHtmlTestCase.Role;
+package net.sf.jpasecurity.samples.elearning.jsf.view;
 
 import org.jaxen.JaxenException;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
-/*
+/**
  * @auhtor Raffaela Ferrari
  */
-
 public class LessonCreatorTest extends AbstractHtmlTestCase {
     public LessonCreatorTest() {
         super("http://localhost:8282/elearning/");
@@ -76,7 +68,7 @@ public class LessonCreatorTest extends AbstractHtmlTestCase {
     
     @Ignore
     @Test
-    //TODO Daten müssen übergeben werden
+    //TODO parameterize data
     public void createLessonTest() throws JaxenException {
         HtmlPage createLessonLink = testInputLink(getPage("lessonCreator.xhtml"), "create new lesson");
         ElearningAssert.assertLoginPage(createLessonLink, Role.GUEST);   
