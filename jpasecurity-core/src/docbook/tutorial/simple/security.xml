@@ -68,12 +68,12 @@
       <![CDATA[
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
-import net.sf.jpasecurity.security.PermitWhere;
+import net.sf.jpasecurity.security.Permit;
       
 @Entity
 @DeclareRoles({"admin", "user"})
 @RolesAllowed("admin")
-@PermitWhere("name = CURRENT_PRINCIPAL")
+@Permit(rule = "name = CURRENT_PRINCIPAL")
 public class User {
     ...
 }
@@ -82,11 +82,11 @@ public class User {
     <programlisting>
       <![CDATA[
 import javax.annotation.security.RolesAllowed;
-import net.sf.jpasecurity.security.PermitWhere;
+import net.sf.jpasecurity.security.Permit;
 
 @Entity
 @RolesAllowed("admin")
-@PermitWhere("owner.name = CURRENT_PRINCIPAL")
+@Permit(rule = "owner.name = CURRENT_PRINCIPAL")
 public class Contact {
     ...
 }
@@ -113,7 +113,7 @@ public class Contact {
       </listitem>
       <listitem>
         <para>
-          <systemitem>@PermitWhere(value = "name = CURRENT_PRINCIPAL")</systemitem>
+          <systemitem>@Permit(rule = "name = CURRENT_PRINCIPAL")</systemitem>
           We annotated only the <systemitem>User</systemitem> class with this annotation. It specifies,
           that access to a <systemitem>User</systemitem> is permitted when the name of the user is the
           same as the current principal. In other words: Every user may access its own
@@ -122,7 +122,7 @@ public class Contact {
       </listitem>
       <listitem>
         <para>
-          <systemitem>@PermitWhere(value = "owner.name = CURRENT_PRINCIPAL")</systemitem>
+          <systemitem>@Permit(rule = "owner.name = CURRENT_PRINCIPAL")</systemitem>
           This annotation was added only to the <systemitem>Contact</systemitem> class.
           We specify, that access to a <systemitem>Contact</systemitem> is permitted when the name
           of the owner is the same as the current principal. In other words: Every user

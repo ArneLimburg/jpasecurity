@@ -41,14 +41,14 @@ import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.Alias;
-import net.sf.jpasecurity.security.PermitWhere;
+import net.sf.jpasecurity.security.Permit;
 import net.sf.jpasecurity.util.ListMap;
 import net.sf.jpasecurity.util.SetMap;
 
 /**
  * This class parses the persistent classes for the annotations
  * {@link javax.annotation.security.RolesAllowed},
- * {@link net.sf.jpasecurity.security.PermitWhere}
+ * {@link net.sf.jpasecurity.security.Permit}
  * and {@link net.sf.jpasecurity.security.PermitAny}.
  * It provides access rules based on the specified annotations.
  * @author Arne Limburg
@@ -110,14 +110,14 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
     Collection<String> parsePermissions(Class<?> annotatedClass) {
         try {
             Set<String> rules = new HashSet<String>();
-            ListMap<Class<?>, PermitWhere> permissions = permissionParser.parsePermissions(annotatedClass);
-            for (Map.Entry<Class<?>, List<PermitWhere>> annotations: permissions.entrySet()) {
+            ListMap<Class<?>, Permit> permissions = permissionParser.parsePermissions(annotatedClass);
+            for (Map.Entry<Class<?>, List<Permit>> annotations: permissions.entrySet()) {
                 String name = annotatedClass.getSimpleName();
-                for (PermitWhere permission: annotations.getValue()) {
+                for (Permit permission: annotations.getValue()) {
                     String alias = Character.toLowerCase(name.charAt(0)) + name.substring(1);
                     JpqlWhere whereClause = null;
-                    if (permission.value().trim().length() > 0) {
-                        whereClause = whereClauseParser.parseWhereClause("WHERE " + permission.value());
+                    if (permission.rule().trim().length() > 0) {
+                        whereClause = whereClauseParser.parseWhereClause("WHERE " + permission.rule());
                         appendAlias(whereClause, alias);
                     }
                     StringBuilder rule = new StringBuilder("GRANT ");

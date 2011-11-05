@@ -17,8 +17,10 @@ package net.sf.jpasecurity.security;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import static net.sf.jpasecurity.AccessType.*;
+import static net.sf.jpasecurity.AccessType.CREATE;
+import static net.sf.jpasecurity.AccessType.DELETE;
+import static net.sf.jpasecurity.AccessType.READ;
+import static net.sf.jpasecurity.AccessType.UPDATE;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -30,8 +32,8 @@ import net.sf.jpasecurity.AccessType;
  * <p>
  * Example:
  * <code>
- * @Entity
- * @PermitWhere("owner = CURRENT_PRINCIPAL")
+ * \@Entity
+ * \@Permit(rule = "owner = CURRENT_PRINCIPAL")
  * public class ExampleEntity {
  *   ...
  * }
@@ -40,8 +42,8 @@ import net.sf.jpasecurity.AccessType;
  */
 @Retention(RUNTIME)
 @Target(TYPE)
-public @interface PermitWhere {
+public @interface Permit {
 
-    String value() default "";
     AccessType[] access() default { CREATE, READ, UPDATE, DELETE };
+    String rule() default "";
 }

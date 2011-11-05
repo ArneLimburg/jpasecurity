@@ -26,7 +26,7 @@ import java.util.Collections;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.mapping.Alias;
-import net.sf.jpasecurity.security.PermitWhere;
+import net.sf.jpasecurity.security.Permit;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class AnnotationAccessRulesProviderTest {
     }
 
     @Test
-    public void permitWhere() {
+    public void permit() {
         Collection<String> permissions = annotationAccessRulesProvider.parsePermissions(Bean.class);
         assertEquals(1, permissions.size());
         assertEquals("GRANT CREATE READ UPDATE DELETE ACCESS TO " + Bean.class.getName() + " bean  "
@@ -58,7 +58,7 @@ public class AnnotationAccessRulesProviderTest {
                      permissions.iterator().next());
     }
 
-    @PermitWhere("name = 'root' OR EXISTS (SELECT user FROM User user WHERE user = CURRENT_USER AND user.name = name)")
+    @Permit(rule = "name='root' OR EXISTS (SELECT user FROM User user WHERE user = CURRENT_USER AND user.name = name)")
     private static class Bean {
     }
 }

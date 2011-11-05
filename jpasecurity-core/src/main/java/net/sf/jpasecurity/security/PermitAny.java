@@ -28,5 +28,5 @@ import java.lang.annotation.Target;
 @Target(TYPE)
 public @interface PermitAny {
 
-    PermitWhere[] value();
+    Permit[] value();
 }

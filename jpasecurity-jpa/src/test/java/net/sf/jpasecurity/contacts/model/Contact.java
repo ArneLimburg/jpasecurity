@@ -25,14 +25,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import net.sf.jpasecurity.security.PermitWhere;
+import net.sf.jpasecurity.security.Permit;
 
 /**
  * @author Arne Limburg
  */
 @Entity
 @RolesAllowed("admin")
-@PermitWhere("owner.name = CURRENT_PRINCIPAL")
+@Permit(rule = "owner.name = CURRENT_PRINCIPAL")
 public class Contact implements Serializable {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
