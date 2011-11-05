@@ -18,27 +18,27 @@ package net.sf.jpasecurity.security.rules;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.jpasecurity.security.PermitWhere;
+import net.sf.jpasecurity.security.Permit;
 import net.sf.jpasecurity.util.AbstractAnnotationParser;
 
 /**
- * This class parses classes for the {@link PermitWhere} annotation.
+ * This class parses classes for the {@link Permit} annotation.
  * @author Arne Limburg
  */
-public class PermitWhereParser extends AbstractAnnotationParser<PermitWhere, Map<Class<?>, PermitWhere>> {
+public class PermitParser extends AbstractAnnotationParser<Permit, Map<Class<?>, Permit>> {
 
     /**
-     * Parses the specified classes for the {@link PermitWhere} annotation.
+     * Parses the specified classes for the {@link Permit} annotation.
      * @param classes the classes to parse
-     * @return a map containing the {@link PermitWhere} annotations for the specified classes
+     * @return a map containing the {@link Permit} annotations for the specified classes
      */
-    public Map<Class<?>, PermitWhere> parsePermissions(Class<?>... classes) {
-        Map<Class<?>, PermitWhere> permissions = new HashMap<Class<?>, PermitWhere>();
+    public Map<Class<?>, Permit> parsePermissions(Class<?>... classes) {
+        Map<Class<?>, Permit> permissions = new HashMap<Class<?>, Permit>();
         parse(classes, permissions);
         return permissions;
     }
 
-    protected void process(Class<?> annotatedClass, PermitWhere permitWhere, Map<Class<?>, PermitWhere> permissions) {
-        permissions.put(annotatedClass, permitWhere);
+    protected void process(Class<?> annotatedClass, Permit permit, Map<Class<?>, Permit> permissions) {
+        permissions.put(annotatedClass, permit);
     }
 }

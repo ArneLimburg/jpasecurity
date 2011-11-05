@@ -18,13 +18,13 @@ package net.sf.jpasecurity.model;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 
-import net.sf.jpasecurity.security.PermitWhere;
+import net.sf.jpasecurity.security.Permit;
 
 /**
  * @author Arne Limburg
  */
 @Entity
-@PermitWhere("owner = CURRENT_PRINCIPAL")
+@Permit(rule = "owner = CURRENT_PRINCIPAL")
 public class TestBeanSubclass extends TestBean {
 
     @Basic

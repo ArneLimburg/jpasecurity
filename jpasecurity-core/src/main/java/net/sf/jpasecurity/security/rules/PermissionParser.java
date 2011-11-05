@@ -19,31 +19,31 @@ package net.sf.jpasecurity.security.rules;
 import java.util.Map;
 
 import net.sf.jpasecurity.security.PermitAny;
-import net.sf.jpasecurity.security.PermitWhere;
+import net.sf.jpasecurity.security.Permit;
 import net.sf.jpasecurity.util.AbstractAnnotationParser;
 import net.sf.jpasecurity.util.ListHashMap;
 import net.sf.jpasecurity.util.ListMap;
 
 /**
- * This class parses classes for the {@link PermitWhere} and {@link PermitAny} annotations.
+ * This class parses classes for the {@link Permit} and {@link PermitAny} annotations.
  * @author Arne Limburg
  */
-public class PermissionParser extends AbstractAnnotationParser<PermitAny, ListMap<Class<?>, PermitWhere>> {
+public class PermissionParser extends AbstractAnnotationParser<PermitAny, ListMap<Class<?>, Permit>> {
 
-    private final PermitWhereParser permitWhereParser = new PermitWhereParser();
+    private final PermitParser permitParser = new PermitParser();
 
-    public ListMap<Class<?>, PermitWhere> parsePermissions(Class<?>... classes) {
-        ListMap<Class<?>, PermitWhere> permissions = new ListHashMap<Class<?>, PermitWhere>();
+    public ListMap<Class<?>, Permit> parsePermissions(Class<?>... classes) {
+        ListMap<Class<?>, Permit> permissions = new ListHashMap<Class<?>, Permit>();
         parse(classes, permissions);
-        for (Map.Entry<Class<?>, PermitWhere> annotation: permitWhereParser.parsePermissions(classes).entrySet()) {
+        for (Map.Entry<Class<?>, Permit> annotation: permitParser.parsePermissions(classes).entrySet()) {
             permissions.add(annotation.getKey(), annotation.getValue());
         }
         return permissions;
     }
 
-    protected void process(Class<?> annotatedClass, PermitAny permitAny, ListMap<Class<?>, PermitWhere> permissions) {
-        for (PermitWhere permitWhere: permitAny.value()) {
-            permissions.add(annotatedClass, permitWhere);
+    protected void process(Class<?> annotatedClass, PermitAny permitAny, ListMap<Class<?>, Permit> permissions) {
+        for (Permit permit: permitAny.value()) {
+            permissions.add(annotatedClass, permit);
         }
     }
 }

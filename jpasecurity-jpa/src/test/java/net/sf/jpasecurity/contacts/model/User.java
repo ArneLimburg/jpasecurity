@@ -26,7 +26,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import net.sf.jpasecurity.security.PermitWhere;
+import net.sf.jpasecurity.security.Permit;
 
 /**
  * @author Arne Limburg
@@ -35,7 +35,7 @@ import net.sf.jpasecurity.security.PermitWhere;
 @DeclareRoles({ "admin", "user" })
 @RolesAllowed("admin")
 @Table(name = "USR")
-@PermitWhere("name = CURRENT_PRINCIPAL")
+@Permit(rule = "name = CURRENT_PRINCIPAL")
 public class User implements Serializable {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
