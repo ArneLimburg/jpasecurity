@@ -44,6 +44,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.JpqlWith;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.SimpleNode;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 
 /**
@@ -106,8 +107,8 @@ public class QueryPreparator {
      * @param path the path
      * @return the new path
      */
-    public JpqlPath prepend(String alias, JpqlPath path) {
-        return prepend(new String[] {alias}, path);
+    public JpqlPath prepend(Alias alias, JpqlPath path) {
+        return prepend(new String[] {alias.getName()}, path);
     }
 
     /**

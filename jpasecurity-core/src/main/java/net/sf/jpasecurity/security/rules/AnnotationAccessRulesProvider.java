@@ -20,6 +20,7 @@ import static net.sf.jpasecurity.AccessType.DELETE;
 import static net.sf.jpasecurity.AccessType.READ;
 import static net.sf.jpasecurity.AccessType.UPDATE;
 
+import java.beans.Introspector;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,6 +37,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpressions;
+import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
@@ -55,10 +57,11 @@ import net.sf.jpasecurity.util.SetMap;
  */
 public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
 
+    private static final Alias THIS_ALIAS = new Alias("this");
     private final RolesAllowedParser rolesAllowedParser = new RolesAllowedParser();
     private final PermissionParser permissionParser = new PermissionParser();
     private final JpqlParser whereClauseParser = new JpqlParser();
-    private final PathVisitor pathVisitor = new PathVisitor();
+    private final AliasVisitor aliasVisitor = new AliasVisitor();
 
     /**
      * Initializes the access rules by parsing the persistent classes
@@ -114,10 +117,11 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
             for (Map.Entry<Class<?>, List<Permit>> annotations: permissions.entrySet()) {
                 String name = annotatedClass.getSimpleName();
                 for (Permit permission: annotations.getValue()) {
-                    String alias = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+                    Alias alias = new Alias(Introspector.decapitalize(name));
                     JpqlWhere whereClause = null;
                     if (permission.rule().trim().length() > 0) {
                         whereClause = whereClauseParser.parseWhereClause("WHERE " + permission.rule());
+                        alias = findUnusedAlias(whereClause, alias);
                         appendAlias(whereClause, alias);
                     }
                     StringBuilder rule = new StringBuilder("GRANT ");
@@ -149,46 +153,76 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
         }
     }
 
-    private void appendAlias(JpqlWhere whereClause, String alias) {
-        whereClause.visit(pathVisitor, alias);
+    private Alias findUnusedAlias(JpqlWhere whereClause, Alias alias) {
+        Set<Alias> declaredAliases = new HashSet<Alias>();
+        whereClause.visit(aliasVisitor, declaredAliases);
+        int i = 0;
+        while (declaredAliases.contains(alias)) {
+            alias = new Alias(alias.getName() + i);
+            i++;
+        }
+        return alias;
     }
 
-    private class PathVisitor extends JpqlVisitorAdapter<String> {
+    private void appendAlias(JpqlWhere whereClause, Alias alias) {
+        PathVisitor pathVisitor = new PathVisitor(alias);
+        whereClause.visit(pathVisitor, new HashSet<Alias>());
+    }
 
-        private final QueryPreparator queryPreparator = new QueryPreparator();
-        private Set<Alias> declaredAliases = new HashSet<Alias>();
+    private class AliasVisitor extends JpqlVisitorAdapter<Set<Alias>> {
 
-        public boolean visit(JpqlSelectExpressions select, String alias) {
+        public boolean visit(JpqlSelectExpressions select) {
             return false;
         }
 
-        public boolean visit(JpqlFromItem from, String alias) {
-            return visitAlias(from);
+        public boolean visit(JpqlFromItem from, Set<Alias> declaredAliases) {
+            return visitAlias(from, declaredAliases);
         }
 
-        public boolean visit(JpqlInnerJoin join, String alias) {
-            return visitAlias(join);
+        public boolean visit(JpqlInnerJoin join, Set<Alias> declaredAliases) {
+            return visitAlias(join, declaredAliases);
         }
 
-        public boolean visit(JpqlOuterJoin join, String alias) {
-            return visitAlias(join);
+        public boolean visit(JpqlOuterJoin join, Set<Alias> declaredAliases) {
+            return visitAlias(join, declaredAliases);
         }
 
-        public boolean visitAlias(Node node) {
+        public boolean visitAlias(Node node, Set<Alias> declaredAliases) {
             if (node.jjtGetNumChildren() == 2) {
-                declaredAliases.add(new Alias(node.jjtGetChild(1).getValue()));
+                declaredAliases.add(new Alias(node.jjtGetChild(1).getValue().toLowerCase()));
+            }
+            return false;
+        }
+    }
+
+    private class PathVisitor extends JpqlVisitorAdapter<Set<Alias>> {
+
+        private final Alias alias;
+        private final QueryPreparator queryPreparator = new QueryPreparator();
+
+        public PathVisitor(Alias alias) {
+            this.alias = alias;
+        }
+
+        public boolean visit(JpqlSubselect select, Set<Alias> declaredAliases) {
+            Set<Alias> subselectAliases = new HashSet<Alias>(declaredAliases);
+            select.visit(aliasVisitor, subselectAliases);
+            for (int i = 0; i < select.jjtGetNumChildren(); i++) {
+                select.jjtGetChild(i).visit(this, subselectAliases);
             }
             return false;
         }
 
-        public boolean visit(JpqlPath path, String alias) {
-            Alias a = new Alias(path.jjtGetChild(0).getValue());
-            if (!declaredAliases.contains(a)
+        public boolean visit(JpqlPath path, Set<Alias> declaredAliases) {
+            Alias a = new Alias(path.jjtGetChild(0).getValue().toLowerCase());
+            if (THIS_ALIAS.equals(a)) {
+                queryPreparator.replace(path.jjtGetChild(0), queryPreparator.createIdentifier(alias.getName()));
+            } else if (!declaredAliases.contains(a)
                 && (path.jjtGetNumChildren() > 1
                     || (!getSecurityContext().getAliases().contains(a)))) {
                 queryPreparator.prepend(alias, path);
             }
-            return true;
+            return false;
         }
     }
 }
