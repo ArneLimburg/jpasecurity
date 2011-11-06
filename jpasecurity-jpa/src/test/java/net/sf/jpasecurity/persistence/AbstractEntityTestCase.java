@@ -15,6 +15,9 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import java.util.Collections;
+import java.util.Map;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -36,7 +39,12 @@ public class AbstractEntityTestCase {
     }
 
     public static void createEntityManagerFactory(String persistenceUnitName) {
-        entityManagerFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
+        createEntityManagerFactory(persistenceUnitName, Collections.<String, Object>emptyMap());
+    }
+
+    public static void createEntityManagerFactory(String persistenceUnitName,
+                                                  Map<String, Object> persistenceProperties) {
+        entityManagerFactory = Persistence.createEntityManagerFactory(persistenceUnitName, persistenceProperties);
     }
 
     @Before
