@@ -52,13 +52,16 @@ public class AnnotationAccessRulesProviderTest {
     public void permit() {
         Collection<String> permissions = annotationAccessRulesProvider.parsePermissions(Bean.class);
         assertEquals(1, permissions.size());
-        assertEquals("GRANT CREATE READ UPDATE DELETE ACCESS TO " + Bean.class.getName() + " bean  "
-                     + "WHERE bean.name = 'root' "
-                     + "OR  EXISTS ( SELECT user FROM User user WHERE user = CURRENT_USER AND user.name = bean.name) ",
+        assertEquals("GRANT CREATE READ UPDATE DELETE ACCESS TO " + Bean.class.getName() + " bean0  "
+                     + "WHERE bean0.name = 'root' "
+                     + "OR bean0 IN ( SELECT bean FROM Bean bean WHERE bean = bean0)  "
+                     + "OR  EXISTS ( SELECT user FROM User user WHERE user = CURRENT_USER AND user.name = bean0.name) ",
                      permissions.iterator().next());
     }
 
-    @Permit(rule = "name='root' OR EXISTS (SELECT user FROM User user WHERE user = CURRENT_USER AND user.name = name)")
+    @Permit(rule = "name = 'root' "
+                 + "OR this IN (SELECT bean FROM Bean bean WHERE bean = this) "
+                 + "OR EXISTS (SELECT user FROM User user WHERE user = CURRENT_USER AND user.name = name)")
     private static class Bean {
     }
 }
