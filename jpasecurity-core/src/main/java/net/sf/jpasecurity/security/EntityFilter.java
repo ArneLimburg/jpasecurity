@@ -169,12 +169,14 @@ public class EntityFilter {
     }
 
     protected AccessDefinition createAccessDefinition(Map<String, Class<?>> selectedTypes, AccessType accessType) {
-        Set<Class<?>> restrictedTypes = new HashSet<Class<?>>();
         AccessDefinition accessDefinition = null;
+        boolean restricted = false;
         for (Map.Entry<String, Class<?>> selectedType: selectedTypes.entrySet()) {
+            Set<Class<?>> restrictedTypes = new HashSet<Class<?>>();
             AccessDefinition typedAccessDefinition = null;
             for (AccessRule accessRule: accessRules) {
                 if (accessRule.isAssignable(selectedType.getValue(), mappingInformation)) {
+                    restricted = true;
                     restrictedTypes.add(selectedType.getValue());
                     if (accessRule.grantsAccess(accessType)) {
                         typedAccessDefinition = appendAccessDefinition(typedAccessDefinition,
@@ -183,6 +185,7 @@ public class EntityFilter {
                                                                        securityContext);
                     }
                 } else if (accessRule.mayBeAssignable(selectedType.getValue(), mappingInformation)) {
+                    restricted = true;
                     restrictedTypes.add(accessRule.getSelectedType(mappingInformation));
                     if (accessRule.grantsAccess(accessType)) {
                         //TODO group all access rules by subclass and create one node each
@@ -223,7 +226,7 @@ public class EntityFilter {
             }
         }
         if (accessDefinition == null) {
-            return new AccessDefinition(queryPreparator.createBoolean(restrictedTypes.size() == 0));
+            return new AccessDefinition(queryPreparator.createBoolean(!restricted));
         } else {
             accessDefinition.setAccessRules(queryPreparator.createBrackets(accessDefinition.getAccessRules()));
             return accessDefinition;
