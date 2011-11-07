@@ -559,11 +559,11 @@ public class OrmXmlParser extends JpaAnnotationParser {
         String className = getClassName(node);
         if (defaultPackage != null) {
             try {
-                return parse(getClass(defaultPackage + '.' + className), true);
+                return parse(getClass(defaultPackage + '.' + className), false, true);
             } catch (RuntimeException e) {
                 if (e.getCause() instanceof ClassNotFoundException) {
                     try {
-                        return parse(getClass(className), true);
+                        return parse(getClass(className), false, true);
                     } catch (RuntimeCopyException c) {
                         if (c.getCause() instanceof ClassNotFoundException) {
                             throw className.indexOf('.') != -1? c: e;
@@ -573,7 +573,7 @@ public class OrmXmlParser extends JpaAnnotationParser {
                 throw e;
             }
         } else {
-            return parse(getClass(className), true);
+            return parse(getClass(className), false, true);
         }
     }
 
