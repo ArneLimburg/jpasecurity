@@ -168,9 +168,12 @@ public abstract class AbstractSecurityUnitParser {
         } else {
             usesFieldAccess = usesFieldAccess(mappedClass);
         }
-        Class<?> idClass = null;
-        if (superclassMapping == null || superclassMapping.getIdClass() == null) {
-            idClass = getIdClass(mappedClass, usesFieldAccess);
+        ClassMappingInformation idClassMapping = null;
+        if (superclassMapping == null || superclassMapping.getIdClassMapping() == null) {
+            Class<?> idClass = getIdClass(mappedClass, usesFieldAccess);
+            if (idClass != null) {
+                idClassMapping = parse(idClass);
+            }
         }
         String entityName = getEntityName(mappedClass);
         boolean metadataComplete = isMetadataComplete(mappedClass);
@@ -178,7 +181,7 @@ public abstract class AbstractSecurityUnitParser {
             classMapping = new DefaultClassMappingInformation(entityName,
                                                               mappedClass,
                                                               (DefaultClassMappingInformation)superclassMapping,
-                                                              idClass,
+                                                              idClassMapping,
                                                               isEmbeddable(mappedClass),
                                                               usesFieldAccess,
                                                               metadataComplete,
@@ -186,7 +189,7 @@ public abstract class AbstractSecurityUnitParser {
             classMappings.put(mappedClass, classMapping);
         } else {
             classMapping.setEntityName(entityName);
-            classMapping.setIdClass(idClass);
+            classMapping.setIdClassMapping(idClassMapping);
             classMapping.setFieldAccess(usesFieldAccess);
             classMapping.setMetadataComplete(metadataComplete);
         }

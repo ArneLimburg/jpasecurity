@@ -27,7 +27,7 @@ public interface ClassMappingInformation {
     String getEntityName();
     <E> Class<E> getEntityType();
     Set<ClassMappingInformation> getSubclassMappings();
-    Class<?> getIdClass();
+    ClassMappingInformation getIdClassMapping();
     boolean isEmbeddable();
     boolean usesFieldAccess();
     boolean usesPropertyAccess();

@@ -37,7 +37,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
     private Class<?> entityType;
     private DefaultClassMappingInformation superclassMapping;
     private Set<ClassMappingInformation> subclassMappings = new HashSet<ClassMappingInformation>();
-    private Class<?> idClass;
+    private ClassMappingInformation idClassMapping;
     private boolean embeddable;
     private boolean fieldAccess;
     private boolean metadataComplete;
@@ -52,7 +52,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
     public DefaultClassMappingInformation(String entityName,
                                           Class<?> entityType,
                                           DefaultClassMappingInformation superclassMapping,
-                                          Class<?> idClass,
+                                          ClassMappingInformation idClass,
                                           boolean embeddable,
                                           boolean usesFieldAccess,
                                           boolean metadataComplete,
@@ -69,7 +69,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
         if (superclassMapping != null) {
             superclassMapping.subclassMappings.add(this);
         }
-        this.idClass = idClass;
+        this.idClassMapping = idClass;
         this.embeddable = embeddable;
         this.fieldAccess = usesFieldAccess;
         this.metadataComplete = metadataComplete;
@@ -95,12 +95,12 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
         return Collections.unmodifiableSet(subclassMappings);
     }
 
-    public Class<?> getIdClass() {
-        return idClass;
+    public ClassMappingInformation getIdClassMapping() {
+        return idClassMapping;
     }
 
-    void setIdClass(Class<?> idClass) {
-        this.idClass = idClass;
+    void setIdClassMapping(ClassMappingInformation idClassMapping) {
+        this.idClassMapping = idClassMapping;
     }
 
     public boolean isEmbeddable() {
@@ -228,14 +228,17 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
             return idProperties.get(0).getPropertyValue(entity);
         } else {
             try {
-                Object id = getIdClass().newInstance();
+                ClassMappingInformation idClassMapping = getIdClassMapping();
+                Object id = ReflectionUtils.newInstance(idClassMapping.getEntityType());
                 for (PropertyMappingInformation idProperty: idProperties) {
-                    idProperty.setPropertyValue(id, idProperty.getPropertyValue(entity));
+                    Object value = idProperty.getPropertyValue(entity);
+                    if (idProperty.isRelationshipMapping()) {
+                        value = ((RelationshipMappingInformation)idProperty).getRelatedClassMapping().getId(value);
+                    }
+                    idClassMapping.getPropertyMapping(idProperty.getPropertyName()).setPropertyValue(id, value);
                 }
                 return id;
-            } catch (InstantiationException e) {
-                throw exceptionFactory.createRuntimeException(e);
-            } catch (IllegalAccessException e) {
+            } catch (RuntimeException e) {
                 throw exceptionFactory.createRuntimeException(e);
             }
         }
