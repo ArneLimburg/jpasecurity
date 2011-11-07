@@ -15,8 +15,17 @@
  */
 package net.sf.jpasecurity.persistence.security;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.util.ValueHolder;
@@ -27,26 +36,31 @@ import net.sf.jpasecurity.util.ValueHolder;
 public class CriteriaHolder extends ValueHolder<Object> {
 
     private CriteriaQuery<?> criteriaQuery;
+    private Stack<Subquery<?>> subqueries = new Stack<Subquery<?>>();
 
     public CriteriaHolder(CriteriaQuery<?> query) {
         criteriaQuery = query;
         setValue(query);
     }
 
-    public <R> CriteriaQuery<R> getCriteria() {
-        return (CriteriaQuery<R>)criteriaQuery;
+    public <R> Subquery<R> createSubquery() {
+        subqueries.push(criteriaQuery.subquery(Object.class));
+        return (Subquery<R>)subqueries.peek();
     }
 
-    public Root<?> getRoot(Alias alias) {
-        if (criteriaQuery.getRoots().size() == 1) {
-            return criteriaQuery.getRoots().iterator().next();
+    public <R> AbstractQuery<R> getCurrentQuery() {
+        if (subqueries.isEmpty()) {
+            return (CriteriaQuery<R>)criteriaQuery;
         }
-        for (Root<?> root: criteriaQuery.getRoots()) {
-            if (alias.getName().equals(root.getAlias())) {
-                return root;
-            }
-        }
-        throw new IllegalStateException("Root not found for alias " + alias);
+        return (Subquery<R>)subqueries.peek();
+    }
+
+    public void removeSubquery() {
+        subqueries.pop();
+    }
+
+    public <R> CriteriaQuery<R> getCriteria() {
+        return (CriteriaQuery<R>)criteriaQuery;
     }
 
     public boolean isValueOfType(Class<?> type) {
@@ -55,5 +69,58 @@ public class CriteriaHolder extends ValueHolder<Object> {
 
     public <V> V getCurrentValue() {
         return (V)getValue();
+    }
+
+    public Path<?> getPath(Alias alias) {
+        List<String> pathElements = new ArrayList<String>();
+        From<?, ?> from = getFrom(alias);
+        while (from instanceof Join) {
+            Join<?, ?> join = (Join<?, ?>)from;
+            pathElements.add(0, join.getAttribute().getName());
+            from = join.getParent();
+        }
+        Root<?> root = (Root<?>)from;
+        Path<?> path = root;
+        for (String pathElement: pathElements) {
+            path = path.get(pathElement);
+        }
+        return path;
+    }
+
+    public From<?, ?> getFrom(Alias alias) {
+        for (Subquery<?> subquery: subqueries) {
+            From<?, ?> from = getFrom(subquery, alias);
+            if (from != null) {
+                return from;
+            }
+        }
+        From<?, ?> from = getFrom(criteriaQuery, alias);
+        if (from != null) {
+            return from;
+        }
+        throw new IllegalStateException("Root not found for alias " + alias);
+    }
+
+    private From<?, ?> getFrom(AbstractQuery<?> query, Alias alias) {
+        for (Root<?> root: query.getRoots()) {
+            From<?, ?> from = getFrom(root, alias);
+            if (from != null) {
+                return from;
+            }
+        }
+        return null;
+    }
+
+    private From<?, ?> getFrom(From<?, ?> from, Alias alias) {
+        if (alias.getName().equals(from.getAlias())) {
+            return from;
+        }
+        for (Join<?, ?> join: from.getJoins()) {
+            From<?, ?> result = getFrom(join, alias);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
     }
 }

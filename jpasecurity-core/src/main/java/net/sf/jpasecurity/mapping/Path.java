@@ -27,11 +27,11 @@ public class Path {
     public Path(String path) {
         int index = path.indexOf('.');
         if (index == -1) {
-            rootAlias = new Alias(path);
+            rootAlias = new Alias(path.trim());
             subpath = null;
         } else {
             rootAlias = new Alias(path.substring(0, index));
-            subpath = path.substring(index + 1);
+            subpath = path.substring(index + 1).trim();
         }
     }
 

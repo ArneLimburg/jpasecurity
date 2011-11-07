@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2011 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,11 @@ import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaBuilder.Trimspec;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
 
@@ -60,7 +60,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlDivide;
 import net.sf.jpasecurity.jpql.parser.JpqlEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlEscapeCharacter;
 import net.sf.jpasecurity.jpql.parser.JpqlExists;
-import net.sf.jpasecurity.jpql.parser.JpqlFrom;
+import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlGreaterOrEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlGreaterThan;
 import net.sf.jpasecurity.jpql.parser.JpqlGroupBy;
@@ -132,8 +132,8 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     private SecurityContext securityContext;
 
     public CriteriaVisitor(MappingInformation mappingInformation,
-                             CriteriaBuilder criteriaBuilder,
-                             SecurityContext securityContext) {
+                           CriteriaBuilder criteriaBuilder,
+                           SecurityContext securityContext) {
         notNull(MappingInformation.class, mappingInformation);
         notNull(CriteriaBuilder.class, criteriaBuilder);
         notNull(SecurityContext.class, securityContext);
@@ -159,12 +159,12 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlFrom node, CriteriaHolder query) {
-        AbstractQuery<?> criteriaQuery = query.<AbstractQuery<?>>getCurrentValue();
+    public boolean visit(JpqlFromItem node, CriteriaHolder criteriaHolder) {
+        AbstractQuery<?> query = criteriaHolder.getCurrentQuery();
         String entityName = node.jjtGetChild(0).toString();
         Alias alias = getAlias(node);
-        Class<Object> entityType = mappingInformation.getClassMapping(entityName).getEntityType();
-        criteriaQuery.from(entityType).alias(alias.getName());
+        Class<Object> entityType = mappingInformation.getClassMapping(entityName.trim()).getEntityType();
+        query.from(entityType).alias(alias.getName());
         return false;
     }
 
@@ -172,7 +172,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlWhere node, CriteriaHolder query) {
-        AbstractQuery<?> criteriaQuery = query.<AbstractQuery<?>>getCurrentValue();
+        AbstractQuery<?> criteriaQuery = query.getCurrentQuery();
         node.jjtGetChild(0).visit(this, query);
         if (query.isValueOfType(Predicate.class)) {
             criteriaQuery.where(query.<Predicate>getCurrentValue());
@@ -199,8 +199,8 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     public boolean visit(JpqlInnerJoin node, CriteriaHolder query) {
         Path path = new Path(node.jjtGetChild(0).toString());
         Alias alias = getAlias(node);
-        Root<?> root = query.getRoot(path.getRootAlias());
-        Join<Object, Object> join = root.join(path.toString(), JoinType.INNER);
+        From<?, ?> from = query.getFrom(path.getRootAlias());
+        Join<Object, Object> join = from.join(path.getSubpath(), JoinType.INNER);
         if (alias != null) {
             join.alias(alias.getName());
         }
@@ -213,8 +213,8 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     public boolean visit(JpqlOuterJoin node, CriteriaHolder query) {
         Path path = new Path(node.jjtGetChild(0).toString());
         Alias alias = getAlias(node);
-        Root<?> root = query.getRoot(path.getRootAlias());
-        Join<Object, Object> join = root.join(path.toString(), JoinType.LEFT);
+        From<?, ?> from = query.getFrom(path.getRootAlias());
+        Join<Object, Object> join = from.join(path.toString(), JoinType.LEFT);
         if (alias != null) {
             join.alias(alias.getName());
         }
@@ -226,8 +226,8 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      */
     public boolean visit(JpqlOuterFetchJoin node, CriteriaHolder query) {
         Path path = new Path(node.jjtGetChild(0).toString());
-        Root<?> root = query.getRoot(path.getRootAlias());
-        root.fetch(path.toString(), JoinType.LEFT);
+        From<?, ?> from = query.getFrom(path.getRootAlias());
+        from.fetch(path.toString(), JoinType.LEFT);
         return false;
     }
 
@@ -236,8 +236,8 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      */
     public boolean visit(JpqlInnerFetchJoin node, CriteriaHolder query) {
         Path path = new Path(node.jjtGetChild(0).toString());
-        Root<?> root = query.getRoot(path.getRootAlias());
-        root.fetch(path.toString(), JoinType.INNER);
+        From<?, ?> from = query.getFrom(path.getRootAlias());
+        from.fetch(path.toString(), JoinType.INNER);
         return false;
     }
 
@@ -264,9 +264,11 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
 
     public boolean visitPath(Node node, CriteriaHolder query) {
         Path path = new Path(node.toString());
-        javax.persistence.criteria.Path<?> currentPath = query.getRoot(path.getRootAlias());
-        for (String attribute: path.getSubpath().split("\\.")) {
-            currentPath = currentPath.get(attribute);
+        javax.persistence.criteria.Path<?> currentPath = query.getPath(path.getRootAlias());
+        if (path.getSubpath() != null) {
+            for (String attribute: path.getSubpath().split("\\.")) {
+                currentPath = currentPath.get(attribute);
+            }
         }
         query.setValue(currentPath);
         return false;
@@ -288,6 +290,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
             node.jjtGetChild(i).visit(this, query);
             selections.add(query.<Selection<?>>getCurrentValue());
         }
+        query.setValue(selections);
         return false;
     }
 
@@ -427,15 +430,21 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlSubselect node, CriteriaHolder query) {
-        Subquery<Object> subquery = query.getCriteria().subquery(Object.class);
-        node.jjtGetChild(0).visit(this, query);
-        List<Selection<?>> selections = query.<List<Selection<?>>>getCurrentValue();
-        subquery.select((Expression<Object>)selections.iterator().next());
-        query.setValue(subquery);
-        for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-            node.jjtGetChild(i).visit(this, query);
+        try {
+            Subquery<Object> subquery = query.createSubquery();
+            node.jjtGetChild(1).visit(this, query);
+            node.jjtGetChild(0).visit(this, query);
+            List<Selection<?>> selections = query.<List<Selection<?>>>getCurrentValue();
+            subquery.select((Expression<Object>)selections.iterator().next());
+            query.setValue(subquery);
+            for (int i = 2; i < node.jjtGetNumChildren(); i++) {
+                node.jjtGetChild(i).visit(this, query);
+            }
+            query.setValue(subquery);
+            return false;
+        } finally {
+            query.removeSubquery();
         }
-        return true;
     }
 
     /**
@@ -493,7 +502,9 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      */
     public boolean visit(JpqlIn node, CriteriaHolder query) {
         node.jjtGetChild(0).visit(this, query);
-        query.setValue(builder.in(query.<Expression<?>>getCurrentValue()));
+        Expression<?> expression = query.<Expression<?>>getCurrentValue();
+        node.jjtGetChild(1).visit(this, query);
+        query.setValue(expression.in(query.<Subquery<?>>getCurrentValue()));
         return false;
     }
 
@@ -619,7 +630,11 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     public boolean visit(JpqlEquals node, CriteriaHolder query) {
         Expression<?> e1 = getExpression(node.jjtGetChild(0), query);
         Expression<?> e2 = getExpression(node.jjtGetChild(1), query);
-        query.setValue(builder.equal(e1, e2));
+        if (e1 != null && e2 != null) {
+            query.setValue(builder.equal(e1, e2));
+        } else {
+            query.setValue(builder.isTrue(builder.literal(false)));
+        }
         return false;
     }
 
@@ -629,7 +644,11 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     public boolean visit(JpqlNotEquals node, CriteriaHolder query) {
         Expression<?> e1 = getExpression(node.jjtGetChild(0), query);
         Expression<?> e2 = getExpression(node.jjtGetChild(1), query);
-        query.setValue(builder.notEqual(e1, e2));
+        if (e1 != null && e2 != null) {
+            query.setValue(builder.notEqual(e1, e2));
+        } else {
+            query.setValue(builder.isTrue(builder.literal(false)));
+        }
         return false;
     }
 
@@ -1018,8 +1037,10 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     private Expression<?> getExpression(CriteriaHolder query) {
         if (query.isValueOfType(Expression.class)) {
             return query.<Expression<?>>getCurrentValue();
-        } else {
+        } else if (query.getValue() != null) {
             return builder.literal(query.getValue());
+        } else {
+            return null;
         }
     }
 
