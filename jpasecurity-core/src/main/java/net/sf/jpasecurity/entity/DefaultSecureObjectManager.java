@@ -346,10 +346,19 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
                         }
                     } else {
                         //use the unsecure collection here since the secure may be filtered
-                        Collection<Object> unsecureCollection
-                            = (Collection<Object>)propertyMapping.getPropertyValue(unsecureEntity);
-                        for (Object unsecureEntry: unsecureCollection) {
-                            cascadeRemove(getSecureObject(unsecureEntry), unsecureEntry, alreadyCascadedEntities);
+                        Object unsecureValue = propertyMapping.getPropertyValue(unsecureEntity);
+                        if (unsecureValue instanceof Collection) {
+                            Collection<Object> unsecureCollection = (Collection<Object>)unsecureValue;
+                            for (Object unsecureEntry: unsecureCollection) {
+                                cascadeRemove(getSecureObject(unsecureEntry), unsecureEntry, alreadyCascadedEntities);
+                            }
+                        } else if (unsecureValue instanceof Map) {
+                            Map<Object, Object> unsecureMap = (Map<Object, Object>)unsecureValue;
+                            for (Object unsecureEntry: unsecureMap.values()) {
+                                cascadeRemove(getSecureObject(unsecureEntry), unsecureEntry, alreadyCascadedEntities);
+                            }
+                        } else {
+                            throw new IllegalStateException("unsupported type " + unsecureValue.getClass().getName());
                         }
                     }
                 }
@@ -429,12 +438,24 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
                             DefaultSecureMap<?, ?> secureMap = (DefaultSecureMap<?, ?>)secureValue;
                             secureMap.initialize(!isNew);
                         }
-                        for (Object secureEntry: ((Collection<Object>)secureValue)) {
-                            initialize(secureEntry,
-                                       getUnsecureObject(secureEntry),
-                                       isNew(secureEntity),
-                                       cascadeType,
-                                       alreadyInitializedEntities);
+                        if (secureValue instanceof Collection) {
+                            for (Object secureEntry: ((Collection<Object>)secureValue)) {
+                                initialize(secureEntry,
+                                           getUnsecureObject(secureEntry),
+                                           isNew(secureEntity),
+                                           cascadeType,
+                                           alreadyInitializedEntities);
+                            }
+                        } else if (secureValue instanceof Map) {
+                            for (Object secureEntry: ((Map<Object, Object>)secureValue).values()) {
+                                initialize(secureEntry,
+                                           getUnsecureObject(secureEntry),
+                                           isNew(secureEntity),
+                                           cascadeType,
+                                           alreadyInitializedEntities);
+                            }
+                        } else {
+                            throw new IllegalStateException("unsupported type " + secureValue.getClass().getName());
                         }
                     }
                 }
