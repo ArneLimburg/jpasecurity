@@ -28,7 +28,10 @@ import javax.persistence.Entity;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 
+import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.sample.elearning.domain.course.Participation;
+import net.sf.jpasecurity.security.Permit;
+import net.sf.jpasecurity.security.PermitAny;
 
 /**
  * An entity that represents a student.
@@ -38,6 +41,16 @@ import net.sf.jpasecurity.sample.elearning.domain.course.Participation;
  */
 @Entity
 @DeclareRoles("student")
+@PermitAny({
+  @Permit(rule = "'admin' IN (CURRENT_ROLES)"),
+  @Permit(access = AccessType.READ,
+          rule = "this IN (SELECT participation.participant FROM Participation participation "
+               + "WHERE participation.course.lecturer.name.nick = CURRENT_PRINCIPAL)"),
+  @Permit(access = AccessType.READ,
+          rule = "this IN (SELECT p1.participant FROM Participation p1, Participation p2 "
+               + "WHERE p1.course = p2.course AND p2.participant.name.nick = CURRENT_PRINCIPAL)"),
+  @Permit(access = AccessType.UPDATE, rule = "name.nick = CURRENT_PRINCIPAL")
+})
 public class Student extends User {
 
     @MapKey(name = "course")
