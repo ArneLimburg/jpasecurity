@@ -57,13 +57,13 @@
 		  <h:panelGrid columns="2">
             <h:outputLabel value="Course:" for="courseName"/>
             <h:outputLink name="courseName" value="course.xhtml"> 
-              <f:param name="id" value="#{course.id}" />
-              <h:outputText value="#{course.title}" />
+              <f:param name="id" value="#{lesson.courseId}" />
+              <h:outputText value="#{lesson.course.title}" />
             </h:outputLink>		  
             <h:outputLabel value="Lecturer:" for="lecturer"/>
             <h:outputLink name="lecturer" value="teacher.xhtml"> 
-              <f:param name="id" value="#{course.lecturer.id}" />
-              <h:outputText id="lecturer" value="#{course.teacher.name}" />
+              <f:param name="id" value="#{lesson.course.lecturer.id}" />
+              <h:outputText value="#{lesson.course.lecturer.fullname}" />
             </h:outputLink>
           </h:panelGrid>
         </h:form>  

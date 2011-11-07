@@ -63,23 +63,16 @@ public class CourseBean {
         });
     }
 
-    // add student to a course
-    public String addStudentToCourse() {
+    // add or remove student to a course
+    public String addOrRemoveStudentToCourse() {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
                 Student student = getCurrentStudent();
-                course.subscribe(student);
-                return "dashboard.xhtml";
-            }
-        });
-    }
-
-    // remove student from a course
-    public String removeStudentFromCourse() {
-        return elearningRepository.executeTransactional(new Callable<String>() {
-            public String call() {
-                Student student = getCurrentStudent();
-                course.unsubscribe(student);
+                if (course.getParticipants().contains(student)) {
+                    course.unsubscribe(student);
+                } else {
+                    course.subscribe(student);
+                }
                 return "dashboard.xhtml";
             }
         });
@@ -166,13 +159,15 @@ public class CourseBean {
         this.elearningRepository = elearningRepository;
     }
 
-    public void setId(final int id) {
-        course = elearningRepository.findCourse(id);
+    public void setId(final Integer id) {
+        if (id != null) {
+            course = elearningRepository.findCourse(id);
+        }
     }
 
-    public int getId() {
+    public Integer getId() {
         if (course == null) {
-            return -1;
+            return null;
         }
         return course.getId();
     }
