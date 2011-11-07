@@ -301,6 +301,9 @@ public abstract class AbstractSecurityUnitParser {
         if (isVersionProperty(property)) {
             propertyMapping.setVersionProperty(true);
         }
+        if (isGeneratedValue(property)) {
+            propertyMapping.setGeneratedValue(true);
+        }
     }
 
     protected ClassMappingInformation getMapping(Class<?> type) {
@@ -430,6 +433,8 @@ public abstract class AbstractSecurityUnitParser {
     protected abstract boolean isIdProperty(Member property);
 
     protected abstract boolean isVersionProperty(Member property);
+
+    protected abstract boolean isGeneratedValue(Member property);
 
     protected abstract boolean isFetchTypePresent(Member property);
 

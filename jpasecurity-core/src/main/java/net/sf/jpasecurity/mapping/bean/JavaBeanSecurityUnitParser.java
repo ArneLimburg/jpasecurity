@@ -115,6 +115,10 @@ public class JavaBeanSecurityUnitParser extends AbstractSecurityUnitParser {
         return false;
     }
 
+    protected boolean isGeneratedValue(Member property) {
+        return false;
+    }
+
     protected boolean isFetchTypePresent(Member property) {
         return false;
     }

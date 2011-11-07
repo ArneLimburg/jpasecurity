@@ -32,6 +32,7 @@ public abstract class AbstractPropertyMappingInformation implements PropertyMapp
     private ClassMappingInformation containingClassMapping;
     private boolean idProperty;
     private boolean versionProperty;
+    private boolean generatedValue;
     private PropertyAccessStrategy propertyAccessStrategy;
 
     AbstractPropertyMappingInformation(String propertyName,
@@ -82,6 +83,14 @@ public abstract class AbstractPropertyMappingInformation implements PropertyMapp
 
     void setVersionProperty(boolean versionProperty) {
         this.versionProperty = versionProperty;
+    }
+
+    public boolean isGeneratedValue() {
+        return generatedValue;
+    }
+
+    void setGeneratedValue(boolean generatedValue) {
+        this.generatedValue = generatedValue;
     }
 
     public String getPropertyName() {
