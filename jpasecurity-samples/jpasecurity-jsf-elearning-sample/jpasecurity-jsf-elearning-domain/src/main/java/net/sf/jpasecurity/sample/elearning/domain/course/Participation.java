@@ -20,14 +20,17 @@ import static org.apache.commons.lang.Validate.notNull;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
+import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Lesson;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
+import net.sf.jpasecurity.security.Permit;
+import net.sf.jpasecurity.security.PermitAny;
 
 /**
  * This class is package private so that it can be accessed solely from within the {@link CourseAggregate}
@@ -36,13 +39,18 @@ import net.sf.jpasecurity.sample.elearning.domain.Student;
  * @author Arne Limburg - open knowledge GmbH (arne.limburg@openknowledge.de)
  */
 @Entity
-@IdClass(ParticipationId.class)
+@PermitAny({
+  @Permit(rule = "'admin' IN (CURRENT_ROLES)"),
+  @Permit(rule = "course.lecturer.name.nick = CURRENT_PRINCIPAL", access = AccessType.READ),
+  @Permit(rule = "participant.name.nick = CURRENT_PRINCIPAL")
+})
 public class Participation {
 
     @Id
+    @GeneratedValue
+    private int id;
     @ManyToOne(targetEntity = CourseAggregate.class)
     private CourseAggregate course;
-    @Id
     @ManyToOne
     private Student participant;
     @ManyToMany
@@ -59,6 +67,10 @@ public class Participation {
         notNull(participant, "participant may not be null");
         this.course = course;
         this.participant = participant;
+    }
+
+    int getId() {
+        return id;
     }
 
     Course getCourse() {

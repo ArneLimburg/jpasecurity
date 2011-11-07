@@ -41,6 +41,8 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.sample.elearning.domain.Content;
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Lesson;
 import net.sf.jpasecurity.sample.elearning.domain.LessonWithoutCourse;
@@ -48,6 +50,8 @@ import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.Title;
 import net.sf.jpasecurity.sample.elearning.domain.course.LessonFactoryBuilder.LessonFactory;
+import net.sf.jpasecurity.security.Permit;
+import net.sf.jpasecurity.security.PermitAny;
 
 /**
  * An aggregate that ecapsulates the {@link Course} and related entities like {@link LessonEntity}
@@ -57,6 +61,10 @@ import net.sf.jpasecurity.sample.elearning.domain.course.LessonFactoryBuilder.Le
  */
 @Entity
 @Table(name = "COURSE")
+@PermitAny({
+  @Permit(access = AccessType.READ),
+  @Permit(access = {AccessType.CREATE, AccessType.UPDATE, AccessType.DELETE}, rule = "lecturer.name.nick = CURRENT_PRINCIPAL")
+})
 public class CourseAggregate implements Course {
 
     @Id
@@ -78,6 +86,10 @@ public class CourseAggregate implements Course {
 
     protected CourseAggregate() {
         // to satisfy @Entity-contract
+    }
+
+    public CourseAggregate(Title title, Teacher lecturer, Title lessonTitle, Content lessonContent) {
+        this(title, lecturer, LessonFactoryBuilder.newLesson().withTitle(lessonTitle).andContent(lessonContent));
     }
 
     public CourseAggregate(Title title, Teacher lecturer, LessonWithoutCourse... lessons) {
