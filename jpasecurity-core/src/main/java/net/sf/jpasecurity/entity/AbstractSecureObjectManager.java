@@ -158,7 +158,9 @@ public abstract class AbstractSecureObjectManager {
         boolean modified = false;
         final ClassMappingInformation classMapping = getClassMapping(secureObject.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
-            if (propertyMapping.isIdProperty() || propertyMapping.isVersionProperty()) {
+            if (propertyMapping.isVersionProperty()
+                || (propertyMapping.isIdProperty()
+                    && classMapping.getIdClassMapping() == null)) { //TODO should be isGeneratedValue() here
                 continue; //don't change id or version property
             }
             Object secureValue = propertyMapping.getPropertyValue(secureObject);
@@ -334,6 +336,9 @@ public abstract class AbstractSecureObjectManager {
         ClassMappingInformation classMapping = getClassMapping(secureObject.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getIdPropertyMappings()) {
             Object newId = propertyMapping.getPropertyValue(unsecureObject);
+            if (propertyMapping.isRelationshipMapping()) {
+                newId = getSecureObject(newId);
+            }
             propertyMapping.setPropertyValue(secureObject, newId);
         }
         for (PropertyMappingInformation propertyMapping: classMapping.getVersionPropertyMappings()) {
