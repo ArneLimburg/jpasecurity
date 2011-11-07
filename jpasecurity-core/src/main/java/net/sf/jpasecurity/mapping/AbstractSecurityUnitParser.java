@@ -145,10 +145,10 @@ public abstract class AbstractSecurityUnitParser {
     }
 
     protected ClassMappingInformation parse(Class<?> mappedClass) {
-        return parse(mappedClass, false);
+        return parse(mappedClass, false, false);
     }
 
-    protected ClassMappingInformation parse(Class<?> mappedClass, boolean override) {
+    protected ClassMappingInformation parse(Class<?> mappedClass, boolean derivedFieldAccess, boolean override) {
         DefaultClassMappingInformation classMapping = classMappings.get(mappedClass);
         if (classMapping != null && !override) {
             return classMapping;
@@ -156,14 +156,16 @@ public abstract class AbstractSecurityUnitParser {
         Class<?> superclass = mappedClass.getSuperclass();
         ClassMappingInformation superclassMapping = null;
         if (superclass != null) {
-            superclassMapping = parse(mappedClass.getSuperclass());
+            superclassMapping = parse(mappedClass.getSuperclass(), derivedFieldAccess, override);
         }
         if (!isMapped(mappedClass)) {
             return superclassMapping;
         }
         parseNamedQueries(mappedClass);
         boolean usesFieldAccess;
-        if (superclassMapping != null) {
+        if (isFieldAccessDerived(mappedClass)) {
+            usesFieldAccess = derivedFieldAccess;
+        } else if (superclassMapping != null) {
             usesFieldAccess = superclassMapping.usesFieldAccess();
         } else {
             usesFieldAccess = usesFieldAccess(mappedClass);
@@ -172,7 +174,7 @@ public abstract class AbstractSecurityUnitParser {
         if (superclassMapping == null || superclassMapping.getIdClassMapping() == null) {
             Class<?> idClass = getIdClass(mappedClass, usesFieldAccess);
             if (idClass != null) {
-                idClassMapping = parse(idClass);
+                idClassMapping = parse(idClass, derivedFieldAccess, override);
             }
         }
         String entityName = getEntityName(mappedClass);
@@ -256,7 +258,7 @@ public abstract class AbstractSecurityUnitParser {
                 }
             } else {
                 if (isSingleValuedRelationshipProperty) {
-                    ClassMappingInformation typeMapping = parse(type);
+                    ClassMappingInformation typeMapping = parse(type, classMapping.usesFieldAccess(), false);
                     PropertyAccessStrategy propertyAccessStrategy
                         = propertyAccessStrategyFactory.createPropertyAccessStrategy(classMapping, name);
                     propertyMapping = new SingleValuedRelationshipMappingInformation(name,
@@ -267,7 +269,8 @@ public abstract class AbstractSecurityUnitParser {
                                                                                      getFetchType(property),
                                                                                      getCascadeTypes(property));
                 } else if (isCollectionValuedRelationshipProperty) {
-                    ClassMappingInformation targetMapping = parse(getTargetType(property));
+                    ClassMappingInformation targetMapping
+                        = parse(getTargetType(property), classMapping.usesFieldAccess(), false);
                     PropertyAccessStrategy propertyAccessStrategy
                         = propertyAccessStrategyFactory.createPropertyAccessStrategy(classMapping, name);
                     propertyMapping = new CollectionValuedRelationshipMappingInformation(name,
@@ -374,6 +377,10 @@ public abstract class AbstractSecurityUnitParser {
             }
             throw exceptionFactory.createTargetEntityNotFoundException(property);
         }
+    }
+
+    protected boolean isFieldAccessDerived(Class<?> mappedClass) {
+        return isEmbeddable(mappedClass);
     }
 
     protected boolean usesFieldAccess(Class<?> mappedClass) {
