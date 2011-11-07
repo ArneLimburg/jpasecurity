@@ -79,6 +79,10 @@ public class LessonBean {
         return lesson.getContent();
     }
 
+    public Course getCourse() {
+        return course;
+    }
+
     public boolean isStarted() {
         return lesson != null? lesson.equals(course.getCurrentLession(getCurrentStudent())): false;
     }
@@ -91,7 +95,8 @@ public class LessonBean {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
                 course.finishLesson(getCurrentStudent(), lesson);
-                return "lesson.xhtml?faces-redirect=true&includeViewParams=true";
+                return "lesson.xhtml?course=" + course.getId() + "&lesson=" + getId()
+                    + "&faces-redirect=true&includeViewParams=true";
             }
         });
     }
@@ -100,7 +105,8 @@ public class LessonBean {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
                 course.startLesson(getCurrentStudent(), lesson);
-                return "lesson.xhtml?faces-redirect=true&includeViewParams=true";
+                return "lesson.xhtml?course=" + course.getId() + "&lesson=" + getId()
+                    + "&faces-redirect=true&includeViewParams=true";
             }
         });
     }
