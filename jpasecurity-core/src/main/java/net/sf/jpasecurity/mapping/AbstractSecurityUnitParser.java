@@ -376,7 +376,7 @@ public abstract class AbstractSecurityUnitParser {
     protected boolean usesFieldAccess(Class<?> mappedClass) {
         Field[] fields = mappedClass.getDeclaredFields();
         for (Field field: fields) {
-            if (isMappable(field) && isMapped(field)) {
+            if (isIdProperty(field)) {
                 return true;
             }
         }
