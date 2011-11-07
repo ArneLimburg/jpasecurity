@@ -30,6 +30,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.ExcludeDefaultListeners;
 import javax.persistence.ExcludeSuperclassListeners;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Lob;
@@ -62,6 +63,7 @@ import net.sf.jpasecurity.mapping.EntityLifecycleMethods;
 import net.sf.jpasecurity.mapping.EntityListener;
 import net.sf.jpasecurity.mapping.EntityListenerWrapper;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
+import static net.sf.jpasecurity.util.Types.*;
 
 /**
  * Parses a persistence unit for persistence annotations.
@@ -177,19 +179,18 @@ public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
 
     protected boolean isMapped(Member member) {
         AnnotatedElement annotatedMember = (AnnotatedElement)member;
-        if (annotatedMember.isAnnotationPresent(Transient.class)) {
+        if (!isMappable(member)) {
             return false;
         }
-        return isRelationshipProperty(member)
+        return isSimplePropertyType(getType(member))
+            || isRelationshipProperty(member)
             || annotatedMember.isAnnotationPresent(Id.class)
-            || annotatedMember.isAnnotationPresent(EmbeddedId.class)
             || annotatedMember.isAnnotationPresent(Version.class)
             || annotatedMember.isAnnotationPresent(Basic.class)
             || annotatedMember.isAnnotationPresent(Column.class)
             || annotatedMember.isAnnotationPresent(Lob.class)
             || annotatedMember.isAnnotationPresent(Temporal.class)
-            || annotatedMember.isAnnotationPresent(Enumerated.class)
-            || annotatedMember.isAnnotationPresent(Embedded.class);
+            || annotatedMember.isAnnotationPresent(Enumerated.class);
     }
 
     protected boolean isEmbeddable(Class<?> type) {
@@ -198,16 +199,21 @@ public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
 
     protected boolean isIdProperty(Member property) {
         AnnotatedElement annotatedProperty = (AnnotatedElement)property;
-        if (annotatedProperty.getAnnotation(Id.class) != null) {
+        if (annotatedProperty.isAnnotationPresent(Id.class)) {
             return true;
         } else {
-            return annotatedProperty.getAnnotation(EmbeddedId.class) != null;
+            return annotatedProperty.isAnnotationPresent(EmbeddedId.class);
         }
     }
 
     protected boolean isVersionProperty(Member property) {
         AnnotatedElement annotatedProperty = (AnnotatedElement)property;
-        return annotatedProperty.getAnnotation(Version.class) != null;
+        return annotatedProperty.isAnnotationPresent(Version.class);
+    }
+
+    protected boolean isGeneratedValue(Member property) {
+        AnnotatedElement annotatedProperty = (AnnotatedElement)property;
+        return annotatedProperty.isAnnotationPresent(GeneratedValue.class);
     }
 
     protected boolean isFetchTypePresent(Member property) {

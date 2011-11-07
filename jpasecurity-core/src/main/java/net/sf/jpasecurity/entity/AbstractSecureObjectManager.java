@@ -159,8 +159,7 @@ public abstract class AbstractSecureObjectManager {
         final ClassMappingInformation classMapping = getClassMapping(secureObject.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
             if (propertyMapping.isVersionProperty()
-                || (propertyMapping.isIdProperty()
-                    && classMapping.getIdClassMapping() == null)) { //TODO should be isGeneratedValue() here
+                || (propertyMapping.isIdProperty() && propertyMapping.isGeneratedValue())) {
                 continue; //don't change id or version property
             }
             Object secureValue = propertyMapping.getPropertyValue(secureObject);

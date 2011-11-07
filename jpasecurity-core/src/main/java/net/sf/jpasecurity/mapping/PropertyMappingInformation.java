@@ -31,6 +31,7 @@ public interface PropertyMappingInformation {
     boolean isRelationshipMapping();
     boolean isIdProperty();
     boolean isVersionProperty();
+    boolean isGeneratedValue();
     String getPropertyName();
     Class<?> getProperyType();
     FetchType getFetchType();

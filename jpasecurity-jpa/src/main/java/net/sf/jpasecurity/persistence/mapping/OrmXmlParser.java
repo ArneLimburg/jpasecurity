@@ -131,6 +131,8 @@ public class OrmXmlParser extends JpaAnnotationParser {
         = "//*[@class=''{0}'']/attributes/embedded-id[@name=''{1}'']";
     public static final String VERSION_PROPERTY_XPATH
         = "//*[@class=''{0}'']//version[@name=''{1}'']";
+    public static final String GENERATED_VALUE_PROPERTY_XPATH
+        = "//*[@class=''{0}'']//id[@name=''{1}'']/generated-value";
     public static final String TRANSIENT_PROPERTY_XPATH
         = "//*[@class=''{0}'']/attributes/transient[@name=''{1}'']";
 
@@ -378,6 +380,11 @@ public class OrmXmlParser extends JpaAnnotationParser {
     protected boolean isVersionProperty(Member property) {
         String name = getName(property);
         return evaluateNode(VERSION_PROPERTY_XPATH, property.getDeclaringClass(), name) != null;
+    }
+
+    protected boolean isGeneratedValue(Member property) {
+        String name = getName(property);
+        return evaluateNode(GENERATED_VALUE_PROPERTY_XPATH, property.getDeclaringClass(), name) != null;
     }
 
     /**
