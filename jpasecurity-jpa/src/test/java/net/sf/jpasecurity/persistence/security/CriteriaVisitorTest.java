@@ -89,7 +89,7 @@ public class CriteriaVisitorTest {
 
     @Test
     public void appendAccessRule() {
-        AccessRule accessRule = compile("GRANT READ ACCESS TO TestBean testBean WHERE bean.id = 1");
+        AccessRule accessRule = compile("GRANT READ ACCESS TO TestBean testBean WHERE testBean.id = 1");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<TestBean> query = criteriaBuilder.createQuery(TestBean.class);
