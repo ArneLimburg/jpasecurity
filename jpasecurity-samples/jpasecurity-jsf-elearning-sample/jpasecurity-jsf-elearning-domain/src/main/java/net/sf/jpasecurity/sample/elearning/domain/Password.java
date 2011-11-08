@@ -50,8 +50,8 @@ public class Password {
         if (!(object instanceof Password)) {
             return false;
         }
-        Password name = (Password)object;
-        return getText().equals(name.getText());
+        Password password = (Password)object;
+        return getText().equals(password.getText());
     }
 
     public int hashCode() {
