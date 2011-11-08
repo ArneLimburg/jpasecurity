@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.samples.elearning.jsf.service;
 
 import net.sf.jpasecurity.sample.elearning.domain.Name;
+import net.sf.jpasecurity.sample.elearning.domain.Password;
 import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 
@@ -31,6 +32,18 @@ public class UserRepositoryWrapper implements UserRepository {
         final UserRepository userRepository = elearningRepository;
         try {
             return userRepository.<U>findUser(name);
+        } finally {
+            elearningRepository.closeEntityManager();
+        }
+    }
+
+    public boolean authenticate(Name name, Password password) {
+        //Don't receive ElearingRepository from faces context
+        //since no faces context is available during j_security_check
+        final ElearningRepository elearningRepository = new ElearningRepository();
+        final UserRepository userRepository = elearningRepository;
+        try {
+            return userRepository.authenticate(name, password);
         } finally {
             elearningRepository.closeEntityManager();
         }

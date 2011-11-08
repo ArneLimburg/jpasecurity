@@ -30,4 +30,6 @@ public interface UserRepository {
      */
     <U extends User> U findUser(Name name);
 
+    boolean authenticate(Name name, Password password);
+
 }
