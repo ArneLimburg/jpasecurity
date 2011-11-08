@@ -63,7 +63,8 @@ import net.sf.jpasecurity.security.PermitAny;
 @Table(name = "COURSE")
 @PermitAny({
   @Permit(access = AccessType.READ),
-  @Permit(access = {AccessType.CREATE, AccessType.UPDATE, AccessType.DELETE}, rule = "lecturer.name.nick = CURRENT_PRINCIPAL")
+  @Permit(access = { AccessType.CREATE, AccessType.UPDATE, AccessType.DELETE },
+          rule = "lecturer.name.nick = CURRENT_PRINCIPAL")
 })
 public class CourseAggregate implements Course {
 
