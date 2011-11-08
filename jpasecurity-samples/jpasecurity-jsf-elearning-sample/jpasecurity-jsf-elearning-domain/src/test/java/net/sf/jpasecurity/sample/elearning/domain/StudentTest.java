@@ -15,10 +15,11 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
-import static org.junit.Assert.assertTrue;
+import static net.sf.jpasecurity.util.Maps.entry;
+import static net.sf.jpasecurity.util.Maps.map;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.TypedQuery;
@@ -54,9 +55,9 @@ public class StudentTest extends AbstractEntityTestCase {
 
     @BeforeClass
     public static void createEntityManagerFactory() {
-        createEntityManagerFactory("elearning", Collections.<String, Object>singletonMap(
-            "net.sf.jpasecurity.security.authentication.provider", TestAuthenticationProvider.class.getName()
-        ));
+        createEntityManagerFactory("elearning", map(entry("net.sf.jpasecurity.security.authentication.provider",
+                                                          (Object)TestAuthenticationProvider.class.getName()),
+                                                    entry("hibernate.hbm2ddl.auto", (Object)"create-drop")));
     }
 
     @Before
