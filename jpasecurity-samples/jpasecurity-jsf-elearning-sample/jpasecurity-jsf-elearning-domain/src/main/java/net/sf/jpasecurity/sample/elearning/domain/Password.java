@@ -51,7 +51,7 @@ public class Password {
             return false;
         }
         Password name = (Password)object;
-        return text.equals(name.text);
+        return getText().equals(name.getText());
     }
 
     public int hashCode() {
