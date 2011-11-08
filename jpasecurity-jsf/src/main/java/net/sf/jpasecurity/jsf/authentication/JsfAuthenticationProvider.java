@@ -35,23 +35,33 @@ public class JsfAuthenticationProvider extends AbstractRoleBasedAuthenticationPr
     private static final Log LOG = LogFactory.getLog(JsfAuthenticationProvider.class);
 
     public JsfAuthenticationProvider() {
-        ServletContext context = (ServletContext)FacesContext.getCurrentInstance().getExternalContext().getContext();
-        try {
-            parseWebXml(context.getResource("/WEB-INF/web.xml"));
-        } catch (IOException e) {
-            LOG.warn("Could not parse web.xml, roles declared there will not be available.", e);
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext != null) {
+            ServletContext context = (ServletContext)facesContext.getExternalContext().getContext();
+            try {
+                parseWebXml(context.getResource("/WEB-INF/web.xml"));
+            } catch (IOException e) {
+                LOG.warn("Could not parse web.xml, roles declared there will not be available.", e);
+            }
         }
     }
 
     protected Principal getCallerPrincipal() {
-        return getRequest().getUserPrincipal();
+        HttpServletRequest request = getRequest();
+        return request != null? request.getUserPrincipal(): null;
     }
 
     protected boolean isCallerInRole(String roleName) {
-        return getRequest().isUserInRole(roleName);
+        HttpServletRequest request = getRequest();
+        return request != null? request.isUserInRole(roleName): false;
     }
 
     private HttpServletRequest getRequest() {
-        return (HttpServletRequest)FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext != null) {
+            return (HttpServletRequest)FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        } else {
+            return null;
+        }
     }
 }
