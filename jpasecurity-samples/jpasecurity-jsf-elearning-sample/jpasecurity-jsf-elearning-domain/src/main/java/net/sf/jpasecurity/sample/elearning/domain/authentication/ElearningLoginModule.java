@@ -39,7 +39,9 @@ public class ElearningLoginModule extends AbstractLoginModule<User> {
     public User authenticate(String username, String password) throws LoginException {
         UserRepository userRepository = ServiceLoader.load(UserRepository.class).iterator().next();
         User user = userRepository.findUser(new Name(username));
-        if (user == null) {
+        if (user == null && userRepository.authenticate(new Name(username), new Password(password))) {
+            return new Student(new Name(username));
+        } else if (user == null) {
             return null;
         }
         if (!user.canAuthenticate(new Password(password))) {

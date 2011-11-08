@@ -23,12 +23,14 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Name;
+import net.sf.jpasecurity.sample.elearning.domain.Password;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.StudentRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
@@ -66,9 +68,22 @@ public class ElearningRepository implements UserRepository,
     }
 
     public <U extends User> U findUser(Name name) {
-        return (U)getEntityManager().createNamedQuery(User.BY_NAME, User.class)
-                                    .setParameter("nick", name.getNick())
-                                    .getSingleResult();
+        try {
+            return (U)getEntityManager().createNamedQuery(User.BY_NAME, User.class)
+                                        .setParameter("nick", name.getNick())
+                                        .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public boolean authenticate(Name name, Password password) {
+        return getEntityManager().createQuery("SELECT COUNT(user.name.nick) FROM User user "
+                                            + "WHERE user.name.nick = :nick "
+                                            + "AND user.password.text = :password", Number.class)
+                                 .setParameter("nick", name.getNick())
+                                 .setParameter("password", password.getText())
+                                 .getSingleResult().intValue() > 0;
     }
 
     public void persist(Course course) {
