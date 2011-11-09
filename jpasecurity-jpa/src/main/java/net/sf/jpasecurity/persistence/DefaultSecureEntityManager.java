@@ -300,6 +300,14 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
     }
 
+    public <T> T unwrap(Class<T> cls) {
+        if (cls.isAssignableFrom(getClass())) {
+            return (T)this;
+        } else {
+            return super.unwrap(cls);
+        }
+    }
+
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
         ClassMappingInformation classMapping = mappingInformation.getClassMapping(entityName);
         Object[] transientParameters = new Object[parameters.length];
