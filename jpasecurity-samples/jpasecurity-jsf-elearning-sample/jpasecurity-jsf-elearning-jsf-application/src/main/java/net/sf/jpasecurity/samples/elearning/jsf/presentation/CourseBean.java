@@ -78,6 +78,10 @@ public class CourseBean {
         });
     }
 
+    public Course getEntity() {
+        return course;
+    }
+
     // add lesson to a course
     public String addLessonToCourse() {
         return elearningRepository.executeTransactional(new Callable<String>() {
