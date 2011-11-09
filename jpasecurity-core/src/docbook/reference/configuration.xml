@@ -17,13 +17,22 @@
     <listitem>
       <para>
         <systemitem>net.sf.jpasecurity.security.authentication.provider</systemitem> - This property specifies
-        the class name of the implementation of an authentication provider.
+        the class name of the implementation of an authentication provider which may be any implementation of
+        the interface <systemitem>net.sf.jpasecurity.configuration.AuthenticationProvider</systemitem>.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        <systemitem>net.sf.jpasecurity.security.context</systemitem> - This property specifies
+        the class name of the implementation of a security context which may be any implementation of
+        the interface <systemitem>net.sf.jpasecurity.configuration.SecurityContext</systemitem>.
       </para>
     </listitem>
     <listitem>
       <para>
         <systemitem>net.sf.jpasecurity.security.rules.provider</systemitem> - This property specifies
-        the class name of the implementation of an access rules provider.
+        the class name of the implementation of an access rules provider which may be any implementation of
+        the interface <systemitem>net.sf.jpasecurity.configuration.AccessRulesProvider</systemitem>.
       </para>
     </listitem>
   </itemizedlist>

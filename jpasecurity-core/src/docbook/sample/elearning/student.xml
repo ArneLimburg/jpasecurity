@@ -1,21 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
 <article id="student">
-    <title>Student view</title>
-    <para>The student view will expand the basic elements by following student functions.</para>
-    <section>
-        <title>Dashboard</title>
-        <para>On the one hand you can see on this site all available courses, on the other hand you can see your courses
-        additively.</para>
-    </section>
-    <section>
-        <title>Course</title>
-        <para>For every course you can see its survey. Moreover, if you have subscribed this, you can unsubscribe by
-            clicking the "leave this course" button. If you haven't subscribed to a course, you can do so by clicking 
-            the button "join this course".
-        </para>
-        <para>For every lesson of this course start and finish lessons of this course. At this, you can have
-            only one lesson in process at any given time. Besides you can only work on a lesson one after another.
-        </para>
-    </section>
+  <title>Student's view</title>
+  <para>The student view will expand the basic elements by following student functions.</para>
+  <section>
+    <title>Dashboard</title>
+    <para>
+      On the one hand you can see on this site all available courses,
+      on the other hand you can see your courses additively.
+    </para>
+    <para>
+      At the bottom of the dashboard you see a list of students
+      that are subscribed to the same courses as you.
+    </para>
+  </section>
+  <section>
+    <title>Course</title>
+    <para>
+      For every course you can see its survey.
+      Moreover, if you are subscribed to that course,
+      you are allowed to see the other subscribed students.
+      You can unsubscribe by clicking the "leave this course" button.
+      If you are not subscribed to the course,
+      you can do so by clicking the button "join this course".
+    </para>
+    <para>
+      For every lesson of this course you can start and finish it.
+      At this, you can have only one lesson in process at any given time.
+      Besides you can only work on a lesson one after another.
+    </para>
+  </section>
 </article>

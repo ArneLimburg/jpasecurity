@@ -15,7 +15,7 @@
       according to your access rules. This behavior enforces security-rule-evaluation
       within the database. Only database rows resulting in entities that the user is
       allowed to read will be loaded. When using <systemitem>Hibernate</systemitem>
-      as persistence provider, the <systemitem>Hibernate</systemitem> <systemitem>WITH</systemitem>-clause
+      as persistence provider, the <systemitem>Hibernate</systemitem>-<systemitem>WITH</systemitem>-clause
       is supported by JPA Security.
     </para>
   </section>

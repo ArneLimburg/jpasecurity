@@ -19,7 +19,7 @@
   <para>
     The autodetection mechanism of JPA Security will automatically detect that you are using Spring Security,
     but you can specify your security context or authentication provider as bean property
-    of the <systemitem>EntityManagerFactoryBean</systemitem> in your spring configuration.
+    of the <systemitem>Secure*EntityManagerFactoryBean</systemitem> in your spring configuration.
   </para>
   <para>
     You need to have the jpasecurity-spring module in your classpath to use spring security.

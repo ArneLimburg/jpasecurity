@@ -23,8 +23,11 @@
   <para>
 	Due to it's smooth integration into current Java standards,
 	it may be integrated into every layer of your application.
+	<!--
 	It enables you to configure rules defining access control for your Java Beans
 	(like JSF 2 Managed Beans, CDI Beans, EJBs and JPA 2 Entity Beans or Embeddables)
+	 -->
+	It enables you to configure rules defining access control for your Entity Beans and Embeddables
     based on the current security context
     (i.e. the currently authenticated user and/or its roles in the application).
   </para>
