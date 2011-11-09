@@ -344,6 +344,9 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public boolean isAccessible(AccessType accessType, Object entity) {
+        if (entity == null) {
+            return false;
+        }
         try {
             return entityFilter.isAccessible(entity, accessType);
         } catch (NotEvaluatableException e) {
