@@ -313,7 +313,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         Object[] transientParameters = new Object[parameters.length];
         AbstractSecureObjectManager objectManager = (AbstractSecureObjectManager)secureObjectManager;
         for (int i = 0; i < transientParameters.length; i++) {
-            if (mappingInformation.containsClassMapping(parameters[i].getClass())) {
+            if (parameters[i] != null && mappingInformation.containsClassMapping(parameters[i].getClass())) {
                 ClassMappingInformation mapping = mappingInformation.getClassMapping(parameters[i].getClass());
                 BeanInitializer beanInitializer = configuration.getBeanInitializer();
                 MethodInterceptor interceptor
