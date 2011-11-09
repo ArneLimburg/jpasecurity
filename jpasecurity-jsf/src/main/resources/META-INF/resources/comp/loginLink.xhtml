@@ -21,8 +21,9 @@
           <f:param name="return" value="#{facesContext.viewRoot.viewId}"/>
           <f:param name="query" value="#{facesContext.externalContext.request.queryString}"/>
         </h:commandLink>
-        <h:commandLink value="#{cc.attrs.logoutLabel}" action="#{cc.attrs.logoutAction}" rendered="#{facesContext.externalContext.request.remoteUser != null}">
+        <h:commandLink value="#{cc.attrs.logoutLabel}" rendered="#{facesContext.externalContext.request.remoteUser != null}">
           <f:actionListener type="net.sf.jpasecurity.jsf.LogoutActionListener"/>
+          <f:param name="query" value="#{facesContext.externalContext.request.queryString}"/>
         </h:commandLink>
       </h:form>
     </cc:implementation>
