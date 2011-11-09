@@ -42,7 +42,7 @@ label {
 
 #content input[type = "submit"],
 #content input[type = "reset"],
-.buttons #cancel a{
+#content .buttons a{
     background : rgb(160, 160, 160);
     margin : 0.25em 0.5em;
     padding : .5em 1em;
