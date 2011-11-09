@@ -42,7 +42,10 @@ import net.sf.jpasecurity.security.PermitAny;
 @PermitAny({
   @Permit(rule = "'admin' IN (CURRENT_ROLES)"),
   @Permit(rule = "course.lecturer.name.nick = CURRENT_PRINCIPAL", access = AccessType.READ),
-  @Permit(rule = "participant.name.nick = CURRENT_PRINCIPAL")
+  @Permit(rule = "participant.name.nick = CURRENT_PRINCIPAL"),
+  @Permit(access = AccessType.READ,
+          rule = "participant IN (SELECT p1.participant FROM Participation p1, Participation p2 "
+               + "WHERE p1.course = p2.course AND p2.participant.name.nick = CURRENT_PRINCIPAL)")
 })
 public class Participation {
 
