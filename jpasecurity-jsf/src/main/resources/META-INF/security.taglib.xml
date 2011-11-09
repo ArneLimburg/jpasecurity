@@ -23,42 +23,42 @@
     <handler-class>net.sf.jpasecurity.jsf.RolesAllowedTagHandler</handler-class>
   </tag>
   <function>
-    <function-name>newBean</function-name>
+    <function-name>newBean1</function-name>
     <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String)</function-signature>
   </function>
   <function>
-    <function-name>newBean</function-name>
+    <function-name>newBean2</function-name>
     <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object)</function-signature>
   </function>
   <function>
-    <function-name>newBean</function-name>
+    <function-name>newBean3</function-name>
     <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object,java.lang.Object)</function-signature>
   </function>
   <function>
-    <function-name>newBean</function-name>
+    <function-name>newBean4</function-name>
     <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object)</function-signature>
   </function>
   <function>
-    <function-name>newBean</function-name>
+    <function-name>newBean5</function-name>
     <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object)</function-signature>
   </function>
   <function>
-    <function-name>newBean</function-name>
+    <function-name>newBean6</function-name>
     <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object)</function-signature>
   </function>
   <function>
-    <function-name>newBean</function-name>
+    <function-name>newBean7</function-name>
     <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object)</function-signature>
   </function>
   <function>
-    <function-name>newBean</function-name>
+    <function-name>newBean8</function-name>
     <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object)</function-signature>
   </function>
