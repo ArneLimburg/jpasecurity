@@ -3,9 +3,9 @@
 <article id="persistence.xml">
   <title>Modifying your persistence.xml</title>
   <para>
-    In order to use JPA Security you have to modify your <quote>persistence.xml</quote>
-    to point to JPA Security. Additionally you have to configure JPA Security to use your
-    original persistence provider.
+    In order to use JPA Security you have to enable it for your persistence unit. This can be done
+    by modifying your <quote>persistence.xml</quote> to point to JPA Security.
+    Additionally you have to configure JPA Security to use your original persistence provider.
   </para>
 <!--  <itemizedlist>-->
 <!--    <listitem>-->

@@ -159,6 +159,12 @@
       <programlisting>
         GRANT READ ACCESS TO Account account WHERE account.owner = CURRENT_PRINCIPAL
       </programlisting>
+      <para>
+        In the previous example the <computeroutput>CURRENT_PRINCIPAL</computeroutput> is provided
+        by the currently active security context. When the access rule is evaluated, the
+        <computeroutput>CURRENT_PRINCIPAL</computeroutput> is received from the security context
+        and the rule is evaluated against this principal
+      </para>
     </section>
     <section>
       <title>Access Rules in JPA Security</title>
@@ -237,15 +243,35 @@
           annotation at method-level.
         </para>
         <para>
-          The <systemitem>@Permit</systemitem> annotation has an optional parameter <systemitem>where</systemitem>.
-          With this parameter you can specify your restrictions for entities
-          of the annotated class.
+          The <systemitem>@Permit</systemitem> annotation has two optional parameters:
         </para>
+        <itemizedlist>
+          <listitem>
+            <para>
+              With the parameter <systemitem>access</systemitem> you can specify
+              which kind of access shall be granted by this rule.
+              The value is an array of the <systemitem>AccessType</systemitem> enum. 
+              Possible values of an <systemitem>AccessType</systemitem> are
+              <systemitem>CREATE</systemitem>, <systemitem>READ</systemitem>,
+              <systemitem>UPDATe</systemitem> and <systemitem>DELETE</systemitem>.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              With the parameter <systemitem>rule</systemitem> you can specify a
+              rule to restict the access for entities of the annotated class.
+              The syntax of this rule is derived from the
+              <systemitem>where</systemitem>-clause of JPQL (see previous section),
+              where the special keyword <systemitem>this</systemitem> serves as an
+              alias for the annotated entity or embeddable that may be used in the rule.
+            </para>
+          </listitem>
+        </itemizedlist>
         <para>
           Example:
         </para>
         <programlisting>
-@Permit(where = "owner = CURRENT_PRINCIPAL")
+@Permit(access = AccessType.READ, rule = "owner = CURRENT_PRINCIPAL")
 public class Account {
     ...
 }
@@ -254,8 +280,10 @@ public class Account {
       <section id="access-rules-application">
         <title>Applying of access rules</title>
         <para>
-          Read-access rules are applied to every entity or embeddable that is accessed via JPQL
-          or object-navigation. When the object is accessed via JPQL, the access rules are applied
+          Read-access rules are applied to every entity or embeddable that is accessed via a
+          JPA-Security-enabled <systemitem>EntityManager</systemitem> or via object-navigation
+          through objects obtained from such <systemitem>EntityManager</systemitem>. 
+          When the object is accessed via JPQL, the access rules are applied
           directly to the JPQL-query, allowing the filtering to take place within the database.
           When the object is accessed via object-navigation, JPA Security tries to avoid database-calls
           and evaluates the rules in memory. When in-memory-evaluation is not applicable and the

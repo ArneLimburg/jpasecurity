@@ -3,9 +3,9 @@
 <article>
   <title>Build-in Authentication</title>
   <para>
-    If you neither use JavaEE-Authentication nor Spring-Security-Authentication you either
-    have to provide your own implementation of the
-    <systemitem>net.sf.jpasecurity.security.authentication.AuthenticationProvider</systemitem> interface
+    If you neither use Java EE authentication nor Servlet authentication (via JSF) nor Spring-Security
+    you either have to provide your own implementation of the
+    <systemitem>net.sf.jpasecurity.configuration.SecurityContext</systemitem> interface
     or you have to use one of the build-in authentication providers, which are
     <systemitem>DefaultAuthenticationProvider</systemitem> and <systemitem>StaticAuthenticationProvider</systemitem>.
   </para>
@@ -17,5 +17,6 @@
   </para>
   <para>
     You may take a look at the simple tutoral to see an example of using the <systemitem>StaticAuthenticationProvider</systemitem>.
+    In the next chapter you will learn how to provide a custom security context or authentication provider.
   </para>
 </article>

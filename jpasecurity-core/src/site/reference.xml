@@ -65,8 +65,8 @@
           <title>Implementing a custom Access Rules Provider</title>
         </section>
         <section>
-          <id>custom-authentication-provider</id>
-          <title>Custom Authentication Provider</title>
+          <id>custom-security-context</id>
+          <title>Custom Security Context</title>
         </section>
       </sections>
     </chapter>

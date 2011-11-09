@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
+<article>
+  <title>Implementing a custom Security Context</title>
+  <para>
+	You can implement a custom security context in a similar way like the access rules provider. 
+	You only have to implement the interface <systemitem>net.sf.jpasecurity.configuration.SecurityContext</systemitem>
+	and specify the property <systemitem>net.sf.jpasecurity.security.context</systemitem>
+	in your <filename>persistence.xml</filename> with the classname of your implementation of the
+	interface <systemitem>net.sf.jpasecurity.configuration.SecurityContext</systemitem>.
+    Take a look at its javadoc documentation for further reference.
+  </para>
+  <section>
+    <title>Accessing persistence properties</title>
+    <para>
+      As your access rules provider your custom security context may need additional configuration parameters, too.
+      You also can define them via the persistence properties in your <filename>persistence.xml</filename>. Again you have
+      to implement the interface <systemitem>net.sf.jpasecurity.persistence.PersistenceInformationReceiver</systemitem>
+      to have the persistence properties injected when your security context is initialized.      
+    </para>
+  </section>
+  <section>
+    <title>Example</title>
+    <example>
+      <title>Implementing a servlet-filter security context</title>
+      <para>
+        The following code shows how to implement a security context that reads its authentication information from
+        the <systemitem>HttpSession</systemitem>.
+      </para>
+      <programlisting>
+        <![CDATA[
+public class SecurityContextFilter implements SecurityContext, Filter {
+
+    private static final Alias PRINCIPAL_ALIAS = new Alias("principal");
+    private static final Alias ROLES_ALIAS = new Alias("roles");
+    private static final Alias TENANT_ALIAS = new Alias("tenant");
+    private static final Collection<Alias> ALIASES
+      = Collections.unmodifiableList(Arrays.asList(PRINCIPAL_ALIAS, ROLES_ALIAS, TENANT_ALIAS));
+    
+    private static ThreadLocal<HttpSession> session = new ThreadLocal<HttpSession>();
+
+    public Collection<Alias> getAliases() {
+        return ALIASES;
+    }
+
+    public Object getAliasValue(Alias alias) {
+        HttpSession session = SecurityContextFilter.session.get();
+        if (session == null) {
+            return null;
+        }
+        return session.getAttribute(alias.getName());
+    }
+
+    public Collection<?> getAliasValues(Alias alias) {
+        Object aliasValue = getAliasValue(alias);
+        if (aliasValue instanceof Collection) {
+            return (Collection<?>)aliasValue;
+        } else if (aliasValue == null) {
+            return null;
+        } else if (aliasValue.getClass().isArray()) {
+            return Arrays.asList((Object[])aliasValue);
+        } else {
+            return Collections.singleton(aliasValue);
+        }
+    }
+
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        try {
+            if (request instanceof HttpServletRequest) {
+                HttpServletRequest httpRequest = (HttpServletRequest)request;
+                AuthenticationFilter.session.set(httpRequest.getSession());
+            }
+            chain.doFilter(request, response);
+        } finally {
+            AuthenticationFilter.session.remove();
+        }
+    }
+
+    public void init(FilterConfig config) throws ServletException {
+    }
+
+    public void destroy() {
+    }
+}
+        ]]>          
+      </programlisting>
+      <para>
+	    You now have to specify the class as web filter in your <filename>web.xml</filename>.
+      </para>
+      <programlisting>
+        <![CDATA[
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app version="2.4"
+         xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+    ...
+
+    <filter>
+        <filter-name>securityContextFilter</filter-name>
+        <filter-class>your.package.SecurityContextFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+      <filter-name>securityContextFilter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    ...
+
+</web-app>
+        ]]>          
+      </programlisting>
+      <para>
+        Now your login-process may store the authentication information (the principal, roles and tenant)
+        in the <systemitem>HttpSession</systemitem> and you are done. 
+      </para>
+    </example>
+  </section>
+</article>

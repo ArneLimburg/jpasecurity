@@ -12,7 +12,7 @@
     in order to make the <systemitem>JsfAuthenticationProvider</systemitem> work correctly.
   </para>
   <para>
-    If you do not have one of <filename>spring-security.jar</filename> in your classpath
+    If you do not have a version of a <filename>spring-security.jar</filename> in your classpath
     usually you do not need to define your own authentication provider as the auto-detection
     mechanism of JPA Security should automatically install the <systemitem>EjbAuthenticationProvider</systemitem>
     (if you are in a Java EE server) or the <systemitem>JsfAuthenticationProvider</systemitem> if you are

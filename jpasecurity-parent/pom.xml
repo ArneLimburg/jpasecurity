@@ -17,9 +17,9 @@
 
   <developers>
     <developer>
-      <id>arne</id>
+      <id>arnelim</id>
       <name>Arne Limburg</name>
-      <email>arne.limburg(a)openknowledge.de</email>
+      <email>arne.limburg@openknowledge.de</email>
       <roles>
         <role>Project Lead</role>
         <role>Java Developer</role>
@@ -29,7 +29,7 @@
     <developer>
       <id>jsiemer</id>
       <name>Johannes Siemer</name>
-      <email>jsiemer(a)users.sourceforge.net</email>
+      <email>jsiemer@users.sourceforge.net</email>
       <roles>
         <role>Java Developer</role>
       </roles>
@@ -38,16 +38,25 @@
     <developer>
       <id>bigsteff</id>
       <name>Stefan Hildebrandt</name>
-      <email>bigsteff(a)users.sourceforge.net</email>
+      <email>bigsteff@users.sourceforge.net</email>
       <roles>
         <role>Java Developer</role>
       </roles>
       <timezone>+1</timezone>
     </developer>
-     <developer>
+    <developer>
       <id>descipar</id>
       <name>Kai Schulte</name>
-      <email>descipar(a)users.sourceforge.net</email>
+      <email>descipar@users.sourceforge.net</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>rfe</id>
+      <name>Raffaela Ferrari</name>
+      <email>rfe@users.sourceforge.net</email>
       <roles>
         <role>Java Developer</role>
       </roles>

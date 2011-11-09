@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
 <article id="teacher">
-    <title>Teacher view</title>
-    <para>The teacher view will expand the basic elements by following teacher functions.</para>
-    <section>
-        <title>Dashboard</title>
-        <para>On this site you can see all courses, which you lecture. Besides you can add a new course by completing
-            the form, which will open by clicking on the link.</para>
-    </section>
-    <section>
-        <title>Course</title>
-        <para>For every of your courses you can see its survey. Moreover you can create a new lesson by completing
-            the form, which will open by clicking on the link.</para>
-    </section>
+  <title>Teacher's view</title>
+  <para>The teacher view will expand the basic elements by the following teacher functions.</para>
+  <section>
+    <title>Dashboard</title>
+    <para>
+      On this site you can see all courses, which you lecture.
+      Besides you can add a new course by completing the form,
+      which will open by clicking on the link.
+    </para>
+    <para>
+      At the bottom of the dashboard you see a list of all students
+      that are subscribed to your courses.
+    </para>
+  </section>
+  <section>
+    <title>Course</title>
+    <para>
+      For every of your courses you can see its survey.
+      Moreover you can create a new lesson by completing the form,
+      which will open by clicking on the link.
+    </para>
+    <para>
+      Of course you can see the students that are subscribed to that course.
+    </para>
+  </section>
 </article>

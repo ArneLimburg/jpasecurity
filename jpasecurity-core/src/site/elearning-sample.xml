@@ -17,8 +17,8 @@
             <title>Views</title>
             <sections>
                 <section>
-                    <id>unloggedUser</id>
-                    <title>Unlogged user</title>
+                    <id>unauthenticated</id>
+                    <title>Unauthenticated user</title>
                 </section>
                 <section>
                     <id>teacher</id>
