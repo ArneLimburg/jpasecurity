@@ -41,7 +41,8 @@ label {
 }
 
 #content input[type = "submit"],
-#content input[type = "reset"] {
+#content input[type = "reset"],
+.buttons #cancel a{
     background : rgb(160, 160, 160);
     margin : 0.25em 0.5em;
     padding : .5em 1em;
@@ -65,6 +66,7 @@ label {
 }
 #content input[type = "submit"]:hover,
 #content input[type = "reset"]:hover,
+.buttons #cancel a: hover,
 input.submit:hover{
     background : rgb(0, 175, 240);
     cursor : pointer
@@ -254,9 +256,6 @@ li{
 	text-align : left;
 }
 
-#courseform input.submit {
-	margin-top : -1em;
-}
 #courseTitle,
 #lessonTitle {
 	float : left;
