@@ -44,7 +44,7 @@
           <h:outputText value="#{course.teacher.fullname}" />
         </h:outputLink>
         <h:panelGroup rendered="#{not empty course.students}"> 
-          <h2 >Participants</h2>
+          <h2>Participants</h2>
           <ul>
             <ui:repeat var="participant" value="#{course.students}">
               <li>
@@ -57,19 +57,21 @@
           </ul>
         </h:panelGroup>
         
+        <h:panelGroup rendered="#{not empty course.lessons}"> 
         <h2>Lessons</h2>
-        <ul>
-          <ui:repeat var="lesson" value="#{course.lessons}">
-            <li >
+          <ul>
+            <ui:repeat var="lesson" value="#{course.lessons}">
+              <li>
                 <h:outputLink value="lesson.xhtml">
                   <f:param name="course" value="#{course.id}" />
                   <f:param name="lesson" value="#{lesson.number}" />
                   <h:outputText value="#{lesson.title}" />
                 </h:outputLink>
-            </li>
-          </ui:repeat>
-        </ul>  
-        <h:outputLink value="lessonCreator.xhtml" rendered="#{sec:userInRole('teacher')}">
+              </li>
+            </ui:repeat>
+          </ul>  
+        </h:panelGroup>
+        <h:outputLink styleClass="buttons" value="lessonCreator.xhtml" rendered="#{sec:canCreate(sec:newBean4('LessonEntity', course.entity, 'New Lesson', ''))}">
           <f:param name="course" value="#{course.id}" />
           <h:outputText value="Create new lesson" />
         </h:outputLink> 
