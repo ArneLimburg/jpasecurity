@@ -89,6 +89,10 @@ public class CourseAggregate implements Course {
         // to satisfy @Entity-contract
     }
 
+    protected CourseAggregate(String title, Teacher lecturer, String lessonTitle, String lessonContent) {
+        this(new Title(title), lecturer, new Title(lessonTitle), new Content(lessonContent));
+    }
+
     public CourseAggregate(Title title, Teacher lecturer, Title lessonTitle, Content lessonContent) {
         this(title, lecturer, LessonFactoryBuilder.newLesson().withTitle(lessonTitle).andContent(lessonContent));
     }
