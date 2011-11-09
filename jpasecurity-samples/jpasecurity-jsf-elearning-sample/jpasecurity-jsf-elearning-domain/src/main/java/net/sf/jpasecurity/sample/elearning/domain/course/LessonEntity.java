@@ -26,9 +26,12 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.sample.elearning.domain.Content;
 import net.sf.jpasecurity.sample.elearning.domain.Lesson;
 import net.sf.jpasecurity.sample.elearning.domain.Title;
+import net.sf.jpasecurity.security.Permit;
+import net.sf.jpasecurity.security.PermitAny;
 
 /**
  * This class is package private so that it can be accessed solely from within the {@link CourseAggregate}
@@ -37,6 +40,10 @@ import net.sf.jpasecurity.sample.elearning.domain.Title;
  * @author Arne Limburg - open knowledge GmbH (arne.limburg@openknowledge.de)
  */
 @Entity
+@PermitAny({
+  @Permit(rule = "course.lecturer.name.nick = CURRENT_PRINCIPAL"),
+  @Permit(access = AccessType.READ)
+})
 @Table(name = "LESSON")
 class LessonEntity implements Lesson {
 
@@ -55,6 +62,10 @@ class LessonEntity implements Lesson {
 
     protected LessonEntity() {
         // to satisfy @Entity-contract
+    }
+
+    protected LessonEntity(CourseAggregate course, String title, String content) {
+        this(course, new Title(title), new Content(content));
     }
 
     public LessonEntity(CourseAggregate course, Title title, Content content) {
