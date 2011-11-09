@@ -327,7 +327,19 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                 transientParameters[i] = parameters[i];
             }
         }
-        Object entity = ReflectionUtils.newInstance(classMapping.getEntityType(), transientParameters);
+        Object entity = null;
+        try {
+            entity = ReflectionUtils.newInstance(classMapping.getEntityType(), transientParameters);
+        } catch (RuntimeException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Constructor of " + classMapping.getEntityType()
+                          + " threw exception, hence isAccessible returns false.", e);
+            } else {
+                LOG.info("Constructor of " + classMapping.getEntityType()
+                         + " threw exception (\"" + e.getMessage() + "\"), hence isAccessible returns false.");
+            }
+            return false;
+        }
         return isAccessible(accessType, entity);
     }
 
