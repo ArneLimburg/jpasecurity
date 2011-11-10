@@ -42,6 +42,7 @@ label {
 
 #content input[type = "submit"],
 #content input[type = "reset"],
+#content input[type = "button"],
 #content .buttons a{
     background : rgb(160, 160, 160);
     margin : 0.25em 0.5em;
@@ -66,7 +67,8 @@ label {
 }
 #content input[type = "submit"]:hover,
 #content input[type = "reset"]:hover,
-.buttons #cancel a: hover,
+#content input[type = "button"]:hover,
+.buttons #cancel a:hover,
 input.submit:hover{
     background : rgb(0, 175, 240);
     cursor : pointer
@@ -149,7 +151,6 @@ a:hover{
 
 #headerRight form {
     margin-left : 5px;
-    margin-left
     width : 50px;
     float : right;
 }
@@ -213,7 +214,7 @@ a:hover{
     padding : .5em 1em;
     margin-top: 0.25em;
     color : rgb(255, 255, 255);
-    font : normal normal bold .8em / 1emArial, Helvetica, sans-serif;
+    font : normal normal bold .8em / 1em Arial, Helvetica, sans-serif;
     border : none
 }
 
