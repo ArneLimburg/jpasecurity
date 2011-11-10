@@ -32,7 +32,29 @@ import net.sf.jpasecurity.mapping.Alias;
  */
 public interface SecurityContext {
 
+    /**
+     * Returns a collection of all aliases that may be used in access rules,
+     * i.e. <tt>CURRENT_PRINCIPAL</tt>, <tt>CURRENT_ROLES</tt> or <tt>CURRENT_TENANT</tt>.
+     */
     Collection<Alias> getAliases();
+    
+    /**
+     * Returns the current value of the specified alias. JPA Security will determine
+     * from the usage of an alias in an access rule if an alias is collection-valued,
+     * that means if the value of an alias is a collection (i.e. <tt>CURRENT_ROLES</tt>)
+     * or not. If the value of an alias is a collection, this method will not be called,
+     * but {@link SecurityContext#getAliasValues(Alias)} will be called instead.
+     */
     Object getAliasValue(Alias alias);
+
+    /**
+     * Returns the current value of the specified collection-valued alias.
+     * JPA Security will determine from the usage of an alias in an access rule
+     * if an alias is collection-valued, that means if the value of an alias
+     * is a collection (i.e. <tt>CURRENT_ROLES</tt>) or not.
+     * Only in the case that the alias is collection-valued,
+     * this method will be called,
+     * otherwise {@link #getAliasValue(Alias)} will be called.
+     */
     <T> Collection<T> getAliasValues(Alias alias);
 }
