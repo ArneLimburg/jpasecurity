@@ -62,6 +62,15 @@
       </roles>
       <timezone>+1</timezone>
     </developer>
+    <developer>
+      <id>sstockfleth</id>
+      <name>Sebastian Stockfleth</name>
+      <email>sstockfleth(a)users.sourceforge.net</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
   </developers>
 
   <licenses>

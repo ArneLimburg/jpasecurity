@@ -71,10 +71,9 @@
             </ui:repeat>
           </ul>  
         </h:panelGroup>
-        <h:outputLink styleClass="buttons" value="lessonCreator.xhtml" rendered="#{sec:canCreate(sec:newBean4('LessonEntity', course.entity, 'New Lesson', ''))}">
-          <f:param name="course" value="#{course.id}" />
-          <h:outputText value="Create new lesson" />
-        </h:outputLink> 
+        <h:button value="Create new lesson" outcome="lessonCreator" rendered="#{sec:canCreate(sec:newBean4('LessonEntity', course.entity, 'New Lesson', ''))}">
+          <f:param name="course" value="#{course.id}"/>
+        </h:button>
       </ui:define>
     </ui:composition>
   </h:body>
