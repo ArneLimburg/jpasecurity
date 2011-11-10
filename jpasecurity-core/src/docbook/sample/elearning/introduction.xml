@@ -6,7 +6,7 @@
     This manual provides you with an overview of an application for an e-learning platform.
     In this application students shall be able to manage their courses and their courses's lessons.
     You can find the source code of this application
-    <ulink url="http://jpasecurity.svn.sourceforge.net/viewvc/jpasecurity/trunk/jpasecurity-samples/jpasecurity-jsf-elearning-sample/">here</ulink>.
+    <ulink url="http://jpasecurity.svn.sourceforge.net/viewvc/jpasecurity/tags/jpasecurity-0.4.0/jpasecurity-samples/jpasecurity-jsf-elearning-sample/">here</ulink>.
   </para>
   <para>
     Teachers shall be able to administrate their courses and courses's lessons.
