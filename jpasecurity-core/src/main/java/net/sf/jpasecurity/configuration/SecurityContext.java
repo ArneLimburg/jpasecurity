@@ -37,7 +37,7 @@ public interface SecurityContext {
      * i.e. <tt>CURRENT_PRINCIPAL</tt>, <tt>CURRENT_ROLES</tt> or <tt>CURRENT_TENANT</tt>.
      */
     Collection<Alias> getAliases();
-    
+
     /**
      * Returns the current value of the specified alias. JPA Security will determine
      * from the usage of an alias in an access rule if an alias is collection-valued,
