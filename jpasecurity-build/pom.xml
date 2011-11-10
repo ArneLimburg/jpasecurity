@@ -4,6 +4,6 @@
   <groupId>net.sf.jpasecurity</groupId>
   <artifactId>jpasecurity-build</artifactId>
   <name>JPA Security Build-Artefacts</name>
-  <version>0.4.0</version>
+  <version>0.4.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 </project>
