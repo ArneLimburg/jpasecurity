@@ -4,7 +4,7 @@
   <parent>
     <groupId>net.sf.jpasecurity</groupId>
     <artifactId>jpasecurity-parent</artifactId>
-    <version>0.4.0</version>
+    <version>0.4.1-SNAPSHOT</version>
     <relativePath>../../jpasecurity-parent/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>

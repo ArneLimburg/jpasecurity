@@ -4,7 +4,7 @@
   <groupId>net.sf.jpasecurity</groupId>
   <artifactId>jpasecurity-modules</artifactId>
   <name>JPA Security Modules</name>
-  <version>0.4.0</version>
+  <version>0.4.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <url>http://jpasecurity.sf.net</url>
