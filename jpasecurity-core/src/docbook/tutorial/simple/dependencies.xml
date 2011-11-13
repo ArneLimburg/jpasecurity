@@ -12,7 +12,12 @@
     <![CDATA[
     <dependency>
       <groupId>net.sf.jpasecurity</groupId>
-      <artifactId>jpasecurity</artifactId>
+      <artifactId>jpasecurity-core</artifactId>
+      <version>0.4.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.jpasecurity</groupId>
+      <artifactId>jpasecurity-jpa</artifactId>
       <version>0.4.1-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -26,26 +31,21 @@
       <version>3.3.2.GA</version>
     </dependency>
     <dependency>
+      <groupId>javax.transaction</groupId>
+      <artifactId>jta</artifactId>
+      <version>1.1</version>
+    </dependency>
+    <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>1.8.0.7</version>
     </dependency>
-    ]]>
+]]>
   </programlisting>
-  <para>
-    Hibernate needs the Transaction-API from sun.
-    Download the classes of version 1.0.1B <ulink url="http://www.oracle.com/technetwork/java/javaee/jta/index.html">here</ulink>
-    and install it to your local Maven repository with the following command:
-  </para>
-  <programlisting>
-mvn install:install-file -DgroupId=javax.transaction -DartifactId=jta -Dversion=1.0.1B -Dpackaging=jar -Dfile=/path/to/jta-1_0_1B-classes.zip
-  </programlisting>
-  <para>
-    Note that you have to provide the absolute path to the <systemitem>jta-1_0_1B-classes.zip</systemitem>.
-  </para>
   <para>
     As no remote repository contains JPA Security yet, we need to install it to our local maven-repository, too.
-    If you don't already have, you may download the jpasecurity-0.4.1-SNAPSHOT.jar <ulink url="https://sourceforge.net/project/showfiles.php?group_id=219346">here</ulink>.
+    If you don't already have, you may download the jpasecurity-core-0.4.1-SNAPSHOT.jar and the jpasecurity-jpa-0.4.1-SNAPSHOT.jar
+    <ulink url="https://sourceforge.net/project/showfiles.php?group_id=219346">here</ulink>.
     We install it with the following command:
   </para>
   <programlisting>
