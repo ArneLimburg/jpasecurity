@@ -28,10 +28,10 @@
       <item name="Introduction" href="index.html"/>
       <item name="Download" href="https://sourceforge.net/project/showfiles.php?group_id=219346"/>
       <item name="Documentation" href="project-doc.html">
+        <item name="Reference Manual" href="reference/preface.html"/>
         <item name="Simple Tutorial" href="simple-tutorial/introduction.html"/>
         <item name="Petclinic Tutorial" href="petclinic-tutorial/introduction.html"/>
-        <item name="E-Learning Manual" href="elearning-sample/introduction.html"/>
-        <item name="Reference Manual" href="reference/preface.html"/>
+        <item name="E-Learning Sample" href="elearning-sample/introduction.html"/>
       </item>
       <!--item name="Release Notes" href="release-notes.html" /-->
       <!--item name="Road Map" href="roadmap.html" /-->
