@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity;
 
+import java.util.Map;
+
 /**
  * Implementations of this interface are able to load and store beans.
  * @author Arne Limburg
@@ -27,9 +29,19 @@ public interface BeanStore extends BeanLoader {
 
     boolean contains(Object unsecureObject);
 
-    void refresh(Object unsecureEntity);
+    void refresh(Object unsecureObject);
+
+    void refresh(Object unsecureObject, LockModeType lockMode);
+
+    void refresh(Object unsecureObject, Map<String, Object> properties);
+
+    void refresh(Object unsecureObject, LockModeType lockMode, Map<String, Object> properties);
 
     void lock(Object unsecureObject, LockModeType lockMode);
+
+    void lock(Object unsecureObject, LockModeType lockMode, Map<String, Object> properties);
+
+    LockModeType getLockMode(Object unsecureObject);
 
     void remove(Object unsecureEntity);
 
@@ -38,5 +50,4 @@ public interface BeanStore extends BeanLoader {
     <B> B getReference(Class<B> entityType, Object id);
 
     <B> B find(Class<B> entityType, Object id);
-
 }

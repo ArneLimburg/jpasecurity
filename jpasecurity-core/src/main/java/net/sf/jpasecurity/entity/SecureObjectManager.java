@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.entity;
 
+import java.util.Map;
+
 import net.sf.jpasecurity.LockModeType;
 import net.sf.jpasecurity.Parameter;
 import net.sf.jpasecurity.Parameterizable;
@@ -28,7 +30,12 @@ public interface SecureObjectManager extends SecureObjectCache, SecureObjectLoad
     <E> E merge(E entity);
     boolean contains(Object entity);
     void refresh(Object entity);
+    void refresh(Object entity, LockModeType lockMode);
+    void refresh(Object entity, Map<String, Object> properties);
+    void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties);
     void lock(Object entity, LockModeType lockMode);
+    void lock(Object entity, LockModeType lockMode, Map<String, Object> properties);
+    LockModeType getLockMode(Object entity);
     void remove(Object entity);
     void detach(Object entity);
     <P extends Parameterizable> P setParameter(P parameterizable, int index, Object value);

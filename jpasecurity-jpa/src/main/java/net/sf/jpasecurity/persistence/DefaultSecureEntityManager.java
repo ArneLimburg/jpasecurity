@@ -143,8 +143,29 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public <T> T find(Class<T> type, Object id) {
+        return find(type, id, null, null);
+    }
+
+    public <T> T find(Class<T> type, Object id, Map<String, Object> properties) {
+        return find(type, id, null, properties);
+    }
+
+    public <T> T find(Class<T> type, Object id, LockModeType lockMode) {
+        return find(type, id, lockMode, null);
+    }
+
+    public <T> T find(Class<T> type, Object id, LockModeType lockMode, Map<String, Object> properties) {
         secureObjectManager.preFlush();
-        T entity = super.find(type, id);
+        T entity;
+        if (lockMode != null && properties != null) {
+            entity = super.find(type, id, lockMode, properties);
+        } else if (lockMode != null) {
+            entity = super.find(type, id, lockMode);
+        } else if (properties != null) {
+            entity = super.find(type, id, properties);
+        } else {
+            entity = super.find(type, id);
+        }
 
         //bean already should be initialized by spec,
         //but hibernate sometimes returns an initialized proxy of wrong type
@@ -175,12 +196,28 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         secureObjectManager.refresh(entity);
     }
 
+    public void refresh(Object entity, LockModeType lockMode) {
+        secureObjectManager.refresh(entity, net.sf.jpasecurity.LockModeType.valueOf(lockMode.name()));
+    }
+
+    public void refresh(Object entity, Map<String, Object> properties) {
+        secureObjectManager.refresh(entity, properties);
+    }
+
+    public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        secureObjectManager.refresh(entity, net.sf.jpasecurity.LockModeType.valueOf(lockMode.name()), properties);
+    }
+
     public <T> T getReference(Class<T> type, Object id) {
         return secureObjectManager.getSecureObject(super.getReference(type, id));
     }
 
     public void lock(Object entity, LockModeType lockMode) {
         secureObjectManager.lock(entity, net.sf.jpasecurity.LockModeType.valueOf(lockMode.name()));
+    }
+
+    public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        secureObjectManager.lock(entity, net.sf.jpasecurity.LockModeType.valueOf(lockMode.name()), properties);
     }
 
     public boolean contains(Object entity) {
@@ -360,5 +397,9 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
         SecureEntity secureEntity = (SecureEntity)entity;
         return secureEntity.isRemoved();
+    }
+
+    public LockModeType getLockMode(Object entity) {
+        return LockModeType.valueOf(secureObjectManager.getLockMode(entity).name());
     }
 }

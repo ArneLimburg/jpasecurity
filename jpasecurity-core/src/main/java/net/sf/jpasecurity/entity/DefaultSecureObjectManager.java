@@ -91,11 +91,31 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         return beanStore.contains(getUnsecureObject(entity));
     }
 
-    public void refresh(Object entity) {
+    public void refresh(Object bean) {
+        refresh(bean, null, null);
+    }
+
+    public void refresh(Object bean, LockModeType lockMode) {
+        refresh(bean, lockMode, null);
+    }
+
+    public void refresh(Object bean, Map<String, Object> properties) {
+        refresh(bean, null, properties);
+    }
+
+    public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
         checkAccess(AccessType.READ, entity);
         Object unsecureEntity = getUnsecureObject(entity);
         preFlush();
-        beanStore.refresh(unsecureEntity);
+        if (lockMode != null && properties != null) {
+            beanStore.refresh(unsecureEntity, lockMode, properties);
+        } else if (lockMode != null) {
+            beanStore.refresh(unsecureEntity, lockMode);
+        } else if (properties != null) {
+            beanStore.refresh(unsecureEntity, properties);
+        } else {
+            beanStore.refresh(unsecureEntity);
+        }
         postFlush();
         if (entity instanceof SecureEntity) {
             initialize((SecureEntity)entity, true);
@@ -104,12 +124,25 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
     }
 
     public void lock(Object entity, LockModeType lockMode) {
+        lock(entity, lockMode, null);
+    }
+
+    public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
         if (lockMode == LockModeType.READ && !isAccessible(AccessType.READ, entity)) {
             throw new SecurityException("specified entity is not readable for locking");
         } else if (lockMode == LockModeType.WRITE && !isAccessible(AccessType.UPDATE, entity)) {
             throw new SecurityException("specified entity is not updateable for locking");
         }
-        beanStore.lock(getUnsecureObject(entity), lockMode);
+        if (properties != null) {
+            beanStore.lock(getUnsecureObject(entity), lockMode, properties);
+        } else {
+            beanStore.lock(getUnsecureObject(entity), lockMode);
+        }
+    }
+
+
+    public LockModeType getLockMode(Object entity) {
+        return beanStore.getLockMode(getUnsecureObject(entity));
     }
 
     public void remove(Object entity) {

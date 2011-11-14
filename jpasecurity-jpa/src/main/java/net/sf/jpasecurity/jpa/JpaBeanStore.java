@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.jpa;
 
+import java.util.Map;
+
 import javax.persistence.EntityManager;
 
 import net.sf.jpasecurity.BeanStore;
@@ -56,8 +58,16 @@ public class JpaBeanStore implements BeanStore {
         return entityManager.getReference(type, bean);
     }
 
+    public LockModeType getLockMode(Object bean) {
+        return LockModeType.valueOf(entityManager.getLockMode(bean).name());
+    }
+
     public void lock(Object bean, LockModeType lockMode) {
         entityManager.lock(bean, javax.persistence.LockModeType.valueOf(lockMode.name()));
+    }
+
+    public void lock(Object bean, LockModeType lockMode, Map<String, Object> properties) {
+        entityManager.lock(bean, javax.persistence.LockModeType.valueOf(lockMode.name()), properties);
     }
 
     public <T> T merge(T bean) {
@@ -70,6 +80,18 @@ public class JpaBeanStore implements BeanStore {
 
     public void refresh(Object bean) {
         entityManager.refresh(bean);
+    }
+
+    public void refresh(Object unsecureObject, LockModeType lockMode) {
+        entityManager.refresh(unsecureObject, javax.persistence.LockModeType.valueOf(lockMode.name()));
+    }
+
+    public void refresh(Object unsecureObject, Map<String, Object> properties) {
+        entityManager.refresh(unsecureObject, properties);
+    }
+
+    public void refresh(Object unsecureObject, LockModeType lockMode, Map<String, Object> properties) {
+        entityManager.refresh(unsecureObject, javax.persistence.LockModeType.valueOf(lockMode.name()), properties);
     }
 
     public void remove(Object bean) {
