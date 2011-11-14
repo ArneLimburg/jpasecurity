@@ -32,7 +32,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @auhtor Raffaela Ferrari
  */
 
-
+@Ignore
 public class LessonTest extends AbstractHtmlTestCase {
     public LessonTest() {
         super("http://localhost:8282/elearning/");
@@ -81,5 +81,33 @@ public class LessonTest extends AbstractHtmlTestCase {
     public void startLessonLink()throws JaxenException {
         HtmlPage startLessonLink = testInputLink(authenticateAsTeacher("lesson.xhtml?course=3&lesson=0"), "start this lesson");
         ElearningAssert.assertLessonCreatorPage(startLessonLink, Role.STUDENT); 
+    }
+
+    @Ignore
+    @Test
+    public void loginLinkTest() throws JaxenException {
+        HtmlPage loginLink = testLink("lesson.xhtml?course=3&lesson=0", "Login");
+        ElearningAssert.assertLoginPage(loginLink, Role.GUEST);
+    }
+
+    @Ignore
+    @Test
+    public void logoutLinkTest() throws JaxenException {
+        HtmlPage logoutLink = testLink(authenticateAsStudent("lesson.xhtml?course=3&lesson=0"), "Logout");
+        ElearningAssert.assertLessonPage(logoutLink, Role.GUEST);         
+    }
+
+    @Ignore
+    @Test
+    public void indexLinkTest() throws JaxenException {
+        HtmlPage indexLink = testLink("lesson.xhtml?course=3&lesson=0", "Index");
+        ElearningAssert.assertIndexPage(indexLink, Role.GUEST);        
+    }
+
+    @Ignore
+    @Test
+    public void dashboardLinkTest() throws JaxenException {
+        HtmlPage dashboardLink = testLink(authenticateAsStudent("lesson.xhtml?course=3&lesson=0"), "Dashboard");
+        ElearningAssert.assertDashboardPage(dashboardLink, Role.STUDENT); 
     }
 }

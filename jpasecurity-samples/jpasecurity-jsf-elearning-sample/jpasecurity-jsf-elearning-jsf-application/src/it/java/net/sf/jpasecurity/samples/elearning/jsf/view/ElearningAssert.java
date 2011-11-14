@@ -117,6 +117,7 @@ public class ElearningAssert {
             assertEquals(1, page.getByXPath("//input[@type = 'submit'][@value = 'create new lesson']").size());
             break;
         case STUDENT:
+            assertEquals(1,page.getByXPath("//h1[text() = 'HTTP Status 403 - Access to the requested resource has been denied']").size());
             break;
         case GUEST:
             assertEquals(1, page.getByXPath("//a[text() = 'Login']").size());

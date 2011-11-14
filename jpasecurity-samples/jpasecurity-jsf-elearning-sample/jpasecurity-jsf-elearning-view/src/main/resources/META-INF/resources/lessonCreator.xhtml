@@ -31,7 +31,7 @@
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
         <h1 id="createLesson">Create new lesson</h1>
-        <h:form id="lessonCreateForm">
+        <h:form id="lessonCreateForm" prependId="false">
 
 		  <h:panelGrid columns="2">
             <h:outputLabel value="Course title:" for="courseTitle"/>
@@ -47,7 +47,10 @@
 
           <h:panelGroup layout="block" styleClass="buttons">
             <h:commandButton id="create" value="create new lesson" action="#{lessonFactory.create}"/>
-            <h:commandButton id="cancel" value="cancel" action="course.html"  immediate="true"/>
+            <h:outputLink value="course.xhtml" immediate="true" id="cancel">
+          		<f:param name="id" value="#{course.id}" />
+          		<h:outputText value="cancel" />
+        	</h:outputLink>
           </h:panelGroup>
               
         </h:form>
