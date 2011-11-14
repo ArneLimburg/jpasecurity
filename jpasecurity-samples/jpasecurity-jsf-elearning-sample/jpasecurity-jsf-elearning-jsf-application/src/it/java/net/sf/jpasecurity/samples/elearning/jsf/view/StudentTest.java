@@ -30,7 +30,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 /*
  * @auhtor Raffaela Ferrari
  */
-
+@Ignore
 public class StudentTest extends AbstractHtmlTestCase {
     public StudentTest() {
         super("http://localhost:8282/elearning/");
@@ -85,5 +85,33 @@ public class StudentTest extends AbstractHtmlTestCase {
     public void linkTestAsStudent() throws JaxenException {
         HtmlPage courseLink = testLink(authenticateAsStudent("student.xhtml?id=8"), "Analysis");
         ElearningAssert.assertCoursePage(courseLink, Role.STUDENT);
+    }
+
+    @Ignore
+    @Test
+    public void loginLinkTest() throws JaxenException {
+        HtmlPage loginLink = testLink("student.xhtml?id=8", "Login");
+        ElearningAssert.assertLoginPage(loginLink, Role.GUEST);
+    }
+
+    @Ignore
+    @Test
+    public void logoutLinkTest() throws JaxenException {
+        HtmlPage logoutLink = testLink(authenticateAsStudent("student.xhtml?id=8"), "Logout");
+        ElearningAssert.assertStudentPage(logoutLink, Role.GUEST);         
+    }
+
+    @Ignore
+    @Test
+    public void indexLinkTest() throws JaxenException {
+        HtmlPage indexLink = testLink("student.xhtml?id=8", "Index");
+        ElearningAssert.assertIndexPage(indexLink, Role.GUEST);        
+    }
+
+    @Ignore
+    @Test
+    public void dashboardLinkTest() throws JaxenException {
+        HtmlPage dashboardLink = testLink(authenticateAsStudent("student.xhtml?id=8"), "Dashboard");
+        ElearningAssert.assertDashboardPage(dashboardLink, Role.STUDENT); 
     }
 }

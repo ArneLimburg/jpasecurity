@@ -28,7 +28,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @author Arne Limburg
  */
 
-
+@Ignore
 public class IndexTest extends AbstractHtmlTestCase {
 
     public IndexTest() {
@@ -79,5 +79,33 @@ public class IndexTest extends AbstractHtmlTestCase {
     public void teachersLinkTest() throws JaxenException {
         HtmlPage teachersLink = testLink("index.xhtml", "Teachers");
         ElearningAssert.assertTeachersPage(teachersLink, Role.GUEST);         
+    }
+
+    @Ignore
+    @Test
+    public void loginLinkTest() throws JaxenException {
+        HtmlPage loginLink = testLink("index.xhtml", "Login");
+        ElearningAssert.assertLoginPage(loginLink, Role.GUEST);
+    }
+
+    @Ignore
+    @Test
+    public void logoutLinkTest() throws JaxenException {
+        HtmlPage logoutLink = testLink(authenticateAsStudent("index.xhtml"), "Logout");
+        ElearningAssert.assertIndexPage(logoutLink, Role.GUEST);         
+    }
+
+    @Ignore
+    @Test
+    public void indexLinkTest() throws JaxenException {
+        HtmlPage indexLink = testLink("index.xhtml", "Index");
+        ElearningAssert.assertIndexPage(indexLink, Role.GUEST);        
+    }
+
+    @Ignore
+    @Test
+    public void dashboardLinkTest() throws JaxenException {
+        HtmlPage dashboardLink = testLink(authenticateAsStudent("index.xhtml"), "Dashboard");
+        ElearningAssert.assertDashboardPage(dashboardLink, Role.STUDENT); 
     }
 }
