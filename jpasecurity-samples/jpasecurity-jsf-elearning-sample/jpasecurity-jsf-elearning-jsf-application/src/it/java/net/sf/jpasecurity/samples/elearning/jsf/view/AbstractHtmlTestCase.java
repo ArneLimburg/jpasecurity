@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.jaxen.JaxenException;
 import org.junit.Before;
-import org.junit.Test;
 
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -196,6 +195,6 @@ public abstract class AbstractHtmlTestCase {
             throw new AssertionError(e);
         }
     }
-    
+
     public static enum Role{TEACHER, STUDENT, GUEST};
 }

@@ -15,8 +15,6 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.view;
 
-import net.sf.jpasecurity.samples.elearning.jsf.view.AbstractHtmlTestCase.Role;
-
 import org.jaxen.JaxenException;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -26,11 +24,13 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 /**
  * @auhtor Raffaela Ferrari
  */
+
 public class LessonCreatorTest extends AbstractHtmlTestCase {
     public LessonCreatorTest() {
         super("http://localhost:8282/elearning/");
     }
 
+    @Ignore
     @Test
     public void unauthenticated() throws JaxenException {
         ElearningAssert.assertLessonCreatorPage(getPage("lessonCreator.xhtml"), Role.GUEST);
@@ -79,7 +79,7 @@ public class LessonCreatorTest extends AbstractHtmlTestCase {
     @Ignore
     @Test
     public void cancelTest() throws JaxenException {
-        HtmlPage cancelLink = testInputLink(getPage("lessonCreator.xhtml"), "cancel");
+        HtmlPage cancelLink = testLink(getPage("lessonCreator.xhtml"), "cancel");
         ElearningAssert.assertLoginPage(cancelLink, Role.TEACHER); 
     }
 
