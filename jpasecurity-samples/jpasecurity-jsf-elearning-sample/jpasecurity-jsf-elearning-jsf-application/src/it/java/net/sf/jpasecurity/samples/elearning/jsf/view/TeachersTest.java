@@ -16,11 +16,6 @@ package net.sf.jpasecurity.samples.elearning.jsf.view;
  */
 
 
-import static org.junit.Assert.assertEquals;
-
-
-import net.sf.jpasecurity.samples.elearning.jsf.view.AbstractHtmlTestCase.Role;
-
 import org.jaxen.JaxenException;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -30,7 +25,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 /*
  * @auhtor Raffaela Ferrari
  */
-@Ignore
+
 public class TeachersTest extends AbstractHtmlTestCase {
     public TeachersTest() {
         super("http://localhost:8282/elearning/");
@@ -75,21 +70,21 @@ public class TeachersTest extends AbstractHtmlTestCase {
         ElearningAssert.assertTeacherPage(teacherLink, Role.GUEST);
     }
 
-    @Ignore
+
     @Test
     public void loginLinkTest() throws JaxenException {
         HtmlPage loginLink = testLink("teachers.xhtml", "Login");
         ElearningAssert.assertLoginPage(loginLink, Role.GUEST);
     }
 
-    @Ignore
+
     @Test
     public void logoutLinkTest() throws JaxenException {
         HtmlPage logoutLink = testLink(authenticateAsStudent("teachers.xhtml"), "Logout");
         ElearningAssert.assertTeachersPage(logoutLink, Role.GUEST);         
     }
 
-    @Ignore
+
     @Test
     public void indexLinkTest() throws JaxenException {
         HtmlPage indexLink = testLink("teachers.xhtml", "Index");

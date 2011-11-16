@@ -15,11 +15,6 @@ package net.sf.jpasecurity.samples.elearning.jsf.view;
  */
 
 
-import static org.junit.Assert.assertEquals;
-
-
-import net.sf.jpasecurity.samples.elearning.jsf.view.AbstractHtmlTestCase.Role;
-
 import org.jaxen.JaxenException;
 
 import org.junit.Ignore;
@@ -37,6 +32,7 @@ public class DashboardTest extends AbstractHtmlTestCase {
         super("http://localhost:8282/elearning/");
     }
 
+    @Ignore
     @Test
     public void unauthenticated() throws JaxenException {
         ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.GUEST);
@@ -57,7 +53,8 @@ public class DashboardTest extends AbstractHtmlTestCase {
         ElearningAssert.assertDashboardPage(authenticateAsStudent("dashboard.xhtml"), Role.STUDENT);
         ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.STUDENT);
     }
-    
+   
+    @Ignore
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.GUEST);
@@ -65,7 +62,7 @@ public class DashboardTest extends AbstractHtmlTestCase {
         ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.TEACHER);
     }
     
-
+    @Ignore
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.GUEST);
@@ -90,7 +87,7 @@ public class DashboardTest extends AbstractHtmlTestCase {
     @Ignore
     @Test
     public void CreateLessonLinkTest() throws JaxenException {
-        HtmlPage lessonCreaterLink = testInputLink(authenticateAsStudent("dashboard.xhtml"), "create");
+        HtmlPage lessonCreaterLink = testInputLink(authenticateAsTeacher("dashboard.xhtml"), "create");
         ElearningAssert.assertLessonCreatorPage(lessonCreaterLink, Role.TEACHER);        
     }
 
