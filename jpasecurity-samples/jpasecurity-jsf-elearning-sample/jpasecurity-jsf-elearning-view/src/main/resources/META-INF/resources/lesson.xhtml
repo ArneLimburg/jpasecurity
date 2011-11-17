@@ -33,40 +33,30 @@
       <ui:define name="content">
         <h1 id="lessonTitle">#{lesson.title}</h1>
         
-        <h:panelGroup rendered="#{sec:userInRole('student') and !lesson.finished and !lesson.started}">
-	      <h:form id="startForm" prependId="false">
+        <h:panelGroup rendered="#{sec:userInRole('student') and !lesson.finished}">
+	      <h:form id="startResolveForm" prependId="false">
 	        <h:inputHidden value="#{lesson.courseId}" />
 	        <h:inputHidden value="#{lesson.number}" />
-	        <h:commandButton id="start" value="start this lesson" action="#{lesson.start}" styleClass="submit" />
-	      </h:form> 
-        </h:panelGroup>
-        
-        <h:panelGroup rendered="#{sec:userInRole('student') and !lesson.finished and lesson.started}">
-	      <h:form id="resolveForm" prependId="false">
-	        <h:inputHidden value="#{lesson.courseId}" />
-	        <h:inputHidden value="#{lesson.number}" />
-	        <h:commandButton id="resolve" value="resolve this lesson" action="#{lesson.finish}" styleClass="submit" />
-	      </h:form> 
+	        <h:commandButton value="#{!lesson.started?'start lesson':'finish lesson'}" id="startResolve" action="#{lesson.startFinish}" styleClass="submit"/>
+	      </h:form>
         </h:panelGroup>
        
         <h:panelGroup layout="block" id="resolved" rendered="#{sec:userInRole('student') and lesson.finished}">
           <h:outputText value="Lesson is resolved" />   
         </h:panelGroup>
 
-        <h:form id="lessonForm">
-		  <h:panelGrid columns="2">
-            <h:outputLabel value="Course:" for="courseName"/>
-            <h:outputLink name="courseName" value="course.xhtml"> 
-              <f:param name="id" value="#{lesson.courseId}" />
-              <h:outputText value="#{lesson.course.title}" />
-            </h:outputLink>		  
-            <h:outputLabel value="Lecturer:" for="lecturer"/>
-            <h:outputLink name="lecturer" value="teacher.xhtml"> 
-              <f:param name="id" value="#{lesson.course.lecturer.id}" />
-              <h:outputText value="#{lesson.course.lecturer.fullname}" />
-            </h:outputLink>
-          </h:panelGrid>
-        </h:form>  
+        <h:panelGrid columns="2" id="lessonDetails">
+          <h:outputLabel value="Course:" for="courseName"/>
+          <h:outputLink name="courseName" value="course.xhtml">
+            <f:param name="id" value="#{lesson.courseId}" />
+            <h:outputText value="#{lesson.course.title}" />
+          </h:outputLink>
+          <h:outputLabel value="Lecturer:" for="lecturer"/>
+          <h:outputLink name="lecturer" value="teacher.xhtml">
+            <f:param name="id" value="#{lesson.course.lecturer.id}" />
+            <h:outputText value="#{lesson.course.lecturer.fullname}" />
+          </h:outputLink>
+        </h:panelGrid>
              
        <h2>Content</h2>
        <h:outputText value="#{lesson.content}" escape="false" converter="bodyConverter"/>
