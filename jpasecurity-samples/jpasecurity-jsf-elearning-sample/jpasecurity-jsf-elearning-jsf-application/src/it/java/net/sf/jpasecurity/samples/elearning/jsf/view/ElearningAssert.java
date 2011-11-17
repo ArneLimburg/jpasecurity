@@ -38,7 +38,7 @@ public class ElearningAssert {
         case TEACHER:
             assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
             assertEquals(1, page.getByXPath("//input[@type = 'button'][@value = 'Create new lesson']").size());
-            assertEquals(0, page.getByXPath("//input[@type = 'submit'][@value = 'join/leave this course']").size());
+            assertEquals(0, page.getByXPath("//input[@type = 'submit'][@value = 'leave this course']").size());
             assertEquals(1, page.getByXPath("//h2[text() = 'Participants']").size());
             assertEquals(1, page.getByXPath("//a[@href = 'student.xhtml?id=2'][text() = 'Stefan A.']").size());
             assertEquals(1, page.getByXPath("//a[@href = 'student.xhtml?id=4'][text() = 'Tassimo B.']").size());
@@ -50,7 +50,7 @@ public class ElearningAssert {
         case STUDENT:
             assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
             assertEquals(0, page.getByXPath("//input[@type = 'button'][@value = 'Create new lesson']").size());
-            assertEquals(1, page.getByXPath("//input[@type = 'submit'][@value = 'join/leave this course']").size());
+            assertEquals(1, page.getByXPath("//input[@type = 'submit'][@value = 'leave this course']").size());
             assertEquals(1, page.getByXPath("//h2[text() = 'Participants']").size());
             assertEquals(1, page.getByXPath("//a[@href = 'student.xhtml?id=2'][text() = 'Stefan A.']").size());
             assertEquals(1, page.getByXPath("//a[@href = 'student.xhtml?id=4'][text() = 'Tassimo B.']").size());
