@@ -224,8 +224,7 @@ a:hover{
 }
 #leaveForm #leave,
 #joinForm #join,
-#resolveForm #resolve,
-#startForm #start,
+#startResolveForm #startResolve,
 #resolved{
 	float : right;
 	margin-top : 2em;
@@ -261,4 +260,8 @@ li{
 #lessonTitle {
 	float : left;
 	width: 80%;
+}
+
+#lessonDetails {
+    clear: both;
 }
