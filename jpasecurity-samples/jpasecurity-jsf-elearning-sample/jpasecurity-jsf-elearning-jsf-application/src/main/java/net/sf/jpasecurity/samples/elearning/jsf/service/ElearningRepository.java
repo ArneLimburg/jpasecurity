@@ -51,7 +51,7 @@ public class ElearningRepository implements UserRepository,
                                             TransactionService,
                                             Serializable {
 
-    private static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("elearning");
+    static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("elearning");
 
     private EntityManager entityManager;
 

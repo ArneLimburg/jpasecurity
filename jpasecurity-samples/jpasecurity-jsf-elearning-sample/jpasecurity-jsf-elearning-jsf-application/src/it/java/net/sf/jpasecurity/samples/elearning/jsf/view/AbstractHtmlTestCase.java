@@ -45,6 +45,7 @@ public abstract class AbstractHtmlTestCase {
     @Before
     public void createHttpSession() {
         webClient = new WebClient();
+        getPage("entityManagerFactoryReset");
         getPage("");
     }
 
