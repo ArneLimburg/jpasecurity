@@ -32,10 +32,11 @@
       <ui:define name="content">
        <h1 id="courseTitle">#{course.title}</h1>
        <h:panelGroup rendered="#{sec:userInRole('student')}">
-           <h:form id="joinForm" prependId="false">
-             <h:inputHidden value="#{course.id}" />
-             <h:commandButton id="join" value="#{!course.studentInCourse?'join this course':'leave this course'}" action="#{course.addOrRemoveStudentToCourse}" styleClass="submit"/>   
-           </h:form>
+         <h:form id="joinLeaveForm" prependId="false">
+           <h:inputHidden id="id" name="id" value="#{course.id}" />
+           <h:commandButton id="join" value="join this course" action="#{course.addOrRemoveStudentToCourse}" styleClass="submit" rendered="#{!course.studentInCourse}"/>   
+           <h:commandButton id="leave" value="leave this course" action="#{course.addOrRemoveStudentToCourse}" styleClass="submit" rendered="#{course.studentInCourse}"/>
+         </h:form>
        </h:panelGroup>
        
         <h2>Lecturer</h2>
