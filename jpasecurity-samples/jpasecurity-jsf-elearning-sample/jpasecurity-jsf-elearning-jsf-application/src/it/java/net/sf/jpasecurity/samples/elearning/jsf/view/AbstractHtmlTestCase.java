@@ -22,6 +22,7 @@ import org.jaxen.JaxenException;
 import org.junit.Before;
 
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
+import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
@@ -46,12 +47,16 @@ public abstract class AbstractHtmlTestCase {
     public void createHttpSession() {
         webClient = new WebClient();
         getPage("entityManagerFactoryReset");
-        getPage("");
+        getHtmlPage("");
     }
 
-    public HtmlPage getPage(String name) {
+    public HtmlPage getHtmlPage(String name) {
+        return (HtmlPage)getPage(name);
+    }
+
+    private Page getPage(String name) {
         try {
-            return (HtmlPage)webClient.getPage(url + name);
+            return webClient.getPage(url + name);
         } catch (IOException e) {
             throw new AssertionError(e);
         }
@@ -59,7 +64,7 @@ public abstract class AbstractHtmlTestCase {
 
     public HtmlPage testLink(String page, String linkName) {
         try {
-        HtmlAnchor link = (HtmlAnchor)getByXPath(getPage(page), "//a[text() = '" + linkName +"']").iterator().next();
+        HtmlAnchor link = (HtmlAnchor)getByXPath(getHtmlPage(page), "//a[text() = '" + linkName +"']").iterator().next();
         HtmlPage linkPage = (HtmlPage)link.click();
         return linkPage;
         } catch (IOException e) {
@@ -88,11 +93,11 @@ public abstract class AbstractHtmlTestCase {
     }
 
     public HtmlPage authenticateAsStudent(String page) {
-        return authenticate(getPage(page), Role.STUDENT);
+        return authenticate(getHtmlPage(page), Role.STUDENT);
     }
     
     public HtmlPage authenticateAsTeacher(String page) {
-        return authenticate(getPage(page), Role.TEACHER);
+        return authenticate(getHtmlPage(page), Role.TEACHER);
     }
 
     public HtmlPage authenticate(HtmlPage currentPage, Role role) {
@@ -123,7 +128,7 @@ public abstract class AbstractHtmlTestCase {
     }
     
     public HtmlPage authenticateFormBased(Role role) {
-        HtmlPage dashboard = getPage("dashboard.xhtml");
+        HtmlPage dashboard = getHtmlPage("dashboard.xhtml");
         HtmlForm form = dashboard.getFormByName("j_security_check");
         if(role == Role.TEACHER) {
             getInputById(form,"username").setValueAttribute("peter");

@@ -33,30 +33,30 @@ public class StudentTest extends AbstractHtmlTestCase {
     @Ignore
     @Test
     public void unauthenticated() throws JaxenException {
-        ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.GUEST);
+        ElearningAssert.assertStudentPage(getHtmlPage("student.xhtml?id=8"), Role.GUEST);
     }
     
     @Ignore
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
-        ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.GUEST);
+        ElearningAssert.assertStudentPage(getHtmlPage("student.xhtml?id=8"), Role.GUEST);
         authenticateFormBasedAsTeacher();
-        ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.TEACHER);
+        ElearningAssert.assertStudentPage(getHtmlPage("student.xhtml?id=8"), Role.TEACHER);
     }
     
     @Ignore
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
-        ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.GUEST);
+        ElearningAssert.assertStudentPage(getHtmlPage("student.xhtml?id=8"), Role.GUEST);
         authenticateFormBasedAsStudent();
-        ElearningAssert.assertStudentPage(getPage("student.xhtml?id=8"), Role.STUDENT);
+        ElearningAssert.assertStudentPage(getHtmlPage("student.xhtml?id=8"), Role.STUDENT);
     }
       
     @Ignore
     @Test
     public void linkTestAsTeacher() throws JaxenException {
         authenticateFormBasedAsTeacher();
-        HtmlPage courseLink = testLink(getPage("student.xhtml?id=8"), "Analysis");
+        HtmlPage courseLink = testLink(getHtmlPage("student.xhtml?id=8"), "Analysis");
         ElearningAssert.assertCoursePage(courseLink, Role.TEACHER);
     }
     
@@ -64,7 +64,7 @@ public class StudentTest extends AbstractHtmlTestCase {
     @Test
     public void linkTestAsStudent() throws JaxenException {
         authenticateFormBasedAsStudent();
-        HtmlPage courseLink = testLink(getPage("student.xhtml?id=8"), "Analysis");
+        HtmlPage courseLink = testLink(getHtmlPage("student.xhtml?id=8"), "Analysis");
         ElearningAssert.assertCoursePage(courseLink, Role.STUDENT);
     }
 
@@ -72,7 +72,7 @@ public class StudentTest extends AbstractHtmlTestCase {
     @Test
     public void logoutLinkTest() throws JaxenException {
         authenticateFormBasedAsStudent();
-        HtmlPage logoutLink = testLink(getPage("student.xhtml?id=8"), "Logout");
+        HtmlPage logoutLink = testLink(getHtmlPage("student.xhtml?id=8"), "Logout");
         ElearningAssert.assertStudentPage(logoutLink, Role.GUEST);         
     }
 
@@ -80,7 +80,7 @@ public class StudentTest extends AbstractHtmlTestCase {
     @Test
     public void dashboardLinkTest() throws JaxenException {
         authenticateFormBasedAsStudent();
-        HtmlPage dashboardLink = testLink(getPage("student.xhtml?id=8"), "Dashboard");
+        HtmlPage dashboardLink = testLink(getHtmlPage("student.xhtml?id=8"), "Dashboard");
         ElearningAssert.assertDashboardPage(dashboardLink, Role.STUDENT); 
     }
 }
