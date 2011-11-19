@@ -91,7 +91,7 @@ public class LessonBean {
         return course != null? course.isLessonFinished(getCurrentStudent(), lesson): false;
     }
 
-    private String finish() {
+    public String finish() {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
                 course.finishLesson(getCurrentStudent(), lesson);
@@ -101,7 +101,7 @@ public class LessonBean {
         });
     }
 
-    private String start() {
+    public String start() {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
                 course.startLesson(getCurrentStudent(), lesson);
@@ -109,16 +109,6 @@ public class LessonBean {
                     + "&faces-redirect=true&includeViewParams=true";
             }
         });
-    }
-
-    public String startFinish() {
-        if (!isStarted() && !isFinished()) {
-            return start();
-        } else if (isStarted() && !isFinished()) {
-            return finish();
-        } else {
-            throw new IllegalStateException("Lesson has invalid state for state change. Finished:" + isFinished() + ", Started:" + isStarted());
-        }
     }
 
     public Student getCurrentStudent() {
