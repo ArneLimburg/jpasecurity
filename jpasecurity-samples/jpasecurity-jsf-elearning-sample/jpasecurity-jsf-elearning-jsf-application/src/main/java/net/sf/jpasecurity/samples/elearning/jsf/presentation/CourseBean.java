@@ -67,6 +67,7 @@ public class CourseBean {
     public String addOrRemoveStudentToCourse() {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
+                Course course = getEntity();
                 Student student = getCurrentStudent();
                 if (course.getParticipants().contains(student)) {
                     course.unsubscribe(student);
@@ -79,6 +80,9 @@ public class CourseBean {
     }
 
     public Course getEntity() {
+        if (course == null) {
+            setId(getId()); // reads the id from the request and loads the course
+        }
         return course;
     }
 
@@ -89,7 +93,7 @@ public class CourseBean {
                 LessonWithoutCourse lesson = LessonFactoryBuilder.newLesson()
                                                                  .withTitle(new Title(lessonName))
                                                                  .andContent(new Content(lessonBody));
-                course.addLesson(lesson);
+                getEntity().addLesson(lesson);
                 lessonName = "";
                 lessonBody = "";
                 return "course.xhtml";
@@ -98,14 +102,17 @@ public class CourseBean {
     }
 
     public boolean isStudentInCourse() {
+        Course course = getEntity();
         return course == null? false: course.getParticipants().contains(getCurrentStudent());
     }
 
     public Title getTitle() {
+        Course course = getEntity();
         return course == null? null: course.getTitle();
     }
 
     public Teacher getLecturer() {
+        Course course = getEntity();
         return course == null? null: course.getLecturer();
     }
 
@@ -134,18 +141,22 @@ public class CourseBean {
     }
 
     public Teacher getTeacher() {
+        Course course = getEntity();
         return course == null? null: course.getLecturer();
     }
 
     public List<Student> getStudents() {
+        Course course = getEntity();
         return course == null? null: new ArrayList<Student>(course.getParticipants());
     }
 
     public List<Lesson> getLessons() {
+        Course course = getEntity();
         return course == null? null: course.getLessons();
     }
 
     public boolean isLessonFinished(Lesson lesson) {
+        Course course = getEntity();
         Student student = getCurrentStudent();
         if (!course.getParticipants().contains(student)) {
             return false;
@@ -155,6 +166,7 @@ public class CourseBean {
     }
 
     public void studentFinishesLesson() {
+        Course course = getEntity();
         Student student = getCurrentStudent();
         course.finishLesson(student, course.getCurrentLession(student));
     }
@@ -171,7 +183,8 @@ public class CourseBean {
 
     public Integer getId() {
         if (course == null) {
-            return null;
+            String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("id");
+            return id != null? Integer.valueOf(id): null;
         }
         return course.getId();
     }
