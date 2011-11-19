@@ -32,35 +32,35 @@ public class CoursesTest extends AbstractHtmlTestCase {
 
     @Test
     public void unauthenticated() throws JaxenException {
-        ElearningAssert.assertCoursesPage(getPage("courses.xhtml"), Role.GUEST);
+        ElearningAssert.assertCoursesPage(getHtmlPage("courses.xhtml"), Role.GUEST);
     }
     
     @Test
     public void authenticatedAsTeacher() throws JaxenException {
-        ElearningAssert.assertCoursesPage(getPage("courses.xhtml"), Role.GUEST);
+        ElearningAssert.assertCoursesPage(getHtmlPage("courses.xhtml"), Role.GUEST);
         ElearningAssert.assertCoursesPage(authenticateAsTeacher("courses.xhtml"), Role.TEACHER);
-        ElearningAssert.assertCoursesPage(getPage("courses.xhtml"), Role.TEACHER);
+        ElearningAssert.assertCoursesPage(getHtmlPage("courses.xhtml"), Role.TEACHER);
     }
 
     @Test
     public void authenticatedAsStudent() throws JaxenException {
-        ElearningAssert.assertCoursesPage(getPage("courses.xhtml"), Role.GUEST);
+        ElearningAssert.assertCoursesPage(getHtmlPage("courses.xhtml"), Role.GUEST);
         ElearningAssert.assertCoursesPage(authenticateAsStudent("courses.xhtml"), Role.STUDENT);
-        ElearningAssert.assertCoursesPage(getPage("courses.xhtml"), Role.STUDENT);
+        ElearningAssert.assertCoursesPage(getHtmlPage("courses.xhtml"), Role.STUDENT);
     }
     
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
-        ElearningAssert.assertCoursesPage(getPage("courses.xhtml"), Role.GUEST);
+        ElearningAssert.assertCoursesPage(getHtmlPage("courses.xhtml"), Role.GUEST);
         authenticateFormBasedAsTeacher();
-        ElearningAssert.assertCoursesPage(getPage("courses.xhtml"), Role.TEACHER);
+        ElearningAssert.assertCoursesPage(getHtmlPage("courses.xhtml"), Role.TEACHER);
     }
     
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
-        ElearningAssert.assertCoursesPage(getPage("courses.xhtml"), Role.GUEST);
+        ElearningAssert.assertCoursesPage(getHtmlPage("courses.xhtml"), Role.GUEST);
         authenticateFormBasedAsStudent();
-        ElearningAssert.assertCoursesPage(getPage("courses.xhtml"), Role.STUDENT);
+        ElearningAssert.assertCoursesPage(getHtmlPage("courses.xhtml"), Role.STUDENT);
     }
     
     @Test

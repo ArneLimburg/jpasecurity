@@ -32,35 +32,35 @@ public class TeacherTest extends AbstractHtmlTestCase {
 
     @Test
     public void unauthenticated() throws JaxenException {
-        ElearningAssert.assertTeacherPage(getPage("teacher.xhtml?id=1"), Role.GUEST);
+        ElearningAssert.assertTeacherPage(getHtmlPage("teacher.xhtml?id=1"), Role.GUEST);
     }
 
     @Test
     public void authenticatedAsTeacher() throws JaxenException {
-        ElearningAssert.assertTeacherPage(getPage("teacher.xhtml?id=1"), Role.GUEST);
+        ElearningAssert.assertTeacherPage(getHtmlPage("teacher.xhtml?id=1"), Role.GUEST);
         ElearningAssert.assertTeacherPage(authenticateAsTeacher("teacher.xhtml?id=1"), Role.TEACHER);
-        ElearningAssert.assertTeacherPage(getPage("teacher.xhtml?id=1"), Role.TEACHER);
+        ElearningAssert.assertTeacherPage(getHtmlPage("teacher.xhtml?id=1"), Role.TEACHER);
     }
 
     @Test
     public void authenticatedAsStudent() throws JaxenException {
-        ElearningAssert.assertTeacherPage(getPage("teacher.xhtml?id=1"), Role.GUEST);
+        ElearningAssert.assertTeacherPage(getHtmlPage("teacher.xhtml?id=1"), Role.GUEST);
         ElearningAssert.assertTeacherPage(authenticateAsStudent("teacher.xhtml?id=1"), Role.STUDENT);
-        ElearningAssert.assertTeacherPage(getPage("teacher.xhtml?id=1"), Role.STUDENT);
+        ElearningAssert.assertTeacherPage(getHtmlPage("teacher.xhtml?id=1"), Role.STUDENT);
     }
     
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
-        ElearningAssert.assertTeacherPage(getPage("teacher.xhtml?id=1"), Role.GUEST);
+        ElearningAssert.assertTeacherPage(getHtmlPage("teacher.xhtml?id=1"), Role.GUEST);
         authenticateFormBasedAsTeacher();
-        ElearningAssert.assertTeacherPage(getPage("teacher.xhtml?id=1"), Role.TEACHER);
+        ElearningAssert.assertTeacherPage(getHtmlPage("teacher.xhtml?id=1"), Role.TEACHER);
     }
     
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
-        ElearningAssert.assertTeacherPage(getPage("teacher.xhtml?id=1"), Role.GUEST);
+        ElearningAssert.assertTeacherPage(getHtmlPage("teacher.xhtml?id=1"), Role.GUEST);
         authenticateFormBasedAsStudent();
-        ElearningAssert.assertTeacherPage(getPage("teacher.xhtml?id=1"), Role.STUDENT);
+        ElearningAssert.assertTeacherPage(getHtmlPage("teacher.xhtml?id=1"), Role.STUDENT);
     }
     
     @Test

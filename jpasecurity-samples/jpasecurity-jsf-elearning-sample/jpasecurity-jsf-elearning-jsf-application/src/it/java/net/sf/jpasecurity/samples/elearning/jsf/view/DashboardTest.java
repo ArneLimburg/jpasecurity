@@ -35,39 +35,39 @@ public class DashboardTest extends AbstractHtmlTestCase {
     @Ignore
     @Test
     public void unauthenticated() throws JaxenException {
-        ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.GUEST);
+        ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.GUEST);
     }
 
     @Ignore
     @Test
     public void authenticatedAsTeacher() throws JaxenException {
-        ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.GUEST);
+        ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.GUEST);
         ElearningAssert.assertDashboardPage(authenticateAsTeacher("dashboard.xhtml"), Role.TEACHER);
-        ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.TEACHER);
+        ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.TEACHER);
     }
 
     @Ignore
     @Test
     public void authenticatedAsStudent() throws JaxenException {
-        ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.GUEST);
+        ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.GUEST);
         ElearningAssert.assertDashboardPage(authenticateAsStudent("dashboard.xhtml"), Role.STUDENT);
-        ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.STUDENT);
+        ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.STUDENT);
     }
    
     @Ignore
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
-        ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.GUEST);
+        ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.GUEST);
         authenticateFormBasedAsTeacher();
-        ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.TEACHER);
+        ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.TEACHER);
     }
     
     @Ignore
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
-        ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.GUEST);
+        ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.GUEST);
         authenticateFormBasedAsStudent();
-        ElearningAssert.assertDashboardPage(getPage("dashboard.xhtml"), Role.STUDENT);
+        ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.STUDENT);
     }
     
     @Ignore

@@ -34,39 +34,39 @@ public class LoginTest extends AbstractHtmlTestCase {
 
     @Test
     public void unauthenticated() throws JaxenException {
-        ElearningAssert.assertLoginPage(getPage("login.xhtml"),  Role.GUEST);
+        ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"),  Role.GUEST);
     }
 
 
     @Test
     public void authenticatedAsTeacher() throws JaxenException {
-        ElearningAssert.assertLoginPage(getPage("login.xhtml"), Role.GUEST);
+        ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.GUEST);
         ElearningAssert.assertLoginPage(authenticateAsTeacher("login.xhtml"), Role.TEACHER);
-        ElearningAssert.assertLoginPage(getPage("login.xhtml"), Role.TEACHER);
+        ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.TEACHER);
     }
 
 
     @Test
     public void authenticatedAsStudent() throws JaxenException {
-        ElearningAssert.assertLoginPage(getPage("login.xhtml"), Role.GUEST);
+        ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.GUEST);
         ElearningAssert.assertLoginPage(authenticateAsStudent("login.xhtml"), Role.STUDENT);
-        ElearningAssert.assertLoginPage(getPage("login.xhtml"), Role.STUDENT);
+        ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.STUDENT);
     }
 
 
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
-        ElearningAssert.assertLoginPage(getPage("login.xhtml"), Role.GUEST);
+        ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.GUEST);
         authenticateFormBasedAsTeacher();
-        ElearningAssert.assertLoginPage(getPage("login.xhtml"), Role.TEACHER);
+        ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.TEACHER);
     }
     
 
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
-        ElearningAssert.assertLoginPage(getPage("login.xhtml"), Role.GUEST);
+        ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.GUEST);
         authenticateFormBasedAsStudent();
-        ElearningAssert.assertLoginPage(getPage("login.xhtml"), Role.STUDENT);
+        ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.STUDENT);
     }
     
     @Ignore
@@ -86,7 +86,7 @@ public class LoginTest extends AbstractHtmlTestCase {
 
     @Test
     public void cancelTest() throws JaxenException {
-        HtmlPage cancelLink = testInputLink(getPage("login.xhtml"), "Login");
+        HtmlPage cancelLink = testInputLink(getHtmlPage("login.xhtml"), "Login");
         ElearningAssert.assertLoginPage(cancelLink, Role.GUEST);         
     }
 

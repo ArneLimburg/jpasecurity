@@ -34,36 +34,36 @@ public class IndexTest extends AbstractHtmlTestCase {
 
     @Test
     public void unauthenticated() throws JaxenException {
-        ElearningAssert.assertIndexPage(getPage(""), Role.GUEST);
-        ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.GUEST);
+        ElearningAssert.assertIndexPage(getHtmlPage(""), Role.GUEST);
+        ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.GUEST);
     }
 
     @Test
     public void authenticatedAsTeacher() throws JaxenException {
-        ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.GUEST);
+        ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.GUEST);
         ElearningAssert.assertIndexPage(authenticateAsTeacher("index.xhtml"), Role.TEACHER);
-        ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.TEACHER);
+        ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.TEACHER);
     }
 
     @Test
     public void authenticatedAsStudent() throws JaxenException {
-        ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.GUEST);
+        ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.GUEST);
         ElearningAssert.assertIndexPage(authenticateAsStudent("index.xhtml"), Role.STUDENT);
-        ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.STUDENT);
+        ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.STUDENT);
     }
     
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
-        ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.GUEST);
+        ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.GUEST);
         authenticateFormBasedAsTeacher();
-        ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.TEACHER);
+        ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.TEACHER);
     }
     
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
-        ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.GUEST);
+        ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.GUEST);
         authenticateFormBasedAsStudent();
-        ElearningAssert.assertIndexPage(getPage("index.xhtml"), Role.STUDENT);
+        ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.STUDENT);
     }
     
     @Test
