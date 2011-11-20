@@ -17,8 +17,9 @@ package net.sf.jpasecurity.sample.elearning.domain.course;
 
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 
@@ -31,19 +32,24 @@ import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
  *
  * @author Arne Limburg - open knowledge GmbH (arne.limburg@openknowledge.de)
  */
+@Named("courseRepository")
 public class JpaCourseRepository implements CourseRepository {
 
-    @PersistenceContext
+    @Inject
     private EntityManager entityManager;
 
     public void persist(Course course) {
-        entityManager.persist(course);
+        getEntityManager().persist(course);
     }
 
     public List<? extends Course> getAllCourses() {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<? extends Course> query = cb.createQuery(CourseAggregate.class);
         query.from(CourseAggregate.class);
-        return entityManager.createQuery(query).getResultList();
+        return getEntityManager().createQuery(query).getResultList();
+    }
+
+    protected EntityManager getEntityManager() {
+        return entityManager;
     }
 }
