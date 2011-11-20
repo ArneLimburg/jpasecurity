@@ -28,7 +28,6 @@ import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
-import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Password;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
@@ -45,7 +44,6 @@ import net.sf.jpasecurity.sample.elearning.domain.course.CourseAggregate;
 @ManagedBean(name = "elearningRepository")
 @RequestScoped
 public class ElearningRepository implements UserRepository,
-                                            CourseRepository,
                                             StudentRepository,
                                             TeacherRepository,
                                             TransactionService,
@@ -84,17 +82,6 @@ public class ElearningRepository implements UserRepository,
                                  .setParameter("nick", name.getNick())
                                  .setParameter("password", password.getText())
                                  .getSingleResult().intValue() > 0;
-    }
-
-    public void persist(Course course) {
-        getEntityManager().persist(course);
-    }
-
-    public List<? extends Course> getAllCourses() {
-        CriteriaQuery<? extends Course> allCourses
-            = getEntityManager().getCriteriaBuilder().createQuery(CourseAggregate.class);
-        allCourses.from(CourseAggregate.class);
-        return getEntityManager().createQuery(allCourses).getResultList();
     }
 
     public List<Student> getAllStudents() {

@@ -25,6 +25,7 @@ import javax.faces.context.FacesContext;
 
 import net.sf.jpasecurity.sample.elearning.domain.Content;
 import net.sf.jpasecurity.sample.elearning.domain.Course;
+import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
 import net.sf.jpasecurity.sample.elearning.domain.LessonWithoutCourse;
 import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
@@ -36,7 +37,8 @@ import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Calla
 /**
  * @author Arne Limburg
  */
-@RequestScoped @ManagedBean(name = "lessonFactory")
+@RequestScoped
+@ManagedBean(name = "lessonFactory")
 public class LessonFactoryBean {
 
     private String newCourse;
@@ -45,6 +47,8 @@ public class LessonFactoryBean {
     private String content;
     @ManagedProperty(value = "#{elearningRepository}")
     private ElearningRepository elearningRepository;
+    @ManagedProperty(value = "#{courseRepository}")
+    private CourseRepository courseRepository;
 
     public String getNewCourse() {
         return newCourse;
@@ -102,7 +106,7 @@ public class LessonFactoryBean {
                     course.addLesson(lesson);
                 } else {
                     course = new CourseAggregate(new Title(newCourse), getCurrentTeacher(), lesson);
-                    elearningRepository.persist(course);
+                    courseRepository.persist(course);
                 }
                 return course.getId();
             }
@@ -112,5 +116,9 @@ public class LessonFactoryBean {
 
     public void setElearningRepository(ElearningRepository elearningRepository) {
         this.elearningRepository = elearningRepository;
+    }
+
+    public void setCourseRepository(CourseRepository courseRepository) {
+        this.courseRepository = courseRepository;
     }
 }
