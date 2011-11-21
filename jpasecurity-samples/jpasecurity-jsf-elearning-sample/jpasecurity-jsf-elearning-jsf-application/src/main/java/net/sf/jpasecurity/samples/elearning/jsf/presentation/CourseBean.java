@@ -24,6 +24,7 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
+import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.sample.elearning.domain.Content;
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Lesson;
@@ -42,7 +43,7 @@ import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Calla
  */
 @RequestScoped
 @ManagedBean(name = "course")
-public class CourseBean {
+public class CourseBean implements EntityProxy {
 
     @ManagedProperty(value = "#{elearningRepository}")
     private ElearningRepository elearningRepository;
@@ -67,7 +68,7 @@ public class CourseBean {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
                 getEntity().subscribe(getCurrentStudent());
-                return "course?faces-redirect=true&includeViewParams=true&id=" + course.getId();
+                return "course?faces-redirect=true&includeViewParams=true&course=" + course.getId();
             }
         });
     }
@@ -76,7 +77,7 @@ public class CourseBean {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
                 getEntity().unsubscribe(getCurrentStudent());
-                return "course?faces-redirect=true&includeViewParams=true&id=" + course.getId();
+                return "course?faces-redirect=true&includeViewParams=true&course=" + course.getId();
             }
         });
     }
@@ -142,12 +143,7 @@ public class CourseBean {
         lessonBody = body;
     }
 
-    public Teacher getTeacher() {
-        Course course = getEntity();
-        return course == null? null: course.getLecturer();
-    }
-
-    public List<Student> getStudents() {
+    public List<Student> getParticipants() {
         Course course = getEntity();
         return course == null? null: new ArrayList<Student>(course.getParticipants());
     }
@@ -185,7 +181,7 @@ public class CourseBean {
 
     public Integer getId() {
         if (course == null) {
-            String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("id");
+            String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("course");
             return id != null? Integer.valueOf(id): null;
         }
         return course.getId();

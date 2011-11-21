@@ -28,8 +28,9 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 @Ignore
 public class DashboardTest extends AbstractHtmlTestCase {
+
     public DashboardTest() {
-        super("http://localhost:8282/elearning/");
+        super("http://localhost:8282/elearning-jsf/");
     }
 
     @Ignore

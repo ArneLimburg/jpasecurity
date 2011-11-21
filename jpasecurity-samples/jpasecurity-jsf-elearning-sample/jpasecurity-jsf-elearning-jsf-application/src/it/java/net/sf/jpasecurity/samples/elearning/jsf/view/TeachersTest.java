@@ -27,8 +27,9 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  */
 @Ignore
 public class TeachersTest extends AbstractHtmlTestCase {
+
     public TeachersTest() {
-        super("http://localhost:8282/elearning/");
+        super("http://localhost:8282/elearning-jsf/");
     }
 
     @Test

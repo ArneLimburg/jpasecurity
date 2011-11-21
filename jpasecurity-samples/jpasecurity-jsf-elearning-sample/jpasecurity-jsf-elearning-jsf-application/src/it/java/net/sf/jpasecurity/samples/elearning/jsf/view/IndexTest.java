@@ -29,7 +29,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 public class IndexTest extends AbstractHtmlTestCase {
 
     public IndexTest() {
-        super("http://localhost:8282/elearning/");
+        super("http://localhost:8282/elearning-jsf/");
     }
 
     @Test
