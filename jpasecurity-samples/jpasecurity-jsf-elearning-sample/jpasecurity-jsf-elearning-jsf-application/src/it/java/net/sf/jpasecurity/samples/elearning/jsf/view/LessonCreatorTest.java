@@ -24,7 +24,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 /**
  * @auhtor Raffaela Ferrari
  */
-
+@Ignore
 public class LessonCreatorTest extends AbstractHtmlTestCase {
     public LessonCreatorTest() {
         super("http://localhost:8282/elearning/");
@@ -79,8 +79,8 @@ public class LessonCreatorTest extends AbstractHtmlTestCase {
     @Ignore
     @Test
     public void cancelTest() throws JaxenException {
-        HtmlPage cancelLink = testLink(getHtmlPage("lessonCreator.xhtml"), "cancel");
-        ElearningAssert.assertLoginPage(cancelLink, Role.TEACHER); 
+        HtmlPage cancelLink = testLink(authenticateAsTeacher("lessonCreator.xhtml?course=3"), "cancel");
+        ElearningAssert.assertCoursePage(cancelLink, Role.TEACHER); 
     }
 
     @Ignore

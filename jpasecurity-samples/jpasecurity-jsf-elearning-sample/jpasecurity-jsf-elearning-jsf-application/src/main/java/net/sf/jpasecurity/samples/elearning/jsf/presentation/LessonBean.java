@@ -46,7 +46,11 @@ public class LessonBean {
     private Lesson lesson;
 
     public int getCourseId() {
-        return course != null? course.getId(): -1;
+        if (course == null) {
+            String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("course");
+            return id != null? Integer.valueOf(id): null;
+        }
+        return course.getId();
     }
 
     public void setCourseId(int id) {
@@ -57,45 +61,76 @@ public class LessonBean {
     }
 
     public int getNumber() {
-        return lesson != null? lesson.getNumber(): -1;
+        if (lesson == null) {
+            String number =
+                FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("lesson");
+            return number != null? Integer.valueOf(number): null;
+        }
+        return lesson.getNumber();
     }
 
     public void setNumber(int number) {
         lessonNumber = number;
+        course = getCourse();
         if (course != null) {
             lesson = course.getLessons().get(number);
         }
     }
 
     public int getId() {
+        lesson = getLesson();
         return lesson.getNumber();
     }
 
     public Title getTitle() {
+        lesson = getLesson();
         return lesson.getTitle();
     }
 
     public Content getContent() {
+        lesson = getLesson();
         return lesson.getContent();
     }
 
     public Course getCourse() {
+        if (course == null) {
+            setCourseId(getCourseId()); // reads the id from the request and loads the course
+        }
         return course;
     }
 
+    public Lesson getLesson() {
+        if (lesson == null) {
+            setNumber(getNumber()); // reads the number from the request and loads the lesson
+        }
+        return lesson;
+    }
+
     public boolean isStarted() {
-        return lesson != null? lesson.equals(course.getCurrentLession(getCurrentStudent())): false;
+        lesson = getLesson();
+        return lesson != null? lesson.equals(getCourse().getCurrentLession(getCurrentStudent())): false;
+    }
+
+    public boolean isNotStarted() {
+        lesson = getLesson();
+        return lesson != null? !lesson.equals(getCourse().getCurrentLession(getCurrentStudent())): true;
     }
 
     public boolean isFinished() {
-        return course != null? course.isLessonFinished(getCurrentStudent(), lesson): false;
+        course = getCourse();
+        return course != null? course.isLessonFinished(getCurrentStudent(), getLesson()): false;
+    }
+
+    public boolean isNotFinished() {
+        course = getCourse();
+        return course != null? !course.isLessonFinished(getCurrentStudent(), getLesson()): true;
     }
 
     public String finish() {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
-                course.finishLesson(getCurrentStudent(), lesson);
-                return "lesson.xhtml?course=" + course.getId() + "&lesson=" + getId()
+                getCourse().finishLesson(getCurrentStudent(), getLesson());
+                return "lesson.xhtml?course=" + course.getId() + "&lesson=" + lesson.getNumber()
                     + "&faces-redirect=true&includeViewParams=true";
             }
         });
@@ -104,8 +139,8 @@ public class LessonBean {
     public String start() {
         return elearningRepository.executeTransactional(new Callable<String>() {
             public String call() {
-                course.startLesson(getCurrentStudent(), lesson);
-                return "lesson.xhtml?course=" + course.getId() + "&lesson=" + getId()
+                getCourse().startLesson(getCurrentStudent(), getLesson());
+                return "lesson.xhtml?course=" + course.getId() + "&lesson=" + lesson.getNumber()
                     + "&faces-redirect=true&includeViewParams=true";
             }
         });

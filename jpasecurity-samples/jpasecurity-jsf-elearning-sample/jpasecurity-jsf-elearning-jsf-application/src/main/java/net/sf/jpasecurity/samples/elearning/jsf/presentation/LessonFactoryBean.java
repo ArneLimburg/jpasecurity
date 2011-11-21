@@ -51,6 +51,12 @@ public class LessonFactoryBean {
     private CourseRepository courseRepository;
 
     public String getNewCourse() {
+        if (newCourse == null) {
+            newCourse =
+                FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("courseTitle");
+            System.out.println("course" + newCourse);
+            return newCourse != null? newCourse: null;
+        }
         return newCourse;
     }
 
@@ -58,8 +64,19 @@ public class LessonFactoryBean {
         this.newCourse = newCourse;
     }
 
+    public Course getCourse() {
+        if (course == null) {
+            setCourseId(getCourseId()); // reads the id from the request and loads the course
+        }
+        return course;
+    }
+
     public Integer getCourseId() {
-        return course != null? course.getId(): null;
+        if (course == null) {
+            String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("course");
+            return id != null? Integer.valueOf(id): null;
+        }
+        return course.getId();
     }
 
     public void setCourseId(Integer id) {
@@ -70,7 +87,8 @@ public class LessonFactoryBean {
     }
 
     public Title getCourseTitle() {
-        return course != null? course.getTitle(): newCourse != null? new Title(newCourse): null;
+        Course course = getCourse();
+        return course != null? course.getTitle(): getNewCourse() != null? new Title(newCourse): null;
     }
 
     public String getTitle() {
@@ -102,7 +120,7 @@ public class LessonFactoryBean {
         int id = elearningRepository.executeTransactional(new Callable<Integer>() {
             public Integer call() {
                 LessonWithoutCourse lesson = newLesson().withTitle(new Title(title)).andContent(new Content(content));
-                if (course != null) {
+                if (getCourse() != null) {
                     course.addLesson(lesson);
                 } else {
                     course = new CourseAggregate(new Title(newCourse), getCurrentTeacher(), lesson);

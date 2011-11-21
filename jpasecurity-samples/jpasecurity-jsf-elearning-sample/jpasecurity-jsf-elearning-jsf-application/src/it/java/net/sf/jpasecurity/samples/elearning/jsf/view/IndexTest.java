@@ -25,7 +25,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 /**
  * @author Arne Limburg
  */
-
+@Ignore
 public class IndexTest extends AbstractHtmlTestCase {
 
     public IndexTest() {
@@ -99,7 +99,6 @@ public class IndexTest extends AbstractHtmlTestCase {
         ElearningAssert.assertIndexPage(indexLink, Role.GUEST);        
     }
 
-    @Ignore
     @Test
     public void dashboardLinkTest() throws JaxenException {
         HtmlPage dashboardLink = testLink(authenticateAsStudent("index.xhtml"), "Dashboard");
