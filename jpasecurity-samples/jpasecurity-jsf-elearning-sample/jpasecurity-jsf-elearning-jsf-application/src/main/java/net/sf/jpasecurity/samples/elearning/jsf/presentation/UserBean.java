@@ -40,7 +40,11 @@ public class UserBean extends User {
     private User user;
 
     public int getId() {
-        return getUser() != null? getUser().getId(): -1;
+        if (getUser() == null) {
+            String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("id");
+            return id != null? Integer.valueOf(id): null;
+        }
+        return getUser().getId();
     }
 
     public Password getPassword() {

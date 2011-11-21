@@ -112,7 +112,7 @@ public class ElearningAssert {
         assertEquals("E-Learning Platform", page.getTitleText());
         switch(role) {
         case TEACHER:      
-            assertEquals(1, page.getByXPath("//h1[text() = 'Create new lesson']").size()); 
+            assertEquals(1, page.getByXPath("//h1[text() = 'create new lesson']").size()); 
             assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
             assertEquals(1, page.getByXPath("//label[text() = 'Course title:']").size());
             assertEquals(1, page.getByXPath("//span[text() = 'Analysis']").size());

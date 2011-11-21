@@ -24,8 +24,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 /*
  * @auhtor Raffaela Ferrari
  */
-
-
+@Ignore
 public class LoginTest extends AbstractHtmlTestCase {
     public LoginTest() {
         super("http://localhost:8282/elearning/");
@@ -111,7 +110,7 @@ public class LoginTest extends AbstractHtmlTestCase {
         ElearningAssert.assertIndexPage(indexLink, Role.GUEST);        
     }
 
-    @Ignore
+
     @Test
     public void dashboardLinkTest() throws JaxenException {
         HtmlPage dashboardLink = testLink(authenticateAsStudent("login.xhtml"), "Dashboard");

@@ -21,6 +21,7 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
+import javax.faces.context.FacesContext;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
@@ -38,23 +39,39 @@ public class TeacherBean {
 
     private Teacher teacher;
 
-    public void setId(final int id) {
-        teacher = elearningRepository.findTeacher(id);
+    public Teacher getEntity() {
+        if (teacher == null) {
+            setId(getId()); // reads the id from the request and loads the student
+        }
+        return teacher;
+    }
+
+    public void setId(final Integer id) {
+        if (id != null) {
+            teacher = elearningRepository.findTeacher(id);
+        }
     }
 
     public int getId() {
-        return teacher == null? -1: teacher.getId();
+        if (teacher == null) {
+            String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("id");
+            return id != null? Integer.valueOf(id): null;
+        }
+        return teacher.getId();
     }
 
     public void setName(String name) {
-        this.teacher.setLastName(name);
+        Teacher teacher = getEntity();
+        teacher.setLastName(name);
     }
 
     public String getName() {
+        Teacher teacher = getEntity();
         return teacher == null? null: this.teacher.getFullname();
     }
 
     public List<Course> getCourses() {
+        Teacher teacher = getEntity();
         return teacher == null? null: new ArrayList<Course>(teacher.getCourses());
     }
 

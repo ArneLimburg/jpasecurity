@@ -24,19 +24,19 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 /*
  * @auhtor Raffaela Ferrari
  */
-
+@Ignore
 public class StudentTest extends AbstractHtmlTestCase {
     public StudentTest() {
         super("http://localhost:8282/elearning/");
     }
 
-    @Ignore
+
     @Test
     public void unauthenticated() throws JaxenException {
         ElearningAssert.assertStudentPage(getHtmlPage("student.xhtml?id=8"), Role.GUEST);
     }
     
-    @Ignore
+
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertStudentPage(getHtmlPage("student.xhtml?id=8"), Role.GUEST);
@@ -44,7 +44,7 @@ public class StudentTest extends AbstractHtmlTestCase {
         ElearningAssert.assertStudentPage(getHtmlPage("student.xhtml?id=8"), Role.TEACHER);
     }
     
-    @Ignore
+
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertStudentPage(getHtmlPage("student.xhtml?id=8"), Role.GUEST);
@@ -52,7 +52,7 @@ public class StudentTest extends AbstractHtmlTestCase {
         ElearningAssert.assertStudentPage(getHtmlPage("student.xhtml?id=8"), Role.STUDENT);
     }
       
-    @Ignore
+
     @Test
     public void linkTestAsTeacher() throws JaxenException {
         authenticateFormBasedAsTeacher();
@@ -60,7 +60,7 @@ public class StudentTest extends AbstractHtmlTestCase {
         ElearningAssert.assertCoursePage(courseLink, Role.TEACHER);
     }
     
-    @Ignore
+
     @Test
     public void linkTestAsStudent() throws JaxenException {
         authenticateFormBasedAsStudent();
@@ -68,7 +68,7 @@ public class StudentTest extends AbstractHtmlTestCase {
         ElearningAssert.assertCoursePage(courseLink, Role.STUDENT);
     }
 
-    @Ignore
+
     @Test
     public void logoutLinkTest() throws JaxenException {
         authenticateFormBasedAsStudent();
@@ -76,7 +76,7 @@ public class StudentTest extends AbstractHtmlTestCase {
         ElearningAssert.assertStudentPage(logoutLink, Role.GUEST);         
     }
 
-    @Ignore
+
     @Test
     public void dashboardLinkTest() throws JaxenException {
         authenticateFormBasedAsStudent();

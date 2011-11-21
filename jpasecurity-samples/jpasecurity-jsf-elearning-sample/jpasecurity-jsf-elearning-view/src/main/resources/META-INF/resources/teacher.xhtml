@@ -22,10 +22,7 @@
     <title>#{teacher.name}</title>
   </h:head>
   <h:body>
-    <f:metadata>
-      <f:viewParam name="id" value="#{teacher.id}" required="true"/>
-    </f:metadata>
-    
+
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
         <h1>#{teacher.name}</h1>
