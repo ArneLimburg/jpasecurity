@@ -17,6 +17,7 @@ package net.sf.jpasecurity.sample.elearning.domain.course;
 
 import java.util.List;
 
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
@@ -25,6 +26,8 @@ import javax.persistence.criteria.CriteriaQuery;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
+import net.sf.jpasecurity.sample.elearning.domain.Lesson;
+import net.sf.jpasecurity.sample.elearning.domain.Parameter;
 
 
 /**
@@ -37,6 +40,18 @@ public class JpaCourseRepository implements CourseRepository {
 
     @Inject
     private EntityManager entityManager;
+
+    @Produces
+    @Named("course")
+    public Course findCourse(@Parameter("course") Integer id) {
+        return getEntityManager().find(CourseAggregate.class, id);
+    }
+
+    @Produces
+    @Named("lesson")
+    public Lesson getLesson(Course course, @Parameter("lesson") Integer number) {
+        return course.getLessons().get(number);
+    }
 
     public void persist(Course course) {
         getEntityManager().persist(course);

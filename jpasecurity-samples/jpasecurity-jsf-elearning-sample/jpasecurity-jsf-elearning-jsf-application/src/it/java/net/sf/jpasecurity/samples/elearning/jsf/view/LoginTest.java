@@ -26,8 +26,9 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  */
 @Ignore
 public class LoginTest extends AbstractHtmlTestCase {
+
     public LoginTest() {
-        super("http://localhost:8282/elearning/");
+        super("http://localhost:8282/elearning-jsf/");
     }
 
 

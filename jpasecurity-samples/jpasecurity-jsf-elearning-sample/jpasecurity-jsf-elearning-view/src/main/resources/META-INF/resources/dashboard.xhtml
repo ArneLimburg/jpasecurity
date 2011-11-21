@@ -33,7 +33,7 @@
             <ui:repeat var="c" value="#{courseRepository.allCourses}">
               <li>
                 <h:outputLink value="course.xhtml" >
-                  <f:param name="id" value="#{c.id}" />
+                  <f:param name="course" value="#{c.id}" />
                   <h:outputText value="#{c.title}" />
                 </h:outputLink>
               </li>
@@ -46,7 +46,7 @@
           <ui:repeat var="mycourse" value="#{user.courses}">
             <li>
               <h:outputLink value="course.xhtml" >
-                <f:param name="id" value="#{mycourse.id}" />
+                <f:param name="course" value="#{mycourse.id}" />
                 <h:outputText value="#{mycourse.title}" />
               </h:outputLink>
            </li>

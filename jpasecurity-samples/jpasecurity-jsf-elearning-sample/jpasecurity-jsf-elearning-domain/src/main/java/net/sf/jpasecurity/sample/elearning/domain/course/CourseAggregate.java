@@ -114,6 +114,12 @@ public class CourseAggregate implements Course {
         return id == null? -1: id;
     }
 
+    public void setId(int id) {
+        if (this.id != id) {
+            throw new IllegalStateException("cannot change id from " + this.id + " to " + id);
+        }
+    }
+
     public Title getTitle() {
         return title;
     }

@@ -14,7 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
- <html xmlns="http://www.w3.org/1999/xhtml"
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
@@ -27,24 +27,24 @@
 
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
-       <h1 id="courseTitle">#{course.title}</h1>
-       <h:panelGroup rendered="#{sec:userInRole('student')}">
-         <h:form id="joinLeaveForm" prependId="false">
-           <h:inputHidden id="id" name="id" value="#{course.id}" />
-           <h:commandButton id="join" value="join this course" action="#{course.addStudent}" styleClass="submit" rendered="#{!course.studentInCourse}"/>   
-           <h:commandButton id="leave" value="leave this course" action="#{course.removeStudent}" styleClass="submit" rendered="#{course.studentInCourse}"/>
-         </h:form>
-       </h:panelGroup>
+        <h1 id="courseTitle">#{course.title}</h1>
+        <h:panelGroup rendered="#{sec:userInRole('student')}">
+          <h:form id="joinLeaveForm" prependId="false">
+            <h:inputHidden id="course" value="#{course.id}" />
+            <h:commandButton id="join" value="join this course" action="#{course.addStudent}" styleClass="submit" rendered="#{!course.studentInCourse}"/>   
+            <h:commandButton id="leave" value="leave this course" action="#{course.removeStudent}" styleClass="submit" rendered="#{course.studentInCourse}"/>
+          </h:form>
+        </h:panelGroup>
        
         <h2>Lecturer</h2>
         <h:outputLink value="teacher.xhtml" >
-          <f:param name="id" value="#{course.teacher.id}" />
-          <h:outputText value="#{course.teacher.fullname}" />
+          <f:param name="id" value="#{course.lecturer.id}" />
+          <h:outputText value="#{course.lecturer.fullname}" />
         </h:outputLink>
-        <h:panelGroup rendered="#{not empty course.students}"> 
+        <h:panelGroup rendered="#{not empty course.participants}"> 
           <h2>Participants</h2>
           <ul>
-            <ui:repeat var="participant" value="#{course.students}">
+            <ui:repeat var="participant" value="#{course.participants}">
               <li>
                 <h:outputLink value="student.xhtml" >
                   <f:param name="id" value="#{participant.id}" />
@@ -56,20 +56,20 @@
         </h:panelGroup>
         
         <h:panelGroup rendered="#{not empty course.lessons}"> 
-        <h2>Lessons</h2>
+          <h2>Lessons</h2>
           <ul>
-            <ui:repeat var="lesson" value="#{course.lessons}">
+            <ui:repeat var="l" value="#{course.lessons}">
               <li>
                 <h:outputLink value="lesson.xhtml">
                   <f:param name="course" value="#{course.id}" />
-                  <f:param name="lesson" value="#{lesson.number}" />
-                  <h:outputText value="#{lesson.title}" />
+                  <f:param name="lesson" value="#{l.number}" />
+                  <h:outputText value="#{l.title}" />
                 </h:outputLink>
               </li>
             </ui:repeat>
           </ul>  
         </h:panelGroup>
-        <h:button value="Create new lesson" outcome="lessonCreator" rendered="#{sec:canCreate(sec:newBean4('LessonEntity', course.entity, 'New Lesson', ''))}">
+        <h:button value="Create new lesson" outcome="lessonCreator" rendered="#{sec:canCreate(sec:newBean4('LessonEntity', course, 'New Lesson', ''))}">
           <f:param name="course" value="#{course.id}"/>
         </h:button>
       </ui:define>

@@ -92,7 +92,13 @@
               <groupId>${project.groupId}</groupId>
               <artifactId>jpasecurity-jsf-elearning-jsf-application</artifactId>
               <version>${project.version}</version>
-              <contextPath>/elearning</contextPath>
+              <contextPath>/elearning-jsf</contextPath>
+            </webappArtifact>
+            <webappArtifact>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>jpasecurity-jsf-elearning-cdi-application</artifactId>
+              <version>${project.version}</version>
+              <contextPath>/elearning-cdi</contextPath>
             </webappArtifact>
           </webapps>
         </configuration>

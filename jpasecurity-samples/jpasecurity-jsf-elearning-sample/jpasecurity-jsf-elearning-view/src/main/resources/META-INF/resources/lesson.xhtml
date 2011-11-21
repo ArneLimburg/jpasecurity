@@ -30,7 +30,7 @@
         
         <h:panelGroup rendered="#{sec:userInRole('student') and !lesson.finished}">
 	      <h:form id="startResolveForm" prependId="false">
-	        <h:inputHidden id="course" value="#{lesson.courseId}" />
+	        <h:inputHidden id="course" value="#{lesson.course.id}" />
 	        <h:inputHidden id="lesson" value="#{lesson.number}" />
 	        <h:commandButton value="start this lesson" id="start" action="#{lesson.start}" styleClass="submit" rendered="#{!lesson.started}"/>
 	        <h:commandButton value="resolve this lesson" id="resolve" action="#{lesson.finish}" styleClass="submit" rendered="#{lesson.started}"/>
@@ -44,7 +44,7 @@
         <h:panelGrid columns="2" id="lessonDetails">
           <h:outputLabel value="Course:" for="courseName"/>
           <h:outputLink name="courseName" value="course.xhtml">
-            <f:param name="id" value="#{lesson.courseId}" />
+            <f:param name="course" value="#{lesson.course.id}" />
             <h:outputText value="#{lesson.course.title}" />
           </h:outputLink>
           <h:outputLabel value="Lecturer:" for="lecturer"/>
