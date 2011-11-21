@@ -54,6 +54,7 @@ import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.persistence.compiler.EntityManagerEvaluator;
 import net.sf.jpasecurity.persistence.security.CriteriaEntityFilter;
 import net.sf.jpasecurity.proxy.Decorator;
+import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.security.FilterResult;
@@ -350,6 +351,10 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         Object[] transientParameters = new Object[parameters.length];
         AbstractSecureObjectManager objectManager = (AbstractSecureObjectManager)secureObjectManager;
         for (int i = 0; i < transientParameters.length; i++) {
+            Object parameter = parameters[i];
+            if (parameter instanceof EntityProxy) {
+                parameter = ((EntityProxy)parameter).getEntity();
+            }
             if (parameters[i] != null && mappingInformation.containsClassMapping(parameters[i].getClass())) {
                 ClassMappingInformation mapping = mappingInformation.getClassMapping(parameters[i].getClass());
                 BeanInitializer beanInitializer = configuration.getBeanInitializer();
