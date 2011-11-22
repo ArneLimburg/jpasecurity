@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.samples.elearning.jsf.view;
+package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
 
 import org.jaxen.JaxenException;
 import org.junit.Ignore;

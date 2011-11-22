@@ -1,7 +1,7 @@
-package net.sf.jpasecurity.samples.elearning.jsf.view;
+package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
 
 import static org.junit.Assert.assertEquals;
-import net.sf.jpasecurity.samples.elearning.jsf.view.AbstractHtmlTestCase.Role;
+import net.sf.jpasecurity.samples.elearning.integrationtest.jsf.AbstractHtmlTestCase.Role;
 
 import org.jaxen.JaxenException;
 
