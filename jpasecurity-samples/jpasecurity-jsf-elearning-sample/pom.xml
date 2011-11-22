@@ -16,6 +16,7 @@
     <module>jpasecurity-jsf-elearning-view</module>
     <module>jpasecurity-jsf-elearning-jsf-application</module>
     <module>jpasecurity-jsf-elearning-cdi-application</module>
+    <module>jpasecurity-jsf-elearning-integration-test</module>
   </modules>
 
   <build>
