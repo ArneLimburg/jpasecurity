@@ -10,7 +10,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jpasecurity-jsf-elearning-integration-test</artifactId>
   <packaging>war</packaging>
-  <name>JPA Security JSF E-learning sample - pure JSF application</name>
+  <name>JPA Security JSF E-learning sample - integration tests</name>
   <url>http://jpasecurity.sf.net</url>
 
   <build>
