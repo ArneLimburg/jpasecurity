@@ -52,9 +52,8 @@ public class LessonFactoryBean {
 
     public String getNewCourse() {
         if (newCourse == null) {
-            newCourse =
-                FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("courseTitle");
-            System.out.println("course" + newCourse);
+            newCourse
+                = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("courseTitle");
             return newCourse != null? newCourse: null;
         }
         return newCourse;
