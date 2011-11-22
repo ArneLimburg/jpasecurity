@@ -21,7 +21,7 @@
         <version>2.8.1</version>
         <configuration>
           <excludes>
-            <exclude>**integrationtest/**/*.java</exclude>
+            <exclude>**/integrationtest/**</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -63,7 +63,7 @@
         </executions>
         <configuration>
           <includes>
-            <include>**integrationtest/**/*.java</include>
+            <include>**/integrationtest/**.java</include>
           </includes>
         </configuration>
       </plugin>
