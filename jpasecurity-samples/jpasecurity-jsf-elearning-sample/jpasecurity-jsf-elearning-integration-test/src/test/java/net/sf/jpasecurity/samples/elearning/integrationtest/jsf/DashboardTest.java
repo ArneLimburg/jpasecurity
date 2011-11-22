@@ -1,4 +1,4 @@
-package net.sf.jpasecurity.samples.elearning.jsf.view;
+package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
 /* Copyright 2011 Raffaela Ferrari open knowledge GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
