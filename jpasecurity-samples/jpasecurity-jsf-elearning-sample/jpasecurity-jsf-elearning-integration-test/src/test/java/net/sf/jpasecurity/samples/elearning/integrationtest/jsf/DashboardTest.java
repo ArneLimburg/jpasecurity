@@ -15,10 +15,14 @@ package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
  */
 
 
+import net.sf.jpasecurity.samples.elearning.integrationtest.junit.ParameterizedJUnit4ClassRunner;
+import net.sf.jpasecurity.samples.elearning.integrationtest.junit.Parameters;
+
 import org.jaxen.JaxenException;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
@@ -26,11 +30,13 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @auhtor Raffaela Ferrari
  */
 
-@Ignore
+
+@RunWith(ParameterizedJUnit4ClassRunner.class)
+@Parameters("http://localhost:8282/elearning-jsf/")
 public class DashboardTest extends AbstractHtmlTestCase {
 
-    public DashboardTest() {
-        super("http://localhost:8282/elearning-jsf/");
+    public DashboardTest(String url) {
+        super(url);
     }
 
 
