@@ -44,10 +44,13 @@
 
           <h:panelGroup layout="block" styleClass="buttons">
             <h:commandButton id="create" value="create new lesson" action="#{lessonFactory.create}"/>
-            <h:outputLink value="course.xhtml" immediate="true" id="cancel">
+            <h:outputLink value="course.xhtml" immediate="true" id="cancelToCourse" rendered="#{lessonFactory.courseId != null}">
           		<f:param name="course" value="#{lessonFactory.courseId}" />
           		<h:outputText value="cancel" />
         	</h:outputLink>
+            <h:outputLink value="dashboard.xhtml" immediate="true" id="cancelToDashboard" rendered="#{lessonFactory.courseId == null}">
+                <h:outputText value="cancel" />
+            </h:outputLink>
           </h:panelGroup>
               
         </h:form>
