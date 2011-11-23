@@ -30,8 +30,9 @@ import net.sf.jpasecurity.sample.elearning.domain.LessonWithoutCourse;
 import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.Title;
+import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 import net.sf.jpasecurity.sample.elearning.domain.course.CourseAggregate;
-import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
+import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService;
 import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
 
 /**
@@ -41,14 +42,17 @@ import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Calla
 @ManagedBean(name = "lessonFactory")
 public class LessonFactoryBean {
 
+    @ManagedProperty(value = "#{transactionService}")
+    private TransactionService transactionService;
+    @ManagedProperty(value = "#{userRepository}")
+    private UserRepository userRepository;
+    @ManagedProperty(value = "#{courseRepository}")
+
+    private CourseRepository courseRepository;
     private String newCourse;
     private Course course;
     private String title;
     private String content;
-    @ManagedProperty(value = "#{elearningRepository}")
-    private ElearningRepository elearningRepository;
-    @ManagedProperty(value = "#{courseRepository}")
-    private CourseRepository courseRepository;
 
     public String getNewCourse() {
         if (newCourse == null) {
@@ -82,7 +86,7 @@ public class LessonFactoryBean {
         if (id == null) {
             return;
         }
-        course = elearningRepository.findCourse(id);
+        course = courseRepository.findCourse(id);
     }
 
     public Title getCourseTitle() {
@@ -109,14 +113,14 @@ public class LessonFactoryBean {
     public Teacher getCurrentTeacher() {
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
         if (context.isUserInRole("teacher")) {
-            return elearningRepository.<Teacher>findUser(new Name(context.getUserPrincipal().getName()));
+            return userRepository.<Teacher>findUser(new Name(context.getUserPrincipal().getName()));
         } else {
             return null;
         }
     }
 
     public String create() {
-        int id = elearningRepository.executeTransactional(new Callable<Integer>() {
+        int id = transactionService.executeTransactional(new Callable<Integer>() {
             public Integer call() {
                 LessonWithoutCourse lesson = newLesson().withTitle(new Title(title)).andContent(new Content(content));
                 if (getCourse() != null) {
@@ -131,8 +135,12 @@ public class LessonFactoryBean {
         return "course.xhtml?course=" + id + "&faces-redirect=true&includeViewParams=true";
     }
 
-    public void setElearningRepository(ElearningRepository elearningRepository) {
-        this.elearningRepository = elearningRepository;
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public void setCourseRepository(CourseRepository courseRepository) {

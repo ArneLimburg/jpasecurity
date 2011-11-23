@@ -25,7 +25,7 @@ import javax.faces.context.FacesContext;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
-import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
+import net.sf.jpasecurity.sample.elearning.domain.StudentRepository;
 
 /**
  * @author Raffaela Ferrari
@@ -34,8 +34,8 @@ import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
 @ManagedBean(name = "student")
 public class StudentBean {
 
-    @ManagedProperty(value = "#{elearningRepository}")
-    private ElearningRepository elearningRepository;
+    @ManagedProperty(value = "#{userRepository}")
+    private StudentRepository studentRepository;
 
     private Student student;
 
@@ -48,11 +48,11 @@ public class StudentBean {
 
     public void setId(final Integer id) {
         if (id != null) {
-            student = elearningRepository.findStudent(id);
+            student = studentRepository.findStudent(id);
         }
     }
 
-    public int getId() {
+    public Integer getId() {
         if (student == null) {
             String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("id");
             return id != null? Integer.valueOf(id): null;
@@ -75,11 +75,7 @@ public class StudentBean {
         return student == null? null: new ArrayList<Course>(student.getCourses());
     }
 
-    public ElearningRepository getElearningRepository() {
-        return elearningRepository;
-    }
-
-    public void setElearningRepository(ElearningRepository elearningRepository) {
-        this.elearningRepository = elearningRepository;
+    public void setStudentRepository(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
     }
 }

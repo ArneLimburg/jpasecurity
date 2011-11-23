@@ -18,34 +18,38 @@ package net.sf.jpasecurity.samples.elearning.jsf.service;
 import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Password;
 import net.sf.jpasecurity.sample.elearning.domain.User;
-import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 
 /**
  * @author Arne Limburg
  */
-public class UserRepositoryWrapper implements UserRepository {
+public class UserRepositoryWrapper implements net.sf.jpasecurity.sample.elearning.domain.UserRepository {
 
     public <U extends User> U findUser(final Name name) {
         //Don't receive ElearingRepository from faces context
         //since no faces context is available during j_security_check
-        final ElearningRepository elearningRepository = new ElearningRepository();
-        final UserRepository userRepository = elearningRepository;
+        UserRepository userRepository = getUserRepository();
         try {
             return userRepository.<U>findUser(name);
         } finally {
-            elearningRepository.closeEntityManager();
+            userRepository.getElearningTransactionService().closeEntityManager();
         }
     }
 
     public boolean authenticate(Name name, Password password) {
         //Don't receive ElearingRepository from faces context
         //since no faces context is available during j_security_check
-        final ElearningRepository elearningRepository = new ElearningRepository();
-        final UserRepository userRepository = elearningRepository;
+        UserRepository userRepository = getUserRepository();
         try {
             return userRepository.authenticate(name, password);
         } finally {
-            elearningRepository.closeEntityManager();
+            userRepository.getElearningTransactionService().closeEntityManager();
         }
+    }
+
+    private UserRepository getUserRepository() {
+        ElearningTransactionService elearningTransactionService = new ElearningTransactionService();
+        UserRepository userRepository = new UserRepository();
+        userRepository.setElearningTransactionService(elearningTransactionService);
+        return userRepository;
     }
 }
