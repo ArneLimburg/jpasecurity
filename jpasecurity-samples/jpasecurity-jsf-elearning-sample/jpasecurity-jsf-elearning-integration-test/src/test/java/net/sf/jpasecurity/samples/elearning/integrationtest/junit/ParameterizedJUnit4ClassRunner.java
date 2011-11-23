@@ -33,28 +33,28 @@ public class ParameterizedJUnit4ClassRunner extends Suite {
     }
 
     private static List<Runner> buildRunners(Class<?> testClass) throws InitializationError {
-        Parameters urls = testClass.getAnnotation(Parameters.class);
-        if (urls == null) {
+        Parameters parameters = testClass.getAnnotation(Parameters.class);
+        if (parameters == null) {
             throw new IllegalStateException("Missing annotation @Urls at class " + testClass.getName());
         }
         List<Runner> runners = new ArrayList<Runner>();
-        for (String url: urls.value()) {
-            runners.add(new HtmlUnitClassRunner(testClass, url));
+        for (String parameter: parameters.value()) {
+            runners.add(new ParameterValueJUnit4ClassRunner(testClass, parameter));
         }
         return runners;
     }
 
-    private static class HtmlUnitClassRunner extends BlockJUnit4ClassRunner {
+    private static class ParameterValueJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
-        private String url;
+        private String value;
 
-        public HtmlUnitClassRunner(Class<?> testClass, String url) throws InitializationError {
+        public ParameterValueJUnit4ClassRunner(Class<?> testClass, String value) throws InitializationError {
             super(testClass);
-            this.url = url;
+            this.value = value;
         }
 
         protected String getName() {
-            return super.getName() + " [" + url + "]";
+            return super.getName() + " [" + value + "]";
         }
 
         protected void validateConstructor(List<Throwable> errors) {
@@ -71,7 +71,7 @@ public class ParameterizedJUnit4ClassRunner extends Suite {
         }
 
         protected Object createTest() throws Exception {
-            return getTestClass().getOnlyConstructor().newInstance(url);
+            return getTestClass().getOnlyConstructor().newInstance(value);
         }        
     }
 }
