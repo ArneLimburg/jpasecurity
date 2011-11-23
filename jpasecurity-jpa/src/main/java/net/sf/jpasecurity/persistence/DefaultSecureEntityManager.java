@@ -355,18 +355,18 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
             if (parameter instanceof EntityProxy) {
                 parameter = ((EntityProxy)parameter).getEntity();
             }
-            if (parameters[i] != null && mappingInformation.containsClassMapping(parameters[i].getClass())) {
-                ClassMappingInformation mapping = mappingInformation.getClassMapping(parameters[i].getClass());
+            if (parameter != null && mappingInformation.containsClassMapping(parameter.getClass())) {
+                ClassMappingInformation mapping = mappingInformation.getClassMapping(parameter.getClass());
                 BeanInitializer beanInitializer = configuration.getBeanInitializer();
                 MethodInterceptor interceptor
-                    = new SecureEntityInterceptor(beanInitializer, objectManager, parameters[i]);
+                    = new SecureEntityInterceptor(beanInitializer, objectManager, parameter);
                 Decorator<SecureEntity> decorator
-                    = new SecureEntityDecorator(mapping, beanInitializer, this, objectManager, parameters[i], true);
+                    = new SecureEntityDecorator(mapping, beanInitializer, this, objectManager, parameter, true);
                 SecureEntityProxyFactory factory = configuration.getSecureEntityProxyFactory();
                 transientParameters[i]
                     = factory.createSecureEntityProxy(mapping.getEntityType(), interceptor, decorator);
             } else {
-                transientParameters[i] = parameters[i];
+                transientParameters[i] = parameter;
             }
         }
         Object entity = null;
