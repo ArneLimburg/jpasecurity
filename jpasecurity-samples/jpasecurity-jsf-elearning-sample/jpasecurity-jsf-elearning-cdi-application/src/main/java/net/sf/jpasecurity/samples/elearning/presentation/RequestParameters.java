@@ -38,7 +38,6 @@ public class RequestParameters {
     @Dependent
     @Parameter("any")
     public String getRequestParameterString(InjectionPoint injectionPoint) {
-        System.out.println(injectionPoint.getAnnotated().getAnnotation(Parameter.class).value());
         return requestParameters.get(injectionPoint.getAnnotated().getAnnotation(Parameter.class).value());
     }
 

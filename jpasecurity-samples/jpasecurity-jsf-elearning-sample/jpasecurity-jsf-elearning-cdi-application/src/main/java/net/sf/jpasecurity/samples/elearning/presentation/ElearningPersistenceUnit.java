@@ -30,11 +30,14 @@ import javax.persistence.Persistence;
 @ApplicationScoped
 public class ElearningPersistenceUnit {
 
-    private EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("elearning");
+    private EntityManagerFactory entityManagerFactory;
 
     @Produces
     @RequestScoped
     public EntityManager createEntityManager() {
+        if (entityManagerFactory == null || !entityManagerFactory.isOpen()) {
+            entityManagerFactory = Persistence.createEntityManagerFactory("elearning");
+        }
         return entityManagerFactory.createEntityManager();
     }
 
@@ -46,6 +49,10 @@ public class ElearningPersistenceUnit {
 
     @PreDestroy
     public void closeEntityManagerFactory() {
-        entityManagerFactory.close();
+        EntityManagerFactory entityManagerFactoryToClose = entityManagerFactory;
+        entityManagerFactory = null;
+        if (entityManagerFactoryToClose != null) {
+            entityManagerFactoryToClose.close();
+        }
     }
 }
