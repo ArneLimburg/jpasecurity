@@ -20,6 +20,7 @@ import net.sf.jpasecurity.samples.elearning.integrationtest.junit.ParameterizedJ
 import net.sf.jpasecurity.samples.elearning.integrationtest.junit.Parameters;
 
 import org.jaxen.JaxenException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -42,6 +43,7 @@ public class IndexTest extends AbstractHtmlTestCase {
         ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.GUEST);
     }
 
+    @Ignore
     @Test
     public void authenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.GUEST);
@@ -55,7 +57,8 @@ public class IndexTest extends AbstractHtmlTestCase {
         ElearningAssert.assertIndexPage(authenticateAsStudent("index.xhtml"), Role.STUDENT);
         ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.STUDENT);
     }
-    
+   
+    @Ignore
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.GUEST);

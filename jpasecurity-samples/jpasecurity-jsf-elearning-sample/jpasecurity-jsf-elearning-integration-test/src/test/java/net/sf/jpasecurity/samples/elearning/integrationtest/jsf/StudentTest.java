@@ -15,20 +15,25 @@ package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
  * and limitations under the License.
  */
 
+import net.sf.jpasecurity.samples.elearning.integrationtest.junit.ParameterizedJUnit4ClassRunner;
+import net.sf.jpasecurity.samples.elearning.integrationtest.junit.Parameters;
+
 import org.jaxen.JaxenException;
 import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.runner.RunWith;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 /*
  * @auhtor Raffaela Ferrari
  */
-@Ignore
+@RunWith(ParameterizedJUnit4ClassRunner.class)
+@Parameters("http://localhost:8282/elearning-jsf/")
 public class StudentTest extends AbstractHtmlTestCase {
 
-    public StudentTest() {
-        super("http://localhost:8282/elearning-jsf/");
+    public StudentTest(String url) {
+        super(url);
     }
 
 
@@ -53,7 +58,7 @@ public class StudentTest extends AbstractHtmlTestCase {
         ElearningAssert.assertStudentPage(getHtmlPage("student.xhtml?id=8"), Role.STUDENT);
     }
       
-
+    @Ignore
     @Test
     public void linkTestAsTeacher() throws JaxenException {
         authenticateFormBasedAsTeacher();
