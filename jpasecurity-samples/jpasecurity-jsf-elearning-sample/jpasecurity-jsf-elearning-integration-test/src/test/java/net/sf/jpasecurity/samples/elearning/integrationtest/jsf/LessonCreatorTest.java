@@ -24,14 +24,14 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 /**
  * @auhtor Raffaela Ferrari
  */
-@Ignore
+
 public class LessonCreatorTest extends AbstractHtmlTestCase {
 
     public LessonCreatorTest() {
         super("http://localhost:8282/elearning-jsf/");
     }
 
-    @Ignore
+
     @Test
     public void unauthenticated() throws JaxenException {
         ElearningAssert.assertLessonCreatorPage(getHtmlPage("lessonCreator.xhtml"), Role.GUEST);
@@ -84,7 +84,7 @@ public class LessonCreatorTest extends AbstractHtmlTestCase {
         ElearningAssert.assertCoursePage(cancelLink, Role.TEACHER); 
     }
 
-    @Ignore
+
     @Test
     public void loginLinkTest() throws JaxenException {
         HtmlPage loginLink = testLink("lessonCreator.xhtml", "Login");
@@ -98,14 +98,14 @@ public class LessonCreatorTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLessonCreatorPage(logoutLink, Role.GUEST);         
     }
 
-    @Ignore
+
     @Test
     public void indexLinkTest() throws JaxenException {
         HtmlPage indexLink = testLink("lessonCreator.xhtml", "Index");
         ElearningAssert.assertIndexPage(indexLink, Role.GUEST);        
     }
 
-    @Ignore
+
     @Test
     public void dashboardLinkTest() throws JaxenException {
         HtmlPage dashboardLink = testLink(authenticateAsStudent("lessonCreator.xhtml"), "Dashboard");

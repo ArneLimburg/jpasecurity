@@ -33,7 +33,7 @@ public class DashboardTest extends AbstractHtmlTestCase {
         super("http://localhost:8282/elearning-jsf/");
     }
 
-    @Ignore
+
     @Test
     public void unauthenticated() throws JaxenException {
         ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.GUEST);
@@ -55,7 +55,7 @@ public class DashboardTest extends AbstractHtmlTestCase {
         ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.STUDENT);
     }
    
-    @Ignore
+
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.GUEST);
@@ -63,7 +63,7 @@ public class DashboardTest extends AbstractHtmlTestCase {
         ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.TEACHER);
     }
     
-    @Ignore
+
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.GUEST);
@@ -92,7 +92,7 @@ public class DashboardTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLessonCreatorPage(lessonCreaterLink, Role.TEACHER);        
     }
 
-    @Ignore
+
     @Test
     public void loginLinkTest() throws JaxenException {
         HtmlPage loginLink = testLink("dashboard.xhtml", "Login");
@@ -106,14 +106,14 @@ public class DashboardTest extends AbstractHtmlTestCase {
         ElearningAssert.assertDashboardPage(logoutLink, Role.GUEST);         
     }
 
-    @Ignore
+
     @Test
     public void indexLinkTest() throws JaxenException {
         HtmlPage indexLink = testLink("dashboard.xhtml", "Index");
         ElearningAssert.assertIndexPage(indexLink, Role.GUEST);        
     }
 
-    @Ignore
+
     @Test
     public void dashboardLinkTest() throws JaxenException {
         HtmlPage dashboardLink = testLink(authenticateAsStudent("dashboard.xhtml"), "Dashboard");

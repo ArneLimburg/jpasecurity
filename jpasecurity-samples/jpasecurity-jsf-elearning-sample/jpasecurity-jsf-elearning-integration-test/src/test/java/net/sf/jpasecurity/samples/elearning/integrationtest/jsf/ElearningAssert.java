@@ -182,20 +182,20 @@ public class ElearningAssert {
             assertEquals("E-Learning Platform", page.getTitleText());
             assertEquals(1, page.getByXPath("//h1[text() = 'Marie M.']").size());
             assertEquals(1, page.getByXPath("//h2[text() = 'Selected Courses']").size());
-            assertEquals(0, page.getByXPath("//a[@href = 'course.xhtml?id=1'][text() = 'Shakespeare course']").size());
-            assertEquals(0, page.getByXPath("//a[@href = 'course.xhtml?id=2'][text() = 'Da Vinci course']").size());
-            assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?id=3'][text() = 'Analysis']").size());
-            assertEquals(0, page.getByXPath("//a[@href = 'course.xhtml?id=4'][text() = 'Algebra']").size());           
+            assertEquals(0, page.getByXPath("//a[@href = 'course.xhtml?course=1'][text() = 'Shakespeare course']").size());
+            assertEquals(0, page.getByXPath("//a[@href = 'course.xhtml?course=2'][text() = 'Da Vinci course']").size());
+            assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?course=3'][text() = 'Analysis']").size());
+            assertEquals(0, page.getByXPath("//a[@href = 'course.xhtml?course=4'][text() = 'Algebra']").size());           
             break;
         case STUDENT:
             assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
             assertEquals("E-Learning Platform", page.getTitleText());
             assertEquals(1, page.getByXPath("//h1[text() = 'Marie M.']").size());
             assertEquals(1, page.getByXPath("//h2[text() = 'Selected Courses']").size());
-            assertEquals(0, page.getByXPath("//a[@href = 'course.xhtml?id=1'][text() = 'Shakespeare course']").size());
-            assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?id=2'][text() = 'Da Vinci course']").size());
-            assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?id=3'][text() = 'Analysis']").size());
-            assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?id=4'][text() = 'Algebra']").size());
+            assertEquals(0, page.getByXPath("//a[@href = 'course.xhtml?course=1'][text() = 'Shakespeare course']").size());
+            assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?course=2'][text() = 'Da Vinci course']").size());
+            assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?course=3'][text() = 'Analysis']").size());
+            assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?course=4'][text() = 'Algebra']").size());
             break;
         case GUEST:
             assertEquals(1, page.getByXPath("//h1[text() = 'An Error Occurred:']").size());
@@ -212,8 +212,8 @@ public class ElearningAssert {
             assertEquals(1, page.getByXPath("//a[text() = 'Login']").size());
         }
         assertEquals(1, page.getByXPath("//h2[text() = 'Lectured Courses']").size());
-        assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?id=1'][text() = 'Shakespeare course']").size());
-        assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?id=3'][text() = 'Analysis']").size());
+        assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?course=1'][text() = 'Shakespeare course']").size());
+        assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?course=3'][text() = 'Analysis']").size());
     }
 
     public static void assertTeachersPage(HtmlPage page, Role role) throws JaxenException {
