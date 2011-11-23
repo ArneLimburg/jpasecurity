@@ -128,7 +128,7 @@ public class LessonFactoryBean {
                 return course.getId();
             }
         });
-        return "course.xhtml?id=" + id + "&faces-redirect=true&includeViewParams=true";
+        return "course.xhtml?course=" + id + "&faces-redirect=true&includeViewParams=true";
     }
 
     public void setElearningRepository(ElearningRepository elearningRepository) {
