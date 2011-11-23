@@ -38,8 +38,8 @@ public class EntityManagerFactoryReset extends GenericServlet implements Servlet
 
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         EntityManagerFactory newEntityManagerFactory = Persistence.createEntityManagerFactory("elearning");
-        EntityManagerFactory oldEntityManagerFactory = ElearningRepository.entityManagerFactory;
-        ElearningRepository.entityManagerFactory = newEntityManagerFactory;
+        EntityManagerFactory oldEntityManagerFactory = ElearningTransactionService.entityManagerFactory;
+        ElearningTransactionService.entityManagerFactory = newEntityManagerFactory;
         oldEntityManagerFactory.close();
         ((HttpServletResponse)res).setStatus(OK);
     }

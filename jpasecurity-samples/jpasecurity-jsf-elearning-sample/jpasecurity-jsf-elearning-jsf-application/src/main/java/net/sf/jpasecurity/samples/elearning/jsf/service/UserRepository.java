@@ -18,32 +18,29 @@ package net.sf.jpasecurity.samples.elearning.jsf.service;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
+import javax.persistence.EntityManager;
 
-import net.sf.jpasecurity.AccessManager;
-import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.sample.elearning.domain.JpaUserRepository;
 
 /**
  * @author Arne Limburg
  */
-@RequestScoped @ManagedBean(name = "accessManager")
-public class ElearningAccessManager implements AccessManager {
+@RequestScoped @ManagedBean
+public class UserRepository extends JpaUserRepository {
 
     @ManagedProperty(value = "#{transactionService}")
-    private ElearningTransactionService transactionService;
+    private ElearningTransactionService elearningTransactionService;
 
-    public boolean isAccessible(AccessType accessType, String entityName, Object... constructorArgs) {
-        return getAccessManager().isAccessible(accessType, entityName, constructorArgs);
+    public ElearningTransactionService getElearningTransactionService() {
+        return elearningTransactionService;
     }
 
-    public boolean isAccessible(AccessType accessType, Object entity) {
-        return getAccessManager().isAccessible(accessType, entity);
+    public void setElearningTransactionService(ElearningTransactionService elearningTransactionService) {
+        this.elearningTransactionService = elearningTransactionService;
     }
 
-    public AccessManager getAccessManager() {
-        return transactionService.getEntityManager().unwrap(AccessManager.class);
-    }
-
-    public void setTransactionService(ElearningTransactionService transactionService) {
-        this.transactionService = transactionService;
+    @Override
+    protected EntityManager getEntityManager() {
+        return elearningTransactionService.getEntityManager();
     }
 }

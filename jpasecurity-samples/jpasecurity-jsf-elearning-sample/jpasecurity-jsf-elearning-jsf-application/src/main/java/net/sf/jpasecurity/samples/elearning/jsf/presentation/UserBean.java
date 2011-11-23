@@ -35,7 +35,7 @@ import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 @RequestScoped @ManagedBean(name = "user")
 public class UserBean extends User {
 
-    @ManagedProperty(value = "#{elearningRepository}")
+    @ManagedProperty(value = "#{userRepository}")
     private UserRepository userRepository;
     private User user;
 

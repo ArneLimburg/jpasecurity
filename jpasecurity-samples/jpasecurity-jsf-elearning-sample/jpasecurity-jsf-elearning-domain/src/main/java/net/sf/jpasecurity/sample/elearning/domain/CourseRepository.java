@@ -25,5 +25,6 @@ import java.util.List;
 public interface CourseRepository {
 
     void persist(Course course);
+    Course findCourse(Integer id);
     List<? extends Course> getAllCourses();
 }

@@ -27,15 +27,15 @@ import net.sf.jpasecurity.sample.elearning.domain.course.JpaCourseRepository;
 @ManagedBean
 public class CourseRepository extends JpaCourseRepository {
 
-    @ManagedProperty(value = "#{elearningRepository}")
-    private ElearningRepository elearningRepository;
+    @ManagedProperty(value = "#{transactionService}")
+    private ElearningTransactionService transactionService;
 
-    public void setElearningRepository(ElearningRepository elearningRepository) {
-        this.elearningRepository = elearningRepository;
+    public void setTransactionService(ElearningTransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Override
     protected EntityManager getEntityManager() {
-        return elearningRepository.getEntityManager();
+        return transactionService.getEntityManager();
     }
 }

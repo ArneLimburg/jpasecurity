@@ -23,11 +23,13 @@ import javax.faces.context.FacesContext;
 
 import net.sf.jpasecurity.sample.elearning.domain.Content;
 import net.sf.jpasecurity.sample.elearning.domain.Course;
+import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Lesson;
 import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Title;
-import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
+import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
+import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService;
 import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
 
 /**
@@ -37,8 +39,12 @@ import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Calla
 @ManagedBean(name = "lesson")
 public class LessonBean {
 
-    @ManagedProperty(value = "#{elearningRepository}")
-    private ElearningRepository elearningRepository;
+    @ManagedProperty(value = "#{transactionService}")
+    private TransactionService transactionService;
+    @ManagedProperty(value = "#{userRepository}")
+    private UserRepository userRepository;
+    @ManagedProperty(value = "#{courseRepository}")
+    private CourseRepository courseRepository;
 
     private Course course;
 
@@ -54,7 +60,7 @@ public class LessonBean {
     }
 
     public void setCourseId(int id) {
-        course = elearningRepository.findCourse(id);
+        course = courseRepository.findCourse(id);
         if (lessonNumber != -1) {
             lesson = course.getLessons().get(lessonNumber);
         }
@@ -127,7 +133,7 @@ public class LessonBean {
     }
 
     public String finish() {
-        return elearningRepository.executeTransactional(new Callable<String>() {
+        return transactionService.executeTransactional(new Callable<String>() {
             public String call() {
                 getCourse().finishLesson(getCurrentStudent(), getLesson());
                 return "lesson.xhtml?course=" + course.getId() + "&lesson=" + lesson.getNumber()
@@ -137,7 +143,7 @@ public class LessonBean {
     }
 
     public String start() {
-        return elearningRepository.executeTransactional(new Callable<String>() {
+        return transactionService.executeTransactional(new Callable<String>() {
             public String call() {
                 getCourse().startLesson(getCurrentStudent(), getLesson());
                 return "lesson.xhtml?course=" + course.getId() + "&lesson=" + lesson.getNumber()
@@ -149,13 +155,21 @@ public class LessonBean {
     public Student getCurrentStudent() {
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
         if (context.isUserInRole("student")) {
-            return elearningRepository.<Student>findUser(new Name(context.getUserPrincipal().getName()));
+            return userRepository.<Student>findUser(new Name(context.getUserPrincipal().getName()));
         } else {
             return null;
         }
     }
 
-    public void setElearningRepository(ElearningRepository elearningRepository) {
-        this.elearningRepository = elearningRepository;
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public void setCourseRepository(CourseRepository courseRepository) {
+        this.courseRepository = courseRepository;
     }
 }

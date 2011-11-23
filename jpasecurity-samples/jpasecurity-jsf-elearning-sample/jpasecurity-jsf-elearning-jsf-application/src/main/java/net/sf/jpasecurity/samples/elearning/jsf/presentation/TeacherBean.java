@@ -25,7 +25,7 @@ import javax.faces.context.FacesContext;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
-import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
+import net.sf.jpasecurity.sample.elearning.domain.TeacherRepository;
 
 /**
  * @author Raffaela Ferrari
@@ -34,8 +34,8 @@ import net.sf.jpasecurity.samples.elearning.jsf.service.ElearningRepository;
 @ManagedBean(name = "teacher")
 public class TeacherBean {
 
-    @ManagedProperty(value = "#{elearningRepository}")
-    private ElearningRepository elearningRepository;
+    @ManagedProperty(value = "#{userRepository}")
+    private TeacherRepository teacherRepository;
 
     private Teacher teacher;
 
@@ -48,7 +48,7 @@ public class TeacherBean {
 
     public void setId(final Integer id) {
         if (id != null) {
-            teacher = elearningRepository.findTeacher(id);
+            teacher = teacherRepository.findTeacher(id);
         }
     }
 
@@ -75,7 +75,7 @@ public class TeacherBean {
         return teacher == null? null: new ArrayList<Course>(teacher.getCourses());
     }
 
-    public void setElearningRepository(ElearningRepository elearningRepository) {
-        this.elearningRepository = elearningRepository;
+    public void setTeacherRepository(TeacherRepository teacherRepository) {
+        this.teacherRepository = teacherRepository;
     }
 }
