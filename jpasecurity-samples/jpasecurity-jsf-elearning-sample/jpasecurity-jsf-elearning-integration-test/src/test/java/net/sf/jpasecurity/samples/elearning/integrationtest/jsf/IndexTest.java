@@ -16,18 +16,24 @@ package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
  */
 
 
+import net.sf.jpasecurity.samples.elearning.integrationtest.junit.ParameterizedJUnit4ClassRunner;
+import net.sf.jpasecurity.samples.elearning.integrationtest.junit.Parameters;
+
 import org.jaxen.JaxenException;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 /**
  * @author Arne Limburg
  */
+@RunWith(ParameterizedJUnit4ClassRunner.class)
+@Parameters("http://localhost:8282/elearning-jsf/")
 public class IndexTest extends AbstractHtmlTestCase {
 
-    public IndexTest() {
-        super("http://localhost:8282/elearning-jsf/");
+    public IndexTest(String url) {
+        super(url);
     }
 
     @Test
