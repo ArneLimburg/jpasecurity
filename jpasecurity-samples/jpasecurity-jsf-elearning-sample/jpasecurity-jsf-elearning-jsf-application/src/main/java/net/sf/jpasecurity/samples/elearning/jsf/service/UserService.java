@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.samples.elearning.jsf.service;
 
+import javax.el.ELContext;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
@@ -31,8 +32,6 @@ import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 @RequestScoped @ManagedBean
 public class UserService implements net.sf.jpasecurity.sample.elearning.domain.UserService {
 
-    @ManagedProperty(value = "#{course.entity}")
-    private Course currentCourse;
     @ManagedProperty(value = "#{userRepository}")
     private UserRepository userRepository;
 
@@ -46,11 +45,10 @@ public class UserService implements net.sf.jpasecurity.sample.elearning.domain.U
     }
 
     public boolean isSubscribed() {
+        ELContext elContext = FacesContext.getCurrentInstance().getELContext();
+        Object courseBean = elContext.getELResolver().getValue(elContext, null, "course");
+        Course currentCourse = (Course)elContext.getELResolver().getValue(elContext, courseBean, "entity");
         return currentCourse.getParticipants().contains(getCurrentUser());
-    }
-
-    public void setCurrentCourse(Course course) {
-        this.currentCourse = course;
     }
 
     public void setUserRepository(UserRepository userRepository) {
