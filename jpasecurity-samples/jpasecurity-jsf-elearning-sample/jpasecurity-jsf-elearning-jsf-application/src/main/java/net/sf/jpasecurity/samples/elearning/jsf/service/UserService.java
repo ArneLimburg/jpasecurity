@@ -48,7 +48,7 @@ public class UserService implements net.sf.jpasecurity.sample.elearning.domain.U
         ELContext elContext = FacesContext.getCurrentInstance().getELContext();
         Object courseBean = elContext.getELResolver().getValue(elContext, null, "course");
         Course currentCourse = (Course)elContext.getELResolver().getValue(elContext, courseBean, "entity");
-        return currentCourse != null? currentCourse.getParticipants().contains(getCurrentUser()): null;
+        return currentCourse != null? currentCourse.getParticipants().contains(getCurrentUser()): false;
     }
 
     public void setUserRepository(UserRepository userRepository) {
