@@ -63,7 +63,7 @@
         </executions>
         <configuration>
           <includes>
-            <include>**/integrationtest/**.java</include>
+            <include>**/integrationtest/**</include>
           </includes>
         </configuration>
       </plugin>
