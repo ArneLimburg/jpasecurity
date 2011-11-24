@@ -39,7 +39,7 @@ public class UserRepositoryWrapper implements UserRepository {
     }
 
     public <U extends User> U findUser(Name name) {
-        return userRepository.findUser(name);
+        return userRepository.<U>findUser(name);
     }
 
     public boolean authenticate(Name name, Password password) {
