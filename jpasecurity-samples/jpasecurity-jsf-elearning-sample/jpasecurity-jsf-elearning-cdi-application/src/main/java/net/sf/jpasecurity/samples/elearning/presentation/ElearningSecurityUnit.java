@@ -18,10 +18,15 @@ package net.sf.jpasecurity.samples.elearning.presentation;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 
 import net.sf.jpasecurity.AccessManager;
+import net.sf.jpasecurity.sample.elearning.domain.Name;
+import net.sf.jpasecurity.sample.elearning.domain.User;
+import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 
 /**
  * @author Arne Limburg
@@ -29,10 +34,19 @@ import net.sf.jpasecurity.AccessManager;
 @ApplicationScoped
 public class ElearningSecurityUnit {
 
+    @Inject
+    private UserRepository userRepository;
+
     @Produces
     @RequestScoped
     @Named("accessManager")
     public AccessManager createAccessManager(EntityManager entityManager) {
         return entityManager.unwrap(AccessManager.class);
+    }
+
+    @Produces
+    public User getCurrentUser() {
+        Name userName = new Name(FacesContext.getCurrentInstance().getExternalContext().getRemoteUser());
+        return userRepository.findUser(userName);
     }
 }
