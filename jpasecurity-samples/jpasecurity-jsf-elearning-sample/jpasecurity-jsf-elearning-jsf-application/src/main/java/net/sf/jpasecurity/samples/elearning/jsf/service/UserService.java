@@ -29,7 +29,7 @@ import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
  * @author Arne Limburg
  */
 @RequestScoped @ManagedBean
-public class UserService {
+public class UserService implements net.sf.jpasecurity.sample.elearning.domain.UserService {
 
     @ManagedProperty(value = "#{course.entity}")
     private Course currentCourse;
