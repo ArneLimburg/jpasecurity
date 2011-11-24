@@ -21,7 +21,6 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import net.sf.jpasecurity.proxy.EntityProxy;
@@ -30,15 +29,14 @@ import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Lesson;
 import net.sf.jpasecurity.sample.elearning.domain.LessonWithoutCourse;
-import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.Title;
-import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 import net.sf.jpasecurity.sample.elearning.domain.course.CourseAggregate;
 import net.sf.jpasecurity.sample.elearning.domain.course.LessonFactoryBuilder;
 import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService;
 import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
+import net.sf.jpasecurity.samples.elearning.jsf.service.UserService;
 
 /**
  * @author Raffaela Ferrari
@@ -49,8 +47,8 @@ public class CourseBean implements EntityProxy {
 
     @ManagedProperty(value = "#{transactionService}")
     private TransactionService transactionService;
-    @ManagedProperty(value = "#{userRepository}")
-    private UserRepository userRepository;
+    @ManagedProperty(value = "#{userService}")
+    private UserService userService;
     @ManagedProperty(value = "#{courseRepository}")
     private CourseRepository courseRepository;
 
@@ -63,7 +61,7 @@ public class CourseBean implements EntityProxy {
     public String createCourse() {
         return transactionService.executeTransactional(new Callable<String>() {
             public String call() {
-                course = new CourseAggregate(new Title(coursename), getCurrentTeacher());
+                course = new CourseAggregate(new Title(coursename), userService.<Teacher>getCurrentUser());
                 coursename = "";
                 return "dashboard.xhtml";
             }
@@ -73,7 +71,7 @@ public class CourseBean implements EntityProxy {
     public String addStudent() {
         return transactionService.executeTransactional(new Callable<String>() {
             public String call() {
-                getEntity().subscribe(getCurrentStudent());
+                getEntity().subscribe(userService.<Student>getCurrentUser());
                 return "course?faces-redirect=true&includeViewParams=true&course=" + course.getId();
             }
         });
@@ -82,7 +80,7 @@ public class CourseBean implements EntityProxy {
     public String removeStudent() {
         return transactionService.executeTransactional(new Callable<String>() {
             public String call() {
-                getEntity().unsubscribe(getCurrentStudent());
+                getEntity().unsubscribe(userService.<Student>getCurrentUser());
                 return "course?faces-redirect=true&includeViewParams=true&course=" + course.getId();
             }
         });
@@ -108,11 +106,6 @@ public class CourseBean implements EntityProxy {
                 return "course.xhtml";
             }
         });
-    }
-
-    public boolean isStudentInCourse() {
-        Course course = getEntity();
-        return course == null? false: course.getParticipants().contains(getCurrentStudent());
     }
 
     public Title getTitle() {
@@ -161,7 +154,7 @@ public class CourseBean implements EntityProxy {
 
     public boolean isLessonFinished(Lesson lesson) {
         Course course = getEntity();
-        Student student = getCurrentStudent();
+        Student student = userService.<Student>getCurrentUser();
         if (!course.getParticipants().contains(student)) {
             return false;
         }
@@ -171,7 +164,7 @@ public class CourseBean implements EntityProxy {
 
     public void studentFinishesLesson() {
         Course course = getEntity();
-        Student student = getCurrentStudent();
+        Student student = userService.<Student>getCurrentUser();
         course.finishLesson(student, course.getCurrentLession(student));
     }
 
@@ -179,8 +172,8 @@ public class CourseBean implements EntityProxy {
         this.transactionService = transactionService;
     }
 
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     public void setCourseRepository(CourseRepository courseRepository) {
@@ -199,23 +192,5 @@ public class CourseBean implements EntityProxy {
             return id != null? Integer.valueOf(id): null;
         }
         return course.getId();
-    }
-
-    public Teacher getCurrentTeacher() {
-        ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-        if (context.isUserInRole("teacher")) {
-            return userRepository.<Teacher>findUser(new Name(context.getUserPrincipal().getName()));
-        } else {
-            return null;
-        }
-    }
-
-    public Student getCurrentStudent() {
-        ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-        if (context.isUserInRole("student")) {
-            return userRepository.<Student>findUser(new Name(context.getUserPrincipal().getName()));
-        } else {
-            return null;
-        }
     }
 }

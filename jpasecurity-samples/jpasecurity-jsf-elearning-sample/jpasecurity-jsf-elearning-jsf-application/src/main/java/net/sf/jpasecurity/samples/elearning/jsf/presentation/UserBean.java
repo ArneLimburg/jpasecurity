@@ -24,10 +24,9 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
-import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Password;
 import net.sf.jpasecurity.sample.elearning.domain.User;
-import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
+import net.sf.jpasecurity.samples.elearning.jsf.service.UserService;
 
 /**
  * @author Arne Limburg
@@ -35,8 +34,8 @@ import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 @RequestScoped @ManagedBean(name = "user")
 public class UserBean extends User {
 
-    @ManagedProperty(value = "#{userRepository}")
-    private UserRepository userRepository;
+    @ManagedProperty(value = "#{userService}")
+    private UserService userService;
     private User user;
 
     public int getId() {
@@ -59,7 +58,7 @@ public class UserBean extends User {
     }
 
     public String getName() {
-        return FacesContext.getCurrentInstance().getExternalContext().getRemoteUser();
+        return userService.getCurrentUserName().getNick();
     }
 
     public String getFullname() {
@@ -95,16 +94,13 @@ public class UserBean extends User {
         return getUser().getCourses();
     }
 
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     private User getUser() {
         if (user == null) {
-            String name = getName();
-            if (name != null) {
-                user = userRepository.findUser(new Name(name));
-            }
+            user = userService.getCurrentUser();
         }
         return user;
     }
