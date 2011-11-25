@@ -60,7 +60,7 @@
           <h1>My students</h1>
         </sec:rolesAllowed>
           <ul>
-            <ui:repeat var="student" value="#{elearningRepository.allStudents}">
+            <ui:repeat var="student" value="#{userRepository.allStudents}">
               <li>
                 <h:outputLink value="student.xhtml" >
                   <f:param name="id" value="#{student.id}" />
