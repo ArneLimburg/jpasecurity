@@ -15,15 +15,17 @@
  */
 package net.sf.jpasecurity.samples.elearning.cdi;
 
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Typed;
-import javax.inject.Inject;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
 
 import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Password;
 import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 
-import org.apache.webbeans.inject.OWBInjector;
+import org.apache.webbeans.config.WebBeansContext;
 
 /**
  * @author Arne Limburg
@@ -31,18 +33,28 @@ import org.apache.webbeans.inject.OWBInjector;
 @Typed
 public class UserRepositoryWrapper implements UserRepository {
 
-    @Inject
-    private UserRepository userRepository;
-
-    public UserRepositoryWrapper() throws Exception {
-        new OWBInjector().inject(this);
-    }
-
     public <U extends User> U findUser(Name name) {
-        return userRepository.<U>findUser(name);
+        try {
+            WebBeansContext.currentInstance().getContextsService().startContext(RequestScoped.class, null);
+            return getUserRepository().<U>findUser(name);
+        } finally {
+            WebBeansContext.currentInstance().getContextsService().endContext(RequestScoped.class, null);
+        }
     }
 
     public boolean authenticate(Name name, Password password) {
-        return userRepository.authenticate(name, password);
+        try {
+            WebBeansContext.currentInstance().getContextsService().startContext(RequestScoped.class, null);
+            return getUserRepository().authenticate(name, password);
+        } finally {
+            WebBeansContext.currentInstance().getContextsService().endContext(RequestScoped.class, null);
+        }
+    }
+
+    private UserRepository getUserRepository() {
+        BeanManager beanManager = WebBeansContext.currentInstance().getBeanManagerImpl();
+        Bean<UserRepository> userRepositoryBean
+            = (Bean<UserRepository>)beanManager.resolve(beanManager.getBeans(UserRepository.class));
+        return (UserRepository)beanManager.getReference(userRepositoryBean, UserRepository.class, null);
     }
 }
