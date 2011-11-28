@@ -61,6 +61,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
 
     public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info,
                                                                     @SuppressWarnings("rawtypes") Map map) {
+        info = createSecurePersistenceUnitInfo(info, map);
         persistenceProvider = createNativePersistenceProvider(info, map);
         map = createPersistenceProviderProperty(map, persistenceProvider);
         EntityManagerFactory nativeEntityManagerFactory
@@ -153,6 +154,12 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         }
     }
 
+    private PersistenceUnitInfo createSecurePersistenceUnitInfo(PersistenceUnitInfo persistenceUnitInfo,
+                                                                Map<String, String> properties) {
+        return new SecurePersitenceUnitInfo(getNativePersistenceProviderClassName(persistenceUnitInfo, properties),
+                                            persistenceUnitInfo);
+    }
+
     private Map<String, String> createPersistenceProviderProperty(Map<String, String> properties,
                                                                   PersistenceProvider persistenceProvider) {
         if (properties == null) {
@@ -181,25 +188,13 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     private PersistenceProvider createNativePersistenceProvider(PersistenceUnitInfo persistenceUnitInfo,
                                                                 Map<String, String> properties) {
         try {
-            String persistenceProviderClassName = null;
-            if (properties != null) {
-                persistenceProviderClassName = properties.get(NATIVE_PERSISTENCE_PROVIDER_PROPERTY);
-            }
-            if (persistenceProviderClassName == null && persistenceUnitInfo.getProperties() != null) {
-                persistenceProviderClassName
-                    = persistenceUnitInfo.getProperties().getProperty(NATIVE_PERSISTENCE_PROVIDER_PROPERTY);
-            }
-            if (persistenceProviderClassName == null) {
-                persistenceProviderClassName = persistenceUnitInfo.getPersistenceProviderClassName();
-            }
+            String persistenceProviderClassName
+                = getNativePersistenceProviderClassName(persistenceUnitInfo, properties);
             if (persistenceProviderClassName == null
                 || persistenceProviderClassName.equals(SecurePersistenceProvider.class.getName())) {
                 throw new PersistenceException(
                     "No persistence provider specified for net.sf.jpasecurity.persistence.SecureEntityManagerFactory. "
                         + "Specify its class name via property \"" + NATIVE_PERSISTENCE_PROVIDER_PROPERTY + "\"");
-            }
-            if (ECLIPSELINK_PERSISTENCE_PROVIDER.equals(persistenceProviderClassName)) {
-                persistenceProviderClassName = SECURE_ECLIPSELINK_PERSISTENCE_PROVIDER;
             }
             Class<?> persistenceProviderClass
                 = getClassLoader(persistenceUnitInfo).loadClass(persistenceProviderClassName);
@@ -211,6 +206,25 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         } catch (ClassNotFoundException e) {
             throw new PersistenceException(e);
         }
+    }
+
+    private String getNativePersistenceProviderClassName(PersistenceUnitInfo persistenceUnitInfo,
+                                                         Map<String, String> properties) {
+        String persistenceProviderClassName = null;
+        if (properties != null) {
+            persistenceProviderClassName = properties.get(NATIVE_PERSISTENCE_PROVIDER_PROPERTY);
+        }
+        if (persistenceProviderClassName == null && persistenceUnitInfo.getProperties() != null) {
+            persistenceProviderClassName
+                = persistenceUnitInfo.getProperties().getProperty(NATIVE_PERSISTENCE_PROVIDER_PROPERTY);
+        }
+        if (persistenceProviderClassName == null && persistenceUnitInfo.getPersistenceProviderClassName() != null) {
+            persistenceProviderClassName = persistenceUnitInfo.getPersistenceProviderClassName();
+        }
+        if (ECLIPSELINK_PERSISTENCE_PROVIDER.equals(persistenceProviderClassName)) {
+            persistenceProviderClassName = SECURE_ECLIPSELINK_PERSISTENCE_PROVIDER;
+        }
+        return persistenceProviderClassName;
     }
 
     private ClassLoader getClassLoader(PersistenceUnitInfo persistenceUnitInfo) {
