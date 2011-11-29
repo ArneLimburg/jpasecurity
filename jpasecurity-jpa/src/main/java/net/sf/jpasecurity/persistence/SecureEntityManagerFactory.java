@@ -115,7 +115,9 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
     }
 
     private void injectPersistenceInformation(Map<String, Object> persistenceProperties) {
-        persistenceProperties = Collections.unmodifiableMap(persistenceProperties);
+        if (persistenceProperties != null) {
+            persistenceProperties = Collections.unmodifiableMap(persistenceProperties);
+        }
         injectPersistenceInformation(configuration.getSecurityContext(), persistenceProperties);
         injectPersistenceInformation(configuration.getAccessRulesProvider(), persistenceProperties);
     }
