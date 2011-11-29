@@ -173,11 +173,20 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      */
     public boolean visit(JpqlWhere node, CriteriaHolder query) {
         AbstractQuery<?> criteriaQuery = query.getCurrentQuery();
+        Predicate restriction = criteriaQuery.getRestriction();
         node.jjtGetChild(0).visit(this, query);
         if (query.isValueOfType(Predicate.class)) {
-            criteriaQuery.where(query.<Predicate>getCurrentValue());
+            if (restriction == null) {
+                criteriaQuery.where(query.<Predicate>getCurrentValue());
+            } else {
+                criteriaQuery.where(restriction, query.<Predicate>getCurrentValue());
+            }
         } else {
-            criteriaQuery.where(query.<Expression<Boolean>>getCurrentValue());
+            if (restriction == null) {
+                criteriaQuery.where(query.<Expression<Boolean>>getCurrentValue());
+            } else {
+                criteriaQuery.where(restriction, builder.isTrue(query.<Expression<Boolean>>getCurrentValue()));
+            }
         }
         return false;
     }

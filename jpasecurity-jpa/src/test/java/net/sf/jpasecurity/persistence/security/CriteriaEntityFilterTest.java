@@ -119,4 +119,20 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
         beans = entityManager.createQuery(query).getResultList();
         assertTrue(beans.isEmpty());
     }
+
+    @Test
+    public void condition() {
+        TestAuthenticationProvider.authenticate(USER);
+        EntityManager entityManager = getEntityManager();
+        CriteriaQuery<FieldAccessAnnotationTestBean> query
+            = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);
+        Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
+        query.select(bean);
+        query.where(criteriaBuilder.equal(bean.get("id"), accessibleBean.getIdentifier()));
+        List<FieldAccessAnnotationTestBean> beans = entityManager.createQuery(query).getResultList();
+        assertEquals(1, beans.size());
+        assertEquals(accessibleBean, beans.iterator().next());
+        query.where(criteriaBuilder.equal(bean.get("id"), inaccessibleBean.getIdentifier()));
+        assertTrue(entityManager.createQuery(query).getResultList().isEmpty());
+    }
 }
