@@ -49,7 +49,6 @@ import net.sf.jpasecurity.mapping.EntityLifecycleMethods;
 import net.sf.jpasecurity.mapping.EntityListenerWrapper;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.xml.ComposedNodeList;
-import net.sf.jpasecurity.xml.SingletonNodeList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -858,32 +857,13 @@ public class OrmXmlParser extends JpaAnnotationParser {
             if (resultType.equals(XPathConstants.NODESET)) {
                 nodeList = (NodeList)result;
             } else if (result != null) {
-                nodeList = new SingletonNodeList((Node)result);
+                return result;
             } else {
                 nodeList = null;
             }
-            return convert(nodeList, resultType);
+            return nodeList;
         } catch (XPathExpressionException e) {
             throw exceptionFactory.createRuntimeException(e);
         }
-    }
-
-    private Object convert(NodeList nodeList, QName resultType) {
-        if (nodeList == null || nodeList.getLength() == 0) {
-            return null;
-        }
-        if (nodeList.getLength() == 1) {
-            Object item = nodeList.item(0);
-            if (resultType.equals(XPathConstants.NODE) && item instanceof Node) {
-                return (Node)item;
-            }
-            if (resultType.equals(XPathConstants.NODESET) && item instanceof NodeList) {
-                return (NodeList)item;
-            }
-        }
-        if (!resultType.equals(XPathConstants.NODESET)) {
-            throw new IllegalArgumentException("NodeList cannot be converted to type " + resultType.getLocalPart());
-        }
-        return nodeList;
     }
 }
