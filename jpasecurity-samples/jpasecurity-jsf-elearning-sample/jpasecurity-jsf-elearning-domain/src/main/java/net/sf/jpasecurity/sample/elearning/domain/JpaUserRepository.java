@@ -17,6 +17,8 @@ package net.sf.jpasecurity.sample.elearning.domain;
 
 import java.util.List;
 
+import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
@@ -32,7 +34,10 @@ public class JpaUserRepository implements UserRepository, TeacherRepository, Stu
     @Inject
     private EntityManager entityManager;
 
-    public Teacher findTeacher(int id) {
+    @Produces
+    @Named("teacher")
+    @Typed(Teacher.class)
+    public Teacher findTeacher(@Parameter("teacher") Integer id) {
         return getEntityManager().find(Teacher.class, id);
     }
 

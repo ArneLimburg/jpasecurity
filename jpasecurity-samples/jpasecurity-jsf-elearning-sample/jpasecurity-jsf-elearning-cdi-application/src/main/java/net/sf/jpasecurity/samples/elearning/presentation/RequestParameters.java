@@ -45,6 +45,7 @@ public class RequestParameters {
     @Dependent
     @Parameter("any")
     public Integer getRequestParameterInt(InjectionPoint injectionPoint) {
-        return Integer.parseInt(getRequestParameterString(injectionPoint));
+        String parameter = getRequestParameterString(injectionPoint);
+        return parameter != null? Integer.parseInt(parameter): null;
     }
 }
