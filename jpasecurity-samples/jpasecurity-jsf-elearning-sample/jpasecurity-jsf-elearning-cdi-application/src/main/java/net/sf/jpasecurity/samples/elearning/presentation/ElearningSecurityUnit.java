@@ -45,6 +45,7 @@ public class ElearningSecurityUnit {
     }
 
     @Produces
+    @Named("user")
     public User getCurrentUser() {
         Name userName = new Name(FacesContext.getCurrentInstance().getExternalContext().getRemoteUser());
         return userRepository.findUser(userName);
