@@ -30,7 +30,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @author Arne Limburg
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
-@Parameters("http://localhost:8282/elearning-jsf/")
+@Parameters({"http://localhost:8282/elearning-jsf/", "http://localhost:8282/elearning-cdi/"})
 public class IndexTest extends AbstractHtmlTestCase {
 
     public IndexTest(String url) {
@@ -43,7 +43,6 @@ public class IndexTest extends AbstractHtmlTestCase {
         ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.GUEST);
     }
 
-    @Ignore
     @Test
     public void authenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.GUEST);
@@ -58,7 +57,6 @@ public class IndexTest extends AbstractHtmlTestCase {
         ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.STUDENT);
     }
    
-    @Ignore
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.GUEST);
