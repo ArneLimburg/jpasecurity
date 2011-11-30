@@ -15,39 +15,19 @@
  */
 package net.sf.jpasecurity.xml;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
  * @author Arne Limburg
  */
-public class ComposedNodeList implements NodeList {
-
-    private List<NodeList> nodeLists = new ArrayList<NodeList>();
-
-    public void add(NodeList nodeList) {
-        nodeLists.add(nodeList);
-    }
+public class EmptyNodeList implements NodeList {
 
     public Node item(int index) {
-        int i = 0;
-        for (NodeList nodeList: nodeLists) {
-            if (index < i + nodeList.getLength()) {
-                return nodeList.item(index - i);
-            }
-            i += nodeList.getLength();
-        }
         return null;
     }
 
     public int getLength() {
-        int length = 0;
-        for (NodeList nodeList: nodeLists) {
-            length += nodeList.getLength();
-        }
-        return length;
+        return 0;
     }
 }

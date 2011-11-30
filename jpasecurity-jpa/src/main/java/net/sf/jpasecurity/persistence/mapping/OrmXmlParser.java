@@ -48,7 +48,7 @@ import net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory;
 import net.sf.jpasecurity.mapping.EntityLifecycleMethods;
 import net.sf.jpasecurity.mapping.EntityListenerWrapper;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
-import net.sf.jpasecurity.xml.ComposedNodeList;
+import net.sf.jpasecurity.xml.EmptyNodeList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -829,7 +829,7 @@ public class OrmXmlParser extends JpaAnnotationParser {
 
     private NodeList evaluateNodes(Document document, String query, Object... parameters) {
         Object nodeList = evaluate(document, query, XPathConstants.NODESET, parameters);
-        return nodeList == null? new ComposedNodeList(): (NodeList)nodeList;
+        return nodeList == null? new EmptyNodeList(): (NodeList)nodeList;
     }
 
     private Object[] extendParameters(Document document, Class<?> mappedClass, Object... parameters) {
