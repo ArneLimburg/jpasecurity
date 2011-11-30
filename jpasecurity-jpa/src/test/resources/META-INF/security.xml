@@ -31,6 +31,10 @@
     <access-rule>GRANT ACCESS TO FieldAccessXmlTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
   </persistence-unit>
 
+  <persistence-unit name="lazy-relationship">
+	<access-rule>GRANT ACCESS TO TestBean bean WHERE bean.name = CURRENT_PRINCIPAL OR bean.parent.name = CURRENT_PRINCIPAL</access-rule>  
+  </persistence-unit>
+
   <persistence-unit name="access-check">
     <access-rule>GRANT CREATE ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'creator' IN (CURRENT_ROLES)</access-rule>
     <access-rule>GRANT READ ACCESS TO FieldAccessAnnotationTestBean bean WHERE bean.name = CURRENT_PRINCIPAL</access-rule>

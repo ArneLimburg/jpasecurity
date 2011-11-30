@@ -97,6 +97,28 @@
 
   </persistence-unit>
 
+  <persistence-unit name="lazy-relationship" transaction-type="RESOURCE_LOCAL">
+
+    <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+    <class>net.sf.jpasecurity.model.TestBean</class>
+
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+    <properties>
+      <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+      <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+      <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
+      <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+      <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+      <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
+      <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:test" />
+      <property name="hibernate.connection.username" value="sa" />
+      <property name="hibernate.connection.password" value="" />
+    </properties>
+
+  </persistence-unit>
+
   <persistence-unit name="access-check" transaction-type="RESOURCE_LOCAL">
 
     <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>

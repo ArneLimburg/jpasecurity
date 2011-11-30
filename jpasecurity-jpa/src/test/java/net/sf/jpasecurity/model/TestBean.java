@@ -46,6 +46,13 @@ public class TestBean {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<TestBean> children = new ArrayList<TestBean>();
 
+    public TestBean() {
+    }
+
+    public TestBean(String name) {
+        this.name = name;
+    }
+
     public int getId() {
         return id;
     }
