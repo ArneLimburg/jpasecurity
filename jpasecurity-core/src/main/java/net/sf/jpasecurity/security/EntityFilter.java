@@ -18,6 +18,7 @@ package net.sf.jpasecurity.security;
 
 import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
 
+import java.beans.Introspector;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -101,8 +102,7 @@ public class EntityFilter {
         throws NotEvaluatableException {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         LOG.debug("Evaluating " + accessType + " access for entity of type " + mapping.getEntityName());
-        Alias alias = new Alias(Character.toLowerCase(mapping.getEntityName().charAt(0))
-                                + mapping.getEntityName().substring(1));
+        Alias alias = new Alias(Introspector.decapitalize(mapping.getEntityName()));
         AccessDefinition accessDefinition = createAccessDefinition(alias, mapping.getEntityType(), accessType);
         if (accessDefinition == null) {
             LOG.info("No access rules defined for access type " + accessType + ". Returning true.");
