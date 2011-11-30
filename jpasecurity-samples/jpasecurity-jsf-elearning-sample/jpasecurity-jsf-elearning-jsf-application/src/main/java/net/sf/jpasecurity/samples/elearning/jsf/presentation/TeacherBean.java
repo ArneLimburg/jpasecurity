@@ -70,6 +70,10 @@ public class TeacherBean {
         return teacher == null? null: this.teacher.getFullname();
     }
 
+    public String getFullname() {
+        return getName();
+    }
+
     public List<Course> getCourses() {
         Teacher teacher = getEntity();
         return teacher == null? null: new ArrayList<Course>(teacher.getCourses());

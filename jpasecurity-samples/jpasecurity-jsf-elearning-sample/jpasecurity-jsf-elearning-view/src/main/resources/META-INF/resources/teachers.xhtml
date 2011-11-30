@@ -26,11 +26,11 @@
       <ui:define name="content">
         <h1>Teachers</h1>
         <ul>
-          <ui:repeat var="teacher" value="#{userRepository.allTeachers}">
+          <ui:repeat var="t" value="#{userRepository.allTeachers}">
             <li>
               <h:outputLink value="teacher.xhtml" >
-                <f:param name="teacher" value="#{teacher.id}" />
-                <h:outputText value="#{teacher.fullname}" />
+                <f:param name="teacher" value="#{t.id}" />
+                <h:outputText value="#{t.fullname}" />
               </h:outputLink>
             </li>
           </ui:repeat>

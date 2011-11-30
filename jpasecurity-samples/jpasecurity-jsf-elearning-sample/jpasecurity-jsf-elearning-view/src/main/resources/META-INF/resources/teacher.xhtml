@@ -19,20 +19,20 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets">
   <h:head>
-    <title>#{teacher.name}</title>
+    <title>#{teacher.fullname}</title>
   </h:head>
   <h:body>
 
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
-        <h1>#{teacher.name}</h1>
+        <h1>#{teacher.fullname}</h1>
         <h2>Lectured Courses</h2>
         <ul>
-          <ui:repeat var="course" value="#{teacher.courses}">
+          <ui:repeat var="c" value="#{teacher.courses}">
             <li>
               <h:outputLink value="course.xhtml" >
-                <f:param name="course" value="#{course.id}" />
-                <h:outputText value="#{course.title}" />
+                <f:param name="course" value="#{c.id}" />
+                <h:outputText value="#{c.title}" />
               </h:outputLink>
             </li>
           </ui:repeat>

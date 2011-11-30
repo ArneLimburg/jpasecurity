@@ -22,7 +22,7 @@ import java.util.List;
  */
 public interface TeacherRepository {
 
-    Teacher findTeacher(int id);
+    Teacher findTeacher(Integer id);
 
     List<Teacher> getAllTeachers();
 }
