@@ -44,7 +44,7 @@
         <h:panelGroup rendered="#{not empty course.participants}"> 
           <h2>Participants</h2>
           <ul>
-            <ui:repeat var="participant" value="#{course.participants}">
+            <ui:repeat var="participant" value="#{course.participants.toArray()}">
               <li>
                 <h:outputLink value="student.xhtml" >
                   <f:param name="id" value="#{participant.id}" />
