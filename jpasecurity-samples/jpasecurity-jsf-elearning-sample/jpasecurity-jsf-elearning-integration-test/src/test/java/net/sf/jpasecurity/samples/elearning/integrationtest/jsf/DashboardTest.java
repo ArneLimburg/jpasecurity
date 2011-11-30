@@ -32,7 +32,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 
 @RunWith(ParameterizedJUnit4ClassRunner.class)
-@Parameters("http://localhost:8282/elearning-jsf/")
+@Parameters({"http://localhost:8282/elearning-jsf/", "http://localhost:8282/elearning-cdi/"})
 public class DashboardTest extends AbstractHtmlTestCase {
 
     public DashboardTest(String url) {

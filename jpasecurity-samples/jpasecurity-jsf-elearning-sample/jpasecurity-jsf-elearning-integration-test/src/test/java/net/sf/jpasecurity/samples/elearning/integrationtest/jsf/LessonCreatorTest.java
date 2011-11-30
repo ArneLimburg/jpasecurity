@@ -26,10 +26,10 @@ import org.junit.runner.RunWith;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 /**
- * @auhtor Raffaela Ferrari
+ * @author Raffaela Ferrari
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
-@Parameters("http://localhost:8282/elearning-jsf/")
+@Parameters({"http://localhost:8282/elearning-jsf/", "http://localhost:8282/elearning-cdi/"})
 public class LessonCreatorTest extends AbstractHtmlTestCase {
 
     public LessonCreatorTest(String url) {
