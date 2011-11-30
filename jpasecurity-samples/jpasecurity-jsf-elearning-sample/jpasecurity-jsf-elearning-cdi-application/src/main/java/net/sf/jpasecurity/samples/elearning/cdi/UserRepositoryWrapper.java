@@ -15,7 +15,10 @@
  */
 package net.sf.jpasecurity.samples.elearning.cdi;
 
+import java.util.concurrent.Callable;
+
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.spi.Context;
 import javax.enterprise.inject.Typed;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
@@ -26,6 +29,7 @@ import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 
 import org.apache.webbeans.config.WebBeansContext;
+import org.apache.webbeans.spi.ContextsService;
 
 /**
  * @author Arne Limburg
@@ -33,21 +37,39 @@ import org.apache.webbeans.config.WebBeansContext;
 @Typed
 public class UserRepositoryWrapper implements UserRepository {
 
-    public <U extends User> U findUser(Name name) {
-        try {
-            WebBeansContext.currentInstance().getContextsService().startContext(RequestScoped.class, null);
-            return getUserRepository().<U>findUser(name);
-        } finally {
-            WebBeansContext.currentInstance().getContextsService().endContext(RequestScoped.class, null);
-        }
+    public <U extends User> U findUser(final Name name) {
+        return callInRequest(new Callable<U>() {
+            public U call() throws Exception {
+                return getUserRepository().<U>findUser(name);
+            }
+        });
     }
 
-    public boolean authenticate(Name name, Password password) {
+    public boolean authenticate(final Name name, final Password password) {
+        return callInRequest(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return getUserRepository().authenticate(name, password);
+            }
+        });
+    }
+
+    private <R> R callInRequest(Callable<R> callable) {
+        ContextsService contextsService = WebBeansContext.currentInstance().getContextsService();
+        Context requestContext = contextsService.getCurrentContext(RequestScoped.class);
+        boolean wasActive = requestContext != null && requestContext.isActive();
         try {
-            WebBeansContext.currentInstance().getContextsService().startContext(RequestScoped.class, null);
-            return getUserRepository().authenticate(name, password);
+            if (!wasActive) {
+                contextsService.startContext(RequestScoped.class, null);
+            }
+            return callable.call();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         } finally {
-            WebBeansContext.currentInstance().getContextsService().endContext(RequestScoped.class, null);
+            if (!wasActive) {
+                contextsService.endContext(RequestScoped.class, null);
+            }
         }
     }
 
