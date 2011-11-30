@@ -70,18 +70,21 @@ public class CoursesTest extends AbstractHtmlTestCase {
         ElearningAssert.assertCoursesPage(getHtmlPage("courses.xhtml"), Role.STUDENT);
     }
     
+    @Ignore
     @Test
     public void linkTest() throws JaxenException {
         HtmlPage courseLink = testLink("courses.xhtml", "Analysis");
         ElearningAssert.assertCoursePage(courseLink, Role.GUEST);
     }
     
+    @Ignore
     @Test
     public void linkTestAsTeacher() throws JaxenException {
         HtmlPage courseLink = testLink(authenticateAsTeacher("courses.xhtml"), "Analysis");
         ElearningAssert.assertCoursePage(courseLink, Role.TEACHER);
     }
     
+    @Ignore
     @Test
     public void linkTestAsStudent() throws JaxenException {
         HtmlPage courseLink = testLink(authenticateAsStudent("courses.xhtml"), "Analysis");
