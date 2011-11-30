@@ -49,7 +49,7 @@
           </h:outputLink>
           <h:outputLabel value="Lecturer:" for="lecturer"/>
           <h:outputLink name="lecturer" value="teacher.xhtml">
-            <f:param name="id" value="#{lesson.course.lecturer.id}" />
+            <f:param name="teacher" value="#{lesson.course.lecturer.id}" />
             <h:outputText value="#{lesson.course.lecturer.fullname}" />
           </h:outputLink>
         </h:panelGrid>

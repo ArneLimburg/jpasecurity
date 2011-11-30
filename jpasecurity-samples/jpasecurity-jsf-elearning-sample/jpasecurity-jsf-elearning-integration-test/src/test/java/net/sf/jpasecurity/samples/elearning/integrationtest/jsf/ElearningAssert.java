@@ -67,7 +67,7 @@ public class ElearningAssert {
         }
         assertEquals(1, page.getByXPath("//h1[text() = 'Analysis']").size());
         assertEquals(1, page.getByXPath("//h2[text() = 'Lecturer']").size());
-        assertEquals(1, page.getByXPath("//a[@href = 'teacher.xhtml?id=1'][text() = 'Peter B.']").size());
+        assertEquals(1, page.getByXPath("//a[@href = 'teacher.xhtml?teacher=1'][text() = 'Peter B.']").size());
         assertEquals(1, page.getByXPath("//h2[text() = 'Lessons']").size());
         assertEquals(1, page.getByXPath("//a[@href = 'lesson.xhtml?course=3&lesson=0'][text() = 'Analysis introduction']").size());
         
@@ -224,7 +224,7 @@ public class ElearningAssert {
         } else {
             assertEquals(1, page.getByXPath("//a[text() = 'Login']").size());
         }
-        assertEquals(1, page.getByXPath("//a[@href = 'teacher.xhtml?id=1'][text() = 'Peter B.']").size());
-        assertEquals(1, page.getByXPath("//a[@href = 'teacher.xhtml?id=3'][text() = 'Hans L.']").size());
+        assertEquals(1, page.getByXPath("//a[@href = 'teacher.xhtml?teacher=1'][text() = 'Peter B.']").size());
+        assertEquals(1, page.getByXPath("//a[@href = 'teacher.xhtml?teacher=3'][text() = 'Hans L.']").size());
     }
 }
