@@ -52,7 +52,7 @@ public class TeacherBean {
         }
     }
 
-    public int getId() {
+    public Integer getId() {
         if (teacher == null) {
             String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("id");
             return id != null? Integer.valueOf(id): null;
