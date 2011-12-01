@@ -31,6 +31,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
 @Parameters({"http://localhost:8282/elearning-jsf/", "http://localhost:8282/elearning-cdi/"})
+@Ignore
 public class IndexTest extends AbstractHtmlTestCase {
 
     public IndexTest(String url) {
