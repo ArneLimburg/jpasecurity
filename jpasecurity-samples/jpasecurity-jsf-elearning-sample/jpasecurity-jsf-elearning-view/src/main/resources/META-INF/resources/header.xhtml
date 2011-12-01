@@ -50,7 +50,7 @@
                 </h:form>
             </div>
             <div id="headerRight">
-                <comp:loginLink loginAction="login.xhtml"/>
+                <comp:loginLink loginAction="login.xhtml" asynchronous="#{true}" refresh="@all"/>
                 <h:outputText id="userName" value="#{facesContext.externalContext.request.userPrincipal.name}" rendered="#{sec:userInRole('student') or sec:userInRole('teacher')}"/>
             </div>
         </ui:composition>
