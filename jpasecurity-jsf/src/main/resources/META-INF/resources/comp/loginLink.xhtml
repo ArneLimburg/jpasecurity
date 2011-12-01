@@ -12,18 +12,25 @@
       <cc:attribute name="logoutLabel" default="Logout"/>
       <cc:attribute name="loginAction" method-signature="java.lang.String action()"/>
       <cc:attribute name="logoutAction" method-signature="java.lang.String action()" default="#{facesContext.externalContext.request.logout}"/>
+      <cc:attribute name="asynchronous" default="#{false}"/>
+      <cc:attribute name="refresh" default=""/>
     </cc:interface>
 
     <!-- IMPLEMENTATION -->
     <cc:implementation>
-      <h:form>
+      <h:form id="loginForm">
         <h:commandLink value="#{cc.attrs.loginLabel}" action="#{cc.attrs.loginAction}" rendered="#{facesContext.externalContext.request.remoteUser == null}">
           <f:param name="return" value="#{facesContext.viewRoot.viewId}"/>
           <f:param name="query" value="#{facesContext.externalContext.request.queryString}"/>
         </h:commandLink>
-        <h:commandLink value="#{cc.attrs.logoutLabel}" rendered="#{facesContext.externalContext.request.remoteUser != null}">
+        <h:commandLink value="#{cc.attrs.logoutLabel}" rendered="#{facesContext.externalContext.request.remoteUser != null and !cc.attrs.asynchronous}">
           <f:actionListener type="net.sf.jpasecurity.jsf.LogoutActionListener"/>
           <f:param name="query" value="#{facesContext.externalContext.request.queryString}"/>
+        </h:commandLink>
+        <h:commandLink value="#{cc.attrs.logoutLabel}" rendered="#{facesContext.externalContext.request.remoteUser != null and cc.attrs.asynchronous}">
+          <f:actionListener type="net.sf.jpasecurity.jsf.LogoutActionListener"/>
+          <f:param name="query" value="#{facesContext.externalContext.request.queryString}"/>
+          <f:ajax event="action" render="loginForm #{cc.attrs.refresh}"/>
         </h:commandLink>
       </h:form>
     </cc:implementation>
