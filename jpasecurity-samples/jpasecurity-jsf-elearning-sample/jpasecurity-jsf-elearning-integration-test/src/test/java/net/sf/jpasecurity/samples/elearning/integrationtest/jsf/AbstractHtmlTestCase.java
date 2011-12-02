@@ -18,18 +18,18 @@ package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
 import java.io.IOException;
 import java.util.List;
 
-import org.jaxen.JaxenException;
-import org.junit.Before;
 
-import com.gargoylesoftware.htmlunit.ElementNotFoundException;
-import com.gargoylesoftware.htmlunit.Page;
-import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.junit.Before;
+
+import com.gargoylesoftware.htmlunit.ElementNotFoundException;
+import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.WebClient;
 
 /**
  * @author Arne Limburg
@@ -105,7 +105,7 @@ public abstract class AbstractHtmlTestCase {
             HtmlAnchor loginLink = (HtmlAnchor)getByXPath(currentPage, "//a[text() = 'Login']").iterator().next();
             HtmlPage loginPage = (HtmlPage)loginLink.click();
 
-            HtmlForm form = getFormByJsfId(loginPage, "loginForm");
+            HtmlForm form = getFormByJsfId(loginPage, "loginDialog:loginForm");
             if(role == Role.TEACHER) {
                 getInputByJsfId(form, "username").setValueAttribute("peter");
                 getInputByJsfId(form, "password").setValueAttribute("peter");
@@ -195,11 +195,7 @@ public abstract class AbstractHtmlTestCase {
     }
 
     protected List<DomNode> getByXPath(DomNode parent, String xPath) {
-        try {
-            return parent.getByXPath(xPath);
-        } catch (JaxenException e) {
-            throw new AssertionError(e);
-        }
+        return (List<DomNode>)parent.getByXPath(xPath);
     }
 
     public static enum Role{TEACHER, STUDENT, GUEST};

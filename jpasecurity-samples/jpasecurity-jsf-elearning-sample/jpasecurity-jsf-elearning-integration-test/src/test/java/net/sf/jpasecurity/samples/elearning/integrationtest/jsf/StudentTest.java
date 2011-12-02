@@ -30,7 +30,6 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
 @Parameters("http://localhost:8282/elearning-jsf/")
-@Ignore
 public class StudentTest extends AbstractHtmlTestCase {
 
     public StudentTest(String url) {
