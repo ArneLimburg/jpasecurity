@@ -94,7 +94,12 @@
     <dependency>
       <groupId>net.sourceforge.htmlunit</groupId>
       <artifactId>htmlunit</artifactId>
-      <scope>test</scope>
+      <version>2.9</version>
+    </dependency>
+    <dependency>
+        <groupId>jaxen</groupId>
+        <artifactId>jaxen</artifactId>
+        <version>1.1.1</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

@@ -157,7 +157,7 @@ public class ElearningAssert {
             break;
         }
         assertEquals(1, page.getByXPath("//h2[text() = 'Content']").size());
-        assertEquals(1, page.getByXPath("//div[text() = 'Welcome to the Analysis course. ']").size());
+        assertEquals(1, page.getByXPath("//div[contains(., 'Welcome to the Analysis course.')]").size());
         assertEquals(1, page.getByXPath("//label[text() = 'Course:']").size());
         assertEquals(1, page.getByXPath("//label[text() = 'Lecturer:']").size());
     }
