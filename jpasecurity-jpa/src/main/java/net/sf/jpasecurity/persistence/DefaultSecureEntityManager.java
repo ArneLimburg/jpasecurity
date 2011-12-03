@@ -389,6 +389,9 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         if (entity == null) {
             return false;
         }
+        if (entity instanceof EntityProxy) {
+            entity = ((EntityProxy)entity).getEntity();
+        }
         try {
             return entityFilter.isAccessible(entity, accessType);
         } catch (NotEvaluatableException e) {
