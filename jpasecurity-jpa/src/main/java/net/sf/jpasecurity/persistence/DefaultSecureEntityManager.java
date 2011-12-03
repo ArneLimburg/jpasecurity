@@ -386,11 +386,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public boolean isAccessible(AccessType accessType, Object entity) {
-        if (entity == null) {
-            return false;
-        }
         if (entity instanceof EntityProxy) {
             entity = ((EntityProxy)entity).getEntity();
+        }
+        if (entity == null) {
+            return false;
         }
         try {
             return entityFilter.isAccessible(entity, accessType);
