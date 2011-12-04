@@ -95,6 +95,7 @@ public class CourseTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLessonCreatorPage(lessonCreatorLink, Role.TEACHER);        
     }
     
+    @Ignore
     @Test(expected = AssertionError.class)
     public void JoinLinkTest() throws JaxenException {
         HtmlPage joinLink = testInputLink(authenticateAsStudent("course.xhtml?course=3"), "leave this course");
@@ -121,7 +122,7 @@ public class CourseTest extends AbstractHtmlTestCase {
         ElearningAssert.assertIndexPage(indexLink, Role.GUEST);        
     }
 
-    @Ignore
+
     @Test
     public void dashboardLinkTest() throws JaxenException {
         HtmlPage dashboardLink = testLink(authenticateAsStudent("course.xhtml?course=3"), "Dashboard");
