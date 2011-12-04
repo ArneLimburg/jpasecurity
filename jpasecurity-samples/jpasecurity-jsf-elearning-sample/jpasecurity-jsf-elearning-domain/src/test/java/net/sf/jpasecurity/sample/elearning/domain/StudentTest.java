@@ -15,8 +15,7 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
-import static net.sf.jpasecurity.util.Maps.entry;
-import static net.sf.jpasecurity.util.Maps.map;
+import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -55,9 +54,8 @@ public class StudentTest extends AbstractEntityTestCase {
 
     @BeforeClass
     public static void createEntityManagerFactory() {
-        createEntityManagerFactory("elearning", map(entry("net.sf.jpasecurity.security.authentication.provider",
-                                                          (Object)TestAuthenticationProvider.class.getName()),
-                                                    entry("hibernate.hbm2ddl.auto", (Object)"create-drop")));
+        createEntityManagerFactory("elearning", singletonMap("net.sf.jpasecurity.security.authentication.provider",
+                                                             (Object)TestAuthenticationProvider.class.getName()));
     }
 
     @Before
