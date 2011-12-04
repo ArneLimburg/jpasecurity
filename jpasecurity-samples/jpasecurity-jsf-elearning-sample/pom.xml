@@ -117,16 +117,6 @@
               <artifactId>scannotation</artifactId>
               <version>1.0.2</version>
             </jarArtifact>
-            <jarArtifact>
-              <groupId>${project.groupId}</groupId>
-              <artifactId>jpasecurity-core</artifactId>
-              <version>${project.version}</version>
-            </jarArtifact>
-            <jarArtifact>
-              <groupId>${project.groupId}</groupId>
-              <artifactId>jpasecurity-jsf-elearning-domain</artifactId>
-              <version>${project.version}</version>
-            </jarArtifact>
           </libs>
           <webapps>
             <webappArtifact>
