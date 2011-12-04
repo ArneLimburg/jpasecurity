@@ -20,7 +20,6 @@ import net.sf.jpasecurity.samples.elearning.integrationtest.junit.ParameterizedJ
 import net.sf.jpasecurity.samples.elearning.integrationtest.junit.Parameters;
 
 import org.jaxen.JaxenException;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -70,21 +69,18 @@ public class CoursesTest extends AbstractHtmlTestCase {
         ElearningAssert.assertCoursesPage(getHtmlPage("courses.xhtml"), Role.STUDENT);
     }
     
-    @Ignore
     @Test
     public void linkTest() throws JaxenException {
         HtmlPage courseLink = testLink("courses.xhtml", "Analysis");
         ElearningAssert.assertCoursePage(courseLink, Role.GUEST);
     }
     
-    @Ignore
     @Test
     public void linkTestAsTeacher() throws JaxenException {
         HtmlPage courseLink = testLink(authenticateAsTeacher("courses.xhtml"), "Analysis");
         ElearningAssert.assertCoursePage(courseLink, Role.TEACHER);
     }
     
-    @Ignore
     @Test
     public void linkTestAsStudent() throws JaxenException {
         HtmlPage courseLink = testLink(authenticateAsStudent("courses.xhtml"), "Analysis");
