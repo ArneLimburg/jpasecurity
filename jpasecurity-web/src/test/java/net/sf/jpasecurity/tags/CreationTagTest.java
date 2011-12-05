@@ -15,15 +15,17 @@
  */
 package net.sf.jpasecurity.tags;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
 
+import junit.framework.TestCase;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
-
-import static org.easymock.EasyMock.*;
-
-import junit.framework.TestCase;
 
 /**
  * @author Arne Limburg

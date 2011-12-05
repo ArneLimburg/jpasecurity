@@ -181,7 +181,7 @@ public class SecureObjectManagerTest extends AbstractSecureObjectTestCase {
         verify(classMapping, idPropertyAccessStrategy, vPropertyAccessStrategy);
     }
 
-    public static interface UnsecureObjectFactory {
+    public interface UnsecureObjectFactory {
         <T> T createUnsecureObject(T secureObject);
     }
 

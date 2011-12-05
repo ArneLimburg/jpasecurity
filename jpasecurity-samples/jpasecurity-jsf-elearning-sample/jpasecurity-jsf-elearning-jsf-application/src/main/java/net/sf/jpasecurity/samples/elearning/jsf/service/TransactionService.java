@@ -24,7 +24,7 @@ public interface TransactionService {
 
     void executeTransactional(Runnable runnable);
 
-    public static interface Callable<R> {
+    public interface Callable<R> {
         R call();
     }
 }
