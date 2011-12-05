@@ -2,44 +2,60 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
 <article id="unauthenticated">
   <title>Unauthenticated user's view</title>
-  <para>
-    While you are not authenticated,
-    you can browse the courses and teachers,
-    but you may not take any action.
-  </para>
+  <para> While you are not authenticated, you can browse the courses and teachers, but you may not take any action. </para>
   <section>
     <title>Start page</title>
-    <para>
-      On this page you can only switch to the login site
-      or view courses and teachers by clicking on the respective link.
-    </para>
-    <para>
-      By clicking on the "courses" or "teachers" link,
-      you get an overview of all courses and teachers respectively.
-    </para>
+    <para> On this page you can only switch to the login site or view courses and teachers by clicking on the respective
+      link. </para>
+    <para> By clicking on the "courses" or "teachers" link, you get an overview of all courses and teachers
+      respectively. </para>
   </section>
   <section>
     <title>Teachers</title>
-    <para>
-      For all teachers you can see their courses,
-      which they lecture respectively.
-    </para>
-    </section>
-    <section>
-      <title>Course</title>
-      <para>
-        For every course you can see on the survey the title and the lecturer of the course.
-        Moreover you can see on this survey all lessons.
-        However you are not permitted to see,
-        which student is subscribed to that course. 
-      </para>
-    </section>
-    <section>
-      <title>Lesson</title>
-      <para>For every lesson you can see its topic and content respectively.</para>
-    </section>
-    <section>
-      <title>Login</title>
-      <para>If you are an student or teacher, you can login on this site.</para>
-    </section>
+    <para> For all teachers you can see their courses, which they lecture respectively. </para>
+  </section>
+  <section>
+    <title>Course</title>
+    <para> For every course you can see on the survey the title and the lecturer of the course. Moreover you can see on
+      this survey all lessons. However you are not permitted to see, which student is subscribed to that course. </para>
+  </section>
+  <section>
+    <title>Lesson</title>
+    <para>For every lesson you can see its topic and content respectively.</para>
+  </section>
+  <section>
+    <title>Login</title>
+    <para>If you are an student or teacher, you can login on this site.</para>
+    <para>Valid usernames for a teacher are:</para>
+    <itemizedlist>
+      <listitem>
+        <para>peter</para>
+      </listitem>
+      <listitem>
+        <para>hans</para>
+      </listitem>
+    </itemizedlist>
+    <para>Valid usernames for a student are:</para>
+    <itemizedlist>
+      <listitem>
+        <para>stefan</para>
+      </listitem>
+      <listitem>
+        <para>tassimo</para>
+      </listitem>
+      <listitem>
+        <para>ulli</para>
+      </listitem>
+      <listitem>
+        <para>anne</para>
+      </listitem>
+      <listitem>
+        <para>lisa</para>
+      </listitem>
+      <listitem>
+        <para>marie</para>
+      </listitem>
+    </itemizedlist>
+    <para>Furthermore password equals username.</para>
+  </section>
 </article>
