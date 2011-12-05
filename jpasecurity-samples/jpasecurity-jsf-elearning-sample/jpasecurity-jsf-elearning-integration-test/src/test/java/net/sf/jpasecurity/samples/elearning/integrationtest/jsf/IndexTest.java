@@ -1,4 +1,3 @@
-package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
 /*
  * Copyright 2011 Arne Limburg
  *
@@ -14,7 +13,7 @@ package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
+package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
 
 import net.sf.jpasecurity.samples.elearning.integrationtest.junit.ParameterizedJUnit4ClassRunner;
 import net.sf.jpasecurity.samples.elearning.integrationtest.junit.Parameters;
@@ -30,7 +29,8 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @author Arne Limburg
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
-@Parameters({"http://localhost:8282/elearning-jsf/", "http://localhost:8282/elearning-cdi/"})
+@Parameters({"http://localhost:8282/elearning-jsf/", "http://localhost:8282/elearning-cdi/" })
+@Ignore
 public class IndexTest extends AbstractHtmlTestCase {
 
     public IndexTest(String url) {
@@ -56,33 +56,32 @@ public class IndexTest extends AbstractHtmlTestCase {
         ElearningAssert.assertIndexPage(authenticateAsStudent("index.xhtml"), Role.STUDENT);
         ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.STUDENT);
     }
-   
+
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.GUEST);
         authenticateFormBasedAsTeacher();
         ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.TEACHER);
     }
-    
+
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.GUEST);
         authenticateFormBasedAsStudent();
         ElearningAssert.assertIndexPage(getHtmlPage("index.xhtml"), Role.STUDENT);
     }
-    
+
     @Test
     public void coursesLinkTest() throws JaxenException {
         HtmlPage coursesLink = testLink("index.xhtml", "Courses");
-        ElearningAssert.assertCoursesPage(coursesLink, Role.GUEST);        
+        ElearningAssert.assertCoursesPage(coursesLink, Role.GUEST);
     }
-    
+
     @Test
     public void teachersLinkTest() throws JaxenException {
         HtmlPage teachersLink = testLink("index.xhtml", "Teachers");
-        ElearningAssert.assertTeachersPage(teachersLink, Role.GUEST);         
+        ElearningAssert.assertTeachersPage(teachersLink, Role.GUEST);
     }
-
 
     @Test
     public void loginLinkTest() throws JaxenException {
@@ -90,23 +89,21 @@ public class IndexTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLoginPage(loginLink, Role.GUEST);
     }
 
-
     @Test
     public void logoutLinkTest() throws JaxenException {
         HtmlPage logoutLink = testLink(authenticateAsStudent("index.xhtml"), "Logout");
-        ElearningAssert.assertIndexPage(logoutLink, Role.GUEST);         
+        ElearningAssert.assertIndexPage(logoutLink, Role.GUEST);
     }
-
 
     @Test
     public void indexLinkTest() throws JaxenException {
         HtmlPage indexLink = testLink("index.xhtml", "Index");
-        ElearningAssert.assertIndexPage(indexLink, Role.GUEST);        
+        ElearningAssert.assertIndexPage(indexLink, Role.GUEST);
     }
 
     @Test
     public void dashboardLinkTest() throws JaxenException {
         HtmlPage dashboardLink = testLink(authenticateAsStudent("index.xhtml"), "Dashboard");
-        ElearningAssert.assertDashboardPage(dashboardLink, Role.STUDENT); 
+        ElearningAssert.assertDashboardPage(dashboardLink, Role.STUDENT);
     }
 }

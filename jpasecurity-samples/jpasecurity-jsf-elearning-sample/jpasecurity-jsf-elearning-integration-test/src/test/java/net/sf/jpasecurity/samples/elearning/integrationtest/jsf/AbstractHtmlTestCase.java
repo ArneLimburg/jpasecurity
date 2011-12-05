@@ -25,6 +25,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+
 import org.junit.Before;
 
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
@@ -64,9 +65,10 @@ public abstract class AbstractHtmlTestCase {
 
     public HtmlPage testLink(String page, String linkName) {
         try {
-        HtmlAnchor link = (HtmlAnchor)getByXPath(getHtmlPage(page), "//a[text() = '" + linkName +"']").iterator().next();
-        HtmlPage linkPage = (HtmlPage)link.click();
-        return linkPage;
+            HtmlAnchor link = (HtmlAnchor)getByXPath(getHtmlPage(page),
+                "//a[text() = '" + linkName + "']").iterator().next();
+            HtmlPage linkPage = (HtmlPage)link.click();
+            return linkPage;
         } catch (IOException e) {
             throw new AssertionError(e);
         }
@@ -74,19 +76,19 @@ public abstract class AbstractHtmlTestCase {
 
     public HtmlPage testLink(HtmlPage page, String linkName) {
         try {
-            HtmlAnchor link = (HtmlAnchor)getByXPath(page, "//a[text() = '" + linkName +"']").iterator().next();
+            HtmlAnchor link = (HtmlAnchor)getByXPath(page, "//a[text() = '" + linkName + "']").iterator().next();
             HtmlPage linkPage = (HtmlPage)link.click();
-        return linkPage;
+            return linkPage;
         } catch (IOException e) {
             throw new AssertionError(e);
         }
     }
-    
+
     public HtmlPage testInputLink(HtmlPage page, String linkName) {
         try {
-            HtmlInput inputLink = (HtmlInput)getByXPath(page, "//input[@value = '" + linkName +"']").iterator().next();
+            HtmlInput inputLink = (HtmlInput)getByXPath(page, "//input[@value = '" + linkName + "']").iterator().next();
             HtmlPage inputLinkPage = (HtmlPage)inputLink.click();
-        return inputLinkPage;
+            return inputLinkPage;
         } catch (IOException e) {
             throw new AssertionError(e);
         }
@@ -95,7 +97,7 @@ public abstract class AbstractHtmlTestCase {
     public HtmlPage authenticateAsStudent(String page) {
         return authenticate(getHtmlPage(page), Role.STUDENT);
     }
-    
+
     public HtmlPage authenticateAsTeacher(String page) {
         return authenticate(getHtmlPage(page), Role.TEACHER);
     }
@@ -106,12 +108,12 @@ public abstract class AbstractHtmlTestCase {
             HtmlPage loginPage = (HtmlPage)loginLink.click();
 
             HtmlForm form = getFormByJsfId(loginPage, "loginDialog:loginForm");
-            if(role == Role.TEACHER) {
+            if (role == Role.TEACHER) {
                 getInputByJsfId(form, "username").setValueAttribute("peter");
                 getInputByJsfId(form, "password").setValueAttribute("peter");
             } else {
                 getInputByJsfId(form, "username").setValueAttribute("marie");
-                getInputByJsfId(form, "password").setValueAttribute("marie");                
+                getInputByJsfId(form, "password").setValueAttribute("marie");
             }
             return (HtmlPage)getInputByJsfId(form, "loginButton").click();
         } catch (IOException e) {
@@ -122,20 +124,20 @@ public abstract class AbstractHtmlTestCase {
     public HtmlPage authenticateFormBasedAsStudent() {
         return authenticateFormBased(Role.STUDENT);
     }
-    
+
     public HtmlPage authenticateFormBasedAsTeacher() {
         return authenticateFormBased(Role.TEACHER);
     }
-    
+
     public HtmlPage authenticateFormBased(Role role) {
         HtmlPage dashboard = getHtmlPage("dashboard.xhtml");
         HtmlForm form = dashboard.getFormByName("j_security_check");
-        if(role == Role.TEACHER) {
-            getInputById(form,"username").setValueAttribute("peter");
-            getInputById(form,"password").setValueAttribute("peter");
+        if (role == Role.TEACHER) {
+            getInputById(form, "username").setValueAttribute("peter");
+            getInputById(form, "password").setValueAttribute("peter");
         } else {
             getInputById(form, "username").setValueAttribute("marie");
-            getInputById(form, "password").setValueAttribute("marie");                
+            getInputById(form, "password").setValueAttribute("marie");
         }
         try {
             return (HtmlPage)form.getInputByName("j_security_check_submit").click();
@@ -175,7 +177,7 @@ public abstract class AbstractHtmlTestCase {
     public HtmlInput getInputById(DomNode node, String id) {
         return getById(node, HtmlInput.class, id);
     }
-    
+
     public <T extends HtmlElement> T getById(DomNode page, Class<T> type, String id) {
         String elementName = type.getSimpleName().substring(4).toLowerCase();
         T result = null;
@@ -198,5 +200,5 @@ public abstract class AbstractHtmlTestCase {
         return (List<DomNode>)parent.getByXPath(xPath);
     }
 
-    public static enum Role{TEACHER, STUDENT, GUEST};
+    public static enum Role { TEACHER, STUDENT, GUEST };
 }

@@ -72,6 +72,6 @@ public class ParameterizedJUnit4ClassRunner extends Suite {
 
         protected Object createTest() throws Exception {
             return getTestClass().getOnlyConstructor().newInstance(value);
-        }        
+        }
     }
 }

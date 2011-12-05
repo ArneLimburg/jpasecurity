@@ -28,5 +28,5 @@ import java.lang.annotation.Target;
 @Target(TYPE)
 @Retention(RUNTIME)
 public @interface Parameters {
-    String[] value() default {};
+    String[] value() default { };
 }
