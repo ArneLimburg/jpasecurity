@@ -32,11 +32,6 @@
                connectionTimeout="20000" 
                redirectPort="8443" />
     <Engine name="Catalina" defaultHost="localhost">
-      <Realm name="JAAS"
-             className="org.apache.catalina.realm.JAASRealm"
-             appName="ELearning"
-             userClassNames="net.sf.jpasecurity.sample.elearning.domain.User,net.sf.jpasecurity.sample.elearning.domain.Student,net.sf.jpasecurity.sample.elearning.domain.Teacher"
-             roleClassNames="net.sf.jpasecurity.security.authentication.jaas.RolePrincipal"/>
       <Host name="localhost"  appBase="webapps"
           unpackWARs="true" autoDeploy="true">
       <!-- Access log processes all example.
@@ -45,6 +40,13 @@
       <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"  
              prefix="localhost_access_log." suffix=".txt"
              pattern="%h %l %u %t &quot;%r&quot; %s %b" resolveHosts="false"/>
+        <Context path="/elearning-jsf">
+          <Realm name="JAAS"
+                 className="org.apache.catalina.realm.JAASRealm"
+                 appName="ELearning"
+                 userClassNames="net.sf.jpasecurity.sample.elearning.domain.User,net.sf.jpasecurity.sample.elearning.domain.Student,net.sf.jpasecurity.sample.elearning.domain.Teacher"
+                 roleClassNames="net.sf.jpasecurity.security.authentication.jaas.RolePrincipal"/>
+        </Context>
       </Host>
     </Engine>
   </Service>
