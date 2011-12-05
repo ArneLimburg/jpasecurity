@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.persistence.mapping;
 
+import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
+
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -63,7 +65,6 @@ import net.sf.jpasecurity.mapping.EntityLifecycleMethods;
 import net.sf.jpasecurity.mapping.EntityListener;
 import net.sf.jpasecurity.mapping.EntityListenerWrapper;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
-import static net.sf.jpasecurity.util.Types.*;
 
 /**
  * Parses a persistence unit for persistence annotations.

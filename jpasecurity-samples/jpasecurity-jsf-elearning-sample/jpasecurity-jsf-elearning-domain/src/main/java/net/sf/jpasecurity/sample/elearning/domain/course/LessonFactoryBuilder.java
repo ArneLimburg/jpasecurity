@@ -34,11 +34,11 @@ public class LessonFactoryBuilder {
         return new LessonFactory();
     }
 
-    public static interface LessonWithoutTitle {
+    public interface LessonWithoutTitle {
         LessonWithoutContent withTitle(Title title);
     }
 
-    public static interface LessonWithoutContent {
+    public interface LessonWithoutContent {
         LessonWithoutCourse andContent(Content content);
     }
 
