@@ -29,13 +29,13 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @author Raffaela Ferrari
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
-@Parameters({"http://localhost:8282/elearning-jsf/", "http://localhost:8282/elearning-cdi/"})
+@Parameters({"http://localhost:8282/elearning-jsf/", "http://localhost:8282/elearning-cdi/" })
+@Ignore
 public class LessonCreatorTest extends AbstractHtmlTestCase {
 
     public LessonCreatorTest(String url) {
         super(url);
     }
-
 
     @Test
     public void unauthenticated() throws JaxenException {
@@ -57,7 +57,7 @@ public class LessonCreatorTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLessonCreatorPage(authenticateAsStudent("lessonCreator.xhtml"), Role.STUDENT);
         ElearningAssert.assertLessonCreatorPage(getHtmlPage("lessonCreator.xhtml"), Role.STUDENT);
     }
-    
+
     @Ignore
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
@@ -65,7 +65,7 @@ public class LessonCreatorTest extends AbstractHtmlTestCase {
         authenticateFormBasedAsTeacher();
         ElearningAssert.assertLessonCreatorPage(getHtmlPage("lessonCreator.xhtml"), Role.TEACHER);
     }
-    
+
     @Ignore
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
@@ -73,22 +73,21 @@ public class LessonCreatorTest extends AbstractHtmlTestCase {
         authenticateFormBasedAsStudent();
         ElearningAssert.assertLessonCreatorPage(getHtmlPage("lessonCreator.xhtml"), Role.STUDENT);
     }
-    
+
     @Ignore
     @Test
     //TODO parameterize data
     public void createLessonTest() throws JaxenException {
         HtmlPage createLessonLink = testInputLink(getHtmlPage("lessonCreator.xhtml"), "create new lesson");
-        ElearningAssert.assertLoginPage(createLessonLink, Role.GUEST);   
+        ElearningAssert.assertLoginPage(createLessonLink, Role.GUEST);
     }
-    
+
     @Ignore
     @Test
     public void cancelTest() throws JaxenException {
         HtmlPage cancelLink = testLink(authenticateAsTeacher("lessonCreator.xhtml?course=3"), "cancel");
-        ElearningAssert.assertCoursePage(cancelLink, Role.TEACHER); 
+        ElearningAssert.assertCoursePage(cancelLink, Role.TEACHER);
     }
-
 
     @Test
     public void loginLinkTest() throws JaxenException {
@@ -100,20 +99,18 @@ public class LessonCreatorTest extends AbstractHtmlTestCase {
     @Test
     public void logoutLinkTest() throws JaxenException {
         HtmlPage logoutLink = testLink(authenticateAsStudent("lessonCreator.xhtml"), "Logout");
-        ElearningAssert.assertLessonCreatorPage(logoutLink, Role.GUEST);         
+        ElearningAssert.assertLessonCreatorPage(logoutLink, Role.GUEST);
     }
-
 
     @Test
     public void indexLinkTest() throws JaxenException {
         HtmlPage indexLink = testLink("lessonCreator.xhtml", "Index");
-        ElearningAssert.assertIndexPage(indexLink, Role.GUEST);        
+        ElearningAssert.assertIndexPage(indexLink, Role.GUEST);
     }
-
 
     @Test
     public void dashboardLinkTest() throws JaxenException {
         HtmlPage dashboardLink = testLink(authenticateAsStudent("lessonCreator.xhtml"), "Dashboard");
-        ElearningAssert.assertDashboardPage(dashboardLink, Role.STUDENT); 
+        ElearningAssert.assertDashboardPage(dashboardLink, Role.STUDENT);
     }
 }

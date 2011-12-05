@@ -1,4 +1,3 @@
-package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
 /*
  * Copyright 2011 Raffaela Ferrari open knowledge GmbH
  *
@@ -14,6 +13,7 @@ package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
+package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
 
 import net.sf.jpasecurity.samples.elearning.integrationtest.junit.ParameterizedJUnit4ClassRunner;
 import net.sf.jpasecurity.samples.elearning.integrationtest.junit.Parameters;
@@ -25,11 +25,12 @@ import org.junit.runner.RunWith;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
-/*
- * @auhtor Raffaela Ferrari
+/**
+ * @author Raffaela Ferrari
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
 @Parameters("http://localhost:8282/elearning-jsf/")
+@Ignore
 public class CourseTest extends AbstractHtmlTestCase {
 
     public CourseTest(String url) {
@@ -54,33 +55,33 @@ public class CourseTest extends AbstractHtmlTestCase {
         ElearningAssert.assertCoursePage(authenticateAsStudent("course.xhtml?course=3"), Role.STUDENT);
         ElearningAssert.assertCoursePage(getHtmlPage("course.xhtml?course=3"), Role.STUDENT);
     }
-    
+
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertCoursePage(getHtmlPage("course.xhtml?course=3"), Role.GUEST);
         authenticateFormBasedAsTeacher();
         ElearningAssert.assertCoursePage(getHtmlPage("course.xhtml?course=3"), Role.TEACHER);
     }
-    
+
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertCoursePage(getHtmlPage("course.xhtml?course=3"), Role.GUEST);
         authenticateFormBasedAsStudent();
         ElearningAssert.assertCoursePage(getHtmlPage("course.xhtml?course=3"), Role.STUDENT);
     }
-    
+
     @Test
     public void studentLinkTest() throws JaxenException {
         HtmlPage studentLink = testLink(authenticateAsStudent("course.xhtml?course=3"), "Marie M.");
-        ElearningAssert.assertStudentPage(studentLink, Role.STUDENT);        
+        ElearningAssert.assertStudentPage(studentLink, Role.STUDENT);
     }
-    
+
     @Test
     public void teacherLinkTest() throws JaxenException {
         HtmlPage teacherLink = testLink("course.xhtml?course=3", "Peter B.");
-        ElearningAssert.assertTeacherPage(teacherLink, Role.GUEST);         
+        ElearningAssert.assertTeacherPage(teacherLink, Role.GUEST);
     }
-    
+
     @Test
     public void lessonLinkTest() throws JaxenException {
         HtmlPage lessonLink = testLink("course.xhtml?course=3", "Analysis introduction");
@@ -88,20 +89,19 @@ public class CourseTest extends AbstractHtmlTestCase {
         lessonLink = testLink(authenticateAsStudent("course.xhtml?course=3"), "Analysis introduction");
         ElearningAssert.assertLessonPage(lessonLink, Role.STUDENT);
     }
-  
+
     @Test
     public void lessonCreatorLinkTest() throws JaxenException {
         HtmlPage lessonCreatorLink = testInputLink(authenticateAsTeacher("course.xhtml?course=3"), "Create new lesson");
-        ElearningAssert.assertLessonCreatorPage(lessonCreatorLink, Role.TEACHER);        
-    }
-    
-    @Ignore
-    @Test(expected = AssertionError.class)
-    public void JoinLinkTest() throws JaxenException {
-        HtmlPage joinLink = testInputLink(authenticateAsStudent("course.xhtml?course=3"), "leave this course");
-        ElearningAssert.assertCoursePage(joinLink, Role.STUDENT);        
+        ElearningAssert.assertLessonCreatorPage(lessonCreatorLink, Role.TEACHER);
     }
 
+    @Ignore
+    @Test(expected = AssertionError.class)
+    public void joinLinkTest() throws JaxenException {
+        HtmlPage joinLink = testInputLink(authenticateAsStudent("course.xhtml?course=3"), "leave this course");
+        ElearningAssert.assertCoursePage(joinLink, Role.STUDENT);
+    }
 
     @Test
     public void loginLinkTest() throws JaxenException {
@@ -112,20 +112,18 @@ public class CourseTest extends AbstractHtmlTestCase {
     @Test
     public void logoutLinkTest() throws JaxenException {
         HtmlPage logoutLink = testLink(authenticateAsStudent("course.xhtml?course=3"), "Logout");
-        ElearningAssert.assertCoursePage(logoutLink, Role.GUEST);         
+        ElearningAssert.assertCoursePage(logoutLink, Role.GUEST);
     }
-
 
     @Test
     public void indexLinkTest() throws JaxenException {
         HtmlPage indexLink = testLink("course.xhtml?course=3", "Index");
-        ElearningAssert.assertIndexPage(indexLink, Role.GUEST);        
+        ElearningAssert.assertIndexPage(indexLink, Role.GUEST);
     }
-
 
     @Test
     public void dashboardLinkTest() throws JaxenException {
         HtmlPage dashboardLink = testLink(authenticateAsStudent("course.xhtml?course=3"), "Dashboard");
-        ElearningAssert.assertDashboardPage(dashboardLink, Role.STUDENT); 
+        ElearningAssert.assertDashboardPage(dashboardLink, Role.STUDENT);
     }
 }

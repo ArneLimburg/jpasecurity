@@ -25,23 +25,22 @@ import org.junit.runner.RunWith;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
-/*
- * @auhtor Raffaela Ferrari
+/**
+ * @author Raffaela Ferrari
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
-@Parameters({"http://localhost:8282/elearning-jsf/", "http://localhost:8282/elearning-cdi/"})
+@Parameters({"http://localhost:8282/elearning-jsf/", "http://localhost:8282/elearning-cdi/" })
+@Ignore
 public class LoginTest extends AbstractHtmlTestCase {
 
     public LoginTest(String url) {
         super(url);
     }
 
-
     @Test
     public void unauthenticated() throws JaxenException {
         ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"),  Role.GUEST);
     }
-
 
     @Test
     public void authenticatedAsTeacher() throws JaxenException {
@@ -50,7 +49,6 @@ public class LoginTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.TEACHER);
     }
 
-
     @Test
     public void authenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.GUEST);
@@ -58,14 +56,12 @@ public class LoginTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.STUDENT);
     }
 
-
     @Test
     public void formBasedAuthenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.GUEST);
         authenticateFormBasedAsTeacher();
         ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.TEACHER);
     }
-    
 
     @Test
     public void formBasedAuthenticatedAsStudent() throws JaxenException {
@@ -73,28 +69,26 @@ public class LoginTest extends AbstractHtmlTestCase {
         authenticateFormBasedAsStudent();
         ElearningAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.STUDENT);
     }
-    
+
     @Ignore
     @Test
     public void authenticateLinkAsStudentTest() throws JaxenException {
         HtmlPage authenticateLink = testInputLink(authenticateAsStudent("login.xhtml"), "Login");
-        ElearningAssert.assertDashboardPage(authenticateLink, Role.STUDENT);         
+        ElearningAssert.assertDashboardPage(authenticateLink, Role.STUDENT);
     }
-    
+
     @Ignore
     @Test
     public void authenticateLinkAsTeacherTest() throws JaxenException {
         HtmlPage authenticateAsTeacherLink = testInputLink(authenticateAsTeacher("login.xhtml"), "Login");
-        ElearningAssert.assertDashboardPage(authenticateAsTeacherLink, Role.TEACHER);         
+        ElearningAssert.assertDashboardPage(authenticateAsTeacherLink, Role.TEACHER);
     }
-    
 
     @Test
     public void cancelTest() throws JaxenException {
         HtmlPage cancelLink = testInputLink(getHtmlPage("login.xhtml"), "Login");
-        ElearningAssert.assertLoginPage(cancelLink, Role.GUEST);         
+        ElearningAssert.assertLoginPage(cancelLink, Role.GUEST);
     }
-
 
     @Test
     public void loginLinkTest() throws JaxenException {
@@ -102,24 +96,21 @@ public class LoginTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLoginPage(loginLink, Role.GUEST);
     }
 
-
     @Test
     public void logoutLinkTest() throws JaxenException {
         HtmlPage logoutLink = testLink(authenticateAsStudent("login.xhtml"), "Logout");
-        ElearningAssert.assertLoginPage(logoutLink, Role.GUEST);         
+        ElearningAssert.assertLoginPage(logoutLink, Role.GUEST);
     }
-
 
     @Test
     public void indexLinkTest() throws JaxenException {
         HtmlPage indexLink = testLink("login.xhtml", "Index");
-        ElearningAssert.assertIndexPage(indexLink, Role.GUEST);        
+        ElearningAssert.assertIndexPage(indexLink, Role.GUEST);
     }
-
 
     @Test
     public void dashboardLinkTest() throws JaxenException {
         HtmlPage dashboardLink = testLink(authenticateAsStudent("login.xhtml"), "Dashboard");
-        ElearningAssert.assertDashboardPage(dashboardLink, Role.STUDENT); 
+        ElearningAssert.assertDashboardPage(dashboardLink, Role.STUDENT);
     }
 }
