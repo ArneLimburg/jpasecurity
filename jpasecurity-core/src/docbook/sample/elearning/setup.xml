@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
+<article id="setup">
+    <title>Setup</title>
+    <para>Like in the simple-tutorial we want to use maven 3 to build and deploy our application.</para>
+    <para>We should be able to start an embedded tomcat-server with maven running the elearning-application: </para>
+    <programlisting>
+    mvn t7:run
+    </programlisting>
+    <para>If we want to start the elearning-application with cdi, then execute foregoing command in the
+        jpasecurity-jsf-elearning-cdi-application folder. To start the elearning-application with jsf, execute the foregoing command in the
+        jpasecurity-jsf-elearning-jsf-application folder. </para>
+    <para> If everything works all right, tomcat started successfully and you can visit the elearning-application 
+        <ulink url="http://localhost:8282/jpasecurity-jsf-elearning-jsf-application-0.4.1-SNAPSHOT/">here(jsf)</ulink>
+        and
+        <ulink url="http://localhost:8282/jpasecurity-jsf-elearning-cdi-application-0.4.1-SNAPSHOT/">here(cdi)</ulink>
+        respectively</para>
+</article>
+

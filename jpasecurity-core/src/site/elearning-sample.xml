@@ -3,12 +3,16 @@
     <title>E-Learning platform</title>
     <chapters>
         <chapter>
-            <id>overview</id>
-            <title>Overview</title>
+            <id>prerequisites</id>
+            <title>Prerequisites</title>
             <sections>
                 <section>
                     <id>introduction</id>
                     <title>Introduction</title>
+                </section>
+                <section>
+                    <id>setup</id>
+                    <title>Setup</title>
                 </section>
             </sections>
         </chapter>
