@@ -62,7 +62,7 @@
           <ul>
             <ui:repeat var="student" value="#{userRepository.allStudents}">
               <li>
-                <h:outputLink value="student.xhtml" >
+                <h:outputLink value="student.xhtml" rendered="#{student.id != user.id}">
                   <f:param name="id" value="#{student.id}" />
                   <h:outputText value="#{student.fullname}" />
                 </h:outputLink>
