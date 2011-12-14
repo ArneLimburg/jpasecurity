@@ -7,13 +7,10 @@
     <programlisting>
     mvn t7:run
     </programlisting>
-    <para>If we want to start the elearning-application with cdi, then execute foregoing command in the
-        jpasecurity-jsf-elearning-cdi-application folder. To start the elearning-application with jsf, execute the foregoing command in the
-        jpasecurity-jsf-elearning-jsf-application folder. </para>
-    <para> If everything works all right, tomcat started successfully and you can visit the elearning-application 
-        <ulink url="http://localhost:8282/jpasecurity-jsf-elearning-jsf-application-0.4.1-SNAPSHOT/">here(jsf)</ulink>
-        and
-        <ulink url="http://localhost:8282/jpasecurity-jsf-elearning-cdi-application-0.4.1-SNAPSHOT/">here(cdi)</ulink>
-        respectively</para>
+    <para>If we want to start the application, then execute foregoing command in the
+        jpasecurity-jsf-elearning-integration-test folder.</para>
+    <para> If everything works all right, tomcat started successfully and you can visit the elearning-application <ulink
+        url="http://localhost:8282/elearning-jsf/">here(jsf)</ulink> and
+        <ulink url="http://localhost:8282/elearning-cdi/"
+            >here(cdi)</ulink> respectively</para>
 </article>
-
