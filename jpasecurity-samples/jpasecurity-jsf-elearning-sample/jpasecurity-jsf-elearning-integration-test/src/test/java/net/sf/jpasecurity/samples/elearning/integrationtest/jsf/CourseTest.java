@@ -98,8 +98,12 @@ public class CourseTest extends AbstractHtmlTestCase {
     @Ignore
     @Test(expected = AssertionError.class)
     public void joinLinkTest() throws JaxenException {
-        HtmlPage joinLink = testInputLink(authenticateAsStudent("course.xhtml?course=3"), "leave this course");
-        ElearningAssert.assertCoursePage(joinLink, Role.STUDENT);
+        try {
+	        HtmlPage joinLink = testInputLink(authenticateAsStudent("course.xhtml?course=3"), "leave this course");
+	        ElearningAssert.assertCoursePage(joinLink, Role.STUDENT);
+        } finally {
+        	testInputLink(authenticateAsStudent("course.xhtml?course=3"), "join this course");
+        }
     }
 
     @Test

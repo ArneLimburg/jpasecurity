@@ -44,7 +44,6 @@ public class DashboardTest extends AbstractHtmlTestCase {
         ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.GUEST);
     }
 
-    @Ignore
     @Test
     public void authenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.GUEST);
@@ -52,7 +51,6 @@ public class DashboardTest extends AbstractHtmlTestCase {
         ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.TEACHER);
     }
 
-    @Ignore
     @Test
     public void authenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.GUEST);
@@ -74,14 +72,12 @@ public class DashboardTest extends AbstractHtmlTestCase {
         ElearningAssert.assertDashboardPage(getHtmlPage("dashboard.xhtml"), Role.STUDENT);
     }
 
-    @Ignore
     @Test
     public void linkTestAsTeacher() throws JaxenException {
         HtmlPage courseLink = testLink(authenticateAsTeacher("dashboard.xhtml"), "Analysis");
         ElearningAssert.assertCoursePage(courseLink, Role.TEACHER);
     }
 
-    @Ignore
     @Test
     public void linkTestAsStudent() throws JaxenException {
         HtmlPage courseLink = testLink(authenticateAsStudent("dashboard.xhtml"), "Analysis");

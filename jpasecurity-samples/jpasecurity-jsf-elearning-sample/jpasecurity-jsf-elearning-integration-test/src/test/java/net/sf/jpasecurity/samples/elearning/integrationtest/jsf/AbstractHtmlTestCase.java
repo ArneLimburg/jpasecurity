@@ -25,10 +25,12 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.html.HtmlTextArea;
 
 import org.junit.Before;
 
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 
@@ -60,6 +62,8 @@ public abstract class AbstractHtmlTestCase {
             return webClient.getPage(url + name);
         } catch (IOException e) {
             throw new AssertionError(e);
+        } catch (FailingHttpStatusCodeException e) {
+        	throw new AssertionError();
         }
     }
 
@@ -146,6 +150,20 @@ public abstract class AbstractHtmlTestCase {
         }
     }
 
+    
+    public HtmlPage createNewLesson() {
+    	authenticateAsTeacher("lessonCreator.xhtml?course=3");
+    	HtmlPage lessonCreator = getHtmlPage("lessonCreator.xhtml?course=3");
+    	HtmlForm form = lessonCreator.getFormByName("lessonCreateForm");
+    	getInputById(form, "lessonTitle").setValueAttribute("test lesson");
+    	getTextAreaById(form, "lessonContent").setText("this is a test lesson");
+        try {
+            return (HtmlPage)form.getInputByName("create").click();
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
+    }
+
     public HtmlForm getFormByJsfId(DomNode node, String id) {
         return getByJsfId(node, HtmlForm.class, id);
     }
@@ -176,6 +194,11 @@ public abstract class AbstractHtmlTestCase {
 
     public HtmlInput getInputById(DomNode node, String id) {
         return getById(node, HtmlInput.class, id);
+    }
+
+
+    public HtmlTextArea getTextAreaById(DomNode node, String id) {
+        return getById(node, HtmlTextArea.class, id);
     }
 
     public <T extends HtmlElement> T getById(DomNode page, Class<T> type, String id) {
