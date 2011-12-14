@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.samples.elearning.jsf.service;
+package net.sf.jpasecurity.samples.elearning.view;
 
 import javax.faces.application.NavigationHandler;
 import javax.faces.context.FacesContext;
-
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
@@ -25,7 +24,7 @@ import javax.faces.event.PhaseListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class DashboardRedirect implements PhaseListener {
+public class StudentRedirect implements PhaseListener {
     private static final Log LOG = LogFactory.getLog(DashboardRedirect.class);
 
     public PhaseId getPhaseId() {
@@ -37,19 +36,19 @@ public class DashboardRedirect implements PhaseListener {
 
     public void beforePhase(PhaseEvent event) {
         FacesContext fc = event.getFacesContext();
-        // Check to see if they are on the login page.
-        boolean loginPage =
-            fc.getViewRoot().getViewId().lastIndexOf("login") > -1 ? true : false;
+        // Check to see if they are on the student page.
+        boolean studentPage =
+            fc.getViewRoot().getViewId().lastIndexOf("student") > -1 ? true : false;
         try {
-            if (loginPage && loggedIn()) {
+            if (studentPage && !loggedIn()) {
                 NavigationHandler nh = fc.getApplication().getNavigationHandler();
-                nh.handleNavigation(fc, null, "dashboard");
+                nh.handleNavigation(fc, null, "login");
             }
         } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Dashboard redirect failed.", e);
+                LOG.debug("Student redirect failed.", e);
             } else {
-                LOG.info("Dashbaord redirect failed: " + e.getMessage());
+                LOG.info("Student redirect failed: " + e.getMessage());
             }
         }
     }

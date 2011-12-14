@@ -144,7 +144,6 @@ public class ElearningAssert {
                 assertEquals(1, page.getByXPath("//h1[text() = 'Create new lesson']").size());
                 assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
                 assertEquals(1, page.getByXPath("//label[text() = 'Course title:']").size());
-                assertEquals(1, page.getByXPath("//span[text() = 'Analysis']").size());
                 assertEquals(1, page.getByXPath("//label[text() = 'Lesson title:']").size());
                 assertEquals(1, page.getByXPath("//label[text() = 'Content:']").size());
                 assertEquals(1, page.getByXPath("//a[text() = 'cancel']").size());
@@ -238,7 +237,12 @@ public class ElearningAssert {
                 assertEquals(1, page.getByXPath("//a[@href = 'course.xhtml?course=4'][text() = 'Algebra']").size());
                 break;
             case GUEST:
-                assertEquals(1, page.getByXPath("//h1[text() = 'An Error Occurred:']").size());
+                assertEquals("E-Learning Platform", page.getTitleText());
+                assertEquals(1, page.getByXPath("//a[text() = 'Login']").size());
+                assertEquals(1, page.getByXPath("//label[text() = 'Username: ']").size());
+                assertEquals(1, page.getByXPath("//label[text() = 'Password: ']").size());
+                assertEquals(1, page.getByXPath("//input[@type = 'submit'][@value = 'Login']").size());
+                assertEquals(1, page.getByXPath("//input[@type = 'submit'][@value = 'Cancel']").size());
                 break;
             default:
                 Assert.fail();

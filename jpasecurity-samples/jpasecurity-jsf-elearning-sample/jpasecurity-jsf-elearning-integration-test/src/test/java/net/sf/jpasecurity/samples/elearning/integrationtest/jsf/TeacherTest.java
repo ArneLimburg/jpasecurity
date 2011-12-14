@@ -20,7 +20,6 @@ import net.sf.jpasecurity.samples.elearning.integrationtest.junit.Parameters;
 
 import org.jaxen.JaxenException;
 import org.junit.Test;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -41,7 +40,6 @@ public class TeacherTest extends AbstractHtmlTestCase {
         ElearningAssert.assertTeacherPage(getHtmlPage("teacher.xhtml?teacher=1"), Role.GUEST);
     }
 
-    @Ignore
     @Test
     public void authenticatedAsTeacher() throws JaxenException {
         ElearningAssert.assertTeacherPage(getHtmlPage("teacher.xhtml?teacher=1"), Role.GUEST);
@@ -49,7 +47,6 @@ public class TeacherTest extends AbstractHtmlTestCase {
         ElearningAssert.assertTeacherPage(getHtmlPage("teacher.xhtml?teacher=1"), Role.TEACHER);
     }
 
-    @Ignore
     @Test
     public void authenticatedAsStudent() throws JaxenException {
         ElearningAssert.assertTeacherPage(getHtmlPage("teacher.xhtml?teacher=1"), Role.GUEST);
@@ -77,28 +74,24 @@ public class TeacherTest extends AbstractHtmlTestCase {
         ElearningAssert.assertCoursePage(courseLink, Role.GUEST);
     }
 
-    @Ignore
     @Test
     public void linkTestAsTeacher() throws JaxenException {
         HtmlPage courseLink = testLink(authenticateAsTeacher("teacher.xhtml?teacher=1"), "Analysis");
         ElearningAssert.assertCoursePage(courseLink, Role.TEACHER);
     }
 
-    @Ignore
     @Test
     public void linkTestAsStudent() throws JaxenException {
         HtmlPage courseLink = testLink(authenticateAsStudent("teacher.xhtml?teacher=1"), "Analysis");
         ElearningAssert.assertCoursePage(courseLink, Role.STUDENT);
     }
 
-    @Ignore
     @Test
     public void loginLinkTest() throws JaxenException {
         HtmlPage loginLink = testLink("teacher.xhtml?teacher=1", "Login");
         ElearningAssert.assertLoginPage(loginLink, Role.GUEST);
     }
 
-    @Ignore
     @Test
     public void logoutLinkTest() throws JaxenException {
         HtmlPage logoutLink = testLink(authenticateAsStudent("teacher.xhtml?teacher=1"), "Logout");
@@ -111,7 +104,6 @@ public class TeacherTest extends AbstractHtmlTestCase {
         ElearningAssert.assertIndexPage(indexLink, Role.GUEST);
     }
 
-    @Ignore
     @Test
     public void dashboardLinkTest() throws JaxenException {
         HtmlPage dashboardLink = testLink(authenticateAsStudent("teacher.xhtml?teacher=1"), "Dashboard");

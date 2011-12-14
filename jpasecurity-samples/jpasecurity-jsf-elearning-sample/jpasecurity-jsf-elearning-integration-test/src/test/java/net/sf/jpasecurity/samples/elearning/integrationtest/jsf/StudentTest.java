@@ -20,7 +20,6 @@ import net.sf.jpasecurity.samples.elearning.integrationtest.junit.Parameters;
 
 import org.jaxen.JaxenException;
 import org.junit.Test;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -55,7 +54,6 @@ public class StudentTest extends AbstractHtmlTestCase {
         ElearningAssert.assertStudentPage(getHtmlPage("student.xhtml?id=8"), Role.STUDENT);
     }
 
-    @Ignore
     @Test
     public void linkTestAsTeacher() throws JaxenException {
         authenticateFormBasedAsTeacher();
@@ -74,7 +72,7 @@ public class StudentTest extends AbstractHtmlTestCase {
     public void logoutLinkTest() throws JaxenException {
         authenticateFormBasedAsStudent();
         HtmlPage logoutLink = testLink(getHtmlPage("student.xhtml?id=8"), "Logout");
-        ElearningAssert.assertStudentPage(logoutLink, Role.GUEST);
+        ElearningAssert.assertLoginPage(logoutLink, Role.GUEST);
     }
 
     @Test
