@@ -19,6 +19,8 @@ import static org.apache.commons.lang.Validate.notNull;
 
 import javax.persistence.Embeddable;
 
+import org.apache.commons.lang.ObjectUtils;
+
 /**
  * A value object that represents names of {@link Teacher}s and {@link Student}s.
  *
@@ -82,10 +84,10 @@ public class Name {
             return false;
         }
         Name name = (Name)object;
-        return nick.equals(name.nick);
+        return nick.equals(name.nick) && ObjectUtils.equals(first, name.first) && ObjectUtils.equals(last, name.last);
     }
 
     public int hashCode() {
-        return nick.hashCode();
+        return nick.hashCode() ^ first.hashCode() ^ last.hashCode();
     }
 }
