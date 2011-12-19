@@ -178,7 +178,10 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
             return null;
         }
         if (!isAccessible(READ, entity)) {
-            throw new SecurityException("The current user is not permitted to find the specified entity of type " + entity.getClass());
+            ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
+            throw new SecurityException("The current user is not permitted to access the entity of type "
+                + mapping.getEntityName() + " with id " + mapping.getId(entity));
+
         }
         entity = beanInitializer.initialize(entity);
         entity = secureObjectManager.getSecureObject(entity);
