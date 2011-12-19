@@ -94,7 +94,8 @@ public class SecureEntityDecorator implements SecureEntity, Decorator<SecureEnti
             boolean oldInitialized = initialized;
             entity = beanInitializer.initialize(entity);
             if (checkAccess && !accessManager.isAccessible(AccessType.READ, entity)) {
-                throw new SecurityException("The current user is not permitted to access the specified object");
+                throw new SecurityException("The current user is not permitted to access the entity of type "
+                    + mapping.getEntityName() + " with id " + mapping.getId(entity));
             }
             objectManager.secureCopy(entity, delegate);
             initialized = true;
