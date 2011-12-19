@@ -31,6 +31,9 @@ label {
 #lessonForm label{
 	text-align : left;
 }
+#lessonCreateForm label{
+	clear : both;
+}
 #content {	
 	margin-top : 10px;
 	clear : both;
@@ -62,6 +65,7 @@ label {
     margin : 0.25em 0.5em;
 }
 #content textarea {
+	float : left;
     width : 450px;
     height : 200px;
 }
@@ -265,3 +269,5 @@ li{
 #lessonDetails {
     clear: both;
 }
+br {
+	clear : both;

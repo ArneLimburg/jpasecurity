@@ -30,7 +30,6 @@
         <h1 id="createLesson">Create new lesson</h1>
         <h:form id="lessonCreateForm" prependId="false">
 
-		  <h:panelGrid columns="2">
             <h:outputLabel value="Course title:" for="courseTitle"/>
             <h:outputText id="courseTitle" value="#{lessonFactory.courseTitle}" />		  
             <h:outputLabel value="Lesson title:" for="lessonTitle"/>
@@ -39,7 +38,6 @@
             <h:inputTextarea id="lessonContent" value="#{lessonFactory.content}" />
             <h:inputHidden value="#{lessonFactory.courseId}" />
             <h:inputHidden value="#{lessonFactory.newCourse}" />
-          </h:panelGrid>
 		  <br />
 
           <h:panelGroup layout="block" styleClass="buttons">
