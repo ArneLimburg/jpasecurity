@@ -69,11 +69,11 @@ public class LessonCreatorTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLessonCreatorPage(getHtmlPage("lessonCreator.xhtml?course=3"), Role.STUDENT);
     }
 
-    @Ignore
+  
     @Test
     public void createLessonTest() throws JaxenException {
         HtmlPage createLessonLink = createNewLesson();
-        ElearningAssert.assertCoursePage(createLessonLink, Role.GUEST);
+        ElearningAssert.assertCoursePage(createLessonLink, Role.TEACHER);
     }
 
     @Test

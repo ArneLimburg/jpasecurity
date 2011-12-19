@@ -70,6 +70,7 @@ public class LessonTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLessonPage(getHtmlPage("lesson.xhtml?course=3&lesson=0"), Role.STUDENT);
     }
 
+    //should be only once executed
     @Ignore
     @Test
     public void startLessonLink()throws JaxenException {
