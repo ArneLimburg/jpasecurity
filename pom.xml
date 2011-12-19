@@ -19,6 +19,6 @@
     <module>jpasecurity-jsf</module>
     <module>jpasecurity-spring</module>
     <module>jpasecurity-samples</module>
+    <module>jpasecurity-distribution</module>
   </modules>
-
 </project>
