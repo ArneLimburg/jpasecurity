@@ -29,9 +29,11 @@
             <phase>process-classes</phase>
             <configuration>
               <tasks>
+              <!-- 
                 <java classname="org.apache.openjpa.enhance.PCEnhancer"
                       classpathref="maven.runtime.classpath"
                       dir="target/classes" fork="true" />
+               -->
               </tasks>
             </configuration>
             <goals>
@@ -98,8 +100,8 @@
       <artifactId>commons-dbcp</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.openjpa</groupId>
-      <artifactId>openjpa</artifactId>
+      <groupId>org.eclipse.persistence</groupId>
+      <artifactId>eclipselink</artifactId>
     </dependency>
     <dependency>
       <groupId>hsqldb</groupId>
