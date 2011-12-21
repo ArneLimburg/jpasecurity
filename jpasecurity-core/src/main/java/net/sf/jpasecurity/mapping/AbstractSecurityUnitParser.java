@@ -46,12 +46,17 @@ import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.FetchType;
 import net.sf.jpasecurity.SecurityUnit;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Parses security units and created mapping information.
  * <strong>This class is not thread-safe</strong>
  * @author Arne Limburg
  */
 public abstract class AbstractSecurityUnitParser {
+
+    private static final Log LOG = LogFactory.getLog(AbstractSecurityUnitParser.class);
 
     private static final String CLASS_ENTRY_SUFFIX = ".class";
     private static final String IS_PROPERTY_PREFIX = "is";
@@ -161,6 +166,7 @@ public abstract class AbstractSecurityUnitParser {
         if (!isMapped(mappedClass)) {
             return superclassMapping;
         }
+        LOG.debug("Parsing " + mappedClass.getName());
         parseNamedQueries(mappedClass);
         boolean usesFieldAccess;
         if (isFieldAccessDerived(mappedClass)) {
@@ -238,6 +244,7 @@ public abstract class AbstractSecurityUnitParser {
 
     private void parse(DefaultClassMappingInformation classMapping, Member property) {
         String name = getName(property);
+        LOG.trace("parsing property " + name);
         Class<?> type = getType(property);
         boolean isSingleValuedRelationshipProperty = isSingleValuedRelationshipProperty(property);
         boolean isCollectionValuedRelationshipProperty = isCollectionValuedRelationshipProperty(property);
@@ -299,12 +306,15 @@ public abstract class AbstractSecurityUnitParser {
             throw exceptionFactory.createMappingException(error);
         }
         if (isIdProperty(property)) {
+            LOG.trace("property " + name + " is id-property");
             propertyMapping.setIdProperty(true);
         }
         if (isVersionProperty(property)) {
+            LOG.trace("property " + name + " is version-property");
             propertyMapping.setVersionProperty(true);
         }
         if (isGeneratedValue(property)) {
+            LOG.trace("property " + name + " is generated");
             propertyMapping.setGeneratedValue(true);
         }
     }
