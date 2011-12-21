@@ -21,8 +21,6 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -33,10 +31,7 @@ import org.hibernate.annotations.FetchMode;
  * @author Arne Limburg
  */
 @Entity
-public class Client {
-    @Id
-    @GeneratedValue
-    private int id;
+public class Client extends AbstractEntity<Integer> {
     @ManyToOne(fetch = FetchType.LAZY)
     private Client parent;
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
@@ -45,10 +40,6 @@ public class Client {
     @Fetch(FetchMode.JOIN)
     private ClientStatus currentStatus;
     private String anotherProperty;
-
-    public int getId() {
-        return id;
-    }
 
     public Client getParent() {
         return parent;

@@ -15,54 +15,47 @@
  */
 package net.sf.jpasecurity.client;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 import net.sf.jpasecurity.model.client.Client;
 import net.sf.jpasecurity.model.client.ClientStaffing;
 import net.sf.jpasecurity.model.client.ClientStatus;
 import net.sf.jpasecurity.model.client.Employee;
+import net.sf.jpasecurity.persistence.AbstractEntityTestCase;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
-public class ClientTest {
+public class ClientTest extends AbstractEntityTestCase {
 
     private static final String EMAIL = "test@test.org";
     private static final ClientStatus ACTIVE = new ClientStatus("Active");
     private static final ClientStatus CLOSED = new ClientStatus("Closed");
-    private static EntityManagerFactory entityManagerFactory;
-    private int clientId;
+    private static int clientId;
 
     @BeforeClass
     public static void createEntityManagerFactory() {
-        entityManagerFactory = Persistence.createEntityManagerFactory("client");
+        createEntityManagerFactory("client");
+        createTestData();
     }
 
-    @AfterClass
-    public static void closeEntityManagerFactory() {
-        entityManagerFactory.close();
-        entityManagerFactory = null;
-    }
-
-    @Before
-    public void createTestData() {
+    public static void createTestData() {
         Client parent = new Client();
         Client client = new Client();
         client.setParent(parent);
         Employee employee = new Employee(EMAIL);
         ClientStaffing clientStaffing = new ClientStaffing(client, employee);
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityManager entityManager = getEntityManagerFactory().createEntityManager();
         entityManager.getTransaction().begin();
         entityManager.persist(parent);
         entityManager.persist(employee);
@@ -81,7 +74,7 @@ public class ClientTest {
     @Test
     public void access() {
         TestAuthenticationProvider.authenticate(EMAIL);
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityManager entityManager = getEntityManager();
         Client client = entityManager.find(Client.class, clientId);
         assertNotNull(client);
         entityManager.getTransaction().begin();
@@ -89,23 +82,19 @@ public class ClientTest {
         entityManager.getTransaction().commit();
         entityManager.close();
 
-        entityManager = entityManagerFactory.createEntityManager();
-        assertNotNull(entityManager.find(Client.class, clientId));
-        entityManager.close();
+        assertNotNull(getEntityManager().find(Client.class, clientId));
     }
 
     @Test(expected = SecurityException.class)
     public void wrongEmail() {
         TestAuthenticationProvider.authenticate("wrong@email.org");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        assertNotNull(entityManager.find(Client.class, clientId));
-        entityManager.close();
+        assertNotNull(getEntityManager().find(Client.class, clientId));
     }
 
     @Test(expected = SecurityException.class)
     public void wrongStatus() {
         TestAuthenticationProvider.authenticate(EMAIL);
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityManager entityManager = getEntityManager();
         Client client = entityManager.find(Client.class, clientId);
         assertNotNull(client);
         entityManager.getTransaction().begin();
@@ -113,11 +102,19 @@ public class ClientTest {
         entityManager.getTransaction().commit();
         entityManager.close();
 
-        entityManager = entityManagerFactory.createEntityManager();
+        entityManager = getEntityManager();
         entityManager.getTransaction().begin();
         Client foundClient = entityManager.find(Client.class, clientId);
         foundClient.setAnotherProperty("new value");
         entityManager.getTransaction().commit();
-        entityManager.close();
+    }
+
+    @Test
+    public void query() {
+        TestAuthenticationProvider.authenticate(EMAIL);
+        List<Client> clients = getEntityManager().createQuery("SELECT cl FROM Client cl WHERE cl.id = :id", Client.class)
+                                                 .setParameter("id", clientId)
+                                                 .getResultList();
+        assertEquals(1, clients.size());
     }
 }

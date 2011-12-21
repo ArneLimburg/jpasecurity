@@ -35,7 +35,14 @@ public class AbstractEntityTestCase {
     private EntityManager entityManager;
 
     protected EntityManager getEntityManager() {
+        if (entityManager == null || !entityManager.isOpen()) {
+            createEntityManager();
+        }
         return entityManager;
+    }
+
+    protected static EntityManagerFactory getEntityManagerFactory() {
+        return entityManagerFactory;
     }
 
     public static void createEntityManagerFactory(String persistenceUnitName) {
@@ -54,7 +61,9 @@ public class AbstractEntityTestCase {
 
     @After
     public void closeEntityManager() {
-        entityManager.close();
+        if (entityManager != null && entityManager.isOpen()) {
+            entityManager.close();
+        }
         entityManager = null;
     }
 
