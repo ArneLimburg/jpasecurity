@@ -112,9 +112,10 @@ public class ClientTest extends AbstractEntityTestCase {
     @Test
     public void query() {
         TestAuthenticationProvider.authenticate(EMAIL);
-        List<Client> clients = getEntityManager().createQuery("SELECT cl FROM Client cl WHERE cl.id = :id", Client.class)
-                                                 .setParameter("id", clientId)
-                                                 .getResultList();
+        List<Client> clients
+          = getEntityManager().createQuery("SELECT cl FROM Client cl WHERE cl.id = :id", Client.class)
+                              .setParameter("id", clientId)
+                              .getResultList();
         assertEquals(1, clients.size());
     }
 }
