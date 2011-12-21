@@ -326,7 +326,8 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
     protected String propertiesToString() {
         StringBuilder properties = new StringBuilder();
         for (Entry<String, AbstractPropertyMappingInformation> entry: propertyMappings.entrySet()) {
-            properties.append(entry.getValue().getProperyType().getSimpleName()).append(' ').append(entry.getKey()).append(',');
+            properties.append(entry.getValue().getProperyType().getSimpleName())
+                      .append(' ').append(entry.getKey()).append(',');
         }
         properties.deleteCharAt(properties.length() - 1);
         return properties.toString();
