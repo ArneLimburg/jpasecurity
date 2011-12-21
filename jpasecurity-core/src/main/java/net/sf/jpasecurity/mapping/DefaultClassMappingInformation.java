@@ -22,16 +22,22 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.util.ReflectionUtils;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * This class contains mapping information of a specific class.
  * @author Arne Limburg
  */
 public final class DefaultClassMappingInformation implements ClassMappingInformation {
+
+    private static final Log LOG = LogFactory.getLog(DefaultClassMappingInformation.class);
 
     private String entityName;
     private Class<?> entityType;
@@ -222,6 +228,19 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
         }
         List<PropertyMappingInformation> idProperties = getIdPropertyMappings();
         if (idProperties.size() == 0) {
+            if (LOG.isDebugEnabled()) {
+                StringBuilder message = new StringBuilder();
+                DefaultClassMappingInformation classMapping = this;
+                while (classMapping != null) {
+                    message.append(classMapping.getEntityType().getName())
+                           .append(" [").append(classMapping.propertiesToString()).append(']');
+                    classMapping = classMapping.superclassMapping;
+                    if (classMapping != null) {
+                        message.append("superclass=");
+                    }
+                }
+                LOG.debug(message.toString());
+            }
             String error = "Id property required for class " + getEntityType().getName();
             throw exceptionFactory.createMappingException(error);
         } else if (idProperties.size() == 1) {
@@ -302,6 +321,15 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
 
     public String toString() {
         return getClass().getSimpleName() + "[entityType=" + entityType.getSimpleName() + "]";
+    }
+
+    protected String propertiesToString() {
+        StringBuilder properties = new StringBuilder();
+        for (Entry<String, AbstractPropertyMappingInformation> entry: propertyMappings.entrySet()) {
+            properties.append(entry.getValue().getProperyType().getSimpleName()).append(' ').append(entry.getKey()).append(',');
+        }
+        properties.deleteCharAt(properties.length() - 1);
+        return properties.toString();
     }
 
     private void fireLifecycleEvent(Object entity, EntityListenerClosure closure) {
