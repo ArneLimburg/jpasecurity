@@ -66,12 +66,17 @@ import net.sf.jpasecurity.mapping.EntityListener;
 import net.sf.jpasecurity.mapping.EntityListenerWrapper;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Parses a persistence unit for persistence annotations.
  * <strong>This class is not thread-safe</strong>
  * @author Arne Limburg
  */
 public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
+
+    private static final Log LOG = LogFactory.getLog(JpaAnnotationParser.class);
 
     public JpaAnnotationParser(SecurityUnit securityUnit, ExceptionFactory exceptionFactory) {
         this(securityUnit, new DefaultPropertyAccessStrategyFactory(), exceptionFactory);
@@ -201,9 +206,23 @@ public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
     protected boolean isIdProperty(Member property) {
         AnnotatedElement annotatedProperty = (AnnotatedElement)property;
         if (annotatedProperty.isAnnotationPresent(Id.class)) {
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("@Id is present at "
+                          + property.getDeclaringClass().getSimpleName() + "." + getName(property));
+            }
             return true;
         } else {
-            return annotatedProperty.isAnnotationPresent(EmbeddedId.class);
+            boolean isIdProperty = annotatedProperty.isAnnotationPresent(EmbeddedId.class);
+            if (LOG.isTraceEnabled()) {
+                if (isIdProperty) {
+                    LOG.trace("@EmbeddedId is present at "
+                              + property.getDeclaringClass().getSimpleName() + "." + getName(property));
+                } else {
+                    LOG.trace("No id annotation present at "
+                              + property.getDeclaringClass().getSimpleName() + "." + getName(property));
+                }
+            }
+            return isIdProperty;
         }
     }
 

@@ -348,13 +348,31 @@ public class OrmXmlParser extends JpaAnnotationParser {
     protected boolean isIdProperty(Member property) {
         String name = getName(property);
         if (evaluateNode(ID_PROPERTY_XPATH, property.getDeclaringClass(), name) != null) {
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Id metadata found for "
+                          + property.getDeclaringClass().getSimpleName() + "." + getName(property));
+            }
             return true;
         }
         if (evaluateNode(EMBEDDED_ID_PROPERTY_XPATH, property.getDeclaringClass(), name) != null) {
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Embedded-id metadata found for "
+                          + property.getDeclaringClass().getSimpleName() + "." + getName(property));
+            }
             return true;
         }
         if (!isMetadataComplete(property.getDeclaringClass())) {
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("No id metadata found for "
+                          + property.getDeclaringClass().getSimpleName() + "." + getName(property)
+                          + ", looking for annotations.");
+            }
             return super.isIdProperty(property);
+        }
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("No id metadata found for "
+                      + property.getDeclaringClass().getSimpleName() + "." + getName(property)
+                      + " and metadata is complete.");
         }
         return false;
     }
