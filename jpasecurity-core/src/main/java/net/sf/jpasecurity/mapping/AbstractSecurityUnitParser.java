@@ -244,7 +244,7 @@ public abstract class AbstractSecurityUnitParser {
 
     private void parse(DefaultClassMappingInformation classMapping, Member property) {
         String name = getName(property);
-        LOG.trace("parsing property " + name);
+        LOG.trace("Parsing property " + classMapping.getEntityName() + "." + name);
         Class<?> type = getType(property);
         boolean isSingleValuedRelationshipProperty = isSingleValuedRelationshipProperty(property);
         boolean isCollectionValuedRelationshipProperty = isCollectionValuedRelationshipProperty(property);
@@ -252,9 +252,12 @@ public abstract class AbstractSecurityUnitParser {
         AbstractPropertyMappingInformation propertyMapping = null;
         if (!createPropertyMapping) {
             propertyMapping = classMapping.getPropertyMapping(name);
+            LOG.trace("Property already parsed, is of type " + propertyMapping.getProperyType().getSimpleName());
         }
         if (isSingleValuedRelationshipProperty || isCollectionValuedRelationshipProperty) {
+            LOG.trace("Property is relationship property");
             if (propertyMapping != null) {
+                LOG.trace("Property already parsed, adding fetch- and cascade-information");
                 RelationshipMappingInformation relationshipMapping = (RelationshipMappingInformation)propertyMapping;
                 if (isFetchTypePresent(property)) {
                     relationshipMapping.setFetchType(getFetchType(property));
@@ -264,8 +267,13 @@ public abstract class AbstractSecurityUnitParser {
                     relationshipMapping.setCascadeTypes(getCascadeTypes(property));
                 }
             } else {
+                LOG.trace("Property not parsed, creating...");
                 if (isSingleValuedRelationshipProperty) {
                     ClassMappingInformation typeMapping = parse(type, classMapping.usesFieldAccess(), false);
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Property " + classMapping.getEntityName() + "." + name
+                                  + " is single-valued relationship of type " + typeMapping.getEntityName());
+                    }
                     PropertyAccessStrategy propertyAccessStrategy
                         = propertyAccessStrategyFactory.createPropertyAccessStrategy(classMapping, name);
                     propertyMapping = new SingleValuedRelationshipMappingInformation(name,
@@ -278,6 +286,11 @@ public abstract class AbstractSecurityUnitParser {
                 } else if (isCollectionValuedRelationshipProperty) {
                     ClassMappingInformation targetMapping
                         = parse(getTargetType(property), classMapping.usesFieldAccess(), false);
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Property " + classMapping.getEntityName() + "." + name
+                                  + " is single-valued relationship of type "
+                                  + type.getSimpleName() + "<" + targetMapping.getEntityName() + ">");
+                    }
                     PropertyAccessStrategy propertyAccessStrategy
                         = propertyAccessStrategyFactory.createPropertyAccessStrategy(classMapping, name);
                     propertyMapping = new CollectionValuedRelationshipMappingInformation(name,
@@ -292,6 +305,7 @@ public abstract class AbstractSecurityUnitParser {
                 classMapping.addPropertyMapping(propertyMapping);
             }
         } else if (propertyMapping == null && (isSimplePropertyType(type) || type instanceof Serializable)) {
+            LOG.trace("Property is simple property of type " + type.getSimpleName());
             PropertyAccessStrategy propertyAccessStrategy
                 = propertyAccessStrategyFactory.createPropertyAccessStrategy(classMapping, name);
             propertyMapping = new SimplePropertyMappingInformation(name,
@@ -301,21 +315,28 @@ public abstract class AbstractSecurityUnitParser {
                                                                    exceptionFactory);
             classMapping.addPropertyMapping(propertyMapping);
         } else if (propertyMapping == null) {
-            String error = "could not determine mapping for property \"" + name
+            String error = "Could not determine mapping for property \"" + name
                          + "\" of class " + property.getDeclaringClass().getName();
+            LOG.error(error);
             throw exceptionFactory.createMappingException(error);
         }
         if (isIdProperty(property)) {
-            LOG.trace("property " + name + " is id-property");
+            LOG.trace("Property " + name + " is id-property");
             propertyMapping.setIdProperty(true);
+        } else if (LOG.isTraceEnabled()) {
+            LOG.trace("Property " + name + " is no id-property");
         }
         if (isVersionProperty(property)) {
-            LOG.trace("property " + name + " is version-property");
+            LOG.trace("Property " + name + " is version-property");
             propertyMapping.setVersionProperty(true);
+        } else if (LOG.isTraceEnabled()) {
+            LOG.trace("Property " + name + " is no version-property");
         }
         if (isGeneratedValue(property)) {
-            LOG.trace("property " + name + " is generated");
+            LOG.trace("Property " + name + " is generated");
             propertyMapping.setGeneratedValue(true);
+        } else if (LOG.isTraceEnabled()) {
+            LOG.trace("Property " + name + " is not generated");
         }
     }
 
