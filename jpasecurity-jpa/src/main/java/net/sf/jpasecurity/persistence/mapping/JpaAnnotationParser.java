@@ -17,6 +17,7 @@ package net.sf.jpasecurity.persistence.mapping;
 
 import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -220,6 +221,17 @@ public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
                 } else {
                     LOG.trace("No id annotation present at "
                               + property.getDeclaringClass().getSimpleName() + "." + getName(property));
+                    for (Annotation annotation: annotatedProperty.getAnnotations()) {
+                        if ("javax.persistence.Id".equals(annotation.annotationType().getName())
+                            || "javax.persistence.EmbeddedId".equals(annotation.annotationType().getName())) {
+                            LOG.trace("@Id annotation found from another classloader.");
+                            LOG.trace("JPA Security is using annotations from location "
+                                      + Id.class.getProtectionDomain().getCodeSource().getLocation());
+                            LOG.trace(property.getDeclaringClass().getName()
+                                      + " is using annotations from location "
+                                      + annotation.annotationType().getProtectionDomain().getCodeSource().getLocation());
+                        }
+                    }
                 }
             }
             return isIdProperty;
