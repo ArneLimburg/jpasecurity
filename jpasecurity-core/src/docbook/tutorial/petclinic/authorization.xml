@@ -47,7 +47,7 @@
     <programlisting>
       <![CDATA[
     <!-- JPA EntityManagerFactory -->
-    <bean id="entityManagerFactory" class="net.sf.jpasecurity.persistence.SecureContainerEntityManagerFactoryBean"
+    <bean id="entityManagerFactory" class="net.sf.jpasecurity.spring.persistence.SecureContainerEntityManagerFactoryBean"
             p:dataSource-ref="dataSource">
         <property name="persistenceUnitName" value="PetClinic" />
         <property name="jpaVendorAdapter">
