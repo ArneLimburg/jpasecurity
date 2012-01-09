@@ -13,26 +13,27 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.sample.elearning.domain;
+package net.sf.jpasecurity.samples.elearning.jsf.presentation;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 
-import net.sf.jpasecurity.sample.elearning.core.Current;
+import net.sf.jpasecurity.samples.elearning.view.Navigation;
 
 /**
  * @author Arne Limburg
  */
-@Named("userService")
-public class CdiUserService implements UserService {
+@ManagedBean
+public class CourseNavigation extends Navigation {
 
-    @Inject @Current
-    private Provider<User> userProvider;
-    @Inject
-    private Provider<Course> courseProvider;
+    @ManagedProperty("#{course}")
+    private CourseBean course;
 
-    public boolean isSubscribed() {
-        return courseProvider.get().getParticipants().contains(userProvider.get());
+    public String getOutcome() {
+        return facesRedirect().includeViewParams().withParameter("course", course.getId()).toString();
+    }
+
+    public void setCourse(CourseBean course) {
+        this.course = course;
     }
 }

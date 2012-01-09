@@ -18,13 +18,16 @@ package net.sf.jpasecurity.samples.elearning.presentation;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.Typed;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 
 import net.sf.jpasecurity.AccessManager;
+import net.sf.jpasecurity.sample.elearning.core.Current;
 import net.sf.jpasecurity.sample.elearning.domain.Name;
+import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 
@@ -45,9 +48,20 @@ public class ElearningSecurityUnit {
     }
 
     @Produces
+    @Current
     @Named("user")
     public User getCurrentUser() {
         Name userName = new Name(FacesContext.getCurrentInstance().getExternalContext().getRemoteUser());
         return userRepository.findUser(userName);
+    }
+
+    @Produces
+    @Current
+    @Typed(Student.class)
+    public Student getCurrentStudent(@Current User user) {
+        if (!(user instanceof Student)) {
+            throw new IllegalArgumentException("current user is no student");
+        }
+        return (Student)user;
     }
 }

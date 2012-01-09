@@ -23,7 +23,7 @@ import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.faces.context.FacesContext;
 
-import net.sf.jpasecurity.sample.elearning.domain.Parameter;
+import net.sf.jpasecurity.sample.elearning.core.Parameter;
 
 /**
  * @author Arne Limburg
