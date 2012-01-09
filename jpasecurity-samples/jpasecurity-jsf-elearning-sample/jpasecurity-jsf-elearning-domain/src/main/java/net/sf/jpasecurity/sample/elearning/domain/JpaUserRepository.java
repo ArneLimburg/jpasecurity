@@ -25,6 +25,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaQuery;
 
+import net.sf.jpasecurity.sample.elearning.core.Parameter;
+
 /**
  * @author Arne Limburg
  */

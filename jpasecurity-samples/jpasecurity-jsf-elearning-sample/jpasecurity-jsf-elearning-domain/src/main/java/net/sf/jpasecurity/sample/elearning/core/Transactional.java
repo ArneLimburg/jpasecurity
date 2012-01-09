@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.sample.elearning.domain;
+package net.sf.jpasecurity.sample.elearning.core;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 
-import javax.enterprise.util.Nonbinding;
-import javax.inject.Qualifier;
+import javax.interceptor.InterceptorBinding;
 
 /**
  * @author Arne Limburg
  */
-@Qualifier
+@InterceptorBinding
 @Retention(RUNTIME)
-public @interface Parameter {
-
-    @Nonbinding String value();
+public @interface Transactional {
 }

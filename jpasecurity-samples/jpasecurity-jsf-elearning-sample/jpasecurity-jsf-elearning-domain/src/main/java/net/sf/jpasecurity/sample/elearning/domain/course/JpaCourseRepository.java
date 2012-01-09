@@ -24,10 +24,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 
+import net.sf.jpasecurity.sample.elearning.core.Parameter;
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Lesson;
-import net.sf.jpasecurity.sample.elearning.domain.Parameter;
 
 
 /**

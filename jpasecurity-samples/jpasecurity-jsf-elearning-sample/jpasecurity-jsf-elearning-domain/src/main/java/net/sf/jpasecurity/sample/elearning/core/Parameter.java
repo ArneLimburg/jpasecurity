@@ -13,26 +13,21 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.sample.elearning.domain;
+package net.sf.jpasecurity.sample.elearning.core;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import net.sf.jpasecurity.sample.elearning.core.Current;
+import java.lang.annotation.Retention;
+
+import javax.enterprise.util.Nonbinding;
+import javax.inject.Qualifier;
 
 /**
  * @author Arne Limburg
  */
-@Named("userService")
-public class CdiUserService implements UserService {
+@Qualifier
+@Retention(RUNTIME)
+public @interface Parameter {
 
-    @Inject @Current
-    private Provider<User> userProvider;
-    @Inject
-    private Provider<Course> courseProvider;
-
-    public boolean isSubscribed() {
-        return courseProvider.get().getParticipants().contains(userProvider.get());
-    }
+    @Nonbinding String value();
 }

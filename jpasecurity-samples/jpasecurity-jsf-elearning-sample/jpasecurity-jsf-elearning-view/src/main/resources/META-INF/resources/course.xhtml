@@ -31,8 +31,8 @@
         <h:panelGroup rendered="#{sec:userInRole('student')}">
           <h:form id="joinLeaveForm" prependId="false">
             <h:inputHidden id="course" value="#{course.id}" />
-            <h:commandButton id="join" value="join this course" action="#{courseService.addStudent}" styleClass="submit" rendered="#{!userService.subscribed}"/>   
-            <h:commandButton id="leave" value="leave this course" action="#{courseService.removeStudent}" styleClass="submit" rendered="#{userService.subscribed}"/>
+            <h:commandButton id="join" value="join this course" actionListener="#{courseService.addStudent}" action="#{courseNavigation.getOutcome()}" styleClass="submit" rendered="#{!userService.subscribed}"/>   
+            <h:commandButton id="leave" value="leave this course" actionListener="#{courseService.removeStudent}" action="#{courseNavigation.getOutcome()}" styleClass="submit" rendered="#{userService.subscribed}"/>
           </h:form>
         </h:panelGroup>
        
