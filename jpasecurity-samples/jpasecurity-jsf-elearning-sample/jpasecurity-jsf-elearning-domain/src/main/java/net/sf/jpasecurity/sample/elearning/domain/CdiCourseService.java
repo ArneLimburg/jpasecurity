@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.sample.elearning.domain;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Provider;
 
 import net.sf.jpasecurity.sample.elearning.core.Current;
@@ -24,6 +25,7 @@ import net.sf.jpasecurity.sample.elearning.core.Transactional;
 /**
  * @author Raffaela Ferrari
  */
+@Named("courseService")
 public class CdiCourseService implements CourseService {
 
     @Inject @Current
@@ -32,14 +34,12 @@ public class CdiCourseService implements CourseService {
     private Provider<Course> courseProvider;
 
     @Transactional
-    public String addStudent() {
+    public void addStudent() {
         courseProvider.get().subscribe(studentProvider.get());
-        return String.valueOf(courseProvider.get().getId());
     }
 
     @Transactional
-    public String removeStudent() {
+    public void removeStudent() {
         courseProvider.get().unsubscribe(studentProvider.get());
-        return String.valueOf(courseProvider.get().getId());
     }
 }

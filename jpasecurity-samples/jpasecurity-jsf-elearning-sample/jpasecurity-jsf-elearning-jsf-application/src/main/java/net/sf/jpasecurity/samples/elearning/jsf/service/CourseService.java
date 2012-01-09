@@ -23,7 +23,6 @@ import javax.faces.context.FacesContext;
 
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
-import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
 
 /**
  * @author Raffaela Ferrari
@@ -36,26 +35,24 @@ public class CourseService  implements net.sf.jpasecurity.sample.elearning.domai
     @ManagedProperty(value = "#{userService}")
     private UserService userService;
 
-    public String addStudent() {
-        return transactionService.executeTransactional(new Callable<String>() {
-            public String call() {
+    public void addStudent() {
+        transactionService.executeTransactional(new Runnable() {
+            public void run() {
                 ELContext elContext = FacesContext.getCurrentInstance().getELContext();
                 Object courseBean = elContext.getELResolver().getValue(elContext, null, "course");
                 Course currentCourse = (Course)elContext.getELResolver().getValue(elContext, courseBean, "entity");
                 currentCourse.subscribe(userService.<Student>getCurrentUser());
-                return "course?faces-redirect=true&includeViewParams=true&course=" + currentCourse.getId();
             }
         });
     }
 
-    public String removeStudent() {
-        return transactionService.executeTransactional(new Callable<String>() {
-            public String call() {
+    public void removeStudent() {
+        transactionService.executeTransactional(new Runnable() {
+            public void run() {
                 ELContext elContext = FacesContext.getCurrentInstance().getELContext();
                 Object courseBean = elContext.getELResolver().getValue(elContext, null, "course");
                 Course currentCourse = (Course)elContext.getELResolver().getValue(elContext, courseBean, "entity");
                 currentCourse.unsubscribe(userService.<Student>getCurrentUser());
-                return "course?faces-redirect=true&includeViewParams=true&course=" + currentCourse.getId();
             }
         });
     }

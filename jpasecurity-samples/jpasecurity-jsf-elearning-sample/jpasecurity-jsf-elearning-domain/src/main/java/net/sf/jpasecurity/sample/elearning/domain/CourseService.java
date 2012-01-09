@@ -20,6 +20,6 @@ package net.sf.jpasecurity.sample.elearning.domain;
  */
 public interface CourseService {
 
-    String addStudent();
-    String removeStudent();
+    void addStudent();
+    void removeStudent();
 }
