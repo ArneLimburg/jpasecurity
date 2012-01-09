@@ -68,24 +68,6 @@ public class CourseBean implements EntityProxy {
         });
     }
 
-    public String addStudent() {
-        return transactionService.executeTransactional(new Callable<String>() {
-            public String call() {
-                getEntity().subscribe(userService.<Student>getCurrentUser());
-                return "course?faces-redirect=true&includeViewParams=true&course=" + course.getId();
-            }
-        });
-    }
-
-    public String removeStudent() {
-        return transactionService.executeTransactional(new Callable<String>() {
-            public String call() {
-                getEntity().unsubscribe(userService.<Student>getCurrentUser());
-                return "course?faces-redirect=true&includeViewParams=true&course=" + course.getId();
-            }
-        });
-    }
-
     public Course getEntity() {
         if (course == null) {
             setId(getId()); // reads the id from the request and loads the course

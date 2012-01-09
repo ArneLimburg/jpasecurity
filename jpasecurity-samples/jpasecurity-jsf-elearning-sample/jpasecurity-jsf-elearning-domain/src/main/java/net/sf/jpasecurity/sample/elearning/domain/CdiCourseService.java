@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Raffaela Ferrari open knowledge GmbH
+ * Copyright 2011 Raffaela Ferrari
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,26 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
-import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * @author Raffaela Ferrari
  */
-public interface StudentRepository {
+public class CdiCourseService implements CourseService {
 
-    Student findStudent(Integer id);
+    @Inject
+    private Provider<Student> studentProvider;
+    @Inject
+    private Provider<Course> courseProvider;
 
-    List<Student> getAllStudents();
+    public String addStudent() {
+        courseProvider.get().subscribe(studentProvider.get());
+        return String.valueOf(courseProvider.get().getId());
+    }
+
+    public String removeStudent() {
+        courseProvider.get().unsubscribe(studentProvider.get());
+        return String.valueOf(courseProvider.get().getId());
+    }
 }

@@ -41,7 +41,7 @@ public class JpaUserRepository implements UserRepository, TeacherRepository, Stu
         return getEntityManager().find(Teacher.class, id);
     }
 
-    public Student findStudent(int id) {
+    public Student findStudent(Integer id) {
         return getEntityManager().find(Student.class, id);
     }
 

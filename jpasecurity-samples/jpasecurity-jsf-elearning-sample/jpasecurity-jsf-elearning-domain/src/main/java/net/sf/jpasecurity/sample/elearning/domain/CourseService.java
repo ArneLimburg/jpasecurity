@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Raffaela Ferrari open knowledge GmbH
+ * Copyright 2011 Raffaela Ferrari
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,11 @@
  */
 package net.sf.jpasecurity.sample.elearning.domain;
 
-import java.util.List;
-
 /**
  * @author Raffaela Ferrari
  */
-public interface StudentRepository {
+public interface CourseService {
 
-    Student findStudent(Integer id);
-
-    List<Student> getAllStudents();
+    String addStudent();
+    String removeStudent();
 }
