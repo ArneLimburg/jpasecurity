@@ -221,8 +221,9 @@ public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
                 } else {
                     LOG.trace("No id annotation present at "
                               + property.getDeclaringClass().getSimpleName() + "." + getName(property));
-                    LOG.trace(getName(property) + " has " + annotatedProperty.getAnnotations().length + " annotations.");
-                    for (Annotation annotation: annotatedProperty.getAnnotations()) {
+                    Annotation[] annotations = annotatedProperty.getAnnotations();
+                    LOG.trace(getName(property) + " has " + annotations.length + " annotations.");
+                    for (Annotation annotation: annotations) {
                         Class<?> annotationType = annotation.annotationType();
                         LOG.trace("Found annotation " + annotationType.getName());
                         if ("javax.persistence.Id".equals(annotationType.getName())
