@@ -18,19 +18,14 @@ package net.sf.jpasecurity.samples.elearning.jsf.presentation;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
-import javax.faces.context.ExternalContext;
+
 import javax.faces.context.FacesContext;
 
 import net.sf.jpasecurity.sample.elearning.domain.Content;
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
 import net.sf.jpasecurity.sample.elearning.domain.Lesson;
-import net.sf.jpasecurity.sample.elearning.domain.Name;
-import net.sf.jpasecurity.sample.elearning.domain.Student;
 import net.sf.jpasecurity.sample.elearning.domain.Title;
-import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
-import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService;
-import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
 
 /**
  * @author Raffaela Ferrari
@@ -39,10 +34,6 @@ import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Calla
 @ManagedBean(name = "lesson")
 public class LessonBean {
 
-    @ManagedProperty(value = "#{transactionService}")
-    private TransactionService transactionService;
-    @ManagedProperty(value = "#{userRepository}")
-    private UserRepository userRepository;
     @ManagedProperty(value = "#{courseRepository}")
     private CourseRepository courseRepository;
 
@@ -110,63 +101,6 @@ public class LessonBean {
             setNumber(getNumber()); // reads the number from the request and loads the lesson
         }
         return lesson;
-    }
-
-    public boolean isStarted() {
-        lesson = getLesson();
-        return lesson != null? lesson.equals(getCourse().getCurrentLession(getCurrentStudent())): false;
-    }
-
-    public boolean isNotStarted() {
-        lesson = getLesson();
-        return lesson != null? !lesson.equals(getCourse().getCurrentLession(getCurrentStudent())): true;
-    }
-
-    public boolean isFinished() {
-        course = getCourse();
-        return course != null? course.isLessonFinished(getCurrentStudent(), getLesson()): false;
-    }
-
-    public boolean isNotFinished() {
-        course = getCourse();
-        return course != null? !course.isLessonFinished(getCurrentStudent(), getLesson()): true;
-    }
-
-    public String finish() {
-        return transactionService.executeTransactional(new Callable<String>() {
-            public String call() {
-                getCourse().finishLesson(getCurrentStudent(), getLesson());
-                return "lesson.xhtml?course=" + course.getId() + "&lesson=" + lesson.getNumber()
-                    + "&faces-redirect=true&includeViewParams=true";
-            }
-        });
-    }
-
-    public String start() {
-        return transactionService.executeTransactional(new Callable<String>() {
-            public String call() {
-                getCourse().startLesson(getCurrentStudent(), getLesson());
-                return "lesson.xhtml?course=" + course.getId() + "&lesson=" + lesson.getNumber()
-                    + "&faces-redirect=true&includeViewParams=true";
-            }
-        });
-    }
-
-    public Student getCurrentStudent() {
-        ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-        if (context.isUserInRole("student")) {
-            return userRepository.<Student>findUser(new Name(context.getUserPrincipal().getName()));
-        } else {
-            return null;
-        }
-    }
-
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
     }
 
     public void setCourseRepository(CourseRepository courseRepository) {

@@ -83,6 +83,12 @@ class LessonEntity implements Lesson {
         return id == null? -1: id;
     }
 
+    public void setNumber(int number) {
+        if (this.number != number) {
+            throw new IllegalStateException("cannot change number from " + this.number + " to " + number);
+        }
+    }
+
     public int getNumber() {
         return number;
     }
