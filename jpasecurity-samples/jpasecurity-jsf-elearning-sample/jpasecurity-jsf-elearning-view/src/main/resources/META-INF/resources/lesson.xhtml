@@ -28,16 +28,16 @@
       <ui:define name="content">
         <h1 id="lessonTitle">#{lesson.title}</h1>
         
-        <h:panelGroup rendered="#{sec:userInRole('student') and !lesson.finished}">
+        <h:panelGroup rendered="#{sec:userInRole('student') and !lessonService.finished}">
 	      <h:form id="startResolveForm" prependId="false">
 	        <h:inputHidden id="course" value="#{lesson.course.id}" />
 	        <h:inputHidden id="lesson" value="#{lesson.number}" />
-	        <h:commandButton value="start this lesson" id="start" action="#{lesson.start}" styleClass="submit" rendered="#{!lesson.started}"/>
-	        <h:commandButton value="resolve this lesson" id="resolve" action="#{lesson.finish}" styleClass="submit" rendered="#{lesson.started}"/>
+	        <h:commandButton value="start this lesson" id="start" actionListener="#{lessonService.start}" action="#{lessonNavigation.getOutcome()}" styleClass="submit" rendered="#{!lessonService.started}"/>
+	        <h:commandButton value="resolve this lesson" id="resolve" actionListener="#{lessonService.finish}" action="#{lessonNavigation.getOutcome()}" styleClass="submit" rendered="#{lessonService.started}"/>
 	      </h:form>
         </h:panelGroup>
        
-        <h:panelGroup layout="block" id="resolved" rendered="#{sec:userInRole('student') and lesson.finished}">
+        <h:panelGroup layout="block" id="resolved" rendered="#{sec:userInRole('student') and lessonService.finished}">
           <h:outputText value="Lesson is resolved" />   
         </h:panelGroup>
 
