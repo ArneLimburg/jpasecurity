@@ -250,7 +250,7 @@ public class OrmXmlParser extends JpaAnnotationParser {
     @Override
     protected boolean isEmbeddable(Class<?> type) {
         Document mappingDocument = getMappingDocument(type);
-        if (evaluateNode(mappingDocument, EMBEDDABLE_XPATH, type.getName()) != null) {
+        if (evaluateNode(mappingDocument, EMBEDDABLE_XPATH, type) != null) {
             return true;
         }
         if (!isMetadataComplete(mappingDocument)) {
