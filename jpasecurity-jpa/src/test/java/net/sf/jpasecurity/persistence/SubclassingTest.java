@@ -23,6 +23,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import net.sf.jpasecurity.model.AbstractEntity;
 import net.sf.jpasecurity.model.AbstractSuperclass;
 import net.sf.jpasecurity.model.Subclass1;
 import net.sf.jpasecurity.model.SuperclassReferencingBean;
@@ -54,7 +55,7 @@ public class SubclassingTest {
         TestBeanSubclass testBeanSubclass = new TestBeanSubclass(USER);
         entityManager.persist(testBeanSubclass);
         testBean.setParent(testBeanSubclass);
-        AbstractSuperclass subclass = new Subclass1();
+        AbstractEntity subclass = new Subclass1();
         entityManager.persist(subclass);
         entityManager.persist(new SuperclassReferencingBean(subclass));
         entityManager.getTransaction().commit();
@@ -81,7 +82,7 @@ public class SubclassingTest {
     @Test
     public void referenceToSuperclass() {
         EntityManager entityManager = factory.createEntityManager();
-        AbstractSuperclass superclass = entityManager.find(SuperclassReferencingBean.class, 1).getSuperclass();
+        AbstractSuperclass<Integer> superclass = entityManager.find(SuperclassReferencingBean.class, 1).getSuperclass();
         entityManager.close();
         entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();

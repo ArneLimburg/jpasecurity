@@ -416,10 +416,22 @@ public abstract class AbstractSecurityUnitParser {
 
     protected boolean usesFieldAccess(Class<?> mappedClass) {
         Field[] fields = mappedClass.getDeclaredFields();
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("parsing " + fields.length + " fields to determine access type");
+        }
         for (Field field: fields) {
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("checking " + field.getName() + " to determine access type");
+            }
             if (isIdProperty(field)) {
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace(mappedClass.getSimpleName() + " uses field access");
+                }
                 return true;
             }
+        }
+        if (LOG.isTraceEnabled()) {
+            LOG.trace(mappedClass.getSimpleName() + " uses property access");
         }
         return false;
     }

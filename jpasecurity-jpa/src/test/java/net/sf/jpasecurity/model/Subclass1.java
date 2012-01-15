@@ -21,5 +21,5 @@ import javax.persistence.Entity;
  * @author Arne Limburg
  */
 @Entity
-public class Subclass1 extends AbstractSuperclass {
+public class Subclass1 extends AbstractEntity {
 }

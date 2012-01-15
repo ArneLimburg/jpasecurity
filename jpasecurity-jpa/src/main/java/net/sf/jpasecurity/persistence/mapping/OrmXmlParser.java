@@ -396,12 +396,24 @@ public class OrmXmlParser extends JpaAnnotationParser {
     @Override
     protected boolean isVersionProperty(Member property) {
         String name = getName(property);
-        return evaluateNode(VERSION_PROPERTY_XPATH, property.getDeclaringClass(), name) != null;
+        if (evaluateNode(VERSION_PROPERTY_XPATH, property.getDeclaringClass(), name) != null) {
+            return true;
+        }
+        if (!isMetadataComplete(property.getDeclaringClass())) {
+            return super.isVersionProperty(property);
+        }
+        return false;
     }
 
     protected boolean isGeneratedValue(Member property) {
         String name = getName(property);
-        return evaluateNode(GENERATED_VALUE_PROPERTY_XPATH, property.getDeclaringClass(), name) != null;
+        if (evaluateNode(GENERATED_VALUE_PROPERTY_XPATH, property.getDeclaringClass(), name) != null) {
+            return true;
+        }
+        if (!isMetadataComplete(property.getDeclaringClass())) {
+            return super.isGeneratedValue(property);
+        }
+        return false;
     }
 
     /**
