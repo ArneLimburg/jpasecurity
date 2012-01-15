@@ -15,21 +15,32 @@
  */
 package net.sf.jpasecurity.model;
 
-import javax.persistence.Entity;
+import java.io.Serializable;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Version;
 
 /**
  * @author Arne Limburg
  */
-@Entity
-public abstract class AbstractSuperclass {
+@MappedSuperclass
+public abstract class AbstractSuperclass<ID extends Serializable> {
+
+    @Version
+    @Column(nullable = false)
+    private int version;
 
     @Id
     @GeneratedValue
-    private int id;
+    @Basic(optional = false)
+    @Column(nullable = false)
+    protected ID id;
 
-    public int getId() {
+    public ID getId() {
         return id;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2012 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,11 @@
 package net.sf.jpasecurity.model;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 
 /**
  * @author Arne Limburg
  */
 @Entity
-public class SuperclassReferencingBean {
+public abstract class AbstractEntity extends AbstractSuperclass<Integer> {
 
-    @Id
-    @GeneratedValue
-    private int id;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private AbstractEntity superclass;
-
-    protected SuperclassReferencingBean() {
-        //for JPA
-    }
-
-    public SuperclassReferencingBean(AbstractEntity superclass) {
-        this.superclass = superclass;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public AbstractEntity getSuperclass() {
-        return superclass;
-    }
 }
