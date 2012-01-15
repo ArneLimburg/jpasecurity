@@ -325,24 +325,30 @@ public abstract class AbstractSecureObjectManager {
         return modified;
     }
 
-    void copyIdAndVersion(Object unsecureObject, Object secureObject) {
-        if (secureObject instanceof EntityProxy) {
-            secureObject = ((EntityProxy)secureObject).getEntity();
+    void copyIdAndVersion(Object source, Object target) {
+        if (source instanceof EntityProxy) {
+            source = ((EntityProxy)source).getEntity();
         }
-        if (secureObject instanceof SecureObject && !((SecureObject)secureObject).isInitialized()) {
+        if (target instanceof EntityProxy) {
+            target = ((EntityProxy)target).getEntity();
+        }
+        if (source instanceof SecureObject && !((SecureObject)source).isInitialized()) {
             return;
         }
-        ClassMappingInformation classMapping = getClassMapping(secureObject.getClass());
+        if (target instanceof SecureObject && !((SecureObject)target).isInitialized()) {
+            return;
+        }
+        ClassMappingInformation classMapping = getClassMapping(target.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getIdPropertyMappings()) {
-            Object newId = propertyMapping.getPropertyValue(unsecureObject);
+            Object newId = propertyMapping.getPropertyValue(source);
             if (propertyMapping.isRelationshipMapping()) {
                 newId = getSecureObject(newId);
             }
-            propertyMapping.setPropertyValue(secureObject, newId);
+            propertyMapping.setPropertyValue(target, newId);
         }
         for (PropertyMappingInformation propertyMapping: classMapping.getVersionPropertyMappings()) {
-            Object newVersion = propertyMapping.getPropertyValue(unsecureObject);
-            propertyMapping.setPropertyValue(secureObject, newVersion);
+            Object newVersion = propertyMapping.getPropertyValue(source);
+            propertyMapping.setPropertyValue(target, newVersion);
         }
     }
 

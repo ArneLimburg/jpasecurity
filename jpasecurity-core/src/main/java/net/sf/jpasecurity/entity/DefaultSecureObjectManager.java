@@ -296,6 +296,7 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         secureEntities.put(new SystemIdentity(unsecureEntity), secureEntity);
         unsecureEntities.put(new SystemIdentity(secureEntity), unsecureEntity);
         unsecureCopy(accessType, secureEntity, unsecureEntity);
+        copyIdAndVersion(secureEntity, unsecureEntity);
         return (T)unsecureEntity;
     }
 
