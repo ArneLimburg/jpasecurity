@@ -26,6 +26,7 @@ import javax.faces.context.FacesContext;
 import net.sf.jpasecurity.sample.elearning.domain.Content;
 import net.sf.jpasecurity.sample.elearning.domain.Course;
 import net.sf.jpasecurity.sample.elearning.domain.CourseRepository;
+import net.sf.jpasecurity.sample.elearning.domain.LessonFactoryService;
 import net.sf.jpasecurity.sample.elearning.domain.LessonWithoutCourse;
 import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Teacher;
@@ -39,16 +40,16 @@ import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Calla
  * @author Arne Limburg
  */
 @RequestScoped
-@ManagedBean(name = "lessonFactory")
-public class LessonFactoryBean {
+@ManagedBean(name = "lessonFactoryService")
+public class LessonFactoryBean implements LessonFactoryService {
 
     @ManagedProperty(value = "#{transactionService}")
     private TransactionService transactionService;
     @ManagedProperty(value = "#{userRepository}")
     private UserRepository userRepository;
     @ManagedProperty(value = "#{courseRepository}")
-
     private CourseRepository courseRepository;
+
     private String newCourse;
     private Course course;
     private String title;

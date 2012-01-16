@@ -23,7 +23,7 @@
   </head>
   <h:body>
     <f:metadata>
-        <f:viewParam name="courseTitle" value="#{lessonFactory.newCourse}"/>
+        <f:viewParam name="courseTitle" value="#{lessonFactoryService.newCourse}"/>
     </f:metadata>
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
@@ -31,22 +31,22 @@
         <h:form id="lessonCreateForm" prependId="false">
 
             <h:outputLabel value="Course title:" for="courseTitle"/>
-            <h:outputText id="courseTitle" value="#{lessonFactory.courseTitle}" />		  
+            <h:outputText id="courseTitle" value="#{lessonFactoryService.courseTitle}" />		  
             <h:outputLabel value="Lesson title:" for="lessonTitle"/>
-            <h:inputText id="lessonTitle" value="#{lessonFactory.title}" />
+            <h:inputText id="lessonTitle" value="#{lessonFactoryService.title}" />
             <h:outputLabel value="Content:" for="lessonContent"/>
-            <h:inputTextarea id="lessonContent" value="#{lessonFactory.content}" />
-            <h:inputHidden value="#{lessonFactory.courseId}" />
-            <h:inputHidden value="#{lessonFactory.newCourse}" />
+            <h:inputTextarea id="lessonContent" value="#{lessonFactoryService.content}" />
+            <h:inputHidden value="#{lessonFactoryService.courseId}" />
+            <h:inputHidden value="#{lessonFactoryService.newCourse}" />
 		  <br />
 
           <h:panelGroup layout="block" styleClass="buttons">
-            <h:commandButton id="create" value="create new lesson" action="#{lessonFactory.create}"/>
-            <h:outputLink value="course.xhtml" immediate="true" id="cancelToCourse" rendered="#{lessonFactory.courseId != null}">
-          		<f:param name="course" value="#{lessonFactory.courseId}" />
+            <h:commandButton id="create" value="create new lesson" action="#{lessonFactoryService.create}" />
+            <h:outputLink value="course.xhtml" immediate="true" id="cancelToCourse" rendered="#{lessonFactoryService.courseId != null}">
+          		<f:param name="course" value="#{lessonFactoryService.courseId}" />
           		<h:outputText value="cancel" />
         	</h:outputLink>
-            <h:outputLink value="dashboard.xhtml" immediate="true" id="cancelToDashboard" rendered="#{lessonFactory.courseId == null}">
+            <h:outputLink value="dashboard.xhtml" immediate="true" id="cancelToDashboard" rendered="#{lessonFactoryService.courseId == null}">
                 <h:outputText value="cancel" />
             </h:outputLink>
           </h:panelGroup>
