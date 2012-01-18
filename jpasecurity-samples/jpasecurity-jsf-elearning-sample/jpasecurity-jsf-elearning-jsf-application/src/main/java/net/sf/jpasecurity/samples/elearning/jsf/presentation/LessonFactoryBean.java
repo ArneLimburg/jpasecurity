@@ -34,7 +34,6 @@ import net.sf.jpasecurity.sample.elearning.domain.Title;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 import net.sf.jpasecurity.sample.elearning.domain.course.CourseAggregate;
 import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService;
-import net.sf.jpasecurity.samples.elearning.jsf.service.TransactionService.Callable;
 
 /**
  * @author Arne Limburg
@@ -120,9 +119,9 @@ public class LessonFactoryBean implements LessonFactoryService {
         }
     }
 
-    public String create() {
-        int id = transactionService.executeTransactional(new Callable<Integer>() {
-            public Integer call() {
+    public void create() {
+        transactionService.executeTransactional(new Runnable() {
+            public void run() {
                 LessonWithoutCourse lesson = newLesson().withTitle(new Title(title)).andContent(new Content(content));
                 if (getCourse() != null) {
                     course.addLesson(lesson);
@@ -130,10 +129,8 @@ public class LessonFactoryBean implements LessonFactoryService {
                     course = new CourseAggregate(new Title(newCourse), getCurrentTeacher(), lesson);
                     courseRepository.persist(course);
                 }
-                return course.getId();
             }
         });
-        return "course.xhtml?course=" + id + "&faces-redirect=true&includeViewParams=true";
     }
 
     public void setTransactionService(TransactionService transactionService) {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.sample.elearning.domain;
+package net.sf.jpasecurity.sample.elearning.domain.course;
 
 
 import javax.inject.Inject;
@@ -23,6 +23,13 @@ import javax.persistence.EntityManager;
 
 import net.sf.jpasecurity.sample.elearning.core.Current;
 import net.sf.jpasecurity.sample.elearning.core.Transactional;
+import net.sf.jpasecurity.sample.elearning.domain.Content;
+import net.sf.jpasecurity.sample.elearning.domain.Course;
+import net.sf.jpasecurity.sample.elearning.domain.LessonFactoryService;
+import net.sf.jpasecurity.sample.elearning.domain.LessonWithoutCourse;
+import net.sf.jpasecurity.sample.elearning.domain.Teacher;
+import net.sf.jpasecurity.sample.elearning.domain.Title;
+
 
 /**
  * @author Raffaela Ferrari
@@ -34,6 +41,8 @@ public class CdiLessonFactoryService implements LessonFactoryService {
     private Provider<Teacher> teacherProvider;
     @Inject
     private Provider<Course> courseProvider;
+    @Inject
+    private Provider<String> courseTitleProvider;
 
     @Inject
     private EntityManager entityManager;
@@ -43,17 +52,16 @@ public class CdiLessonFactoryService implements LessonFactoryService {
     private String content;
 
     @Transactional
-    public String create() {
-        /*LessonWithoutCourse lesson = newLesson().withTitle(new Title(title)).andContent(
-            new Content(content));
+    public void create() {
+        LessonWithoutCourse lesson = LessonFactoryBuilder.newLesson().withTitle(new Title(title))
+            .andContent(new Content(content));
         if (courseProvider.get() != null) {
             courseProvider.get().addLesson(lesson);
         } else {
             Course course = new CourseAggregate(new Title(newCourse),
                     teacherProvider.get(), lesson);
             getEntityManager().persist(course);
-        }*/
-        return "course.xhtml?course=" + courseProvider.get().getId() + "&faces-redirect=true&includeViewParams=true";
+        }
     }
 
     public String getContent() {
@@ -70,7 +78,8 @@ public class CdiLessonFactoryService implements LessonFactoryService {
     }
 
     public String getNewCourse() {
-        return this.newCourse;
+        this.newCourse = courseTitleProvider.get();
+        return newCourse;
     }
 
     public String getTitle() {

@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.sample.elearning.domain;
+package net.sf.jpasecurity.samples.elearning.presentation;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import net.sf.jpasecurity.sample.elearning.domain.Course;
+import net.sf.jpasecurity.samples.elearning.view.Navigation;
 /**
  * @author Raffaela Ferrari
  */
-public interface LessonFactoryService {
+@Named
+public class LessonFactoryNavigation extends Navigation {
+    @Inject
+    private Course course;
 
-    void create();
-    Title getCourseTitle();
-    String getNewCourse();
-    void setNewCourse(String newCourse);
-    String getTitle();
-    void setTitle(String title);
-    String getContent();
-    void setContent(String content);
-    Integer getCourseId();
-    void setCourseId(Integer id);
+    public String getOutcome() {
+        return new Navigation("course.xhtml").facesRedirect().includeViewParams()
+            .withParameter("course", course.getId()).toString();
+    }
 }

@@ -70,6 +70,10 @@ public class StudentBean {
         return student == null? null: this.student.getFullname();
     }
 
+    public String getFullname() {
+        return getName();
+    }
+
     public List<Course> getCourses() {
         Student student = getEntity();
         return student == null? null: new ArrayList<Course>(student.getCourses());
