@@ -41,7 +41,8 @@
 		  <br />
 
           <h:panelGroup layout="block" styleClass="buttons">
-            <h:commandButton id="create" value="create new lesson" action="#{lessonFactoryService.create}" />
+            <h:commandButton id="create" value="create new lesson" actionListener="#{lessonFactoryService.create}" 
+                 action="#{lessonFactoryNavigation.getOutcome()}" />
             <h:outputLink value="course.xhtml" immediate="true" id="cancelToCourse" rendered="#{lessonFactoryService.courseId != null}">
           		<f:param name="course" value="#{lessonFactoryService.courseId}" />
           		<h:outputText value="cancel" />

@@ -53,6 +53,12 @@ public class JpaCourseRepository implements CourseRepository {
         return course.getLessons().get(number);
     }
 
+    @Produces
+    @Named("courseTitle")
+    public String getCourseTitle(@Parameter("courseTitle") String courseTitle) {
+        return courseTitle;
+    }
+
     public void persist(Course course) {
         getEntityManager().persist(course);
     }

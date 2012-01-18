@@ -19,13 +19,13 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets">
   <h:head>
-    <title>#{student.name}</title>
+    <title>#{student.fullname}</title>
   </h:head>
   <h:body>
    
     <ui:composition template="/template.xhtml">
       <ui:define name="content">
-        <h1>#{student.name}</h1>
+        <h1>#{student.fullname}</h1>
         <h2>Selected Courses</h2>
         <ul>
           <ui:repeat var="course" value="#{student.courses}">
