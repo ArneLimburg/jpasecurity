@@ -22,6 +22,8 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -141,6 +143,14 @@ public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
         } else {
             return entity.name();
         }
+    }
+
+    protected boolean usesFieldAccess(Class<?> mappedClass) {
+        Access access = mappedClass.getAnnotation(Access.class);
+        if (access != null) {
+            return access.value() == AccessType.FIELD;
+        }
+        return super.usesFieldAccess(mappedClass);
     }
 
     protected boolean isMetadataComplete(Class<?> entityClass) {

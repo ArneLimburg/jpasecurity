@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2012 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,25 @@
  */
 package net.sf.jpasecurity.model;
 
-import java.io.Serializable;
-
-import javax.persistence.Basic;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 
 /**
+ * 
  * @author Arne Limburg
  */
 @MappedSuperclass
-public abstract class AbstractSuperclass<ID extends Serializable> extends AbstractVersionedSuperclass {
+@Access(AccessType.FIELD)
+public class AbstractVersionedSuperclass {
 
-    @Id
-    @GeneratedValue
-    @Basic(optional = false)
+    @Version
     @Column(nullable = false)
-    protected ID id;
+    private int version;
 
-    public ID getId() {
-        return id;
+    public int getVersion() {
+        return version;
     }
 }
