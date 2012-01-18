@@ -39,7 +39,6 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
-import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.util.SystemIdentity;
 
 /**
@@ -227,9 +226,7 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         if (super.isSecureObject(object)) {
             return true;
         }
-        if (object instanceof EntityProxy) {
-            object = ((EntityProxy)object).getEntity();
-        }
+        object = unwrap(object);
         return unsecureEntities.containsKey(new SystemIdentity(object));
     }
 
@@ -262,9 +259,7 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         if (secureObject == null) {
             return true;
         }
-        if (secureObject instanceof EntityProxy) {
-            secureObject = ((EntityProxy)secureObject).getEntity();
-        }
+        secureObject = unwrap(secureObject);
         if (unsecureEntities.containsKey(new SystemIdentity(secureObject))) {
             return true;
         }
@@ -275,9 +270,7 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
         if (secureObject == null) {
             return null;
         }
-        if (secureObject instanceof EntityProxy) {
-            secureObject = (T)((EntityProxy)secureObject).getEntity();
-        }
+        secureObject = unwrap(secureObject);
         Object unsecureEntity = unsecureEntities.get(new SystemIdentity(secureObject));
         if (unsecureEntity != null) {
             return (T)unsecureEntity;
@@ -286,9 +279,7 @@ public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implem
     }
 
     <T> T createUnsecureObject(T secureEntity) {
-        if (secureEntity instanceof EntityProxy) {
-            secureEntity = (T)((EntityProxy)secureEntity).getEntity();
-        }
+        secureEntity = unwrap(secureEntity);
         AccessType accessType = isNew(secureEntity)? AccessType.CREATE: AccessType.UPDATE;
         final ClassMappingInformation classMapping = getClassMapping(secureEntity.getClass());
         checkAccess(accessType, secureEntity);
