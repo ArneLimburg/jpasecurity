@@ -109,9 +109,7 @@ public abstract class AbstractSecureObjectManager {
         if (secureObject == null) {
             return true;
         }
-        if (secureObject instanceof EntityProxy) {
-            secureObject = ((EntityProxy)secureObject).getEntity();
-        }
+        secureObject = unwrap(secureObject);
         return secureObject instanceof SecureObject;
     }
 
@@ -119,9 +117,7 @@ public abstract class AbstractSecureObjectManager {
         if (secureObject == null) {
             return null;
         }
-        if (secureObject instanceof EntityProxy) {
-            secureObject = ((EntityProxy)secureObject).<T>getEntity();
-        }
+        secureObject = unwrap(secureObject);
         if (secureObject instanceof SecureEntity) {
             SecureEntityProxyFactory proxyFactory = configuration.getSecureEntityProxyFactory();
             SecureEntityInterceptor secureEntityInterceptor
@@ -326,12 +322,8 @@ public abstract class AbstractSecureObjectManager {
     }
 
     void copyIdAndVersion(Object source, Object target) {
-        if (source instanceof EntityProxy) {
-            source = ((EntityProxy)source).getEntity();
-        }
-        if (target instanceof EntityProxy) {
-            target = ((EntityProxy)target).getEntity();
-        }
+        source = unwrap(source);
+        target = unwrap(target);
         if (source instanceof SecureObject && !((SecureObject)source).isInitialized()) {
             return;
         }
@@ -472,6 +464,14 @@ public abstract class AbstractSecureObjectManager {
         SecureEntityDecorator secureEntityDecorator
             = (SecureEntityDecorator)configuration.getSecureEntityProxyFactory().getDecorator(secureEntity);
         secureEntityDecorator.refresh(checkAccess);
+    }
+
+    <B> B unwrap(B bean) {
+        if (bean instanceof EntityProxy) {
+            return ((EntityProxy)bean).<B>getEntity();
+        } else {
+            return bean;
+        }
     }
 
     private <T> Collection<T> createCollection(Collection<T> original) {
