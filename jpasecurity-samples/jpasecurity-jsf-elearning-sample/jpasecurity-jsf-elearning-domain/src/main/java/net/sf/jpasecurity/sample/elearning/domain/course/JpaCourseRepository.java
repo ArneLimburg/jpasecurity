@@ -44,13 +44,13 @@ public class JpaCourseRepository implements CourseRepository {
     @Produces
     @Named("course")
     public Course findCourse(@Parameter("course") Integer id) {
-        return getEntityManager().find(CourseAggregate.class, id);
+        return id != null? getEntityManager().find(CourseAggregate.class, id): null;
     }
 
     @Produces
     @Named("lesson")
     public Lesson getLesson(Course course, @Parameter("lesson") Integer number) {
-        return course.getLessons().get(number);
+        return number != null? course.getLessons().get(number): null;
     }
 
     @Produces

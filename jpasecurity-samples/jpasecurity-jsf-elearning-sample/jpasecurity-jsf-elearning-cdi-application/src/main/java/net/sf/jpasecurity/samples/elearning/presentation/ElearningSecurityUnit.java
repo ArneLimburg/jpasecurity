@@ -28,6 +28,7 @@ import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.sample.elearning.core.Current;
 import net.sf.jpasecurity.sample.elearning.domain.Name;
 import net.sf.jpasecurity.sample.elearning.domain.Student;
+import net.sf.jpasecurity.sample.elearning.domain.Teacher;
 import net.sf.jpasecurity.sample.elearning.domain.User;
 import net.sf.jpasecurity.sample.elearning.domain.UserRepository;
 
@@ -63,5 +64,15 @@ public class ElearningSecurityUnit {
             throw new IllegalArgumentException("current user is no student");
         }
         return (Student)user;
+    }
+
+    @Produces
+    @Current
+    @Typed(Teacher.class)
+    public Teacher getCurrentTeacher(@Current User user) {
+        if (!(user instanceof Teacher)) {
+            throw new IllegalArgumentException("current user is no teacher");
+        }
+        return (Teacher)user;
     }
 }
