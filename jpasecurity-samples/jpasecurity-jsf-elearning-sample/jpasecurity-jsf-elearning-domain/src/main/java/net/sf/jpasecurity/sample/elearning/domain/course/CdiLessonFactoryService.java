@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.sample.elearning.domain.course;
 
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -34,6 +35,7 @@ import net.sf.jpasecurity.sample.elearning.domain.Title;
 /**
  * @author Raffaela Ferrari
  */
+@RequestScoped
 @Named("lessonFactoryService")
 public class CdiLessonFactoryService implements LessonFactoryService {
 
@@ -50,13 +52,14 @@ public class CdiLessonFactoryService implements LessonFactoryService {
     private String newCourse;
     private String title;
     private String content;
+    private Course course;
 
     @Transactional
     public void create() {
         LessonWithoutCourse lesson = LessonFactoryBuilder.newLesson().withTitle(new Title(title))
             .andContent(new Content(content));
-        if (courseProvider.get() != null) {
-            courseProvider.get().addLesson(lesson);
+        if (getCourse() != null) {
+            course.addLesson(lesson);
         } else {
             Course course = new CourseAggregate(new Title(newCourse),
                     teacherProvider.get(), lesson);
@@ -64,17 +67,24 @@ public class CdiLessonFactoryService implements LessonFactoryService {
         }
     }
 
+    public Course getCourse() {
+        if (course == null) {
+            setCourseId(getCourseId()); // reads the id from the request and loads the course
+        }
+        return course;
+    }
+
     public String getContent() {
         return this.content;
     }
 
     public Integer getCourseId() {
-        return courseProvider.get().getId();
+        return courseProvider.get() != null? courseProvider.get().getId(): null;
     }
 
     public Title getCourseTitle() {
-        return courseProvider.get() != null? courseProvider.get().getTitle(): getNewCourse()
-            != null? new Title(newCourse): null;
+        Course c = getCourse();
+        return c != null? c.getTitle(): getNewCourse() != null? new Title(newCourse): null;
     }
 
     public String getNewCourse() {
@@ -91,7 +101,10 @@ public class CdiLessonFactoryService implements LessonFactoryService {
     }
 
     public void setCourseId(Integer id) {
-        // TODO Auto-generated method stub
+        if (id == null) {
+            return;
+        }
+        course = courseProvider.get();
     }
 
     public void setNewCourse(String newCourse) {
