@@ -40,11 +40,14 @@ public class JpaUserRepository implements UserRepository, TeacherRepository, Stu
     @Named("teacher")
     @Typed(Teacher.class)
     public Teacher findTeacher(@Parameter("teacher") Integer id) {
-        return getEntityManager().find(Teacher.class, id);
+        return id != null? getEntityManager().find(Teacher.class, id): null;
     }
 
-    public Student findStudent(Integer id) {
-        return getEntityManager().find(Student.class, id);
+    @Produces
+    @Named("student")
+    @Typed(Student.class)
+    public Student findStudent(@Parameter("id") Integer id) {
+        return id != null? getEntityManager().find(Student.class, id): null;
     }
 
     public <U extends User> U findUser(Name name) {

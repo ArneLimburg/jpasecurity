@@ -19,7 +19,6 @@ import net.sf.jpasecurity.samples.elearning.integrationtest.junit.ParameterizedJ
 import net.sf.jpasecurity.samples.elearning.integrationtest.junit.Parameters;
 
 import org.jaxen.JaxenException;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

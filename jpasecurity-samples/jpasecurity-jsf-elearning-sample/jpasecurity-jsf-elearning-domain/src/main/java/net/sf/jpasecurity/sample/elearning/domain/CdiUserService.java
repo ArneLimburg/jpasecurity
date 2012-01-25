@@ -33,6 +33,9 @@ public class CdiUserService implements UserService {
     private Provider<Course> courseProvider;
 
     public boolean isSubscribed() {
-        return courseProvider.get().getParticipants().contains(userProvider.get());
+        if (userProvider.get() == null) {
+            return false;
+        }
+        return courseProvider.get() != null? courseProvider.get().getParticipants().contains(userProvider.get()): false;
     }
 }
