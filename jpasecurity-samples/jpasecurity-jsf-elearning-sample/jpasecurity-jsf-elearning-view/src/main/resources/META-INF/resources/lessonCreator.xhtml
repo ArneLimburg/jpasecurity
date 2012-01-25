@@ -30,14 +30,14 @@
         <h1 id="createLesson">Create new lesson</h1>
         <h:form id="lessonCreateForm" prependId="false">
 
-            <h:outputLabel value="Course title:" for="courseTitle"/>
-            <h:outputText id="courseTitle" value="#{lessonFactoryService.courseTitle}" />		  
+            <h:outputLabel value="Course title:" for="courseTitle2"/>
+            <h:outputText id="courseTitle2" value="#{lessonFactoryService.courseTitle}" />		  
             <h:outputLabel value="Lesson title:" for="lessonTitle"/>
             <h:inputText id="lessonTitle" value="#{lessonFactoryService.title}" />
             <h:outputLabel value="Content:" for="lessonContent"/>
             <h:inputTextarea id="lessonContent" value="#{lessonFactoryService.content}" />
-            <h:inputHidden value="#{lessonFactoryService.courseId}" />
-            <h:inputHidden value="#{lessonFactoryService.newCourse}" />
+            <h:inputHidden id="course" value="#{lessonFactoryService.courseId}" rendered="#{lessonFactoryService.courseId != null}"/>
+            <h:inputHidden id="courseTitle" value="#{lessonFactoryService.newCourse}" />
 		  <br />
 
           <h:panelGroup layout="block" styleClass="buttons">
