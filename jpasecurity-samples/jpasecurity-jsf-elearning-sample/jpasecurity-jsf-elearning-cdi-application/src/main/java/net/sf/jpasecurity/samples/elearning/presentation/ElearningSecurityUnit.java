@@ -52,7 +52,11 @@ public class ElearningSecurityUnit {
     @Current
     @Named("user")
     public User getCurrentUser() {
-        Name userName = new Name(FacesContext.getCurrentInstance().getExternalContext().getRemoteUser());
+        String name = FacesContext.getCurrentInstance().getExternalContext().getRemoteUser();
+        if (name == null) {
+            return null;
+        }
+        Name userName = new Name(name);
         return userRepository.findUser(userName);
     }
 

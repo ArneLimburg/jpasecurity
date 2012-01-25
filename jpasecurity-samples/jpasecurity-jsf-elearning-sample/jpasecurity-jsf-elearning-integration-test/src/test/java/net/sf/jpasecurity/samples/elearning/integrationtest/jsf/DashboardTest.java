@@ -20,7 +20,6 @@ import net.sf.jpasecurity.samples.elearning.integrationtest.junit.Parameters;
 
 import org.jaxen.JaxenException;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -84,7 +83,6 @@ public class DashboardTest extends AbstractHtmlTestCase {
         ElearningAssert.assertCoursePage(courseLink, Role.STUDENT);
     }
 
-    @Ignore
     @Test
     public void createLessonLinkTest() throws JaxenException {
         HtmlPage lessonCreaterLink = testInputLink(authenticateAsTeacher("dashboard.xhtml"), "create");
@@ -97,7 +95,6 @@ public class DashboardTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLoginPage(loginLink, Role.GUEST);
     }
 
-    @Ignore
     @Test
     public void logoutLinkTest() throws JaxenException {
         HtmlPage logoutLink = testLink(authenticateAsStudent("dashboard.xhtml"), "Logout");
