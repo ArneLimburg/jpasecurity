@@ -18,18 +18,19 @@ package net.sf.jpasecurity.samples.elearning.presentation;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import net.sf.jpasecurity.sample.elearning.domain.Course;
+import net.sf.jpasecurity.sample.elearning.domain.course.CdiLessonFactoryService;
 import net.sf.jpasecurity.samples.elearning.view.Navigation;
 /**
  * @author Raffaela Ferrari
  */
 @Named
 public class LessonFactoryNavigation extends Navigation {
+
     @Inject
-    private Course course;
+    private CdiLessonFactoryService lessonFactoryService;
 
     public String getOutcome() {
         return new Navigation("course.xhtml").facesRedirect().includeViewParams()
-            .withParameter("course", course.getId()).toString();
+            .withParameter("course", lessonFactoryService.getCourse().getId()).toString();
     }
 }

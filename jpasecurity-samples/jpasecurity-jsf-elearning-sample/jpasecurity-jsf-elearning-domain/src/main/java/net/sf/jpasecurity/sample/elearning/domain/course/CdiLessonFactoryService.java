@@ -61,7 +61,7 @@ public class CdiLessonFactoryService implements LessonFactoryService {
         if (getCourse() != null) {
             course.addLesson(lesson);
         } else {
-            Course course = new CourseAggregate(new Title(newCourse),
+            course = new CourseAggregate(new Title(newCourse),
                     teacherProvider.get(), lesson);
             getEntityManager().persist(course);
         }
