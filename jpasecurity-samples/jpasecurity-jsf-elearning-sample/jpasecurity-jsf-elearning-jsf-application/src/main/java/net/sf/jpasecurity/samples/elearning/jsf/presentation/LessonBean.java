@@ -39,10 +39,10 @@ public class LessonBean {
 
     private Course course;
 
-    private int lessonNumber = -1;
+    private Integer lessonNumber = -1;
     private Lesson lesson;
 
-    public int getCourseId() {
+    public Integer getCourseId() {
         if (course == null) {
             String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("course");
             return id != null? Integer.valueOf(id): null;
@@ -50,14 +50,16 @@ public class LessonBean {
         return course.getId();
     }
 
-    public void setCourseId(int id) {
-        course = courseRepository.findCourse(id);
-        if (lessonNumber != -1) {
-            lesson = course.getLessons().get(lessonNumber);
+    public void setCourseId(final Integer id) {
+        if (id != null) {
+            course = courseRepository.findCourse(id);
+            if (lessonNumber != -1) {
+                lesson = course.getLessons().get(lessonNumber);
+            }
         }
     }
 
-    public int getNumber() {
+    public Integer getNumber() {
         if (lesson == null) {
             String number =
                 FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("lesson");
@@ -66,11 +68,13 @@ public class LessonBean {
         return lesson.getNumber();
     }
 
-    public void setNumber(int number) {
+    public void setNumber(final Integer number) {
         lessonNumber = number;
         course = getCourse();
-        if (course != null) {
-            lesson = course.getLessons().get(number);
+        if(lessonNumber != null) {
+	        if (course != null) {
+	            lesson = course.getLessons().get(number);
+	        }
         }
     }
 

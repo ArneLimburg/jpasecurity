@@ -19,7 +19,6 @@ import net.sf.jpasecurity.samples.elearning.integrationtest.junit.ParameterizedJ
 import net.sf.jpasecurity.samples.elearning.integrationtest.junit.Parameters;
 
 import org.jaxen.JaxenException;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -69,7 +68,6 @@ public class LessonCreatorTest extends AbstractHtmlTestCase {
         ElearningAssert.assertLessonCreatorPage(getHtmlPage("lessonCreator.xhtml?course=3"), Role.STUDENT);
     }
 
-   @Ignore
     @Test
     public void createLessonTest() throws JaxenException {
         HtmlPage createLessonLink = createNewLesson();
