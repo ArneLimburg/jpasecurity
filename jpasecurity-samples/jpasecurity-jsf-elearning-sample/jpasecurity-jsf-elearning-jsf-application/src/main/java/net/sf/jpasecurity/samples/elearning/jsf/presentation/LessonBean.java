@@ -71,10 +71,10 @@ public class LessonBean {
     public void setNumber(final Integer number) {
         lessonNumber = number;
         course = getCourse();
-        if(lessonNumber != null) {
-	        if (course != null) {
-	            lesson = course.getLessons().get(number);
-	        }
+        if (lessonNumber != null) {
+            if (course != null) {
+                lesson = course.getLessons().get(number);
+            }
         }
     }
 
