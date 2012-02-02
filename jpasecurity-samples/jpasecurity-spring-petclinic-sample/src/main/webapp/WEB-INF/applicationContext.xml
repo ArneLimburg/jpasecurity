@@ -68,7 +68,7 @@
 			p:url="${jdbc.url}" 
 			p:username="${jdbc.username}"
 			p:password="${jdbc.password}"
-	</bean>
+	/>
 
 	<!-- JPA EntityManagerFactory -->
 	<bean id="entityManagerFactory" class="net.sf.jpasecurity.spring.persistence.SecureContainerEntityManagerFactoryBean"
@@ -112,10 +112,10 @@
 	<!--
 		Post-processor to perform exception translation on @Repository classes (from native
 		exceptions such as JPA PersistenceExceptions to Spring's DataAccessException hierarchy).
-	-->
+	
 	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 	
-	
+	-->
 
 	<!--
 		Will automatically be transactional due to @Transactional.
