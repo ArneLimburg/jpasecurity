@@ -26,7 +26,6 @@ public class SecureBeanInitializer implements BeanInitializer {
         if ((bean instanceof SecureEntity) && !((SecureEntity)bean).isInitialized()) {
             ((SecureEntity)bean).refresh();
         }
-        bean.toString();
         return bean;
     }
 }
