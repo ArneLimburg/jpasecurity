@@ -50,11 +50,11 @@ public class User implements Serializable {
         setName(name);
     }
 
-    protected int getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(int id) {
+    protected void setId(int id) {
         this.id = id;
     }
 
