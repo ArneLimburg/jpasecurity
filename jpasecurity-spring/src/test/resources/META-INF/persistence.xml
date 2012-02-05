@@ -9,16 +9,18 @@
 
     <class>net.sf.jpasecurity.contacts.model.User</class>
     <class>net.sf.jpasecurity.contacts.model.Contact</class>
+	<class>net.sf.jpasecurity.spring.acl.Sid</class>
+	<class>net.sf.jpasecurity.spring.acl.Principal</class>
+	<class>net.sf.jpasecurity.spring.acl.Role</class>
+	<class>net.sf.jpasecurity.spring.acl.AccessControlList</class>
+	<class>net.sf.jpasecurity.spring.acl.AccessControlEntry</class>
+	<class>net.sf.jpasecurity.spring.acl.AccessControlledEntityType</class>
+	<class>net.sf.jpasecurity.spring.acl.AccessControlledEntityReference</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-      <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
-      <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
-      <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:contacts" />
-      <property name="hibernate.connection.username" value="sa" />
-      <property name="hibernate.connection.password" value="" />
     </properties>
 
   </persistence-unit>

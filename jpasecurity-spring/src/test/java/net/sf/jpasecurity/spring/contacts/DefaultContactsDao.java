@@ -23,6 +23,9 @@ import javax.persistence.PersistenceContext;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
 
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
+
 /**
  * @author Arne Limburg
  */
@@ -31,17 +34,20 @@ public class DefaultContactsDao implements ContactsDao {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @PostFilter("hasPermission(filterObject, 'READ')")
     public List<User> getAllUsers() {
         return entityManager.createQuery("SELECT user FROM User user").getResultList();
     }
 
+    @PostAuthorize("hasPermission(returnObject, 'READ')")
     public User getUser(String name) {
         return (User)entityManager.createQuery("SELECT user FROM User user WHERE user.name = :name")
                                   .setParameter("name", name)
                                   .getSingleResult();
     }
 
+    @PostFilter("hasPermission(filterObject, 'READ')")
     public List<Contact> getAllContacts() {
-        return entityManager.createQuery("SELECT contact FROM Contact contact").getResultList();
+        return entityManager.createQuery("SELECT contact FROM Contact contact INNER JOIN FETCH contact.owner user").getResultList();
     }
 }
