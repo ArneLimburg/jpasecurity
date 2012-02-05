@@ -50,7 +50,7 @@ public class Contact implements Serializable {
         setText(text);
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -83,10 +83,16 @@ public class Contact implements Serializable {
             return false;
         }
         Contact contact = (Contact)object;
-        return getOwner().equals(contact.getOwner()) && getText().equals(contact.getText());
+        if (getId() != null && contact.getId() != null) {
+            return getId().equals(contact.getId());
+        } else if (getId() == null && contact.getId() == null) {
+            return this == contact;
+        } else {
+            return false;
+        }
     }
 
     public int hashCode() {
-        return getOwner().hashCode() ^ getText().hashCode();
+        return getId() == null? System.identityHashCode(this): getId().hashCode();
     }
 }

@@ -55,18 +55,12 @@ public class ContactsTestData {
     }
 
     protected void createTestData(EntityManager entityManager) {
-        john = new User("John");
-        entityManager.persist(john);
-        mary = new User("Mary");
-        entityManager.persist(mary);
-        johnsContact1 = new Contact(john, "john@jpasecurity.sf.net");
-        entityManager.persist(johnsContact1);
-        johnsContact2 = new Contact(john, "0 12 34 - 56 789");
-        entityManager.persist(johnsContact2);
-        marysContact1 = new Contact(mary, "mary@jpasecurity.sf.net");
-        entityManager.persist(marysContact1);
-        marysContact2 = new Contact(mary, "12 34 56 78 90");
-        entityManager.persist(marysContact2);
+        john = createUser(entityManager, "John");
+        mary = createUser(entityManager, "Mary");
+        johnsContact1 = createContact(entityManager, john, "john@jpasecurity.sf.net");
+        johnsContact2 = createContact(entityManager, john, "0 12 34 - 56 789");
+        marysContact1 = createContact(entityManager, mary, "mary@jpasecurity.sf.net");
+        marysContact2 = createContact(entityManager, mary, "12 34 56 78 90");
     }
 
     public User getJohn() {
@@ -99,6 +93,18 @@ public class ContactsTestData {
         clearTestData(entityManager);
         entityManager.getTransaction().commit();
         entityManager.close();
+    }
+
+    protected User createUser(EntityManager entityManager, String name) {
+        User user = new User(name);
+        entityManager.persist(user);
+        return user;
+    }
+
+    protected Contact createContact(EntityManager entityManager, User owner, String text) {
+        Contact contact = new Contact(owner, text);
+        entityManager.persist(contact);
+        return contact;
     }
 
     protected void clearTestData(EntityManager entityManager) {
