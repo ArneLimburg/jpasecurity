@@ -283,7 +283,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         Object value;
         try {
             node.jjtGetChild(0).visit(this, data);
-            value = data.getResult();
+            value = convert(data.getResult());
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
             return false;
@@ -294,9 +294,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             node.jjtGetChild(i).visit(this, data);
             try {
                 if (data.getResult() instanceof Collection) {
-                    values.addAll((Collection<?>)data.getResult());
+                    values.addAll(convertAll(data.<Collection<?>>getResult()));
                 } else {
-                    values.add(data.getResult());
+                    values.add(convert(data.getResult()));
                 }
             } catch (NotEvaluatableException e) {
                 undefined = true;
@@ -880,6 +880,14 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         } else {
             return Collections.singleton(result);
         }
+    }
+
+    private Collection<?> convertAll(Collection<?> collection) {
+        Collection<Object> result = new ArrayList<Object>(collection.size());
+        for (Object value: collection) {
+            result.add(convert(value));
+        }
+        return result;
     }
 
     private Object convert(Object object) {
