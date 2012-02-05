@@ -15,46 +15,70 @@
  */
 package net.sf.jpasecurity.spring.contacts;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.NoResultException;
 
-import junit.framework.TestCase;
 import net.sf.jpasecurity.contacts.ContactsTestData;
 import net.sf.jpasecurity.contacts.model.Contact;
 import net.sf.jpasecurity.contacts.model.User;
-import net.sf.jpasecurity.persistence.SecureEntityTester;
+import net.sf.jpasecurity.spring.acl.AccessControlledEntityType;
+import net.sf.jpasecurity.spring.acl.Principal;
+import net.sf.jpasecurity.spring.acl.Role;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * @author Arne Limburg
  */
-public class SpringContactsTest extends TestCase {
+public class SpringContactsTest {
 
     private ConfigurableApplicationContext applicationContext;
     private ContactsDao contactsDao;
     private AuthenticationManager authenticationManager;
     private ContactsTestData testData;
+    private MutableAclService aclService;
 
+    @Before
     public void setUp() {
-        applicationContext = new ClassPathXmlApplicationContext("test-context.xml");
-        contactsDao = (ContactsDao)applicationContext.getBean("contactsDao");
-        authenticationManager = (AuthenticationManager)applicationContext.getBean("authenticationManager");
-        EntityManagerFactory entityManagerFactory
-            = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory"));
+        applicationContext = new ClassPathXmlApplicationContext("spring-context.xml");
+        contactsDao = applicationContext.getBean(ContactsDao.class);
+        authenticationManager = applicationContext.getBean(AuthenticationManager.class);
+        aclService = applicationContext.getBean(MutableAclService.class);
+        PlatformTransactionManager transactionManager = applicationContext.getBean(PlatformTransactionManager.class);
+        EntityManagerFactory entityManagerFactory = applicationContext.getBean(EntityManagerFactory.class);
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.persist(new Principal("John"));
+        entityManager.persist(new Principal("Mary"));
+        entityManager.persist(new Role("ROLE_ADMIN"));
+        entityManager.persist(new AccessControlledEntityType(User.class));
+        entityManager.persist(new AccessControlledEntityType(Contact.class));
+        entityManager.getTransaction().commit();
+        entityManager.close();
         authenticate("admin");
-        testData = new ContactsTestData();
+        testData = new AclContactsTestData(authenticationManager, aclService, transactionManager);
         testData.createTestData(entityManagerFactory);
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 
+    @After
     public void tearDown() {
         EntityManagerFactory entityManagerFactory
             = ((EntityManagerFactory)applicationContext.getBean("entityManagerFactory"));
@@ -63,24 +87,27 @@ public class SpringContactsTest extends TestCase {
         applicationContext.close();
     }
 
-    public void testUnauthenticated() {
+    @Test
+    public void unauthenticated() {
+        authenticate("guest");
         assertEquals(0, contactsDao.getAllUsers().size());
         try {
             contactsDao.getUser("John");
-            fail("expected NoResultException");
-        } catch (NoResultException e) {
+            fail("expected AccessDeniedException");
+        } catch (AccessDeniedException e) {
             //expected...
         }
         try {
             contactsDao.getUser("Mary");
-            fail("expected NoResultException");
-        } catch (NoResultException e) {
+            fail("expected AccessDeniedException");
+        } catch (AccessDeniedException e) {
             //expected...
         }
         assertEquals(0, contactsDao.getAllContacts().size());
     }
 
-    public void testAuthenticatedAsAdmin() {
+    @Test
+    public void authenticatedAsAdmin() {
         authenticate("admin");
         assertEquals(2, contactsDao.getAllUsers().size());
         assertEquals(testData.getJohn(), contactsDao.getUser("John"));
@@ -88,7 +115,8 @@ public class SpringContactsTest extends TestCase {
         assertEquals(4, contactsDao.getAllContacts().size());
     }
 
-    public void testAuthenticatedAsJohn() {
+    @Test
+    public void authenticatedAsJohn() {
         authenticate("John");
         List<User> allUsers = contactsDao.getAllUsers();
         assertEquals(1, allUsers.size());
@@ -96,8 +124,8 @@ public class SpringContactsTest extends TestCase {
         assertEquals(testData.getJohn(), contactsDao.getUser("John"));
         try {
             contactsDao.getUser("Mary");
-            fail("expected NoResultException");
-        } catch (NoResultException e) {
+            fail("expected AccessDeniedException");
+        } catch (AccessDeniedException e) {
             //expected...
         }
         List<Contact> contacts = contactsDao.getAllContacts();
@@ -106,15 +134,16 @@ public class SpringContactsTest extends TestCase {
         assertTrue(contacts.contains(testData.getJohnsContact2()));
     }
 
-    public void testAuthenticatedAsMary() {
+    @Test
+    public void authenticatedAsMary() {
         authenticate("Mary");
         List<User> allUsers = contactsDao.getAllUsers();
         assertEquals(1, allUsers.size());
         assertEquals(testData.getMary(), allUsers.get(0));
         try {
             contactsDao.getUser("John");
-            fail("expected NoResultException");
-        } catch (NoResultException e) {
+            fail("expected AccessDeniedException");
+        } catch (AccessDeniedException e) {
             //expected...
         }
         assertEquals(testData.getMary(), contactsDao.getUser("Mary"));
@@ -122,11 +151,6 @@ public class SpringContactsTest extends TestCase {
         assertEquals(2, contacts.size());
         assertTrue(contacts.contains(testData.getMarysContact1()));
         assertTrue(contacts.contains(testData.getMarysContact2()));
-    }
-
-    public void testProxying() throws Exception {
-        authenticate("admin");
-        assertTrue(SecureEntityTester.isSecureEntity(contactsDao.getAllUsers().get(0)));
     }
 
     private void authenticate(String userName) {

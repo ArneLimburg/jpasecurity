@@ -4,10 +4,25 @@
           schemaVersion="1.0">
 
   <persistence-unit name="spring-contacts">
-    <access-rule>GRANT ACCESS TO Contact contact WHERE contact.owner.name = CURRENT_PRINCIPAL</access-rule>
-    <access-rule>GRANT ACCESS TO Contact contact WHERE 'ROLE_ADMIN' IN (CURRENT_ROLES)</access-rule>
-    <access-rule>GRANT ACCESS TO User user WHERE user.name = CURRENT_PRINCIPAL</access-rule>
-    <access-rule>GRANT ACCESS TO User user WHERE 'ROLE_ADMIN' IN (CURRENT_ROLES)</access-rule>
+    <access-rule>GRANT CREATE ACCESS TO User user WHERE user.name = CURRENT_PRINCIPAL</access-rule>
+<!--     <access-rule>GRANT CREATE ACCESS TO User user WHERE user.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 4 AND entry.sid.name = CURRENT_PRINCIPAL AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.User')</access-rule> -->
+    <access-rule>GRANT READ ACCESS TO User user WHERE user.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 1 AND entry.sid.name = CURRENT_PRINCIPAL AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.User')</access-rule>
+    <access-rule>GRANT UPDATE ACCESS TO User user WHERE user.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 2 AND entry.sid.name = CURRENT_PRINCIPAL AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.User')</access-rule>
+    <access-rule>GRANT DELETE ACCESS TO User user WHERE user.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 2 AND entry.sid.name = CURRENT_PRINCIPAL AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.User')</access-rule>
+    <access-rule>GRANT CREATE ACCESS TO User user WHERE user.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 4 AND entry.sid.name IN (CURRENT_ROLES) AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.User')</access-rule>
+    <access-rule>GRANT READ ACCESS TO User user WHERE user.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 1 AND entry.sid.name IN (CURRENT_ROLES) AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.User')</access-rule>
+    <access-rule>GRANT UPDATE ACCESS TO User user WHERE user.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 2 AND entry.sid.name IN (CURRENT_ROLES) AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.User')</access-rule>
+    <access-rule>GRANT DELETE ACCESS TO User user WHERE user.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 2 AND entry.sid.name IN (CURRENT_ROLES) AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.User')</access-rule>
+
+    <access-rule>GRANT CREATE ACCESS TO Contact contact WHERE contact.owner.name = CURRENT_PRINCIPAL</access-rule>
+<!--     <access-rule>GRANT CREATE ACCESS TO Contact contact WHERE contact.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 4 AND entry.sid.name = CURRENT_PRINCIPAL AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.Contact')</access-rule> -->
+    <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 1 AND entry.sid.name = CURRENT_PRINCIPAL AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.Contact')</access-rule>
+    <access-rule>GRANT UPDATE ACCESS TO Contact contact WHERE contact.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 2 AND entry.sid.name = CURRENT_PRINCIPAL AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.Contact')</access-rule>
+    <access-rule>GRANT DELETE ACCESS TO Contact contact WHERE contact.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 2 AND entry.sid.name = CURRENT_PRINCIPAL AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.Contact')</access-rule>
+    <access-rule>GRANT CREATE ACCESS TO Contact contact WHERE contact.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 4 AND entry.sid.name IN (CURRENT_ROLES) AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.Contact')</access-rule>
+    <access-rule>GRANT READ ACCESS TO Contact contact WHERE contact.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 1 AND entry.sid.name IN (CURRENT_ROLES) AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.Contact')</access-rule>
+    <access-rule>GRANT UPDATE ACCESS TO Contact contact WHERE contact.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 2 AND entry.sid.name IN (CURRENT_ROLES) AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.Contact')</access-rule>
+    <access-rule>GRANT DELETE ACCESS TO Contact contact WHERE contact.id IN (SELECT entry.acl.entity.id FROM AccessControlEntry entry WHERE entry.granting = TRUE AND entry.permissions.mask = 2 AND entry.sid.name IN (CURRENT_ROLES) AND entry.acl.entityType.className = 'net.sf.jpasecurity.contacts.model.Contact')</access-rule>
   </persistence-unit>
 
 </security>
