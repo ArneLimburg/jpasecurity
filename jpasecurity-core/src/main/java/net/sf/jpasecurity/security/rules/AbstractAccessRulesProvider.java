@@ -122,14 +122,15 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
         ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
         AccessRulesCompiler compiler = new AccessRulesCompiler(persistenceMapping, exceptionFactory);
         accessRules = new ArrayList<AccessRule>();
-        try {
-            for (String accessRule : rules) {
+        for (String accessRule : rules) {
+            try {
                 JpqlAccessRule parsedRule = jpqlParser.parseRule(accessRule);
                 Collection<AccessRule> compiledRules = compiler.compile(parsedRule);
                 accessRules.addAll(compiledRules);
+            } catch (ParseException e) {
+                String message = "Parse error in '" + accessRule + "'";
+                throw configuration.getExceptionFactory().createRuntimeException(message, e);
             }
-        } catch (ParseException e) {
-            throw configuration.getExceptionFactory().createRuntimeException(e);
         }
     }
 
