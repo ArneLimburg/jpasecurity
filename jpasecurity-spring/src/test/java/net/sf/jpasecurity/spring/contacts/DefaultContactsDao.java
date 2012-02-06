@@ -48,6 +48,7 @@ public class DefaultContactsDao implements ContactsDao {
 
     @PostFilter("hasPermission(filterObject, 'READ')")
     public List<Contact> getAllContacts() {
-        return entityManager.createQuery("SELECT contact FROM Contact contact INNER JOIN FETCH contact.owner user").getResultList();
+        String query = "SELECT contact FROM Contact contact INNER JOIN FETCH contact.owner user";
+        return entityManager.createQuery(query).getResultList();
     }
 }

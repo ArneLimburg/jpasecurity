@@ -44,7 +44,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * 
  * @author Arne Limburg
  */
 public class AclContactsTestData extends ContactsTestData {
