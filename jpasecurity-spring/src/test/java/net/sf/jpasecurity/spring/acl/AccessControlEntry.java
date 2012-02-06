@@ -56,23 +56,23 @@ public class AccessControlEntry {
     public long getId() {
         return id;
     }
-    
+
     public AccessControlList getAcl() {
         return acl;
     }
-    
+
     public Sid getSid() {
         return sid;
     }
-    
+
     public Permissions getPermissions() {
         return permissions;
     }
-    
+
     public boolean isGranting() {
         return granting;
     }
-    
+
     public Auditing getAuditing() {
         return auditing;
     }
