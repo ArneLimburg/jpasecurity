@@ -87,6 +87,8 @@
 			<map><entry key="eclipselink.weaving" value="false"/></map>
 		</property>
 	</bean>
+	<bean id="jpaDialect"
+         class="org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect" />
 
 	<!-- Transaction manager for a single JPA EntityManagerFactory (alternative to JTA) -->
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
@@ -112,10 +114,14 @@
 	<!--
 		Post-processor to perform exception translation on @Repository classes (from native
 		exceptions such as JPA PersistenceExceptions to Spring's DataAccessException hierarchy).
-	
-	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
-	
 	-->
+   <!-- JPA annotations bean post processor. Will inject persistence related resources. -->
+   <!-- Necessary to get the entity manager injected into the factory bean -->
+   <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+   <!-- Adds transparent exception translation to the DAOs -->
+   <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+   <!-- Adds dependency checks for setters annotated with @Required -->
+   <bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
 
 	<!--
 		Will automatically be transactional due to @Transactional.
