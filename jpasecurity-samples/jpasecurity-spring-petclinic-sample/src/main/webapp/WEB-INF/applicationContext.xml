@@ -19,39 +19,6 @@
 			http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
 
 	<!-- ========================= RESOURCE DEFINITIONS ========================= -->
-<!-- 
-   <context:load-time-weaver aspectj-weaving="on" />
-    <context:annotation-config />
-    
-    <aop:aspectj-autoproxy />
-    <tx:annotation-driven mode="aspectj" transaction-manager="transactionManager"/>
-    <tx:annotation-driven mode="proxy" proxy-target-class="true"></tx:annotation-driven> -
-    <bean
-        class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
-    <bean
-        class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
- 
-    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory" />
-    </bean>
- 
-     
-    <bean id="entityManagerFactory"
-        class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="persistenceUnitName" value="plugin-web-domain"></property>
-        <property name="dataSource" ref="dataSource"></property>   
-      <property name="jpaVendorAdapter">
-        <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-            <property name="showSql" value="true" />
-            <property name="generateDdl" value="true"/>
-            <property name="databasePlatform" value="org.hibernate.dialect.MySQLInnoDBDialect" />
-      </property>
-    </bean>
-    
-    -->
-
-
-
 	<!-- Configurer that replaces ${...} placeholders with values from a properties file -->
 	<!-- (in this case, JDBC-related settings for the dataSource definition below) -->
 	<context:property-placeholder location="classpath:jdbc.properties"/>
@@ -74,10 +41,16 @@
 	<bean id="entityManagerFactory" class="net.sf.jpasecurity.spring.persistence.SecureContainerEntityManagerFactoryBean"
 			p:dataSource-ref="dataSource">
         <property name="persistenceUnitName" value="PetClinic" />
+        <property name="persistenceXmlLocation" value="classpath:META-INF/persistence.xml"/>  
+        <!-- 
+        <property name="loadTimeWeaver">          
+        	<bean class="org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver"/> 
+        </property>
+         -->  
   		<property name="jpaVendorAdapter">
 			<bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
-					<property name="databasePlatform" value="org.eclipse.persistence.platform.database.HSQLPlatform"/>
-        			<property name="showSql" value="true"/>
+				<property name="databasePlatform" value="org.eclipse.persistence.platform.database.HSQLPlatform"/>
+        		<property name="showSql" value="true"/>
 				<!-- 	
 				p:database="${jpa.database}" p:showSql="${jpa.showSql}"
 				-->
@@ -86,6 +59,7 @@
 		<property name="jpaPropertyMap">
 			<map><entry key="eclipselink.weaving" value="false"/></map>
 		</property>
+	
 	</bean>
 	<bean id="jpaDialect"
          class="org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect" />
