@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Application context definition for PetClinic on JPA.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:sec="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+			http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+	<!-- ========================= RESOURCE DEFINITIONS ========================= -->
+	<!-- Configurer that replaces ${...} placeholders with values from a properties file -->
+	<!-- (in this case, JDBC-related settings for the dataSource definition below) -->
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+ 
+	<!--
+		Uses Apache Commons DBCP for connection pooling. See Commons DBCP documentation
+		for the required JAR files. Alternatively you can use another connection pool
+		such as C3P0, similarly configured using Spring.
+		
+		init-method="createDataSource"
+	-->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close"
+			p:driverClassName="${jdbc.driverClassName}" 
+			p:url="${jdbc.url}" 
+			p:username="${jdbc.username}"
+			p:password="${jdbc.password}"
+	/>
+
+	<!-- JPA EntityManagerFactory -->
+	<bean id="entityManagerFactory" class="net.sf.jpasecurity.spring.persistence.SecureContainerEntityManagerFactoryBean"
+			p:dataSource-ref="dataSource">
+        <property name="persistenceUnitName" value="PetClinic" />
+        <property name="persistenceXmlLocation" value="classpath:META-INF/persistence.xml"/>  
+        <!-- 
+        <property name="loadTimeWeaver">          
+        	<bean class="org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver"/> 
+        </property>
+         -->  
+  		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
+				<property name="databasePlatform" value="org.eclipse.persistence.platform.database.HSQLPlatform"/>
+        		<property name="showSql" value="true"/>
+				<!-- 	
+				p:database="${jpa.database}" p:showSql="${jpa.showSql}"
+				-->
+			</bean>
+		</property>
+		<property name="jpaPropertyMap">
+			<map><entry key="eclipselink.weaving" value="false"/></map>
+		</property>
+	
+	</bean>
+	<bean id="jpaDialect"
+         class="org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect" />
+
+	<!-- Transaction manager for a single JPA EntityManagerFactory (alternative to JTA) -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
+			p:entityManagerFactory-ref="entityManagerFactory"/>
+
+
+	<!-- ========================= BUSINESS OBJECT DEFINITIONS ========================= -->
+
+	<!--
+		Activates various annotations to be detected in bean classes: Spring's
+		@Required and @Autowired, as well as JSR 250's @PostConstruct,
+		@PreDestroy and @Resource (if available) and JPA's @PersistenceContext
+		and @PersistenceUnit (if available).
+	-->
+	<context:annotation-config/>
+
+	<!--
+		Instruct Spring to perform declarative transaction management
+		automatically on annotated classes.
+	-->
+	<tx:annotation-driven/>
+
+	<!--
+		Post-processor to perform exception translation on @Repository classes (from native
+		exceptions such as JPA PersistenceExceptions to Spring's DataAccessException hierarchy).
+	-->
+   <!-- JPA annotations bean post processor. Will inject persistence related resources. -->
+   <!-- Necessary to get the entity manager injected into the factory bean -->
+   <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+   <!-- Adds transparent exception translation to the DAOs -->
+   <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+   <!-- Adds dependency checks for setters annotated with @Required -->
+   <bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+
+	<!--
+		Will automatically be transactional due to @Transactional.
+		EntityManager will be auto-injected due to @PersistenceContext.
+		PersistenceExceptions will be auto-translated due to @Repository.
+	-->
+	<bean id="clinic" class="org.springframework.samples.petclinic.jpa.EntityManagerClinic"/>
+	
+    <sec:http auto-config="true">
+        <sec:intercept-url pattern="/addOwner.do" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <sec:intercept-url pattern="/*.do" access="ROLE_USER" />
+        <sec:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <sec:form-login login-page="/login.jsp"/>
+        <sec:logout />
+    </sec:http>
+
+	<bean id="userService" class="org.springframework.samples.petclinic.security.CredentialService"/>
+
+	<sec:authentication-manager alias="authenticationManager">
+		<sec:authentication-provider user-service-ref="userService" >
+        	<sec:password-encoder hash="md5"/>
+    	</sec:authentication-provider>
+    </sec:authentication-manager>
+
+</beans>
