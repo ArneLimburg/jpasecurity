@@ -15,8 +15,6 @@
  */
 package net.sf.jpasecurity.model;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
@@ -25,7 +23,6 @@ import javax.persistence.Version;
  * @author Arne Limburg
  */
 @MappedSuperclass
-@Access(AccessType.FIELD)
 public class AbstractVersionedSuperclass {
 
     @Version

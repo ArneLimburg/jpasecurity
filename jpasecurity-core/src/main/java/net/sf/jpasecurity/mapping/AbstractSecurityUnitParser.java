@@ -173,6 +173,9 @@ public abstract class AbstractSecurityUnitParser {
             usesFieldAccess = derivedFieldAccess;
         } else if (superclassMapping != null) {
             usesFieldAccess = superclassMapping.usesFieldAccess();
+            if (!usesFieldAccess) {
+                usesFieldAccess = usesFieldAccess(mappedClass);
+            }
         } else {
             usesFieldAccess = usesFieldAccess(mappedClass);
         }
