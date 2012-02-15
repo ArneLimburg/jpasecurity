@@ -27,13 +27,11 @@
 		Uses Apache Commons DBCP for connection pooling. See Commons DBCP documentation
 		for the required JAR files. Alternatively you can use another connection pool
 		such as C3P0, similarly configured using Spring.
-		
-		init-method="createDataSource"
 	-->
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close"
-			p:driverClassName="${jdbc.driverClassName}" 
-			p:url="${jdbc.url}" 
-			p:username="${jdbc.username}"
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close"
+			p:driverClass="${jdbc.driverClassName}" 
+			p:jdbcUrl="${jdbc.url}" 
+			p:user="${jdbc.username}"
 			p:password="${jdbc.password}"
 	/>
 
@@ -42,27 +40,14 @@
 			p:dataSource-ref="dataSource">
         <property name="persistenceUnitName" value="PetClinic" />
         <property name="persistenceXmlLocation" value="classpath:META-INF/persistence.xml"/>  
-        <!-- 
-        <property name="loadTimeWeaver">          
-        	<bean class="org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver"/> 
-        </property>
-         -->  
   		<property name="jpaVendorAdapter">
-			<bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
-				<property name="databasePlatform" value="org.eclipse.persistence.platform.database.HSQLPlatform"/>
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
         		<property name="showSql" value="true"/>
-				<!-- 	
-				p:database="${jpa.database}" p:showSql="${jpa.showSql}"
-				-->
 			</bean>
-		</property>
-		<property name="jpaPropertyMap">
-			<map><entry key="eclipselink.weaving" value="false"/></map>
 		</property>
 	
 	</bean>
-	<bean id="jpaDialect"
-         class="org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect" />
+
 
 	<!-- Transaction manager for a single JPA EntityManagerFactory (alternative to JTA) -->
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
@@ -97,11 +82,6 @@
    <!-- Adds dependency checks for setters annotated with @Required -->
    <bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
 
-	<!--
-		Will automatically be transactional due to @Transactional.
-		EntityManager will be auto-injected due to @PersistenceContext.
-		PersistenceExceptions will be auto-translated due to @Repository.
-	-->
 	<bean id="clinic" class="org.springframework.samples.petclinic.jpa.EntityManagerClinic"/>
 	
     <sec:http auto-config="true">

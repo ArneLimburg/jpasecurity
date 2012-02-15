@@ -597,9 +597,14 @@
         <version>2.0.5</version>
       </dependency>
       <dependency>
+         <groupId>org.hibernate</groupId>
+         <artifactId>hibernate-core</artifactId>
+      <version>3.6.9.Final</version>
+      </dependency>
+      <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-entitymanager</artifactId>
-        <version>3.6.7.Final</version>
+        <version>3.6.9.Final</version>
         <exclusions>
           <exclusion>
             <groupId>javax.transaction</groupId>
@@ -651,6 +656,11 @@
         <artifactId>easymock</artifactId>
         <version>3.0</version>
       </dependency>
+      <dependency>
+		<groupId>c3p0</groupId>
+		<artifactId>c3p0</artifactId>
+		<version>0.9.1.2</version>
+	</dependency>
     </dependencies>
   </dependencyManagement>
 </project>
