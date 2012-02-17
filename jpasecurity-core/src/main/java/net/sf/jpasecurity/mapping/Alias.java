@@ -27,6 +27,9 @@ public class Alias {
         if (name == null) {
             throw new IllegalArgumentException("name may not be null");
         }
+        if (name.indexOf('.') != -1) {
+            throw new IllegalArgumentException("name may not contain dots ('.')");
+        }
         this.name = name;
     }
 

@@ -23,6 +23,7 @@ import java.util.Set;
 
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
 /**
@@ -69,7 +70,7 @@ public class JpqlCompiledStatement extends JpqlStatementHolder {
     public Map<String, Class<?>> getSelectedTypes(MappingInformation mappingInformation) {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: getSelectedPaths()) {
-            selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, getTypeDefinitions()));
+            selectedTypes.put(selectedPath, mappingInformation.getType(new Path(selectedPath), getTypeDefinitions()));
         }
         return selectedTypes;
     }

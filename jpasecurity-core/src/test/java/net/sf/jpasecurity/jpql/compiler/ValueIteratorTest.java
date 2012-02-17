@@ -36,6 +36,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import net.sf.jpasecurity.mapping.Alias;
+import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.model.MethodAccessTestBean;
 import net.sf.jpasecurity.model.MethodAccessTestBeanBuilder;
@@ -68,11 +69,11 @@ public class ValueIteratorTest {
     public void initializeTypeDefinitions() {
         typeDefinitions = new HashSet<TypeDefinition>();
         typeDefinitions.add(new TypeDefinition(BEAN1, MethodAccessTestBean.class));
-        typeDefinitions.add(new TypeDefinition(PARENT1, MethodAccessTestBean.class, "bean1.parent", true));
-        typeDefinitions.add(new TypeDefinition(CHILD1, MethodAccessTestBean.class, "bean1.children", false));
+        typeDefinitions.add(new TypeDefinition(PARENT1, MethodAccessTestBean.class, new Path("bean1.parent"), true));
+        typeDefinitions.add(new TypeDefinition(CHILD1, MethodAccessTestBean.class, new Path("bean1.children"), false));
         typeDefinitions.add(new TypeDefinition(BEAN2, MethodAccessTestBean.class));
-        typeDefinitions.add(new TypeDefinition(PARENT2, MethodAccessTestBean.class, "bean2.parent", false));
-        typeDefinitions.add(new TypeDefinition(CHILD2, MethodAccessTestBean.class, "bean2.children", true));
+        typeDefinitions.add(new TypeDefinition(PARENT2, MethodAccessTestBean.class, new Path("bean2.parent"), false));
+        typeDefinitions.add(new TypeDefinition(CHILD2, MethodAccessTestBean.class, new Path("bean2.children"), true));
         possibleValues = new SetHashMap<Alias, Object>();
     }
 
@@ -483,7 +484,7 @@ public class ValueIteratorTest {
     public void nextWithDoubleJoin() {
         typeDefinitions.add(new TypeDefinition(GRANDCHILD2,
                                                MethodAccessTestBean.class,
-                                               "child2.children",
+                                               new Path("child2.children"),
                                                false));
         MethodAccessTestBean bean1 = beanFactory.withName("bean1").withParent().withChild().create();
         MethodAccessTestBean bean2 = beanFactory.withName("bean2").withParent().withChildren().create();

@@ -55,7 +55,7 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
         this.currentPossibleDependentValues = new ListHashMap<Alias, Object>();
         for (TypeDefinition typeDefinition: getJoinAliasDefinitions(typeDefinitions)) {
             possibleValues.remove(typeDefinition.getAlias());
-            this.dependentTypeDefinitions.add(getAlias(typeDefinition.getJoinPath()), typeDefinition);
+            this.dependentTypeDefinitions.add(typeDefinition.getJoinPath().getRootAlias(), typeDefinition);
         }
         for (Map.Entry<Alias, Set<Object>> possibleValueEntry: possibleValues.entrySet()) {
             this.possibleValues.put(possibleValueEntry.getKey(), new ArrayList<Object>(possibleValueEntry.getValue()));
@@ -142,7 +142,7 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
         if (dependentTypeDefinition.isOuterJoin()) {
             return true;
         }
-        String subpath = getSubpath(dependentTypeDefinition.getJoinPath());
+        String subpath = dependentTypeDefinition.getJoinPath().getSubpath();
         List<Object> dependentValues = pathEvaluator.evaluateAll(Collections.singleton(value), subpath);
         if (dependentValues.isEmpty()) {
             return false;
@@ -187,7 +187,7 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
     }
 
     private Object firstDependentValue(Object value, TypeDefinition dependentTypeDefinition) {
-        String subpath = getSubpath(dependentTypeDefinition.getJoinPath());
+        String subpath = dependentTypeDefinition.getJoinPath().getSubpath();
         List<Object> dependentValues = pathEvaluator.evaluateAll(Collections.singleton(value), subpath);
         currentPossibleDependentValues.put(dependentTypeDefinition.getAlias(), dependentValues);
         if (dependentValues.isEmpty()) {
@@ -287,16 +287,6 @@ public class ValueIterator implements Iterator<Map<Alias, Object>> {
             }
         }
         throw new NoSuchElementException();
-    }
-
-    private Alias getAlias(String path) {
-        int index = path.indexOf('.');
-        return index == -1? new Alias(path): new Alias(path.substring(0, index));
-    }
-
-    private String getSubpath(String path) {
-        int index = path.indexOf('.');
-        return path.substring(index + 1);
     }
 
     private Set<TypeDefinition> getJoinAliasDefinitions(Set<TypeDefinition> typeDefinitions) {

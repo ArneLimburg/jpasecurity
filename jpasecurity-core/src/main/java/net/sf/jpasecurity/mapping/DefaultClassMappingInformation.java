@@ -44,6 +44,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
     private DefaultClassMappingInformation superclassMapping;
     private Set<ClassMappingInformation> subclassMappings = new HashSet<ClassMappingInformation>();
     private ClassMappingInformation idClassMapping;
+    private boolean abstractType;
     private boolean embeddable;
     private boolean fieldAccess;
     private boolean metadataComplete;
@@ -59,7 +60,6 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
                                           Class<?> entityType,
                                           DefaultClassMappingInformation superclassMapping,
                                           ClassMappingInformation idClass,
-                                          boolean embeddable,
                                           boolean usesFieldAccess,
                                           boolean metadataComplete,
                                           ExceptionFactory exceptionFactory) {
@@ -76,7 +76,6 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
             superclassMapping.subclassMappings.add(this);
         }
         this.idClassMapping = idClass;
-        this.embeddable = embeddable;
         this.fieldAccess = usesFieldAccess;
         this.metadataComplete = metadataComplete;
         this.exceptionFactory = exceptionFactory;
@@ -109,8 +108,20 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
         this.idClassMapping = idClassMapping;
     }
 
+    public boolean isAbstractType() {
+        return abstractType;
+    }
+
+    void setAbstractType(boolean abstractType) {
+        this.abstractType = abstractType;
+    }
+
     public boolean isEmbeddable() {
         return embeddable;
+    }
+
+    void setEmbeddable(boolean embeddable) {
+        this.embeddable = embeddable;
     }
 
     public boolean usesFieldAccess() {
