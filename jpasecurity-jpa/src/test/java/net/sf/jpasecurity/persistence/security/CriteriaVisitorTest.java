@@ -36,8 +36,10 @@ import net.sf.jpasecurity.configuration.AccessRule;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
+import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.model.TestBean;
 import net.sf.jpasecurity.persistence.JpaExceptionFactory;
@@ -66,7 +68,9 @@ public class CriteriaVisitorTest {
         expect(mappingInformation.containsClassMapping("TestBean")).andReturn(true).anyTimes();
         ClassMappingInformation classMapping = createMock(ClassMappingInformation.class);
         expect(mappingInformation.getClassMapping("TestBean")).andReturn(classMapping).anyTimes();
-        expect(mappingInformation.<TestBean>getType((String)anyObject(), (Set<TypeDefinition>)anyObject()))
+        expect(mappingInformation.<TestBean>getType((Path)anyObject(), (Set<TypeDefinition>)anyObject()))
+            .andReturn(TestBean.class);
+        expect(mappingInformation.<TestBean>getType((Alias)anyObject(), (Set<TypeDefinition>)anyObject()))
             .andReturn(TestBean.class);
         expect(classMapping.<TestBean>getEntityType()).andReturn(TestBean.class).anyTimes();
         securityContext = createMock(SecurityContext.class);

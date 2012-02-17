@@ -32,6 +32,7 @@ import net.sf.jpasecurity.jpa.JpaSecurityUnit;
 import net.sf.jpasecurity.mapping.AbstractSecurityUnitParser;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.model.acl.Acl;
 import net.sf.jpasecurity.model.acl.AclEntry;
@@ -63,9 +64,12 @@ public class AclValueIteratorTest {
     @Before
     public void createTestData() {
         typeDefinitions = new HashSet<TypeDefinition>();
-        typeDefinitions.add(new TypeDefinition(GROUP, Group.class, "user.groups", true));
+        typeDefinitions.add(new TypeDefinition(GROUP, Group.class, new Path("user.groups"), true));
         typeDefinitions.add(new TypeDefinition(ACL_ENTRY, AclEntry.class));
-        typeDefinitions.add(new TypeDefinition(GROUP_FULL_HIERARCHY, Group.class, "groups.fullHierarchy", true));
+        typeDefinitions.add(new TypeDefinition(GROUP_FULL_HIERARCHY,
+                                               Group.class,
+                                               new Path("groups.fullHierarchy"),
+                                               true));
         typeDefinitions.add(new TypeDefinition(USER, User.class));
         typeDefinitions.add(new TypeDefinition(ACL, Acl.class));
         possibleValues = new SetHashMap<Alias, Object>();
