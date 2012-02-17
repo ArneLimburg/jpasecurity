@@ -210,6 +210,10 @@ public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
             || annotatedMember.isAnnotationPresent(Enumerated.class);
     }
 
+    protected boolean isAbstractType(Class<?> type) {
+        return type.isAnnotationPresent(MappedSuperclass.class);
+    }
+
     protected boolean isEmbeddable(Class<?> type) {
         return type.isAnnotationPresent(Embeddable.class);
     }
