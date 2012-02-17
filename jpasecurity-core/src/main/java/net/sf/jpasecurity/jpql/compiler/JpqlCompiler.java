@@ -46,6 +46,7 @@ import net.sf.jpasecurity.jpql.parser.ToStringVisitor;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.util.ValueHolder;
 
@@ -177,7 +178,7 @@ public class JpqlCompiler {
             if (node.jjtGetNumChildren() == 1) {
                 return false;
             }
-            String path = pathVisitor.getPath(node);
+            Path path = pathVisitor.getPath(node);
             Alias alias = getAlias(node);
             Class<?> type = null;
             if (countVisitor.isCount(node)) {
@@ -189,7 +190,7 @@ public class JpqlCompiler {
                     type = null; // must be determined later
                 }
             }
-            typeDefinitions.add(new TypeDefinition(alias, type, path, path.contains("."), false));
+            typeDefinitions.add(new TypeDefinition(alias, type, path, path.hasSubpath(), false));
             return false;
         }
 
@@ -244,7 +245,7 @@ public class JpqlCompiler {
                                   Set<TypeDefinition> typeDefinitions,
                                   boolean innerJoin,
                                   boolean fetchJoin) {
-            String fetchPath = node.jjtGetChild(0).toString();
+            Path fetchPath = new Path(node.jjtGetChild(0).toString());
             Class<?> type = mappingInformation.getType(fetchPath, typeDefinitions);
             if (node.jjtGetNumChildren() == 1) {
                 typeDefinitions.add(new TypeDefinition(type, fetchPath, innerJoin, fetchJoin));
@@ -293,16 +294,16 @@ public class JpqlCompiler {
         }
     }
 
-    private class PathVisitor extends JpqlVisitorAdapter<ValueHolder<String>> {
+    private class PathVisitor extends JpqlVisitorAdapter<ValueHolder<Path>> {
 
-        public String getPath(Node node) {
-            ValueHolder<String> result = new ValueHolder<String>();
+        public Path getPath(Node node) {
+            ValueHolder<Path> result = new ValueHolder<Path>();
             node.visit(this, result);
             return result.getValue();
         }
 
-        public boolean visit(JpqlPath node, ValueHolder<String> result) {
-            result.setValue(node.toString());
+        public boolean visit(JpqlPath node, ValueHolder<Path> result) {
+            result.setValue(new Path(node.toString()));
             return false;
         }
     }

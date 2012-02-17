@@ -119,13 +119,31 @@ public class DefaultMappingInformation implements MappingInformation {
         return Collections.unmodifiableCollection(resolvedMappings);
     }
 
-    public <T> Class<T> getType(String path, Set<TypeDefinition> typeDefinitions) {
-        String[] entries = path.split("\\.");
-        Class<?> type = getAliasType(new Alias(entries[0]), typeDefinitions);
-        for (int i = 1; i < entries.length; i++) {
-            type = getClassMapping(type).getPropertyMapping(entries[i]).getProperyType();
+    public PropertyMappingInformation getPropertyMapping(Path path, Set<TypeDefinition> typeDefinitions) {
+        Class<?> type = getType(path.getRootAlias(), typeDefinitions);
+        PropertyMappingInformation propertyMapping = null;
+        for (String propertyName: path.getSubpath().split("\\.")) {
+            propertyMapping = getClassMapping(type).getPropertyMapping(propertyName);
+            type = propertyMapping.getProperyType();
         }
-        return (Class<T>)type;
+        return propertyMapping;
+    }
+
+    public <T> Class<T> getType(Path path, Set<TypeDefinition> typeDefinitions) {
+        if (path.hasSubpath()) {
+            return (Class<T>)getPropertyMapping(path, typeDefinitions).getProperyType();
+        } else {
+            return getType(path.getRootAlias(), typeDefinitions);
+        }
+    }
+
+    public <T> Class<T> getType(Alias alias, Set<TypeDefinition> typeDefinitions) {
+        for (TypeDefinition typeDefinition: typeDefinitions) {
+            if (alias.equals(typeDefinition.getAlias())) {
+                return typeDefinition.<T>getType();
+            }
+        }
+        throw new TypeNotPresentException(alias.getName(), null);
     }
 
     private void initializeEntityNameMappings() {
@@ -134,14 +152,5 @@ public class DefaultMappingInformation implements MappingInformation {
             entityNameMappings.put(classMapping.getEntityName(), classMapping);
             entityNameMappings.put(classMapping.getEntityType().getName(), classMapping);
         }
-    }
-
-    private Class<?> getAliasType(Alias alias, Set<TypeDefinition> typeDefinitions) {
-        for (TypeDefinition typeDefinition: typeDefinitions) {
-            if (alias.equals(typeDefinition.getAlias())) {
-                return typeDefinition.getType();
-            }
-        }
-        throw new TypeNotPresentException(alias.getName(), null);
     }
 }

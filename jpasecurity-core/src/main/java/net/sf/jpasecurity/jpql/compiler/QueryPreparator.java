@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
+import java.beans.Introspector;
+
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
@@ -315,8 +317,7 @@ public class QueryPreparator {
     }
 
     public JpqlSubselect createSubselectById(String path, ClassMappingInformation classMapping) {
-        String alias = classMapping.getEntityName();
-        alias = Character.toLowerCase(alias.charAt(0)) + alias.substring(1);
+        String alias = Introspector.decapitalize(classMapping.getEntityName());
         if (alias.equalsIgnoreCase(path)) {
             alias = alias + '0';
         }

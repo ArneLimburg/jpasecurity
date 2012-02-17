@@ -193,10 +193,11 @@ public abstract class AbstractSecurityUnitParser {
                                                               mappedClass,
                                                               (DefaultClassMappingInformation)superclassMapping,
                                                               idClassMapping,
-                                                              isEmbeddable(mappedClass),
                                                               usesFieldAccess,
                                                               metadataComplete,
                                                               exceptionFactory);
+            classMapping.setEmbeddable(isEmbeddable(mappedClass));
+            classMapping.setAbstractType(isAbstractType(mappedClass));
             classMappings.put(mappedClass, classMapping);
         } else {
             classMapping.setEntityName(entityName);
@@ -480,6 +481,8 @@ public abstract class AbstractSecurityUnitParser {
     protected boolean isMappable(Member member) {
         return !Modifier.isStatic(member.getModifiers()) && !Modifier.isTransient(member.getModifiers());
     }
+
+    protected abstract boolean isAbstractType(Class<?> type);
 
     protected abstract boolean isEmbeddable(Class<?> type);
 

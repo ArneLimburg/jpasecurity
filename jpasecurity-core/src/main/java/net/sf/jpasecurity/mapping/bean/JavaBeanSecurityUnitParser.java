@@ -103,6 +103,10 @@ public class JavaBeanSecurityUnitParser extends AbstractSecurityUnitParser {
         return null;
     }
 
+    protected boolean isAbstractType(Class<?> type) {
+        return false;
+    }
+
     protected boolean isEmbeddable(Class<?> type) {
         return false;
     }

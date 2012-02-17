@@ -16,8 +16,6 @@
 
 package net.sf.jpasecurity.security;
 
-import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
-
 import java.beans.Introspector;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,6 +51,9 @@ import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.Path;
+import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.mapping.TypeDefinition;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -368,12 +369,21 @@ public class EntityFilter {
     }
 
     private Map<String, Class<?>> getSelectedEntityTypes(JpqlCompiledStatement statement) {
+        Set<TypeDefinition> typeDefinitions = statement.getTypeDefinitions();
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: statement.getSelectedPaths()) {
-            Class<?> selectedType = mappingInformation.getType(selectedPath, statement.getTypeDefinitions());
-            if (isSimplePropertyType(selectedType)) {
-                selectedPath = selectedPath.substring(0, selectedPath.lastIndexOf('.'));
-                selectedType = mappingInformation.getType(selectedPath, statement.getTypeDefinitions());
+            Class<?> selectedType;
+            if (selectedPath.contains(".")) {
+                PropertyMappingInformation propertyMapping
+                    = mappingInformation.getPropertyMapping(new Path(selectedPath), typeDefinitions);
+                if (!propertyMapping.isRelationshipMapping()) {
+                    selectedPath = selectedPath.substring(0, selectedPath.lastIndexOf('.'));
+                    propertyMapping
+                        = mappingInformation.getPropertyMapping(new Path(selectedPath), typeDefinitions);
+                }
+                selectedType = propertyMapping.getProperyType();
+            } else {
+                selectedType = mappingInformation.getType(new Alias(selectedPath), typeDefinitions);
             }
             selectedTypes.put(selectedPath, selectedType);
         }

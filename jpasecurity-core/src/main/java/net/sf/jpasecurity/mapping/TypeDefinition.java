@@ -24,7 +24,7 @@ public class TypeDefinition {
 
     private Alias alias;
     private Class<?> type;
-    private String joinPath;
+    private Path joinPath;
     private boolean innerJoin;
     private boolean fetchJoin;
 
@@ -33,15 +33,15 @@ public class TypeDefinition {
         this.type = type;
     }
 
-    public TypeDefinition(Class<?> type, String joinPath, boolean innerJoin, boolean fetchJoin) {
+    public TypeDefinition(Class<?> type, Path joinPath, boolean innerJoin, boolean fetchJoin) {
         this(null, type, joinPath, innerJoin, fetchJoin);
     }
 
-    public TypeDefinition(Alias alias, Class<?> type, String joinPath, boolean innerJoin) {
+    public TypeDefinition(Alias alias, Class<?> type, Path joinPath, boolean innerJoin) {
         this(alias, type, joinPath, innerJoin, false);
     }
 
-    public TypeDefinition(Alias alias, Class<?> type, String joinPath, boolean innerJoin, boolean fetchJoin) {
+    public TypeDefinition(Alias alias, Class<?> type, Path joinPath, boolean innerJoin, boolean fetchJoin) {
         this(alias, type);
         if (joinPath == null) {
             throw new IllegalArgumentException("joinPath may not be null");
@@ -55,7 +55,7 @@ public class TypeDefinition {
         return alias;
     }
 
-    public String getJoinPath() {
+    public Path getJoinPath() {
         return joinPath;
     }
 
@@ -79,11 +79,11 @@ public class TypeDefinition {
         return type == null;
     }
 
-    public Class<?> getType() {
+    public <T> Class<T> getType() {
         if (isPreliminary()) {
             throw new IllegalStateException("type is not yet determined");
         }
-        return type;
+        return (Class<T>)type;
     }
 
     public void setType(Class<?> type) {

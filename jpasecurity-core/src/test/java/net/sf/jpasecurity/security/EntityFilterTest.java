@@ -43,6 +43,7 @@ import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.model.MethodAccessTestBean;
@@ -72,7 +73,9 @@ public class EntityFilterTest {
         expect(mappingInformation.containsClassMapping(className)).andReturn(true).anyTimes();
         expect(mappingInformation.getClassMapping(className)).andReturn(classMapping).anyTimes();
         expect(mappingInformation.getClassMapping(MethodAccessTestBean.class)).andReturn(classMapping).anyTimes();
-        expect(mappingInformation.<Object>getType((String)anyObject(), (Set<TypeDefinition>)anyObject()))
+        expect(mappingInformation.<Object>getType((Alias)anyObject(), (Set<TypeDefinition>)anyObject()))
+            .andAnswer(new TypeAnswer<Object>()).anyTimes();
+        expect(mappingInformation.<Object>getType((Path)anyObject(), (Set<TypeDefinition>)anyObject()))
             .andAnswer(new TypeAnswer<Object>()).anyTimes();
         expect(classMapping.<MethodAccessTestBean>getEntityType()).andReturn(MethodAccessTestBean.class).anyTimes();
         expect(classMapping.getEntityName()).andReturn(Introspector.decapitalize(className)).anyTimes();

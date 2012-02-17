@@ -123,18 +123,16 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     private void evaluateJoinPathReplacements(Set<Replacement> replacements) {
         for (Replacement replacement: replacements) {
             if (replacement.getTypeDefinition().isJoin()) {
-                String joinPath = replacement.getTypeDefinition().getJoinPath();
-                int index = joinPath.indexOf('.');
-                String rootAlias = joinPath.substring(0, index);
+                Path joinPath = replacement.getTypeDefinition().getJoinPath();
                 Node replacementNode = replacement.getReplacement();
-                Replacement rootReplacement = getReplacement(rootAlias, replacements);
+                Replacement rootReplacement = getReplacement(joinPath.getRootAlias(), replacements);
                 while (rootReplacement != null && rootReplacement.getReplacement() != null) {
                     Node rootNode = rootReplacement.getReplacement().clone();
                     for (int i = 1; i < replacementNode.jjtGetNumChildren(); i++) {
                         rootNode.jjtAddChild(replacementNode.jjtGetChild(i), rootNode.jjtGetNumChildren());
                     }
                     replacement.setReplacement(rootNode);
-                    String newRootAlias = rootNode.jjtGetChild(0).toString();
+                    Alias newRootAlias = new Alias(rootNode.jjtGetChild(0).toString());
                     rootReplacement = getReplacement(newRootAlias, replacements);
                     replacementNode = rootNode;
                 }
@@ -142,7 +140,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         }
     }
 
-    private Replacement getReplacement(String alias, Set<Replacement> replacements) {
+    private Replacement getReplacement(Alias alias, Set<Replacement> replacements) {
         for (Replacement replacement: replacements) {
             if (replacement.getTypeDefinition().getAlias().equals(alias)) {
                 return replacement;
