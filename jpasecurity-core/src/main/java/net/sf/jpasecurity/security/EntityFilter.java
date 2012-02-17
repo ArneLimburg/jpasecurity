@@ -373,21 +373,30 @@ public class EntityFilter {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: statement.getSelectedPaths()) {
             Class<?> selectedType;
-            if (selectedPath.contains(".")) {
-                PropertyMappingInformation propertyMapping
-                    = mappingInformation.getPropertyMapping(new Path(selectedPath), typeDefinitions);
-                if (!propertyMapping.isRelationshipMapping()) {
-                    selectedPath = selectedPath.substring(0, selectedPath.lastIndexOf('.'));
-                    propertyMapping
-                        = mappingInformation.getPropertyMapping(new Path(selectedPath), typeDefinitions);
-                }
+            Path path = getSelectedPath(new Path(selectedPath), typeDefinitions);
+            if (path.hasSubpath()) {
+                PropertyMappingInformation propertyMapping = mappingInformation.getPropertyMapping(path, typeDefinitions);
                 selectedType = propertyMapping.getProperyType();
             } else {
-                selectedType = mappingInformation.getType(new Alias(selectedPath), typeDefinitions);
+                selectedType = mappingInformation.getType(path.getRootAlias(), typeDefinitions);
             }
             selectedTypes.put(selectedPath, selectedType);
         }
         return selectedTypes;
+    }
+
+    private Path getSelectedPath(Path selectedPath, Set<TypeDefinition> typeDefinitions) {
+        if (!selectedPath.hasSubpath()) {
+            return selectedPath;
+        }
+        PropertyMappingInformation propertyMapping
+            = mappingInformation.getPropertyMapping(selectedPath, typeDefinitions);
+        if (propertyMapping.isRelationshipMapping()) {
+            return selectedPath;
+        } else {
+            String path = selectedPath.toString();
+            return new Path(path.substring(0, path.lastIndexOf('.')));
+        }
     }
 
     public class AccessDefinition {
