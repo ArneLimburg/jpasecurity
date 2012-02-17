@@ -248,6 +248,21 @@ public class OrmXmlParser extends JpaAnnotationParser {
      * {@inheritDoc}
      */
     @Override
+    protected boolean isAbstractType(Class<?> type) {
+        Document mappingDocument = getMappingDocument(type);
+        if (evaluateNode(mappingDocument, MAPPED_SUPERCLASS_XPATH, type) != null) {
+            return true;
+        }
+        if (!isMetadataComplete(mappingDocument)) {
+            return super.isAbstractType(type);
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected boolean isEmbeddable(Class<?> type) {
         Document mappingDocument = getMappingDocument(type);
         if (evaluateNode(mappingDocument, EMBEDDABLE_XPATH, type) != null) {
