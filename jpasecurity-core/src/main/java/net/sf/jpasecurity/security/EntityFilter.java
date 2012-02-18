@@ -373,19 +373,20 @@ public class EntityFilter {
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
         for (String selectedPath: statement.getSelectedPaths()) {
             Class<?> selectedType;
-            Path path = getSelectedPath(new Path(selectedPath), typeDefinitions);
-            if (path.hasSubpath()) {
-                PropertyMappingInformation propertyMapping = mappingInformation.getPropertyMapping(path, typeDefinitions);
+            Path entityPath = getSelectedEntityPath(new Path(selectedPath), typeDefinitions);
+            if (entityPath.hasSubpath()) {
+                PropertyMappingInformation propertyMapping
+                    = mappingInformation.getPropertyMapping(entityPath, typeDefinitions);
                 selectedType = propertyMapping.getProperyType();
             } else {
-                selectedType = mappingInformation.getType(path.getRootAlias(), typeDefinitions);
+                selectedType = mappingInformation.getType(entityPath.getRootAlias(), typeDefinitions);
             }
-            selectedTypes.put(selectedPath, selectedType);
+            selectedTypes.put(entityPath.toString(), selectedType);
         }
         return selectedTypes;
     }
 
-    private Path getSelectedPath(Path selectedPath, Set<TypeDefinition> typeDefinitions) {
+    private Path getSelectedEntityPath(Path selectedPath, Set<TypeDefinition> typeDefinitions) {
         if (!selectedPath.hasSubpath()) {
             return selectedPath;
         }
