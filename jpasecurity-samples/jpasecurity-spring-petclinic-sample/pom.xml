@@ -116,10 +116,6 @@
       <artifactId>geronimo-jpa_2.0_spec</artifactId>
     </dependency>
     <dependency>
-		<groupId>c3p0</groupId>
-		<artifactId>c3p0</artifactId>
-	</dependency>
-    <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
     </dependency>

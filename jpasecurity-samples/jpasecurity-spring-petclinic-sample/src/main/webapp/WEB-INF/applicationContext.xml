@@ -28,12 +28,10 @@
 		for the required JAR files. Alternatively you can use another connection pool
 		such as C3P0, similarly configured using Spring.
 	-->
-	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close"
-			p:driverClass="${jdbc.driverClassName}" 
-			p:jdbcUrl="${jdbc.url}" 
-			p:user="${jdbc.username}"
-			p:password="${jdbc.password}"
-	/>
+	
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close"
+			p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.url}" p:username="${jdbc.username}"
+			p:password="${jdbc.password}"/>
 
 	<!-- JPA EntityManagerFactory -->
 	<bean id="entityManagerFactory" class="net.sf.jpasecurity.spring.persistence.SecureContainerEntityManagerFactoryBean"
@@ -41,9 +39,8 @@
         <property name="persistenceUnitName" value="PetClinic" />
         <property name="persistenceXmlLocation" value="classpath:META-INF/persistence.xml"/>  
   		<property name="jpaVendorAdapter">
-			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-        		<property name="showSql" value="true"/>
-			</bean>
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+        		p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
 		</property>
 	
 	</bean>
@@ -75,12 +72,9 @@
 		exceptions such as JPA PersistenceExceptions to Spring's DataAccessException hierarchy).
 	-->
    <!-- JPA annotations bean post processor. Will inject persistence related resources. -->
-   <!-- Necessary to get the entity manager injected into the factory bean -->
-   <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+
    <!-- Adds transparent exception translation to the DAOs -->
    <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
-   <!-- Adds dependency checks for setters annotated with @Required -->
-   <bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
 
 	<bean id="clinic" class="org.springframework.samples.petclinic.jpa.EntityManagerClinic"/>
 	
