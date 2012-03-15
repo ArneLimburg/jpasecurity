@@ -42,6 +42,7 @@ import javax.xml.xpath.XPathFactory;
 import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecurityUnit;
+import net.sf.jpasecurity.mapping.AccessState;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.DefaultClassMappingInformation;
 import net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory;
@@ -130,6 +131,8 @@ public class OrmXmlParser extends JpaAnnotationParser {
         = "//*[@class=''{0}'']/attributes/embedded-id[@name=''{1}'']";
     public static final String VERSION_PROPERTY_XPATH
         = "//*[@class=''{0}'']//version[@name=''{1}'']";
+    public static final String ACCESS_PROPERTY_XPATH
+        = "//*[@class=''{0}'']//access[@name=''{1}'']";
     public static final String GENERATED_VALUE_PROPERTY_XPATH
         = "//*[@class=''{0}'']//id[@name=''{1}'']/generated-value";
     public static final String TRANSIENT_PROPERTY_XPATH
@@ -189,6 +192,11 @@ public class OrmXmlParser extends JpaAnnotationParser {
      * The field access type value
      */
     public static final String FIELD_ACCESS = "FIELD";
+
+     /**
+      * The property access type value
+      */
+    public static final String PROPERTY_ACCESS = "PROPERTY";
 
     private static final XPath XPATH = XPathFactory.newInstance().newXPath();;
 
@@ -290,6 +298,24 @@ public class OrmXmlParser extends JpaAnnotationParser {
     }
 
     @Override
+    protected AccessState getAccessState(Class<?> mappedClass) {
+        AccessState accessState = null;
+        Node accessNode = getAccessTypeNode(mappedClass);
+        if (accessNode != null) {
+            if (FIELD_ACCESS.equals(accessNode.getTextContent().toUpperCase())) {
+                accessState = AccessState.FIELDACCESS;
+            } else if (PROPERTY_ACCESS.equals(accessNode.getTextContent().toUpperCase())) {
+                accessState = AccessState.PROPERTYACCESS;
+            }
+            return getAccessState(mappedClass, accessState);
+        }
+        if (!isMetadataComplete(mappedClass)) {
+            return super.getAccessState(mappedClass);
+        }
+        return getAccessState(mappedClass, accessState);
+    }
+
+    @Override
     protected boolean excludeDefaultEntityListeners(Class<?> entityClass) {
         if (evaluateNode(EXCLUDE_DEFAULT_LISTENERS_XPATH, entityClass) != null) {
             return true;
@@ -388,6 +414,18 @@ public class OrmXmlParser extends JpaAnnotationParser {
             LOG.trace("No id metadata found for "
                       + property.getDeclaringClass().getSimpleName() + "." + getName(property)
                       + " and metadata is complete.");
+        }
+        return false;
+    }
+
+    @Override
+    protected boolean isAccessProperty(Member property) {
+        String name = getName(property);
+        if (evaluateNode(ACCESS_PROPERTY_XPATH, property.getDeclaringClass(), name) != null) {
+            return true;
+        }
+        if (!isMetadataComplete(property.getDeclaringClass())) {
+            return super.isAccessProperty(property);
         }
         return false;
     }
@@ -603,11 +641,11 @@ public class OrmXmlParser extends JpaAnnotationParser {
         String className = getClassName(node);
         if (defaultPackage != null) {
             try {
-                return parse(getClass(defaultPackage + '.' + className), false, true);
+                return parse(getClass(defaultPackage + '.' + className), false, true, null);
             } catch (RuntimeException e) {
                 if (e.getCause() instanceof ClassNotFoundException) {
                     try {
-                        return parse(getClass(className), false, true);
+                        return parse(getClass(className), false, true, null);
                     } catch (RuntimeCopyException c) {
                         if (c.getCause() instanceof ClassNotFoundException) {
                             throw className.indexOf('.') != -1? c: e;
@@ -617,7 +655,7 @@ public class OrmXmlParser extends JpaAnnotationParser {
                 throw e;
             }
         } else {
-            return parse(getClass(className), false, true);
+            return parse(getClass(className), false, true, null);
         }
     }
 

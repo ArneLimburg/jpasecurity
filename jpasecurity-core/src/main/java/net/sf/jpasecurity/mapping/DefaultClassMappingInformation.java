@@ -47,6 +47,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
     private boolean abstractType;
     private boolean embeddable;
     private boolean fieldAccess;
+    private AccessState accessState;
     private boolean metadataComplete;
     private boolean excludeSuperclassEntityListeners;
     private Map<String, AbstractPropertyMappingInformation> propertyMappings
@@ -61,6 +62,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
                                           DefaultClassMappingInformation superclassMapping,
                                           ClassMappingInformation idClass,
                                           boolean usesFieldAccess,
+                                          AccessState accessState,
                                           boolean metadataComplete,
                                           ExceptionFactory exceptionFactory) {
         if (entityName == null) {
@@ -77,6 +79,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
         }
         this.idClassMapping = idClass;
         this.fieldAccess = usesFieldAccess;
+        this.accessState = accessState;
         this.metadataComplete = metadataComplete;
         this.exceptionFactory = exceptionFactory;
     }
@@ -130,6 +133,14 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
 
     public boolean usesPropertyAccess() {
         return !fieldAccess;
+    }
+
+    public AccessState getAccessState() {
+        return accessState;
+    }
+
+    void setAccessState(AccessState accessState) {
+        this.accessState = accessState;
     }
 
     void setFieldAccess(boolean fieldAccess) {

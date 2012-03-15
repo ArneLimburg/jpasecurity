@@ -30,6 +30,7 @@ public interface ClassMappingInformation {
     ClassMappingInformation getIdClassMapping();
     boolean isEmbeddable();
     boolean usesFieldAccess();
+    AccessState getAccessState();
     boolean usesPropertyAccess();
     boolean isMetadataComplete();
     boolean areSuperclassEntityListenersExcluded();
