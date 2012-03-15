@@ -26,6 +26,7 @@ import javax.persistence.PersistenceException;
 
 import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.FetchType;
+import net.sf.jpasecurity.mapping.AccessState;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
@@ -54,28 +55,34 @@ public class MappingTest {
 
     @Test
     public void annotationMethodAccess() {
-        assertAccess("annotation-based-method-access", false, MethodAccessAnnotationTestBean.class);
+        assertAccess("annotation-based-method-access", false, AccessState.PROPERTYACCESSPERID,
+            MethodAccessAnnotationTestBean.class);
     }
 
     @Test
     public void xmlMethodAccess() {
-        assertAccess("xml-based-method-access", false, MethodAccessTestBean.class);
+        assertAccess("xml-based-method-access", false, AccessState.PROPERTYACCESSPERID,
+            MethodAccessTestBean.class);
     }
 
     @Test
     public void annotationFieldAccess() {
-        assertAccess("annotation-based-field-access", true, FieldAccessAnnotationTestBean.class);
+        assertAccess("annotation-based-field-access", true, AccessState.FIELDACCESSPERID,
+            FieldAccessAnnotationTestBean.class);
     }
 
     @Test
     public void xmlFieldAccess() {
-        assertAccess("xml-based-field-access", true, FieldAccessXmlTestBean.class);
+        assertAccess("xml-based-field-access", true, AccessState.FIELDACCESSPERID,
+            FieldAccessXmlTestBean.class);
     }
 
-    public void assertAccess(String persistenceUnit, boolean fieldAccess, Class<?> entityType) {
+    public void assertAccess(String persistenceUnit, boolean fieldAccess, AccessState accessState,
+        Class<?> entityType) {
         Persistence.createEntityManagerFactory(persistenceUnit).createEntityManager().close();
         MappingInformation mapping = TestAuthenticationProvider.getPersistenceMapping();
         ClassMappingInformation classMapping = mapping.getClassMapping(entityType);
+        assertEquals(accessState, classMapping.getAccessState());
         assertEquals(entityType, classMapping.getEntityType());
         assertEquals(fieldAccess, classMapping.usesFieldAccess());
         assertNotNull(classMapping.getPropertyMapping("id"));

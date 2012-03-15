@@ -62,6 +62,7 @@ import net.sf.jpasecurity.CascadeType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecurityUnit;
 import net.sf.jpasecurity.mapping.AbstractSecurityUnitParser;
+import net.sf.jpasecurity.mapping.AccessState;
 import net.sf.jpasecurity.mapping.DefaultClassMappingInformation;
 import net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory;
 import net.sf.jpasecurity.mapping.EntityLifecycleMethods;
@@ -151,6 +152,25 @@ public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
             return access.value() == AccessType.FIELD;
         }
         return super.usesFieldAccess(mappedClass);
+    }
+
+    protected AccessState getAccessState(Class<?> mappedClass) {
+        AccessState accessState = null;
+        Access access = mappedClass.getAnnotation(Access.class);
+        if (access != null) {
+            if (access.value() == AccessType.FIELD) {
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace(mappedClass.getSimpleName() + " uses field access");
+                }
+                accessState = AccessState.FIELDACCESS;
+            } else {
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace(mappedClass.getSimpleName() + " uses property access");
+                }
+                accessState = AccessState.PROPERTYACCESS;
+            }
+        }
+        return getAccessState(mappedClass, accessState);
     }
 
     protected boolean isMetadataComplete(Class<?> entityClass) {
@@ -254,6 +274,11 @@ public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
             }
             return isIdProperty;
         }
+    }
+
+    protected boolean isAccessProperty(Member property) {
+        AnnotatedElement annotatedProperty = (AnnotatedElement)property;
+        return annotatedProperty.isAnnotationPresent(Access.class);
     }
 
     protected boolean isVersionProperty(Member property) {

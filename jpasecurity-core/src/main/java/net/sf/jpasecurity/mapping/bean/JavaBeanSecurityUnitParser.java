@@ -30,6 +30,7 @@ import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecurityUnit;
 import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.mapping.AbstractSecurityUnitParser;
+import net.sf.jpasecurity.mapping.AccessState;
 import net.sf.jpasecurity.mapping.DefaultClassMappingInformation;
 import net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
@@ -71,6 +72,11 @@ public class JavaBeanSecurityUnitParser extends AbstractSecurityUnitParser {
 
     protected boolean usesFieldAccess(Class<?> mappedClass) {
         return false;
+    }
+
+    @Override
+    protected AccessState getAccessState(Class<?> mappedClass) {
+        return AccessState.PROPERTYACCESSPERID;
     }
 
     protected boolean isMapped(Class<?> mappedClass) {
@@ -116,6 +122,10 @@ public class JavaBeanSecurityUnitParser extends AbstractSecurityUnitParser {
     }
 
     protected boolean isVersionProperty(Member property) {
+        return false;
+    }
+
+    protected boolean isAccessProperty(Member property) {
         return false;
     }
 
