@@ -9,7 +9,7 @@
 	<p>username <b>james</b>, password <b>koala</b>
 	<br>username <b>helen</b>, password <b>emu</b>
 	<br>username <b>linda</b>, password <b>wombat</b>
-	<br>username <b>raphael</b>, password <b>opal</b>
+	<br>username <b>rafael</b>, password <b>opal</b>
 	<br>username <b>henry</b>, password <b>koala</b>
 	<br>username <b>sharon</b>, password <b>emu</b>
 	<br>username <b>george</b>, password <b>wombat</b>
@@ -18,10 +18,10 @@
 	<br>username <b>harold</b>, password <b>emu</b>
 	<br>username <b>jean</b>, password <b>wombat</b>
 	<br>username <b>peter</b>, password <b>opal</b>
-	<br>username <b>rod</b>, password <b>koala</b>
-	<br>username <b>dianne</b>, password <b>emu</b>
-	<br>username <b>scott</b>, password <b>wombat</b>
-	<br>username <b>peter</b>, password <b>opal</b>
+	<br>username <b>jeff</b>, password <b>koala</b>
+	<br>username <b>maria</b>, password <b>emu</b>
+	<br>username <b>david</b>, password <b>wombat</b>
+	<br>username <b>carlos</b>, password <b>opal</b>
 	<p>
 
     <form name="f" action="<c:url value='j_spring_security_check'/>" method="POST">

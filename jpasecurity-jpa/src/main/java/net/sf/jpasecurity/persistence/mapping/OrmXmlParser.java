@@ -307,12 +307,16 @@ public class OrmXmlParser extends JpaAnnotationParser {
             } else if (PROPERTY_ACCESS.equals(accessNode.getTextContent().toUpperCase())) {
                 accessState = AccessState.PROPERTYACCESS;
             }
-            return getAccessState(mappedClass, accessState);
+            if (isMetadataComplete(mappedClass)) {
+                return accessState;
+            } else {
+                return getAccessState(mappedClass, accessState);
+            }
         }
         if (!isMetadataComplete(mappedClass)) {
             return super.getAccessState(mappedClass);
         }
-        return getAccessState(mappedClass, accessState);
+        return AccessState.NOACCESSDEFINED;
     }
 
     @Override

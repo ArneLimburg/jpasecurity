@@ -196,12 +196,12 @@ public abstract class AbstractSecurityUnitParser {
                 && accessStateMappedClass == AccessState.FIELDACCESS) {
                 accessStateMappedClass = AccessState.CLASSFABUTPAPERID;
             }
-            usesFieldAccess = (accessStateMappedClass == AccessState.CLASSPABUTFAPERID
+            usesFieldAccess = (accessStateMappedClass == AccessState.CLASSFABUTPAPERID
                 || accessStateMappedClass == AccessState.FIELDACCESSPERID
                 || accessStateMappedClass == AccessState.FIELDACCESS);
         } else {
             accessStateMappedClass = getAccessState(mappedClass);
-            usesFieldAccess = (accessStateMappedClass == AccessState.CLASSPABUTFAPERID
+            usesFieldAccess = (accessStateMappedClass == AccessState.CLASSFABUTPAPERID
                 || accessStateMappedClass == AccessState.FIELDACCESSPERID
                 || accessStateMappedClass == AccessState.FIELDACCESS);
         }
