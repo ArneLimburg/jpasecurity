@@ -9,7 +9,7 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 
 @Entity
-public class Acl extends AbstractTrademarkRelatedEntity {
+public class Acl extends AbstractEntity {
 
    @OneToMany(mappedBy = "accessControlList", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
    private List<AclEntry> entries = new LinkedList<AclEntry>();

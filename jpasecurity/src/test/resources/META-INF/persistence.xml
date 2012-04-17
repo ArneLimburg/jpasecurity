@@ -236,8 +236,10 @@
     <class>net.sf.jpasecurity.model.acl.Role</class>
     <class>net.sf.jpasecurity.model.acl.Trademark</class>
     <class>net.sf.jpasecurity.model.acl.User</class>
-    <class>net.sf.jpasecurity.model.acl.TrademarkProtectedEntity</class>
-    <class>net.sf.jpasecurity.model.acl.AclProtectedEntity</class>
+    <class>net.sf.jpasecurity.model.acl.AclProtectedEntity1</class>
+    <class>net.sf.jpasecurity.model.acl.AclProtectedEntity2</class>
+    <class>net.sf.jpasecurity.model.acl.ProtectedEntity</class>
+    <class>net.sf.jpasecurity.model.acl.SimpleEntity</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

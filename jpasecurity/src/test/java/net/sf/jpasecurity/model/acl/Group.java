@@ -1,5 +1,6 @@
 package net.sf.jpasecurity.model.acl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -17,7 +18,7 @@ public class Group extends AbstractEntity {
 
    private String groupType;
 
-    @ManyToMany
+   @ManyToMany
    @JoinTable(name = "GROUP_HIERARCHY",
        joinColumns = @JoinColumn(name = "PARENT_ID"),
        inverseJoinColumns = @JoinColumn(name = "CHILD_ID"))

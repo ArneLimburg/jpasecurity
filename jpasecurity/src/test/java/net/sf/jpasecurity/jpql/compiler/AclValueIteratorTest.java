@@ -114,7 +114,6 @@ public class AclValueIteratorTest extends TestCase {
         possibleValues.add(ACL_ENTRY, aclEntry);
         final Acl acl = new Acl();
         acl.setId(1);
-        acl.setTrademarkId(1L);
         acl.setEntries(Arrays.asList(aclEntry));
         possibleValues.add(ACL, acl);
         User user = new User();

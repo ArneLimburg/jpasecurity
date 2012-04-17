@@ -5,7 +5,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
 
 @MappedSuperclass
-public class AbstractAclProtectedEntity extends AbstractTrademarkRelatedEntity {
+public class AbstractAclProtectedEntity extends AbstractEntity implements AccessControlled {
    @OneToOne(fetch = FetchType.EAGER)
    private Acl accessControlList;
    

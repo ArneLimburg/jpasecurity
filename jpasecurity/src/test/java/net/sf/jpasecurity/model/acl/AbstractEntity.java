@@ -12,7 +12,6 @@ import javax.persistence.Version;
 public class AbstractEntity implements Serializable {
 
    @Id
-   @GeneratedValue(strategy = GenerationType.AUTO)
    private long id;
 
    @Version

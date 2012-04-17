@@ -58,17 +58,30 @@
 
   <persistence-unit name="acl-model">
      <access-rule>
-       GRANT ACCESS TO AbstractAclProtectedEntity bean
-         WHERE (bean.trademarkId is null OR bean.trademarkId = CURRENT_PRINCIPAL)
-                AND (EXISTS (
-                   SELECT entry FROM Acl acl JOIN acl.entries entry
-                      WHERE acl = bean.accessControlList
-                         AND (
-                           (entry.group is null AND EXISTS (SELECT user FROM User user JOIN user.roles role JOIN role.privileges privilege WHERE privilege = entry.privilege AND user.id IN (CURRENT_ROLES)))
-                           OR (entry.privilege is null AND EXISTS (SELECT user2 FROM User user2 JOIN user2.groups group2 WHERE group2 = entry.group AND user2.id IN (CURRENT_ROLES)))
-                           OR (EXISTS (SELECT user3 FROM User user3 JOIN user3.groups groups3 WHERE groups3 = entry.group AND user3.id IN (CURRENT_ROLES)) AND EXISTS (SELECT user FROM User user JOIN user.roles role JOIN role.privileges privilege WHERE privilege = entry.privilege AND user.id IN (CURRENT_ROLES)))
-                         )
-                ) OR bean.accessControlList is null)
+        GRANT READ ACCESS TO net.sf.jpasecurity.model.acl.AccessControlled bean WHERE (-18420423 IN (CURRENT_ROLES))
+     </access-rule>
+     <!-- master user with write access -->
+     <access-rule>
+        GRANT ACCESS TO net.sf.jpasecurity.model.acl.AccessControlled bean WHERE (-18748759 IN (CURRENT_ROLES))
+     </access-rule>
+     <access-rule>
+        GRANT ACCESS TO net.sf.jpasecurity.model.acl.AccessControlled bean
+        WHERE (bean.accessControlList is null) OR EXISTS (
+        SELECT entry FROM Acl acl JOIN acl.entries entry
+        WHERE acl = bean.accessControlList
+        AND (
+        (entry.group is null AND EXISTS (SELECT user FROM User user JOIN user.roles role JOIN role.privileges privilege
+        WHERE privilege = entry.privilege AND user.id = CURRENT_PRINCIPAL))
+        OR (entry.privilege is null AND EXISTS (SELECT user2 FROM User user2 JOIN user2.groups group2 JOIN
+        group2.fullHierarchy fullChildren2 WHERE user2.id = CURRENT_PRINCIPAL AND fullChildren2 = entry.group))
+        OR (EXISTS (SELECT user3 FROM User user3 JOIN user3.groups groups3 JOIN groups3.fullHierarchy fullChildren3
+        WHERE user3.id = CURRENT_PRINCIPAL AND fullChildren3 = entry.group) AND EXISTS (SELECT user FROM User user JOIN
+        user.roles role JOIN role.privileges privilege WHERE privilege = entry.privilege AND user.id = CURRENT_PRINCIPAL))
+        )
+        ))
+     </access-rule>
+     <access-rule>
+        GRANT ACCESS TO net.sf.jpasecurity.model.acl.ProtectedEntity bean WHERE 1=1
      </access-rule>
   </persistence-unit>
 
