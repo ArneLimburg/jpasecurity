@@ -264,25 +264,31 @@ public class EntityFilter {
                     }
                 }
             }
-            if (restrictedTypes.size() > 0 && !restrictedTypes.contains(selectedType.getValue())) {
-                Node superclassNode = null;
-                for (Class<?> restrictedType: restrictedTypes) {
-                    Node instanceOf
-                        = queryPreparator.createInstanceOf(selectedType.getKey(),
-                                                           mappingInformation.getClassMapping(restrictedType));
-                    if (superclassNode == null) {
-                        superclassNode = queryPreparator.createNot(instanceOf);
-                    } else {
-                        superclassNode = queryPreparator.createAnd(superclassNode,
-                                                                   queryPreparator.createNot(instanceOf));
+            if (typedAccessRuleNode != null) {
+                if (restrictedTypes.size() > 0 && !restrictedTypes.contains(selectedType.getValue())) {
+                    Node superclassNode = null;
+                    for (Class<?> restrictedType : restrictedTypes) {
+                        if (selectedType.getValue().isAssignableFrom(restrictedType)) {
+                            Node instanceOf
+                                    = queryPreparator.createInstanceOf(selectedType.getKey(),
+                                    mappingInformation.getClassMapping(restrictedType));
+                            if (superclassNode == null) {
+                                superclassNode = queryPreparator.createNot(instanceOf);
+                            } else {
+                                superclassNode = queryPreparator.createAnd(superclassNode,
+                                        queryPreparator.createNot(instanceOf));
+                            }
+                        }
+                    }
+                    if (superclassNode != null) {
+                        typedAccessRuleNode = appendNode(typedAccessRuleNode, superclassNode);
                     }
                 }
-                typedAccessRuleNode = appendNode(typedAccessRuleNode, superclassNode);
-            }
-            if (accessRuleNode == null) {
-                accessRuleNode = typedAccessRuleNode;
-            } else {
-                accessRuleNode = queryPreparator.createAnd(accessRuleNode, typedAccessRuleNode);
+                if (accessRuleNode == null) {
+                    accessRuleNode = typedAccessRuleNode;
+                } else {
+                    accessRuleNode = queryPreparator.createAnd(accessRuleNode, typedAccessRuleNode);
+                }
             }
         }
         if (accessRuleNode == null) {

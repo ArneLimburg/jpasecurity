@@ -9,7 +9,7 @@ import net.sf.jpasecurity.model.acl.ProtectedEntity;
 import net.sf.jpasecurity.model.acl.SimpleEntity;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
-public class JoinEvaluationTestBug extends TestCase {
+public class JoinEvaluationTest extends TestCase {
 
     private EntityManagerFactory entityManagerFactory;
 
