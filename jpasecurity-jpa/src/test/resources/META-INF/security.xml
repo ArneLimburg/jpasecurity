@@ -28,6 +28,11 @@
 	<access-rule>GRANT ACCESS TO TestBean bean WHERE bean.name = CURRENT_PRINCIPAL OR bean.parent.name = CURRENT_PRINCIPAL</access-rule>  
   </persistence-unit>
 
+  <persistence-unit name="mixed-protection-level-test">
+  	<access-rule>GRANT ACCESS TO ProtectedJoinedEntity bean WHERE 1=1</access-rule>
+  	<access-rule>GRANT ACCESS TO ProtectedJoiningEntity bean WHERE 1=1</access-rule>
+  </persistence-unit>
+
   <persistence-unit name="access-check">
     <access-rule>GRANT CREATE ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'creator' IN (CURRENT_ROLES)</access-rule>
     <access-rule>GRANT READ ACCESS TO FieldAccessAnnotationTestBean bean WHERE bean.name = CURRENT_PRINCIPAL</access-rule>
