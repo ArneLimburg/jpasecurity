@@ -80,6 +80,13 @@ public class SubclassingTest {
     }
 
     @Test
+    public void accessRulesOnSubclassesWithGenericSuperclass() {
+        EntityManager entityManager = factory.createEntityManager();
+        assertEquals(1, entityManager.createQuery("SELECT bean FROM Subclass1 bean").getResultList().size());
+        entityManager.close();
+    }
+
+    @Test
     public void referenceToSuperclass() {
         EntityManager entityManager = factory.createEntityManager();
         AbstractSuperclass<Integer> superclass = entityManager.find(SuperclassReferencingBean.class, 1).getSuperclass();
