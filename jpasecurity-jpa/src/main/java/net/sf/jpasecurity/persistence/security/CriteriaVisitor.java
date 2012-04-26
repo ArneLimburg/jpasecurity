@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.persistence.Parameter;
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaBuilder.Trimspec;
@@ -273,7 +274,9 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
 
     public boolean visitPath(Node node, CriteriaHolder query) {
         Path path = new Path(node.toString());
-        javax.persistence.criteria.Path<?> currentPath = query.getPath(path.getRootAlias());
+        // Oliver Zhou: Call getFrom instead of getPath, getPath doesn't work with Join
+        javax.persistence.criteria.Path<?> currentPath = query.getFrom(path.getRootAlias());
+
         if (path.getSubpath() != null) {
             for (String attribute: path.getSubpath().split("\\.")) {
                 currentPath = currentPath.get(attribute);
@@ -993,7 +996,9 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlNamedInputParameter node, CriteriaHolder query) {
-        query.setValue(securityContext.getAliasValue(new Alias(node.getValue())));
+        Parameter<?> parameter = builder.parameter(String.class, node.getValue());
+        query.setValue(parameter);
+        query.addParameter(parameter);
         return true;
     }
 

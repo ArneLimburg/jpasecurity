@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2012 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.LockModeType;
+import javax.persistence.Parameter;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
@@ -53,6 +54,7 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.persistence.compiler.EntityManagerEvaluator;
 import net.sf.jpasecurity.persistence.security.CriteriaEntityFilter;
+import net.sf.jpasecurity.persistence.security.CriteriaFilterResult;
 import net.sf.jpasecurity.proxy.Decorator;
 import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
@@ -293,11 +295,20 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         if (filterResult.getQuery() == null) {
             return new EmptyResultQuery<T>(super.createQuery(criteriaQuery));
         } else {
-            return new SecureQuery<T>(secureObjectManager,
+            SecureQuery<T> query = new SecureQuery<T>(secureObjectManager,
                                       this,
                                       super.createQuery(filterResult.getQuery()),
                                       filterResult.getSelectedPaths(),
                                       super.getFlushMode());
+            if (filterResult.getParameters() != null && filterResult instanceof CriteriaFilterResult) {
+                CriteriaFilterResult<CriteriaQuery<T>> criteriaResult
+                    = (CriteriaFilterResult<CriteriaQuery<T>>)filterResult;
+                for (Parameter<?> parameter: criteriaResult.getCriteriaParameters()) {
+                    query.setParameter((Parameter<Object>)parameter,
+                                       filterResult.getParameters().get(parameter.getName()));
+                }
+            }
+            return query;
         }
     }
 
