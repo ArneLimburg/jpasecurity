@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2012 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -63,7 +64,9 @@ public class CriteriaEntityFilter extends EntityFilter {
     public <R> FilterResult<CriteriaQuery<R>> filterQuery(CriteriaQuery<R> query) {
         Selection<R> selection = query.getSelection();
         Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
-        if (selection == null) {
+        if (selection == null
+                // The selection may be the Aggregation Function like "COUNT"
+                || Number.class.isAssignableFrom(selection.getJavaType())) {
             for (Root<?> selectedRoot: query.getRoots()) {
                 if (selectedRoot.getAlias() != null) {
                     selectedTypes.put(selectedRoot.getAlias(), selectedRoot.getJavaType());
@@ -93,9 +96,14 @@ public class CriteriaEntityFilter extends EntityFilter {
             return filterResult;
         }
         optimize(accessDefinition);
+        Set<String> parameterNames = compiler.getNamedParameters(accessDefinition.getAccessRules());
+        Map<String, Object> parameters = accessDefinition.getQueryParameters();
+        parameters.keySet().retainAll(parameterNames);
+
         CriteriaHolder criteriaHolder = new CriteriaHolder(query);
         getQueryPreparator().createWhere(accessDefinition.getAccessRules()).visit(criteriaVisitor, criteriaHolder);
-        return new FilterResult<CriteriaQuery<R>>(query);
+        return new CriteriaFilterResult<CriteriaQuery<R>>(
+                query, parameters.size() > 0? parameters: null, criteriaHolder.getParameters());
     }
 
     private String getPath(int index, Selection<?> selection) {

@@ -71,7 +71,7 @@ public class EntityFilter {
     private final MappingInformation mappingInformation;
     private final SecurityContext securityContext;
     private final JpqlParser parser;
-    private final JpqlCompiler compiler;
+    protected final JpqlCompiler compiler;
     private final SecureObjectCache objectCache;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final QueryEvaluator queryEvaluator;

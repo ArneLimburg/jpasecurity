@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import javax.persistence.Parameter;
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
@@ -37,6 +38,7 @@ public class CriteriaHolder extends ValueHolder<Object> {
 
     private CriteriaQuery<?> criteriaQuery;
     private Stack<Subquery<?>> subqueries = new Stack<Subquery<?>>();
+    private List<Parameter<?>> parameters = new ArrayList<Parameter<?>>();
 
     public CriteriaHolder(CriteriaQuery<?> query) {
         criteriaQuery = query;
@@ -99,6 +101,14 @@ public class CriteriaHolder extends ValueHolder<Object> {
             return from;
         }
         throw new IllegalStateException("Root not found for alias " + alias);
+    }
+
+    public void addParameter(Parameter<?> parameter) {
+        parameters.add(parameter);
+    }
+
+    public List<Parameter<?>> getParameters() {
+        return parameters;
     }
 
     private From<?, ?> getFrom(AbstractQuery<?> query, Alias alias) {
