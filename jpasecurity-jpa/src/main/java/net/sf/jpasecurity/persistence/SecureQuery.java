@@ -31,6 +31,7 @@ import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpa.JpaParameter;
 import net.sf.jpasecurity.jpa.JpaQuery;
+import net.sf.jpasecurity.mapping.Path;
 
 
 /**
@@ -41,13 +42,13 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
 
     private SecureObjectManager objectManager;
     private FetchManager fetchManager;
-    private List<String> selectedPaths;
+    private List<Path> selectedPaths;
     private FlushModeType flushMode;
 
     public SecureQuery(SecureObjectManager objectManager,
                        FetchManager fetchManager,
                        Query query,
-                       List<String> selectedPaths,
+                       List<Path> selectedPaths,
                        FlushModeType flushMode) {
         super(query);
         this.objectManager = objectManager;
