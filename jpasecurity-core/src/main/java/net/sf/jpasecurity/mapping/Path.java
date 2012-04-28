@@ -47,6 +47,10 @@ public class Path {
         return subpath;
     }
 
+    public Path append(String name) {
+        return new Path(toString() + '.' + name);
+    }
+
     public String toString() {
         return hasSubpath()? rootAlias.getName() + '.' + getSubpath(): rootAlias.getName();
     }
