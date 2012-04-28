@@ -56,7 +56,7 @@ public class JpqlCompilerTest {
         String statement = "SELECT COUNT(tb) FROM MethodAccessTestBean tb";
         JpqlCompiledStatement compiledStatement = compiler.compile(parser.parseQuery(statement));
         assertEquals(1, compiledStatement.getSelectedPaths().size());
-        assertEquals("tb", compiledStatement.getSelectedPaths().get(0));
+        assertEquals("tb", compiledStatement.getSelectedPaths().get(0).toString());
     }
 
     @Test
@@ -64,8 +64,8 @@ public class JpqlCompilerTest {
         String statement = "SELECT DISTINCT tb1, tb2 FROM MethodAccessTestBean tb1, MethodAccessTestBean tb2";
         JpqlCompiledStatement compiledStatement = compiler.compile(parser.parseQuery(statement));
         assertEquals(2, compiledStatement.getSelectedPaths().size());
-        assertEquals("tb1", compiledStatement.getSelectedPaths().get(0));
-        assertEquals("tb2", compiledStatement.getSelectedPaths().get(1));
+        assertEquals("tb1", compiledStatement.getSelectedPaths().get(0).toString());
+        assertEquals("tb2", compiledStatement.getSelectedPaths().get(1).toString());
     }
 
     @Test
@@ -74,6 +74,6 @@ public class JpqlCompilerTest {
                          + "WHERE EXISTS(SELECT tb2 FROM MethodAccessTestBean tb2)";
         JpqlCompiledStatement compiledStatement = compiler.compile(parser.parseQuery(statement));
         assertEquals(1, compiledStatement.getSelectedPaths().size());
-        assertEquals("tb", compiledStatement.getSelectedPaths().get(0));
+        assertEquals("tb", compiledStatement.getSelectedPaths().get(0).toString());
     }
 }

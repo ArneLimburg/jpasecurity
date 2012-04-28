@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
 /**
@@ -28,7 +29,7 @@ public class FilterResult<Q> {
 
     private Q query;
     private Map<String, Object> parameters;
-    private List<String> selectedPaths;
+    private List<Path> selectedPaths;
     private Set<TypeDefinition> types;
 
     public FilterResult() {
@@ -40,7 +41,7 @@ public class FilterResult<Q> {
 
     public FilterResult(Q query,
                         Map<String, Object> parameters,
-                        List<String> selectedPaths,
+                        List<Path> selectedPaths,
                         Set<TypeDefinition> types) {
         this(query);
         this.parameters = parameters;
@@ -56,7 +57,7 @@ public class FilterResult<Q> {
         return parameters;
     }
 
-    public List<String> getSelectedPaths() {
+    public List<Path> getSelectedPaths() {
         return selectedPaths;
     }
 

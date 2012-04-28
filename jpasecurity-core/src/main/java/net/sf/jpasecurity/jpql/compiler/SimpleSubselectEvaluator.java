@@ -183,7 +183,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
                                            QueryEvaluationParameters parameters,
                                            SetMap<Alias, Object> variants) {
         PathEvaluator pathEvaluator = new MappedPathEvaluator(parameters.getMappingInformation(), exceptionFactory);
-        List<Path> selectedPaths = getPaths(subselect.getSelectedPaths());
+        List<Path> selectedPaths = subselect.getSelectedPaths();
         List<Object> resultList = new ArrayList<Object>();
         Set<TypeDefinition> types = subselect.getTypeDefinitions();
         for (Iterator<Map<Alias, Object>> v = new ValueIterator(variants, types, pathEvaluator); v.hasNext();) {
@@ -217,14 +217,6 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
             }
         }
         return resultList;
-    }
-
-    private List<Path> getPaths(Collection<String> paths) {
-        List<Path> result = new ArrayList<Path>();
-        for (String path: paths) {
-            result.add(new Path(path));
-        }
-        return result;
     }
 
     private void removeWrongTypes(Class<?> type, Collection<?> collection) {

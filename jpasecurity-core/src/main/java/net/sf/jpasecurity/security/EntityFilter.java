@@ -166,13 +166,13 @@ public class EntityFilter {
     }
 
     private AccessDefinition createAccessDefinition(Alias alias, Class<?> type, AccessType accessType) {
-        return createAccessDefinition(Collections.<String, Class<?>>singletonMap(alias.getName(), type), accessType);
+        return createAccessDefinition(Collections.<Path, Class<?>>singletonMap(alias.toPath(), type), accessType);
     }
 
-    protected AccessDefinition createAccessDefinition(Map<String, Class<?>> selectedTypes, AccessType accessType) {
+    protected AccessDefinition createAccessDefinition(Map<Path, Class<?>> selectedTypes, AccessType accessType) {
         AccessDefinition accessDefinition = null;
         boolean restricted = false;
-        for (Map.Entry<String, Class<?>> selectedType: selectedTypes.entrySet()) {
+        for (Map.Entry<Path, Class<?>> selectedType: selectedTypes.entrySet()) {
             Set<Class<?>> restrictedTypes = new HashSet<Class<?>>();
             AccessDefinition typedAccessDefinition = null;
             for (AccessRule accessRule: accessRules) {
@@ -282,7 +282,7 @@ public class EntityFilter {
 
     private AccessDefinition appendAccessDefinition(AccessDefinition accessDefinition,
                                                     AccessRule accessRule,
-                                                    String selectedAlias,
+                                                    Path selectedAlias,
                                                     SecurityContext securityContext) {
         return prepareAccessRule(accessRule, selectedAlias, securityContext).append(accessDefinition);
     }
@@ -296,7 +296,7 @@ public class EntityFilter {
     }
 
     private AccessDefinition prepareAccessRule(AccessRule accessRule,
-                                               String selectedAlias,
+                                               Path selectedAlias,
                                                SecurityContext securityContext) {
         if (accessRule.getWhereClause() == null) {
             return new AccessDefinition(queryPreparator.createBoolean(true));
@@ -368,12 +368,12 @@ public class EntityFilter {
         }
     }
 
-    private Map<String, Class<?>> getSelectedEntityTypes(JpqlCompiledStatement statement) {
+    private Map<Path, Class<?>> getSelectedEntityTypes(JpqlCompiledStatement statement) {
         Set<TypeDefinition> typeDefinitions = statement.getTypeDefinitions();
-        Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
-        for (String selectedPath: statement.getSelectedPaths()) {
+        Map<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
+        for (Path selectedPath: statement.getSelectedPaths()) {
             Class<?> selectedType;
-            Path entityPath = getSelectedEntityPath(new Path(selectedPath), typeDefinitions);
+            Path entityPath = getSelectedEntityPath(selectedPath, typeDefinitions);
             if (entityPath.hasSubpath()) {
                 PropertyMappingInformation propertyMapping
                     = mappingInformation.getPropertyMapping(entityPath, typeDefinitions);
@@ -381,7 +381,7 @@ public class EntityFilter {
             } else {
                 selectedType = mappingInformation.getType(entityPath.getRootAlias(), typeDefinitions);
             }
-            selectedTypes.put(entityPath.toString(), selectedType);
+            selectedTypes.put(entityPath, selectedType);
         }
         return selectedTypes;
     }

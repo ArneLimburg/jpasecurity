@@ -83,17 +83,17 @@ public class JpqlCompiler {
     }
 
     private JpqlCompiledStatement compile(Node statement) {
-        List<String> selectedPathes = getSelectedPaths(statement);
+        List<Path> selectedPathes = getSelectedPaths(statement);
         Set<TypeDefinition> typeDefinitions = getAliasDefinitions(statement);
         Set<String> namedParameters = getNamedParameters(statement);
         return new JpqlCompiledStatement(statement, selectedPathes, typeDefinitions, namedParameters);
     }
 
-    public List<String> getSelectedPaths(Node node) {
+    public List<Path> getSelectedPaths(Node node) {
         if (node == null) {
             return Collections.EMPTY_LIST;
         }
-        List<String> selectedPaths = new ArrayList<String>();
+        List<Path> selectedPaths = new ArrayList<Path>();
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(selectVisitor, selectedPaths);
         }
@@ -133,41 +133,41 @@ public class JpqlCompiler {
         return Collections.unmodifiableSet(positionalParameters);
     }
 
-    private class SelectVisitor extends JpqlVisitorAdapter<List<String>> {
+    private class SelectVisitor extends JpqlVisitorAdapter<List<Path>> {
 
         private final SelectPathVisitor selectPathVisitor = new SelectPathVisitor();
 
-        public boolean visit(JpqlSelectExpression node, List<String> selectedPaths) {
+        public boolean visit(JpqlSelectExpression node, List<Path> selectedPaths) {
             node.visit(selectPathVisitor, selectedPaths);
             return false;
         }
 
-        public boolean visit(JpqlConstructorParameter node, List<String> selectedPaths) {
+        public boolean visit(JpqlConstructorParameter node, List<Path> selectedPaths) {
             node.visit(selectPathVisitor, selectedPaths);
             return false;
         }
 
-        public boolean visit(JpqlSubselect node, List<String> selectedPaths) {
+        public boolean visit(JpqlSubselect node, List<Path> selectedPaths) {
             return false;
         }
     }
 
-    private class SelectPathVisitor extends JpqlVisitorAdapter<List<String>> {
+    private class SelectPathVisitor extends JpqlVisitorAdapter<List<Path>> {
 
         private final ToStringVisitor toStringVisitor = new ToStringVisitor();
 
-        public boolean visit(JpqlPath node, List<String> selectedPaths) {
+        public boolean visit(JpqlPath node, List<Path> selectedPaths) {
             return extractSelectedPath(node, selectedPaths);
         }
 
-        public boolean visit(JpqlIdentificationVariable node, List<String> selectedPaths) {
+        public boolean visit(JpqlIdentificationVariable node, List<Path> selectedPaths) {
             return extractSelectedPath(node, selectedPaths);
         }
 
-        private boolean extractSelectedPath(Node node, List<String> selectedPaths) {
+        private boolean extractSelectedPath(Node node, List<Path> selectedPaths) {
             StringBuilder path = new StringBuilder();
             node.visit(toStringVisitor, path);
-            selectedPaths.add(path.toString());
+            selectedPaths.add(new Path(path.toString()));
             return false;
         }
     }

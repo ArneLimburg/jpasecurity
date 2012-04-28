@@ -33,6 +33,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.bean.JavaBeanSecurityUnitParser;
 import net.sf.jpasecurity.model.ChildTestBean;
 import net.sf.jpasecurity.model.MethodAccessTestBean;
@@ -83,7 +84,7 @@ public class AccessRulesCompilerTest {
         Collection<AccessRule> compiledRules = compiler.compile(accessRule);
         assertThat(compiledRules.size(), is(1));
         AccessRule compiledRule = compiledRules.iterator().next();
-        assertThat(compiledRule.getSelectedPath(), is("cd"));
+        assertThat(compiledRule.getSelectedPath(), is(new Path("cd")));
     }
 
     private static class ClientDetails {

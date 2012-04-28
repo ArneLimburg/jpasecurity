@@ -48,6 +48,7 @@ import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.SimpleNode;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.Path;
 
 /**
  * @author Arne Limburg
@@ -97,29 +98,28 @@ public class QueryPreparator {
      * @param statement the access rule
      * @return the <tt>Or</tt>-node.
      */
-    public Node append(Node node, String alias, JpqlCompiledStatement statement) {
+    public Node append(Node node, Path alias, JpqlCompiledStatement statement) {
         Node in = createBrackets(createIn(alias, statement));
         Node or = createOr(node, in);
         return or;
     }
 
     /**
-     * Prepends the specified alias to the specified path.
+     * Prepends the specified path to the specified pathNode.
      * @param alias the alias
      * @param path the path
      * @return the new path
      */
-    public JpqlPath prepend(Alias alias, JpqlPath path) {
-        return prepend(new String[] {alias.getName()}, path);
+    public JpqlPath prepend(Path path, JpqlPath pathNode) {
+        Alias alias = path.getRootAlias();
+        String[] subpathComponents = path.getSubpathComponents();
+        String[] pathComponents = new String[subpathComponents.length + 1];
+        pathComponents[0] = alias.getName();
+        System.arraycopy(subpathComponents, 0, pathComponents, 1, subpathComponents.length);
+        return prepend(pathComponents, pathNode);
     }
 
-    /**
-     * Prepends the specified path components to the specified path.
-     * @param pathComponents the path components
-     * @param path the path
-     * @return the new path
-     */
-    public JpqlPath prepend(String[] pathComponents, JpqlPath path) {
+    private JpqlPath prepend(String[] pathComponents, JpqlPath path) {
         if (pathComponents.length == 0) {
             return path;
         }
@@ -129,11 +129,11 @@ public class QueryPreparator {
         if (path.jjtGetNumChildren() > pathComponents.length) {
             //Replace first identification variable with identifier
             Node oldVariable = path.jjtGetChild(pathComponents.length);
-            path.jjtSetChild(createIdentifier(oldVariable.getValue()), pathComponents.length);
+            path.jjtSetChild(createIdentifier(new Alias(oldVariable.getValue())), pathComponents.length);
         }
         path.jjtAddChild(createVariable(pathComponents[0]), 0);
         for (int i = 1; i < pathComponents.length; i++) {
-            path.jjtAddChild(createIdentifier(pathComponents[i]), i);
+            path.jjtAddChild(createIdentifier(new Alias(pathComponents[i])), i);
         }
         return path;
     }
@@ -232,7 +232,7 @@ public class QueryPreparator {
     /**
      * Creates an <tt>JpqlIn</tt> subtree for the specified access rule.
      */
-    public Node createIn(String alias, JpqlCompiledStatement statement) {
+    public Node createIn(Path alias, JpqlCompiledStatement statement) {
         JpqlIn in = new JpqlIn(JpqlParserTreeConstants.JJTIN);
         Node path = createPath(alias);
         path.jjtSetParent(in);
@@ -256,18 +256,17 @@ public class QueryPreparator {
     /**
      * Creates a <tt>JpqlPath</tt> node for the specified string.
      */
-    public Node createPath(String pathString) {
-        String[] pathComponents = pathString.split("\\.");
-        JpqlIdentifier identifier = createIdentifier(pathComponents[0]);
-        JpqlPath path = appendChildren(new JpqlPath(JpqlParserTreeConstants.JJTPATH), identifier);
-        for (int i = 1; i < pathComponents.length; i++) {
+    public Node createPath(Path path) {
+        JpqlIdentifier identifier = createIdentifier(path.getRootAlias());
+        JpqlPath pathNode = appendChildren(new JpqlPath(JpqlParserTreeConstants.JJTPATH), identifier);
+        for (String pathComponent: path.getSubpathComponents()) {
             JpqlIdentificationVariable identificationVariable
                 = new JpqlIdentificationVariable(JpqlParserTreeConstants.JJTIDENTIFICATIONVARIABLE);
-            identificationVariable.setValue(pathComponents[i]);
-            identificationVariable.jjtSetParent(path);
-            path.jjtAddChild(identifier, i - 1);
+            identificationVariable.setValue(pathComponent);
+            identificationVariable.jjtSetParent(pathNode);
+            pathNode.jjtAddChild(identifier, pathNode.jjtGetNumChildren());
         }
-        return path;
+        return pathNode;
     }
 
     /**
@@ -286,7 +285,7 @@ public class QueryPreparator {
     /**
      * Creates a <tt>JpqlSelectClause</tt> node to select the specified path.
      */
-    public JpqlSelectClause createSelectClause(String selectedPath) {
+    public JpqlSelectClause createSelectClause(Path selectedPath) {
         JpqlSelectExpression expression = new JpqlSelectExpression(JpqlParserTreeConstants.JJTSELECTEXPRESSION);
         expression = appendChildren(expression, createPath(selectedPath));
         JpqlSelectExpressions expressions = new JpqlSelectExpressions(JpqlParserTreeConstants.JJTSELECTEXPRESSIONS);
@@ -297,39 +296,39 @@ public class QueryPreparator {
     /**
      * Creates a <tt>JpqlSelectClause</tt> node to select the specified path.
      */
-    public JpqlFrom createFrom(ClassMappingInformation classMapping, String alias) {
+    public JpqlFrom createFrom(ClassMappingInformation classMapping, Alias alias) {
         JpqlIdentificationVariableDeclaration declaration
             = new JpqlIdentificationVariableDeclaration(JpqlParserTreeConstants.JJTIDENTIFICATIONVARIABLEDECLARATION);
-        declaration = appendChildren(declaration, createFromItem(classMapping.getEntityName(), alias));
+        declaration = appendChildren(declaration, createFromItem(new Alias(classMapping.getEntityName()), alias));
         return appendChildren(new JpqlFrom(JpqlParserTreeConstants.JJTFROM), declaration);
     }
 
-    public JpqlFromItem createFromItem(String type, String alias) {
+    public JpqlFromItem createFromItem(Alias type, Alias alias) {
         JpqlAbstractSchemaName schemaName = new JpqlAbstractSchemaName(JpqlParserTreeConstants.JJTABSTRACTSCHEMANAME);
         return appendChildren(new JpqlFromItem(JpqlParserTreeConstants.JJTFROMITEM),
                               appendChildren(schemaName, createIdentifier(type)),
                               createIdentifier(alias));
     }
 
-    public Node createInstanceOf(String path, ClassMappingInformation classMapping) {
+    public Node createInstanceOf(Path path, ClassMappingInformation classMapping) {
         return appendChildren(new JpqlExists(JpqlParserTreeConstants.JJTEXISTS),
                               createSubselectById(path, classMapping));
     }
 
-    public JpqlSubselect createSubselectById(String path, ClassMappingInformation classMapping) {
-        String alias = Introspector.decapitalize(classMapping.getEntityName());
-        if (alias.equalsIgnoreCase(path)) {
-            alias = alias + '0';
+    public JpqlSubselect createSubselectById(Path path, ClassMappingInformation classMapping) {
+        Alias alias = new Alias(Introspector.decapitalize(classMapping.getEntityName()));
+        if (!path.hasSubpath() && path.getRootAlias().equals(alias)) {
+            alias = new Alias(alias.toString() + '0');
         }
-        JpqlSelectClause select = createSelectClause(alias);
+        JpqlSelectClause select = createSelectClause(alias.toPath());
         JpqlFrom from = createFrom(classMapping, alias);
-        JpqlWhere where = createWhere(createEquals(createPath(alias), createPath(path)));
+        JpqlWhere where = createWhere(createEquals(createPath(alias.toPath()), createPath(path)));
         return appendChildren(new JpqlSubselect(JpqlParserTreeConstants.JJTSUBSELECT), select, from, where);
     }
 
-    public JpqlIdentifier createIdentifier(String value) {
+    public JpqlIdentifier createIdentifier(Alias value) {
         JpqlIdentifier identifier = new JpqlIdentifier(JpqlParserTreeConstants.JJTIDENTIFIER);
-        identifier.setValue(value);
+        identifier.setValue(value.toString());
         return identifier;
     }
 
@@ -351,8 +350,8 @@ public class QueryPreparator {
         oldNode.jjtSetParent(null);
     }
 
-    public void replace(Node node, String oldPath, String newPath) {
-        node.visit(pathReplacer, new ReplaceParameters(oldPath.split("\\."), newPath.split("\\.")));
+    public void replace(Node node, Path oldPath, Path newPath) {
+        node.visit(pathReplacer, new ReplaceParameters(oldPath, newPath));
     }
 
     private int getIndex(Node parent, Node child) {
@@ -374,11 +373,16 @@ public class QueryPreparator {
         }
 
         private boolean canReplace(JpqlPath path, ReplaceParameters parameters) {
-            if (path.jjtGetNumChildren() < parameters.getOldPath().length) {
+            Path oldPath = parameters.getOldPath();
+            if (path.jjtGetNumChildren() <= oldPath.getSubpathComponents().length) {
                 return false;
             }
-            for (int i = 0; i < parameters.getOldPath().length; i++) {
-                if (!parameters.getOldPath()[i].equals(((SimpleNode)path.jjtGetChild(i)).getValue())) {
+            if (!oldPath.getRootAlias().getName().equals(((SimpleNode)path.jjtGetChild(0)).getValue())) {
+                return false;
+            }
+            String[] pathComponents = oldPath.getSubpathComponents();
+            for (int i = 1; i <= pathComponents.length; i++) {
+                if (!pathComponents[i - 1].equals(((SimpleNode)path.jjtGetChild(i)).getValue())) {
                     return false;
                 }
             }
@@ -386,7 +390,7 @@ public class QueryPreparator {
         }
 
         private void replace(JpqlPath path, ReplaceParameters parameters) {
-            for (int i = 0; i < parameters.getOldPath().length; i++) {
+            for (int i = 0; i <= parameters.getOldPath().getSubpathComponents().length; i++) {
                 path.jjtRemoveChild(0);
             }
             prepend(parameters.getNewPath(), path);
@@ -395,19 +399,19 @@ public class QueryPreparator {
 
     private class ReplaceParameters {
 
-        private String[] oldPath;
-        private String[] newPath;
+        private Path oldPath;
+        private Path newPath;
 
-        public ReplaceParameters(String[] oldPath, String[] newPath) {
+        public ReplaceParameters(Path oldPath, Path newPath) {
             this.oldPath = oldPath;
             this.newPath = newPath;
         }
 
-        public String[] getOldPath() {
+        public Path getOldPath() {
             return oldPath;
         }
 
-        public String[] getNewPath() {
+        public Path getNewPath() {
             return newPath;
         }
     }
