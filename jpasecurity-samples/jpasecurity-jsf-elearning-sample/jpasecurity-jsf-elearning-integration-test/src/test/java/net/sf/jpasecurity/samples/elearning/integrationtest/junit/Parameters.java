@@ -22,7 +22,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * An annotation to specify urls against that integration tests should run.
+ * An annotation to specify values of an additional parameter that is passed to the constructor of the test.
  * @author Arne Limburg
  */
 @Target(TYPE)
