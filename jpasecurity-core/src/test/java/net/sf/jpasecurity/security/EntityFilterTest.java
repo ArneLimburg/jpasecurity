@@ -118,6 +118,14 @@ public class EntityFilterTest {
     }
 
     @Test
+    public void filterQueryWithSimpleSelectedType() {
+        String plainQuery = "SELECT tb.id FROM MethodAccessTestBean tb";
+        String restrictedQuery = "SELECT tb.id FROM MethodAccessTestBean tb WHERE (tb.name = :CURRENT_PRINCIPAL)";
+        FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
+        assertEquals(restrictedQuery, result.getQuery().trim());
+    }
+
+    @Test
     public void isAccessible() throws NotEvaluatableException {
         MethodAccessTestBean testBean = new MethodAccessTestBean();
         testBean.setName(NAME);
@@ -128,11 +136,15 @@ public class EntityFilterTest {
     private static class TypeAnswer<T> implements IAnswer<Class<T>> {
 
         public Class<T> answer() throws Throwable {
-            String path = getCurrentArguments()[0].toString();
+            Path path = new Path(getCurrentArguments()[0].toString());
             Set<TypeDefinition> typeDefinitions = (Set<TypeDefinition>)getCurrentArguments()[1];
             for (TypeDefinition typeDefinition: typeDefinitions) {
-                if (typeDefinition.getAlias().getName().equals(path)) {
-                    return (Class<T>)typeDefinition.getType();
+                if (typeDefinition.getAlias().getName().equals(path.getRootAlias().getName())) {
+                    if (path.getSubpath() == null) {
+                        return (Class<T>)typeDefinition.getType();
+                    } else if (path.getSubpath().equals("id")) {
+                        return (Class<T>)Integer.class;
+                    }
                 }
             }
             return null;
