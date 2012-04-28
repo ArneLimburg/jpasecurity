@@ -76,7 +76,7 @@ public class LessonCreatorTest extends AbstractHtmlTestCase {
 
     @Test
     public void cancelTest() throws JaxenException {
-    	authenticateAsTeacher("lessonCreator.xhtml?course=3");
+        authenticateAsTeacher("lessonCreator.xhtml?course=3");
         HtmlPage cancelLink = testLink(getHtmlPage("lessonCreator.xhtml?course=3"), "cancel");
         ElearningAssert.assertCoursePage(cancelLink, Role.TEACHER);
     }
