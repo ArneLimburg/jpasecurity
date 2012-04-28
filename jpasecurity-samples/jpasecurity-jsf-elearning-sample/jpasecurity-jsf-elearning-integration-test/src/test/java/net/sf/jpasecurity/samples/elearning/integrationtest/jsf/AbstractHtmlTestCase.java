@@ -18,7 +18,6 @@ package net.sf.jpasecurity.samples.elearning.integrationtest.jsf;
 import java.io.IOException;
 import java.util.List;
 
-
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
@@ -63,14 +62,14 @@ public abstract class AbstractHtmlTestCase {
         } catch (IOException e) {
             throw new AssertionError(e);
         } catch (FailingHttpStatusCodeException e) {
-        	throw new AssertionError();
+            throw new AssertionError();
         }
     }
 
     public HtmlPage testLink(String page, String linkName) {
         try {
-            HtmlAnchor link = (HtmlAnchor)getByXPath(getHtmlPage(page),
-                "//a[text() = '" + linkName + "']").iterator().next();
+            HtmlAnchor link = (HtmlAnchor)getByXPath(getHtmlPage(page), "//a[text() = '" + linkName + "']").iterator()
+                            .next();
             HtmlPage linkPage = (HtmlPage)link.click();
             return linkPage;
         } catch (IOException e) {
@@ -150,13 +149,12 @@ public abstract class AbstractHtmlTestCase {
         }
     }
 
-    
     public HtmlPage createNewLesson() {
-    	authenticateAsTeacher("lessonCreator.xhtml?course=3");
-    	HtmlPage lessonCreator = getHtmlPage("lessonCreator.xhtml?course=3");
-    	HtmlForm form = lessonCreator.getFormByName("lessonCreateForm");
-    	getInputById(form, "lessonTitle").setValueAttribute("test lesson");
-    	getTextAreaById(form, "lessonContent").setText("this is a test lesson");
+        authenticateAsTeacher("lessonCreator.xhtml?course=3");
+        HtmlPage lessonCreator = getHtmlPage("lessonCreator.xhtml?course=3");
+        HtmlForm form = lessonCreator.getFormByName("lessonCreateForm");
+        getInputById(form, "lessonTitle").setValueAttribute("test lesson");
+        getTextAreaById(form, "lessonContent").setText("this is a test lesson");
         try {
             return (HtmlPage)form.getInputByName("create").click();
         } catch (IOException e) {
@@ -196,7 +194,6 @@ public abstract class AbstractHtmlTestCase {
         return getById(node, HtmlInput.class, id);
     }
 
-
     public HtmlTextArea getTextAreaById(DomNode node, String id) {
         return getById(node, HtmlTextArea.class, id);
     }
@@ -223,5 +220,7 @@ public abstract class AbstractHtmlTestCase {
         return (List<DomNode>)parent.getByXPath(xPath);
     }
 
-    public static enum Role { TEACHER, STUDENT, GUEST };
+    public static enum Role {
+        TEACHER, STUDENT, GUEST
+    };
 }

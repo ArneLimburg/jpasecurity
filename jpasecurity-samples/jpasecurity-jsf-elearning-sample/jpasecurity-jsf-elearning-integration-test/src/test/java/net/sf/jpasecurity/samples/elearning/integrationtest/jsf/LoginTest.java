@@ -71,14 +71,13 @@ public class LoginTest extends AbstractHtmlTestCase {
     @Test
     public void authenticateLinkAsStudentTest() throws JaxenException {
         HtmlPage authenticateLink = testLink(getHtmlPage("login.xhtml"), "Login");
-        ElearningAssert.assertDashboardPage(authenticate(authenticateLink,Role.STUDENT), Role.STUDENT);
+        ElearningAssert.assertDashboardPage(authenticate(authenticateLink, Role.STUDENT), Role.STUDENT);
     }
 
     @Test
     public void authenticateLinkAsTeacherTest() throws JaxenException {
         HtmlPage authenticateLinkAsTeacher = testLink(getHtmlPage("login.xhtml"), "Login");
-        ElearningAssert.assertDashboardPage(authenticate(authenticateLinkAsTeacher,Role.TEACHER), 
-        		Role.TEACHER);
+        ElearningAssert.assertDashboardPage(authenticate(authenticateLinkAsTeacher, Role.TEACHER), Role.TEACHER);
     }
 
     @Test
