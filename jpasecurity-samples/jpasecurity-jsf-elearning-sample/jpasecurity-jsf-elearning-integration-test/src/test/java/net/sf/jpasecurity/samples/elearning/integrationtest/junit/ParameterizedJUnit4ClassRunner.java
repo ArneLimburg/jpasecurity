@@ -21,21 +21,21 @@ import java.util.List;
 import org.junit.runner.Runner;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.Suite;
-import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.FrameworkMethod;
 
 /**
  * @author Arne Limburg
  */
 public class ParameterizedJUnit4ClassRunner extends Suite {
 
-    public ParameterizedJUnit4ClassRunner(Class<?> testClass) throws InitializationError {
+    public ParameterizedJUnit4ClassRunner(Class<?> testClass) throws Exception {
         super(testClass, buildRunners(testClass));
     }
 
-    private static List<Runner> buildRunners(Class<?> testClass) throws InitializationError {
+    private static List<Runner> buildRunners(Class<?> testClass) throws Exception {
         Parameters parameters = testClass.getAnnotation(Parameters.class);
         if (parameters == null) {
-            throw new IllegalStateException("Missing annotation @Urls at class " + testClass.getName());
+            throw new IllegalStateException("Missing annotation @Parameters at class " + testClass.getName());
         }
         List<Runner> runners = new ArrayList<Runner>();
         for (String parameter: parameters.value()) {
@@ -48,13 +48,17 @@ public class ParameterizedJUnit4ClassRunner extends Suite {
 
         private String value;
 
-        public ParameterValueJUnit4ClassRunner(Class<?> testClass, String value) throws InitializationError {
+        public ParameterValueJUnit4ClassRunner(Class<?> testClass, String value) throws Exception {
             super(testClass);
             this.value = value;
         }
 
         protected String getName() {
             return super.getName() + " [" + value + "]";
+        }
+
+        protected String testName(FrameworkMethod method) {
+            return method.getName() + " [" + value + "]";
         }
 
         protected void validateConstructor(List<Throwable> errors) {
