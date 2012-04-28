@@ -15,14 +15,19 @@
  */
 package net.sf.jpasecurity.mapping;
 
+import static net.sf.jpasecurity.util.Validate.notNull;
+
 /**
  * A class representing a JPQL path.
  * @author Arne Limburg
  */
 public class Path {
 
+    private static final String[] EMPTY = new String[0];
+
     private Alias rootAlias;
     private String subpath;
+    private String[] subpathComponents;
 
     public Path(String path) {
         int index = path.indexOf('.');
@@ -35,6 +40,11 @@ public class Path {
         }
     }
 
+    Path(Alias alias) {
+        notNull(Alias.class, alias);
+        rootAlias = alias;
+    }
+
     public boolean hasSubpath() {
         return subpath != null;
     }
@@ -45,6 +55,13 @@ public class Path {
 
     public String getSubpath() {
         return subpath;
+    }
+
+    public String[] getSubpathComponents() {
+        if (subpathComponents == null) {
+            subpathComponents = hasSubpath()? subpath.split("\\."): EMPTY;
+        }
+        return subpathComponents;
     }
 
     public Path append(String name) {

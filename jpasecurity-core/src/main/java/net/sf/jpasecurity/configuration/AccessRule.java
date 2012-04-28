@@ -37,6 +37,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlUpdate;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.TypeDefinition;
 
 /**
@@ -54,12 +55,12 @@ public class AccessRule extends JpqlCompiledStatement {
 
     public AccessRule(JpqlAccessRule rule, TypeDefinition typeDefinition) {
         super(rule,
-              Collections.singletonList(typeDefinition.getAlias().getName()),
+              Collections.singletonList(typeDefinition.getAlias().toPath()),
               Collections.singleton(typeDefinition),
               Collections.<String>emptySet());
     }
 
-    public String getSelectedPath() {
+    public Path getSelectedPath() {
         return getSelectedPaths().get(0);
     }
 

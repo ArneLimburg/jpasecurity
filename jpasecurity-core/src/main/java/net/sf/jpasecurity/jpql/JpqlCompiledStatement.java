@@ -33,12 +33,12 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
  */
 public class JpqlCompiledStatement extends JpqlStatementHolder {
 
-    private List<String> selectedPaths;
+    private List<Path> selectedPaths;
     private Set<TypeDefinition> typeDefinitions;
     private Set<String> namedParameters;
 
     public JpqlCompiledStatement(Node statement,
-                                 List<String> selectedPathes,
+                                 List<Path> selectedPathes,
                                  Set<TypeDefinition> typeDefinitions,
                                  Set<String> namedParameters) {
         super(statement);
@@ -49,7 +49,7 @@ public class JpqlCompiledStatement extends JpqlStatementHolder {
 
     public JpqlCompiledStatement(Node statement) {
         this(statement,
-             Collections.<String>emptyList(),
+             Collections.<Path>emptyList(),
              Collections.<TypeDefinition>emptySet(),
              Collections.<String>emptySet());
     }
@@ -57,7 +57,7 @@ public class JpqlCompiledStatement extends JpqlStatementHolder {
     /**
      * Returns the paths of the select-clause.
      */
-    public List<String> getSelectedPaths() {
+    public List<Path> getSelectedPaths() {
         return selectedPaths;
     }
 
@@ -67,10 +67,10 @@ public class JpqlCompiledStatement extends JpqlStatementHolder {
      * @return the types
      * @see #getSelectedPaths()
      */
-    public Map<String, Class<?>> getSelectedTypes(MappingInformation mappingInformation) {
-        Map<String, Class<?>> selectedTypes = new HashMap<String, Class<?>>();
-        for (String selectedPath: getSelectedPaths()) {
-            selectedTypes.put(selectedPath, mappingInformation.getType(new Path(selectedPath), getTypeDefinitions()));
+    public Map<Path, Class<?>> getSelectedTypes(MappingInformation mappingInformation) {
+        Map<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
+        for (Path selectedPath: getSelectedPaths()) {
+            selectedTypes.put(selectedPath, mappingInformation.getType(selectedPath, getTypeDefinitions()));
         }
         return selectedTypes;
     }

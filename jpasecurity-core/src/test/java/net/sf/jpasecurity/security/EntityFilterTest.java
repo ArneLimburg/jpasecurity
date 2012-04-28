@@ -17,6 +17,7 @@ package net.sf.jpasecurity.security;
 
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.getCurrentArguments;
 import static org.easymock.EasyMock.replay;
@@ -67,6 +68,7 @@ public class EntityFilterTest {
         SecureObjectCache objectCache = createMock(SecureObjectCache.class);
         MappingInformation mappingInformation = createMock(MappingInformation.class);
         ClassMappingInformation classMapping = createMock(ClassMappingInformation.class);
+        PropertyMappingInformation idPropertyMapping = createMock(PropertyMappingInformation.class);
         PropertyMappingInformation namePropertyMapping = createMock(PropertyMappingInformation.class);
         SecurityContext securityContext = createMock(SecurityContext.class);
         String className = MethodAccessTestBean.class.getSimpleName();
@@ -77,10 +79,13 @@ public class EntityFilterTest {
             .andAnswer(new TypeAnswer<Object>()).anyTimes();
         expect(mappingInformation.<Object>getType((Path)anyObject(), (Set<TypeDefinition>)anyObject()))
             .andAnswer(new TypeAnswer<Object>()).anyTimes();
+        expect(mappingInformation.getPropertyMapping(eq(new Path("tb.id")), (Set<TypeDefinition>)anyObject()))
+            .andReturn(idPropertyMapping).anyTimes();
         expect(classMapping.<MethodAccessTestBean>getEntityType()).andReturn(MethodAccessTestBean.class).anyTimes();
         expect(classMapping.getEntityName()).andReturn(Introspector.decapitalize(className)).anyTimes();
         expect(classMapping.containsPropertyMapping("name")).andReturn(true).anyTimes();
         expect(classMapping.getPropertyMapping("name")).andReturn(namePropertyMapping).anyTimes();
+        expect(idPropertyMapping.isRelationshipMapping()).andReturn(false);
         expect(namePropertyMapping.getPropertyValue(anyObject())).andAnswer(new IAnswer<Object>() {
             public Object answer() throws Throwable {
                 return ((MethodAccessTestBean)getCurrentArguments()[0]).getName();
@@ -88,7 +93,7 @@ public class EntityFilterTest {
         }).anyTimes();
         expect(securityContext.getAliases()).andReturn(Collections.singleton(CURRENT_PRINCIPAL));
         expect(securityContext.getAliasValue(CURRENT_PRINCIPAL)).andReturn(NAME);
-        replay(objectCache, mappingInformation, classMapping, namePropertyMapping, securityContext);
+        replay(objectCache, mappingInformation, classMapping, idPropertyMapping, namePropertyMapping, securityContext);
         entityFilter = new EntityFilter(objectCache,
                                         mappingInformation,
                                         securityContext,

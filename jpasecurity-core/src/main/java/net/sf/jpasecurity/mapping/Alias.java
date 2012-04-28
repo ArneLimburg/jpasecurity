@@ -37,6 +37,10 @@ public class Alias {
         return name;
     }
 
+    public Path toPath() {
+        return new Path(this);
+    }
+
     public String toString() {
         return getName();
     }
