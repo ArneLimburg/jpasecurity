@@ -103,6 +103,18 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
     }
 
     @Test
+    public void aggregateSelection() {
+        TestAuthenticationProvider.authenticate(USER);
+        EntityManager entityManager = getEntityManager();
+        CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
+        Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
+        query.select(criteriaBuilder.count(bean));
+        List<Long> count = entityManager.createQuery(query).getResultList();
+        assertEquals(1, count.size());
+        assertEquals(Long.valueOf(1), count.iterator().next());
+    }
+
+    @Test
     public void compountSelection() {
         TestAuthenticationProvider.authenticate("admin", "admin");
         EntityManager entityManager = getEntityManager();
