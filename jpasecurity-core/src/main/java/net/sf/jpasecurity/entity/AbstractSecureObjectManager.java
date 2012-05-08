@@ -96,8 +96,9 @@ public abstract class AbstractSecureObjectManager {
         } else if (object instanceof Map) {
             return (T)createSecureMap((Map<?, ?>)object, this, accessManager);
         } else {
-            ClassMappingInformation mapping = getClassMapping(object.getClass());
             BeanInitializer beanInitializer = configuration.getBeanInitializer();
+            object = beanInitializer.initialize(object);
+            ClassMappingInformation mapping = getClassMapping(object.getClass());
             SecureEntityInterceptor interceptor = new SecureEntityInterceptor(beanInitializer, this, object);
             Decorator<SecureEntity> decorator
                 = new SecureEntityDecorator(mapping, beanInitializer, accessManager, this, object);

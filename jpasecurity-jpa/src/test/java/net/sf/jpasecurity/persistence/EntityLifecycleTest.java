@@ -17,11 +17,16 @@ package net.sf.jpasecurity.persistence;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
+import net.sf.jpasecurity.model.acl.Group;
+import net.sf.jpasecurity.model.acl.User;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 import org.junit.After;
@@ -252,6 +257,58 @@ public class EntityLifecycleTest {
 
         assertLifecycleCount(bean, 0, 0, 0, 1);
     }
+    @Test
+    public void commitCollectionChanges() {
+        openEntityManager();
+        User user = new User();
+        entityManager.persist(user);
+        Group group1 = new Group();
+        entityManager.persist(group1);
+        Group group2 = new Group();
+        entityManager.persist(group2);
+        Group group3 = new Group();
+        entityManager.persist(group3);
+        closeEntityManager();
+
+        openEntityManager();
+        final User user1 = entityManager.find(User.class, user.getId());
+        final List<Group> groups = user1.getGroups();
+        final Group groupToAdd1 = entityManager.find(Group.class, group1.getId());
+        groups.add(groupToAdd1);
+        closeEntityManager();
+        openEntityManager();
+        final User user2 = entityManager.find(User.class, user.getId());
+        assertEquals(1, user2.getGroups().size());
+        closeEntityManager();
+    }
+
+    @Test
+    public void commitReplacedCollection() {
+        openEntityManager();
+        User user = new User();
+        entityManager.persist(user);
+        Group group1 = new Group();
+        entityManager.persist(group1);
+        Group group2 = new Group();
+        entityManager.persist(group2);
+        Group group3 = new Group();
+        entityManager.persist(group3);
+        closeEntityManager();
+
+        openEntityManager();
+        final User user1 = entityManager.find(User.class, user.getId());
+        final ArrayList<Group> groupsReplacement = new ArrayList<Group>();
+        user1.setGroups(groupsReplacement);
+        final Group groupToAdd1 = entityManager.find(Group.class, group1.getId());
+        final Group groupToAdd2 = entityManager.find(Group.class, group2.getId());
+        groupsReplacement.add(groupToAdd1);
+        groupsReplacement.add(groupToAdd2);
+        closeEntityManager();
+        openEntityManager();
+        final User user2 = entityManager.find(User.class, user.getId());
+        assertEquals(groupsReplacement.size(), user2.getGroups().size());
+        closeEntityManager();
+    }
 
     @Test
     public void find() {
@@ -284,7 +341,7 @@ public class EntityLifecycleTest {
 
     @Before
     public void createEntityManagerFactory() {
-        entityManagerFactory = Persistence.createEntityManagerFactory("annotation-based-field-access");
+        entityManagerFactory = Persistence.createEntityManagerFactory("entity-lifecycle-test");
     }
 
     @Before

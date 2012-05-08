@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2012 Stefan Hildebrandt
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity;
+package net.sf.jpasecurity.model.objectidentity;
 
-/**
- * @author Arne Limburg
- */
-public enum CascadeType {
-    ALL, PERSIST, MERGE, REMOVE, REFRESH, DETACH;
+import javax.persistence.Entity;
+
+@Entity
+public class ChildEntityType1 extends EntitySuperclass {
 }
