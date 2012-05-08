@@ -121,7 +121,21 @@ public class DefaultSecureObjectCache extends DefaultSecureObjectManager {
                 }
             }
         }
-        //we must not flush collections here, since they are flushed by their owning entities
+        //we must not flush some collections here, since there are modified collections on untouched secureEntities.
+        // EntityLifecycleTest.commitCollectionChanges()
+        // No Longer needed, because of change in SecureEntityInterceptor
+//        for (SecureCollection<?> secureCollection : secureCollections.values()) {
+//            if (secureCollection.isDirty()) {
+//                if (secureCollection instanceof AbstractSecureCollection) {
+//                    ((AbstractSecureCollection<?, ?>)secureCollection).flush();
+//                } else if (secureCollection instanceof SecureList) {
+//                    ((SecureList)secureCollection).flush();
+//                } else {
+//                    throw new IllegalStateException(
+//                        "unsupported secure collection type: " + secureCollection.getClass());
+//                }
+//            }
+//        }
     }
 
     public void postFlush() {
@@ -156,6 +170,15 @@ public class DefaultSecureObjectCache extends DefaultSecureObjectManager {
         Object secureObject = super.getSecureObject(unsecureObject);
         if ((secureObject instanceof SecureEntity) && id != null) {
             entities.put(id, (SecureEntity)secureObject);
+            final ClassMappingInformation initializedClassMapping = getClassMapping(secureObject.getClass());
+            if (initializedClassMapping != classMapping) {
+                Map<Object, SecureEntity> initializedEntities = secureEntities.get(initializedClassMapping);
+                if (initializedEntities == null) {
+                    initializedEntities = new HashMap<Object, SecureEntity>();
+                    secureEntities.put(initializedClassMapping, initializedEntities);
+                }
+                initializedEntities.put(id, (SecureEntity)secureObject);
+            }
         }
         return (E)secureObject;
     }

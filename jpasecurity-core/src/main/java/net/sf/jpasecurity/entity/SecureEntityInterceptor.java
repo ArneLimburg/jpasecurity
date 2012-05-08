@@ -64,9 +64,10 @@ public class SecureEntityInterceptor implements MethodInterceptor {
         } else if (isToString(method)) {
             entity = beanInitializer.initialize(entity);
             return entity.toString();
-        } else if (isFlush(method) && !touched) {
-            //ignore a call to flush() if this proxy was not touched
-            return null;
+            // Disabled flushDetection EntityLifecycleTest.commitReplacedCollection()
+//        } else if (isFlush(method) && !touched) {
+//            //ignore a call to flush() if this proxy was not touched
+//            return null;
         }
         try {
             if (!SecureEntityMethods.contains(method)) {
