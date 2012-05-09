@@ -266,18 +266,27 @@ public class OrmXmlParser extends JpaAnnotationParser {
         Node classNode = getMappedClassNode(property.getDeclaringClass());
         Node attributesNode = getAttributesNode(classNode);
         if (attributesNode != null) {
+            String name = getName(property);
             for (int i = 0; i < attributesNode.getChildNodes().getLength(); i++) {
                 Node child = attributesNode.getChildNodes().item(i);
                 if (ONE_TO_ONE_TAG_NAME.equals(child.getNodeName())
                     || ONE_TO_MANY_TAG_NAME.equals(child.getNodeName())
                     || MANY_TO_ONE_TAG_NAME.equals(child.getNodeName())
                     || MANY_TO_MANY_TAG_NAME.equals(child.getNodeName())) {
-                    Node targetEntityType = child.getAttributes().getNamedItem(TARGET_ENTITY_ATTRIBUTE_NAME);
+                    NamedNodeMap attributes = child.getAttributes();
+                    Node nameAttribute = attributes.getNamedItem(NAME_ATTRIBUTE_NAME);
+                    if (nameAttribute == null || !name.equals(nameAttribute.getNodeValue())) {
+                        continue;
+                    }
+                    Node targetEntityType = attributes.getNamedItem(TARGET_ENTITY_ATTRIBUTE_NAME);
                     if (targetEntityType != null) {
                         return true;
                     }
                 }
             }
+        }
+        if (!isMetadataComplete(property.getDeclaringClass())) {
+            return super.isTargetTypeOverridden(property);
         }
         return false;
     }
@@ -290,13 +299,19 @@ public class OrmXmlParser extends JpaAnnotationParser {
         Node classNode = getMappedClassNode(property.getDeclaringClass());
         Node attributesNode = getAttributesNode(classNode);
         if (attributesNode != null) {
+            String name = getName(property);
             for (int i = 0; i < attributesNode.getChildNodes().getLength(); i++) {
                 Node child = attributesNode.getChildNodes().item(i);
                 if (ONE_TO_ONE_TAG_NAME.equals(child.getNodeName())
                     || ONE_TO_MANY_TAG_NAME.equals(child.getNodeName())
                     || MANY_TO_ONE_TAG_NAME.equals(child.getNodeName())
                     || MANY_TO_MANY_TAG_NAME.equals(child.getNodeName())) {
-                    Node targetEntityType = child.getAttributes().getNamedItem(TARGET_ENTITY_ATTRIBUTE_NAME);
+                    NamedNodeMap attributes = child.getAttributes();
+                    Node nameAttribute = attributes.getNamedItem(NAME_ATTRIBUTE_NAME);
+                    if (nameAttribute == null || !name.equals(nameAttribute.getNodeValue())) {
+                        continue;
+                    }
+                    Node targetEntityType = attributes.getNamedItem(TARGET_ENTITY_ATTRIBUTE_NAME);
                     if (targetEntityType != null) {
                         String entityName = targetEntityType.getNodeValue();
                         String defaultPackage = getPackageName(getMappingDocument(property.getDeclaringClass()));

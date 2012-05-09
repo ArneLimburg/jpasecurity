@@ -87,14 +87,14 @@ public class MethodAccessAnnotationTestBean {
     public void aBusinessMethodThatDoesNothing() {
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = MethodAccessAnnotationTestBean.class)
     @JoinColumn(name = "parentBean")
-    public MethodAccessAnnotationTestBean getParent() {
+    public Object getParent() {
         return parentBean;
     }
 
-    public void setParent(MethodAccessAnnotationTestBean parent) {
-        parentBean = parent;
+    public void setParent(Object parent) {
+        parentBean = (MethodAccessAnnotationTestBean)parent;
     }
 
     @OneToMany(mappedBy = "parent",

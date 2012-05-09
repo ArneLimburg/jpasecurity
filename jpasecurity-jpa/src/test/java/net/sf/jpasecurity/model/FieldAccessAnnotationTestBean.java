@@ -62,8 +62,11 @@ public class FieldAccessAnnotationTestBean {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parentBean")
     private FieldAccessAnnotationTestBean parent;
-    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<FieldAccessAnnotationTestBean> children = new ArrayList<FieldAccessAnnotationTestBean>();
+    @OneToMany(mappedBy = "parent",
+               fetch = FetchType.EAGER,
+               cascade = CascadeType.ALL,
+               targetEntity = FieldAccessAnnotationTestBean.class)
+    private List<Object> children = new ArrayList<Object>();
     @OneToMany(mappedBy = "parent", cascade = CascadeType.PERSIST)
     @MapKey(name = "key")
     private Map<FieldAccessMapKey, FieldAccessMapValue> map = new HashMap<FieldAccessMapKey, FieldAccessMapValue>();
@@ -161,10 +164,10 @@ public class FieldAccessAnnotationTestBean {
     }
 
     public List<FieldAccessAnnotationTestBean> getChildBeans() {
-        return children;
+        return (List<FieldAccessAnnotationTestBean>)(List<?>)children;
     }
 
-    public void setChildren(List<FieldAccessAnnotationTestBean> childBeans) {
+    public void setChildren(List<Object> childBeans) {
         children = childBeans;
     }
 
