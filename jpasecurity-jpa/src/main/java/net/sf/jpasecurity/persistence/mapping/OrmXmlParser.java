@@ -189,6 +189,11 @@ public class OrmXmlParser extends JpaAnnotationParser {
     public static final String NAME_ATTRIBUTE_NAME = "name";
 
     /**
+     * The attribute name for names
+     */
+    public static final String TARGET_ENTITY_ATTRIBUTE_NAME = "target-entity";
+
+    /**
      * The field access type value
      */
     public static final String FIELD_ACCESS = "FIELD";
@@ -250,6 +255,66 @@ public class OrmXmlParser extends JpaAnnotationParser {
             return super.getIdClass(entityClass, usesFieldAccess);
         }
         return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean isTargetTypeOverridden(Member property) {
+        Node classNode = getMappedClassNode(property.getDeclaringClass());
+        Node attributesNode = getAttributesNode(classNode);
+        if (attributesNode != null) {
+            for (int i = 0; i < attributesNode.getChildNodes().getLength(); i++) {
+                Node child = attributesNode.getChildNodes().item(i);
+                if (ONE_TO_ONE_TAG_NAME.equals(child.getNodeName())
+                    || ONE_TO_MANY_TAG_NAME.equals(child.getNodeName())
+                    || MANY_TO_ONE_TAG_NAME.equals(child.getNodeName())
+                    || MANY_TO_MANY_TAG_NAME.equals(child.getNodeName())) {
+                    Node targetEntityType = child.getAttributes().getNamedItem(TARGET_ENTITY_ATTRIBUTE_NAME);
+                    if (targetEntityType != null) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Class<?> getTargetType(Member property) {
+        Node classNode = getMappedClassNode(property.getDeclaringClass());
+        Node attributesNode = getAttributesNode(classNode);
+        if (attributesNode != null) {
+            for (int i = 0; i < attributesNode.getChildNodes().getLength(); i++) {
+                Node child = attributesNode.getChildNodes().item(i);
+                if (ONE_TO_ONE_TAG_NAME.equals(child.getNodeName())
+                    || ONE_TO_MANY_TAG_NAME.equals(child.getNodeName())
+                    || MANY_TO_ONE_TAG_NAME.equals(child.getNodeName())
+                    || MANY_TO_MANY_TAG_NAME.equals(child.getNodeName())) {
+                    Node targetEntityType = child.getAttributes().getNamedItem(TARGET_ENTITY_ATTRIBUTE_NAME);
+                    if (targetEntityType != null) {
+                        String entityName = targetEntityType.getNodeValue();
+                        String defaultPackage = getPackageName(getMappingDocument(property.getDeclaringClass()));
+                        String className = entityName;
+                        if (defaultPackage != null) {
+                            className = defaultPackage + '.' + entityName;
+                        }
+                        return getClass(className);
+                    }
+                }
+            }
+        }
+        if (isMetadataComplete(property.getDeclaringClass())) {
+            throw exceptionFactory.createMappingException("could not determine target class for property \""
+                            + getName(property) + "\" of class "
+                            + property.getDeclaringClass().getName());
+        }
+        return super.getTargetType(property);
     }
 
     /**

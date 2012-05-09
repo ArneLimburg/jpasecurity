@@ -24,7 +24,7 @@ public class FieldAccessXmlTestBean {
 
     private int id;
     private String name;
-    private FieldAccessXmlTestBean parent;
+    private Object parent;
     private List<FieldAccessXmlTestBean> children;
 
     public int getIdentifier() {
@@ -43,11 +43,11 @@ public class FieldAccessXmlTestBean {
         name = beanName;
     }
 
-    public FieldAccessXmlTestBean getParentBean() {
+    public Object getParentBean() {
         return parent;
     }
 
-    public void setParentBean(FieldAccessXmlTestBean parentBean) {
+    public void setParentBean(Object parentBean) {
         parent = parentBean;
     }
 

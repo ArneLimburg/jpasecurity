@@ -38,7 +38,7 @@
     <attributes>
       <id name="id"/>
       <basic name="name"/>
-      <many-to-one name="parent" fetch="LAZY"/>
+      <many-to-one name="parent" fetch="LAZY" target-entity="FieldAccessXmlTestBean"/>
       <one-to-many name="children" fetch="EAGER">
         <cascade>
           <cascade-all/>
