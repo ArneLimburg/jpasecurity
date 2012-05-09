@@ -323,7 +323,11 @@ public abstract class AbstractSecurityUnitParser {
             } else {
                 LOG.trace("Property not parsed, creating...");
                 if (isSingleValuedRelationshipProperty) {
-                    ClassMappingInformation typeMapping = parse(type, classMapping.usesFieldAccess(), false,
+                    Class<?> targetType = type;
+                    if (isTargetTypeOverridden(property)) {
+                        targetType = getTargetType(property);
+                    }
+                    ClassMappingInformation typeMapping = parse(targetType, classMapping.usesFieldAccess(), false,
                         classMapping.getAccessState());
                     if (LOG.isTraceEnabled()) {
                         LOG.trace("Property " + classMapping.getEntityName() + "." + name
@@ -339,9 +343,14 @@ public abstract class AbstractSecurityUnitParser {
                                                                                      getFetchType(property),
                                                                                      getCascadeTypes(property));
                 } else if (isCollectionValuedRelationshipProperty) {
-                    ClassMappingInformation targetMapping
-                        = parse(getTargetType(property), classMapping.usesFieldAccess(), false,
+                    ClassMappingInformation targetMapping;
+                    if (isTargetTypeOverridden(property)) {
+                        targetMapping = parse(getTargetType(property), classMapping.usesFieldAccess(), false,
                             classMapping.getAccessState());
+                    } else {
+                        targetMapping = parse(getCollectionValueType(property), classMapping.usesFieldAccess(), false,
+                            classMapping.getAccessState());
+                    }
                     if (LOG.isTraceEnabled()) {
                         LOG.trace("Property " + classMapping.getEntityName() + "." + name
                                   + " is single-valued relationship of type "
@@ -426,7 +435,15 @@ public abstract class AbstractSecurityUnitParser {
         }
     }
 
+    protected boolean isTargetTypeOverridden(Member property) {
+        return false;
+    }
+
     protected Class<?> getTargetType(Member property) {
+        return getType(property);
+    }
+
+    protected Class<?> getCollectionValueType(Member property) {
         Type genericType;
         if (property instanceof Method) {
             genericType = ((Method)property).getGenericReturnType();

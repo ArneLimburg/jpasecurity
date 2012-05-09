@@ -186,17 +186,50 @@ public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
         }
     }
 
+    @Override
+    protected boolean isTargetTypeOverridden(Member property) {
+        AnnotatedElement annotatedProperty = (AnnotatedElement)property;
+        OneToOne oneToOne = annotatedProperty.getAnnotation(OneToOne.class);
+        if (oneToOne != null && oneToOne.targetEntity() != null && oneToOne.targetEntity() != void.class) {
+            return true;
+        }
+        OneToMany oneToMany = annotatedProperty.getAnnotation(OneToMany.class);
+        if (oneToMany != null && oneToMany.targetEntity() != null && oneToMany.targetEntity() != void.class) {
+            return true;
+        }
+        ManyToOne manyToOne = annotatedProperty.getAnnotation(ManyToOne.class);
+        if (manyToOne != null && manyToOne.targetEntity() != null && manyToOne.targetEntity() != void.class) {
+            return true;
+        }
+        ManyToMany manyToMany = annotatedProperty.getAnnotation(ManyToMany.class);
+        if (manyToMany != null && manyToMany.targetEntity() != null && manyToMany.targetEntity() != void.class) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     protected Class<?> getTargetType(Member property) {
         AnnotatedElement annotatedProperty = (AnnotatedElement)property;
+        OneToOne oneToOne = annotatedProperty.getAnnotation(OneToOne.class);
+        if (oneToOne != null && oneToOne.targetEntity() != null && oneToOne.targetEntity() != void.class) {
+            return oneToOne.targetEntity();
+        }
         OneToMany oneToMany = annotatedProperty.getAnnotation(OneToMany.class);
         if (oneToMany != null && oneToMany.targetEntity() != null && oneToMany.targetEntity() != void.class) {
             return oneToMany.targetEntity();
+        }
+        ManyToOne manyToOne = annotatedProperty.getAnnotation(ManyToOne.class);
+        if (manyToOne != null && manyToOne.targetEntity() != null && manyToOne.targetEntity() != void.class) {
+            return manyToOne.targetEntity();
         }
         ManyToMany manyToMany = annotatedProperty.getAnnotation(ManyToMany.class);
         if (manyToMany != null && manyToMany.targetEntity() != null && manyToMany.targetEntity() != void.class) {
             return manyToMany.targetEntity();
         }
-        return super.getTargetType(property);
+        throw exceptionFactory.createMappingException("could not determine target class for property \""
+                        + getName(property) + "\" of class "
+                        + property.getDeclaringClass().getName());
     }
 
     protected boolean isMapped(Class<?> mappedClass) {
