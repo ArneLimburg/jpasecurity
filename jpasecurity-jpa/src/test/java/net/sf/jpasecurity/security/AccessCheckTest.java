@@ -136,12 +136,12 @@ public class AccessCheckTest {
         TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
         MethodAccessAnnotationTestBean bean = result.iterator().next();
         assertEquals(USER1, bean.getName());
-        assertEquals(USER2, bean.getParent().getName());
+        assertEquals(USER2, ((MethodAccessAnnotationTestBean)bean.getParent()).getName());
 
         try {
             TestAuthenticationProvider.authenticate(USER1);
             entityManager.getTransaction().begin();
-            bean.getParent().setName(USER1);
+            ((MethodAccessAnnotationTestBean)bean.getParent()).setName(USER1);
             entityManager.getTransaction().commit();
             fail("expected SecurityException");
         } catch (SecurityException e) {

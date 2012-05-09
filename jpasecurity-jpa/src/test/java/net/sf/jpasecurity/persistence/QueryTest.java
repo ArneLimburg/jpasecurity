@@ -71,7 +71,7 @@ public class QueryTest extends TestCase {
         TestAuthenticationProvider.authenticate("root", "admin");
         ParentChildTestData testData = new ParentChildTestData(entityManager);
         MethodAccessAnnotationTestBean child1 = testData.createPermutations(USER1, USER2).iterator().next();
-        MethodAccessAnnotationTestBean parent1 = child1.getParent();
+        MethodAccessAnnotationTestBean parent1 = (MethodAccessAnnotationTestBean)child1.getParent();
         entityManager.getTransaction().commit();
         entityManager.close();
 

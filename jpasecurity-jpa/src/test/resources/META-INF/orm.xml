@@ -16,7 +16,7 @@
       <id name="id"/>
       <basic name="name"/>
       <many-to-one name="parent" fetch="LAZY"/>
-      <one-to-many name="children" fetch="EAGER">
+      <one-to-many name="children" fetch="EAGER" target-entity="MethodAccessTestBean">
         <cascade>
           <cascade-persist/>
           <cascade-merge/>
