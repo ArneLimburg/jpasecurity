@@ -17,8 +17,12 @@ package net.sf.jpasecurity.entity;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Map;
 
+import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
+import net.sf.jpasecurity.SecureMap;
 import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityMethods;
@@ -31,6 +35,7 @@ import net.sf.jpasecurity.proxy.SuperMethod;
 public class SecureEntityInterceptor implements MethodInterceptor {
 
     private boolean touched = false;
+    private boolean unmanagedCollection = false;
     private BeanInitializer beanInitializer;
     private AbstractSecureObjectManager objectManager;
     Object entity;
@@ -65,9 +70,8 @@ public class SecureEntityInterceptor implements MethodInterceptor {
             entity = beanInitializer.initialize(entity);
             return entity.toString();
             // Disabled flushDetection EntityLifecycleTest.commitReplacedCollection()
-//        } else if (isFlush(method) && !touched) {
-//            //ignore a call to flush() if this proxy was not touched
-//            return null;
+        } else if (isFlush(method) && !touched && !unmanagedCollection) {
+            return null;
         }
         try {
             if (!SecureEntityMethods.contains(method)) {
@@ -76,6 +80,10 @@ public class SecureEntityInterceptor implements MethodInterceptor {
                     touched = false;
                 } else {
                     touched = true;
+                    if (!unmanagedCollection
+                        && containsUnmanagedCollection(args)) {
+                        unmanagedCollection = true;
+                    }
                 }
             }
             return superMethod.invoke(object, args);
@@ -86,6 +94,20 @@ public class SecureEntityInterceptor implements MethodInterceptor {
                 touched = false;
             }
         }
+    }
+
+    private boolean containsUnmanagedCollection(Object[] args) {
+        if (args == null) {
+            return false;
+        }
+        for (Object arg : args) {
+            if ((arg instanceof Collection
+                && !(arg instanceof SecureCollection))
+                || (arg instanceof Map && !(arg instanceof SecureMap))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isEquals(Method method) {

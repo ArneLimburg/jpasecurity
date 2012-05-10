@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.model.acl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -36,7 +37,7 @@ public class Group extends AbstractEntity {
     @JoinTable(name = "GROUP_HIERARCHY",
                joinColumns = @JoinColumn(name = "PARENT_ID"),
                inverseJoinColumns = @JoinColumn(name = "CHILD_ID"))
-    private List<Group> fullHierarchy;
+    private List<Group> fullHierarchy = new ArrayList<Group>();
 
     public String getName() {
         return name;

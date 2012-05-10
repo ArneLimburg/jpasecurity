@@ -35,9 +35,6 @@ public class User extends AbstractEntity {
                inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
     private List<Role> roles;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    private List<Trademark> allowedTrademarks;
-
     private String firstName;
 
     private String lastName;
@@ -56,14 +53,6 @@ public class User extends AbstractEntity {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
-    }
-
-    public List<Trademark> getAllowedTrademarks() {
-        return allowedTrademarks;
-    }
-
-    public void setAllowedTrademarks(List<Trademark> allowedTrademarks) {
-        this.allowedTrademarks = allowedTrademarks;
     }
 
     public String getFirstName() {
