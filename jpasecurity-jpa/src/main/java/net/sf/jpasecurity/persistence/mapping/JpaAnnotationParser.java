@@ -162,12 +162,12 @@ public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace(mappedClass.getSimpleName() + " uses field access");
                 }
-                accessState = AccessState.FIELDACCESS;
+                accessState = AccessState.FIELD_ACCESS;
             } else {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace(mappedClass.getSimpleName() + " uses property access");
                 }
-                accessState = AccessState.PROPERTYACCESS;
+                accessState = AccessState.PROPERTY_ACCESS;
             }
         }
         return getAccessState(mappedClass, accessState);

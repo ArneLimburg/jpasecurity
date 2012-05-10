@@ -383,9 +383,9 @@ public class OrmXmlParser extends JpaAnnotationParser {
         Node accessNode = getAccessTypeNode(mappedClass);
         if (accessNode != null) {
             if (FIELD_ACCESS.equals(accessNode.getTextContent().toUpperCase())) {
-                accessState = AccessState.FIELDACCESS;
+                accessState = AccessState.FIELD_ACCESS;
             } else if (PROPERTY_ACCESS.equals(accessNode.getTextContent().toUpperCase())) {
-                accessState = AccessState.PROPERTYACCESS;
+                accessState = AccessState.PROPERTY_ACCESS;
             }
             if (isMetadataComplete(mappedClass)) {
                 return accessState;
@@ -396,7 +396,7 @@ public class OrmXmlParser extends JpaAnnotationParser {
         if (!isMetadataComplete(mappedClass)) {
             return super.getAccessState(mappedClass);
         }
-        return AccessState.NOACCESSDEFINED;
+        return AccessState.NO_ACCESS_DEFINED;
     }
 
     @Override

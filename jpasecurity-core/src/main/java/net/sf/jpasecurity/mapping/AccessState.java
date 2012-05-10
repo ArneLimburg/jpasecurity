@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Raffaela Ferrari
+ * Copyright 2012  Raffaela Ferrari
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,6 @@ package net.sf.jpasecurity.mapping;
  *
  */
 public enum AccessState {
-    NOACCESSDEFINED, FIELDACCESSPERID, PROPERTYACCESSPERID, FIELDACCESS, PROPERTYACCESS, CLASSPABUTFAPERID,
-    CLASSFABUTPAPERID;
+    NO_ACCESS_DEFINED, FIELD_ACCESS_PER_ID, PROPERTY_ACCESS_PER_ID, FIELD_ACCESS, PROPERTY_ACCESS, CLASS_PA_BUT_FA_PER_ID,
+    CLASS_FA_BUT_PA_PER_ID;
 }
