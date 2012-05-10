@@ -76,7 +76,7 @@ public class JavaBeanSecurityUnitParser extends AbstractSecurityUnitParser {
 
     @Override
     protected AccessState getAccessState(Class<?> mappedClass) {
-        return AccessState.PROPERTYACCESSPERID;
+        return AccessState.PROPERTY_ACCESS_PER_ID;
     }
 
     protected boolean isMapped(Class<?> mappedClass) {
