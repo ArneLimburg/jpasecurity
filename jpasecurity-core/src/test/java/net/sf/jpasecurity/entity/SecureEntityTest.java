@@ -22,11 +22,10 @@ import org.junit.Test;
  */
 public class SecureEntityTest extends AbstractSecureObjectTestCase {
 
-// Disabled by problems in EntityLifecycleTest.commitReplacedCollection()
-//    @Test
-//    public void flushUntouched() {
-//        getSecureEntity().flush();
-//    }
+    @Test
+    public void flushUntouched() {
+        getSecureEntity().flush();
+    }
 
     @Test
     public void flushTouched() {

@@ -156,9 +156,7 @@
     <class>net.sf.jpasecurity.model.acl.Group</class>
     <class>net.sf.jpasecurity.model.acl.Privilege</class>
     <class>net.sf.jpasecurity.model.acl.Role</class>
-    <class>net.sf.jpasecurity.model.acl.Trademark</class>
     <class>net.sf.jpasecurity.model.acl.User</class>
-    <class>net.sf.jpasecurity.model.acl.TrademarkProtectedEntity</class>
     <class>net.sf.jpasecurity.model.acl.AclProtectedEntity</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
@@ -344,9 +342,7 @@
     <class>net.sf.jpasecurity.model.acl.Group</class>
     <class>net.sf.jpasecurity.model.acl.Privilege</class>
     <class>net.sf.jpasecurity.model.acl.Role</class>
-    <class>net.sf.jpasecurity.model.acl.Trademark</class>
     <class>net.sf.jpasecurity.model.acl.User</class>
-    <class>net.sf.jpasecurity.model.acl.TrademarkProtectedEntity</class>
     <class>net.sf.jpasecurity.model.acl.AclProtectedEntity</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>

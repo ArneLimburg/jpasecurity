@@ -23,7 +23,7 @@ import javax.persistence.Table;
 
 @Entity(name = "AclEntry")
 @Table(name = "aclentry")
-public class AclEntry extends AbstractTrademarkRelatedEntity {
+public class AclEntry extends AbstractEntity {
     private static final long serialVersionUID = 1L;
 
     @ManyToOne
