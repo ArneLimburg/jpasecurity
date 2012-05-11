@@ -15,6 +15,10 @@
  */
 package net.sf.jpasecurity.persistence.mapping;
 
+import static net.sf.jpasecurity.mapping.AccessState.FIELD_ACCESS;
+import static net.sf.jpasecurity.mapping.AccessState.FIELD_ACCESS_PER_ID;
+import static net.sf.jpasecurity.mapping.AccessState.PROPERTY_ACCESS;
+import static net.sf.jpasecurity.mapping.AccessState.PROPERTY_ACCESS_PER_ID;
 import static org.junit.Assert.assertEquals;
 
 import javax.persistence.Persistence;
@@ -45,20 +49,20 @@ public class ClassMappingTest {
 
     @Test
     public void subclassMappingTest() {
-        assertAccess("classmapping-test", true, AccessState.FIELD_ACCESS_PER_ID, AbstractSuperclass.class);
-        assertAccess("classmapping-test", true, AccessState.FIELD_ACCESS_PER_ID, AbstractEntity.class);
-        assertAccess("classmapping-test", true, AccessState.FIELD_ACCESS_PER_ID, Subclass1.class);
-        assertAccess("classmapping-test", true, AccessState.FIELD_ACCESS_PER_ID, FieldAccessPerIDTestclass.class);
-        assertAccess("classmapping-test", false, AccessState.PROPERTY_ACCESS_PER_ID, PropertyAccessPerIDTestclass.class);
-        assertAccess("classmapping-test", true, AccessState.FIELD_ACCESS, FieldAccessTestclass.class);
-        assertAccess("classmapping-test", false, AccessState.PROPERTY_ACCESS, PropertyAccessTestclass.class);
+        assertAccess("classmapping-test", true, FIELD_ACCESS_PER_ID, AbstractSuperclass.class);
+        assertAccess("classmapping-test", true, FIELD_ACCESS_PER_ID, AbstractEntity.class);
+        assertAccess("classmapping-test", true, FIELD_ACCESS_PER_ID, Subclass1.class);
+        assertAccess("classmapping-test", true, FIELD_ACCESS_PER_ID, FieldAccessPerIDTestclass.class);
+        assertAccess("classmapping-test", false, PROPERTY_ACCESS_PER_ID, PropertyAccessPerIDTestclass.class);
+        assertAccess("classmapping-test", true, FIELD_ACCESS, FieldAccessTestclass.class);
+        assertAccess("classmapping-test", false, PROPERTY_ACCESS, PropertyAccessTestclass.class);
     }
 
     @Test
     public void superclassMappingTest() {
-        assertAccess("classmapping-test", true, AccessState.FIELD_ACCESS_PER_ID, AbstractVersionedSuperclass.class);
-        assertAccess("classmapping-test", true, AccessState.FIELD_ACCESS_PER_ID, FieldAccessSuperclass.class);
-        assertAccess("classmapping-test", false, AccessState.PROPERTY_ACCESS_PER_ID, PropertyAccessSuperclass.class);
+        assertAccess("classmapping-test", true, FIELD_ACCESS_PER_ID, AbstractVersionedSuperclass.class);
+        assertAccess("classmapping-test", true, FIELD_ACCESS_PER_ID, FieldAccessSuperclass.class);
+        assertAccess("classmapping-test", false, PROPERTY_ACCESS_PER_ID, PropertyAccessSuperclass.class);
     }
 
 
