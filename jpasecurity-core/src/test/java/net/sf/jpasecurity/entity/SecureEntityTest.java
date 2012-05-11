@@ -22,10 +22,10 @@ import org.junit.Test;
  */
 public class SecureEntityTest extends AbstractSecureObjectTestCase {
 
-    @Test
-    public void flushUntouched() {
-        getSecureEntity().flush();
-    }
+//    @Test
+//    public void flushUntouched() {
+//        getSecureEntity().flush();
+//    }
 
     @Test
     public void flushTouched() {
