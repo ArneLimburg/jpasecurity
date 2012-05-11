@@ -70,8 +70,8 @@ public class SecureEntityInterceptor implements MethodInterceptor {
             entity = beanInitializer.initialize(entity);
             return entity.toString();
             // Disabled flushDetection EntityLifecycleTest.commitReplacedCollection()
-        } else if (isFlush(method) && !touched && !unmanagedCollection) {
-            return null;
+//        } else if (isFlush(method) && !touched && !unmanagedCollection) {
+//            return null;
         }
         try {
             if (!SecureEntityMethods.contains(method)) {

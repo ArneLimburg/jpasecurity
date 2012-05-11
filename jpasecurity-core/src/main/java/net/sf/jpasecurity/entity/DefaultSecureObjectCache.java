@@ -121,20 +121,6 @@ public class DefaultSecureObjectCache extends DefaultSecureObjectManager {
                 }
             }
         }
-        //we must not flush some collections here, since there are modified collections on untouched secureEntities.
-        // EntityLifecycleTest.commitCollectionChanges()
-        for (SecureCollection<?> secureCollection : secureCollections.values()) {
-            if (secureCollection.isDirty()) {
-                if (secureCollection instanceof AbstractSecureCollection) {
-                    ((AbstractSecureCollection<?, ?>)secureCollection).flush();
-                } else if (secureCollection instanceof SecureList) {
-                    ((SecureList)secureCollection).flush();
-                } else {
-                    throw new IllegalStateException(
-                        "unsupported secure collection type: " + secureCollection.getClass());
-                }
-            }
-        }
     }
 
     public void postFlush() {
