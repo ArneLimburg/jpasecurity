@@ -177,38 +177,28 @@ public abstract class AbstractSecurityUnitParser {
         } else if (superclassMapping != null) {
             AccessState accessStateSuperclass = superclassMapping.getAccessState();
             accessStateMappedClass = getAccessState(mappedClass);
-            if ((accessStateSuperclass == AccessState.FIELD_ACCESS_PER_ID
-                || accessStateSuperclass == AccessState.CLASS_PA_BUT_FA_PER_ID)
-                && (accessStateMappedClass == AccessState.NO_ACCESS_DEFINED
-                || accessStateMappedClass == AccessState.FIELD_ACCESS)) {
-                accessStateMappedClass = AccessState.FIELD_ACCESS_PER_ID;
-            } else if ((accessStateSuperclass == AccessState.FIELD_ACCESS_PER_ID
-                || accessStateSuperclass == AccessState.CLASS_PA_BUT_FA_PER_ID)
-                && accessStateMappedClass == AccessState.PROPERTY_ACCESS) {
-                accessStateMappedClass = AccessState.CLASS_PA_BUT_FA_PER_ID;
-            } else if ((accessStateSuperclass == AccessState.PROPERTY_ACCESS_PER_ID
-                || accessStateSuperclass == AccessState.CLASS_FA_BUT_PA_PER_ID)
-                && (accessStateMappedClass == AccessState.NO_ACCESS_DEFINED
-                || accessStateMappedClass == AccessState.PROPERTY_ACCESS)) {
-                accessStateMappedClass = AccessState.PROPERTY_ACCESS_PER_ID;
-            } else if ((accessStateSuperclass == AccessState.PROPERTY_ACCESS_PER_ID
-                || accessStateSuperclass == AccessState.CLASS_FA_BUT_PA_PER_ID)
-                && accessStateMappedClass == AccessState.FIELD_ACCESS) {
-                accessStateMappedClass = AccessState.CLASS_FA_BUT_PA_PER_ID;
+            if (isFieldAccessForHierarchy(accessStateMappedClass, accessStateSuperclass)) {
+                accessStateMappedClass = AccessState.FIELD_ACCESS_FOR_HIERARCHY;
+            } else if (isOverridingPropertyAccess(accessStateMappedClass, accessStateSuperclass)) {
+                accessStateMappedClass = AccessState.OVERRIDING_PROPERTY_ACCESS;
+            } else if (isPropertyAccessForHierarchy(accessStateMappedClass, accessStateSuperclass)) {
+                accessStateMappedClass = AccessState.PROPERTY_ACCESS_FOR_HIERARCHY;
+            } else if (isOverridingFieldAccess(accessStateMappedClass, accessStateSuperclass)) {
+                accessStateMappedClass = AccessState.OVERRIDING_FIELD_ACCESS;
             }
-            usesFieldAccess = (accessStateMappedClass == AccessState.CLASS_FA_BUT_PA_PER_ID
-                || accessStateMappedClass == AccessState.FIELD_ACCESS_PER_ID
+            usesFieldAccess = (accessStateMappedClass == AccessState.OVERRIDING_FIELD_ACCESS
+                || accessStateMappedClass == AccessState.FIELD_ACCESS_FOR_HIERARCHY
                 || accessStateMappedClass == AccessState.FIELD_ACCESS);
         } else {
             accessStateMappedClass = getAccessState(mappedClass);
-            usesFieldAccess = (accessStateMappedClass == AccessState.CLASS_FA_BUT_PA_PER_ID
-                || accessStateMappedClass == AccessState.FIELD_ACCESS_PER_ID
+            usesFieldAccess = (accessStateMappedClass == AccessState.OVERRIDING_FIELD_ACCESS
+                || accessStateMappedClass == AccessState.FIELD_ACCESS_FOR_HIERARCHY
                 || accessStateMappedClass == AccessState.FIELD_ACCESS);
         }
         if (accessStateMappedClass == AccessState.NO_ACCESS_DEFINED) {
             if (accessState != null) {
                 accessStateMappedClass = accessState;
-                usesFieldAccess = accessStateMappedClass == AccessState.FIELD_ACCESS_PER_ID;
+                usesFieldAccess = accessStateMappedClass == AccessState.FIELD_ACCESS_FOR_HIERARCHY;
             } else {
                 return null;
             }
@@ -216,12 +206,12 @@ public abstract class AbstractSecurityUnitParser {
         if (accessStateMappedClass != AccessState.NO_ACCESS_DEFINED
             && accessStateMappedClass != AccessState.FIELD_ACCESS
             && accessStateMappedClass != AccessState.PROPERTY_ACCESS) {
-            if (accessStateMappedClass == AccessState.CLASS_FA_BUT_PA_PER_ID) {
+            if (accessStateMappedClass == AccessState.OVERRIDING_FIELD_ACCESS) {
                 superclassMapping = parse(mappedClass.getSuperclass(), derivedFieldAccess, override,
-                    AccessState.PROPERTY_ACCESS_PER_ID);
-            } else if (accessStateMappedClass == AccessState.CLASS_PA_BUT_FA_PER_ID) {
+                    AccessState.PROPERTY_ACCESS_FOR_HIERARCHY);
+            } else if (accessStateMappedClass == AccessState.OVERRIDING_PROPERTY_ACCESS) {
                 superclassMapping = parse(mappedClass.getSuperclass(), derivedFieldAccess, override,
-                    AccessState.FIELD_ACCESS_PER_ID);
+                    AccessState.FIELD_ACCESS_FOR_HIERARCHY);
             } else {
                 superclassMapping = parse(mappedClass.getSuperclass(), derivedFieldAccess, override,
                     accessStateMappedClass);
@@ -278,6 +268,32 @@ public abstract class AbstractSecurityUnitParser {
             }
         }
         return classMapping;
+    }
+
+    private boolean isOverridingFieldAccess(AccessState accessStateMappedClass, AccessState accessStateSuperclass) {
+        return (accessStateSuperclass == AccessState.PROPERTY_ACCESS_FOR_HIERARCHY
+            || accessStateSuperclass == AccessState.OVERRIDING_FIELD_ACCESS)
+            && accessStateMappedClass == AccessState.FIELD_ACCESS;
+    }
+
+    private boolean isOverridingPropertyAccess(AccessState accessStateMappedClass, AccessState accessStateSuperclass) {
+        return (accessStateSuperclass == AccessState.FIELD_ACCESS_FOR_HIERARCHY
+            || accessStateSuperclass == AccessState.OVERRIDING_PROPERTY_ACCESS)
+            && accessStateMappedClass == AccessState.PROPERTY_ACCESS;
+    }
+
+    private boolean isPropertyAccessForHierarchy(AccessState accessStateMappedClass, AccessState accessStateSuperclass) {
+        return (accessStateSuperclass == AccessState.PROPERTY_ACCESS_FOR_HIERARCHY
+            || accessStateSuperclass == AccessState.OVERRIDING_FIELD_ACCESS)
+            && (accessStateMappedClass == AccessState.NO_ACCESS_DEFINED
+            || accessStateMappedClass == AccessState.PROPERTY_ACCESS);
+    }
+
+    private boolean isFieldAccessForHierarchy(AccessState accessStateMappedClass, AccessState accessStateSuperclass) {
+        return (accessStateSuperclass == AccessState.FIELD_ACCESS_FOR_HIERARCHY
+            || accessStateSuperclass == AccessState.OVERRIDING_PROPERTY_ACCESS)
+            && (accessStateMappedClass == AccessState.NO_ACCESS_DEFINED
+            || accessStateMappedClass == AccessState.FIELD_ACCESS);
     }
 
     protected Class<?> getClass(String name) {
@@ -527,13 +543,13 @@ public abstract class AbstractSecurityUnitParser {
                             LOG.trace(mappedClass.getSimpleName() + " uses property access but field "
                                 + field.getName() + " has Id-Annotation");
                         }
-                        return AccessState.CLASS_PA_BUT_FA_PER_ID;
+                        return AccessState.OVERRIDING_PROPERTY_ACCESS;
                     }
                 }
                 if (LOG.isTraceEnabled()) {
                     LOG.trace(mappedClass.getSimpleName() + " uses field access per Id");
                 }
-                return AccessState.FIELD_ACCESS_PER_ID;
+                return AccessState.FIELD_ACCESS_FOR_HIERARCHY;
             }
         }
         Method[] methods = mappedClass.getDeclaredMethods();
@@ -552,13 +568,13 @@ public abstract class AbstractSecurityUnitParser {
                                 LOG.trace(mappedClass.getSimpleName() + " uses field access but property "
                                     + method.getName() + " has Id-Annotation");
                             }
-                            return AccessState.CLASS_FA_BUT_PA_PER_ID;
+                            return AccessState.OVERRIDING_FIELD_ACCESS;
                         }
                     }
                     if (LOG.isTraceEnabled()) {
                         LOG.trace(mappedClass.getSimpleName() + " uses property access per Id");
                     }
-                    return AccessState.PROPERTY_ACCESS_PER_ID;
+                    return AccessState.PROPERTY_ACCESS_FOR_HIERARCHY;
                 }
             }
         }
