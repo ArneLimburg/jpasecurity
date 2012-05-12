@@ -55,25 +55,25 @@ public class MappingTest {
 
     @Test
     public void annotationMethodAccess() {
-        assertAccess("annotation-based-method-access", false, AccessState.PROPERTY_ACCESS_PER_ID,
+        assertAccess("annotation-based-method-access", false, AccessState.PROPERTY_ACCESS_FOR_HIERARCHY,
             MethodAccessAnnotationTestBean.class);
     }
 
     @Test
     public void xmlMethodAccess() {
-        assertAccess("xml-based-method-access", false, AccessState.PROPERTY_ACCESS_PER_ID,
+        assertAccess("xml-based-method-access", false, AccessState.PROPERTY_ACCESS_FOR_HIERARCHY,
             MethodAccessTestBean.class);
     }
 
     @Test
     public void annotationFieldAccess() {
-        assertAccess("annotation-based-field-access", true, AccessState.FIELD_ACCESS_PER_ID,
+        assertAccess("annotation-based-field-access", true, AccessState.FIELD_ACCESS_FOR_HIERARCHY,
             FieldAccessAnnotationTestBean.class);
     }
 
     @Test
     public void xmlFieldAccess() {
-        assertAccess("xml-based-field-access", true, AccessState.FIELD_ACCESS_PER_ID,
+        assertAccess("xml-based-field-access", true, AccessState.FIELD_ACCESS_FOR_HIERARCHY,
             FieldAccessXmlTestBean.class);
     }
 
