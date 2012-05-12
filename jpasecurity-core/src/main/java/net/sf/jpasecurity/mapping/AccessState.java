@@ -15,12 +15,42 @@
  */
 package net.sf.jpasecurity.mapping;
 
+
 /**
  *
  * @author Raffaela Ferrari
  *
  */
 public enum AccessState {
-    NO_ACCESS_DEFINED, FIELD_ACCESS_PER_ID, PROPERTY_ACCESS_PER_ID, FIELD_ACCESS, PROPERTY_ACCESS,
-    CLASS_PA_BUT_FA_PER_ID, CLASS_FA_BUT_PA_PER_ID;
+    NO_ACCESS_DEFINED(null, null),
+    FIELD_ACCESS_FOR_HIERARCHY(true, false),
+    PROPERTY_ACCESS_FOR_HIERARCHY(false, false),
+    FIELD_ACCESS(true, null),
+    PROPERTY_ACCESS(false, null),
+    OVERRIDING_PROPERTY_ACCESS(false, true),
+    OVERRIDING_FIELD_ACCESS(true, true);
+    
+    private Boolean fieldAccess;
+    private Boolean overriding;
+
+    private AccessState(Boolean fieldAccess, Boolean overriding) {
+        this.fieldAccess = fieldAccess;
+        this.overriding = overriding;
+    }
+
+    public boolean isFieldAccess() {
+        return fieldAccess != null && fieldAccess;
+    }
+
+    public boolean isPropertyAccess() {
+        return fieldAccess != null && fieldAccess == false;
+    }
+
+    public boolean isOverriding() {
+        return overriding != null && overriding;
+    }
+
+    public boolean isDefiningHierarchy() {
+        return overriding != null && overriding == false;
+    }
 }
