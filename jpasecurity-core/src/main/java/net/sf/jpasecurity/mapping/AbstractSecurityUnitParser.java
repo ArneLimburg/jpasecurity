@@ -272,28 +272,28 @@ public abstract class AbstractSecurityUnitParser {
 
     private boolean isOverridingFieldAccess(AccessState accessStateMappedClass, AccessState accessStateSuperclass) {
         return (accessStateSuperclass == AccessState.PROPERTY_ACCESS_FOR_HIERARCHY
-            || accessStateSuperclass == AccessState.OVERRIDING_FIELD_ACCESS)
+                || accessStateSuperclass == AccessState.OVERRIDING_FIELD_ACCESS)
             && accessStateMappedClass == AccessState.FIELD_ACCESS;
     }
 
     private boolean isOverridingPropertyAccess(AccessState accessStateMappedClass, AccessState accessStateSuperclass) {
         return (accessStateSuperclass == AccessState.FIELD_ACCESS_FOR_HIERARCHY
-            || accessStateSuperclass == AccessState.OVERRIDING_PROPERTY_ACCESS)
+                || accessStateSuperclass == AccessState.OVERRIDING_PROPERTY_ACCESS)
             && accessStateMappedClass == AccessState.PROPERTY_ACCESS;
     }
 
-    private boolean isPropertyAccessForHierarchy(AccessState accessStateMappedClass, AccessState accessStateSuperclass) {
-        return (accessStateSuperclass == AccessState.PROPERTY_ACCESS_FOR_HIERARCHY
-            || accessStateSuperclass == AccessState.OVERRIDING_FIELD_ACCESS)
-            && (accessStateMappedClass == AccessState.NO_ACCESS_DEFINED
-            || accessStateMappedClass == AccessState.PROPERTY_ACCESS);
+    private boolean isPropertyAccessForHierarchy(AccessState mappedClassState, AccessState superclassState) {
+        return (superclassState == AccessState.PROPERTY_ACCESS_FOR_HIERARCHY
+                || superclassState == AccessState.OVERRIDING_FIELD_ACCESS)
+            && (mappedClassState == AccessState.NO_ACCESS_DEFINED
+                || mappedClassState == AccessState.PROPERTY_ACCESS);
     }
 
     private boolean isFieldAccessForHierarchy(AccessState accessStateMappedClass, AccessState accessStateSuperclass) {
         return (accessStateSuperclass == AccessState.FIELD_ACCESS_FOR_HIERARCHY
-            || accessStateSuperclass == AccessState.OVERRIDING_PROPERTY_ACCESS)
+                || accessStateSuperclass == AccessState.OVERRIDING_PROPERTY_ACCESS)
             && (accessStateMappedClass == AccessState.NO_ACCESS_DEFINED
-            || accessStateMappedClass == AccessState.FIELD_ACCESS);
+                || accessStateMappedClass == AccessState.FIELD_ACCESS);
     }
 
     protected Class<?> getClass(String name) {

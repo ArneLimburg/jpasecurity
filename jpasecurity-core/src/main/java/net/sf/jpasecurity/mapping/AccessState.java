@@ -29,7 +29,7 @@ public enum AccessState {
     PROPERTY_ACCESS(false, null),
     OVERRIDING_PROPERTY_ACCESS(false, true),
     OVERRIDING_FIELD_ACCESS(true, true);
-    
+
     private Boolean fieldAccess;
     private Boolean overriding;
 
@@ -43,7 +43,7 @@ public enum AccessState {
     }
 
     public boolean isPropertyAccess() {
-        return fieldAccess != null && fieldAccess == false;
+        return fieldAccess != null && !fieldAccess;
     }
 
     public boolean isOverriding() {
@@ -51,6 +51,6 @@ public enum AccessState {
     }
 
     public boolean isDefiningHierarchy() {
-        return overriding != null && overriding == false;
+        return overriding != null && !overriding;
     }
 }
