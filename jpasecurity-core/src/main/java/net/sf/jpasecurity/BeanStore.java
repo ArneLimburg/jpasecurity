@@ -19,6 +19,7 @@ import java.util.Map;
 
 /**
  * Implementations of this interface are able to load and store beans.
+ * This is the interface between JPA Security and another bean provider.
  * @author Arne Limburg
  */
 public interface BeanStore extends BeanLoader {
@@ -27,27 +28,27 @@ public interface BeanStore extends BeanLoader {
 
     <B> B merge(B bean);
 
-    boolean contains(Object unsecureObject);
+    boolean contains(Object bean);
 
-    void refresh(Object unsecureObject);
+    void refresh(Object bean);
 
-    void refresh(Object unsecureObject, LockModeType lockMode);
+    void refresh(Object bean, LockModeType lockMode);
 
-    void refresh(Object unsecureObject, Map<String, Object> properties);
+    void refresh(Object bean, Map<String, Object> properties);
 
-    void refresh(Object unsecureObject, LockModeType lockMode, Map<String, Object> properties);
+    void refresh(Object bean, LockModeType lockMode, Map<String, Object> properties);
 
-    void lock(Object unsecureObject, LockModeType lockMode);
+    void lock(Object bean, LockModeType lockMode);
 
-    void lock(Object unsecureObject, LockModeType lockMode, Map<String, Object> properties);
+    void lock(Object bean, LockModeType lockMode, Map<String, Object> properties);
 
-    LockModeType getLockMode(Object unsecureObject);
+    LockModeType getLockMode(Object bean);
 
-    void remove(Object unsecureEntity);
+    void remove(Object bean);
 
     void detach(Object bean);
 
-    <B> B getReference(Class<B> entityType, Object id);
+    <B> B getReference(Class<B> beanType, Object id);
 
-    <B> B find(Class<B> entityType, Object id);
+    <B> B find(Class<B> beanType, Object id);
 }
