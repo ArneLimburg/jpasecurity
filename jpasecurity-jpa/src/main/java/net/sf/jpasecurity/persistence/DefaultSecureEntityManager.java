@@ -30,6 +30,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 
+import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.FetchType;
@@ -38,12 +39,9 @@ import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
 import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
 import net.sf.jpasecurity.entity.FetchManager;
-import net.sf.jpasecurity.entity.SecureEntityDecorator;
-import net.sf.jpasecurity.entity.SecureEntityInterceptor;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpa.JpaBeanStore;
 import net.sf.jpasecurity.jpql.compiler.MappedPathEvaluator;
-import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.jpql.compiler.ObjectCacheSubselectEvaluator;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.SimpleSubselectEvaluator;
@@ -55,12 +53,8 @@ import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.persistence.compiler.EntityManagerEvaluator;
 import net.sf.jpasecurity.persistence.security.CriteriaEntityFilter;
 import net.sf.jpasecurity.persistence.security.CriteriaFilterResult;
-import net.sf.jpasecurity.proxy.Decorator;
-import net.sf.jpasecurity.proxy.EntityProxy;
-import net.sf.jpasecurity.proxy.MethodInterceptor;
-import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
+import net.sf.jpasecurity.security.DefaultAccessManager;
 import net.sf.jpasecurity.security.FilterResult;
-import net.sf.jpasecurity.util.ReflectionUtils;
 import net.sf.jpasecurity.util.SystemIdentity;
 
 import org.apache.commons.logging.Log;
@@ -79,6 +73,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     private Configuration configuration;
     private MappingInformation mappingInformation;
     private SecureObjectManager secureObjectManager;
+    private AccessManager accessManager;
     private CriteriaEntityFilter entityFilter;
 
     protected DefaultSecureEntityManager(SecureEntityManagerFactory parent,
@@ -120,6 +115,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                                                      simpleSubselectEvaluator,
                                                      objectCacheEvaluator,
                                                      entityManagerEvaluator);
+        this.accessManager = new DefaultAccessManager(mapping,
+                                                      configuration.getBeanInitializer(),
+                                                      configuration.getSecureEntityProxyFactory(),
+                                                      (AbstractSecureObjectManager)secureObjectManager,
+                                                      entityFilter);
     }
 
     @Override
@@ -361,56 +361,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
-        ClassMappingInformation classMapping = mappingInformation.getClassMapping(entityName);
-        Object[] transientParameters = new Object[parameters.length];
-        AbstractSecureObjectManager objectManager = (AbstractSecureObjectManager)secureObjectManager;
-        for (int i = 0; i < transientParameters.length; i++) {
-            Object parameter = parameters[i];
-            if (parameter instanceof EntityProxy) {
-                parameter = ((EntityProxy)parameter).getEntity();
-            }
-            if (parameter != null && mappingInformation.containsClassMapping(parameter.getClass())) {
-                ClassMappingInformation mapping = mappingInformation.getClassMapping(parameter.getClass());
-                BeanInitializer beanInitializer = configuration.getBeanInitializer();
-                MethodInterceptor interceptor
-                    = new SecureEntityInterceptor(beanInitializer, objectManager, parameter);
-                Decorator<SecureEntity> decorator
-                    = new SecureEntityDecorator(mapping, beanInitializer, this, objectManager, parameter, true);
-                SecureEntityProxyFactory factory = configuration.getSecureEntityProxyFactory();
-                transientParameters[i]
-                    = factory.createSecureEntityProxy(mapping.getEntityType(), interceptor, decorator);
-            } else {
-                transientParameters[i] = parameter;
-            }
-        }
-        Object entity = null;
-        try {
-            entity = ReflectionUtils.newInstance(classMapping.getEntityType(), transientParameters);
-        } catch (RuntimeException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Constructor of " + classMapping.getEntityType()
-                          + " threw exception, hence isAccessible returns false.", e);
-            } else {
-                LOG.info("Constructor of " + classMapping.getEntityType()
-                         + " threw exception (\"" + e.getMessage() + "\"), hence isAccessible returns false.");
-            }
-            return false;
-        }
-        return isAccessible(accessType, entity);
+        return accessManager.isAccessible(accessType, entityName, parameters);
     }
 
     public boolean isAccessible(AccessType accessType, Object entity) {
-        if (entity instanceof EntityProxy) {
-            entity = ((EntityProxy)entity).getEntity();
-        }
-        if (entity == null) {
-            return false;
-        }
-        try {
-            return entityFilter.isAccessible(entity, accessType);
-        } catch (NotEvaluatableException e) {
-            throw new SecurityException(e);
-        }
+        return accessManager.isAccessible(accessType, entity);
     }
 
     public boolean isDeletedEntity(Object entity) {
