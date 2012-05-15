@@ -93,11 +93,12 @@
 	-->
 	<bean id="clinic" class="org.springframework.samples.petclinic.jpa.EntityManagerClinic"/>
 
-    <sec:http auto-config="true">
+	<sec:http pattern="/login" security="none"/>
+	<sec:http pattern="/static/**" security="none"/>
+	<sec:http auto-config="true">
         <sec:intercept-url pattern="/owners/new" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-        <sec:intercept-url pattern="/*" access="ROLE_USER" />
-        <sec:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-        <!--<sec:form-login login-page="/login"/>  -->
+        <sec:intercept-url pattern="/**" access="ROLE_USER" />
+        <sec:form-login login-page="/login" default-target-url="/"/>
         <sec:logout />
     </sec:http>
 
