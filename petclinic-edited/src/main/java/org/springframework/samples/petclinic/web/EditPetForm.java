@@ -1,4 +1,18 @@
-
+/*
+ * Copyright 2008 Juergen Hoeller, Ken Krebs, Arjen Poutsma
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
 package org.springframework.samples.petclinic.web;
 
 import java.util.Collection;
@@ -22,7 +36,7 @@ import org.springframework.web.bind.support.SessionStatus;
 
 /**
  * JavaBean Form controller that is used to edit an existing <code>Pet</code>.
- * 
+ *
  * @author Juergen Hoeller
  * @author Ken Krebs
  * @author Arjen Poutsma
@@ -32,49 +46,46 @@ import org.springframework.web.bind.support.SessionStatus;
 @SessionAttributes("pet")
 public class EditPetForm {
 
-	private final Clinic clinic;
+    private final Clinic clinic;
 
+    @Autowired
+    public EditPetForm(Clinic clinic) {
+        this.clinic = clinic;
+    }
 
-	@Autowired
-	public EditPetForm(Clinic clinic) {
-		this.clinic = clinic;
-	}
+    @ModelAttribute("types")
+    public Collection<PetType> populatePetTypes() {
+        return this.clinic.getPetTypes();
+    }
 
-	@ModelAttribute("types")
-	public Collection<PetType> populatePetTypes() {
-		return this.clinic.getPetTypes();
-	}
+    @InitBinder
+    public void setAllowedFields(WebDataBinder dataBinder) {
+        dataBinder.setDisallowedFields("id");
+    }
 
-	@InitBinder
-	public void setAllowedFields(WebDataBinder dataBinder) {
-		dataBinder.setDisallowedFields("id");
-	}
+    @RequestMapping(method = RequestMethod.GET)
+    public String setupForm(@PathVariable("petId") int petId, Model model) {
+        Pet pet = this.clinic.loadPet(petId);
+        model.addAttribute("pet", pet);
+        return "pets/form";
+    }
 
-	@RequestMapping(method = RequestMethod.GET)
-	public String setupForm(@PathVariable("petId") int petId, Model model) {
-		Pet pet = this.clinic.loadPet(petId);
-		model.addAttribute("pet", pet);
-		return "pets/form";
-	}
+    @RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
+    public String processSubmit(@ModelAttribute("pet") Pet pet, BindingResult result, SessionStatus status) {
+        new PetValidator().validate(pet, result);
+        if (result.hasErrors()) {
+            return "pets/form";
+        } else {
+            this.clinic.storePet(pet);
+            status.setComplete();
+            return "redirect:/owners/" + pet.getOwner().getId();
+        }
+    }
 
-	@RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
-	public String processSubmit(@ModelAttribute("pet") Pet pet, BindingResult result, SessionStatus status) {
-		new PetValidator().validate(pet, result);
-		if (result.hasErrors()) {
-			return "pets/form";
-		}
-		else {
-			this.clinic.storePet(pet);
-			status.setComplete();
-			return "redirect:/owners/" + pet.getOwner().getId();
-		}
-	}
-
-	@RequestMapping(method = RequestMethod.DELETE)
-	public String deletePet(@PathVariable int petId) {
-		Pet pet = this.clinic.loadPet(petId);
-		this.clinic.deletePet(petId);
-		return "redirect:/owners/" + pet.getOwner().getId();
-	}
-
+    @RequestMapping(method = RequestMethod.DELETE)
+    public String deletePet(@PathVariable int petId) {
+        Pet pet = this.clinic.loadPet(petId);
+        this.clinic.deletePet(petId);
+        return "redirect:/owners/" + pet.getOwner().getId();
+    }
 }

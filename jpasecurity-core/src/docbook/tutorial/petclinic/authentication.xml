@@ -598,11 +598,11 @@ public class CredentialService implements UserDetailsService {
     <para> Now add the following configuration at the end of <filename>applicationContext-jpa.xml</filename>. </para>
     <programlisting>
       <![CDATA[
-    <sec:http auto-config="true">
+    <sec:http pattern="/login" security="none"/>
+	      <sec:http auto-config="true">
         <sec:intercept-url pattern="/owners/new" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-        <sec:intercept-url pattern="/*" access="ROLE_USER" />
-        <sec:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-        <sec:form-login login-page="/login.jsp"/>
+        <sec:intercept-url pattern="/**" access="ROLE_USER" />
+        <sec:form-login login-page="/login" default-target-url="/"/>
         <sec:logout />
     </sec:http>
 
@@ -643,7 +643,7 @@ public class CredentialService implements UserDetailsService {
 
   <table class="footer">
     <tr>
-      <td><a href="<c:url value="/addOwner.do"/>">Register</a></td>
+      <td><a href="<c:url value="/owners/new"/>">Register</a></td>
     </tr>
   </table>
 
@@ -740,6 +740,18 @@ public class CredentialService implements UserDetailsService {
     <para> into </para>
     <programlisting>
      <![CDATA[
+      @RequestMapping("/login")
+      public String loginHandler() {
+          return "login";
+      }
+
+     /**
+      * Custom handler for the welcome view.
+      * <p>
+      * Note that this handler relies on the RequestToViewNameTranslator to
+      * determine the logical view name based on the request URL: "/welcome.do"
+      * -&gt; "welcome".
+      */
       @RequestMapping("/")
       public ModelAndView welcomeHandler() {
           Credential credential = (Credential)SecurityContextHolder.getContext().getAuthentication().getPrincipal();

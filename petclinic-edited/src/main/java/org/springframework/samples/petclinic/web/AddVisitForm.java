@@ -1,4 +1,18 @@
-
+/*
+ * Copyright 2008 Juergen Hoeller, Ken Krebs, Arjen Poutsma, Arne Limburg
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
 package org.springframework.samples.petclinic.web;
 
 import java.util.Collection;
@@ -24,54 +38,52 @@ import org.springframework.web.bind.support.SessionStatus;
 /**
  * JavaBean form controller that is used to add a new <code>Visit</code> to the
  * system.
- * 
+ *
  * @author Juergen Hoeller
  * @author Ken Krebs
  * @author Arjen Poutsma
+ * @author Arne Limburg
  */
 @Controller
 @RequestMapping("/owners/*/pets/{petId}/visits/new")
 @SessionAttributes("visit")
 public class AddVisitForm {
 
-	private final Clinic clinic;
+    private final Clinic clinic;
 
+    @Autowired
+    public AddVisitForm(Clinic clinic) {
+        this.clinic = clinic;
+    }
 
-	@Autowired
-	public AddVisitForm(Clinic clinic) {
-		this.clinic = clinic;
-	}
+    @InitBinder
+    public void setAllowedFields(WebDataBinder dataBinder) {
+        dataBinder.setDisallowedFields("id");
+    }
 
-	@InitBinder
-	public void setAllowedFields(WebDataBinder dataBinder) {
-		dataBinder.setDisallowedFields("id");
-	}
-
-	@ModelAttribute("vets")
+    @ModelAttribute("vets")
     public Collection<Vet> populateVets() {
         return this.clinic.getVets();
     }
 
-	@RequestMapping(method = RequestMethod.GET)
-	public String setupForm(@PathVariable("petId") int petId, Model model) {
-		Pet pet = this.clinic.loadPet(petId);
-		Visit visit = new Visit();
-		pet.addVisit(visit);
-		model.addAttribute("visit", visit);
-		return "pets/visitForm";
-	}
+    @RequestMapping(method = RequestMethod.GET)
+    public String setupForm(@PathVariable("petId") int petId, Model model) {
+        Pet pet = this.clinic.loadPet(petId);
+        Visit visit = new Visit();
+        pet.addVisit(visit);
+        model.addAttribute("visit", visit);
+        return "pets/visitForm";
+    }
 
-	@RequestMapping(method = RequestMethod.POST)
-	public String processSubmit(@ModelAttribute("visit") Visit visit, BindingResult result, SessionStatus status) {
-		new VisitValidator().validate(visit, result);
-		if (result.hasErrors()) {
-			return "pets/visitForm";
-		}
-		else {
-			this.clinic.storeVisit(visit);
-			status.setComplete();
-			return "redirect:/owners/" + visit.getPet().getOwner().getId();
-		}
-	}
-
+    @RequestMapping(method = RequestMethod.POST)
+    public String processSubmit(@ModelAttribute("visit") Visit visit, BindingResult result, SessionStatus status) {
+        new VisitValidator().validate(visit, result);
+        if (result.hasErrors()) {
+            return "pets/visitForm";
+        } else {
+            this.clinic.storeVisit(visit);
+            status.setComplete();
+            return "redirect:/owners/" + visit.getPet().getOwner().getId();
+        }
+    }
 }
