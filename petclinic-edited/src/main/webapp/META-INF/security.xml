@@ -1,0 +1,19 @@
+<security xmlns="http://jpasecurity.sf.net/xml/ns/security"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://jpasecurity.sf.net/xml/ns/security
+                              http://jpasecurity.sf.net/xml/ns/security/security_1_0.xsd"
+          schemaVersion="1.0">
+
+  <persistence-unit name="PetClinic">
+    <access-rule>GRANT                    ACCESS TO Vet vet WHERE vet.credential = CURRENT_PRINCIPAL</access-rule>    
+    <access-rule>GRANT        READ        ACCESS TO Vet vet</access-rule>    
+    <access-rule>GRANT CREATE             ACCESS TO Owner owner</access-rule>
+    <access-rule>GRANT                    ACCESS TO Owner owner WHERE owner.credential = CURRENT_PRINCIPAL</access-rule>
+    <access-rule>GRANT        READ        ACCESS TO Owner owner WHERE owner.id IN (SELECT visit.pet.owner.id FROM Visit visit WHERE visit.vet.credential = CURRENT_PRINCIPAL)</access-rule>
+    <access-rule>GRANT CREATE READ UPDATE ACCESS TO Pet pet WHERE pet.owner.credential = CURRENT_PRINCIPAL</access-rule>    
+    <access-rule>GRANT        READ        ACCESS TO Pet pet WHERE EXISTS (SELECT visit FROM Visit visit WHERE visit.pet = pet AND visit.vet.credential = CURRENT_PRINCIPAL)</access-rule>
+    <access-rule>GRANT CREATE READ        ACCESS TO Visit visit WHERE visit.pet.owner.credential = CURRENT_PRINCIPAL</access-rule>
+    <access-rule>GRANT        READ UPDATE ACCESS TO Visit visit WHERE visit.vet.credential = CURRENT_PRINCIPAL</access-rule>
+  </persistence-unit>
+
+</security>
