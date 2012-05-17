@@ -251,7 +251,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
         List<PropertyMappingInformation> idProperties = getIdPropertyMappings();
         if (idProperties.size() == 0) {
             if (LOG.isDebugEnabled()) {
-                StringBuilder message = new StringBuilder();
+                StringBuilder message = new StringBuilder("No id found for");
                 DefaultClassMappingInformation classMapping = this;
                 while (classMapping != null) {
                     message.append(classMapping.getEntityType().getName())
@@ -263,8 +263,7 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
                 }
                 LOG.debug(message.toString());
             }
-            String error = "Id property required for class " + getEntityType().getName();
-            throw exceptionFactory.createMappingException(error);
+            return entity;
         } else if (idProperties.size() == 1) {
             return idProperties.get(0).getPropertyValue(entity);
         } else {
@@ -371,7 +370,9 @@ public final class DefaultClassMappingInformation implements ClassMappingInforma
         for (EntityListener entityListener: entityListeners.values()) {
             closure.call(entityListener);
         }
-        closure.call(entityLifecyleAdapter);
+        if (entityLifecyleAdapter != null) {
+            closure.call(entityLifecyleAdapter);
+        }
         DefaultClassMappingInformation superclassMapping = this.superclassMapping;
         while (superclassMapping != null && !superclassMapping.excludeSuperclassEntityListeners) {
             //TODO handle overridden lifecycle methods

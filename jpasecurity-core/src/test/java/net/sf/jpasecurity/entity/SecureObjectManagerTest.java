@@ -37,8 +37,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.BeanStore;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
@@ -46,7 +46,6 @@ import net.sf.jpasecurity.SecureMap;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
-import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategy;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.mapping.SimplePropertyMappingInformation;
@@ -70,9 +69,12 @@ public class SecureObjectManagerTest extends AbstractSecureObjectTestCase {
     @Before
     public void initialize() {
         Configuration configuration = new Configuration();
-        UnsecureObjectFactory objectFactory = createMock(UnsecureObjectFactory.class);
-        secureObjectManager = new TestObjectManager(getMapping(), getAccessManager(), configuration, objectFactory);
-        replay(objectFactory);
+        BeanStore beanStore = createMock(BeanStore.class);
+        secureObjectManager = new DefaultSecureObjectManager(getMapping(),
+                                                             beanStore,
+                                                             getAccessManager(),
+                                                             configuration);
+        replay(beanStore);
     }
 
     @Test
@@ -179,27 +181,6 @@ public class SecureObjectManagerTest extends AbstractSecureObjectTestCase {
         replay(classMapping, idPropertyAccessStrategy, vPropertyAccessStrategy);
         secureObjectManager.copyIdAndVersion(getUnsecureEntity(), getSecureEntity());
         verify(classMapping, idPropertyAccessStrategy, vPropertyAccessStrategy);
-    }
-
-    public interface UnsecureObjectFactory {
-        <T> T createUnsecureObject(T secureObject);
-    }
-
-    private static class TestObjectManager extends AbstractSecureObjectManager {
-
-        private UnsecureObjectFactory unsecureObjectFactory;
-
-        public TestObjectManager(MappingInformation mappingInformation,
-                                 AccessManager accessManager,
-                                 Configuration configuration,
-                                 UnsecureObjectFactory unsecureObjectFactory) {
-            super(mappingInformation, accessManager, configuration);
-            this.unsecureObjectFactory = unsecureObjectFactory;
-        }
-
-        <T> T createUnsecureObject(T secureObject) {
-            return unsecureObjectFactory.createUnsecureObject(secureObject);
-        }
     }
 
     private static class EmptyCollection<E> extends AbstractCollection<E> {

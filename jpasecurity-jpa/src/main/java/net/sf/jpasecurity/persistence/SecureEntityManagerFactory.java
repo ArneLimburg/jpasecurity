@@ -24,14 +24,16 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AlwaysPermittingAccessManager;
 import net.sf.jpasecurity.BeanLoader;
 import net.sf.jpasecurity.SecurityUnit;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.configuration.ConfigurationReceiver;
 import net.sf.jpasecurity.configuration.SecurityContextReceiver;
+import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
+import net.sf.jpasecurity.entity.DefaultBeanStore;
 import net.sf.jpasecurity.entity.DefaultSecureObjectLoader;
+import net.sf.jpasecurity.entity.DefaultSecureObjectManager;
 import net.sf.jpasecurity.entity.SecureObjectLoader;
 import net.sf.jpasecurity.jpa.JpaBeanLoader;
 import net.sf.jpasecurity.jpa.JpaSecurityUnit;
@@ -76,9 +78,12 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
             persistenceProperties.putAll(properties);
         }
         BeanLoader beanLoader = new JpaBeanLoader(entityManagerFactory.getPersistenceUnitUtil());
-        AccessManager accessManager = new AlwaysPermittingAccessManager();
-        SecureObjectLoader secureObjectLoader
-            = new DefaultSecureObjectLoader(mappingInformation, beanLoader, accessManager, configuration);
+        AbstractSecureObjectManager objectManager
+            = new DefaultSecureObjectManager(mappingInformation,
+                                             new DefaultBeanStore(),
+                                             new AlwaysPermittingAccessManager(),
+                                             configuration);
+        SecureObjectLoader secureObjectLoader = new DefaultSecureObjectLoader(beanLoader, objectManager);
         securePersistenceUnitUtil = new SecurePersistenceUnitUtil(secureObjectLoader);
     }
 

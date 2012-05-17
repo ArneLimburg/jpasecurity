@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2012 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.configuration;
-
-
+package net.sf.jpasecurity;
 
 /**
- * This interface may be implemented by {@link net.sf.jpasecurity.configuration.AccessRulesProvider}s
- * to obtain a {@link SecurityContext}.
  *
  * @author Arne Limburg
  */
-public interface SecurityContextReceiver {
+public interface Touchable {
 
-    void setSecurityContext(SecurityContext securityContext);
+    /**
+     * Determines, if {@link #touch()} was called since the last reset of the underlying object.
+     */
+    boolean isTouched();
+
+    /**
+     * A call to this method indicates that the object has been touched in some way (i.e. a method was called).
+     */
+    void touch();
 }

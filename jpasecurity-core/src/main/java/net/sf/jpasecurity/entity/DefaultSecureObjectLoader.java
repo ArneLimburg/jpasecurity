@@ -15,41 +15,36 @@
  */
 package net.sf.jpasecurity.entity;
 
-import net.sf.jpasecurity.AccessManager;
+import static net.sf.jpasecurity.util.Validate.notNull;
 import net.sf.jpasecurity.BeanLoader;
-import net.sf.jpasecurity.configuration.Configuration;
-import net.sf.jpasecurity.mapping.MappingInformation;
 
 /**
  * A default implementation of the {@link SecureObjectLoader} that does not create unsecure objects,
  * when they don't exist. Instead it takes the secure object to be the same as the unsecure object.
  * @author Arne Limburg
  */
-public class DefaultSecureObjectLoader extends AbstractSecureObjectManager implements SecureObjectLoader {
+public class DefaultSecureObjectLoader implements SecureObjectLoader {
 
     private BeanLoader beanLoader;
+    private AbstractSecureObjectManager secureObjectManager;
 
-    public DefaultSecureObjectLoader(MappingInformation mappingInformation,
-                                     BeanLoader loader,
-                                     AccessManager accessManager,
-                                     Configuration configuration) {
-        super(mappingInformation, accessManager, configuration);
+    public DefaultSecureObjectLoader(BeanLoader loader,
+                                     AbstractSecureObjectManager objectManager) {
+        notNull(BeanLoader.class, loader);
+        notNull(AbstractSecureObjectManager.class, objectManager);
         beanLoader = loader;
+        secureObjectManager = objectManager;
     }
 
     public Object getIdentifier(Object object) {
-        return beanLoader.getIdentifier(getUnsecureObject(object));
+        return beanLoader.getIdentifier(secureObjectManager.getUnsecureObject(object));
     }
 
     public boolean isLoaded(Object object) {
-        return beanLoader.isLoaded(getUnsecureObject(object));
+        return beanLoader.isLoaded(secureObjectManager.getUnsecureObject(object));
     }
 
     public boolean isLoaded(Object object, String property) {
-        return beanLoader.isLoaded(getUnsecureObject(object), property);
-    }
-
-    <T> T createUnsecureObject(T object) {
-        return object;
+        return beanLoader.isLoaded(secureObjectManager.getUnsecureObject(object), property);
     }
 }

@@ -81,16 +81,16 @@ public abstract class AbstractSecureObjectTestCase {
         mapping = createMock(MappingInformation.class);
         beanStore = createMock(BeanStore.class);
         accessManager = createMock(AccessManager.class);
+        expect(mapping.getClassMapping((Class<?>)anyObject())).andAnswer(new ClassMappingAnswer()).anyTimes();
+        expect(accessManager.isAccessible(eq(AccessType.READ), anyObject())).andReturn(true).anyTimes();
+
+        replay(mapping, beanStore, accessManager);
+
         beanInitializer = new SecureBeanInitializer();
         objectManager = new DefaultSecureObjectManager(mapping,
                                                        beanStore,
                                                        accessManager,
                                                        new Configuration());
-
-        expect(mapping.getClassMapping((Class<?>)anyObject())).andAnswer(new ClassMappingAnswer()).anyTimes();
-        expect(accessManager.isAccessible(eq(AccessType.READ), anyObject())).andReturn(true).anyTimes();
-
-        replay(mapping, beanStore, accessManager);
 
         unsecureEntity = new Entity();
         secureEntity = (SecureEntity)objectManager.getSecureObject(unsecureEntity);
