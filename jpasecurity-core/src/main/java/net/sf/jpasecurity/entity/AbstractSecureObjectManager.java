@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.entity;
 
 import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
+import static net.sf.jpasecurity.util.Validate.notNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +49,7 @@ import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 /**
  * @author Arne Limburg
  */
-public abstract class AbstractSecureObjectManager {
+public abstract class AbstractSecureObjectManager implements SecureObjectManager {
 
     private final MappingInformation mappingInformation;
     private final AccessManager accessManager;
@@ -58,9 +59,12 @@ public abstract class AbstractSecureObjectManager {
     public AbstractSecureObjectManager(MappingInformation mappingInformation,
                                        AccessManager accessManager,
                                        Configuration configuration) {
+        notNull(MappingInformation.class, mappingInformation);
+        notNull(Configuration.class, configuration);
+        notNull(AccessManager.class, accessManager);
         this.mappingInformation = mappingInformation;
-        this.accessManager = accessManager;
         this.configuration = configuration;
+        this.accessManager = accessManager;
     }
 
     protected void addPostFlushOperation(Runnable operation) {
@@ -156,48 +160,116 @@ public abstract class AbstractSecureObjectManager {
         final ClassMappingInformation classMapping = getClassMapping(secureObject.getClass());
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
             if (propertyMapping.isVersionProperty()
-                || (propertyMapping.isIdProperty() && propertyMapping.isGeneratedValue())) {
+                            || (propertyMapping.isIdProperty() && propertyMapping.isGeneratedValue())) {
                 continue; //don't change id or version property
             }
-            Object secureValue = propertyMapping.getPropertyValue(secureObject);
-            if (secureValue instanceof SecureCollection) {
-                modified = secureCopy(classMapping,
-                                      propertyMapping,
-                                      accessType,
-                                      secureObject,
-                                      unsecureObject,
-                                      (SecureCollection<?>)secureValue,
-                                      modified);
-            } else if (secureValue instanceof SecureMap) {
-                modified = secureCopy(classMapping,
-                                      propertyMapping,
-                                      accessType,
-                                      secureObject,
-                                      unsecureObject,
-                                      (SecureMap<?, ?>)secureValue,
-                                      modified);
+            if (propertyMapping.isManyValued()) {
+                modified = unsecureCopyCollectionProperty(classMapping,
+                                                          propertyMapping,
+                                                          accessType,
+                                                          secureObject,
+                                                          unsecureObject,
+                                                          modified);
             } else {
+                Object secureValue = propertyMapping.getPropertyValue(secureObject);
                 Object newValue;
-                if (secureValue instanceof Collection) {
-                    newValue = createUnsecureCollection((Collection<?>)secureValue);
-                } else if (secureValue instanceof Map) {
-                    newValue = createUnsecureMap((Map<?, ?>)secureValue);
-                } else if (propertyMapping.isRelationshipMapping()) {
+                if (propertyMapping.isRelationshipMapping()) {
                     newValue = getUnsecureObject(secureValue);
                 } else {
                     newValue = secureValue;
                 }
-                Object oldValue = propertyMapping.getPropertyValue(unsecureObject);
-                if (isDirty(propertyMapping, newValue, oldValue)) {
-                    if (!modified) {
-                        checkAccess(accessType, secureObject);
-                        fireLifecycleEvent(accessType, classMapping, secureObject);
-                    }
-                    propertyMapping.setPropertyValue(unsecureObject, newValue);
-                    modified = true;
-                }
+                modified = setPropertyValue(classMapping,
+                                            propertyMapping,
+                                            accessType,
+                                            secureObject,
+                                            unsecureObject,
+                                            modified,
+                                            newValue);
             }
         }
+    }
+
+    /**
+     * @return <tt>true</tt>, if the owner is modified, <tt>false</tt> otherwise.
+     */
+    private boolean setPropertyValue(final ClassMappingInformation classMapping,
+                                     PropertyMappingInformation propertyMapping, final AccessType accessType,
+                                     final Object secureObject, final Object unsecureObject, boolean modified,
+                                     Object newValue) {
+        Object oldValue = propertyMapping.getPropertyValue(unsecureObject);
+        if (isDirty(propertyMapping, newValue, oldValue)) {
+            if (!modified) {
+                checkAccess(accessType, secureObject);
+                fireLifecycleEvent(accessType, classMapping, secureObject);
+            }
+            propertyMapping.setPropertyValue(unsecureObject, newValue);
+            modified = true;
+        }
+        return modified;
+    }
+
+    /**
+     * @return <tt>true</tt>, if the owner is modified, <tt>false</tt> otherwise.
+     */
+    void unsecureCopyCollections(final AccessType accessType, final Object secureObject, final Object unsecureObject) {
+        if (secureObject instanceof SecureObject && !((SecureObject)secureObject).isInitialized()) {
+            return;
+        }
+        boolean modified = false;
+        final ClassMappingInformation classMapping = getClassMapping(secureObject.getClass());
+        for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
+            if (propertyMapping.isManyValued()) {
+                modified = unsecureCopyCollectionProperty(classMapping,
+                                                          propertyMapping,
+                                                          accessType,
+                                                          secureObject,
+                                                          unsecureObject,
+                                                          modified);
+            }
+        }
+    }
+
+    /**
+     * @return <tt>true</tt>, if the owner is modified, <tt>false</tt> otherwise.
+     */
+    private boolean unsecureCopyCollectionProperty(final ClassMappingInformation classMapping,
+                                                   final PropertyMappingInformation propertyMapping,
+                                                   final AccessType accessType,
+                                                   final Object secureObject,
+                                                   final Object unsecureObject,
+                                                   boolean modified) {
+        Object secureValue = propertyMapping.getPropertyValue(secureObject);
+        if (secureValue instanceof SecureCollection) {
+            modified = secureCopy(classMapping,
+                                  propertyMapping,
+                                  accessType,
+                                  secureObject,
+                                  unsecureObject,
+                                  (SecureCollection<?>)secureValue,
+                                  modified);
+        } else if (secureValue instanceof SecureMap) {
+            modified = secureCopy(classMapping,
+                                  propertyMapping,
+                                  accessType,
+                                  secureObject,
+                                  unsecureObject,
+                                  (SecureMap<?, ?>)secureValue,
+                                  modified);
+        } else {
+            Object newValue;
+            if (secureValue instanceof Collection) {
+                newValue = createUnsecureCollection((Collection<?>)secureValue);
+            } else if (secureValue instanceof Map) {
+                newValue = createUnsecureMap((Map<?, ?>)secureValue);
+            } else if (secureValue == null) {
+                newValue = null;
+            } else {
+                throw new IllegalStateException("Unsupported collection type: " + secureValue.getClass().getName());
+            }
+            modified = setPropertyValue(classMapping, propertyMapping, accessType, secureObject, unsecureObject,
+                                        modified, newValue);
+        }
+        return modified;
     }
 
     private <K, V> Map<K, V> createUnsecureMap(Map<K, V> secureValue) {

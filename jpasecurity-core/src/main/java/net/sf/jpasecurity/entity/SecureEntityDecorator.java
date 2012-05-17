@@ -17,7 +17,9 @@ package net.sf.jpasecurity.entity;
 
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.Flushable;
 import net.sf.jpasecurity.SecureEntity;
+import net.sf.jpasecurity.Touchable;
 import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.proxy.Decorator;
@@ -26,7 +28,7 @@ import net.sf.jpasecurity.proxy.Decorator;
  * A class to decorate a bean to become a {@link SecureEntity}.
  * @author Arne Limburg
  */
-public class SecureEntityDecorator implements SecureEntity, Decorator<SecureEntity> {
+public class SecureEntityDecorator implements SecureEntity, Touchable, Flushable, Decorator<SecureEntity> {
 
     private ClassMappingInformation mapping;
     private BeanInitializer beanInitializer;
@@ -37,6 +39,7 @@ public class SecureEntityDecorator implements SecureEntity, Decorator<SecureEnti
     private SecureEntity delegate;
     private Object entity;
     private boolean isTransient;
+    private transient boolean touched;
     private transient ThreadLocal<Boolean> updating;
 
     public SecureEntityDecorator(ClassMappingInformation mapping, BeanInitializer beanInitializer,
@@ -71,9 +74,24 @@ public class SecureEntityDecorator implements SecureEntity, Decorator<SecureEnti
         return deleted;
     }
 
+    public boolean isTouched() {
+        return touched;
+    }
+
+    public void touch() {
+        touched = true;
+    }
+
     public void flush() {
         if (!isReadOnly() && isInitialized()) {
             objectManager.unsecureCopy(AccessType.UPDATE, delegate, entity);
+        }
+        touched = false;
+    }
+
+    public void flushCollections() {
+        if (!isReadOnly() && isInitialized()) {
+            objectManager.unsecureCopyCollections(AccessType.UPDATE, delegate, entity);
         }
     }
 
@@ -103,6 +121,7 @@ public class SecureEntityDecorator implements SecureEntity, Decorator<SecureEnti
                 mapping.postLoad(delegate);
             }
         } finally {
+            touched = false;
             setUpdating(false);
         }
     }

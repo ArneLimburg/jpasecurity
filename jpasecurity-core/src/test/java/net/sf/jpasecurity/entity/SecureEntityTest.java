@@ -15,31 +15,87 @@
  */
 package net.sf.jpasecurity.entity;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import net.sf.jpasecurity.AlwaysPermittingAccessManager;
+import net.sf.jpasecurity.BeanStore;
+import net.sf.jpasecurity.DefaultSecurityUnit;
+import net.sf.jpasecurity.SecureEntity;
+import net.sf.jpasecurity.SecurityUnit;
+import net.sf.jpasecurity.configuration.AccessRulesProvider;
+import net.sf.jpasecurity.configuration.Configuration;
+import net.sf.jpasecurity.configuration.ConfigurationReceiver;
+import net.sf.jpasecurity.configuration.SecurityContextReceiver;
+import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformationReceiver;
+import net.sf.jpasecurity.mapping.bean.JavaBeanSecurityUnitParser;
+import net.sf.jpasecurity.model.MethodAccessTestBean;
+
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
-public class SecureEntityTest extends AbstractSecureObjectTestCase {
+public class SecureEntityTest {
 
-//    @Test
-//    public void flushUntouched() {
-//        getSecureEntity().flush();
-//    }
+    private MethodAccessTestBean unsecureBean;
+    private MethodAccessTestBean secureBean;
 
-    @Test
-    public void flushTouched() {
-        touch((Entity)getSecureEntity());
+    @Before
+    public void initialize() {
+        SecurityUnit securityUnit = new DefaultSecurityUnit("test");
+        securityUnit.getManagedClassNames().add(MethodAccessTestBean.class.getName());
+        MappingInformation mapping = new JavaBeanSecurityUnitParser(securityUnit).parse();
+        BeanStore beanStore = new DefaultBeanStore();
+        Configuration configuration = new Configuration();
+        AccessRulesProvider accessRulesProvider = configuration.getAccessRulesProvider();
+        if (accessRulesProvider instanceof MappingInformationReceiver) {
+            ((MappingInformationReceiver)accessRulesProvider).setMappingInformation(mapping);
+        }
+        if (accessRulesProvider instanceof ConfigurationReceiver) {
+            ((ConfigurationReceiver)accessRulesProvider).setConfiguration(configuration);
+        }
+        if (accessRulesProvider instanceof SecurityContextReceiver) {
+            ((SecurityContextReceiver)accessRulesProvider).setSecurityContext(configuration.getSecurityContext());
+        }
+        SecureObjectManager objectManager
+            = new DefaultSecureObjectCache(mapping, beanStore, new AlwaysPermittingAccessManager(), configuration);
 
-        expectUnsecureCopy(getSecureEntity(), getUnsecureEntity());
-        replayUnsecureCopy(getSecureEntity(), getUnsecureEntity());
+        unsecureBean = new MethodAccessTestBean();
+        beanStore.persist(unsecureBean);
 
-        getSecureEntity().flush();
-
-        verifyUnsecureCopy(getSecureEntity(), getUnsecureEntity());
+        secureBean = objectManager.getSecureObject(unsecureBean);
     }
 
-    private void touch(Entity entity) {
-        entity.isSecure();
+    @Test
+    public void flush() {
+        ((SecureEntity)secureBean).flush();
+
+        assertThat(unsecureBean.wasSetNameCalled(), is(false));
+
+        secureBean.setName("Test");
+        ((SecureEntity)secureBean).flush();
+
+        assertThat(unsecureBean.wasSetNameCalled(), is(true));
+    }
+
+    @Test
+    public void flushCollection() {
+        assertThat(unsecureBean.getChildren().isEmpty(), is(true));
+
+        secureBean.getChildren().add(secureBean);
+        ((SecureEntity)secureBean).flush();
+
+        assertThat(unsecureBean.wasSetNameCalled(), is(false));
+        assertThat(unsecureBean.getChildren().size(), is(1));
+        assertThat(unsecureBean.getChildren().iterator().next(), is(unsecureBean));
+
+        secureBean.getChildren().clear();
+        secureBean.setName("test");
+        ((SecureEntity)secureBean).flush();
+
+        assertThat(unsecureBean.wasSetNameCalled(), is(true));
+        assertThat(unsecureBean.getChildren().isEmpty(), is(true));
     }
 }

@@ -44,18 +44,38 @@ import net.sf.jpasecurity.util.SystemIdentity;
 /**
  * @author Arne Limburg
  */
-public class DefaultSecureObjectManager extends DefaultSecureObjectLoader implements SecureObjectManager {
+public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
 
     protected final BeanStore beanStore;
+    protected final SecureObjectLoader secureObjectLoader;
     private Map<SystemIdentity, Object> secureEntities = new HashMap<SystemIdentity, Object>();
     private Map<SystemIdentity, Object> unsecureEntities = new HashMap<SystemIdentity, Object>();
 
     public DefaultSecureObjectManager(MappingInformation mappingInformation,
                                       BeanStore beanStore,
+                                      AccessManager accessManager) {
+        this(mappingInformation, beanStore, accessManager, new Configuration());
+    }
+
+    public DefaultSecureObjectManager(MappingInformation mappingInformation,
+                                      BeanStore beanStore,
                                       AccessManager accessManager,
                                       Configuration configuration) {
-        super(mappingInformation, beanStore, accessManager, configuration);
+        super(mappingInformation, accessManager, configuration);
         this.beanStore = beanStore;
+        this.secureObjectLoader = new DefaultSecureObjectLoader(beanStore, this);
+    }
+
+    public Object getIdentifier(Object entity) {
+        return secureObjectLoader.getIdentifier(entity);
+    }
+
+    public boolean isLoaded(Object object) {
+        return secureObjectLoader.isLoaded(object);
+    }
+
+    public boolean isLoaded(Object object, String property) {
+        return secureObjectLoader.isLoaded(object, property);
     }
 
     public void persist(Object secureEntity) {

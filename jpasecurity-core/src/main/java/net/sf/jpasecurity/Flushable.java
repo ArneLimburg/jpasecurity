@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2012 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package net.sf.jpasecurity.configuration;
-
-
+package net.sf.jpasecurity;
 
 /**
- * This interface may be implemented by {@link net.sf.jpasecurity.configuration.AccessRulesProvider}s
- * to obtain a {@link SecurityContext}.
- *
+ * An interface that may be implemented by objects that have flush() handling.
  * @author Arne Limburg
  */
-public interface SecurityContextReceiver {
+public interface Flushable {
 
-    void setSecurityContext(SecurityContext securityContext);
+    /**
+     * Flushes the changes of this object to the underlying original object,
+     * which includes a write-access check.
+     */
+    void flush();
+
+    /**
+     * Only flushes the changes of the one-to-many relations of this object
+     * to the underlying original object. This includes a write-access check,
+     * if there is a dirty collection.
+     */
+    void flushCollections();
 }
