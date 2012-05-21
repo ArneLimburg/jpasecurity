@@ -41,7 +41,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /** @author Arne Limburg */
@@ -145,7 +144,7 @@ public class AclSyntaxTest {
 
     @Test
     public void queryAclProtectedEntityWithNoPrivileges() {
-        TestAuthenticationProvider.authenticate(user2.getId(), Arrays.asList());
+        TestAuthenticationProvider.authenticate(user2.getId());
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -173,6 +172,30 @@ public class AclSyntaxTest {
                 entityManager.createQuery("select e from AclProtectedEntity e").getResultList();
             assertNotNull(resultList);
             assertEquals(1, resultList.size());
+        } finally {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            entityManager.close();
+        }
+    }
+
+    @Test
+    public void updateAclProtectedEntityWithReadAllPrivilege() {
+        TestAuthenticationProvider.authenticate(user2.getId(), READ_ACCESS_PRIVILEGE);
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        final EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            final AclProtectedEntity result =
+                entityManager.find(AclProtectedEntity.class, entity.getId());
+            assertNotNull(result);
+            result.setSomeProperty("OtherValue");
+            try {
+                transaction.commit();
+                fail("Expect SecurityException");
+            } catch (SecurityException e) {
+                //expected
+            }
         } finally {
             if (transaction.isActive()) {
                 transaction.rollback();
@@ -243,7 +266,6 @@ public class AclSyntaxTest {
     }
 
     @Test
-    @Ignore("BUG")
     public void updateAclProtectedEntityNoAccessOnlyFullRead() {
         TestAuthenticationProvider.authenticate(user2.getId(), READ_ACCESS_PRIVILEGE);
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -253,7 +275,7 @@ public class AclSyntaxTest {
             entityManager.find(User.class, user.getId());
             AclProtectedEntity e = entityManager.find(AclProtectedEntity.class, entity.getId());
             entity.getAccessControlList().getEntries().size();
-            e.setSomeProperty("test");
+            e.setSomeProperty("test" + System.currentTimeMillis());
             transaction.commit();
             fail("Expect exception!");
         } catch (SecurityException e) {
@@ -276,7 +298,7 @@ public class AclSyntaxTest {
             entityManager.find(User.class, user.getId());
             AclProtectedEntity e = entityManager.find(AclProtectedEntity.class, entity.getId());
             entity.getAccessControlList().getEntries().size();
-            e.setSomeProperty("test");
+            e.setSomeProperty("test" + System.currentTimeMillis());
             transaction.commit();
         } finally {
             if (transaction.isActive()) {
