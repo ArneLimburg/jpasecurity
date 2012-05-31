@@ -41,6 +41,7 @@ public class SecureEntityDecorator implements SecureEntity, Touchable, Flushable
     private boolean isTransient;
     private transient boolean touched;
     private transient ThreadLocal<Boolean> updating;
+    private transient Boolean hasReadAccess;
 
     public SecureEntityDecorator(ClassMappingInformation mapping, BeanInitializer beanInitializer,
                     AccessManager accessManager, AbstractSecureObjectManager objectManager, Object entity) {
@@ -67,6 +68,12 @@ public class SecureEntityDecorator implements SecureEntity, Touchable, Flushable
     }
 
     public boolean isAccessible(AccessType accessType) {
+        if (accessType == AccessType.READ) {
+            if (hasReadAccess == null) {
+                hasReadAccess = accessManager.isAccessible(accessType, entity);
+            }
+            return hasReadAccess;
+        }
         return accessManager.isAccessible(accessType, entity);
     }
 
@@ -111,7 +118,7 @@ public class SecureEntityDecorator implements SecureEntity, Touchable, Flushable
             setUpdating(true);
             boolean oldInitialized = initialized;
             entity = beanInitializer.initialize(entity);
-            if (checkAccess && !accessManager.isAccessible(AccessType.READ, entity)) {
+            if (checkAccess && !isAccessible(AccessType.READ)) {
                 throw new SecurityException("The current user is not permitted to access the entity of type "
                     + mapping.getEntityName() + " with id " + mapping.getId(entity));
             }
