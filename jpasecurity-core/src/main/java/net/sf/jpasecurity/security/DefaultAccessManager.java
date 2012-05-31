@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.security;
 
 import static net.sf.jpasecurity.util.Validate.notNull;
+
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntity;
@@ -29,6 +30,7 @@ import net.sf.jpasecurity.proxy.Decorator;
 import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
+import net.sf.jpasecurity.util.DoubleKeyHashMap;
 import net.sf.jpasecurity.util.ReflectionUtils;
 
 import org.apache.commons.logging.Log;
@@ -46,6 +48,8 @@ public class DefaultAccessManager implements AccessManager {
     private SecureEntityProxyFactory proxyFactory;
     private AbstractSecureObjectManager objectManager;
     private EntityFilter entityFilter;
+    private DoubleKeyHashMap<ClassMappingInformation, Object, Boolean> cachedReadAccess
+        = new DoubleKeyHashMap<ClassMappingInformation, Object, Boolean>();
 
     public DefaultAccessManager(MappingInformation mappingInformation,
                                 BeanInitializer beanInitializer,
@@ -107,8 +111,20 @@ public class DefaultAccessManager implements AccessManager {
         if (entity == null) {
             return false;
         }
+        final ClassMappingInformation classMapping = mappingInformation.getClassMapping(entity.getClass());
+        final Object entityId = classMapping.getId(entity);
+        if (accessType == AccessType.READ) {
+            final Boolean isAccessible = cachedReadAccess.get(classMapping, entityId);
+            if (isAccessible != null) {
+                return isAccessible;
+            }
+        }
         try {
-            return entityFilter.isAccessible(entity, accessType);
+            final boolean accessible = entityFilter.isAccessible(entity, accessType);
+            if (accessType == AccessType.READ) {
+                cachedReadAccess.put(classMapping, entityId, accessible);
+            }
+            return accessible;
         } catch (Exception e) {
             throw new SecurityException(e);
         }
