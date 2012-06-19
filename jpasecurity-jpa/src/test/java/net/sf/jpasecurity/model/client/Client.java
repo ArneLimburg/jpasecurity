@@ -23,23 +23,35 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
 
 /**
  * @author Arne Limburg
  */
 @Entity
 public class Client extends AbstractEntity<Integer> {
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Client parent;
-    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+
+    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE })
     private List<ClientStaffing> staffing = new ArrayList<ClientStaffing>();
+
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @Fetch(FetchMode.JOIN)
     private ClientStatus currentStatus;
+
     private String anotherProperty;
+
+    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE })
+    @Fetch(FetchMode.JOIN)
+    @LazyToOne(LazyToOneOption.PROXY)
+    private ClientOperationsTracking operationsTracking;
 
     public Client getParent() {
         return parent;
@@ -67,5 +79,13 @@ public class Client extends AbstractEntity<Integer> {
 
     public void setAnotherProperty(String value) {
         this.anotherProperty = value;
+    }
+
+    public ClientOperationsTracking getOperationsTracking() {
+        return operationsTracking;
+    }
+
+    public void setOperationsTracking(ClientOperationsTracking operationsTracking) {
+        this.operationsTracking = operationsTracking;
     }
 }
