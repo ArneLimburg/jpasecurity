@@ -93,6 +93,7 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
         if (isNew) {
             cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<SystemIdentity>());
         }
+        executePreFlushOperations();
         unsecureEntity = beanStore.merge(unsecureEntity);
         postFlush();
         if (!isNew) {
@@ -171,6 +172,7 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
         if (entity instanceof SecureEntity) {
             setRemoved((SecureEntity)entity);
         }
+        executePreFlushOperations();
         beanStore.remove(unsecureEntity);
     }
 
@@ -227,6 +229,7 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
         for (Map.Entry<SystemIdentity, Object> unsecureEntity: entities.toArray(new Map.Entry[entities.size()])) {
             unsecureCopy(AccessType.UPDATE, unsecureEntity.getKey().getObject(), unsecureEntity.getValue());
         }
+        executePreFlushOperations();
     }
 
     public void postFlush() {
