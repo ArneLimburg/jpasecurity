@@ -54,6 +54,7 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     private final MappingInformation mappingInformation;
     private final AccessManager accessManager;
     private final Configuration configuration;
+    private final List<Runnable> preFlushOperations = new ArrayList<Runnable>();
     private final List<Runnable> postFlushOperations = new ArrayList<Runnable>();
 
     public AbstractSecureObjectManager(MappingInformation mappingInformation,
@@ -67,6 +68,10 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         this.accessManager = accessManager;
     }
 
+    protected void addPreFlushOperation(Runnable operation) {
+        preFlushOperations.add(operation);
+    }
+
     protected void addPostFlushOperation(Runnable operation) {
         postFlushOperations.add(operation);
     }
@@ -78,6 +83,16 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             }
         } finally {
             postFlushOperations.clear();
+        }
+    }
+
+    public void executePreFlushOperations() {
+        try {
+            for (Runnable operation: preFlushOperations) {
+                operation.run();
+            }
+        } finally {
+            preFlushOperations.clear();
         }
     }
 
@@ -497,7 +512,11 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     }
 
     void firePersist(final ClassMappingInformation classMapping, final Object entity) {
-        classMapping.prePersist(entity);
+        addPreFlushOperation(new Runnable() {
+            public void run() {
+                classMapping.prePersist(entity);
+            }
+        });
         addPostFlushOperation(new Runnable() {
             public void run() {
                 classMapping.postPersist(entity);
@@ -506,7 +525,11 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     }
 
     void fireUpdate(final ClassMappingInformation classMapping, final Object entity) {
-        classMapping.preUpdate(entity);
+        addPreFlushOperation(new Runnable() {
+            public void run() {
+                classMapping.preUpdate(entity);
+            }
+        });
         addPostFlushOperation(new Runnable() {
             public void run() {
                 classMapping.postUpdate(entity);
@@ -515,7 +538,11 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     }
 
     void fireRemove(final ClassMappingInformation classMapping, final Object entity) {
-        classMapping.preRemove(entity);
+        addPreFlushOperation(new Runnable() {
+            public void run() {
+                classMapping.preRemove(entity);
+            }
+        });
         addPostFlushOperation(new Runnable() {
             public void run() {
                 classMapping.postRemove(entity);

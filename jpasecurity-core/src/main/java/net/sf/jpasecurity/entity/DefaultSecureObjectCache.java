@@ -121,6 +121,7 @@ public class DefaultSecureObjectCache extends DefaultSecureObjectManager {
                 }
             }
         }
+        executePreFlushOperations();
     }
 
     public void postFlush() {

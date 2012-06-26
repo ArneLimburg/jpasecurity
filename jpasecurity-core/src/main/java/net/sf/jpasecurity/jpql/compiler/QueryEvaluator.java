@@ -221,6 +221,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
                     //The result is false, when we return here it stays false
                     return false;
                 }
+                //TODO exceptionFreie lösung suchen
             } catch (NotEvaluatableException e) {
                 undefined = true;
             }
