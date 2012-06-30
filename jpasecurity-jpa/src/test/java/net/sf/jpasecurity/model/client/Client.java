@@ -24,6 +24,7 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -48,8 +49,8 @@ public class Client extends AbstractEntity<Integer> {
 
     private String anotherProperty;
 
-    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE })
-    @Fetch(FetchMode.JOIN)
+    @PrimaryKeyJoinColumn
+    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE }, optional = false)
     @LazyToOne(LazyToOneOption.PROXY)
     private ClientOperationsTracking operationsTracking;
 
