@@ -15,6 +15,12 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collections;
 import java.util.Map;
 
@@ -52,6 +58,37 @@ public class AbstractEntityTestCase {
     public static void createEntityManagerFactory(String persistenceUnitName,
                                                   Map<String, Object> persistenceProperties) {
         entityManagerFactory = Persistence.createEntityManagerFactory(persistenceUnitName, persistenceProperties);
+    }
+
+    public static void dropForeignKey(String url,
+                                      String username,
+                                      String password,
+                                      String tableName,
+                                      String foreignTableName) throws SQLException {
+        Connection connection = DriverManager.getConnection(url, username, password);
+        try {
+            DatabaseMetaData metaData = connection.getMetaData();
+            ResultSet crossReference = metaData.getCrossReference(null, null, tableName, null, null, foreignTableName);
+            String foreignKeyName = null;
+            try {
+                if (crossReference.next()) {
+                    foreignKeyName = crossReference.getString("FK_NAME");
+                }
+            } finally {
+                crossReference.close();
+            }
+            if (foreignKeyName == null) {
+                throw new IllegalStateException("Foreign key not found");
+            }
+            Statement statement = connection.createStatement();
+            try {
+                statement.execute("ALTER TABLE " + foreignTableName + " DROP CONSTRAINT " + foreignKeyName);
+            } finally {
+                statement.close();
+            }
+        } finally {
+            connection.close();
+        }
     }
 
     @Before

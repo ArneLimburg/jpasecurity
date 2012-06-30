@@ -17,10 +17,11 @@ package net.sf.jpasecurity.model.client;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.MapsId;
-import javax.persistence.OneToOne;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.validation.constraints.NotNull;
+
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.ForeignKey;
@@ -32,8 +33,8 @@ import org.hibernate.annotations.ForeignKey;
 @Entity
 public class ClientOperationsTracking extends AbstractEntity<Integer> {
 
+    @PrimaryKeyJoinColumn
     @NotNull(message = "validation.mandatoryField")
-    @MapsId
     @OneToOne(optional = false, fetch = FetchType.LAZY)
     @ForeignKey(name = "FK_client_operation_tracking_client_id")
     private Client client;

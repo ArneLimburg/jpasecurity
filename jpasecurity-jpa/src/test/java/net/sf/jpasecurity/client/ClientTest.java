@@ -18,11 +18,13 @@ package net.sf.jpasecurity.client;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
 import net.sf.jpasecurity.model.client.Client;
+import net.sf.jpasecurity.model.client.ClientOperationsTracking;
 import net.sf.jpasecurity.model.client.ClientStaffing;
 import net.sf.jpasecurity.model.client.ClientStatus;
 import net.sf.jpasecurity.model.client.Employee;
@@ -44,8 +46,10 @@ public class ClientTest extends AbstractEntityTestCase {
     private static int clientId;
 
     @BeforeClass
-    public static void createEntityManagerFactory() {
+    public static void createEntityManagerFactory() throws SQLException {
+        TestAuthenticationProvider.authenticate(EMAIL);
         createEntityManagerFactory("client");
+        dropForeignKey("jdbc:hsqldb:mem:test", "sa", "", "CLIENTOPERATIONSTRACKING", "CLIENT");
         createTestData();
     }
 
@@ -55,12 +59,20 @@ public class ClientTest extends AbstractEntityTestCase {
         client.setParent(parent);
         Employee employee = new Employee(EMAIL);
         ClientStaffing clientStaffing = new ClientStaffing(client, employee);
+        ClientOperationsTracking parentTracking = new ClientOperationsTracking();
+        parent.setOperationsTracking(parentTracking);
+        parentTracking.setClient(parent);
+        ClientOperationsTracking tracking = new ClientOperationsTracking();
         EntityManager entityManager = getEntityManagerFactory().createEntityManager();
         entityManager.getTransaction().begin();
         entityManager.persist(parent);
+        entityManager.persist(parentTracking);
         entityManager.persist(employee);
         entityManager.persist(client);
         entityManager.persist(clientStaffing);
+        tracking.setClient(client);
+        client.setOperationsTracking(tracking);
+        entityManager.persist(tracking);
         entityManager.getTransaction().commit();
         entityManager.close();
         clientId = client.getId();
