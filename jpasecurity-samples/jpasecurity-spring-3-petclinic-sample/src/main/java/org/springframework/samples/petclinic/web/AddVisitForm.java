@@ -1,9 +1,12 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.util.Collection;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.Clinic;
 import org.springframework.samples.petclinic.Pet;
+import org.springframework.samples.petclinic.Vet;
 import org.springframework.samples.petclinic.Visit;
 import org.springframework.samples.petclinic.validation.VisitValidator;
 import org.springframework.stereotype.Controller;
@@ -43,6 +46,11 @@ public class AddVisitForm {
 	public void setAllowedFields(WebDataBinder dataBinder) {
 		dataBinder.setDisallowedFields("id");
 	}
+
+	@ModelAttribute("vets")
+    public Collection<Vet> populateVets() {
+        return this.clinic.getVets();
+    }
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String setupForm(@PathVariable("petId") int petId, Model model) {

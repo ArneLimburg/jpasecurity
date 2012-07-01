@@ -38,6 +38,15 @@ public interface Clinic {
 	Collection<Owner> findOwners(String lastName) throws DataAccessException;
 
 	/**
+     * Retrieve <code>Visit</code>s from the data store,
+     * returning all visits at a given vet.
+     * @param vet the visited vet
+     * @return a <code>Collection</code> of matching <code>Visit</code>s
+     * (or an empty <code>Collection</code> if none found)
+     */
+    Collection<Visit> findVisits(Vet vet) throws DataAccessException;
+
+	/**
 	 * Retrieve an <code>Owner</code> from the data store by id.
 	 * @param id the id to search for
 	 * @return the <code>Owner</code> if found
@@ -52,6 +61,22 @@ public interface Clinic {
 	 * @throws org.springframework.dao.DataRetrievalFailureException if not found
 	 */
 	Pet loadPet(int id) throws DataAccessException;
+
+	/**
+     * Retrieve a <code>Vet</code> from the data store by id.
+     * @param id the id to search for
+     * @return the <code>Vet</code> if found
+     * @throws org.springframework.dao.DataRetrievalFailureException if not found
+     */
+    Vet loadVet(int id) throws DataAccessException;
+
+    /**
+     * Retrieve a <code>Visit</code> from the data store by id.
+     * @param id the id to search for
+     * @return the <code>Visit</code> if found
+     * @throws org.springframework.dao.DataRetrievalFailureException if not found
+     */
+    Visit loadVisit(int id) throws DataAccessException;
 
 	/**
 	 * Save an <code>Owner</code> to the data store, either inserting or updating it.

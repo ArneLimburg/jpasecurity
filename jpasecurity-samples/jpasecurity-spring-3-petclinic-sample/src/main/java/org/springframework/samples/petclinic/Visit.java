@@ -18,12 +18,33 @@ public class Visit extends BaseEntity {
 	/** Holds value of property pet. */
 	private Pet pet;
 
+    /** Holds value of property pet. */
+    private Vet vet;
 
 	/** Creates a new instance of Visit for the current date */
 	public Visit() {
 		this.date = new Date();
 	}
+    
+    /** Creates a new instance of Visit for the specified pet */
+    public Visit(Pet pet) {
+        this();
+        setPet(pet);
+    }
 
+    /** Getter for property vet.
+     * @return Value of property vet.
+     */
+    public Vet getVet() {
+        return this.vet;
+    }
+
+    /** Setter for property vet.
+     * @param pet New value of property vet.
+     */
+    public void setVet(Vet vet) {
+        this.vet = vet;
+    }
 
 	/** Getter for property date.
 	 * @return Value of property date.

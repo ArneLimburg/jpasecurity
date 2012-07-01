@@ -3,6 +3,7 @@ package org.springframework.samples.petclinic.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.Clinic;
+import org.springframework.samples.petclinic.Vet;
 import org.springframework.samples.petclinic.Vets;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -86,4 +87,18 @@ public class ClinicController {
 		return mav;
 	}
 
+	/**
+     * Custom handler for displaying a vet.
+     *
+     * @param vetId the ID of the vet to display
+     * @return a ModelMap with the model attributes for the view
+     */
+    @RequestMapping(value="/vets/{vetId}")
+    public ModelAndView vetHandler(@PathVariable("vetId") int vetId) {
+        ModelAndView mav = new ModelAndView("vets/vet");
+        Vet vet = this.clinic.loadVet(vetId);
+        mav.addObject(vet);
+        mav.addObject("visits", this.clinic.findVisits(vet));
+        return mav;
+    }
 }

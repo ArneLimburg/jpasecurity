@@ -62,12 +62,21 @@
         </td>
         <td valign="top">
           <table>
+            <tr>
             <thead>
+              <th>Vet</th>
               <th>Visit Date</th>
               <th>Description</th>
             </thead>
+            </tr>
             <c:forEach var="visit" items="${pet.visits}">
               <tr>
+                <td>          
+                  <spring:url value="/vets/{vetId}" var="vetUrl">
+                    <spring:param name="vetId" value="${visit.vet.id}"/>
+                  </spring:url>
+                  <a href="${fn:escapeXml(vetUrl)}">${visit.vet.firstName} ${visit.vet.lastName}</a>
+                </td>
                 <td><fmt:formatDate value="${visit.date}" pattern="yyyy-MM-dd"/></td>
                 <td>${visit.description}</td>
               </tr>
