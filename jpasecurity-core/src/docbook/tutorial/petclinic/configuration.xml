@@ -82,25 +82,6 @@
 					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
     ]]>
   </programlisting>
-  <para> The last step to do is to configure our database connection. This can be done in the file
-      <filename>jdbc.properties</filename> (in the folder <filename>src/main/resources</filename>). Please change the
-    following line </para>
-  <programlisting>
-    <![CDATA[
-jdbc.url=jdbc:hsqldb:mem:petclinic
-    ]]>
-  </programlisting>
-  <para> into </para>
-  <programlisting>
-    <![CDATA[
-jdbc.url=jdbc:hsqldb:mem:petclinic;shutdown=true
-    ]]>
-  </programlisting>
-  <para> If we have done all this configuration we should be able to start an embedded jetty-server with maven running
-    the petclinic-application: </para>
-  <programlisting>
-mvn jetty:run
-  </programlisting>
   <para> If everything works all right, jetty started successfully and you can visit the spring-petclinic
     sample-application <ulink url="http://localhost:8080/">here</ulink>. </para>
 </article>
