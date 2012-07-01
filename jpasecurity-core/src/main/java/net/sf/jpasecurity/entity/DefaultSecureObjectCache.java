@@ -98,7 +98,7 @@ public class DefaultSecureObjectCache extends DefaultSecureObjectManager {
         }
         Object id = null;
         if (beanStore.isLoaded(unsecureObject)) {
-            id = beanStore.getIdentifier(unsecureObject);
+            id = getClassMapping(unsecureObject.getClass()).getId(unsecureObject);
         }
         return getSecureEntity(unsecureObject, id);
     }
