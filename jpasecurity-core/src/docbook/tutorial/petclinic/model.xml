@@ -679,7 +679,7 @@ public class EditVisitForm {
     </programlisting>
     <para> As we already added a button to edit a visit to <filename>vet.jsp</filename>, we do not need any more to do
       to integrate the visit-editor. We can start our server again and see, if our new relation between visits and vets
-      works. (Navigate to <ulink url="http://localhost:8080/jpasecurity-spring-petclinic-sample/owner.do?ownerId=6">Jean
+      works. (Navigate to <ulink url="http://localhost:8080/owners/6">Jean
         Coleman</ulink> as there are already added some visits.) </para>
   </section>
 </article>
