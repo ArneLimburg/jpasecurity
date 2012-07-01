@@ -51,9 +51,9 @@ import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
  */
 public abstract class AbstractSecureObjectManager implements SecureObjectManager {
 
+    protected final Configuration configuration;
     private final MappingInformation mappingInformation;
     private final AccessManager accessManager;
-    private final Configuration configuration;
     private final List<Runnable> preFlushOperations = new ArrayList<Runnable>();
     private final List<Runnable> postFlushOperations = new ArrayList<Runnable>();
 
@@ -116,8 +116,12 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
             return (T)createSecureMap((Map<?, ?>)object, this, accessManager);
         } else {
             BeanInitializer beanInitializer = configuration.getBeanInitializer();
-            object = beanInitializer.initialize(object);
             ClassMappingInformation mapping = getClassMapping(object.getClass());
+            if (!mapping.getSubclassMappings().isEmpty()) {
+                // object may be superclass proxy of wrong type, so we have to initialize it
+                object = beanInitializer.initialize(object);
+                mapping = getClassMapping(object.getClass());
+            }
             SecureEntityInterceptor interceptor = new SecureEntityInterceptor(beanInitializer, this, object);
             Decorator<SecureEntity> decorator
                 = new SecureEntityDecorator(mapping, beanInitializer, accessManager, this, object);

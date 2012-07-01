@@ -46,7 +46,6 @@ import net.sf.jpasecurity.jpql.compiler.ObjectCacheSubselectEvaluator;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.SimpleSubselectEvaluator;
 import net.sf.jpasecurity.jpql.compiler.SubselectEvaluator;
-import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
@@ -70,7 +69,6 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     private static final Log LOG = LogFactory.getLog(DefaultSecureEntityManager.class);
 
     private SecureEntityManagerFactory entityManagerFactory;
-    private Configuration configuration;
     private MappingInformation mappingInformation;
     private SecureObjectManager secureObjectManager;
     private AccessManager accessManager;
@@ -96,7 +94,6 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                                                                this,
                                                                configuration);
         }
-        this.configuration = configuration;
         this.mappingInformation = mapping;
         this.secureObjectManager = secureObjectManager;
         ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
@@ -169,12 +166,6 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         } else {
             entity = super.find(type, id);
         }
-
-        //bean already should be initialized by spec,
-        //but hibernate sometimes returns an initialized proxy of wrong type
-        //beanInitializer.initialize always returns an object of correct type
-        BeanInitializer beanInitializer = configuration.getBeanInitializer();
-
         secureObjectManager.postFlush();
         if (entity == null) {
             return null;
@@ -183,12 +174,9 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
             ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
             throw new SecurityException("The current user is not permitted to access the entity of type "
                 + mapping.getEntityName() + " with id " + mapping.getId(entity));
-
         }
-        entity = beanInitializer.initialize(entity);
         entity = secureObjectManager.getSecureObject(entity);
         if (entity instanceof SecureEntity) {
-            configuration.getBeanInitializer().initialize(entity);
             SecureEntity secureEntity = (SecureEntity)entity;
             if (!secureEntity.isInitialized()) {
                 secureEntity.refresh();

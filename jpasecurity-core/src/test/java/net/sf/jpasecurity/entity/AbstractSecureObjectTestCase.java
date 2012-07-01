@@ -82,6 +82,7 @@ public abstract class AbstractSecureObjectTestCase {
         beanStore = createMock(BeanStore.class);
         accessManager = createMock(AccessManager.class);
         expect(mapping.getClassMapping((Class<?>)anyObject())).andAnswer(new ClassMappingAnswer()).anyTimes();
+        expect(beanStore.isLoaded(anyObject())).andReturn(true).anyTimes();
         expect(accessManager.isAccessible(eq(AccessType.READ), anyObject())).andReturn(true).anyTimes();
 
         replay(mapping, beanStore, accessManager);
@@ -279,6 +280,8 @@ public abstract class AbstractSecureObjectTestCase {
                 return classMappings.get(type);
             }
             ClassMappingInformation classMapping = createMock(type);
+            expect(classMapping.getSubclassMappings())
+                .andReturn(Collections.<ClassMappingInformation>emptySet()).anyTimes();
             classMappings.put(type, classMapping);
             replay(classMapping);
             return classMapping;

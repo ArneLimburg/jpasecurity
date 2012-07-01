@@ -96,8 +96,10 @@ public class DefaultSecureObjectCache extends DefaultSecureObjectManager {
         if (unsecureObject instanceof Map) {
             return (E)getSecureMap((Map<?, ?>)unsecureObject);
         }
-        ClassMappingInformation classMapping = getClassMapping(unsecureObject.getClass());
-        Object id = classMapping.getId(unsecureObject);
+        Object id = null;
+        if (beanStore.isLoaded(unsecureObject)) {
+            id = beanStore.getIdentifier(unsecureObject);
+        }
         return getSecureEntity(unsecureObject, id);
     }
 

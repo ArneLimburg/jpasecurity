@@ -165,8 +165,7 @@ public class ObjectIdentityTest {
         TestAuthenticationProvider.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         ParentEntity parentEntity
-            = entityManager
-            .find(ParentEntity.class, PARENT_ENTITY_ID);
+            = entityManager.find(ParentEntity.class, PARENT_ENTITY_ID);
         final ChildEntityType1 oneToOneLazy = parentEntity.getOneToOneLazy();
         final ChildEntityType1 actual = entityManager.find(ChildEntityType1.class, CHILD_ENTITY_ID_ONE_TO_ONE_LAZY);
         assertSame(oneToOneLazy, actual);
@@ -178,8 +177,7 @@ public class ObjectIdentityTest {
         TestAuthenticationProvider.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         ParentEntity parentEntity
-            = entityManager
-            .find(ParentEntity.class, PARENT_ENTITY_ID);
+            = entityManager.find(ParentEntity.class, PARENT_ENTITY_ID);
         final EntitySuperclass oneToOneLazy = parentEntity.getOneToOneAbstractLazy();
         final ChildEntityType1 actual =
             entityManager.find(ChildEntityType1.class, CHILD_ENTITY_ID_ONE_TO_ONE_ABSTRACT_LAZY);
