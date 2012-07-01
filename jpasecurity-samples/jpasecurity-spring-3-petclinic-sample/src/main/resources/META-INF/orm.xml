@@ -92,15 +92,24 @@
 		<table name="types"/>
 	</entity>
 
-	<entity class="Visit">
-		<table name="visits"/>
-		<attributes>
-			<basic name="date">
-				<column name="VISIT_DATE"/>
-				<temporal>DATE</temporal>
-			</basic>
-			<many-to-one name="pet" fetch="EAGER"/>
-		</attributes>
-	</entity>
+    <entity class="Visit">
+        <table name="VISITS"/>
+        <attributes>
+            <basic name="date">
+                <column name="VISIT_DATE"/>
+                <temporal>DATE</temporal>
+            </basic>
+            <many-to-one name="pet" fetch="EAGER">
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </many-to-one>
+            <many-to-one name="vet" fetch="EAGER">
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </many-to-one>
+        </attributes>
+    </entity>    
 
 </entity-mappings>

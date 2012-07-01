@@ -10,7 +10,12 @@
   </thead>
   <c:forEach var="vet" items="${vets.vetList}">
     <tr>
-      <td>${vet.firstName} ${vet.lastName}</td>
+      <td>
+        <spring:url value="vets/{vetId}" var="vetUrl">
+          <spring:param name="vetId" value="${vet.id}"/>
+        </spring:url>
+        <a href="${fn:escapeXml(vetUrl)}">${vet.firstName} ${vet.lastName}</a>
+      </td>
       <td>
 	    <c:forEach var="specialty" items="${vet.specialties}">
           ${specialty.name}

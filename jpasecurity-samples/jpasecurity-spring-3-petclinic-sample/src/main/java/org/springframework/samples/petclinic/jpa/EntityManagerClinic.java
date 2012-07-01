@@ -55,6 +55,15 @@ public class EntityManagerClinic implements Clinic {
 	}
 
 	@Transactional(readOnly = true)
+    @SuppressWarnings("unchecked")
+    public Collection<Visit> findVisits(Vet vet) {
+        Query query = this.em.createQuery("SELECT visit FROM Visit visit "
+                                        + "WHERE visit.vet = :vet");
+        query.setParameter("vet", vet);
+        return query.getResultList();
+    }
+
+	@Transactional(readOnly = true)
 	public Owner loadOwner(int id) {
 		return this.em.find(Owner.class, id);
 	}
@@ -63,6 +72,16 @@ public class EntityManagerClinic implements Clinic {
 	public Pet loadPet(int id) {
 		return this.em.find(Pet.class, id);
 	}
+
+	@Transactional(readOnly = true)
+    public Vet loadVet(int id) {
+        return this.em.find(Vet.class, id);
+    }
+
+	@Transactional(readOnly = true)
+    public Visit loadVisit(int id) {
+        return this.em.find(Visit.class, id);
+    }
 
 	public void storeOwner(Owner owner) {
 		// Consider returning the persistent object here, for exposing

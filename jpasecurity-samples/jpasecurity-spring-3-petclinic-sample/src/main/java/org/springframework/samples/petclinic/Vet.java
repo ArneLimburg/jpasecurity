@@ -49,4 +49,17 @@ public class Vet extends Person {
 		getSpecialtiesInternal().add(specialty);
 	}
 
+	public String toString() {
+        StringBuilder specialties = new StringBuilder();
+        for (Specialty specialty: getSpecialties()) {
+            specialties.append(' ').append(specialty.getName()).append(',');
+        }
+        if (getNrOfSpecialties() == 0) {
+            specialties.append("(none)");
+        } else {
+            specialties.setCharAt(0, '(');
+            specialties.setCharAt(specialties.length() - 1, ')');
+        }
+        return super.toString() + " " + specialties.toString();
+    }
 }
