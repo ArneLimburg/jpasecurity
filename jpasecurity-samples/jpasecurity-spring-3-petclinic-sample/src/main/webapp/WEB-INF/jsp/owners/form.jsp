@@ -36,7 +36,7 @@
         <form:input path="city" size="30" maxlength="80"/>
       </th>
     </tr>
-    <tr>
+<tr>
       <th>
         Telephone: <form:errors path="telephone" cssClass="errors"/>
         <br/>
@@ -44,10 +44,31 @@
       </th>
     </tr>
     <tr>
+      <th>
+        <c:choose>
+          <c:when test="${owner.new}">
+            Username: <form:errors path="credential.username" cssClass="errors"/>
+            <br/>
+            <form:input path="credential.username" size="20" maxlength="20"/>
+          </c:when>
+          <c:otherwise>
+            Username: ${owner.credential.username}
+          </c:otherwise>
+        </c:choose>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        Password: <form:errors path="credential.newPassword" cssClass="errors"/>
+        <br/>
+        <form:password path="credential.newPassword" size="20" maxlength="20"/>
+      </th>
+    </tr>
+    <tr>
       <td>
         <c:choose>
-          <c:when test="${owner['new']}">
-            <p class="submit"><input type="submit" value="Add Owner"/></p>
+          <c:when test="${owner.new}">
+            <p class="submit"><input type="submit" value="Register User"/></p>
           </c:when>
           <c:otherwise>
             <p class="submit"><input type="submit" value="Update Owner"/></p>
