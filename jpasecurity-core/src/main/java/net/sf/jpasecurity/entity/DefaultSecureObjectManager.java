@@ -275,7 +275,17 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
         if (secureEntity != null) {
             return secureEntity;
         }
-        return (T)super.getSecureObject(unsecureObject);
+        secureEntity = (T)super.getSecureObject(unsecureObject);
+        if (!(secureEntity instanceof Collection) && !(secureEntity instanceof Map)) {
+            secureEntities.put(new SystemIdentity(unsecureObject), secureEntity);
+            if (beanStore.isLoaded(unsecureObject)) {
+                Object initializedObject = configuration.getBeanInitializer().initialize(unsecureObject);
+                if (initializedObject != unsecureObject) {
+                    secureEntities.put(new SystemIdentity(initializedObject), secureEntity);
+                }
+            }
+        }
+        return secureEntity;
     }
 
     boolean containsUnsecureObject(Object secureObject) {

@@ -20,6 +20,7 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -70,6 +71,7 @@ public class SecureObjectManagerTest extends AbstractSecureObjectTestCase {
     public void initialize() {
         Configuration configuration = new Configuration();
         BeanStore beanStore = createMock(BeanStore.class);
+        expect(beanStore.isLoaded(anyObject())).andReturn(true).anyTimes();
         secureObjectManager = new DefaultSecureObjectManager(getMapping(),
                                                              beanStore,
                                                              getAccessManager(),
