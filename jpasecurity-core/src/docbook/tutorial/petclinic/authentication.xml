@@ -620,7 +620,7 @@ public class CredentialService implements UserDetailsService {
         <systemitem>ROLE_USER</systemitem> (which are all owners and vets). Only access to our login page and to our
       page to add owners is allowed for everyone. The latter is needed to enable new users to register. </para>
     <para> Now we need a login page. We create the file <filename>login.jsp</filename> in
-        <filename>src/main/webapp/</filename> with the following content. </para>
+        <filename>src/main/webapp/WEB-INF/jsp/</filename> with the following content. </para>
     <programlisting>
       <![CDATA[
 <%@ page import="org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter" %>
