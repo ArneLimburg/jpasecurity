@@ -3,8 +3,11 @@ package org.springframework.samples.petclinic.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.Clinic;
+import org.springframework.samples.petclinic.Credential;
+import org.springframework.samples.petclinic.Owner;
 import org.springframework.samples.petclinic.Vet;
 import org.springframework.samples.petclinic.Vets;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,10 +42,27 @@ public class ClinicController {
 	 * determine the logical view name based on the request URL: "/welcome.do"
 	 * -&gt; "welcome".
 	 */
-	@RequestMapping("/")
-	public String welcomeHandler() {
-		return "welcome";
-	}
+	@RequestMapping("/login")
+    public String loginHandler() {
+        return "login";
+    }
+
+	/**
+     * Custom handler for the welcome view.
+     * <p>
+     * Note that this handler relies on the RequestToViewNameTranslator to
+     * determine the logical view name based on the request URL: "/welcome.do"
+     * -&gt; "welcome".
+     */
+    @RequestMapping("/")
+    public ModelAndView welcomeHandler() {
+        Credential credential = (Credential)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ModelAndView mav = new ModelAndView("welcome");
+        mav.addObject("person", credential.getUser());
+        mav.addObject("vet", credential.getUser() instanceof Vet);
+        mav.addObject("owner", credential.getUser() instanceof Owner);
+        return mav;
+    }
 
 	/**
 	 * Custom handler for displaying vets.

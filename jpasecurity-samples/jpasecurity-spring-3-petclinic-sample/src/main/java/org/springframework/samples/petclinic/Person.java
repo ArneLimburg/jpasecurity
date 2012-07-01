@@ -11,6 +11,16 @@ public class Person extends BaseEntity {
 
 	private String lastName;
 
+	private Credential credential;
+
+    public Credential getCredential() {
+        return credential;
+    }
+    
+    public void setCredential(Credential credential) {
+        this.credential = credential;
+    }
+
 	public String getFirstName() {
 		return this.firstName;
 	}
