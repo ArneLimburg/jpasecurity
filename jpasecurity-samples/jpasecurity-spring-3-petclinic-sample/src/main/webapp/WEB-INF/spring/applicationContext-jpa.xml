@@ -21,7 +21,9 @@
 		implements LoadTimeWeaverAware (such as LocalContainerEntityManagerFactoryBean)
 		will receive a reference to the autodetected load-time weaver.
 	-->
+	<!--
 	<context:load-time-weaver/>
+	-->
 
 	<!-- Configurer that replaces ${...} placeholders with values from a properties file -->
 	<!-- (in this case, JDBC-related settings for the JPA EntityManager definition below) -->
@@ -31,16 +33,14 @@
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
 			p:dataSource-ref="dataSource">
 		<property name="jpaVendorAdapter">
+			<!--
 			<bean class="org.springframework.orm.jpa.vendor.TopLinkJpaVendorAdapter"
 					p:databasePlatform="${jpa.databasePlatform}" p:showSql="${jpa.showSql}"/>
-			<!--
 			<bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"
 					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
 			-->
-			<!--
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
 					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
-			-->
 		</property>
 		<property name="persistenceXmlLocation" value="classpath:META-INF/jpa-persistence.xml"/>
 	</bean>
@@ -73,7 +73,9 @@
 		This aspect is defined in petclinic.jar's META-INF/aop.xml file.
 		Note that we can dependency inject this bean like any other bean.
 	-->
+	<!-- 
 	<bean class="org.springframework.samples.petclinic.aspects.UsageLogAspect" p:historySize="300"/>
+	-->
 
 	<!--
 		Post-processor to perform exception translation on @Repository classes (from native
