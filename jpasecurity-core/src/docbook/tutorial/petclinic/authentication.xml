@@ -466,7 +466,7 @@ public class Credential extends BaseEntity implements UserDetails {
     <programlisting>
       <![CDATA[
 @Controller
-@RequestMapping("/editOwner.do")
+@RequestMapping("/owners/{ownerId}/edit")
 @SessionAttributes(types = Owner.class)
 public class EditOwnerForm {
     ...
@@ -477,7 +477,7 @@ public class EditOwnerForm {
     <programlisting>
       <![CDATA[
 @Controller
-@RequestMapping("/owners/new")
+@RequestMapping("/owners/{ownerId}/edit")
 @SessionAttributes("Owner")
 public class EditOwnerForm {
     ...
@@ -566,7 +566,7 @@ public class CredentialService implements UserDetailsService {
       ]]>
     </programlisting>
     <para> We add the security configuration to the Spring application context
-        (<filename>src/main/webapp/WEB-INF/spring/applicationContext-hibernate.xml</filename>). </para>
+        (<filename>src/main/webapp/WEB-INF/spring/applicationContext-jpa.xml</filename>). </para>
     <para> First change </para>
     <programlisting>
       <![CDATA[
@@ -599,7 +599,7 @@ public class CredentialService implements UserDetailsService {
     <programlisting>
       <![CDATA[
     <sec:http pattern="/login" security="none"/>
-	      <sec:http auto-config="true">
+    <sec:http auto-config="true">
         <sec:intercept-url pattern="/owners/new" access="IS_AUTHENTICATED_ANONYMOUSLY" />
         <sec:intercept-url pattern="/**" access="ROLE_USER" />
         <sec:form-login login-page="/login" default-target-url="/"/>
@@ -720,7 +720,7 @@ public class CredentialService implements UserDetailsService {
               = new UsernamePasswordAuthenticationToken(credential, credential, credential.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
             status.setComplete();
-            return "redirect:/welcome";
+            return "redirect:/owners/" + owner.getId();
         }
       ]]>
     </programlisting>
@@ -745,13 +745,13 @@ public class CredentialService implements UserDetailsService {
           return "login";
       }
 
-     /**
-      * Custom handler for the welcome view.
-      * <p>
-      * Note that this handler relies on the RequestToViewNameTranslator to
-      * determine the logical view name based on the request URL: "/welcome.do"
-      * -&gt; "welcome".
-      */
+      /**
+       * Custom handler for the welcome view.
+       * <p>
+       * Note that this handler relies on the RequestToViewNameTranslator to
+       * determine the logical view name based on the request URL: "/welcome.do"
+       * -&gt; "welcome".
+       */
       @RequestMapping("/")
       public ModelAndView welcomeHandler() {
           Credential credential = (Credential)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
