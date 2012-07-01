@@ -65,11 +65,7 @@
 			<basic name="address"/>
 			<basic name="city"/>
 			<basic name="telephone"/>
-			<one-to-many name="petsInternal" target-entity="Pet" mapped-by="owner" fetch="EAGER">
-				<cascade>
-					<cascade-all/>
-				</cascade>
-			</one-to-many>
+			<one-to-many name="petsInternal" target-entity="Pet" mapped-by="owner" fetch="EAGER"/>
 			<transient name="pets"/>
 		</attributes>
 	</entity>
@@ -81,16 +77,8 @@
 				<column name="BIRTH_DATE"/>
 				<temporal>DATE</temporal>
 			</basic>
-			<many-to-one name="owner" fetch="EAGER">
-				<cascade>
-					<cascade-all/>
-				</cascade>
-			</many-to-one>
-			<many-to-one name="type" fetch="EAGER">
-				<cascade>
-					<cascade-all/>
-				</cascade>
-			</many-to-one>
+			<many-to-one name="owner" fetch="EAGER"/>
+			<many-to-one name="type" fetch="EAGER"/>
 			<one-to-many name="visitsInternal" target-entity="Visit" mapped-by="pet" fetch="EAGER">
 				<cascade>
 					<cascade-all/>
@@ -111,11 +99,7 @@
 				<column name="VISIT_DATE"/>
 				<temporal>DATE</temporal>
 			</basic>
-			<many-to-one name="pet" fetch="EAGER">
-				<cascade>
-					<cascade-all/>
-				</cascade>
-			</many-to-one>
+			<many-to-one name="pet" fetch="EAGER"/>
 		</attributes>
 	</entity>
 
