@@ -30,6 +30,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
+import javax.persistence.NamedNativeQueries;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -50,6 +52,17 @@ import javax.persistence.Transient;
   @NamedQuery(name = "findById", query = "select bean from FieldAccessAnnotationTestBean bean where bean.id = :id")
 })
 @NamedQuery(name = "findByName", query = "select bean from FieldAccessAnnotationTestBean bean where bean.name = :name")
+@NamedNativeQueries({
+    @NamedNativeQuery(
+        name = "findAllNative",
+        query =
+            "select "
+                + "bean.identifier identifier, "
+                + "bean.beanName beanName, "
+                + "bean.parentBean parentBean"
+                + " from FieldAccessAnnotationTestBean bean",
+        resultClass = FieldAccessAnnotationTestBean.class)
+})
 @Entity
 public class FieldAccessAnnotationTestBean {
 

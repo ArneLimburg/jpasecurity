@@ -26,8 +26,6 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 
-import javassist.bytecode.CodeAttribute.RuntimeCopyException;
-
 import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
 import javax.xml.namespace.QName;
@@ -51,6 +49,7 @@ import net.sf.jpasecurity.mapping.EntityListenerWrapper;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.xml.EmptyNodeList;
 
+import javassist.bytecode.CodeAttribute.RuntimeCopyException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -66,6 +65,7 @@ import org.xml.sax.SAXException;
  *
  * @author Arne Limburg
  * @author Johannes Siemer
+ * @author Stefan Hildebrandt
  */
 public class OrmXmlParser extends JpaAnnotationParser {
 
@@ -73,6 +73,8 @@ public class OrmXmlParser extends JpaAnnotationParser {
 
     public static final String NAMED_QUERY_XPATH
         = "//named-query";
+    public static final String NAMED_NATIVE_QUERY_XPATH
+        = "//named-native-query";
     public static final String DEFAULT_ENTITY_LISTENER_XPATH
         = "//persistence-unit-defaults/entity-listeners/entity-listener";
     public static final String XML_MAPPING_METADATA_COMPLETE_XPATH
@@ -744,21 +746,38 @@ public class OrmXmlParser extends JpaAnnotationParser {
     }
 
     private void parseNamedQueries(Document mappingDocument) {
-        NodeList entries = evaluateNodes(mappingDocument, NAMED_QUERY_XPATH);
-        if (entries == null) {
-            return;
-        }
-        for (int i = 0; i < entries.getLength(); i++) {
-            Element namedQueryElement = (Element)entries.item(i);
-            String name = namedQueryElement.getAttribute("name");
-            NodeList queryList = namedQueryElement.getElementsByTagName("query");
-            String query = ((Text)((Element)queryList.item(0)).getFirstChild()).getData();
-            LOG.info("Adding query to query map. Name: '" + name + "'.");
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Query: '" + query.trim() + "'.");
+        addNamedQuery(mappingDocument, NAMED_QUERY_XPATH, new AddNamedQueryAction() {
+            public void addValues(String name, String query) {
+                addNamedQuery(name, query);
             }
-            addNamedQuery(name, query);
+        });
+        addNamedQuery(mappingDocument, NAMED_NATIVE_QUERY_XPATH, new AddNamedQueryAction() {
+            public void addValues(String name, String query) {
+                addNamedNativeQuery(name, query);
+            }
+        });
+    }
+
+    private void addNamedQuery(Document mappingDocument, String namedQueryXpath,
+                               AddNamedQueryAction addNamedQueryAction) {
+        NodeList entries = evaluateNodes(mappingDocument, namedQueryXpath);
+        if (entries != null) {
+            for (int i = 0; i < entries.getLength(); i++) {
+                Element namedQueryElement = (Element)entries.item(i);
+                String name = namedQueryElement.getAttribute("name");
+                NodeList queryList = namedQueryElement.getElementsByTagName("query");
+                String query = ((Text)queryList.item(0).getFirstChild()).getData();
+                LOG.info("Adding query to query map. Name: '" + name + "'.");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Query: '" + query.trim() + "'.");
+                }
+                addNamedQueryAction.addValues(name, query);
+            }
         }
+    }
+
+    private interface AddNamedQueryAction {
+        void addValues(String name, String query);
     }
 
     @Override

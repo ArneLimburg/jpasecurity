@@ -79,6 +79,7 @@ import org.apache.commons.logging.LogFactory;
  * Parses a persistence unit for persistence annotations.
  * <strong>This class is not thread-safe</strong>
  * @author Arne Limburg
+ * @author Stefan Hildebrandt
  */
 public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
 

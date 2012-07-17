@@ -6,4 +6,7 @@
   <named-query name="myQuery1">
       <query>select test from Contact test</query>
   </named-query>
+  <named-native-query name="myQuery1Native">
+      <query>select test.id from Contact test</query>
+  </named-native-query>
 </entity-mappings>
