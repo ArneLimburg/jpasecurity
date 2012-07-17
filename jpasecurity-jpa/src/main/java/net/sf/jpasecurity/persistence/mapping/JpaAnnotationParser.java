@@ -42,6 +42,8 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.NamedNativeQueries;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -101,6 +103,16 @@ public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
         if (queries != null) {
             for (NamedQuery query: queries.value()) {
                 addNamedQuery(query.name(), query.query());
+            }
+        }
+        NamedNativeQuery namedNativeQuery = entityClass.getAnnotation(NamedNativeQuery.class);
+        if (namedNativeQuery != null) {
+            addNamedNativeQuery(namedNativeQuery.name(), namedNativeQuery.query());
+        }
+        NamedNativeQueries nativeQueries = entityClass.getAnnotation(NamedNativeQueries.class);
+        if (nativeQueries != null) {
+            for (NamedNativeQuery query: nativeQueries.value()) {
+                addNamedNativeQuery(query.name(), query.query());
             }
         }
     }
