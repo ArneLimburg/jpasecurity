@@ -15,4 +15,16 @@
   <named-query name="myQuery4">
       <query>select test from Contact test</query>
   </named-query>
+  <named-native-query name="myQuery1Native">
+      <query>select test.id from Contact test</query>
+  </named-native-query>
+  <named-native-query name="myQuery2Native">
+      <query>select test.id from Contact test</query>
+  </named-native-query>
+  <named-native-query name="myQuery3Native">
+      <query>select test.id from Contact test</query>
+  </named-native-query>
+  <named-native-query name="myQuery4Native">
+      <query>select test.id from Contact test</query>
+  </named-native-query>
 </entity-mappings>

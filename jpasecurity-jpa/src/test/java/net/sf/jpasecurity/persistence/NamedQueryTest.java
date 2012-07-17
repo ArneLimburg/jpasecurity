@@ -44,19 +44,9 @@ public class NamedQueryTest {
 
     @Test
     public void createNamedQuery() {
-        TestAuthenticationProvider.authenticate(USER1);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
+        FieldAccessAnnotationTestBean bean2 = setupFieldAccessAnnotationTestData(factory);
         EntityManager entityManager = factory.createEntityManager();
-        entityManager.getTransaction().begin();
-        FieldAccessAnnotationTestBean bean1 = new FieldAccessAnnotationTestBean(USER1);
-        entityManager.persist(bean1);
-        TestAuthenticationProvider.authenticate(USER2);
-        FieldAccessAnnotationTestBean bean2 = new FieldAccessAnnotationTestBean(USER2);
-        entityManager.persist(bean2);
-        entityManager.getTransaction().commit();
-        entityManager.close();
-
-        entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         List<FieldAccessAnnotationTestBean> result = entityManager.createNamedQuery("findAll").getResultList();
         assertEquals(1, result.size()); //the other bean is not accessible
@@ -66,22 +56,50 @@ public class NamedQueryTest {
     }
 
     @Test
+    public void createNamedNativeQuery() {
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
+        setupFieldAccessAnnotationTestData(factory);
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        List<FieldAccessAnnotationTestBean> result = entityManager.createNamedQuery("findAllNative").getResultList();
+        assertEquals(2, result.size()); //no security, both are accessible
+        entityManager.getTransaction().commit();
+        entityManager.close();
+    }
+
+    private FieldAccessAnnotationTestBean setupFieldAccessAnnotationTestData(EntityManagerFactory factory) {
+        TestAuthenticationProvider.authenticate(USER1);
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean bean1 = new FieldAccessAnnotationTestBean(USER1);
+        entityManager.persist(bean1);
+        TestAuthenticationProvider.authenticate(USER2);
+        FieldAccessAnnotationTestBean bean2 = new FieldAccessAnnotationTestBean(USER2);
+        entityManager.persist(bean2);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        return bean2;
+    }
+
+    @Test
     public void parseNamedQueryInOrmXml() throws Exception {
-        DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
-        persistenceUnitInfo.getMappingFileNames().add("META-INF/named-query.xml");
-        SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
-        MappingInformation mappingInformation = new OrmXmlParser(securityUnit, new JpaExceptionFactory()).parse();
+        MappingInformation mappingInformation = parseOrmFile("META-INF/named-query.xml");
 
         assertEquals(1, mappingInformation.getNamedQueryNames().size());
         assertEquals("select test from Contact test", mappingInformation.getNamedQuery("myQuery1"));
     }
 
     @Test
+    public void parseNamedNativeQueryInOrmXml() throws Exception {
+        MappingInformation mappingInformation = parseOrmFile("META-INF/named-query.xml");
+
+        assertEquals(1, mappingInformation.getNamedNativeQueryNames().size());
+        assertEquals("select test.id from Contact test", mappingInformation.getNamedNativeQuery("myQuery1Native"));
+    }
+
+    @Test
     public void parseNamedQueriesInOrmXml() throws Exception {
-        DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
-        persistenceUnitInfo.getMappingFileNames().add("META-INF/named-queries.xml");
-        SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
-        MappingInformation mappingInformation = new OrmXmlParser(securityUnit, new JpaExceptionFactory()).parse();
+        MappingInformation mappingInformation = parseOrmFile("META-INF/named-queries.xml");
 
         assertEquals(4, mappingInformation.getNamedQueryNames().size());
 
@@ -89,6 +107,25 @@ public class NamedQueryTest {
         assertEquals("select test from Contact test", mappingInformation.getNamedQuery("myQuery2"));
         assertEquals("select test from Contact test", mappingInformation.getNamedQuery("myQuery3"));
         assertEquals("select test from Contact test", mappingInformation.getNamedQuery("myQuery4"));
+    }
+
+    @Test
+    public void parseNamedNativeQueriesInOrmXml() throws Exception {
+        MappingInformation mappingInformation = parseOrmFile("META-INF/named-queries.xml");
+
+        assertEquals(4, mappingInformation.getNamedQueryNames().size());
+
+        assertEquals("select test.id from Contact test", mappingInformation.getNamedNativeQuery("myQuery1Native"));
+        assertEquals("select test.id from Contact test", mappingInformation.getNamedNativeQuery("myQuery2Native"));
+        assertEquals("select test.id from Contact test", mappingInformation.getNamedNativeQuery("myQuery3Native"));
+        assertEquals("select test.id from Contact test", mappingInformation.getNamedNativeQuery("myQuery4Native"));
+    }
+
+    private MappingInformation parseOrmFile(String ormFileName) {
+        DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
+        persistenceUnitInfo.getMappingFileNames().add(ormFileName);
+        SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
+        return new OrmXmlParser(securityUnit, new JpaExceptionFactory()).parse();
     }
 
     @After
