@@ -37,4 +37,7 @@ public interface MappingInformation {
     <T> Class<T> getType(Path path, Set<TypeDefinition> typeDefinitions);
     PropertyMappingInformation getPropertyMapping(Path path, Set<TypeDefinition> typeDefinitions);
 
+    Set<String> getNamedNativeQueryNames();
+
+    String getNamedNativeQuery(String name);
 }

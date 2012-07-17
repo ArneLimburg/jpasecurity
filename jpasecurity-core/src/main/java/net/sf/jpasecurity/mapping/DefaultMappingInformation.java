@@ -31,6 +31,7 @@ import net.sf.jpasecurity.ExceptionFactory;
 public class DefaultMappingInformation implements MappingInformation {
 
     private String persistenceUnitName;
+    private final Map<String, String> namedNativeQueries;
     private Map<String, String> namedQueries = new HashMap<String, String>();
     private Map<Class<?>, ClassMappingInformation> entityTypeMappings
         = new HashMap<Class<?>, ClassMappingInformation>();
@@ -41,12 +42,14 @@ public class DefaultMappingInformation implements MappingInformation {
      * @param persistenceUnitName the name of the persistence unit
      * @param entityTypeMappings the mapping information of the entities contained in the persistence unit
      * @param namedQueries the named queries contained in the persistence unit
+     * @param nativeNamedQueries the named native queries contained in the persistence unit
      */
     public DefaultMappingInformation(String persistenceUnitName,
                                      Map<Class<?>, ? extends ClassMappingInformation> entityTypeMappings,
                                      Map<String, String> namedQueries,
-                                     ExceptionFactory exceptionFactory) {
+                                     Map<String, String> namedNativeQueries, ExceptionFactory exceptionFactory) {
         this.persistenceUnitName = persistenceUnitName;
+        this.namedNativeQueries = namedNativeQueries;
         this.entityTypeMappings = (Map<Class<?>, ClassMappingInformation>)entityTypeMappings;
         this.namedQueries = namedQueries;
         this.exceptionFactory = exceptionFactory;
@@ -62,6 +65,14 @@ public class DefaultMappingInformation implements MappingInformation {
 
     public String getNamedQuery(String name) {
         return namedQueries.get(name);
+    }
+
+    public Set<String> getNamedNativeQueryNames() {
+        return Collections.unmodifiableSet(namedNativeQueries.keySet());
+    }
+
+    public String getNamedNativeQuery(String name) {
+        return namedNativeQueries.get(name);
     }
 
     public Collection<Class<?>> getSecureClasses() {

@@ -69,6 +69,7 @@ public abstract class AbstractSecurityUnitParser {
     private SecurityUnit securityUnit;
     private Map<Class<?>, DefaultClassMappingInformation> classMappings;
     private Map<String, String> namedQueries;
+    private Map<String, String> namedNativeQueries;
     private List<EntityListener> defaultEntityListeners;
     private ClassLoader classLoader;
 
@@ -104,11 +105,13 @@ public abstract class AbstractSecurityUnitParser {
     public MappingInformation parse() {
         classMappings = new HashMap<Class<?>, DefaultClassMappingInformation>();
         namedQueries = new HashMap<String, String>();
+        namedNativeQueries = new HashMap<String, String>();
         defaultEntityListeners = new ArrayList<EntityListener>();
         classLoader = findClassLoader(securityUnit);
         parseSecurityUnit(securityUnit);
         String securityUnitName = securityUnit.getSecurityUnitName();
-        return new DefaultMappingInformation(securityUnitName, classMappings, namedQueries, exceptionFactory);
+        return new DefaultMappingInformation(securityUnitName,
+            classMappings, namedQueries, namedNativeQueries, exceptionFactory);
     }
 
     protected void parseSecurityUnit(SecurityUnit securityUnit) {
@@ -589,6 +592,10 @@ public abstract class AbstractSecurityUnitParser {
 
     protected void addNamedQuery(String name, String query) {
         namedQueries.put(name, query);
+    }
+
+    protected void addNamedNativeQuery(String name, String query) {
+        namedNativeQueries.put(name, query);
     }
 
     protected void addDefaultEntityListener(EntityListener entityListener) {

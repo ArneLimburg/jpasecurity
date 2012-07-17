@@ -26,6 +26,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.LockModeType;
 import javax.persistence.Parameter;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
@@ -219,11 +220,27 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public Query createNamedQuery(String name) {
-        return createQuery(mappingInformation.getNamedQuery(name));
+        final String namedQuery = mappingInformation.getNamedQuery(name);
+        if (namedQuery != null) {
+            return createQuery(namedQuery);
+        }
+        final String namedNativeQuery = mappingInformation.getNamedNativeQuery(name);
+        if (namedNativeQuery != null) {
+            return super.createNamedQuery(name);
+        }
+        throw new PersistenceException("No named query with name " + name);
     }
 
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
-        return createQuery(mappingInformation.getNamedQuery(name), resultClass);
+        final String namedQuery = mappingInformation.getNamedQuery(name);
+        if (namedQuery != null) {
+            return createQuery(namedQuery, resultClass);
+        }
+        final String namedNativeQuery = mappingInformation.getNamedNativeQuery(name);
+        if (namedNativeQuery != null) {
+            return super.createNamedQuery(name, resultClass);
+        }
+        throw new PersistenceException("No named query with name " + name);
     }
 
     public void flush() {
