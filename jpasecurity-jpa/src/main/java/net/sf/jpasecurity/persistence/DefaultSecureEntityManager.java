@@ -156,6 +156,13 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public <T> T find(Class<T> type, Object id, LockModeType lockMode, Map<String, Object> properties) {
+        if (secureObjectManager instanceof DefaultSecureObjectCache) {
+            ClassMappingInformation mapping = mappingInformation.getClassMapping(type);
+            final DefaultSecureObjectCache secureObjectCache = (DefaultSecureObjectCache)secureObjectManager;
+            if (secureObjectCache.containsSecureEntity(mapping, id)) {
+                return (T)secureObjectCache.getSecureEntity(mapping, id);
+            }
+        }
         secureObjectManager.preFlush();
         T entity;
         if (lockMode != null && properties != null) {

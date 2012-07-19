@@ -170,4 +170,14 @@ public class DefaultSecureObjectCache extends DefaultSecureObjectManager {
         }
         return (E)secureObject;
     }
+
+    public boolean containsSecureEntity(ClassMappingInformation mapping, Object id) {
+        final Map<Object, SecureEntity> objectSecureEntityMap = secureEntities.get(mapping);
+        return objectSecureEntityMap != null && objectSecureEntityMap.containsKey(id);
+    }
+
+    public SecureEntity getSecureEntity(ClassMappingInformation mapping, Object id) {
+        final Map<Object, SecureEntity> objectSecureEntityMap = secureEntities.get(mapping);
+        return objectSecureEntityMap != null ? objectSecureEntityMap.get(id) : null;
+    }
 }
