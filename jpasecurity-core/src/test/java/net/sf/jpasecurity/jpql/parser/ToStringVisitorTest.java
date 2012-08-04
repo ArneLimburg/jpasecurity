@@ -56,7 +56,7 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean.name FROM TestBean bean WHERE bean.booleanValue = true");
         assertJpql("SELECT bean.name FROM TestBean bean WHERE ((3 + 2) * 2) = 10.0");
         assertJpql("SELECT bean.name FROM TestBean bean WHERE ((3 + 2) / 2) = 10.0");
-        assertJpql("SELECT bean.name FROM TestBean bean WHERE (-(3 - 2) * 2) <= 10.0");
+        assertJpql("SELECT bean.name FROM TestBean bean WHERE ((3 - 2) * 2) <= 10.0");
         assertJpql("SELECT bean.name FROM TestBean bean WHERE ((3 + 2) * 2) >= 10.0");
         assertJpql("SELECT bean.id FROM TestBean bean WHERE ABS(bean.id) = 1 HAVING bean.id > 0");
         assertJpql("SELECT bean.id FROM TestBean bean "

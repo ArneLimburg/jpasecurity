@@ -26,12 +26,11 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.acl.PrivilegeType;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
+
+import org.junit.Test;
 
 /**
  * @author Arne Limburg
@@ -50,7 +49,6 @@ public class QueryTest {
         assertEquals(0, query.getResultList().size());
     }
 
-    @Ignore
     @Test
     public void enumParameter() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("acl-model");

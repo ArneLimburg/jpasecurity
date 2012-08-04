@@ -996,7 +996,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlNamedInputParameter node, CriteriaHolder query) {
-        Parameter<?> parameter = builder.parameter(String.class, node.getValue());
+        Parameter<?> parameter = builder.parameter(String.class, node.jjtGetChild(0).getValue());
         query.setValue(parameter);
         query.addParameter(parameter);
         return true;

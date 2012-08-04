@@ -963,7 +963,7 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlNamedInputParameter node, StringBuilder query) {
-        query.append(':').append(node.getValue());
+        query.append(':');
         return true;
     }
 
@@ -972,7 +972,7 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
      */
     public boolean visit(JpqlPositionalInputParameter node, StringBuilder query) {
         query.append('?').append(node.getValue());
-        return true;
+        return false;
     }
 
     /**

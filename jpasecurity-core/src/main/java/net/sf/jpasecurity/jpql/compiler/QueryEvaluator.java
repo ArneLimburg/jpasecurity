@@ -808,9 +808,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     }
 
     public boolean visit(JpqlNamedInputParameter node, QueryEvaluationParameters data) {
-        validateChildCount(node, 0);
+        validateChildCount(node, 1);
         try {
-            data.setResult(data.getNamedParameterValue(node.getValue()));
+            data.setResult(data.getNamedParameterValue(node.jjtGetChild(0).getValue()));
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
         }

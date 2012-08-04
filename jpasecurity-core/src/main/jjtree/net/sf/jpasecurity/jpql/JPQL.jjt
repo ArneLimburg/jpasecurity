@@ -33,7 +33,7 @@ options {
     LOOKAHEAD = 1;
 
     // debugging variables
-    // DEBUG_PARSER = true;         // simple parser debug
+    // DEBUG_PARSER = true;            // simple parser debug
     // DEBUG_TOKEN_MANAGER = true;     // more verbose token manager debug
     // DEBUG_LOOKAHEAD = true;         // more verbose lookahead debug
     SANITY_CHECK = true; // check for left-recursion, etc (must always be true)
@@ -367,34 +367,31 @@ void collectionMemberDeclaration() #InCollection: {} {
     <IN> "(" joinAssociationPathExpression() ")" [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
 }
 
+void qualifiedPathExpression() #Path: {} {
+    ( <KEY> "(" identificationVariable() ")" #Key(1)
+     | <VALUE> "(" identificationVariable() ")" #Value(1)
+    ) (LOOKAHEAD(2) <DOT> objectField())+
+}
+
 void qualifiedIdentificationVariable(): {} {
-    keyIdentificationVariable() | valueIdentificationVariable() | entryIdentificationVariable()
-}
-
-void keyIdentificationVariable() #Key: {} {
-    <KEY> "(" identificationVariable() ")"
-}
-
-void valueIdentificationVariable() #Value: {} {
-    <VALUE> "(" identificationVariable() ")"
-}
-
-void entryIdentificationVariable() #Entry: {} {
-    <ENTRY> "(" identificationVariable() ")"
-}
-
-void singleValuedPathExpression() #Path: {} {
-    entryIdentificationVariable() | (keyIdentificationVariable() | valueIdentificationVariable() | identificationVariable()) (<DOT> objectField())*
+   ( <KEY> "(" identificationVariable() ")" #Key(1)
+     | <VALUE> "(" identificationVariable() ")" #Value(1)
+     | <ENTRY> "(" identificationVariable() ")" #Entry(1)
+   )
 }
 
 void generalIdentificationVariable(): {} {
-    identificationVariable() | keyIdentificationVariable() | valueIdentificationVariable()
+   ( <KEY> "(" identificationVariable() ")" #Key(1)
+     | <VALUE> "(" identificationVariable() ")" #Value(1)
+   )
+}
+
+void singleValuedPathExpression() #Path: {} {
+    identificationVariable() (<DOT> objectField())*
 }
 
 void collectionValuedPath() #CollectionValuedPath: {} {
-    // a path is any dot-separated path expression starting with a
-    // non-reserved word
-    generalIdentificationVariable() (<DOT> objectField())*
+    identificationVariable() (<DOT> objectField())*
 }
 
 void updateClause(): {} {
@@ -580,10 +577,6 @@ void scalarExpression(): {} {
   | <NULL>
 }
 
-void conditionalExpressionInBrackets() #Brackets: {} {
-    "(" conditionalExpression() ")"
-}
-
 void conditionalExpression(): {} {
     conditionalTerm() (LOOKAHEAD(2) <OR> (conditionalExpression() #Or(2)))*
 }
@@ -599,7 +592,7 @@ void conditionalFactor(): {} {
 
 void conditionalPrimary(): {} {
     LOOKAHEAD(simpleConditionalExpression())
-    simpleConditionalExpression() | conditionalExpressionInBrackets() 
+    simpleConditionalExpression() | "(" (conditionalExpression() #Brackets) ")"
 }
 
 void simpleConditionalExpression(): {} {
@@ -835,13 +828,17 @@ void arithmeticTerm(): {} {
 }
 
 void arithmeticFactor(): {} {
-    LOOKAHEAD(2) numericPath() |
-    LOOKAHEAD(2) numericLiteral() | 
-    LOOKAHEAD(2) numericInputParameter() | 
-    LOOKAHEAD(3) arithmeticExpressionInBrackets() | 
-    LOOKAHEAD(2) functionsReturningNumerics() | 
-    LOOKAHEAD(2) aggregateExpression() |    
-    LOOKAHEAD(3) numericSubqueryInBrackets()
+    LOOKAHEAD(2) numericLiteral()
+  | LOOKAHEAD(1) inputParameter()
+  | LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression()
+  | LOOKAHEAD(qualifiedPathExpression()) qualifiedPathExpression()
+  | LOOKAHEAD(generalIdentificationVariable()) generalIdentificationVariable()
+  | LOOKAHEAD(identificationVariable()) identificationVariable()
+  | LOOKAHEAD("(" arithmeticExpression()) "(" arithmeticExpression() ")" #Brackets(1)
+  | LOOKAHEAD(functionsReturningNumerics()) functionsReturningNumerics()
+  | LOOKAHEAD(aggregateExpression()) aggregateExpression()
+  | LOOKAHEAD(caseExpression()) caseExpression()
+  | LOOKAHEAD(subqueryInBrackets()) subqueryInBrackets()
 }
 
 void numericPath(): {} {
@@ -1183,7 +1180,7 @@ void namedInputParameter() #NamedInputParameter: {
     Token token;
 }
 {
-    ":" token = <IDENTIFIER> { jjtThis.setValue(token.image); }
+    ":" objectField()
 }
 
 void positionalInputParameter() #PositionalInputParameter: {

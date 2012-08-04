@@ -281,7 +281,7 @@ public class JpqlCompiler {
     private class NamedParameterVisitor extends JpqlVisitorAdapter<Set<String>> {
 
         public boolean visit(JpqlNamedInputParameter node, Set<String> namedParameters) {
-            namedParameters.add(node.getValue());
+            namedParameters.add(node.jjtGetChild(0).getValue());
             return true;
         }
     }
