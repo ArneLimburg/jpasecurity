@@ -655,14 +655,6 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlCurrentTimestamp node, T data);
 
     /**
-     * Called when visiting a <tt>JpqlCollectionIdentifier</tt> node.
-     * @param node the current node
-     * @param data that may be needed by the visitor
-     * @return <tt>true</tt>, if the node should go on processing the children
-     */
-    boolean visit(JpqlCollectionIdentifier node, T data);
-
-    /**
      * Called when visiting a <tt>JpqlOrderBy</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor
@@ -701,14 +693,6 @@ public interface JpqlParserVisitor<T> {
      * @return <tt>true</tt>, if the node should go on processing the children
      */
     boolean visit(JpqlAbstractSchemaName node, T data);
-
-    /**
-     * Called when visiting a <tt>JpqlIdentifier</tt> node.
-     * @param node the current node
-     * @param data that may be needed by the visitor
-     * @return <tt>true</tt>, if the node should go on processing the children
-     */
-    boolean visit(JpqlIdentifier node, T data);
 
     /**
      * Called when visiting a <tt>JpqlIdentificationVariable</tt> node.

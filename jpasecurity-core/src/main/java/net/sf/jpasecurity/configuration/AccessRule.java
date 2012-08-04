@@ -27,10 +27,9 @@ import java.util.Set;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
-import net.sf.jpasecurity.jpql.parser.JpqlCollectionIdentifier;
 import net.sf.jpasecurity.jpql.parser.JpqlCreate;
 import net.sf.jpasecurity.jpql.parser.JpqlDelete;
-import net.sf.jpasecurity.jpql.parser.JpqlIdentifier;
+import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlIn;
 import net.sf.jpasecurity.jpql.parser.JpqlRead;
 import net.sf.jpasecurity.jpql.parser.JpqlUpdate;
@@ -68,15 +67,15 @@ public class AccessRule extends JpqlCompiledStatement {
         return getSelectedTypes(mappingInformation).values().iterator().next();
     }
 
-    public Collection<JpqlIdentifier> getIdentifierNodes(Alias alias) {
-        List<JpqlIdentifier> identifierNodes = new ArrayList<JpqlIdentifier>();
-        visit(new IdentifierVisitor(alias.getName()), identifierNodes);
-        return Collections.unmodifiableCollection(identifierNodes);
+    public Collection<JpqlIdentificationVariable> getIdentificationVariableNodes(Alias alias) {
+        List<JpqlIdentificationVariable> identificationVariableNodes = new ArrayList<JpqlIdentificationVariable>();
+        visit(new IdentificationVariableVisitor(alias.getName()), identificationVariableNodes);
+        return Collections.unmodifiableCollection(identificationVariableNodes);
     }
 
     public Collection<JpqlIn> getInNodes(Alias alias) {
         List<JpqlIn> inNodes = new ArrayList<JpqlIn>();
-        visit(new CollectionIdentifierVisitor(alias.getName()), inNodes);
+        visit(new InNodeVisitor(alias.getName()), inNodes);
         return Collections.unmodifiableCollection(inNodes);
     }
 
@@ -153,39 +152,41 @@ public class AccessRule extends JpqlCompiledStatement {
         }
     }
 
-    private class IdentifierVisitor extends JpqlVisitorAdapter<List<JpqlIdentifier>> {
+    private class IdentificationVariableVisitor extends JpqlVisitorAdapter<List<JpqlIdentificationVariable>> {
 
         private String identifier;
 
-        public IdentifierVisitor(String identifier) {
+        public IdentificationVariableVisitor(String identifier) {
             if (identifier == null) {
                 throw new IllegalArgumentException("identifier may not be null");
             }
             this.identifier = identifier.toLowerCase();
         }
 
-        public boolean visit(JpqlIdentifier node, List<JpqlIdentifier> inRoles) {
+        @Override
+        public boolean visit(JpqlIdentificationVariable node,
+                             List<JpqlIdentificationVariable> identificationVariables) {
             if (identifier.equals(node.getValue().toLowerCase())) {
-                inRoles.add(node);
+                identificationVariables.add(node);
             }
             return true;
         }
     }
 
-    private class CollectionIdentifierVisitor extends JpqlVisitorAdapter<List<JpqlIn>> {
+    private class InNodeVisitor extends JpqlVisitorAdapter<List<JpqlIn>> {
 
         private String identifier;
 
-        public CollectionIdentifierVisitor(String identifier) {
+        public InNodeVisitor(String identifier) {
             if (identifier == null) {
                 throw new IllegalArgumentException("identifier may not be null");
             }
             this.identifier = identifier.toLowerCase();
         }
 
-        public boolean visit(JpqlCollectionIdentifier node, List<JpqlIn> inRoles) {
-            if (identifier.equals(node.getValue().toLowerCase())) {
-                inRoles.add((JpqlIn)node.jjtGetParent());
+        public boolean visit(JpqlIn node, List<JpqlIn> inRoles) {
+            if (identifier.equals(node.jjtGetChild(1).toString().toLowerCase())) {
+                inRoles.add(node);
             }
             return true;
         }

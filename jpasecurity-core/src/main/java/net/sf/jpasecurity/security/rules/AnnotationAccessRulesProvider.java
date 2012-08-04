@@ -216,7 +216,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
         public boolean visit(JpqlPath path, Set<Alias> declaredAliases) {
             Alias a = new Alias(path.jjtGetChild(0).getValue().toLowerCase());
             if (THIS_ALIAS.equals(a)) {
-                queryPreparator.replace(path.jjtGetChild(0), queryPreparator.createIdentifier(alias));
+                queryPreparator.replace(path.jjtGetChild(0), queryPreparator.createIdentificationVariable(alias));
             } else if (!declaredAliases.contains(a)
                 && (path.jjtGetNumChildren() > 1
                     || (!getSecurityContext().getAliases().contains(a)))) {

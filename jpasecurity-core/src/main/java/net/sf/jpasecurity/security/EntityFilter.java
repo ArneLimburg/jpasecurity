@@ -40,7 +40,7 @@ import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
 import net.sf.jpasecurity.jpql.compiler.SubselectEvaluator;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
-import net.sf.jpasecurity.jpql.parser.JpqlIdentifier;
+import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlIn;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
@@ -329,7 +329,7 @@ public class EntityFilter {
             if (inNodes.size() > 0) {
                 expand(alias.getName(), inNodes, securityContext.getAliasValues(alias), queryParameters);
             } else {
-                for (JpqlIdentifier identifier: accessRule.getIdentifierNodes(alias)) {
+                for (JpqlIdentificationVariable identifier: accessRule.getIdentificationVariableNodes(alias)) {
                     Node nodeToReplace = identifier;
                     if (nodeToReplace.jjtGetParent() instanceof JpqlPath) {
                         nodeToReplace = nodeToReplace.jjtGetParent();

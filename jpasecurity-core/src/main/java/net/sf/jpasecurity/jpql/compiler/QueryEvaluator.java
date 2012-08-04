@@ -49,7 +49,6 @@ import net.sf.jpasecurity.jpql.parser.JpqlGreaterThan;
 import net.sf.jpasecurity.jpql.parser.JpqlGroupBy;
 import net.sf.jpasecurity.jpql.parser.JpqlHaving;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
-import net.sf.jpasecurity.jpql.parser.JpqlIdentifier;
 import net.sf.jpasecurity.jpql.parser.JpqlIn;
 import net.sf.jpasecurity.jpql.parser.JpqlIntegerLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlIsEmpty;
@@ -771,16 +770,6 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     public boolean visit(JpqlCurrentTimestamp node, QueryEvaluationParameters data) {
         validateChildCount(node, 0);
         data.setResult(new Timestamp(new Date().getTime()));
-        return false;
-    }
-
-    public boolean visit(JpqlIdentifier node, QueryEvaluationParameters data) {
-        validateChildCount(node, 0);
-        try {
-            data.setResult(data.getAliasValue(new Alias(node.getValue())));
-        } catch (NotEvaluatableException e) {
-            data.setResultUndefined();
-        }
         return false;
     }
 

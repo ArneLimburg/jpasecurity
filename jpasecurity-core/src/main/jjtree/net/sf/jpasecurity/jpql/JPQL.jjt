@@ -124,6 +124,13 @@ TOKEN[IGNORE_CASE]: {
 }
 
 TOKEN[IGNORE_CASE]: {
+    <KEY: "KEY">
+  | <VALUE: "VALUE">
+  | <ENTRY: "ENTRY">
+  | <TYPE: "TYPE">
+}
+
+TOKEN[IGNORE_CASE]: {
     <CONCAT: "CONCAT">
   | <SUBSTRING: "SUBSTRING">
   | <TRIM: "TRIM">
@@ -144,6 +151,13 @@ TOKEN[IGNORE_CASE]: {
   | <SQRT: "SQRT">
   | <MOD: "MOD">
   | <SIZE: "SIZE">
+  | <CASE: "CASE">
+  | <WHEN: "WHEN">
+  | <THEN: "THEN">
+  | <ELSE: "ELSE">
+  | <END: "END">
+  | <COALESCE: "COALESCE">
+  | <NULLIF: "NULLIF">
 }
 
 TOKEN[IGNORE_CASE]: {
@@ -286,12 +300,16 @@ void updateStatement() #Update: {} {
 }
 
 void deleteStatement() #Delete: {} {
-    <DELETE> <FROM> (fromItem() #From) [whereClause()]
+    deleteClause() [whereClause()]
+}
+
+void deleteClause() #From: {} {
+    <DELETE> <FROM> rangeVariableDeclaration()
 }
 
 void fromClause() #From: {} {
     <FROM> identificationVariableDeclaration()
-    (LOOKAHEAD(1) <COMMA> (LOOKAHEAD(collectionMemberDeclaration()) collectionMemberDeclaration() | LOOKAHEAD(identificationVariableDeclaration()) identificationVariableDeclaration()))*
+    (<COMMA> (LOOKAHEAD(identificationVariableDeclaration()) identificationVariableDeclaration() | LOOKAHEAD(collectionMemberDeclaration()) collectionMemberDeclaration()))*
 }
 
 void toClause() #From: {} {
@@ -299,37 +317,27 @@ void toClause() #From: {} {
 }
 
 void simpleIdentificationVariableDeclaration() #IdentificationVariableDeclaration: {} {
-    fromItem()
+    rangeVariableDeclaration()
 }
 
 void identificationVariableDeclaration() #IdentificationVariableDeclaration: {} {
-    fromItem() (LOOKAHEAD(fetchJoin()) fetchJoin() | LOOKAHEAD(innerJoin()) innerJoin() | LOOKAHEAD(outerJoin()) outerJoin())*
+    rangeVariableDeclaration() (LOOKAHEAD(fetchJoin()) fetchJoin() | LOOKAHEAD(join()) join())*
 }
 
-void fromItem() #FromItem: {} {
-    abstractSchemaName() [LOOKAHEAD(1) <AS>] [LOOKAHEAD(identificationVariable())identificationVariable()]
+void rangeVariableDeclaration() #FromItem: {} {
+    entityName() [LOOKAHEAD(1) <AS>] [LOOKAHEAD(identificationVariable())identificationVariable()]
 }
 
-void subqueryFromClause() #From: {} {
-    <FROM> subqueryFromItem() (LOOKAHEAD(1) <COMMA> subqueryFromItem())*
-}
-
-void subqueryFromItem(): {} {
-    LOOKAHEAD(collectionMemberDeclaration()) collectionMemberDeclaration()
-  | LOOKAHEAD(identificationVariableDeclaration()) identificationVariableDeclaration()
+void join(): {} {
+    LOOKAHEAD(innerJoin()) innerJoin() | LOOKAHEAD(outerJoin()) outerJoin()
 }
 
 void innerJoin() #InnerJoin: {} {
-    [<INNER>] <JOIN> joinPath() [<AS>] identificationVariable() [LOOKAHEAD(1) with()]
-}
-
-void collectionMemberDeclaration() #InCollection: {} {
-    // synonymous with "INNER JOIN path AS identifier" (InnerJoin)
-    <IN> "(" joinPath() ")" [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
+    [<INNER>] <JOIN> joinAssociationPathExpression() [<AS>] identificationVariable() [LOOKAHEAD(1) with()]
 }
 
 void outerJoin() #OuterJoin: {} {
-    <LEFT> [<OUTER>] <JOIN> joinPath() [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
+    <LEFT> [<OUTER>] <JOIN> joinAssociationPathExpression() [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
 }
 
 void fetchJoin(): {} {
@@ -337,37 +345,60 @@ void fetchJoin(): {} {
 }
 
 void outerFetchJoin() #OuterFetchJoin: {} {
-    <LEFT> [<OUTER>] <JOIN> <FETCH> joinPath() [[LOOKAHEAD(1) <AS>] identificationVariable()] [LOOKAHEAD(1) with()]
+    <LEFT> [<OUTER>] <JOIN> <FETCH> joinAssociationPathExpression() [[LOOKAHEAD(1) <AS>] identificationVariable()] [LOOKAHEAD(1) with()]
 }
 
 void innerFetchJoin() #InnerFetchJoin: {} {
-    [<INNER>] <JOIN> <FETCH> joinPath() [[LOOKAHEAD(1) <AS>] identificationVariable()] [LOOKAHEAD(1) with()] 
+    [<INNER>] <JOIN> <FETCH> joinAssociationPathExpression() [[LOOKAHEAD(1) <AS>] identificationVariable()] [LOOKAHEAD(1) with()] 
 }
 
 void with() #With: {} {
     <WITH> conditionalExpression()
 }
 
-void joinPath() #Path: {} {
+void joinAssociationPathExpression() #Path: {} {
     // a join path is any dot-separated path expression starting with a
     // non-reserved word containing at minimum two path components
-    identificationVariable() (<DOT> pathComponent())+
+    identificationVariable() (<DOT> objectField())+
 }
 
-void path() #Path: {} {
-    // a path is any dot-separated path expression starting with a
-    // non-reserved word
-    identificationVariable() (<DOT> pathComponent())*
+void collectionMemberDeclaration() #InCollection: {} {
+    // synonymous with "INNER JOIN path AS identifier" (InnerJoin)
+    <IN> "(" joinAssociationPathExpression() ")" [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
+}
+
+void qualifiedIdentificationVariable(): {} {
+    keyIdentificationVariable() | valueIdentificationVariable() | entryIdentificationVariable()
+}
+
+void keyIdentificationVariable() #Key: {} {
+    <KEY> "(" identificationVariable() ")"
+}
+
+void valueIdentificationVariable() #Value: {} {
+    <VALUE> "(" identificationVariable() ")"
+}
+
+void entryIdentificationVariable() #Entry: {} {
+    <ENTRY> "(" identificationVariable() ")"
+}
+
+void singleValuedPathExpression() #Path: {} {
+    entryIdentificationVariable() | (keyIdentificationVariable() | valueIdentificationVariable() | identificationVariable()) (<DOT> objectField())*
+}
+
+void generalIdentificationVariable(): {} {
+    identificationVariable() | keyIdentificationVariable() | valueIdentificationVariable()
 }
 
 void collectionValuedPath() #CollectionValuedPath: {} {
     // a path is any dot-separated path expression starting with a
     // non-reserved word
-    identificationVariable() (<DOT> pathComponent())*
+    generalIdentificationVariable() (<DOT> objectField())*
 }
 
 void updateClause(): {} {
-    <UPDATE> fromItem() setClause()
+    <UPDATE> rangeVariableDeclaration() setClause()
 }
 
 void setClause() #SetClause: {} {
@@ -379,11 +410,21 @@ void updateItem() #UpdateItem: {} {
 }
 
 void updateExpression() #Equals: {} {
-	path() <EQ> newValue()
+    singleValuedPathExpression() <EQ> newValue()
+}
+
+void subqueryFromClause() #From: {} {
+    <FROM> subqueryFromItem() (LOOKAHEAD(1) <COMMA> subqueryFromItem())*
+}
+
+void subqueryFromItem(): {} {
+    LOOKAHEAD(collectionMemberDeclaration()) collectionMemberDeclaration()
+  | LOOKAHEAD(identificationVariableDeclaration()) identificationVariableDeclaration()
 }
 
 void newValue() #UpdateValue: {} {
-    LOOKAHEAD(arithmeticExpression()) arithmeticExpression()
+    LOOKAHEAD(scalarExpression()) scalarExpression()
+  | LOOKAHEAD(arithmeticExpression()) arithmeticExpression()
   | LOOKAHEAD(stringPrimary()) stringPrimary()
   | LOOKAHEAD(datetimePrimary()) datetimePrimary()
   | LOOKAHEAD(booleanPrimary()) booleanPrimary()
@@ -394,6 +435,10 @@ void newValue() #UpdateValue: {} {
 
 void simpleEntityExpression(): {} {
     identificationVariable() | inputParameter()
+}
+
+void typeDiscriminator() #Type: {} {
+    <TYPE> "(" (LOOKAHEAD(identificationVariable()) identificationVariable() | singleValuedPathExpression() | inputParameter()) ")"
 }
 
 void selectClause() #SelectClause: {} {
@@ -409,11 +454,12 @@ void selectExpressions() #SelectExpressions: {} {
 }
 
 void selectExpression() #SelectExpression: {} {
-    aggregateSelectExpression() [[<AS>] identificationVariable()]
-        | LOOKAHEAD(path()) path() [[<AS>] identificationVariable()]
+    LOOKAHEAD(aggregateSelectExpression()) aggregateSelectExpression() [[<AS>] identificationVariable()]
+        | LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() [[<AS>] identificationVariable()]
+        | LOOKAHEAD(scalarExpression()) scalarExpression() [[<AS>] identificationVariable()]
         | identificationVariable() [[<AS>] identificationVariable()]
-        | (<OBJECT> "(" identificationVariable() ")")
-        | constructorExpression()
+        | (<OBJECT> "(" identificationVariable() ")") [[<AS>] identificationVariable()]
+        | constructorExpression() [[<AS>] identificationVariable()]
 }
 
 void subselectExpressions() #SelectExpressions: {} {
@@ -421,7 +467,7 @@ void subselectExpressions() #SelectExpressions: {} {
 }
 
 void subselectExpression() #SelectExpression: {} {
-    LOOKAHEAD(path()) path() 
+    LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() 
         | aggregateSelectExpression()
         | LOOKAHEAD(1) identificationVariable()
 }
@@ -432,7 +478,7 @@ void constructorExpression() #Constructor: {} {
 
 void classname() #ClassName: {}
 {
-    identificationVariable() (<DOT> identificationVariable())*
+    identificationVariable() (<DOT> objectField())*
 }
 
 void constructorParameters(): {} {
@@ -440,7 +486,7 @@ void constructorParameters(): {} {
 }
 
 void constructorParameter() #ConstructorParameter: {} {
-    (path() | aggregateSelectExpression())
+    (singleValuedPathExpression() | aggregateSelectExpression())
 }
 
 void aggregateSelectExpression(): {} {
@@ -463,13 +509,13 @@ void aggregatePath() #AggregatePath: {} {
     "(" (
         LOOKAHEAD(arithmeticExpression()) arithmeticExpression() |
         LOOKAHEAD(distinctPath()) distinctPath() |
-        LOOKAHEAD(path()) path() |
+        LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() |
         LOOKAHEAD(identificationVariable()) identificationVariable()
     ) ")"
 }
 
 void distinctPath() #DistinctPath: {} {
-    <DISTINCT> (LOOKAHEAD(path()) path() | identificationVariable())
+    <DISTINCT> (LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() | identificationVariable())
 }
 
 void count() #Count: {} {
@@ -504,7 +550,7 @@ void groupByClause() #GroupBy: {} {
 }
 
 void groupByItem(): {} {
-    LOOKAHEAD(path()) path() | identificationVariable()
+    LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() | identificationVariable()
 }
 
 void havingClause() #Having: {} {
@@ -521,6 +567,17 @@ void subquery() #Subselect: {} {
         [LOOKAHEAD(whereClause()) whereClause()] 
         [LOOKAHEAD(groupByClause()) groupByClause()] 
         [LOOKAHEAD(havingClause()) havingClause()] 
+}
+
+void scalarExpression(): {} {
+    LOOKAHEAD(arithmeticExpression()) arithmeticExpression()
+  | LOOKAHEAD(stringPrimary()) stringPrimary()
+  | LOOKAHEAD(enumPrimary()) enumPrimary()
+  | LOOKAHEAD(datetimePrimary()) datetimePrimary()
+  | LOOKAHEAD(booleanPrimary()) booleanPrimary()
+  | LOOKAHEAD(caseExpression()) caseExpression()
+  | LOOKAHEAD(simpleEntityExpression()) simpleEntityExpression()
+  | <NULL>
 }
 
 void conditionalExpressionInBrackets() #Brackets: {} {
@@ -589,17 +646,17 @@ void inExpression(): {} {
 }
 
 void positiveInExpression() #In: {} {
-    (path() | literalOrParam())
+    (singleValuedPathExpression() | literalOrParam())
     <IN> "(" (literalOrParam()
-             (<COMMA> (literalOrParam()))* | subquery() | currentRoles())
+             (<COMMA> (literalOrParam()))* | subquery() | collectionValuedPath())
          ")" 
 }
 
 void negativeInExpression() #In: {} {
-    (path() | literalOrParam())
+    (singleValuedPathExpression() | literalOrParam())
     <NOT> <IN>
         "(" (literalOrParam()
-            (<COMMA> (literalOrParam()))* | subquery() | currentRoles())
+            (<COMMA> (literalOrParam()))* | subquery() | collectionValuedPath())
         ")" 
 }
 
@@ -629,11 +686,11 @@ void nullComparisonExpression(): {} {
 }
 
 void positiveNullComparisionExpression() #IsNull: {} {
-    (inputParameter() | path()) <IS> <NULL> 
+    (inputParameter() | singleValuedPathExpression()) <IS> <NULL> 
 }
 
 void negativeNullComparisionExpression() #IsNull: {} {
-    (inputParameter() | path()) <IS> <NOT> <NULL> 
+    (inputParameter() | singleValuedPathExpression()) <IS> <NOT> <NULL> 
 }
 
 void emptyCollectionComparisonExpression(): {} {
@@ -655,11 +712,11 @@ void collectionMemberExpression(): {} {
 }
 
 void positiveCollectionMemberExpression() #MemberOf: {} {
-    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent()) <MEMBER> [<OF>] collectionValuedPath()
+    (LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() | inputParameter() | objectField()) <MEMBER> [<OF>] collectionValuedPath()
 }
 
 void negativeCollectionMemberExpression() #MemberOf: {} {
-    (LOOKAHEAD(path()) path() | inputParameter() | pathComponent()) <NOT> <MEMBER> [<OF>] collectionValuedPath()
+    (LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() | inputParameter() | objectField()) <NOT> <MEMBER> [<OF>] collectionValuedPath()
 }
 
 void existsExpression(): {} {
@@ -790,11 +847,11 @@ void arithmeticFactor(): {} {
 }
 
 void numericPath(): {} {
-    ([<PLUS>] path()) | negatedPath() 
+    ([<PLUS>] singleValuedPathExpression()) | negatedPath() 
 }
 
 void negatedPath() #Negative: {} {
-    <MINUS> path()
+    <MINUS> singleValuedPathExpression()
 }
 
 void numericInputParameter(): {} {
@@ -814,7 +871,7 @@ void negatedSubqueryInBrackets() #Negative: {} {
 } 
 
 void stringValue(): {} {
-    path() | functionsReturningStrings() | subqueryInBrackets()
+    singleValuedPathExpression() | functionsReturningStrings() | subqueryInBrackets()
 }
 
 void stringExpressionInBrackets() #Brackets: {} {
@@ -826,7 +883,7 @@ void stringExpression(): {} {
 }
 
 void stringPrimary(): {} {
-    stringLiteral() | path() | LOOKAHEAD(2) stringExpressionInBrackets() | 
+    stringLiteral() | singleValuedPathExpression() | LOOKAHEAD(2) stringExpressionInBrackets() | 
     functionsReturningStrings() | LOOKAHEAD(2) subqueryInBrackets()
 }
 
@@ -835,11 +892,11 @@ void datetimeExpression(): {} {
 }
 
 void datetimePrimary(): {} {
-    path() | functionsReturningDatetime() | inputParameter()
+    singleValuedPathExpression() | functionsReturningDatetime() | inputParameter()
 }
 
 void booleanValue(): {} {
-    path() | subqueryInBrackets()
+    singleValuedPathExpression() | subqueryInBrackets()
 }
 
 void booleanExpression(): {} {
@@ -847,7 +904,7 @@ void booleanExpression(): {} {
 }
 
 void booleanPrimary(): {} {
-    LOOKAHEAD(2) path() | booleanLiteral() | inputParameter()
+    LOOKAHEAD(2) singleValuedPathExpression() | booleanLiteral() | inputParameter()
 }
 
 void enumExpression(): {} {
@@ -855,28 +912,21 @@ void enumExpression(): {} {
 }
 
 void enumPrimary(): {} {
-    LOOKAHEAD(2) path()
+    LOOKAHEAD(2) singleValuedPathExpression()
     | LOOKAHEAD(enumLiteral()) enumLiteral()
     | LOOKAHEAD(inputParameter()) inputParameter()
 }
 
 void enumLiteral(): {} {
-    path()
+    singleValuedPathExpression()
 }
 
 void entityBeanValue(): {} {
-    LOOKAHEAD(path()) path() | pathComponent()
+    LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() | objectField()
 }
 
 void entityBeanExpression(): {} {
     inputParameter() | entityBeanValue()
-}
-
-void currentRoles() #CollectionIdentifier: {
-    Token token;
-}
-{
-    token = <IDENTIFIER> { jjtThis.setValue(token.image); }
 }
 
 void functionsReturningStrings(): {} {
@@ -906,6 +956,34 @@ void upper() #Upper: {} {
 
 void trimSpecification(): {} {
     LOOKAHEAD(2) (<LEADING> #TrimLeading) | (<TRAILING> #TrimTrailing) | (<BOTH> #TrimBoth)
+}
+
+void caseExpression(): {} {
+    caseWhenExpression() | coalesceExpression() | nullifExpression()
+}
+
+void caseWhenExpression() #Case: {} {
+    <CASE> ((whenClause())+ | caseOperand() (simpleWhenClause())+) <ELSE> scalarExpression() <END>
+}
+
+void whenClause() #When: {} {
+    <WHEN> conditionalExpression() <THEN> scalarExpression()
+}
+
+void caseOperand(): {} {
+    singleValuedPathExpression() | typeDiscriminator()
+}
+
+void simpleWhenClause() #When: {} {
+    <WHEN> scalarExpression() <THEN> scalarExpression()
+}
+
+void coalesceExpression() #Coalesce: {} {
+    <COALESCE> "(" scalarExpression() (<COMMA> scalarExpression())* ")"
+}
+
+void nullifExpression() #Nullif: {} {
+    <NULLIF> "(" scalarExpression() (<COMMA> scalarExpression())* ")"
 }
 
 void functionsReturningNumerics(): {} {
@@ -942,7 +1020,7 @@ void mod() #Mod: {} {
 }
 
 void size() #Size: {} {
-    <SIZE> "(" path() ")"
+    <SIZE> "(" singleValuedPathExpression() ")"
 }
 
 void functionsReturningDatetime(): {} {
@@ -956,29 +1034,32 @@ void orderByClause() #OrderBy: {} {
 }
 
 void orderByItem() #OrderByItem: {} {
-    path() [ <ASC> #Ascending | <DESC> #Descending ]
+    singleValuedPathExpression() [ <ASC> #Ascending | <DESC> #Descending ]
 }
 
-void abstractSchemaName() #AbstractSchemaName: {} {
-    pathComponent() (<DOT> pathComponent())*
+void entityName() #AbstractSchemaName: {} {
+    identificationVariable() (<DOT> objectField())*
 }
 
-void identificationVariable() #Identifier: {
+void identificationVariable() #IdentificationVariable: {
     Token token;
 }
 {
-    token = <IDENTIFIER> { jjtThis.setValue(token.image); }
+    ( token = <IDENTIFIER> ) {
+        jjtThis.setValue(token.image);
+    }
 }
 
-void pathComponent() #IdentificationVariable: {
+void objectField() #IdentificationVariable: {
     Token token;
 }
 {
-    // unlike the identifier(), the pathComponent() *can* be a
+    // unlike the identificationVariable(), the objectField() *can* be a
     // reserved word. E.g., Order.group.length is a perfectly
     // valid path expression
     (
-    token = <NEW>
+    token = <IDENTIFIER>
+    | token = <NEW>
     | token = <ALL>
     | token = <ANY>
     | token = <EXISTS>
@@ -1037,11 +1118,11 @@ void pathComponent() #IdentificationVariable: {
     | token = <IN>
     | token = <SET>
     | token = <OBJECT>
-    | token = <IDENTIFIER>
     | token = <GRANT>
     | token = <CREATE>
     | token = <READ>
     | token = <ACCESS>
+    | token = <TYPE>
     ) { jjtThis.setValue(token.image); }
 }
 

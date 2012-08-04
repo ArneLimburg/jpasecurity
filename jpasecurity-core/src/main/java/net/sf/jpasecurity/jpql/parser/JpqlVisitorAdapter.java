@@ -583,13 +583,6 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlCollectionIdentifier node, T data) {
-        return visit(node);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean visit(JpqlOrderBy node, T data) {
         return visit(node);
     }
@@ -619,13 +612,6 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlAbstractSchemaName node, T data) {
-        return visit(node);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean visit(JpqlIdentifier node, T data) {
         return visit(node);
     }
 
@@ -1260,13 +1246,6 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     }
 
     /**
-     * @see #visit(JpqlCollectionIdentifier, Object)
-     */
-    public boolean visit(JpqlCollectionIdentifier node) {
-        return true;
-    }
-
-    /**
      * @see #visit(JpqlOrderBy, Object)
      */
     public boolean visit(JpqlOrderBy node) {
@@ -1298,13 +1277,6 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * @see #visit(JpqlAbstractSchemaName, Object)
      */
     public boolean visit(JpqlAbstractSchemaName node) {
-        return true;
-    }
-
-    /**
-     * @see #visit(JpqlIdentifier, Object)
-     */
-    public boolean visit(JpqlIdentifier node) {
         return true;
     }
 

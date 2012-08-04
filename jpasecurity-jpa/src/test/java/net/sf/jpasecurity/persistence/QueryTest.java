@@ -15,6 +15,9 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +26,9 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
-import junit.framework.TestCase;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import net.sf.jpasecurity.model.MethodAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.acl.PrivilegeType;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
@@ -31,11 +36,12 @@ import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 /**
  * @author Arne Limburg
  */
-public class QueryTest extends TestCase {
+public class QueryTest {
 
     public static final String USER1 = "user1";
     public static final String USER2 = "user2";
 
+    @Test
     public void testEmptyResult() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("xml-based-field-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -44,7 +50,9 @@ public class QueryTest extends TestCase {
         assertEquals(0, query.getResultList().size());
     }
 
-    public void testEnumParameter() {
+    @Ignore
+    @Test
+    public void enumParameter() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("acl-model");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         Query query = entityManager.createQuery("select bean from Privilege bean WHERE bean.type=:TYPE");
@@ -52,7 +60,8 @@ public class QueryTest extends TestCase {
         query.getResultList();
     }
 
-    public void testEnumParameterList() {
+    @Test
+    public void enumParameterList() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("acl-model");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         Query query = entityManager.createQuery("select bean from Privilege bean WHERE bean.type in (:TYPES)");
@@ -63,7 +72,8 @@ public class QueryTest extends TestCase {
         query.getResultList();
     }
 
-    public void testScalarResult() {
+    @Test
+    public void scalarResult() {
         EntityManagerFactory entityManagerFactory
             = Persistence.createEntityManagerFactory("annotation-based-method-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -90,7 +100,8 @@ public class QueryTest extends TestCase {
         TestAuthenticationProvider.authenticate(null);
     }
 
-    public void testHibernateWithClause() {
+    @Test
+    public void hibernateWithClause() {
         EntityManagerFactory entityManagerFactory
             = Persistence.createEntityManagerFactory("annotation-based-method-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();

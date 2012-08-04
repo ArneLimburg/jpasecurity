@@ -69,6 +69,7 @@ public class AclSyntaxTest {
 
     @Before
     public void createTestData() {
+        TestAuthenticationProvider.authenticate(FULL_ACCESS_PRIVILEGE, FULL_ACCESS_PRIVILEGE);
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         if (user == null) {
             entityManager.getTransaction().begin();
