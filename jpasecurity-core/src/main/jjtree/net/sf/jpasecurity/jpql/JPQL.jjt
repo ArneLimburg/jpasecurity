@@ -454,7 +454,7 @@ void selectExpressions() #SelectExpressions: {} {
 }
 
 void selectExpression() #SelectExpression: {} {
-    LOOKAHEAD(aggregateSelectExpression()) aggregateSelectExpression() [[<AS>] identificationVariable()]
+    LOOKAHEAD(aggregateExpression()) aggregateExpression() [[<AS>] identificationVariable()]
         | LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() [[<AS>] identificationVariable()]
         | LOOKAHEAD(scalarExpression()) scalarExpression() [[<AS>] identificationVariable()]
         | identificationVariable() [[<AS>] identificationVariable()]
@@ -468,7 +468,7 @@ void subselectExpressions() #SelectExpressions: {} {
 
 void subselectExpression() #SelectExpression: {} {
     LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() 
-        | aggregateSelectExpression()
+        | aggregateExpression()
         | LOOKAHEAD(1) identificationVariable()
 }
 
@@ -486,19 +486,19 @@ void constructorParameters(): {} {
 }
 
 void constructorParameter() #ConstructorParameter: {} {
-    (singleValuedPathExpression() | aggregateSelectExpression())
+    (singleValuedPathExpression() | aggregateExpression())
 }
 
-void aggregateSelectExpression(): {} {
-    ([<PLUS>] positiveAggregateSelectExpression()) | negativeAggregateSelectExpression()
+void aggregateExpression(): {} {
+    ([<PLUS>] positiveAggregateExpression()) | negativeAggregateExpression()
 }
 
-void positiveAggregateSelectExpression(): {} {
+void positiveAggregateExpression(): {} {
     avg() | max() | min() | sum() | count()
 }
 
-void negativeAggregateSelectExpression() #Negative: {} {
-    <MINUS> positiveAggregateSelectExpression()
+void negativeAggregateExpression() #Negative: {} {
+    <MINUS> positiveAggregateExpression()
 }
 
 void distinct() #Distinct: {} {
@@ -584,12 +584,10 @@ void conditionalExpressionInBrackets() #Brackets: {} {
     "(" conditionalExpression() ")"
 }
 
-/* changed to eliminate left recursion */
 void conditionalExpression(): {} {
     conditionalTerm() (LOOKAHEAD(2) <OR> (conditionalExpression() #Or(2)))*
 }
 
-/* changed to eliminate left recursion */
 void conditionalTerm(): {} {
     conditionalFactor() (LOOKAHEAD(2) <AND> (conditionalTerm() #And(2)))*
 }
@@ -646,21 +644,21 @@ void inExpression(): {} {
 }
 
 void positiveInExpression() #In: {} {
-    (singleValuedPathExpression() | literalOrParam())
-    <IN> "(" (literalOrParam()
-             (<COMMA> (literalOrParam()))* | subquery() | collectionValuedPath())
+    (singleValuedPathExpression() | inItem())
+    <IN> "(" (inItem()
+             (<COMMA> (inItem()))* | subquery() | collectionValuedPath())
          ")" 
 }
 
 void negativeInExpression() #In: {} {
-    (singleValuedPathExpression() | literalOrParam())
+    (singleValuedPathExpression() | inItem())
     <NOT> <IN>
-        "(" (literalOrParam()
-            (<COMMA> (literalOrParam()))* | subquery() | collectionValuedPath())
+        "(" (inItem()
+            (<COMMA> (inItem()))* | subquery() | collectionValuedPath())
         ")" 
 }
 
-void literalOrParam(): {} {
+void inItem(): {} {
     (numericLiteral()
     | stringLiteral()
     | booleanLiteral()
@@ -842,7 +840,7 @@ void arithmeticFactor(): {} {
     LOOKAHEAD(2) numericInputParameter() | 
     LOOKAHEAD(3) arithmeticExpressionInBrackets() | 
     LOOKAHEAD(2) functionsReturningNumerics() | 
-    LOOKAHEAD(2) aggregateSelectExpression() |    
+    LOOKAHEAD(2) aggregateExpression() |    
     LOOKAHEAD(3) numericSubqueryInBrackets()
 }
 
