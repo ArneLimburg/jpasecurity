@@ -179,9 +179,8 @@ public class QueryPreparator {
      * Creates a <tt>JpqlNamedInputParameter</tt> node with the specified name.
      */
     public JpqlNamedInputParameter createNamedParameter(String name) {
-        JpqlNamedInputParameter parameter = new JpqlNamedInputParameter(JpqlParserTreeConstants.JJTNAMEDINPUTPARAMETER);
-        parameter.setValue(name);
-        return parameter;
+        return appendChildren(new JpqlNamedInputParameter(JpqlParserTreeConstants.JJTNAMEDINPUTPARAMETER),
+                              createVariable(name));
     }
 
     /**
