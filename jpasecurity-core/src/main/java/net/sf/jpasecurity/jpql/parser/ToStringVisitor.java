@@ -880,14 +880,6 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
     /**
      * {@inheritDoc}
      */
-    public boolean visit(JpqlCollectionIdentifier node, StringBuilder query) {
-        query.append(node.getValue());
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean visit(JpqlOrderBy node, StringBuilder query) {
         query.append(" ORDER BY ");
         node.jjtGetChild(0).visit(this, query);
@@ -925,14 +917,6 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
         }
         query.append(' ');
         return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean visit(JpqlIdentifier node, StringBuilder query) {
-        query.append(node.getValue());
-        return true;
     }
 
     /**

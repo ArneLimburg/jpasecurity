@@ -28,7 +28,6 @@ import net.sf.jpasecurity.jpql.parser.JpqlFrom;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariableDeclaration;
-import net.sf.jpasecurity.jpql.parser.JpqlIdentifier;
 import net.sf.jpasecurity.jpql.parser.JpqlIn;
 import net.sf.jpasecurity.jpql.parser.JpqlIntegerLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
@@ -129,11 +128,11 @@ public class QueryPreparator {
         if (path.jjtGetNumChildren() > pathComponents.length) {
             //Replace first identification variable with identifier
             Node oldVariable = path.jjtGetChild(pathComponents.length);
-            path.jjtSetChild(createIdentifier(new Alias(oldVariable.getValue())), pathComponents.length);
+            path.jjtSetChild(createIdentificationVariable(new Alias(oldVariable.getValue())), pathComponents.length);
         }
         path.jjtAddChild(createVariable(pathComponents[0]), 0);
         for (int i = 1; i < pathComponents.length; i++) {
-            path.jjtAddChild(createIdentifier(new Alias(pathComponents[i])), i);
+            path.jjtAddChild(createIdentificationVariable(new Alias(pathComponents[i])), i);
         }
         return path;
     }
@@ -257,7 +256,7 @@ public class QueryPreparator {
      * Creates a <tt>JpqlPath</tt> node for the specified string.
      */
     public Node createPath(Path path) {
-        JpqlIdentifier identifier = createIdentifier(path.getRootAlias());
+        JpqlIdentificationVariable identifier = createIdentificationVariable(path.getRootAlias());
         JpqlPath pathNode = appendChildren(new JpqlPath(JpqlParserTreeConstants.JJTPATH), identifier);
         for (String pathComponent: path.getSubpathComponents()) {
             JpqlIdentificationVariable identificationVariable
@@ -306,8 +305,8 @@ public class QueryPreparator {
     public JpqlFromItem createFromItem(Alias type, Alias alias) {
         JpqlAbstractSchemaName schemaName = new JpqlAbstractSchemaName(JpqlParserTreeConstants.JJTABSTRACTSCHEMANAME);
         return appendChildren(new JpqlFromItem(JpqlParserTreeConstants.JJTFROMITEM),
-                              appendChildren(schemaName, createIdentifier(type)),
-                              createIdentifier(alias));
+                              appendChildren(schemaName, createIdentificationVariable(type)),
+                              createIdentificationVariable(alias));
     }
 
     public Node createInstanceOf(Path path, ClassMappingInformation classMapping) {
@@ -326,10 +325,11 @@ public class QueryPreparator {
         return appendChildren(new JpqlSubselect(JpqlParserTreeConstants.JJTSUBSELECT), select, from, where);
     }
 
-    public JpqlIdentifier createIdentifier(Alias value) {
-        JpqlIdentifier identifier = new JpqlIdentifier(JpqlParserTreeConstants.JJTIDENTIFIER);
-        identifier.setValue(value.toString());
-        return identifier;
+    public JpqlIdentificationVariable createIdentificationVariable(Alias value) {
+        JpqlIdentificationVariable identificationVariable
+            = new JpqlIdentificationVariable(JpqlParserTreeConstants.JJTIDENTIFICATIONVARIABLE);
+        identificationVariable.setValue(value.toString());
+        return identificationVariable;
     }
 
     public void remove(Node node) {
