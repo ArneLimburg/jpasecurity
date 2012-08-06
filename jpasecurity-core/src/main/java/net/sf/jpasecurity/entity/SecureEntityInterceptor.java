@@ -48,6 +48,9 @@ public class SecureEntityInterceptor implements MethodInterceptor {
         if (isHashCode(method)) {
             entity = beanInitializer.initialize(entity);
             return entity.hashCode();
+        } else if (isFinalize(method)) {
+            //finalize the proxy
+            return null;
         } else if (isEquals(method)) {
             Object value = args[0];
             if (objectManager.isSecureObject(value)) {
@@ -94,6 +97,11 @@ public class SecureEntityInterceptor implements MethodInterceptor {
 
     private boolean isHashCode(Method method) {
         return method.getName().equals("hashCode")
+            && method.getParameterTypes().length == 0;
+    }
+
+    private boolean isFinalize(Method method) {
+        return method.getName().equals("finalize")
             && method.getParameterTypes().length == 0;
     }
 
