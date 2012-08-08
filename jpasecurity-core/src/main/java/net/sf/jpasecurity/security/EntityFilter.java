@@ -210,11 +210,12 @@ public class EntityFilter {
                 AccessRule bestRule = null;
                 Class<?> bestRuleSelectedType = null;
                 for (AccessRule accessRule : accessRulesByStatement) {
+                    final Class<?> accessRuleSelectedType = accessRule.getSelectedType(mappingInformation);
+                    //TODO remove filter mapped superclasses
                     if (bestRule == null) {
                         bestRule = accessRule;
                         bestRuleSelectedType = bestRule.getSelectedType(mappingInformation);
                     } else {
-                        final Class<?> accessRuleSelectedType = accessRule.getSelectedType(mappingInformation);
                         if (accessRuleSelectedType.isAssignableFrom(bestRuleSelectedType)) {
                             bestRule = accessRule;
                             bestRuleSelectedType = accessRuleSelectedType;
