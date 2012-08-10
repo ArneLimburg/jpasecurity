@@ -465,6 +465,7 @@ void subselectExpressions() #SelectExpressions: {} {
 
 void subselectExpression() #SelectExpression: {} {
     LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() 
+        | LOOKAHEAD(scalarExpression()) scalarExpression()
         | aggregateExpression()
         | LOOKAHEAD(1) identificationVariable()
 }
