@@ -639,17 +639,17 @@ void inExpression(): {} {
 
 void positiveInExpression() #In: {} {
     (singleValuedPathExpression() | inItem())
-    <IN> "(" (inItem()
+    <IN> (("(" (inItem()
              (<COMMA> (inItem()))* | subquery() | collectionValuedPath())
-         ")" 
+         ")") | inputParameter() | collectionValuedPath())
 }
 
 void negativeInExpression() #In: {} {
     (singleValuedPathExpression() | inItem())
     <NOT> <IN>
-        "(" (inItem()
+        (("(" (inItem()
             (<COMMA> (inItem()))* | subquery() | collectionValuedPath())
-        ")" 
+        ")") | inputParameter() | collectionValuedPath())
 }
 
 void inItem(): {} {
