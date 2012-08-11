@@ -387,6 +387,62 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    public boolean visit(JpqlKey node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlValue node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlEntry node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlType node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlCase node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlWhen node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlCoalesce node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlNullif node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean visit(JpqlEquals node, T data) {
         return visit(node);
     }
@@ -1359,15 +1415,27 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
 
     protected void validateChildCount(Node node, int childCount) {
         if (node.jjtGetNumChildren() != childCount) {
-            throw new IllegalStateException("node " + node.getClass().getName() + " must have " + childCount + " children");
+            throw new IllegalStateException("node " + node.getClass().getName() + " must have " + childCount
+                                            + " children");
         }
     }
 
     protected void validateChildCount(Node node, int minChildCount, int maxChildCount) {
+        validateMinChildCount(node, minChildCount);
+        validateMaxChildCount(node, maxChildCount);
+    }
+
+    protected void validateMinChildCount(Node node, int minChildCount) {
         if (node.jjtGetNumChildren() < minChildCount) {
-            throw new IllegalStateException("node " + node.getClass().getName() + " must have at least " + minChildCount + " children");
-        } else if (node.jjtGetNumChildren() > maxChildCount) {
-            throw new IllegalStateException("node " + node.getClass().getName() + " must have at most " + maxChildCount + " children");
+            throw new IllegalStateException("node " + node.getClass().getName() + " must have at least "
+                                            + minChildCount + " children");
+        }
+    }
+
+    protected void validateMaxChildCount(Node node, int maxChildCount) {
+        if (node.jjtGetNumChildren() > maxChildCount) {
+            throw new IllegalStateException("node " + node.getClass().getName() + " must have at most "
+                                            + maxChildCount + " children");
         }
     }
 }

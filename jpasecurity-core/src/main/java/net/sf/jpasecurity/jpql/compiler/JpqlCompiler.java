@@ -25,6 +25,7 @@ import java.util.Set;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
+import net.sf.jpasecurity.jpql.parser.JpqlCase;
 import net.sf.jpasecurity.jpql.parser.JpqlConstructorParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlCount;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
@@ -41,10 +42,12 @@ import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
+import net.sf.jpasecurity.jpql.parser.JpqlWhen;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ToStringVisitor;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.ConditionalPath;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.TypeDefinition;
@@ -155,20 +158,77 @@ public class JpqlCompiler {
     private class SelectPathVisitor extends JpqlVisitorAdapter<List<Path>> {
 
         private final ToStringVisitor toStringVisitor = new ToStringVisitor();
+        private final QueryPreparator queryPreparator = new QueryPreparator();
+
+        public boolean visit(JpqlCase node, List<Path> selectedPaths) {
+            List<? extends Path> conditionalPaths = new ArrayList<ConditionalPath>();
+            int start = isSimpleCase(node)? 1: 0;
+            for (int i = start; i < node.jjtGetNumChildren() - 1; i++) {
+                node.jjtGetChild(i).visit(this, (List<Path>)conditionalPaths);
+            }
+            Node condition = null;
+            for (ConditionalPath path: (List<ConditionalPath>)conditionalPaths) {
+                if (condition == null) {
+                    selectedPaths.add(path);
+                    condition = queryPreparator.createNot(queryPreparator.createBrackets(path.getCondition()));
+                } else {
+                    Node composedCondition
+                        = queryPreparator.createAnd(condition, queryPreparator.createBrackets(path.getCondition()));
+                    selectedPaths.add(path.newCondition(composedCondition));
+                    Node newCondition = queryPreparator.createNot(queryPreparator.createBrackets(path.getCondition()));
+                    condition = queryPreparator.createAnd(condition, newCondition);
+                }
+            }
+            selectedPaths.add(new ConditionalPath(node.jjtGetChild(node.jjtGetNumChildren() - 1).toString(),
+                                                  condition));
+            return false;
+        }
+
+        public boolean visit(JpqlWhen node, List<Path> selectedPaths) {
+            selectedPaths.add(extractConditionalPath(node));
+            return false;
+        }
 
         public boolean visit(JpqlPath node, List<Path> selectedPaths) {
-            return extractSelectedPath(node, selectedPaths);
+            selectedPaths.add(extractSelectedPath(node));
+            return false;
         }
 
         public boolean visit(JpqlIdentificationVariable node, List<Path> selectedPaths) {
-            return extractSelectedPath(node, selectedPaths);
+            selectedPaths.add(extractSelectedPath(node));
+            return false;
         }
 
-        private boolean extractSelectedPath(Node node, List<Path> selectedPaths) {
+        private Path extractSelectedPath(Node node) {
             StringBuilder path = new StringBuilder();
             node.visit(toStringVisitor, path);
-            selectedPaths.add(new Path(path.toString()));
-            return false;
+            return new Path(path.toString());
+        }
+
+        private ConditionalPath extractConditionalPath(JpqlWhen node) {
+            if (isSimpleCase(node)) {
+                Node base = getSimpleCaseConditionBase(node).clone();
+                Node condition = queryPreparator.createEquals(base, node.jjtGetChild(0).clone());
+                return new ConditionalPath(node.jjtGetChild(1).toString(), condition);
+            } else {
+                return new ConditionalPath(node.jjtGetChild(1).toString(), node.jjtGetChild(0).clone());
+            }
+        }
+
+        private boolean isSimpleCase(JpqlWhen node) {
+            return !(getSimpleCaseConditionBase(node) instanceof JpqlWhen);
+        }
+
+        private boolean isSimpleCase(JpqlCase node) {
+            return !(getSimpleCaseConditionBase(node) instanceof JpqlWhen);
+        }
+
+        private Node getSimpleCaseConditionBase(JpqlWhen node) {
+            return getSimpleCaseConditionBase((JpqlCase)node.jjtGetParent());
+        }
+
+        private Node getSimpleCaseConditionBase(JpqlCase node) {
+            return node.jjtGetChild(0);
         }
     }
 

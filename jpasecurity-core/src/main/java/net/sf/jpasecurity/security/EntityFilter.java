@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2012 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
+import net.sf.jpasecurity.mapping.ConditionalPath;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
@@ -64,6 +65,7 @@ import org.apache.commons.logging.LogFactory;
  * It filters JPQL queries and can evaluate for a specific entity
  * whether it is accessible or not.
  * @author Arne Limburg
+ * @author Stefan Hildebrandt
  */
 public class EntityFilter {
 
@@ -260,6 +262,12 @@ public class EntityFilter {
                     typedAccessDefinition.group();
                 }
             }
+            if (typedAccessDefinition != null && selectedType.getKey() instanceof ConditionalPath) {
+                ConditionalPath path = (ConditionalPath)selectedType.getKey();
+                Node conditionalNode
+                    = queryPreparator.createImplication(path.getCondition(), typedAccessDefinition.getAccessRules());
+                typedAccessDefinition.setAccessRules(queryPreparator.createBrackets(conditionalNode));
+            }
             if (accessDefinition == null) {
                 accessDefinition = typedAccessDefinition;
             } else {
@@ -322,9 +330,9 @@ public class EntityFilter {
 
     private AccessDefinition appendAccessDefinition(AccessDefinition accessDefinition,
                                                     AccessRule accessRule,
-                                                    Path selectedAlias,
+                                                    Path selectedPath,
                                                     SecurityContext securityContext) {
-        return prepareAccessRule(accessRule, selectedAlias, securityContext).append(accessDefinition);
+        return prepareAccessRule(accessRule, selectedPath, securityContext).append(accessDefinition);
     }
 
     private Node appendNode(Node accessRules, Node accessRule) {
@@ -336,7 +344,7 @@ public class EntityFilter {
     }
 
     private AccessDefinition prepareAccessRule(AccessRule accessRule,
-                                               Path selectedAlias,
+                                               Path selectedPath,
                                                SecurityContext securityContext) {
         if (accessRule.getWhereClause() == null) {
             return new AccessDefinition(queryPreparator.createBoolean(true));
@@ -345,7 +353,7 @@ public class EntityFilter {
         Map<String, Object> queryParameters = new HashMap<String, Object>();
         expand(accessRule, securityContext, queryParameters);
         Node preparedAccessRule = queryPreparator.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
-        queryPreparator.replace(preparedAccessRule, accessRule.getSelectedPath(), selectedAlias);
+        queryPreparator.replace(preparedAccessRule, accessRule.getSelectedPath(), selectedPath);
         return new AccessDefinition(preparedAccessRule, queryParameters);
     }
 
@@ -427,7 +435,7 @@ public class EntityFilter {
     }
 
     private Path getSelectedEntityPath(Path selectedPath, Set<TypeDefinition> typeDefinitions) {
-        if (!selectedPath.hasSubpath()) {
+        if (!selectedPath.hasParentPath()) {
             return selectedPath;
         }
         PropertyMappingInformation propertyMapping
@@ -435,8 +443,7 @@ public class EntityFilter {
         if (propertyMapping.isRelationshipMapping()) {
             return selectedPath;
         } else {
-            String path = selectedPath.toString();
-            return new Path(path.substring(0, path.lastIndexOf('.')));
+            return selectedPath.getParentPath();
         }
     }
 

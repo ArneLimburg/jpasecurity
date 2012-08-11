@@ -38,7 +38,7 @@ public class Alias {
     }
 
     public Path toPath() {
-        return new Path(this);
+        return new Path(this, null);
     }
 
     public String toString() {

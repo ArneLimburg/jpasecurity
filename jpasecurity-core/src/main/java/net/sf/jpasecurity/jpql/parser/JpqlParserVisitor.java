@@ -431,6 +431,70 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlAll node, T data);
 
     /**
+     * Called when visiting a <tt>JpqlKey</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlKey node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlValue</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlValue node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlEntry</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlEntry node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlType</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlType node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlCase</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlCase node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlWhen</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlWhen node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlCoalesce</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlCoalesce node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlNullif</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlNullif node, T data);
+
+    /**
      * Called when visiting a <tt>JpqlEquals</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor
