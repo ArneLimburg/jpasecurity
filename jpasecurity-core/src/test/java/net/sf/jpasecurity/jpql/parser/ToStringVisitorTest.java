@@ -96,7 +96,7 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean NOT MEMBER OF bean.collectionProperty");
         assertJpql("SELECT bean FROM TestBean bean WHERE EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)");
         assertJpql("SELECT bean FROM TestBean bean "
-                        + "WHERE NOT EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)");
+                   + "WHERE NOT EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)");
         assertJpql("SELECT bean FROM TestBean bean WHERE SUBSTRING(bean.name, 2, 3) = 'est'");
         assertJpql("SELECT bean FROM TestBean bean WHERE LOCATE(bean.name, 'est') = 2");
         assertJpql("SELECT bean FROM TestBean bean WHERE CONCAT(bean.name, 'est') = 'Nameest'");
@@ -109,6 +109,10 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.created < CURRENT_TIME");
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name IN ('name 1', 'name 2')");
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
+        assertJpql("SELECT bean, 'name', CASE WHEN bean.name = 'name 1' THEN bean.name ELSE 'name 2' END "
+                   + "FROM TestBean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
+        assertJpql("SELECT bean, 'name', CASE bean.name WHEN 'name 1' THEN bean.name ELSE 'name 2' END "
+                   + "FROM TestBean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
         assertJpql("SELECT bean, COUNT( DISTINCT bean) AS beanCount FROM TestBean bean WHERE bean.name = 'name 1'");
         assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0");
         assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0 WHERE bean.id = 0");

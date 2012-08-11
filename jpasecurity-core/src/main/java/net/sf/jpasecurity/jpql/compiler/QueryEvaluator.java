@@ -33,6 +33,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlBetween;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
+import net.sf.jpasecurity.jpql.parser.JpqlCase;
 import net.sf.jpasecurity.jpql.parser.JpqlCollectionValuedPath;
 import net.sf.jpasecurity.jpql.parser.JpqlConcat;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentDate;
@@ -84,6 +85,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlTrimLeading;
 import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
+import net.sf.jpasecurity.jpql.parser.JpqlWhen;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.Path;
@@ -132,7 +134,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
 
     public <R> R evaluate(Node node, QueryEvaluationParameters parameters) throws NotEvaluatableException {
         node.visit(this, parameters);
-        return parameters.<R>getResult();
+        return parameters.<R> getResult();
     }
 
     public boolean visit(JpqlSelectClause node, QueryEvaluationParameters data) {
@@ -248,18 +250,18 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 3);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable<Object> value = data.<Comparable<Object>>getResult();
+            Comparable<Object> value = data.<Comparable<Object>> getResult();
             node.jjtGetChild(1).visit(this, data);
             Comparable<Object> lower;
             try {
-                lower = data.<Comparable<Object>>getResult();
+                lower = data.<Comparable<Object>> getResult();
             } catch (NotEvaluatableException e) {
                 lower = null;
             }
             node.jjtGetChild(2).visit(this, data);
             Comparable<Object> upper;
             try {
-                upper = data.<Comparable<Object>>getResult();
+                upper = data.<Comparable<Object>> getResult();
             } catch (NotEvaluatableException e) {
                 upper = null;
             }
@@ -294,7 +296,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             node.jjtGetChild(i).visit(this, data);
             try {
                 if (data.getResult() instanceof Collection) {
-                    values.addAll(convertAll(data.<Collection<?>>getResult()));
+                    values.addAll(convertAll(data.<Collection<?>> getResult()));
                 } else {
                     values.add(convert(data.getResult()));
                 }
@@ -455,9 +457,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable<Object> value1 = data.<Comparable<Object>>getResult();
+            Comparable<Object> value1 = data.<Comparable<Object>> getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable<Object> value2 = data.<Comparable<Object>>getResult();
+            Comparable<Object> value2 = data.<Comparable<Object>> getResult();
             data.setResult(value1.compareTo(value2) > 0);
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -469,9 +471,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable<Object> value1 = data.<Comparable<Object>>getResult();
+            Comparable<Object> value1 = data.<Comparable<Object>> getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable<Object> value2 = data.<Comparable<Object>>getResult();
+            Comparable<Object> value2 = data.<Comparable<Object>> getResult();
             data.setResult(value1.compareTo(value2) >= 0);
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -483,9 +485,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable<Object> value1 = data.<Comparable<Object>>getResult();
+            Comparable<Object> value1 = data.<Comparable<Object>> getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable<Object> value2 = data.<Comparable<Object>>getResult();
+            Comparable<Object> value2 = data.<Comparable<Object>> getResult();
             data.setResult(value1.compareTo(value2) < 0);
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -497,9 +499,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable<Object> value1 = data.<Comparable<Object>>getResult();
+            Comparable<Object> value1 = data.<Comparable<Object>> getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable<Object> value2 = data.<Comparable<Object>>getResult();
+            Comparable<Object> value2 = data.<Comparable<Object>> getResult();
             data.setResult(value1.compareTo(value2) <= 0);
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -860,6 +862,44 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             }
         }
         return false;
+    }
+
+    public boolean visit(JpqlCase node, QueryEvaluationParameters data) {
+        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+            Node child = node.jjtGetChild(i);
+            if (child instanceof JpqlWhen) {
+                try {
+                    child.visit(this, data);
+                    if (data.<Boolean>getResult()) {
+                        child.jjtGetChild(1).visit(this, data);
+                        return false;
+                    }
+                } catch (NotEvaluatableException e) {
+                    data.setResultUndefined();
+                    return false;
+                }
+            }
+        }
+        return visit(node.jjtGetChild(node.jjtGetNumChildren() - 1));
+    }
+
+    public boolean visit(JpqlWhen node, QueryEvaluationParameters data) {
+        if (node.jjtGetParent().jjtGetChild(0) instanceof JpqlWhen) {
+            node.jjtGetChild(0).visit(this, data);
+            return false;
+        } else {  // simple case
+            try {
+                node.jjtGetParent().jjtGetChild(0).visit(this, data);
+                Object left = data.getResult();
+                node.jjtGetChild(0).visit(this, data);
+                Object right = data.getResult();
+                data.setResult(left.equals(right));
+                return false;
+            } catch (NotEvaluatableException e) {
+                data.setResultUndefined();
+                return false;
+            }
+        }
     }
 
     protected Collection<?> getResultCollection(Object result) {

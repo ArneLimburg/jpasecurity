@@ -197,6 +197,13 @@ public class QueryPreparator {
         return appendChildren(new JpqlOr(JpqlParserTreeConstants.JJTOR), node1, node2);
     }
 
+    /**
+     * Creates an impliciation, that means: <tt>if (and only if) node1 then node2</tt>.
+     */
+    public Node createImplication(Node node1, Node node2) {
+        return createOr(createNot(createBrackets(node1)), node2);
+    }
+
     public Node createNot(Node node) {
         return appendChildren(new JpqlNot(JpqlParserTreeConstants.JJTNOT), node);
     }

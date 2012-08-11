@@ -21,8 +21,12 @@ package net.sf.jpasecurity.util;
 public class Validate {
 
     public static void notNull(Class<?> type, Object value) {
+        notNull(type.getSimpleName(), value);
+    }
+
+    public static void notNull(String type, Object value) {
         if (value == null) {
-            throw new IllegalArgumentException(type.getSimpleName() + " may not be null");
+            throw new IllegalArgumentException(type + " may not be null");
         }
     }
 }

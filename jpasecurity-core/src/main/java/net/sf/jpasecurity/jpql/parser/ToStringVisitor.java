@@ -556,6 +556,27 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
         return false;
     }
 
+    public boolean visit(JpqlCase node, StringBuilder query) {
+        validateMinChildCount(node, 2);
+        query.append("CASE ");
+        for (int i = 0; i < node.jjtGetNumChildren() - 1; i++) {
+            node.jjtGetChild(i).visit(this, query);
+        }
+        query.append(" ELSE ");
+        node.jjtGetChild(node.jjtGetNumChildren() - 1).visit(this, query);
+        query.append(" END");
+        return false;
+    }
+
+    public boolean visit(JpqlWhen node, StringBuilder query) {
+        validateChildCount(node, 2);
+        query.append(" WHEN ");
+        node.jjtGetChild(0).visit(this, query);
+        query.append(" THEN ");
+        node.jjtGetChild(1).visit(this, query);
+        return false;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -991,4 +1012,5 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
         query.append(node.getValue());
         return true;
     }
+
 }

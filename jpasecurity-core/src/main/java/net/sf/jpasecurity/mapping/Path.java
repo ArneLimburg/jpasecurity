@@ -40,9 +40,23 @@ public class Path {
         }
     }
 
-    Path(Alias alias) {
+    Path(Alias alias, String path) {
         notNull(Alias.class, alias);
         rootAlias = alias;
+        subpath = path;
+    }
+
+    public boolean hasParentPath() {
+        return hasSubpath();
+    }
+
+    public Path getParentPath() {
+        int index = subpath.lastIndexOf('.');
+        if (index == -1) {
+            return new Path(rootAlias, null);
+        } else {
+            return new Path(rootAlias, subpath.substring(0, index));
+        }
     }
 
     public boolean hasSubpath() {

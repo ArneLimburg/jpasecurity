@@ -111,11 +111,11 @@ public class QueryEvaluatorTest {
     @Test
     public void canEvaluate() throws Exception {
         JpqlCompiledStatement statement = compile("SELECT bean "
-                                                + "FROM MethodAccessTestBean bean "
-                                                + "WHERE bean.name = :name "
-                                                + "GROUP BY bean.parent "
-                                                + "HAVING COUNT(bean.parent) > 1 "
-                                                + "ORDER BY bean.parent.id");
+                                                  + "FROM MethodAccessTestBean bean "
+                                                  + "WHERE bean.name = :name "
+                                                  + "GROUP BY bean.parent "
+                                                  + "HAVING COUNT(bean.parent) > 1 "
+                                                  + "ORDER BY bean.parent.id");
         JpqlSelect selectStatement = (JpqlSelect)statement.getStatement().jjtGetChild(0);
         JpqlSelectClause selectClause = (JpqlSelectClause)selectStatement.jjtGetChild(SELECT_CLAUSE_INDEX);
         JpqlFrom fromClause = (JpqlFrom)selectStatement.jjtGetChild(FROM_CLAUSE_INDEX);
@@ -183,11 +183,9 @@ public class QueryEvaluatorTest {
 
     @Test
     public void canEvaluateCount() throws Exception {
-        JpqlCompiledStatement statement
-            = compile("SELECT COUNT(bean) "
-                      + "FROM MethodAccessTestBean bean "
-                      + "WHERE bean.name = :name "
-            );
+        JpqlCompiledStatement statement = compile("SELECT COUNT(bean) "
+                                                  + "FROM MethodAccessTestBean bean "
+                                                  + "WHERE bean.name = :name ");
         JpqlSelect selectStatement = (JpqlSelect)statement.getStatement().jjtGetChild(0);
         JpqlSelectClause selectClause = (JpqlSelectClause)selectStatement.jjtGetChild(0);
         JpqlFrom fromClause = (JpqlFrom)selectStatement.jjtGetChild(1);
@@ -230,8 +228,7 @@ public class QueryEvaluatorTest {
 
     @Test
     public void classMappingNotFound() throws Exception {
-        JpqlCompiledStatement statement
-            = compile("SELECT bean FROM MethodAccessTestBean bean WHERE bean.name = :name");
+        JpqlCompiledStatement statement = compile("SELECT bean FROM MethodAccessTestBean bean WHERE bean.name = :name");
         aliases.put(new Alias("bean"), new ParentTestBean());
         namedParameters.put("name", "test2");
 
@@ -247,10 +244,144 @@ public class QueryEvaluatorTest {
     @Test
     public void evaluateSubselect() throws Exception {
         JpqlCompiledStatement statement = compile(SELECT
-                                                + "WHERE bean.name IN "
-                                                + "(SELECT innerBean "
-                                                + " FROM MethodAccessTestBean innerBean)");
+                                                  + "WHERE bean.name IN "
+                                                  + "(SELECT innerBean "
+                                                  + " FROM MethodAccessTestBean innerBean)");
         aliases.put(new Alias("bean"), new MethodAccessTestBean("test"));
+        try {
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+    }
+
+    @Test
+    public void evaluateSimpleCase() throws Exception {
+        JpqlCompiledStatement statement = compile(SELECT
+                                                  + "WHERE bean = "
+                                                  + "CASE bean.name WHEN :name THEN bean "
+                                                  + "WHEN :name2 THEN bean ELSE NULL END");
+        MethodAccessTestBean bean = new MethodAccessTestBean("test1");
+        entities.put(MethodAccessTestBean.class, Collections.<Object>singleton(bean));
+        aliases.put(new Alias("bean"), bean);
+
+        //first is true, second is false
+        namedParameters.put("name", "test1");
+        namedParameters.put("name2", "test2");
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+
+        //first is false, second is true
+        namedParameters.put("name", "test2");
+        namedParameters.put("name2", "test1");
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+
+        //both are true
+        namedParameters.put("name", "test1");
+        namedParameters.put("name2", "test1");
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+
+        //both are false
+        namedParameters.put("name", "test2");
+        namedParameters.put("name2", "test2");
+        positionalParameters.put(1, 1);
+        assertFalse(evaluate(statement.getWhereClause(), parameters));
+
+        //first is not evaluatable, second is true
+        namedParameters.clear();
+        namedParameters.put("name2", "test1");
+        try {
+            evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+
+        //first is not evaluatable, second is false
+        namedParameters.clear();
+        namedParameters.put("name2", "test2");
+        try {
+            evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+
+        //first is true, second is not evaluatable
+        namedParameters.clear();
+        namedParameters.put("name", "test1");
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+
+        //first is false, second is not evaluatable
+        namedParameters.clear();
+        namedParameters.put("name", "test2");
+        positionalParameters.clear();
+        try {
+            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+    }
+
+    @Test
+    public void evaluateCase() throws Exception {
+        JpqlCompiledStatement statement = compile(SELECT
+                                                  + "WHERE bean = "
+                                                  + "CASE WHEN bean.name = :name THEN bean "
+                                                  + "WHEN bean.id = ?1 THEN bean ELSE NULL END");
+        MethodAccessTestBean bean = new MethodAccessTestBean("test1");
+        entities.put(MethodAccessTestBean.class, Collections.<Object>singleton(bean));
+        aliases.put(new Alias("bean"), bean);
+
+        //first is true, second is false
+        namedParameters.put("name", "test1");
+        positionalParameters.put(1, 1);
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+
+        //first is false, second is true
+        namedParameters.put("name", "test2");
+        positionalParameters.put(1, 0);
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+
+        //both are true
+        namedParameters.put("name", "test1");
+        positionalParameters.put(1, 0);
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+
+        //both are false
+        namedParameters.put("name", "test2");
+        positionalParameters.put(1, 1);
+        assertFalse(evaluate(statement.getWhereClause(), parameters));
+
+        //first is not evaluatable, second is true
+        namedParameters.clear();
+        positionalParameters.put(1, 0);
+        try {
+            evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+
+        //first is not evaluatable, second is false
+        namedParameters.clear();
+        positionalParameters.put(1, 1);
+        try {
+            evaluate(statement.getWhereClause(), parameters);
+            fail();
+        } catch (NotEvaluatableException e) {
+            //expected
+        }
+
+        //first is true, second is not evaluatable
+        namedParameters.put("name", "test1");
+        positionalParameters.clear();
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+
+        //first is false, second is not evaluatable
+        namedParameters.put("name", "test2");
+        positionalParameters.clear();
         try {
             queryEvaluator.evaluate(statement.getWhereClause(), parameters);
             fail();
@@ -564,8 +695,8 @@ public class QueryEvaluatorTest {
 
     @Test
     public void evaluateExists() throws Exception {
-        JpqlCompiledStatement statement
-            = compile(SELECT + "WHERE EXISTS (" + SELECT.replace("bean", "bean1") + "WHERE bean1.parent = bean)");
+        JpqlCompiledStatement statement = compile(SELECT + "WHERE EXISTS (" + SELECT.replace("bean", "bean1")
+                                                  + "WHERE bean1.parent = bean)");
         MethodAccessTestBean parent = new MethodAccessTestBean("test1");
         MethodAccessTestBean child = new MethodAccessTestBean("test2");
         child.setParent(parent);
@@ -585,8 +716,7 @@ public class QueryEvaluatorTest {
 
     @Test
     public void evaluateLike() throws Exception {
-        JpqlCompiledStatement statement
-            = compile(SELECT + "WHERE bean.name LIKE '%te\\%st_na\\_e'");
+        JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.name LIKE '%te\\%st_na\\_e'");
         MethodAccessTestBean bean = new MethodAccessTestBean("test");
 
         aliases.clear();
@@ -644,12 +774,11 @@ public class QueryEvaluatorTest {
     }
 
     protected boolean evaluate(String query, QueryEvaluationParameters parameters) throws NotEvaluatableException,
-                                                                                          ParseException {
+                    ParseException {
         return evaluate(compile(query).getWhereClause(), parameters);
     }
 
-    protected boolean evaluate(JpqlWhere whereClause, QueryEvaluationParameters parameters)
-        throws NotEvaluatableException {
-        return queryEvaluator.<Boolean>evaluate(whereClause, parameters);
+    protected boolean evaluate(JpqlWhere clause, QueryEvaluationParameters parameters) throws NotEvaluatableException {
+        return queryEvaluator.<Boolean> evaluate(clause, parameters);
     }
 }

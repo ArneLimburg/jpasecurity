@@ -80,6 +80,9 @@ public class AccessRule extends JpqlCompiledStatement {
     }
 
     public boolean isAssignable(Class<?> type, MappingInformation mappingInformation) {
+        if (type == null) {
+            return false;
+        }
         return getSelectedType(mappingInformation).isAssignableFrom(type);
     }
 
@@ -89,6 +92,9 @@ public class AccessRule extends JpqlCompiledStatement {
      * entity is of the selected type or a subclass.
      */
     public boolean mayBeAssignable(Class<?> type, MappingInformation mappingInformation) {
+        if (type == null) {
+            return false;
+        }
         return type.isAssignableFrom(getSelectedType(mappingInformation));
     }
 
