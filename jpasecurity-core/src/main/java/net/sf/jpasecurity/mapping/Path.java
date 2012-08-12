@@ -40,6 +40,10 @@ public class Path {
         }
     }
 
+    public Path(Path path) {
+        this(path.getRootAlias(), path.getSubpath());
+    }
+
     Path(Alias alias, String path) {
         notNull(Alias.class, alias);
         rootAlias = alias;

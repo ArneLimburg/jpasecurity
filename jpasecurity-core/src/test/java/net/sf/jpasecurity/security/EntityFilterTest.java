@@ -88,6 +88,8 @@ public class EntityFilterTest {
                         .andReturn(idPropertyMapping).anyTimes();
         expect(mappingInformation.getPropertyMapping(eq(new Path("child.parent.id")), (Set<TypeDefinition>)anyObject()))
                         .andReturn(idPropertyMapping).anyTimes();
+        expect(mappingInformation.getPropertyMapping(eq(new Path("tb.name")), (Set<TypeDefinition>)anyObject()))
+                        .andReturn(namePropertyMapping).anyTimes();
         expect(mappingInformation.getPropertyMapping(eq(new Path("child.parent")), (Set<TypeDefinition>)anyObject()))
                         .andReturn(beanPropertyMapping).anyTimes();
         expect(classMapping.<MethodAccessTestBean> getEntityType()).andReturn(MethodAccessTestBean.class).anyTimes();
@@ -95,6 +97,7 @@ public class EntityFilterTest {
         expect(classMapping.containsPropertyMapping("name")).andReturn(true).anyTimes();
         expect(classMapping.getPropertyMapping("name")).andReturn(namePropertyMapping).anyTimes();
         expect(idPropertyMapping.isRelationshipMapping()).andReturn(false).anyTimes();
+        expect(namePropertyMapping.isRelationshipMapping()).andReturn(false).anyTimes();
         expect(namePropertyMapping.getPropertyValue(anyObject())).andAnswer(new IAnswer<Object>() {
             public Object answer() throws Throwable {
                 return ((MethodAccessTestBean)getCurrentArguments()[0]).getName();
@@ -157,7 +160,7 @@ public class EntityFilterTest {
 
     @Test
     public void filterCaseQuery() {
-        String plainQuery = "SELECT CASE " + "WHEN child IS NULL THEN tb.id "
+        String plainQuery = "SELECT CASE WHEN child IS NULL THEN tb.id "
                             + "WHEN child.name = :name THEN child.id ELSE child.parent.id END "
                             + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child";
         String restrictedQuery = "SELECT CASE  WHEN child IS  NULL  THEN tb.id "
@@ -168,6 +171,26 @@ public class EntityFilterTest {
                                  + " OR (child.parent.name = :CURRENT_PRINCIPAL))"
                                  + " AND ( NOT ( NOT (child IS  NULL ) AND (child.name = :name))"
                                  + " OR (child.name = :CURRENT_PRINCIPAL)))";
+        FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
+        assertEquals(restrictedQuery, result.getQuery().trim());
+    }
+
+    @Test
+    public void filterConstructorQueryWithCase() {
+        String plainQuery = "SELECT new MethodAccessTestBean(CASE WHEN child IS NULL THEN tb.id "
+                            + "WHEN child.name = :name THEN child.id ELSE child.parent.id END, "
+                            + "tb.name) "
+                            + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child";
+        String restrictedQuery = "SELECT  NEW MethodAccessTestBean(CASE "
+                               + " WHEN child IS  NULL  THEN tb.id"
+                               + " WHEN child.name = :name THEN child.id"
+                               + " ELSE child.parent.id END, tb.name) "
+                               + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child  "
+                               + "WHERE (( NOT ( NOT (child IS  NULL ) AND  NOT (child.name = :name))"
+                               + " OR (child.parent.name = :CURRENT_PRINCIPAL)) "
+                               + "AND (tb.name = :CURRENT_PRINCIPAL) "
+                               + "AND ( NOT ( NOT (child IS  NULL ) AND (child.name = :name))"
+                               + " OR (child.name = :CURRENT_PRINCIPAL)))";
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
         assertEquals(restrictedQuery, result.getQuery().trim());
     }

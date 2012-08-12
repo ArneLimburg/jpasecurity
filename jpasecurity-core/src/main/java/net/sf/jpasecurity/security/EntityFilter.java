@@ -419,17 +419,22 @@ public class EntityFilter {
     private Map<Path, Class<?>> getSelectedEntityTypes(JpqlCompiledStatement statement) {
         Set<TypeDefinition> typeDefinitions = statement.getTypeDefinitions();
         Map<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
+        // first process all non-conditional paths
         for (Path selectedPath: statement.getSelectedPaths()) {
-            Class<?> selectedType;
-            Path entityPath = getSelectedEntityPath(selectedPath, typeDefinitions);
-            if (entityPath.hasSubpath()) {
-                PropertyMappingInformation propertyMapping
-                    = mappingInformation.getPropertyMapping(entityPath, typeDefinitions);
-                selectedType = propertyMapping.getProperyType();
-            } else {
-                selectedType = mappingInformation.getType(entityPath.getRootAlias(), typeDefinitions);
+            if (!(selectedPath instanceof ConditionalPath)) {
+                Path entityPath = getSelectedEntityPath(selectedPath, typeDefinitions);
+                selectedTypes.put(entityPath, getSelectedType(entityPath, typeDefinitions));
             }
-            selectedTypes.put(entityPath, selectedType);
+        }
+        // then process all remaining conditional paths
+        for (Path selectedPath: statement.getSelectedPaths()) {
+            if (selectedPath instanceof ConditionalPath) {
+                Path entityPath = getSelectedEntityPath(selectedPath, typeDefinitions);
+                // just add it, if there is no non-conditional path
+                if (!selectedTypes.containsKey(new Path(entityPath))) {
+                    selectedTypes.put(entityPath, getSelectedType(entityPath, typeDefinitions));
+                }
+            }
         }
         return selectedTypes;
     }
@@ -445,6 +450,18 @@ public class EntityFilter {
         } else {
             return selectedPath.getParentPath();
         }
+    }
+
+    private Class<?> getSelectedType(Path entityPath, Set<TypeDefinition> typeDefinitions) {
+        Class<?> selectedType;
+        if (entityPath.hasSubpath()) {
+            PropertyMappingInformation propertyMapping
+                = mappingInformation.getPropertyMapping(entityPath, typeDefinitions);
+            selectedType = propertyMapping.getProperyType();
+        } else {
+            selectedType = mappingInformation.getType(entityPath.getRootAlias(), typeDefinitions);
+        }
+        return selectedType;
     }
 
     public class AccessDefinition {
