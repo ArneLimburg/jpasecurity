@@ -36,6 +36,11 @@ public class MethodAccessTestBean {
         beanName = name;
     }
 
+    public MethodAccessTestBean(int id, String name) {
+        identifier = id;
+        beanName = name;
+    }
+
     public int getId() {
         return identifier;
     }
