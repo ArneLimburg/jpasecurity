@@ -451,7 +451,7 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
                         Collection<Object> unsecureCollection
                             = (Collection<Object>)propertyMapping.getPropertyValue(unsecureEntity);
                         for (Object unsecureEntry: unsecureCollection) {
-                            cascadeRemove(getSecureObject(unsecureEntry), unsecureEntry, alreadyCascadedEntities);
+                            cascadeRefresh(getSecureObject(unsecureEntry), unsecureEntry, alreadyCascadedEntities);
                         }
                     }
                 }

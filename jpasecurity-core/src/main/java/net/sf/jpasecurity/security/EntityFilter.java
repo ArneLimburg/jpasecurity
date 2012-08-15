@@ -38,6 +38,7 @@ import net.sf.jpasecurity.jpql.compiler.QueryEvaluationParameters;
 import net.sf.jpasecurity.jpql.compiler.QueryEvaluator;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
 import net.sf.jpasecurity.jpql.compiler.SubselectEvaluator;
+import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentifier;
@@ -173,23 +174,61 @@ public class EntityFilter {
         AccessDefinition accessDefinition = null;
         boolean restricted = false;
         for (Map.Entry<Path, Class<?>> selectedType: selectedTypes.entrySet()) {
+            Set<JpqlAccessRule> appliedRules = new HashSet<JpqlAccessRule>();
             Set<Class<?>> restrictedTypes = new HashSet<Class<?>>();
             AccessDefinition typedAccessDefinition = null;
             for (AccessRule accessRule: accessRules) {
-                if (accessRule.isAssignable(selectedType.getValue(), mappingInformation)) {
-                    restricted = true;
-                    restrictedTypes.add(selectedType.getValue());
-                    if (accessRule.grantsAccess(accessType)) {
-                        typedAccessDefinition = appendAccessDefinition(typedAccessDefinition,
-                                                                       accessRule,
+                if (!appliedRules.contains(accessRule.getStatement())) {
+                    if (accessRule.isAssignable(selectedType.getValue(), mappingInformation)) {
+                        restricted = true;
+                        restrictedTypes.add(selectedType.getValue());
+                        appliedRules.add((JpqlAccessRule)accessRule.getStatement());
+                        if (accessRule.grantsAccess(accessType)) {
+                            typedAccessDefinition = appendAccessDefinition(typedAccessDefinition,
+                                accessRule,
                                                                        selectedType.getKey(),
                                                                        securityContext);
+                        }
                     }
-                } else if (accessRule.mayBeAssignable(selectedType.getValue(), mappingInformation)) {
+                }
+            }
+            Map<JpqlAccessRule, Set<AccessRule>> mayBeRules = new HashMap<JpqlAccessRule, Set<AccessRule>>();
+            for (AccessRule accessRule : accessRules) {
+                if (!appliedRules.contains(accessRule.getStatement())) {
+                    if (accessRule.mayBeAssignable(selectedType.getValue(), mappingInformation)) {
+                        Set<AccessRule> accessRulesSet = mayBeRules.get(accessRule.getStatement());
+                        if (accessRulesSet == null) {
+                            accessRulesSet = new HashSet<AccessRule>();
+                            mayBeRules.put((JpqlAccessRule)accessRule.getStatement(), accessRulesSet);
+                        }
+                        accessRulesSet.add(accessRule);
+                    }
+                }
+            }
+            Set<AccessRule> bestMayBeRules = new HashSet<AccessRule>();
+            for (Set<AccessRule> accessRulesByStatement : mayBeRules.values()) {
+                AccessRule bestRule = null;
+                Class<?> bestRuleSelectedType = null;
+                for (AccessRule accessRule : accessRulesByStatement) {
+                    final Class<?> accessRuleSelectedType = accessRule.getSelectedType(mappingInformation);
+                    //TODO remove filter mapped superclasses
+                    if (bestRule == null) {
+                        bestRule = accessRule;
+                        bestRuleSelectedType = bestRule.getSelectedType(mappingInformation);
+                    } else {
+                        if (accessRuleSelectedType.isAssignableFrom(bestRuleSelectedType)) {
+                            bestRule = accessRule;
+                            bestRuleSelectedType = accessRuleSelectedType;
+                        }
+                    }
+                }
+                bestMayBeRules.add(bestRule);
+            }
+            for (AccessRule accessRule : bestMayBeRules) {
+                if (accessRule.mayBeAssignable(selectedType.getValue(), mappingInformation)) {
                     restricted = true;
                     restrictedTypes.add(accessRule.getSelectedType(mappingInformation));
                     if (accessRule.grantsAccess(accessType)) {
-                        //TODO group all access rules by subclass and create one node each
                         Class<?> type = accessRule.getSelectedType(mappingInformation);
                         Node instanceOf
                             = queryPreparator.createInstanceOf(selectedType.getKey(),
@@ -215,9 +254,10 @@ public class EntityFilter {
                     }
                 }
                 if (typedAccessDefinition == null) {
-                    typedAccessDefinition = new AccessDefinition(superclassNode);
+                    typedAccessDefinition = new AccessDefinition(queryPreparator.createBrackets(superclassNode));
                 } else {
                     typedAccessDefinition.appendNode(superclassNode);
+                    typedAccessDefinition.group();
                 }
             }
             if (accessDefinition == null) {
@@ -461,6 +501,10 @@ public class EntityFilter {
 
         public String toString() {
             return "[query=\"" + accessRules.toString() + "\",parameters=" + queryParameters.toString() + "]";
+        }
+
+        public void group() {
+            accessRules = queryPreparator.createBrackets(accessRules);
         }
     }
 
