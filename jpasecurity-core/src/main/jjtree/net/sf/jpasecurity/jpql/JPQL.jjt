@@ -427,11 +427,16 @@ void newValue() #UpdateValue: {} {
   | LOOKAHEAD(booleanPrimary()) booleanPrimary()
   | LOOKAHEAD(enumPrimary()) enumPrimary()
   | LOOKAHEAD(simpleEntityExpression()) simpleEntityExpression()
+  | LOOKAHEAD(entityTypeExpression()) entityTypeExpression()
   | <NULL>
 }
 
 void simpleEntityExpression(): {} {
     identificationVariable() | inputParameter()
+}
+
+void entityTypeExpression(): {} {
+    typeDiscriminator() | entityName() | inputParameter()
 }
 
 void typeDiscriminator() #Type: {} {
@@ -578,6 +583,7 @@ void scalarExpression(): {} {
   | LOOKAHEAD(booleanPrimary()) booleanPrimary()
   | LOOKAHEAD(caseExpression()) caseExpression()
   | LOOKAHEAD(simpleEntityExpression()) simpleEntityExpression()
+  | LOOKAHEAD(entityTypeExpression()) entityTypeExpression()
   | <NULL>
 }
 
@@ -659,7 +665,9 @@ void inItem(): {} {
     (numericLiteral()
     | stringLiteral()
     | booleanLiteral()
-    | inputParameter())
+    | inputParameter()
+    | typeDiscriminator()
+    )
 }
 
 void likeExpression(): {} {
@@ -750,7 +758,8 @@ void comparisonExpression(): {} {
     LOOKAHEAD(booleanComp()) booleanComp() | 
     LOOKAHEAD(enumComp()) enumComp() | 
     LOOKAHEAD(datetimeComp()) datetimeComp() |
-    LOOKAHEAD(entityComp()) entityComp()
+    LOOKAHEAD(entityComp()) entityComp() |
+    LOOKAHEAD(entityTypeComp()) entityTypeComp()
 }
 
 void stringComp(): {} {
@@ -770,16 +779,29 @@ void booleanComp(): {} {
     | (<NE> (booleanExpression() | allOrAnyExpression()) #NotEquals(2))
     )
 }
+
 void enumComp(): {} {
     enumExpression() (
     (<EQ> (enumExpression() | allOrAnyExpression()) #Equals(2))
     | (<NE> (enumExpression() | allOrAnyExpression()) #NotEquals(2))
     )
 }
+
 void entityComp(): {} {
     entityBeanExpression() (
     (<EQ> ((LOOKAHEAD(allOrAnyExpression()) allOrAnyExpression() | entityBeanExpression()) #Equals(2)))
     | (<NE> ((LOOKAHEAD(allOrAnyExpression()) allOrAnyExpression() | entityBeanExpression()) #NotEquals(2)))
+    )
+}
+
+void entityTypeComp(): {} {
+    LOOKAHEAD(typeDiscriminator()) (typeDiscriminator()
+        ((<EQ> entityTypeExpression() #Equals(2))
+        | (<NE> entityTypeExpression() #NotEquals(2)))
+    )
+  | (entityTypeExpression()
+        ((<EQ> typeDiscriminator() #Equals(2))
+        | (<NE> typeDiscriminator() #NotEquals(2)))
     )
 }
 

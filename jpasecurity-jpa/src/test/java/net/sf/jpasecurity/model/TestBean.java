@@ -17,6 +17,7 @@ package net.sf.jpasecurity.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -26,6 +27,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -45,6 +47,8 @@ public class TestBean {
     private TestBean parent;
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<TestBean> children = new ArrayList<TestBean>();
+    @ManyToMany
+    private Map<TestBean, TestBean> related;
 
     public TestBean() {
     }
@@ -83,5 +87,9 @@ public class TestBean {
 
     public void setChildren(List<TestBean> children) {
         this.children = children;
+    }
+
+    public Map<TestBean, TestBean> getRelated() {
+        return related;
     }
 }

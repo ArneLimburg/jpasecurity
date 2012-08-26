@@ -143,11 +143,19 @@ public class EntityFilterTest {
     }
 
     @Test
+    public void filterTypeQuery() {
+        String plainQuery = "SELECT TYPE(tb) FROM MethodAccessTestBean tb";
+        String restrictedQuery = "SELECT  TYPE(tb)  FROM MethodAccessTestBean tb WHERE (tb.name = :CURRENT_PRINCIPAL)";
+        FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
+        assertEquals(restrictedQuery, result.getQuery().trim());
+    }
+
+    @Test
     public void filterSimpleCaseQuery() {
         String plainQuery = "SELECT CASE tb.name "
                             + "WHEN 'parent' THEN child.id WHEN 'child' THEN child.parent.id ELSE tb.id END "
                             + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child";
-        String restrictedQuery = "SELECT CASE tb.name WHEN 'parent' THEN child.id WHEN 'child' THEN child.parent.id "
+        String restrictedQuery = "SELECT  CASE tb.name WHEN 'parent' THEN child.id WHEN 'child' THEN child.parent.id "
                                  + "ELSE tb.id END FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child "
                                  + " WHERE (( NOT (tb.name = 'parent') OR (child.name = :CURRENT_PRINCIPAL))"
                                  + " AND ( NOT ( NOT (tb.name = 'parent') AND  NOT (tb.name = 'child'))"
@@ -163,7 +171,7 @@ public class EntityFilterTest {
         String plainQuery = "SELECT CASE WHEN child IS NULL THEN tb.id "
                             + "WHEN child.name = :name THEN child.id ELSE child.parent.id END "
                             + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child";
-        String restrictedQuery = "SELECT CASE  WHEN child IS  NULL  THEN tb.id "
+        String restrictedQuery = "SELECT  CASE  WHEN child IS  NULL  THEN tb.id "
                                  + "WHEN child.name = :name THEN child.id " + "ELSE child.parent.id END "
                                  + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child "
                                  + " WHERE (( NOT (child IS  NULL ) OR (tb.name = :CURRENT_PRINCIPAL))"
@@ -181,7 +189,7 @@ public class EntityFilterTest {
                             + "WHEN child.name = :name THEN child.id ELSE child.parent.id END, "
                             + "tb.name) "
                             + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child";
-        String restrictedQuery = "SELECT  NEW MethodAccessTestBean(CASE "
+        String restrictedQuery = "SELECT  NEW MethodAccessTestBean( CASE "
                                + " WHEN child IS  NULL  THEN tb.id"
                                + " WHEN child.name = :name THEN child.id"
                                + " ELSE child.parent.id END, tb.name) "

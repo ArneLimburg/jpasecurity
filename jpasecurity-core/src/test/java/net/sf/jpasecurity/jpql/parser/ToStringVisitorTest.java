@@ -114,6 +114,7 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean, 'name', CASE bean.name WHEN 'name 1' THEN bean.name ELSE 'name 2' END "
                    + "FROM TestBean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
         assertJpql("SELECT bean, COUNT( DISTINCT bean) AS beanCount FROM TestBean bean WHERE bean.name = 'name 1'");
+        assertJpql("SELECT bean FROM TestBean bean WHERE TYPE(bean) = TestBeanSubclass");
         assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0");
         assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0 WHERE bean.id = 0");
         assertJpql("DELETE FROM TestBean bean");
