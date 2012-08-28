@@ -48,6 +48,7 @@ import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.bean.JavaBeanSecurityUnitParser;
+import net.sf.jpasecurity.model.ChildTestBean;
 import net.sf.jpasecurity.model.MethodAccessTestBean;
 import net.sf.jpasecurity.model.ParentTestBean;
 import net.sf.jpasecurity.util.SetHashMap;
@@ -91,6 +92,7 @@ public class QueryEvaluatorTest {
         replay(objectManager, exceptionFactory);
         SecurityUnit securityUnit = new DefaultSecurityUnit("test");
         securityUnit.getManagedClassNames().add(MethodAccessTestBean.class.getName());
+        securityUnit.getManagedClassNames().add(ChildTestBean.class.getName());
         mappingInformation = new JavaBeanSecurityUnitParser(securityUnit).parse();
         parser = new JpqlParser();
         compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
@@ -322,6 +324,37 @@ public class QueryEvaluatorTest {
         } catch (NotEvaluatableException e) {
             //expected
         }
+    }
+
+    @Test
+    public void evaluateType() throws Exception {
+        JpqlCompiledStatement statement = compile(SELECT
+                                                  + "WHERE TYPE(bean) = :beanType"
+                                                  + " OR TYPE(:bean) = MethodAccessTestBean");
+        MethodAccessTestBean bean = new MethodAccessTestBean("test");
+        ChildTestBean wrongBean = new ChildTestBean();
+        entities.put(MethodAccessTestBean.class, Collections.<Object>singleton(bean));
+        aliases.put(new Alias("bean"), bean);
+
+        //both are true
+        namedParameters.put("bean", bean);
+        namedParameters.put("beanType", MethodAccessTestBean.class);
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+
+        //first is true, second is false
+        namedParameters.put("bean", bean);
+        namedParameters.put("beanType", ChildTestBean.class);
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+
+        //first is false, second is true
+        namedParameters.put("bean", wrongBean);
+        namedParameters.put("beanType", MethodAccessTestBean.class);
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+
+        //both are false
+        namedParameters.put("bean", wrongBean);
+        namedParameters.put("beanType", ChildTestBean.class);
+        assertFalse(evaluate(statement.getWhereClause(), parameters));
     }
 
     @Test

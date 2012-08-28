@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2012 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import java.util.Date;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlAbs;
+import net.sf.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
 import net.sf.jpasecurity.jpql.parser.JpqlAdd;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlBetween;
@@ -83,6 +84,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlTrimBoth;
 import net.sf.jpasecurity.jpql.parser.JpqlTrimCharacter;
 import net.sf.jpasecurity.jpql.parser.JpqlTrimLeading;
 import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
+import net.sf.jpasecurity.jpql.parser.JpqlType;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhen;
@@ -775,6 +777,11 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         return false;
     }
 
+    public boolean visit(JpqlAbstractSchemaName node, QueryEvaluationParameters data) {
+        data.setResult(data.getMappingInformation().getClassMapping(node.toString().trim()).getEntityType());
+        return false;
+    }
+
     public boolean visit(JpqlIdentificationVariable node, QueryEvaluationParameters data) {
         validateChildCount(node, 0);
         try {
@@ -860,6 +867,17 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             } catch (NotEvaluatableException e) {
                 data.setResultUndefined();
             }
+        }
+        return false;
+    }
+
+    public boolean visit(JpqlType node, QueryEvaluationParameters data) {
+        validateChildCount(node, 1);
+        node.jjtGetChild(0).visit(this, data);
+        try {
+            data.setResult(data.getMappingInformation().getClassMapping(data.getResult().getClass()).getEntityType());
+        } catch (NotEvaluatableException e) {
+            // ignore
         }
         return false;
     }
