@@ -185,20 +185,25 @@ public class EntityFilterTest {
 
     @Test
     public void filterConstructorQueryWithCase() {
-        String plainQuery = "SELECT new MethodAccessTestBean(CASE WHEN child IS NULL THEN tb.id "
-                            + "WHEN child.name = :name THEN child.id ELSE child.parent.id END, "
+        String plainQuery = "SELECT new net.sf.jpasecurity.model.MethodAccessTestBean("
+                            + "CASE WHEN TYPE(child) = TestBeanSubclass THEN tb.id "
+                            + "WHEN TYPE(child) = MethodAccessTestBean THEN child.id "
+                            + "ELSE child.parent.id END, "
                             + "tb.name) "
                             + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child";
-        String restrictedQuery = "SELECT  NEW MethodAccessTestBean( CASE "
-                               + " WHEN child IS  NULL  THEN tb.id"
-                               + " WHEN child.name = :name THEN child.id"
-                               + " ELSE child.parent.id END, tb.name) "
-                               + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child  "
-                               + "WHERE (( NOT ( NOT (child IS  NULL ) AND  NOT (child.name = :name))"
-                               + " OR (child.parent.name = :CURRENT_PRINCIPAL)) "
-                               + "AND (tb.name = :CURRENT_PRINCIPAL) "
-                               + "AND ( NOT ( NOT (child IS  NULL ) AND (child.name = :name))"
-                               + " OR (child.name = :CURRENT_PRINCIPAL)))";
+        String restrictedQuery = "SELECT  NEW net.sf.jpasecurity.model.MethodAccessTestBean( "
+                                 + "CASE  WHEN  TYPE(child)  = TestBeanSubclass  THEN tb.id "
+                                 + "WHEN  TYPE(child)  = MethodAccessTestBean  THEN child.id "
+                                 + "ELSE child.parent.id END, "
+                                 + "tb.name) "
+                                 + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child  "
+                                 + "WHERE (( NOT ( NOT ( TYPE(child)  = TestBeanSubclass )"
+                                 + " AND ( TYPE(child)  = MethodAccessTestBean ))"
+                                 + " OR (child.name = :CURRENT_PRINCIPAL)) "
+                                 + "AND (tb.name = :CURRENT_PRINCIPAL) "
+                                 + "AND ( NOT ( NOT ( TYPE(child)  = TestBeanSubclass )"
+                                 + " AND  NOT ( TYPE(child)  = MethodAccessTestBean ))"
+                                 + " OR (child.parent.name = :CURRENT_PRINCIPAL)))";
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
