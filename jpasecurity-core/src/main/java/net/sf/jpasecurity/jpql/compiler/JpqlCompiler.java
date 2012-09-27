@@ -26,6 +26,7 @@ import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlCase;
+import net.sf.jpasecurity.jpql.parser.JpqlClassName;
 import net.sf.jpasecurity.jpql.parser.JpqlConstructorParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlCount;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
@@ -159,6 +160,10 @@ public class JpqlCompiler {
 
         private final ToStringVisitor toStringVisitor = new ToStringVisitor();
         private final QueryPreparator queryPreparator = new QueryPreparator();
+
+        public boolean visit(JpqlClassName node, List<Path> selectedPaths) {
+            return false;
+        }
 
         public boolean visit(JpqlCase node, List<Path> selectedPaths) {
             List<? extends Path> conditionalPaths = new ArrayList<ConditionalPath>();
