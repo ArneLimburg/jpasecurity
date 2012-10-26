@@ -22,7 +22,7 @@ import net.sf.jpasecurity.FetchType;
 /**
  * @author Arne Limburg
  */
-public final class CollectionValuedRelationshipMappingInformation extends RelationshipMappingInformation {
+public class CollectionValuedRelationshipMappingInformation extends RelationshipMappingInformation {
 
     private Class<?> collectionType;
 

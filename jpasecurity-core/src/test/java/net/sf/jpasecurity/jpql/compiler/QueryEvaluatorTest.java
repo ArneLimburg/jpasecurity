@@ -21,18 +21,22 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.getCurrentArguments;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import net.sf.jpasecurity.DefaultSecurityUnit;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.SecurityUnit;
+import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
@@ -43,6 +47,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.JpqlSelect;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
 import net.sf.jpasecurity.jpql.parser.JpqlStatement;
+import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.ParseException;
 import net.sf.jpasecurity.mapping.Alias;
@@ -112,12 +117,9 @@ public class QueryEvaluatorTest {
 
     @Test
     public void canEvaluate() throws Exception {
-        JpqlCompiledStatement statement = compile("SELECT bean "
-                                                  + "FROM MethodAccessTestBean bean "
-                                                  + "WHERE bean.name = :name "
-                                                  + "GROUP BY bean.parent "
-                                                  + "HAVING COUNT(bean.parent) > 1 "
-                                                  + "ORDER BY bean.parent.id");
+        JpqlCompiledStatement statement = compile("SELECT bean " + "FROM MethodAccessTestBean bean "
+                                                  + "WHERE bean.name = :name " + "GROUP BY bean.parent "
+                                                  + "HAVING COUNT(bean.parent) > 1 " + "ORDER BY bean.parent.id");
         JpqlSelect selectStatement = (JpqlSelect)statement.getStatement().jjtGetChild(0);
         JpqlSelectClause selectClause = (JpqlSelectClause)selectStatement.jjtGetChild(SELECT_CLAUSE_INDEX);
         JpqlFrom fromClause = (JpqlFrom)selectStatement.jjtGetChild(FROM_CLAUSE_INDEX);
@@ -185,8 +187,7 @@ public class QueryEvaluatorTest {
 
     @Test
     public void canEvaluateCount() throws Exception {
-        JpqlCompiledStatement statement = compile("SELECT COUNT(bean) "
-                                                  + "FROM MethodAccessTestBean bean "
+        JpqlCompiledStatement statement = compile("SELECT COUNT(bean) " + "FROM MethodAccessTestBean bean "
                                                   + "WHERE bean.name = :name ");
         JpqlSelect selectStatement = (JpqlSelect)statement.getStatement().jjtGetChild(0);
         JpqlSelectClause selectClause = (JpqlSelectClause)selectStatement.jjtGetChild(0);
@@ -245,9 +246,7 @@ public class QueryEvaluatorTest {
 
     @Test
     public void evaluateSubselect() throws Exception {
-        JpqlCompiledStatement statement = compile(SELECT
-                                                  + "WHERE bean.name IN "
-                                                  + "(SELECT innerBean "
+        JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.name IN " + "(SELECT innerBean "
                                                   + " FROM MethodAccessTestBean innerBean)");
         aliases.put(new Alias("bean"), new MethodAccessTestBean("test"));
         try {
@@ -260,12 +259,10 @@ public class QueryEvaluatorTest {
 
     @Test
     public void evaluateSimpleCase() throws Exception {
-        JpqlCompiledStatement statement = compile(SELECT
-                                                  + "WHERE bean = "
-                                                  + "CASE bean.name WHEN :name THEN bean "
+        JpqlCompiledStatement statement = compile(SELECT + "WHERE bean = " + "CASE bean.name WHEN :name THEN bean "
                                                   + "WHEN :name2 THEN bean ELSE NULL END");
         MethodAccessTestBean bean = new MethodAccessTestBean("test1");
-        entities.put(MethodAccessTestBean.class, Collections.<Object>singleton(bean));
+        entities.put(MethodAccessTestBean.class, Collections.<Object> singleton(bean));
         aliases.put(new Alias("bean"), bean);
 
         //first is true, second is false
@@ -327,13 +324,108 @@ public class QueryEvaluatorTest {
     }
 
     @Test
+    public void evaluateKey() throws Exception {
+        JpqlCompiledStatement statement
+            = compile(SELECT + "LEFT OUTER JOIN bean.related r WHERE KEY(r).name = :beanName AND bean = b");
+        MethodAccessTestBean bean = new MethodAccessTestBean("right");
+        MethodAccessTestBean child = new MethodAccessTestBean("test");
+        bean.getRelated().put(child, null);
+        child.setParent(bean);
+        MethodAccessTestBean wrongBean = new MethodAccessTestBean("wrong");
+        MethodAccessTestBean wrongChild = new MethodAccessTestBean("wrongChild");
+        wrongBean.getRelated().put(wrongChild, null);
+        wrongChild.setParent(wrongBean);
+        entities.put(MethodAccessTestBean.class, new HashSet<Object>(Arrays.asList(bean, wrongBean)));
+        aliases.put(new Alias("b"), bean);
+        namedParameters.put("beanName", "test");
+
+        SimpleSubselectEvaluator evaluator = new SimpleSubselectEvaluator(new DefaultExceptionFactory());
+        evaluator.setQueryEvaluator(queryEvaluator);
+        JpqlSubselect subselect = new QueryPreparator().createSubselect(statement);
+        Collection<?> result = evaluator.evaluate(compile(subselect), parameters);
+        assertEquals(1, result.size());
+        assertEquals(bean, result.iterator().next());
+
+        aliases.put(new Alias("b"), wrongBean);
+        namedParameters.put("beanName", "test");
+        evaluator.setQueryEvaluator(queryEvaluator);
+        subselect = new QueryPreparator().createSubselect(statement);
+        result = evaluator.evaluate(compile(subselect), parameters);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void evaluateValue() throws Exception {
+        JpqlCompiledStatement statement
+            = compile(SELECT + "LEFT OUTER JOIN bean.related r WHERE VALUE(r).name = :beanName AND bean = b");
+        MethodAccessTestBean bean = new MethodAccessTestBean("right");
+        MethodAccessTestBean child = new MethodAccessTestBean("test");
+        bean.getRelated().put(null, child);
+        child.setParent(bean);
+        MethodAccessTestBean wrongBean = new MethodAccessTestBean("wrong");
+        MethodAccessTestBean wrongChild = new MethodAccessTestBean("wrongChild");
+        wrongBean.getRelated().put(null, wrongChild);
+        wrongChild.setParent(wrongBean);
+        entities.put(MethodAccessTestBean.class, new HashSet<Object>(Arrays.asList(bean, wrongBean)));
+        aliases.put(new Alias("b"), bean);
+        namedParameters.put("beanName", "test");
+
+        SimpleSubselectEvaluator evaluator = new SimpleSubselectEvaluator(new DefaultExceptionFactory());
+        evaluator.setQueryEvaluator(queryEvaluator);
+        JpqlSubselect subselect = new QueryPreparator().createSubselect(statement);
+        Collection<?> result = evaluator.evaluate(compile(subselect), parameters);
+        assertEquals(1, result.size());
+        assertEquals(bean, result.iterator().next());
+
+        aliases.put(new Alias("b"), wrongBean);
+        namedParameters.put("beanName", "test");
+        evaluator.setQueryEvaluator(queryEvaluator);
+        subselect = new QueryPreparator().createSubselect(statement);
+        result = evaluator.evaluate(compile(subselect), parameters);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void evaluateEntry() throws Exception {
+        JpqlCompiledStatement notNullStatement
+            = compile(SELECT + "INNER JOIN bean.related related WHERE ENTRY(related) IS NOT NULL AND bean = b");
+        JpqlCompiledStatement nullStatement
+            = compile(SELECT + "LEFT OUTER JOIN bean.related related WHERE ENTRY(related) IS NULL AND bean = b");
+        QueryPreparator queryPreparator = new QueryPreparator();
+        JpqlSubselect notNullSubselect = queryPreparator.createSubselect(notNullStatement);
+        JpqlSubselect nullSubselect = queryPreparator.createSubselect(nullStatement);
+        JpqlCompiledStatement compiledNotNullSubselect = compile(notNullSubselect);
+        JpqlCompiledStatement compiledNullSubselect = compile(nullSubselect);
+        MethodAccessTestBean bean = new MethodAccessTestBean("bean");
+        MethodAccessTestBean parent = new MethodAccessTestBean("parent");
+        MethodAccessTestBean child = new MethodAccessTestBean("child");
+        parent.getRelated().put(null, child);
+        child.setParent(parent);
+        SimpleSubselectEvaluator evaluator = new SimpleSubselectEvaluator(new DefaultExceptionFactory());
+        evaluator.setQueryEvaluator(queryEvaluator);
+
+        aliases.put(new Alias("b"), bean);
+        Collection<?> result = evaluator.evaluate(compiledNotNullSubselect, parameters);
+        assertTrue(result.isEmpty());
+        result = evaluator.evaluate(compiledNullSubselect, parameters);
+        assertEquals(1, result.size());
+        assertEquals(bean, result.iterator().next());
+
+        aliases.put(new Alias("b"), parent);
+        result = evaluator.evaluate(compiledNotNullSubselect, parameters);
+        assertEquals(1, result.size());
+        assertEquals(parent, result.iterator().next());
+        result = evaluator.evaluate(compiledNullSubselect, parameters);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
     public void evaluateType() throws Exception {
-        JpqlCompiledStatement statement = compile(SELECT
-                                                  + "WHERE TYPE(bean) = :beanType"
+        JpqlCompiledStatement statement = compile(SELECT + "WHERE TYPE(bean) = :beanType"
                                                   + " OR TYPE(:bean) = MethodAccessTestBean");
         MethodAccessTestBean bean = new MethodAccessTestBean("test");
         ChildTestBean wrongBean = new ChildTestBean();
-        entities.put(MethodAccessTestBean.class, Collections.<Object>singleton(bean));
+        entities.put(MethodAccessTestBean.class, Collections.<Object> singleton(bean));
         aliases.put(new Alias("bean"), bean);
 
         //both are true
@@ -359,12 +451,10 @@ public class QueryEvaluatorTest {
 
     @Test
     public void evaluateCase() throws Exception {
-        JpqlCompiledStatement statement = compile(SELECT
-                                                  + "WHERE bean = "
-                                                  + "CASE WHEN bean.name = :name THEN bean "
+        JpqlCompiledStatement statement = compile(SELECT + "WHERE bean = " + "CASE WHEN bean.name = :name THEN bean "
                                                   + "WHEN bean.id = ?1 THEN bean ELSE NULL END");
         MethodAccessTestBean bean = new MethodAccessTestBean("test1");
-        entities.put(MethodAccessTestBean.class, Collections.<Object>singleton(bean));
+        entities.put(MethodAccessTestBean.class, Collections.<Object> singleton(bean));
         aliases.put(new Alias("bean"), bean);
 
         //first is true, second is false
@@ -803,6 +893,14 @@ public class QueryEvaluatorTest {
 
     protected JpqlCompiledStatement compile(String query) throws ParseException {
         JpqlStatement statement = parser.parseQuery(query);
+        return compile(statement);
+    }
+
+    protected JpqlCompiledStatement compile(JpqlStatement statement) {
+        return compiler.compile(statement);
+    }
+
+    protected JpqlCompiledStatement compile(JpqlSubselect statement) {
         return compiler.compile(statement);
     }
 

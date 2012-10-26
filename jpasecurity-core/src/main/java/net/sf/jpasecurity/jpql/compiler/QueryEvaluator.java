@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
@@ -42,6 +43,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlCurrentTime;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentTimestamp;
 import net.sf.jpasecurity.jpql.parser.JpqlDecimalLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlDivide;
+import net.sf.jpasecurity.jpql.parser.JpqlEntry;
 import net.sf.jpasecurity.jpql.parser.JpqlEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlEscapeCharacter;
 import net.sf.jpasecurity.jpql.parser.JpqlExists;
@@ -55,6 +57,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlIn;
 import net.sf.jpasecurity.jpql.parser.JpqlIntegerLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlIsEmpty;
 import net.sf.jpasecurity.jpql.parser.JpqlIsNull;
+import net.sf.jpasecurity.jpql.parser.JpqlKey;
 import net.sf.jpasecurity.jpql.parser.JpqlLength;
 import net.sf.jpasecurity.jpql.parser.JpqlLessOrEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlLessThan;
@@ -86,6 +89,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlTrimLeading;
 import net.sf.jpasecurity.jpql.parser.JpqlTrimTrailing;
 import net.sf.jpasecurity.jpql.parser.JpqlType;
 import net.sf.jpasecurity.jpql.parser.JpqlUpper;
+import net.sf.jpasecurity.jpql.parser.JpqlValue;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhen;
 import net.sf.jpasecurity.jpql.parser.Node;
@@ -867,6 +871,52 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             } catch (NotEvaluatableException e) {
                 data.setResultUndefined();
             }
+        }
+        return false;
+    }
+
+    public boolean visit(JpqlKey node, QueryEvaluationParameters data) {
+        validateChildCount(node, 1);
+        node.jjtGetChild(0).visit(this, data);
+        try {
+            Map<?, ?> result = data.<Map<?, ?>>getResult();
+            if (result != null) {
+                data.setResult(result.keySet());
+            }
+        } catch (NotEvaluatableException e) {
+            // ignore
+        }
+        return false;
+    }
+
+    public boolean visit(JpqlValue node, QueryEvaluationParameters data) {
+        validateChildCount(node, 1);
+        node.jjtGetChild(0).visit(this, data);
+        try {
+            Map<?, ?> result = data.<Map<?, ?>>getResult();
+            if (result != null) {
+                data.setResult(result.values());
+            }
+        } catch (NotEvaluatableException e) {
+            // ignore
+        }
+        return false;
+    }
+
+    public boolean visit(JpqlEntry node, QueryEvaluationParameters data) {
+        validateChildCount(node, 1);
+        node.jjtGetChild(0).visit(this, data);
+        try {
+            Map<?, ?> result = data.<Map<?, ?>>getResult();
+            if (result != null) {
+                if (result.isEmpty()) {
+                    data.setResult(null);
+                } else {
+                    data.setResult(result.entrySet());
+                }
+            }
+        } catch (NotEvaluatableException e) {
+            // ignore
         }
         return false;
     }

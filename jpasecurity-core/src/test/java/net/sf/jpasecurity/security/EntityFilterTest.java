@@ -50,6 +50,7 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
 import net.sf.jpasecurity.model.MethodAccessTestBean;
 import net.sf.jpasecurity.security.rules.AccessRulesCompiler;
 
+import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.easymock.IArgumentMatcher;
 import org.easymock.internal.ArgumentToString;
@@ -92,6 +93,25 @@ public class EntityFilterTest {
                         .andReturn(namePropertyMapping).anyTimes();
         expect(mappingInformation.getPropertyMapping(eq(new Path("child.parent")), (Set<TypeDefinition>)anyObject()))
                         .andReturn(beanPropertyMapping).anyTimes();
+        expect(mappingInformation.getPropertyMapping(eq(new Path("KEY(related).parent")),
+                                                     (Set<TypeDefinition>)anyObject()))
+                        .andReturn(beanPropertyMapping).anyTimes();
+        expect(mappingInformation.getPropertyMapping(eq(new Path("VALUE(related).parent")),
+                                                     (Set<TypeDefinition>)anyObject()))
+                        .andReturn(beanPropertyMapping).anyTimes();
+        expect(mappingInformation.getPropertyMapping(EasyMock.eq(MethodAccessTestBean.class),
+                                                     eq(new Path("KEY(related).parent"))))
+                        .andReturn(beanPropertyMapping).anyTimes();
+        expect(mappingInformation.isMapPath(eq(new Path("tb.related")), (Set<TypeDefinition>)anyObject()))
+                        .andReturn(true).anyTimes();
+        expect(mappingInformation.isMapPath((Path)anyObject(), (Set<TypeDefinition>)anyObject()))
+                        .andReturn(false).anyTimes();
+        expect((Class<MethodAccessTestBean>)mappingInformation.getKeyType(eq(new Path("tb.related")),
+                                                                          (Set<TypeDefinition>)anyObject()))
+                        .andReturn(MethodAccessTestBean.class).anyTimes();
+        expect((Class<MethodAccessTestBean>)mappingInformation.getKeyType(EasyMock.eq(new Alias("related")),
+                                                                          (Set<TypeDefinition>)anyObject()))
+                        .andReturn(MethodAccessTestBean.class).anyTimes();
         expect(classMapping.<MethodAccessTestBean> getEntityType()).andReturn(MethodAccessTestBean.class).anyTimes();
         expect(classMapping.getEntityName()).andReturn(Introspector.decapitalize(className)).anyTimes();
         expect(classMapping.containsPropertyMapping("name")).andReturn(true).anyTimes();
@@ -103,6 +123,7 @@ public class EntityFilterTest {
                 return ((MethodAccessTestBean)getCurrentArguments()[0]).getName();
             }
         }).anyTimes();
+        expect(beanPropertyMapping.isRelationshipMapping()).andReturn(true).anyTimes();
         expect((Class<MethodAccessTestBean>)beanPropertyMapping.getProperyType()).andReturn(MethodAccessTestBean.class)
                         .anyTimes();
         expect(securityContext.getAliases()).andReturn(Collections.singleton(CURRENT_PRINCIPAL)).anyTimes();
@@ -209,6 +230,49 @@ public class EntityFilterTest {
     }
 
     @Test
+    public void filterKeyQuery() {
+        String plainQuery = "SELECT KEY(related) FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.related related";
+        String restrictedQuery = "SELECT  KEY(related) FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.related related "
+                                 + " WHERE ( KEY(related).name = :CURRENT_PRINCIPAL)";
+        FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
+        assertEquals(restrictedQuery, result.getQuery().trim());
+
+        plainQuery = "SELECT KEY(related).parent FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.related related";
+        restrictedQuery = "SELECT  KEY(related).parent FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.related related "
+                                 + " WHERE ( KEY(related).parent.name = :CURRENT_PRINCIPAL)";
+        result = entityFilter.filterQuery(plainQuery, AccessType.READ);
+        assertEquals(restrictedQuery, result.getQuery().trim());
+    }
+
+    @Test
+    public void filterValueQuery() {
+        String plainQuery = "SELECT VALUE(related) FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.related related";
+        String restrictedQuery = "SELECT  VALUE(related) FROM MethodAccessTestBean tb "
+                                 + "LEFT OUTER JOIN tb.related related "
+                                 + " WHERE ( VALUE(related).name = :CURRENT_PRINCIPAL)";
+        FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
+        assertEquals(restrictedQuery, result.getQuery().trim());
+
+        plainQuery = "SELECT VALUE(related).parent FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.related related";
+        restrictedQuery = "SELECT  VALUE(related).parent FROM MethodAccessTestBean tb "
+                                 + "LEFT OUTER JOIN tb.related related "
+                                 + " WHERE ( VALUE(related).parent.name = :CURRENT_PRINCIPAL)";
+        result = entityFilter.filterQuery(plainQuery, AccessType.READ);
+        assertEquals(restrictedQuery, result.getQuery().trim());
+    }
+
+    @Test
+    public void filterEntryQuery() {
+        String plainQuery = "SELECT ENTRY(related) FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.related related";
+        String restrictedQuery = "SELECT  ENTRY(related) FROM MethodAccessTestBean tb "
+                                 + "LEFT OUTER JOIN tb.related related "
+                                 + " WHERE (( VALUE(related).name = :CURRENT_PRINCIPAL)"
+                                 + " AND ( KEY(related).name = :CURRENT_PRINCIPAL))";
+        FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
+        assertEquals(restrictedQuery, result.getQuery().trim());
+    }
+
+    @Test
     public void isAccessible() throws NotEvaluatableException {
         MethodAccessTestBean testBean = new MethodAccessTestBean();
         testBean.setName(NAME);
@@ -238,7 +302,9 @@ public class EntityFilterTest {
             Set<TypeDefinition> typeDefinitions = (Set<TypeDefinition>)getCurrentArguments()[1];
             for (TypeDefinition typeDefinition: typeDefinitions) {
                 if (typeDefinition.getAlias().getName().equals(path.getRootAlias().getName())) {
-                    if (path.getSubpath() == null || path.getSubpath().equals("children")) {
+                    if (path.getSubpath() == null
+                        || path.getSubpath().equals("children")
+                        || path.getSubpath().equals("related")) {
                         return (Class<T>)typeDefinition.getType();
                     } else if (path.getSubpath().equals("id")) {
                         return (Class<T>)Integer.class;

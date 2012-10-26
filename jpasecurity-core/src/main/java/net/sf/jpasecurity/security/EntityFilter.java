@@ -187,9 +187,9 @@ public class EntityFilter {
                         appliedRules.add((JpqlAccessRule)accessRule.getStatement());
                         if (accessRule.grantsAccess(accessType)) {
                             typedAccessDefinition = appendAccessDefinition(typedAccessDefinition,
-                                accessRule,
-                                                                       selectedType.getKey(),
-                                                                       securityContext);
+                                                                           accessRule,
+                                                                           selectedType.getKey(),
+                                                                           securityContext);
                         }
                     }
                 }
@@ -453,15 +453,17 @@ public class EntityFilter {
     }
 
     private Class<?> getSelectedType(Path entityPath, Set<TypeDefinition> typeDefinitions) {
-        Class<?> selectedType;
-        if (entityPath.hasSubpath()) {
-            PropertyMappingInformation propertyMapping
-                = mappingInformation.getPropertyMapping(entityPath, typeDefinitions);
-            selectedType = propertyMapping.getProperyType();
+        if (entityPath.isKeyPath()) {
+            Class<?> keyType = mappingInformation.getKeyType(entityPath.getRootAlias(), typeDefinitions);
+            if (!entityPath.hasSubpath()) {
+                return keyType;
+            }
+            return mappingInformation.getPropertyMapping(keyType, entityPath).getProperyType();
+        } else if (entityPath.hasSubpath()) {
+            return mappingInformation.getPropertyMapping(entityPath, typeDefinitions).getProperyType();
         } else {
-            selectedType = mappingInformation.getType(entityPath.getRootAlias(), typeDefinitions);
+            return mappingInformation.getType(entityPath.getRootAlias(), typeDefinitions);
         }
-        return selectedType;
     }
 
     public class AccessDefinition {

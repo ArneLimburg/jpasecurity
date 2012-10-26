@@ -118,9 +118,7 @@ public class DefaultSecureObjectCache extends DefaultSecureObjectManager {
         super.preFlush();
         for (Map<Object, SecureEntity> entities: secureEntities.values().toArray(new Map[secureEntities.size()])) {
             for (SecureEntity entity: entities.values().toArray(new SecureEntity[entities.size()])) {
-                if (entity.isInitialized()) {
-                    entity.flush();
-                }
+                entity.flush();
             }
         }
         executePreFlushOperations();

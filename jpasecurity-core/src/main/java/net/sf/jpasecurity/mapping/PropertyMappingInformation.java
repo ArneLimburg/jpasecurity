@@ -29,6 +29,7 @@ public interface PropertyMappingInformation {
     boolean isSingleValued();
     boolean isManyValued();
     boolean isRelationshipMapping();
+    boolean isMapMapping();
     boolean isIdProperty();
     boolean isVersionProperty();
     boolean isGeneratedValue();
