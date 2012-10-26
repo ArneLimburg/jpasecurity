@@ -33,9 +33,13 @@ public interface MappingInformation {
     ClassMappingInformation getClassMapping(Class<?> entityType);
     ClassMappingInformation getClassMapping(String entityName);
     Collection<ClassMappingInformation> resolveClassMappings(Class<?> type);
+    boolean isMapPath(Path path, Set<TypeDefinition> typeDefinitions);
+    Class<?> getKeyType(Alias alias, Set<TypeDefinition> typeDefinitions);
+    Class<?> getKeyType(Path path, Set<TypeDefinition> typeDefinitions);
     <T> Class<T> getType(Alias alias, Set<TypeDefinition> typeDefinitions);
     <T> Class<T> getType(Path path, Set<TypeDefinition> typeDefinitions);
     PropertyMappingInformation getPropertyMapping(Path path, Set<TypeDefinition> typeDefinitions);
+    PropertyMappingInformation getPropertyMapping(Class<?> rootType, Path path);
 
     Set<String> getNamedNativeQueryNames();
 

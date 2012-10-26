@@ -368,26 +368,33 @@ void collectionMemberDeclaration() #InCollection: {} {
 }
 
 void qualifiedPathExpression() #Path: {} {
-    ( <KEY> "(" identificationVariable() ")" #Key(1)
-     | <VALUE> "(" identificationVariable() ")" #Value(1)
-    ) (LOOKAHEAD(2) <DOT> objectField())+
+    ( key() | value() ) (LOOKAHEAD(2) <DOT> objectField())+
 }
 
 void qualifiedIdentificationVariable(): {} {
-   ( <KEY> "(" identificationVariable() ")" #Key(1)
-     | <VALUE> "(" identificationVariable() ")" #Value(1)
-     | <ENTRY> "(" identificationVariable() ")" #Entry(1)
-   )
+   ( key() | value() | entry() )
 }
 
 void generalIdentificationVariable(): {} {
-   ( <KEY> "(" identificationVariable() ")" #Key(1)
-     | <VALUE> "(" identificationVariable() ")" #Value(1)
-   )
+    key() | value()
+}
+
+void key() #Key: {} {
+    <KEY> "(" identificationVariable() ")"
+}
+
+void value() #Value: {} {
+    <VALUE> "(" identificationVariable() ")"
+}
+
+void entry() #Entry: {} {
+    <ENTRY> "(" identificationVariable() ")"
 }
 
 void singleValuedPathExpression() #Path: {} {
-    identificationVariable() (<DOT> objectField())*
+    (identificationVariable() (<DOT> objectField())*)
+    | LOOKAHEAD(qualifiedPathExpression()) ((key() | value()) (<DOT> objectField())+)
+    | qualifiedIdentificationVariable()
 }
 
 void collectionValuedPath() #CollectionValuedPath: {} {

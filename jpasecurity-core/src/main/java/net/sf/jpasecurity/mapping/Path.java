@@ -24,19 +24,36 @@ import static net.sf.jpasecurity.util.Validate.notNull;
 public class Path {
 
     private static final String[] EMPTY = new String[0];
+    private static final String KEY_FUNCTION = "KEY(";
+    private static final String VALUE_FUNCTION = "VALUE(";
+    private static final String ENTRY_FUNCTION = "ENTRY(";
 
     private Alias rootAlias;
+    private boolean isKeyPath;
+    private boolean isValuePath;
     private String subpath;
     private String[] subpathComponents;
 
     public Path(String path) {
         int index = path.indexOf('.');
+        String firstPathSegment;
         if (index == -1) {
-            rootAlias = new Alias(path.trim());
+            firstPathSegment = path.trim();
             subpath = null;
         } else {
-            rootAlias = new Alias(path.substring(0, index));
+            firstPathSegment = path.substring(0, index).trim();
             subpath = path.substring(index + 1).trim();
+        }
+        if (isKeySegment(firstPathSegment)) {
+            isKeyPath = true;
+            rootAlias = new Alias(firstPathSegment.substring(KEY_FUNCTION.length(), firstPathSegment.length() - 1));
+        } else if (isValueSegment(firstPathSegment)) {
+            isValuePath = true;
+            rootAlias = new Alias(firstPathSegment.substring(VALUE_FUNCTION.length(), firstPathSegment.length() - 1));
+        } else if (isEntrySegment(firstPathSegment)) {
+            rootAlias = new Alias(firstPathSegment.substring(ENTRY_FUNCTION.length(), firstPathSegment.length() - 1));
+        } else {
+            rootAlias = new Alias(firstPathSegment);
         }
     }
 
@@ -48,6 +65,14 @@ public class Path {
         notNull(Alias.class, alias);
         rootAlias = alias;
         subpath = path;
+    }
+
+    public boolean isKeyPath() {
+        return isKeyPath;
+    }
+
+    public boolean isValuePath() {
+        return isValuePath;
     }
 
     public boolean hasParentPath() {
@@ -87,7 +112,18 @@ public class Path {
     }
 
     public String toString() {
-        return hasSubpath()? rootAlias.getName() + '.' + getSubpath(): rootAlias.getName();
+        StringBuilder builder = new StringBuilder();
+        if (isKeyPath()) {
+            builder.append(KEY_FUNCTION).append(rootAlias.getName()).append(')');
+        } else if (isValuePath()) {
+            builder.append(VALUE_FUNCTION).append(rootAlias.getName()).append(')');
+        } else {
+            builder.append(rootAlias.getName());
+        }
+        if (hasSubpath()) {
+            builder.append('.').append(getSubpath());
+        }
+        return builder.toString();
     }
 
     public int hashCode() {
@@ -99,5 +135,17 @@ public class Path {
             return false;
         }
         return toString().equals(object.toString());
+    }
+
+    private boolean isKeySegment(String rootSegment) {
+        return rootSegment.toUpperCase().startsWith(KEY_FUNCTION);
+    }
+
+    private boolean isValueSegment(String rootSegment) {
+        return rootSegment.toUpperCase().startsWith(VALUE_FUNCTION);
+    }
+
+    private boolean isEntrySegment(String rootSegment) {
+        return rootSegment.toUpperCase().startsWith(ENTRY_FUNCTION);
     }
 }

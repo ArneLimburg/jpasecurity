@@ -69,6 +69,10 @@ public abstract class AbstractPropertyMappingInformation implements PropertyMapp
         return false;
     }
 
+    public boolean isMapMapping() {
+        return false;
+    }
+
     public boolean isIdProperty() {
         return idProperty;
     }

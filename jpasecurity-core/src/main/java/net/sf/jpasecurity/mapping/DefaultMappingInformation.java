@@ -131,13 +131,40 @@ public class DefaultMappingInformation implements MappingInformation {
     }
 
     public PropertyMappingInformation getPropertyMapping(Path path, Set<TypeDefinition> typeDefinitions) {
-        Class<?> type = getType(path.getRootAlias(), typeDefinitions);
+        if (path.isKeyPath()) {
+            return getPropertyMapping(getKeyType(path.getRootAlias(), typeDefinitions), path);
+        } else {
+            return getPropertyMapping(getType(path.getRootAlias(), typeDefinitions), path);
+        }
+    }
+
+    public PropertyMappingInformation getPropertyMapping(Class<?> rootType, Path path) {
         PropertyMappingInformation propertyMapping = null;
         for (String propertyName: path.getSubpath().split("\\.")) {
-            propertyMapping = getClassMapping(type).getPropertyMapping(propertyName);
-            type = propertyMapping.getProperyType();
+            propertyMapping = getClassMapping(rootType).getPropertyMapping(propertyName);
+            rootType = propertyMapping.getProperyType();
         }
         return propertyMapping;
+    }
+
+    public boolean isMapPath(Path path, Set<TypeDefinition> typeDefinitions) {
+        if (!path.hasSubpath()) {
+            return false;
+        }
+        return getPropertyMapping(path, typeDefinitions).isMapMapping();
+    }
+
+    public Class<?> getKeyType(Alias alias, Set<TypeDefinition> typeDefinitions) {
+        for (TypeDefinition typeDefinition: typeDefinitions) {
+            if (alias.equals(typeDefinition.getAlias())) {
+                return getKeyType(typeDefinition.getJoinPath(), typeDefinitions);
+            }
+        }
+        throw new TypeNotPresentException(alias.getName(), null);
+    }
+
+    public Class<?> getKeyType(Path path, Set<TypeDefinition> typeDefinitions) {
+        return ((MapValuedRelationshipMappingInformation)getPropertyMapping(path, typeDefinitions)).getKeyClass();
     }
 
     public <T> Class<T> getType(Path path, Set<TypeDefinition> typeDefinitions) {

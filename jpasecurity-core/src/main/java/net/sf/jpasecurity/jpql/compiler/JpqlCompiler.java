@@ -29,6 +29,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlCase;
 import net.sf.jpasecurity.jpql.parser.JpqlClassName;
 import net.sf.jpasecurity.jpql.parser.JpqlConstructorParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlCount;
+import net.sf.jpasecurity.jpql.parser.JpqlEntry;
 import net.sf.jpasecurity.jpql.parser.JpqlFromItem;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlInCollection;
@@ -159,6 +160,7 @@ public class JpqlCompiler {
     private class SelectPathVisitor extends JpqlVisitorAdapter<List<Path>> {
 
         private final ToStringVisitor toStringVisitor = new ToStringVisitor();
+        private final EntryVisitor entryVisitor = new EntryVisitor();
         private final QueryPreparator queryPreparator = new QueryPreparator();
 
         public boolean visit(JpqlClassName node, List<Path> selectedPaths) {
@@ -195,19 +197,19 @@ public class JpqlCompiler {
         }
 
         public boolean visit(JpqlPath node, List<Path> selectedPaths) {
-            selectedPaths.add(extractSelectedPath(node));
+            if (entryVisitor.isEntry(node)) {
+                Path entryPath = new Path(node.toString());
+                selectedPaths.add(new Path("KEY(" + entryPath.getRootAlias().getName() + ")"));
+                selectedPaths.add(new Path("VALUE(" + entryPath.getRootAlias().getName() + ")"));
+            } else {
+                selectedPaths.add(new Path(node.toString()));
+            }
             return false;
         }
 
         public boolean visit(JpqlIdentificationVariable node, List<Path> selectedPaths) {
-            selectedPaths.add(extractSelectedPath(node));
+            selectedPaths.add(new Path(node.toString()));
             return false;
-        }
-
-        private Path extractSelectedPath(Node node) {
-            StringBuilder path = new StringBuilder();
-            node.visit(toStringVisitor, path);
-            return new Path(path.toString());
         }
 
         private ConditionalPath extractConditionalPath(JpqlWhen node) {
@@ -311,12 +313,16 @@ public class JpqlCompiler {
                                   boolean innerJoin,
                                   boolean fetchJoin) {
             Path fetchPath = new Path(node.jjtGetChild(0).toString());
+            Class<?> keyType = null;
+            if (mappingInformation.isMapPath(fetchPath, typeDefinitions)) {
+                keyType = mappingInformation.getKeyType(fetchPath, typeDefinitions);
+            }
             Class<?> type = mappingInformation.getType(fetchPath, typeDefinitions);
             if (node.jjtGetNumChildren() == 1) {
-                typeDefinitions.add(new TypeDefinition(type, fetchPath, innerJoin, fetchJoin));
+                typeDefinitions.add(new TypeDefinition(keyType, type, fetchPath, innerJoin, fetchJoin));
             } else {
                 Alias alias = getAlias(node);
-                typeDefinitions.add(new TypeDefinition(alias, type, fetchPath, innerJoin, fetchJoin));
+                typeDefinitions.add(new TypeDefinition(alias, keyType, type, fetchPath, innerJoin, fetchJoin));
             }
             return false;
         }
@@ -382,6 +388,20 @@ public class JpqlCompiler {
         }
 
         public boolean visit(JpqlCount node, ValueHolder<Boolean> result) {
+            result.setValue(Boolean.TRUE);
+            return false;
+        }
+    }
+
+    private class EntryVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
+
+        public boolean isEntry(JpqlPath node) {
+            ValueHolder<Boolean> result = new ValueHolder<Boolean>(Boolean.FALSE);
+            node.visit(this, result);
+            return result.getValue();
+        }
+
+        public boolean visit(JpqlEntry node, ValueHolder<Boolean> result) {
             result.setValue(Boolean.TRUE);
             return false;
         }

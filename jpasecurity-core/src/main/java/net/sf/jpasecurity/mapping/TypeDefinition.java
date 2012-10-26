@@ -23,6 +23,7 @@ package net.sf.jpasecurity.mapping;
 public class TypeDefinition {
 
     private Alias alias;
+    private Class<?> keyType;
     private Class<?> type;
     private Path joinPath;
     private boolean innerJoin;
@@ -33,15 +34,28 @@ public class TypeDefinition {
         this.type = type;
     }
 
-    public TypeDefinition(Class<?> type, Path joinPath, boolean innerJoin, boolean fetchJoin) {
-        this(null, type, joinPath, innerJoin, fetchJoin);
+    public TypeDefinition(Class<?> keyType, Class<?> type, Path joinPath, boolean innerJoin, boolean fetchJoin) {
+        this(null, keyType, type, joinPath, innerJoin, fetchJoin);
     }
 
     public TypeDefinition(Alias alias, Class<?> type, Path joinPath, boolean innerJoin) {
-        this(alias, type, joinPath, innerJoin, false);
+        this(alias, null, type, joinPath, innerJoin);
+    }
+
+    public TypeDefinition(Alias alias, Class<?> keyType, Class<?> type, Path joinPath, boolean innerJoin) {
+        this(alias, keyType, type, joinPath, innerJoin, false);
     }
 
     public TypeDefinition(Alias alias, Class<?> type, Path joinPath, boolean innerJoin, boolean fetchJoin) {
+        this(alias, null, type, joinPath, innerJoin, fetchJoin);
+    }
+
+    public TypeDefinition(Alias alias,
+                          Class<?> keyType,
+                          Class<?> type,
+                          Path joinPath,
+                          boolean innerJoin,
+                          boolean fetchJoin) {
         this(alias, type);
         if (joinPath == null) {
             throw new IllegalArgumentException("joinPath may not be null");
@@ -49,6 +63,7 @@ public class TypeDefinition {
         this.joinPath = joinPath;
         this.innerJoin = innerJoin;
         this.fetchJoin = fetchJoin;
+        this.keyType = keyType;
     }
 
     public Alias getAlias() {
@@ -77,6 +92,10 @@ public class TypeDefinition {
 
     public boolean isPreliminary() {
         return type == null;
+    }
+
+    public <T> Class<T> getKeyType() {
+        return (Class<T>)keyType;
     }
 
     public <T> Class<T> getType() {

@@ -377,14 +377,25 @@ public abstract class AbstractSecurityUnitParser {
                     }
                     PropertyAccessStrategy propertyAccessStrategy
                         = propertyAccessStrategyFactory.createPropertyAccessStrategy(classMapping, name);
-                    propertyMapping = new CollectionValuedRelationshipMappingInformation(name,
-                                                                                         type,
-                                                                                         targetMapping,
-                                                                                         classMapping,
-                                                                                         propertyAccessStrategy,
-                                                                                         exceptionFactory,
-                                                                                         getFetchType(property),
-                                                                                         getCascadeTypes(property));
+                    if (Map.class.isAssignableFrom(type)) {
+                        propertyMapping = new MapValuedRelationshipMappingInformation(name,
+                                                                                      getMapKeyType(property),
+                                                                                      targetMapping,
+                                                                                      classMapping,
+                                                                                      propertyAccessStrategy,
+                                                                                      exceptionFactory,
+                                                                                      getFetchType(property),
+                                                                                      getCascadeTypes(property));
+                    } else {
+                        propertyMapping = new CollectionValuedRelationshipMappingInformation(name,
+                                                                                             type,
+                                                                                             targetMapping,
+                                                                                             classMapping,
+                                                                                             propertyAccessStrategy,
+                                                                                             exceptionFactory,
+                                                                                             getFetchType(property),
+                                                                                             getCascadeTypes(property));
+                    }
                 }
                 classMapping.addPropertyMapping(propertyMapping);
             }
@@ -462,17 +473,16 @@ public abstract class AbstractSecurityUnitParser {
         return getType(property);
     }
 
-    protected Class<?> getCollectionValueType(Member property) {
-        Type genericType;
-        if (property instanceof Method) {
-            genericType = ((Method)property).getGenericReturnType();
-        } else {
-            genericType = ((Field)property).getGenericType();
-        }
-        if (!(genericType instanceof ParameterizedType)) {
+    protected Class<?> getMapKeyType(Member property) {
+        Class<?> bounds = resolveBounds(getActualTypeArguments(property)[0]);
+        if (bounds == null) {
             throw exceptionFactory.createTargetEntityNotFoundException(property);
         }
-        Type[] genericTypeArguments = ((ParameterizedType)genericType).getActualTypeArguments();
+        return bounds;
+    }
+
+    protected Class<?> getCollectionValueType(Member property) {
+        Type[] genericTypeArguments = getActualTypeArguments(property);
         Type genericTypeArgument;
         if (genericTypeArguments.length == 1) {
             genericTypeArgument = genericTypeArguments[0];
@@ -482,23 +492,44 @@ public abstract class AbstractSecurityUnitParser {
         } else {
             throw exceptionFactory.createTargetEntityNotFoundException(property);
         }
-        if (genericTypeArgument instanceof Class) {
-            return (Class<?>)genericTypeArgument;
+        Class<?> bounds = resolveBounds(genericTypeArgument);
+        if (bounds == null) {
+            throw exceptionFactory.createTargetEntityNotFoundException(property);
+        }
+        return bounds;
+    }
+
+    private Type[] getActualTypeArguments(Member property) {
+        Type genericType;
+        if (property instanceof Method) {
+            genericType = ((Method)property).getGenericReturnType();
+        } else {
+            genericType = ((Field)property).getGenericType();
+        }
+        if (!(genericType instanceof ParameterizedType)) {
+            throw exceptionFactory.createTargetEntityNotFoundException(property);
+        }
+        return ((ParameterizedType)genericType).getActualTypeArguments();
+    }
+
+    private Class<?> resolveBounds(Type type) {
+        if (type instanceof Class) {
+            return (Class<?>)type;
         } else {
             Type[] bounds = null;
-            if (genericTypeArgument instanceof TypeVariable) {
-                bounds = ((TypeVariable<?>)genericTypeArgument).getBounds();
-            } else if (genericTypeArgument instanceof WildcardType) {
-                bounds = ((WildcardType)genericTypeArgument).getUpperBounds();
+            if (type instanceof TypeVariable) {
+                bounds = ((TypeVariable<?>)type).getBounds();
+            } else if (type instanceof WildcardType) {
+                bounds = ((WildcardType)type).getUpperBounds();
             }
             if (bounds != null) {
-                for (Type bound: ((TypeVariable<?>)genericTypeArgument).getBounds()) {
+                for (Type bound: ((TypeVariable<?>)type).getBounds()) {
                     if (bound instanceof Class) {
                         return (Class<?>)bound;
                     }
                 }
             }
-            throw exceptionFactory.createTargetEntityNotFoundException(property);
+            return null;
         }
     }
 

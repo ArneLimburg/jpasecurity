@@ -24,6 +24,9 @@
           <cascade-refresh/>
         </cascade>
       </one-to-many>
+      <one-to-many name="related">
+        <map-key name="parent"/>
+      </one-to-many>
     </attributes>
   </entity>
   <entity class="net.sf.jpasecurity.model.FieldAccessXmlTestBean" access="FIELD">

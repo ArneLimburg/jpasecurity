@@ -16,7 +16,9 @@
 package net.sf.jpasecurity.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Arne Limburg
@@ -28,6 +30,8 @@ public class MethodAccessTestBean {
     private boolean setNameCalled;
     private MethodAccessTestBean parentBean;
     private List<MethodAccessTestBean> childBeans = new ArrayList<MethodAccessTestBean>();
+    private Map<MethodAccessTestBean, MethodAccessTestBean> map
+        = new HashMap<MethodAccessTestBean, MethodAccessTestBean>();
 
     public MethodAccessTestBean() {
     }
@@ -76,5 +80,13 @@ public class MethodAccessTestBean {
 
     public void setChildren(List<MethodAccessTestBean> children) {
         childBeans = children;
+    }
+
+    public Map<MethodAccessTestBean, MethodAccessTestBean> getRelated() {
+        return map;
+    }
+
+    public void setRelated(Map<MethodAccessTestBean, MethodAccessTestBean> related) {
+        map = related;
     }
 }

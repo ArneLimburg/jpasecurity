@@ -30,6 +30,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariableDeclaration;
 import net.sf.jpasecurity.jpql.parser.JpqlIn;
 import net.sf.jpasecurity.jpql.parser.JpqlIntegerLiteral;
+import net.sf.jpasecurity.jpql.parser.JpqlKey;
 import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlNot;
 import net.sf.jpasecurity.jpql.parser.JpqlNotEquals;
@@ -40,6 +41,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpression;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectExpressions;
 import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
+import net.sf.jpasecurity.jpql.parser.JpqlValue;
 import net.sf.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.JpqlWith;
@@ -115,10 +117,10 @@ public class QueryPreparator {
         String[] pathComponents = new String[subpathComponents.length + 1];
         pathComponents[0] = alias.getName();
         System.arraycopy(subpathComponents, 0, pathComponents, 1, subpathComponents.length);
-        return prepend(pathComponents, pathNode);
+        return prepend(pathComponents, pathNode, path.isKeyPath(), path.isValuePath());
     }
 
-    private JpqlPath prepend(String[] pathComponents, JpqlPath path) {
+    private JpqlPath prepend(String[] pathComponents, JpqlPath path, boolean isKeyPath, boolean isValuePath) {
         if (pathComponents.length == 0) {
             return path;
         }
@@ -134,7 +136,33 @@ public class QueryPreparator {
         for (int i = 1; i < pathComponents.length; i++) {
             path.jjtAddChild(createIdentificationVariable(new Alias(pathComponents[i])), i);
         }
+        if (isKeyPath) {
+            path.jjtSetChild(createKey(path.jjtGetChild(0)), 0);
+        }
+        if (isValuePath) {
+            path.jjtSetChild(createValue(path.jjtGetChild(0)), 0);
+        }
         return path;
+    }
+
+    /**
+     * Creates a <tt>JpqlKey</tt> node.
+     */
+    public JpqlKey createKey(Node child) {
+        JpqlKey key = new JpqlKey(JpqlParserTreeConstants.JJTKEY);
+        child.jjtSetParent(key);
+        key.jjtAddChild(child, 0);
+        return key;
+    }
+
+    /**
+     * Creates a <tt>JpqlKey</tt> node.
+     */
+    public JpqlValue createValue(Node child) {
+        JpqlValue value = new JpqlValue(JpqlParserTreeConstants.JJTVALUE);
+        child.jjtSetParent(value);
+        value.jjtAddChild(child, 0);
+        return value;
     }
 
     /**
@@ -277,7 +305,7 @@ public class QueryPreparator {
     /**
      * Creates a <tt>JpqlSubselect</tt> node for the specified access rule.
      */
-    public Node createSubselect(JpqlCompiledStatement statement) {
+    public JpqlSubselect createSubselect(JpqlCompiledStatement statement) {
         if (statement.getSelectedPaths().size() > 1) {
             throw new IllegalArgumentException("Cannot create subselect from statements with scalar select-clause");
         }
