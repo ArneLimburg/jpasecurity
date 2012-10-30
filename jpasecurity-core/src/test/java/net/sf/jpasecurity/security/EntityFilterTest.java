@@ -91,6 +91,14 @@ public class EntityFilterTest {
                         .andReturn(idPropertyMapping).anyTimes();
         expect(mappingInformation.getPropertyMapping(eq(new Path("tb.name")), (Set<TypeDefinition>)anyObject()))
                         .andReturn(namePropertyMapping).anyTimes();
+        expect(mappingInformation.getPropertyMapping(eq(new Path("parent.name")), (Set<TypeDefinition>)anyObject()))
+                        .andReturn(namePropertyMapping).anyTimes();
+        expect(mappingInformation.getPropertyMapping(eq(new Path("KEY(related).name")),
+                                                     (Set<TypeDefinition>)anyObject()))
+                        .andReturn(namePropertyMapping).anyTimes();
+        expect(mappingInformation.getPropertyMapping(eq(new Path("VALUE(related).name")),
+                                                     (Set<TypeDefinition>)anyObject()))
+                        .andReturn(namePropertyMapping).anyTimes();
         expect(mappingInformation.getPropertyMapping(eq(new Path("child.parent")), (Set<TypeDefinition>)anyObject()))
                         .andReturn(beanPropertyMapping).anyTimes();
         expect(mappingInformation.getPropertyMapping(eq(new Path("KEY(related).parent")),
@@ -205,6 +213,32 @@ public class EntityFilterTest {
     }
 
     @Test
+    public void filterCoalesceQuery() {
+        String plainQuery = "SELECT COALESCE(parent.name, KEY(related).name, VALUE(related).name, tb.name) "
+                            + "FROM MethodAccessTestBean tb "
+                            + "LEFT OUTER JOIN tb.parent parent LEFT OUTER JOIN tb.related related";
+        String restrictedQuery = "SELECT  COALESCE(parent.name,  KEY(related).name,  VALUE(related).name, tb.name) "
+                                 + " FROM MethodAccessTestBean tb"
+                                 + " LEFT OUTER JOIN tb.parent parent  LEFT OUTER JOIN tb.related related "
+                                 + " WHERE (( NOT ( NOT (parent.name IS NOT NULL ) AND"
+                                 + "  NOT ( KEY(related).name IS NOT NULL ) AND"
+                                 + "  NOT ( VALUE(related).name IS NOT NULL ) AND (tb.name IS NOT NULL ))"
+                                 + " OR (tb.name = :CURRENT_PRINCIPAL))"
+                                 + " AND ( NOT (parent.name IS NOT NULL ) OR (parent.name = :CURRENT_PRINCIPAL))"
+                                 + " AND ( NOT ( NOT (parent.name IS NOT NULL ) AND ( KEY(related).name IS NOT NULL ))"
+                                 + " OR (related.name = :CURRENT_PRINCIPAL))"
+                                 + " AND ( NOT ( NOT (parent.name IS NOT NULL ) AND"
+                                 + "  NOT ( KEY(related).name IS NOT NULL ) AND"
+                                 + "  NOT ( VALUE(related).name IS NOT NULL ) AND"
+                                 + "  NOT (tb.name IS NOT NULL )) OR (tb.name = :CURRENT_PRINCIPAL))"
+                                 + " AND ( NOT ( NOT (parent.name IS NOT NULL ) AND"
+                                 + "  NOT ( KEY(related).name IS NOT NULL ) AND ( VALUE(related).name IS NOT NULL ))"
+                                 + " OR (related.name = :CURRENT_PRINCIPAL)))";
+        FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
+        assertEquals(restrictedQuery, result.getQuery().trim());
+    }
+
+    @Test
     public void filterConstructorQueryWithCase() {
         String plainQuery = "SELECT new net.sf.jpasecurity.model.MethodAccessTestBean("
                             + "CASE WHEN TYPE(child) = TestBeanSubclass THEN tb.id "
@@ -303,6 +337,7 @@ public class EntityFilterTest {
             for (TypeDefinition typeDefinition: typeDefinitions) {
                 if (typeDefinition.getAlias().getName().equals(path.getRootAlias().getName())) {
                     if (path.getSubpath() == null
+                        || path.getSubpath().equals("parent")
                         || path.getSubpath().equals("children")
                         || path.getSubpath().equals("related")) {
                         return (Class<T>)typeDefinition.getType();

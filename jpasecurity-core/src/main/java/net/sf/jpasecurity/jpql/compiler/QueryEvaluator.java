@@ -36,6 +36,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlBetween;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
 import net.sf.jpasecurity.jpql.parser.JpqlCase;
+import net.sf.jpasecurity.jpql.parser.JpqlCoalesce;
 import net.sf.jpasecurity.jpql.parser.JpqlCollectionValuedPath;
 import net.sf.jpasecurity.jpql.parser.JpqlConcat;
 import net.sf.jpasecurity.jpql.parser.JpqlCurrentDate;
@@ -949,6 +950,21 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             }
         }
         return visit(node.jjtGetChild(node.jjtGetNumChildren() - 1));
+    }
+
+    public boolean visit(JpqlCoalesce node, QueryEvaluationParameters data) {
+        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+            node.jjtGetChild(i).visit(this, data);
+            try {
+                if (data.getResult() != null) {
+                    return false;
+                }
+            } catch (NotEvaluatableException e) {
+                // result is undefined;
+                return false;
+            }
+        }
+        return false;
     }
 
     public boolean visit(JpqlWhen node, QueryEvaluationParameters data) {
