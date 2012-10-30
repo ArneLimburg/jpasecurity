@@ -239,6 +239,15 @@ public class EntityFilterTest {
     }
 
     @Test
+    public void filterNullifQuery() {
+        String plainQuery = "SELECT NULLIF(tb.name, 'Test') FROM MethodAccessTestBean tb ";
+        String restrictedQuery = "SELECT  NULLIF(tb.name, 'Test')  FROM MethodAccessTestBean tb "
+                                 + "WHERE ( NOT (tb.name <> 'Test') OR (tb.name = :CURRENT_PRINCIPAL))";
+        FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
+        assertEquals(restrictedQuery, result.getQuery().trim());
+    }
+
+    @Test
     public void filterConstructorQueryWithCase() {
         String plainQuery = "SELECT new net.sf.jpasecurity.model.MethodAccessTestBean("
                             + "CASE WHEN TYPE(child) = TestBeanSubclass THEN tb.id "

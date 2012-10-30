@@ -72,6 +72,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlNegative;
 import net.sf.jpasecurity.jpql.parser.JpqlNot;
 import net.sf.jpasecurity.jpql.parser.JpqlNotEquals;
+import net.sf.jpasecurity.jpql.parser.JpqlNullif;
 import net.sf.jpasecurity.jpql.parser.JpqlOr;
 import net.sf.jpasecurity.jpql.parser.JpqlOrderBy;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
@@ -963,6 +964,27 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
                 // result is undefined;
                 return false;
             }
+        }
+        return false;
+    }
+
+    public boolean visit(JpqlNullif node, QueryEvaluationParameters data) {
+        validateChildCount(node, 2);
+        try {
+            node.jjtGetChild(0).visit(this, data);
+            Object result = data.getResult();
+            if (result == null) {
+                // result will stay null
+                return false;
+            }
+            node.jjtGetChild(1).visit(this, data);
+            if (result.equals(data.getResult())) {
+                data.setResult(null);
+            } else {
+                data.setResult(result);
+            }
+        } catch (NotEvaluatableException e1) {
+            // result is undefined
         }
         return false;
     }

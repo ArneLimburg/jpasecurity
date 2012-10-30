@@ -37,6 +37,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlInCollection;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlInnerJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
+import net.sf.jpasecurity.jpql.parser.JpqlNullif;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlOuterJoin;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
@@ -220,6 +221,12 @@ public class JpqlCompiler {
             return false;
         }
 
+        public boolean visit(JpqlNullif node, List<Path> selectedPaths) {
+            Node child1 = node.jjtGetChild(0).clone();
+            Node child2 = node.jjtGetChild(1).clone();
+            selectedPaths.add(new ConditionalPath(child1.toString(), queryPreparator.createNotEquals(child1, child2)));
+            return false;
+        }
 
         public boolean visit(JpqlPath node, List<Path> selectedPaths) {
             if (entryVisitor.isEntry(node)) {

@@ -513,7 +513,6 @@ public class QueryEvaluatorTest {
         }
     }
 
-
     @Test
     public void evaluateCoalesce() throws Exception {
         JpqlCompiledStatement statement
@@ -567,6 +566,28 @@ public class QueryEvaluatorTest {
         //parent.name = bean.name
         parent.setName("bean");
         assertTrue(evaluate(statement.getWhereClause(), parameters));
+    }
+
+    @Test
+    public void evaluateNullif() throws Exception {
+        JpqlCompiledStatement statement = compile(SELECT + "WHERE NULLIF(bean.name, 'test') = :name");
+        MethodAccessTestBean testBean = new MethodAccessTestBean();
+        aliases.put(new Alias("bean"), testBean);
+
+        //NULLIF returns null
+        testBean.setName("test");
+        namedParameters.put("name", "test");
+        assertFalse(evaluate(statement.getWhereClause(), parameters));
+
+        //NULLIF returns bean.name
+        testBean.setName("test2");
+        namedParameters.put("name", "test2");
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+
+        //NULLIF returns bean.name
+        testBean.setName("test2");
+        namedParameters.put("name", "test3");
+        assertFalse(evaluate(statement.getWhereClause(), parameters));
     }
 
     @Test
