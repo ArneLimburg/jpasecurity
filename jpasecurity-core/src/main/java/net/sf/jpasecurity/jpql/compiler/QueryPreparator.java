@@ -30,11 +30,13 @@ import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import net.sf.jpasecurity.jpql.parser.JpqlIdentificationVariableDeclaration;
 import net.sf.jpasecurity.jpql.parser.JpqlIn;
 import net.sf.jpasecurity.jpql.parser.JpqlIntegerLiteral;
+import net.sf.jpasecurity.jpql.parser.JpqlIsNull;
 import net.sf.jpasecurity.jpql.parser.JpqlKey;
 import net.sf.jpasecurity.jpql.parser.JpqlNamedInputParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlNot;
 import net.sf.jpasecurity.jpql.parser.JpqlNotEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlOr;
+import net.sf.jpasecurity.jpql.parser.JpqlParserConstants;
 import net.sf.jpasecurity.jpql.parser.JpqlParserTreeConstants;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
 import net.sf.jpasecurity.jpql.parser.JpqlSelectClause;
@@ -234,6 +236,14 @@ public class QueryPreparator {
 
     public Node createNot(Node node) {
         return appendChildren(new JpqlNot(JpqlParserTreeConstants.JJTNOT), node);
+    }
+
+    public Node createIsNull(Node node) {
+        return appendChildren(new JpqlIsNull(JpqlParserConstants.NULL), node);
+    }
+
+    public Node createIsNotNull(Node node) {
+        return createNot(createIsNull(node));
     }
 
     /**

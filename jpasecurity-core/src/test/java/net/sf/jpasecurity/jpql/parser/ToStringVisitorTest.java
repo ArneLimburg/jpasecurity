@@ -113,6 +113,8 @@ public class ToStringVisitorTest {
                    + "FROM TestBean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
         assertJpql("SELECT bean, 'name', CASE bean.name WHEN 'name 1' THEN bean.name ELSE 'name 2' END "
                    + "FROM TestBean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
+        assertJpql("SELECT COALESCE(parent.name, KEY(related).name, VALUE(related).name, bean.name) "
+                   + "FROM TestBean bean LEFT OUTER JOIN bean.parent parent LEFT OUTER JOIN bean.related related");
         assertJpql("SELECT bean, COUNT( DISTINCT bean) AS beanCount FROM TestBean bean WHERE bean.name = 'name 1'");
         assertJpql("SELECT bean FROM TestBean bean WHERE TYPE(bean) = TestBeanSubclass");
         assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.related related "

@@ -513,6 +513,62 @@ public class QueryEvaluatorTest {
         }
     }
 
+
+    @Test
+    public void evaluateCoalesce() throws Exception {
+        JpqlCompiledStatement statement
+            = compile(SELECT
+                      + " LEFT OUTER JOIN bean.parent parent LEFT OUTER JOIN bean.related related"
+                      + " WHERE bean.name = COALESCE(parent.name, KEY(related).name, VALUE(related).name, b.name)");
+        MethodAccessTestBean bean = new MethodAccessTestBean();
+        MethodAccessTestBean b = new MethodAccessTestBean();
+        entities.put(MethodAccessTestBean.class, Collections.<Object> singleton(bean));
+        aliases.put(new Alias("bean"), bean);
+        aliases.put(new Alias("b"), b);
+        aliases.put(new Alias("parent"), null);
+        aliases.put(new Alias("related"), Collections.<MethodAccessTestBean, MethodAccessTestBean>emptyMap());
+
+        //everything is null;
+        assertFalse(evaluate(statement.getWhereClause(), parameters));
+
+        //bean.name = b.name
+        bean.setName("bean");
+        b.setName("bean");
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+        b.setName("b");
+
+        //VALUE(related) is not null, but VALUE(related).name is not bean.name
+        MethodAccessTestBean relatedValue = new MethodAccessTestBean("relatedValue");
+        aliases.put(new Alias("related"),
+                    Collections.<MethodAccessTestBean, MethodAccessTestBean>singletonMap(null, relatedValue));
+        assertFalse(evaluate(statement.getWhereClause(), parameters));
+
+        //VALUE(related).name = bean.name
+        relatedValue.setName("bean");
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+        relatedValue.setName("relatedValue");
+
+        //KEY(related) is not null, but KEY(related).name is not bean.name
+        MethodAccessTestBean relatedKey = new MethodAccessTestBean("relatedKey");
+        aliases.put(new Alias("related"),
+                    Collections.<MethodAccessTestBean, MethodAccessTestBean>singletonMap(relatedKey, relatedValue));
+        assertFalse(evaluate(statement.getWhereClause(), parameters));
+
+        //KEY(related).name = bean.name
+        relatedKey.setName("bean");
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+        relatedKey.setName("relatedKey");
+
+        //parent is not null, but parent.name is not bean.name
+        MethodAccessTestBean parent = new MethodAccessTestBean("parent");
+        aliases.put(new Alias("parent"), parent);
+        assertFalse(evaluate(statement.getWhereClause(), parameters));
+
+        //parent.name = bean.name
+        parent.setName("bean");
+        assertTrue(evaluate(statement.getWhereClause(), parameters));
+    }
+
     @Test
     public void evaluateOr() throws Exception {
         JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.name = :name OR bean.id = ?1");

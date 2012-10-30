@@ -621,6 +621,17 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
         return false;
     }
 
+    public boolean visit(JpqlCoalesce node, StringBuilder query) {
+        query.append(" COALESCE(");
+        node.jjtGetChild(0).visit(this, query);
+        for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+            query.append(", ");
+            node.jjtGetChild(i).visit(this, query);
+        }
+        query.append(") ");
+        return false;
+    }
+
     /**
      * {@inheritDoc}
      */

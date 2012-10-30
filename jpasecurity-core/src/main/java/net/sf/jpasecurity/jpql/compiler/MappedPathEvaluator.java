@@ -58,6 +58,9 @@ public class MappedPathEvaluator implements PathEvaluator {
         for (String property: pathElements) {
             resultCollection.clear();
             for (Object rootObject: rootCollection) {
+                if (rootObject == null) {
+                    continue;
+                }
                 ClassMappingInformation classMapping = mappingInformation.getClassMapping(rootObject.getClass());
                 if (classMapping.containsPropertyMapping(property)) {
                     PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(property);
