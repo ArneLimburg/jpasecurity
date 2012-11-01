@@ -24,18 +24,22 @@
   </table>
   <table class="table-buttons">
     <tr>
-      <td colspan="2" align="center">
-        <spring:url value="{ownerId}/edit" var="editUrl">
-        	<spring:param name="ownerId" value="${owner.id}" />
-        </spring:url>
-        <a href="${fn:escapeXml(editUrl)}">Edit Owner</a>
-      </td>
-      <td>
-        <spring:url value="{ownerId}/pets/new" var="addUrl">
-        	<spring:param name="ownerId" value="${owner.id}" />
-        </spring:url>
-        <a href="${fn:escapeXml(addUrl)}">Add New Pet</a>
-      </td>
+      <access:updating entity="owner">
+        <td colspan="2" align="center">
+          <spring:url value="{ownerId}/edit" var="editUrl">
+            <spring:param name="ownerId" value="${owner.id}" />
+          </spring:url>
+          <a href="${fn:escapeXml(editUrl)}">Edit Owner</a>
+        </td>
+      </access:updating>
+      <access:creation type="Pet" parameters="owner">
+        <td>
+          <spring:url value="{ownerId}/pets/new" var="addUrl">
+            <spring:param name="ownerId" value="${owner.id}" />
+          </spring:url>
+          <a href="${fn:escapeXml(addUrl)}">Add New Pet</a>
+        </td>
+      </access:creation>
     </tr>
   </table>
 
@@ -87,21 +91,25 @@
     </table>
     <table class="table-buttons">
       <tr>
-        <td>
-          <spring:url value="{ownerId}/pets/{petId}/edit" var="petUrl">
-            <spring:param name="ownerId" value="${owner.id}"/>
-            <spring:param name="petId" value="${pet.id}"/>
-          </spring:url>
-          <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
-        </td>
+        <access:updating entity="pet">
+          <td>
+            <spring:url value="{ownerId}/pets/{petId}/edit" var="petUrl">
+              <spring:param name="ownerId" value="${owner.id}"/>
+              <spring:param name="petId" value="${pet.id}"/>
+            </spring:url>
+            <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
+          </td>
+        </access:updating>
         <td></td>
-        <td>
-          <spring:url value="{ownerId}/pets/{petId}/visits/new" var="visitUrl">
-            <spring:param name="ownerId" value="${owner.id}"/>
-            <spring:param name="petId" value="${pet.id}"/>
-          </spring:url>
-          <a href="${fn:escapeXml(visitUrl)}">Add Visit</a>
-        </td>
+        <access:creation type="Visit" parameters="pet">
+          <td>
+            <spring:url value="{ownerId}/pets/{petId}/visits/new" var="visitUrl">
+              <spring:param name="ownerId" value="${owner.id}"/>
+              <spring:param name="petId" value="${pet.id}"/>
+            </spring:url>
+            <a href="${fn:escapeXml(visitUrl)}">Add Visit</a>
+          </td>
+        </access:creation>
         <td></td>
         <td>
           <spring:url value="{ownerId}/pets/{petId}/visits.atom" var="feedUrl">
