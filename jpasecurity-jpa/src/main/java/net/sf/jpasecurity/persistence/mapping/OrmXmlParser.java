@@ -49,7 +49,6 @@ import net.sf.jpasecurity.mapping.EntityListenerWrapper;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.xml.EmptyNodeList;
 
-import javassist.bytecode.CodeAttribute.RuntimeCopyException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -732,7 +731,7 @@ public class OrmXmlParser extends JpaAnnotationParser {
                 if (e.getCause() instanceof ClassNotFoundException) {
                     try {
                         return parse(getClass(className), false, true, null);
-                    } catch (RuntimeCopyException c) {
+                    } catch (RuntimeException c) {
                         if (c.getCause() instanceof ClassNotFoundException) {
                             throw className.indexOf('.') != -1? c: e;
                         }
@@ -967,6 +966,7 @@ public class OrmXmlParser extends JpaAnnotationParser {
             if (evaluateNode(mappingDocument, ENTITY_XPATH, mappedClass) != null
                 || evaluateNode(mappingDocument, EMBEDDABLE_XPATH, mappedClass) != null
                 || evaluateNode(mappingDocument, MAPPED_SUPERCLASS_XPATH, mappedClass) != null) {
+// The following check does not work with our unit-test-setup currently...
 //                checkDuplicateDefinition(mappedClass, foundDocument, mappingDocument);
                 foundDocument = mappingDocument;
             }
