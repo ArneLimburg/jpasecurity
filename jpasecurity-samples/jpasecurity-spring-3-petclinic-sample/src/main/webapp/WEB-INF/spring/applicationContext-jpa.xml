@@ -96,7 +96,8 @@
 
     <sec:http pattern="/login" security="none"/>
 	<sec:http auto-config="true">
-        <sec:intercept-url pattern="/owners/new" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <sec:intercept-url pattern="/static/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+	    <sec:intercept-url pattern="/owners/new" access="IS_AUTHENTICATED_ANONYMOUSLY" />
         <sec:intercept-url pattern="/**" access="ROLE_USER" />
         <sec:form-login login-page="/login" default-target-url="/"/>
         <sec:logout />
