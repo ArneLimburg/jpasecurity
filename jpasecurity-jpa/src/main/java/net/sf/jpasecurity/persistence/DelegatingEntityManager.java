@@ -201,4 +201,8 @@ public class DelegatingEntityManager implements EntityManager {
     public Metamodel getMetamodel() {
         return delegate.getMetamodel();
     }
+
+    public EntityManager getUnsecureEntityManager(){
+        return delegate;
+    }
 }
