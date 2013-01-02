@@ -202,7 +202,7 @@ public class DelegatingEntityManager implements EntityManager {
         return delegate.getMetamodel();
     }
 
-    public EntityManager getUnsecureEntityManager(){
+    public EntityManager getUnsecureEntityManager() {
         return delegate;
     }
 }
