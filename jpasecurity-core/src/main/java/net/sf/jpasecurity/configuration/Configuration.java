@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
@@ -42,6 +43,9 @@ public class Configuration {
     public static final String ACCESS_RULES_PROVIDER_PROPERTY = "net.sf.jpasecurity.security.rules.provider";
     public static final String DEFAULT_ACCESS_RULES_PROVIDER_CLASS
         = "net.sf.jpasecurity.security.rules.DefaultAccessRulesProvider";
+    public static final String ACCESS_MANAGER_PROPERTY = "net.sf.jpasecurity.security.accessManager";
+    public static final String DEFAULT_ACCESS_MANAGER_CLASS
+        = "net.sf.jpasecurity.security.DefaultAccessManager";
     public static final String SECURE_ENTITY_PROXY_FACTORY_PROPERTY = "net.sf.jpasecurity.proxy.factory";
     public static final String DEFAULT_SECURE_ENTITY_PROXY_FACTORY_CLASS
         = "net.sf.jpasecurity.proxy.CgLibSecureEntityProxyFactory";
@@ -59,6 +63,7 @@ public class Configuration {
     private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
     private BeanInitializer beanInitializer;
     private ExceptionFactory exceptionFactory;
+    private AccessManager accessManager;
 
     public Configuration() {
         this(null);
@@ -155,6 +160,13 @@ public class Configuration {
         return newInstance(AccessRulesProvider.class,
                            ACCESS_RULES_PROVIDER_PROPERTY,
                            DEFAULT_ACCESS_RULES_PROVIDER_CLASS);
+    }
+
+    public AccessManager createAccessManager(Object... params) {
+        return newInstance(AccessManager.class,
+                           ACCESS_MANAGER_PROPERTY,
+                           DEFAULT_ACCESS_MANAGER_CLASS,
+                           params);
     }
 
     private SecurityContext createSecurityContext() {
