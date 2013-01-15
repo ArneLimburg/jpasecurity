@@ -53,7 +53,6 @@ import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.persistence.compiler.EntityManagerEvaluator;
 import net.sf.jpasecurity.persistence.security.CriteriaEntityFilter;
 import net.sf.jpasecurity.persistence.security.CriteriaFilterResult;
-import net.sf.jpasecurity.security.DefaultAccessManager;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.util.SystemIdentity;
 
@@ -113,7 +112,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                                                      simpleSubselectEvaluator,
                                                      objectCacheEvaluator,
                                                      entityManagerEvaluator);
-        this.accessManager = new DefaultAccessManager(mapping,
+        this.accessManager = configuration.createAccessManager(mapping,
                                                       configuration.getBeanInitializer(),
                                                       configuration.getSecureEntityProxyFactory(),
                                                       (AbstractSecureObjectManager)secureObjectManager,
