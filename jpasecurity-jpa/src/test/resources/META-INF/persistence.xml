@@ -360,6 +360,32 @@
         </properties>
 
     </persistence-unit>
+    <persistence-unit name="acl-model-nocache" transaction-type="RESOURCE_LOCAL">
+
+        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+        <class>net.sf.jpasecurity.model.acl.Acl</class>
+        <class>net.sf.jpasecurity.model.acl.AclEntry</class>
+        <class>net.sf.jpasecurity.model.acl.Group</class>
+        <class>net.sf.jpasecurity.model.acl.Privilege</class>
+        <class>net.sf.jpasecurity.model.acl.Role</class>
+        <class>net.sf.jpasecurity.model.acl.User</class>
+        <class>net.sf.jpasecurity.model.acl.AclProtectedEntity</class>
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <properties>
+            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
+            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:acl" />
+            <property name="hibernate.connection.username" value="sa" />
+            <property name="hibernate.connection.password" value="" />
+        </properties>
+
+    </persistence-unit>
 
     <persistence-unit name="hibernate" transaction-type="RESOURCE_LOCAL">
 

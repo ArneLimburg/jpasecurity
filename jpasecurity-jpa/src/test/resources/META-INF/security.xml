@@ -85,6 +85,33 @@
     </access-rule>
   </persistence-unit>
 
+  <persistence-unit name="acl-model-nocache">
+    <!-- master user with read access -->
+    <access-rule>
+      GRANT READ ACCESS TO net.sf.jpasecurity.model.acl.AccessControlled bean WHERE (-1 IN (CURRENT_ROLES))
+    </access-rule>
+    <!-- master user with write access -->
+    <access-rule>
+      GRANT ACCESS TO net.sf.jpasecurity.model.acl.AccessControlled bean WHERE (-2 IN (CURRENT_ROLES))
+    </access-rule>
+    <access-rule>
+      GRANT ACCESS TO net.sf.jpasecurity.model.acl.AccessControlled bean
+      WHERE (bean.accessControlList is null OR EXISTS (
+      SELECT /* QUERY_OPTIMIZE_NOCACHE */ e FROM Acl acl JOIN acl.entries e
+      WHERE acl = bean.accessControlList
+      AND (
+      (e.group is null AND EXISTS (SELECT /* QUERY_OPTIMIZE_NOCACHE */ user FROM User user JOIN user.roles role JOIN role.privileges privilege
+      WHERE privilege = e.privilege AND user.id = CURRENT_PRINCIPAL))
+      OR (e.privilege is null AND EXISTS (SELECT /* QUERY_OPTIMIZE_NOCACHE */ user2 FROM User user2 JOIN user2.groups group2 JOIN
+      group2.fullHierarchy fullHierarchy2 WHERE user2.id = CURRENT_PRINCIPAL AND fullHierarchy2 = e.group))
+      OR (EXISTS (SELECT /* QUERY_OPTIMIZE_NOCACHE */ user3 FROM User user3 JOIN user3.groups groups3 JOIN groups3.fullHierarchy fullHierarchy3
+      WHERE user3.id = CURRENT_PRINCIPAL AND fullHierarchy3 = e.group) AND EXISTS (SELECT /* QUERY_OPTIMIZE_NOCACHE */ user FROM User user JOIN
+      user.roles role JOIN role.privileges privilege WHERE privilege = e.privilege AND user.id = CURRENT_PRINCIPAL))
+      )
+      ))
+    </access-rule>
+  </persistence-unit>
+
   <persistence-unit name="alias">
   	<access-rule>
       GRANT ACCESS TO Contact contact WHERE contact.owner.name = 'user'

@@ -32,7 +32,9 @@ import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.jpql.compiler.PathEvaluator;
 import net.sf.jpasecurity.jpql.compiler.QueryEvaluationParameters;
 import net.sf.jpasecurity.jpql.compiler.QueryPreparator;
+import net.sf.jpasecurity.jpql.parser.JpqlNoDbIsAccessible;
 import net.sf.jpasecurity.jpql.parser.JpqlPath;
+import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.Path;
 import net.sf.jpasecurity.mapping.TypeDefinition;
@@ -75,10 +77,20 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
      * If this evaluator is already closed, the result of the evaluation is set to <quote>undefined</quote>.
      */
     public Collection<?> evaluate(JpqlCompiledStatement statement,
-                                  QueryEvaluationParameters data) throws NotEvaluatableException {
-        if (entityManager == null || !entityManager.isOpen() || data.isInMemory()) {
-            data.setResultUndefined();
+                                  QueryEvaluationParameters evaluationParameters) throws NotEvaluatableException {
+        if (!isEntityManagerOpen()) {
+            evaluationParameters.setResultUndefined();
             throw new NotEvaluatableException("No open EntityManage available");
+        }
+        if (!isNotInMemory(evaluationParameters)) {
+            evaluationParameters.setResultUndefined();
+            throw new NotEvaluatableException("Only in memory evaluation");
+        }
+        if (isDisabledByHint((JpqlSubselect)statement.getStatement(), evaluationParameters)) {
+            evaluationParameters.setResultUndefined();
+            throw new NotEvaluatableException(
+                "EntityManagerEvaluator is disabled by IS_ACCESSIBLE_NODB hint in mode " + evaluationParameters
+                    .getEvaluationType());
         }
         LOG.trace("Evaluating subselect with query");
         Set<Alias> aliases = getAliases(statement.getTypeDefinitions());
@@ -93,20 +105,21 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
                 if (namedParameter == null) {
                     namedParameter = createNamedParameter(namedParameters);
                     namedPathParameters.put(alias.getName(), namedParameter);
-                    namedParameterValues.put(namedParameter, getPathValue(path, data.getAliasValues()));
+                    namedParameterValues.put(namedParameter, getPathValue(path, evaluationParameters.getAliasValues()));
                 }
                 queryPreparator.replace(jpqlPath, queryPreparator.createNamedParameter(namedParameter));
             }
         }
-        String queryString = statement.getStatement().toString();
+        String queryString = ((JpqlSubselect)statement.getStatement()).toJpqlString();
         LOG.info("executing query " + queryString);
         try {
             JpaQuery query = new JpaQuery(entityManager.createQuery(queryString));
             for (String namedParameter: statement.getNamedParameters()) {
                 if (objectManager == null) {
-                    query.setParameter(namedParameter, data.getNamedParameterValue(namedParameter));
+                    query.setParameter(namedParameter, evaluationParameters.getNamedParameterValue(namedParameter));
                 } else {
-                    objectManager.setParameter(query, namedParameter, data.getNamedParameterValue(namedParameter));
+                    objectManager.setParameter(query, namedParameter,
+                        evaluationParameters.getNamedParameterValue(namedParameter));
                 }
             }
             for (Map.Entry<String, Object> namedParameter: namedParameterValues.entrySet()) {
@@ -117,12 +130,31 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
                 }
             }
             List<?> result = query.getWrappedQuery().getResultList();
-            data.setResult(result);
+            evaluationParameters.setResult(result);
             return result;
         } catch (RuntimeException e) {
-            data.setResultUndefined();
+            evaluationParameters.setResultUndefined();
             throw new NotEvaluatableException(e);
         }
+    }
+
+    public boolean canEvaluate(JpqlSubselect node, QueryEvaluationParameters parameters) {
+        return isEntityManagerOpen()
+            && isNotInMemory(parameters)
+            && !isDisabledByHint(node, parameters);
+    }
+
+    private boolean isDisabledByHint(JpqlSubselect node, QueryEvaluationParameters parameters) {
+        return !(isAccessCheck(parameters) && !isEvaluationDisabledByHint(node, JpqlNoDbIsAccessible.class));
+    }
+
+    private boolean isNotInMemory(QueryEvaluationParameters parameters) {
+        return !parameters.isInMemory();
+    }
+
+    private boolean isEntityManagerOpen() {
+        return entityManager != null
+            && entityManager.isOpen();
     }
 
     private Object getPathValue(Path path, Map<Alias, Object> aliases) {

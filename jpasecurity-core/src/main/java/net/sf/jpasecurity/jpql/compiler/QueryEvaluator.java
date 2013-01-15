@@ -864,14 +864,16 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         return false;
     }
 
-    public boolean visit(JpqlSubselect node, QueryEvaluationParameters data) {
+    public boolean visit(JpqlSubselect node, QueryEvaluationParameters evaluationParameters) {
         JpqlCompiledStatement subselect = compiler.compile(node);
         for (SubselectEvaluator subselectEvaluator: subselectEvaluators) {
-            try {
-                data.setResult(subselectEvaluator.evaluate(subselect, data));
-                return false;
-            } catch (NotEvaluatableException e) {
-                data.setResultUndefined();
+            if (subselectEvaluator.canEvaluate(node, evaluationParameters)) {
+                try {
+                    evaluationParameters.setResult(subselectEvaluator.evaluate(subselect, evaluationParameters));
+                    return false;
+                } catch (NotEvaluatableException e) {
+                    evaluationParameters.setResultUndefined();
+                }
             }
         }
         return false;

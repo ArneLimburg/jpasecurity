@@ -22,6 +22,10 @@ import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.entity.SecureObjectCache;
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlExists;
+import net.sf.jpasecurity.jpql.parser.JpqlNoCacheIsAccessible;
+import net.sf.jpasecurity.jpql.parser.JpqlNoCacheQueryOptimize;
+import net.sf.jpasecurity.jpql.parser.JpqlSubselect;
+import net.sf.jpasecurity.jpql.parser.Node;
 
 /**
  * A subselect-evaluator that evaluates subselects based on the content of the object cache
@@ -42,9 +46,23 @@ public class ObjectCacheSubselectEvaluator extends SimpleSubselectEvaluator {
     public Collection<?> evaluate(JpqlCompiledStatement subselect,
                                   QueryEvaluationParameters parameters)
         throws NotEvaluatableException {
-        if (!(subselect.getStatement().jjtGetParent() instanceof JpqlExists)) {
+        if (!(isParentExists((JpqlSubselect)subselect.getStatement()))) {
             parameters.setResultUndefined();
             throw new NotEvaluatableException("ObjectCacheSubselectEvaluator only can evaluate subselects of an EXISTS");
+        }
+        if (isQueryOptimize(parameters)
+            && !(canEvaluateInQueryOptimize((JpqlSubselect)subselect.getStatement(), parameters))) {
+            parameters.setResultUndefined();
+            throw new NotEvaluatableException(
+                "ObjectCacheSubselectEvaluator is disabled by QUERY_OPTIMIZE_NOCACHE hint in mode " + parameters
+                    .getEvaluationType());
+        }
+        if (isAccessCheck(parameters)
+            && !(canEvaluateInAccessCheck((JpqlSubselect)subselect.getStatement(), parameters))) {
+            parameters.setResultUndefined();
+            throw new NotEvaluatableException(
+                "ObjectCacheSubselectEvaluator is disabled by IS_ACCESSIBLE_NOCACHE hint in mode " + parameters
+                    .getEvaluationType());
         }
         Collection<?> result = super.evaluate(subselect, parameters);
         if (result.size() > 0) {
@@ -57,6 +75,33 @@ public class ObjectCacheSubselectEvaluator extends SimpleSubselectEvaluator {
             parameters.setResultUndefined();
             throw new NotEvaluatableException();
         }
+    }
+
+    public boolean canEvaluate(JpqlSubselect node, QueryEvaluationParameters parameters) {
+        return isParentExists(node)
+            && (canEvaluateInQueryOptimize(node, parameters)
+            || canEvaluateInAccessCheck(node, parameters));
+    }
+
+    private boolean canEvaluateInAccessCheck(JpqlSubselect node, QueryEvaluationParameters parameters) {
+        return isAccessCheck(parameters) && !isObjectCacheEvaluationDisabledByIsAccessibleHint(node);
+    }
+
+    private boolean canEvaluateInQueryOptimize(JpqlSubselect node, QueryEvaluationParameters parameters) {
+        return isQueryOptimize(parameters)
+            && !isObjectCacheEvaluationDisabledByQueryHint(node);
+    }
+
+    private boolean isParentExists(JpqlSubselect node) {
+        return node.jjtGetParent() instanceof JpqlExists;
+    }
+
+    private boolean isObjectCacheEvaluationDisabledByQueryHint(Node node) {
+        return isEvaluationDisabledByHint(node, JpqlNoCacheQueryOptimize.class);
+    }
+
+    private boolean isObjectCacheEvaluationDisabledByIsAccessibleHint(Node node) {
+        return isEvaluationDisabledByHint(node, JpqlNoCacheIsAccessible.class);
     }
 
     protected Collection<?> getResult(Replacement replacement, QueryEvaluationParameters parameters)

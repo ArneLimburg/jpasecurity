@@ -123,6 +123,12 @@ TOKEN[IGNORE_CASE]: {
   | <NOT: "NOT">
 }
 
+TOKEN: {
+    <QUERY_OPTIMIZE_NOCACHE: "QUERY_OPTIMIZE_NOCACHE">
+  | <IS_ACCESSIBLE_NOCACHE: "IS_ACCESSIBLE_NOCACHE">
+  | <IS_ACCESSIBLE_NODB: "IS_ACCESSIBLE_NODB">
+}
+
 TOKEN[IGNORE_CASE]: {
     <KEY: "KEY">
   | <VALUE: "VALUE">
@@ -450,12 +456,20 @@ void typeDiscriminator() #Type: {} {
     <TYPE> "(" (LOOKAHEAD(identificationVariable()) identificationVariable() | singleValuedPathExpression() | inputParameter()) ")"
 }
 
+void hintValues(): {} {
+    (<IS_ACCESSIBLE_NODB>#NoDbIsAccessible|<QUERY_OPTIMIZE_NOCACHE>#NoCacheQueryOptimize|<IS_ACCESSIBLE_NOCACHE>#NoCacheIsAccessible)+
+}
+
+void hint() #Hint: {} {
+    "/*" hintValues() "*/"
+}
+
 void selectClause() #SelectClause: {} {
-    <SELECT> [distinct()] selectExpressions()
+    <SELECT> [hint()] [distinct()] selectExpressions()
 }
 
 void simpleSelectClause() #SelectClause: {} {
-    <SELECT> [distinct()] subselectExpressions() 
+    <SELECT> [hint()] [distinct()] subselectExpressions()
 }
 
 void selectExpressions() #SelectExpressions: {} {
@@ -1151,6 +1165,9 @@ void objectField() #IdentificationVariable: {
     | token = <READ>
     | token = <ACCESS>
     | token = <TYPE>
+    | token = <VALUE>
+    | token = <KEY>
+    | token = <ENTRY>
     ) { jjtThis.setValue(token.image); }
 }
 

@@ -49,6 +49,7 @@ import net.sf.jpasecurity.jpql.parser.JpqlStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlWhere;
 import net.sf.jpasecurity.jpql.parser.Node;
 import net.sf.jpasecurity.jpql.parser.ParseException;
+import net.sf.jpasecurity.jpql.parser.SimpleNode;
 import net.sf.jpasecurity.mapping.Alias;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.ConditionalPath;
@@ -151,14 +152,16 @@ public class EntityFilter {
             where.jjtSetChild(and, 0);
         }
 
-        LOG.debug("Optimizing filtered query " + statement.getStatement());
+        final Node statementNode = statement.getStatement();
+        LOG.debug("Optimizing filtered query " + statementNode);
 
         optimize(accessDefinition);
         Set<String> parameterNames = compiler.getNamedParameters(accessDefinition.getAccessRules());
         Map<String, Object> parameters = accessDefinition.getQueryParameters();
         parameters.keySet().retainAll(parameterNames);
-        LOG.debug("Returning optimized query " + statement.getStatement());
-        return new FilterResult<String>(statement.getStatement().toString(),
+        final String optimizedJpqlStatement = ((SimpleNode)statementNode).toJpqlString();
+        LOG.debug("Returning optimized query " + optimizedJpqlStatement);
+        return new FilterResult<String>(optimizedJpqlStatement,
                                         parameters.size() > 0? parameters: null,
                                         statement.getSelectedPaths(),
                                         statement.getTypeDefinitions());
@@ -303,7 +306,8 @@ public class EntityFilter {
                                                 Collections.<Alias, Object>emptyMap(),
                                                 accessDefinition.getQueryParameters(),
                                                 Collections.<Integer, Object>emptyMap(),
-                                                true);
+                                                true,
+                                                QueryEvaluationParameters.EvaluationType.GET_ALWAYS_EVALUATABLE_RESULT);
             boolean result = queryEvaluator.<Boolean>evaluate(accessDefinition.getAccessRules(), evaluationParameters);
             if (result) {
                 LOG.debug("Access rules are always true for current user and roles. Returning unfiltered query");

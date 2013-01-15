@@ -1079,4 +1079,40 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlHint node, StringBuilder query) {
+        query.append("/*");
+        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+            query.append(" ");
+            node.jjtGetChild(i).visit(this, query);
+        }
+        query.append(" */ ");
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlNoCacheIsAccessible node, StringBuilder query) {
+        query.append("IS_ACCESSIBLE_NOCACHE");
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlNoCacheQueryOptimize node, StringBuilder query) {
+        query.append("QUERY_OPTIMIZE_NOCACHE");
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlNoDbIsAccessible node, StringBuilder query) {
+        query.append("IS_ACCESSIBLE_NODB");
+        return true;
+    }
 }

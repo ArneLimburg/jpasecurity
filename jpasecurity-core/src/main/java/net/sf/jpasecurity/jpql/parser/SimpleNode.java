@@ -131,6 +131,12 @@ public class SimpleNode implements Node {
         return stringBuilder.toString();
     }
 
+    public String toJpqlString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        visit(new ToJpqlStringVisitor(), stringBuilder);
+        return stringBuilder.toString();
+    }
+
     public Node clone() {
         SimpleNode node;
         try {
