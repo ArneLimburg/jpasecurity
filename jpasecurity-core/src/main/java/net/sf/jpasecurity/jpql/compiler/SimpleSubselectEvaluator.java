@@ -80,6 +80,10 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         return evaluateSubselect(subselect, parameters, variants);
     }
 
+    public boolean canEvaluate(JpqlSubselect node, QueryEvaluationParameters parameters) {
+        return true;
+    }
+
     protected Collection<?> getResult(Replacement replacement, QueryEvaluationParameters parameters)
         throws NotEvaluatableException {
         if (replacement.getReplacement() == null) {

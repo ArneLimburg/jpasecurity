@@ -16,6 +16,7 @@
 package net.sf.jpasecurity.jpql.parser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -97,6 +98,13 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean FROM TestBean bean WHERE EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)");
         assertJpql("SELECT bean FROM TestBean bean "
                    + "WHERE NOT EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)");
+        assertJpql("SELECT bean FROM TestBean bean "
+            + "WHERE NOT EXISTS ( SELECT /* QUERY_OPTIMIZE_NOCACHE */ bean FROM TestBean bean WHERE bean.id = :id)");
+        assertJpql("SELECT bean FROM TestBean bean "
+            + "WHERE NOT EXISTS ( SELECT /* IS_ACCESSIBLE_NODB */ bean FROM TestBean bean WHERE bean.id = :id)");
+        assertJpql("SELECT bean FROM TestBean bean "
+            + "WHERE NOT EXISTS ( SELECT /* QUERY_OPTIMIZE_NOCACHE IS_ACCESSIBLE_NODB IS_ACCESSIBLE_NOCACHE */"
+            + " bean FROM TestBean bean WHERE bean.id = :id)");
         assertJpql("SELECT bean FROM TestBean bean WHERE SUBSTRING(bean.name, 2, 3) = 'est'");
         assertJpql("SELECT bean FROM TestBean bean WHERE LOCATE(bean.name, 'est') = 2");
         assertJpql("SELECT bean FROM TestBean bean WHERE CONCAT(bean.name, 'est') = 'Nameest'");
@@ -130,12 +138,20 @@ public class ToStringVisitorTest {
         assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0 WHERE bean.id = 0");
         assertJpql("DELETE FROM TestBean bean");
         assertJpql("DELETE FROM TestBean bean WHERE bean.id = 0");
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.value = ?1");
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.key = ?1");
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.entry = ?1");
         assertAccessRule("GRANT CREATE READ UPDATE DELETE ACCESS TO TestBean bean WHERE bean.id = 0");
     }
 
     public void assertJpql(String query) throws ParseException {
         StringBuilder queryBuilder = new StringBuilder();
-        JpqlStatement statement = parser.parseQuery(query);
+        JpqlStatement statement = null;
+        try {
+            statement = parser.parseQuery(query);
+        } catch (ParseException e) {
+            fail("failed to parse jpql:\n\n" + query + "\n\n" + e.getMessage());
+        }
         statement.visit(toStringVisitor, queryBuilder);
         query = stripWhiteSpaces(query);
         String result = stripWhiteSpaces(queryBuilder.toString());

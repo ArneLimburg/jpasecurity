@@ -748,6 +748,22 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
         return visit(node);
     }
 
+    public boolean visit(JpqlHint node, T data) {
+        return visit(node);
+    }
+
+    public boolean visit(JpqlNoDbIsAccessible node, T data) {
+        return visit(node);
+    }
+
+    public boolean visit(JpqlNoCacheQueryOptimize node, T data) {
+        return visit(node);
+    }
+
+    public boolean visit(JpqlNoCacheIsAccessible node, T data) {
+        return visit(node);
+    }
+
     /**
      * @see #visit(Node, Object)
      */

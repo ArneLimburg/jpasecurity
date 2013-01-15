@@ -847,6 +847,38 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlAggregatePath node, T data);
 
     /**
+     * Called when visiting a <tt>JpqlHint</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlHint node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlNoDb</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlNoDbIsAccessible node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlNoCacheIsAccessible</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlNoCacheIsAccessible node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlNoCacheQueryOptimize</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlNoCacheQueryOptimize node, T data);
+
+    /**
      * Called when visiting a <tt>Node</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor

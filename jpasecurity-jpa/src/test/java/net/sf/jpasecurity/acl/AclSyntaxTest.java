@@ -58,7 +58,7 @@ public class AclSyntaxTest {
 
     @BeforeClass
     public static void createEntityManagerFactory() {
-        entityManagerFactory = Persistence.createEntityManagerFactory("acl-model");
+        entityManagerFactory = Persistence.createEntityManagerFactory("acl-model-nocache");
     }
 
     @AfterClass
@@ -128,6 +128,7 @@ public class AclSyntaxTest {
 
     @Test
     public void queryAclProtectedEntity() {
+        TestAuthenticationProvider.authenticate(FULL_ACCESS_PRIVILEGE, FULL_ACCESS_PRIVILEGE);
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -139,6 +140,7 @@ public class AclSyntaxTest {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+
             entityManager.close();
         }
     }

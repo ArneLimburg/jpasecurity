@@ -54,7 +54,8 @@ public class QueryOptimizer {
                                                         aliases,
                                                         namedParameters,
                                                         positionalParameters,
-                                                        true);
+                                                        true,
+                                                        QueryEvaluationParameters.EvaluationType.OPTIMIZE_QUERY);
     }
 
     public void optimize(JpqlCompiledStatement compiledStatement) {

@@ -27,12 +27,19 @@ import net.sf.jpasecurity.mapping.MappingInformation;
  */
 public class QueryEvaluationParameters {
 
+    public EvaluationType getEvaluationType() {
+        return evaluationType;
+    }
+
+    public enum EvaluationType { OPTIMIZE_QUERY, GET_ALWAYS_EVALUATABLE_RESULT, ACCESS_CHECK }
+
     private static final Object UNDEFINED = new Object();
 
     private final MappingInformation mappingInformation;
     private final Map<Alias, Object> aliases;
     private final Map<String, Object> namedParameters;
     private final Map<Integer, Object> positionalParameters;
+    private final EvaluationType evaluationType;
     private final boolean inMemory;
     private Object result = UNDEFINED;
 
@@ -40,14 +47,15 @@ public class QueryEvaluationParameters {
                                      Map<Alias, Object> aliases,
                                      Map<String, Object> namedParameters,
                                      Map<Integer, Object> positionalParameters) {
-        this(mappingInformation, aliases, namedParameters, positionalParameters, false);
+        this(mappingInformation, aliases, namedParameters, positionalParameters, false,  EvaluationType.ACCESS_CHECK);
     }
 
     public QueryEvaluationParameters(MappingInformation mappingInformation,
                                      Map<Alias, Object> aliases,
                                      Map<String, Object> namedParameters,
                                      Map<Integer, Object> positionalParameters,
-                                     boolean inMemory) {
+                                     boolean inMemory, //TODO replace by evaluationType if possible
+                                     EvaluationType evaluationType) {
         if (mappingInformation == null) {
             throw new IllegalArgumentException("mappingInformation may not be null");
         }
@@ -56,6 +64,7 @@ public class QueryEvaluationParameters {
         this.namedParameters = namedParameters;
         this.positionalParameters = positionalParameters;
         this.inMemory = inMemory;
+        this.evaluationType = evaluationType;
     }
 
     public QueryEvaluationParameters(QueryEvaluationParameters parameters) {
@@ -63,7 +72,8 @@ public class QueryEvaluationParameters {
              parameters.aliases,
              parameters.namedParameters,
              parameters.positionalParameters,
-             parameters.inMemory);
+             parameters.inMemory,
+             parameters.getEvaluationType());
     }
 
     public MappingInformation getMappingInformation() {
