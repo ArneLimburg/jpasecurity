@@ -17,6 +17,9 @@ package net.sf.jpasecurity.proxy;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
@@ -31,6 +34,12 @@ import net.sf.jpasecurity.SecureEntity;
  */
 public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
 
+    private static final Map<Class, Boolean> CHECKED = new HashMap<Class, Boolean>();
+
+    static {
+        CHECKED.put(Object.class, Boolean.TRUE);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -40,8 +49,30 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
         SecureEntity entity = (SecureEntity)Enhancer.create(entityType,
                                                             new Class[] {SecureEntity.class},
                                                             new CgLibMethodInterceptor(interceptor, decorator));
+        if (!checkClassForNonStaticFinalMethods(entityType)) {
+            throw new IllegalArgumentException("entity class " + entityType + " has final methods");
+        }
         decorator.setDelegate(entity);
         return entity;
+    }
+
+    public static Boolean checkClassForNonStaticFinalMethods(Class<?> entityType) {
+        if (CHECKED.containsKey(entityType)) {
+            return CHECKED.get(entityType);
+        }
+        for (int i = 0; i < entityType.getDeclaredMethods().length; i++) {
+            Method method = entityType.getDeclaredMethods()[i];
+            if (Modifier.isFinal(method.getModifiers())
+                && !Modifier.isStatic(method.getModifiers())
+                && !Modifier.isPrivate(method.getModifiers())
+                ) {
+                CHECKED.put(entityType, Boolean.FALSE);
+                return false;
+            }
+        }
+        final Boolean result = checkClassForNonStaticFinalMethods(entityType.getSuperclass());
+        CHECKED.put(entityType, result);
+        return result;
     }
 
     /**
