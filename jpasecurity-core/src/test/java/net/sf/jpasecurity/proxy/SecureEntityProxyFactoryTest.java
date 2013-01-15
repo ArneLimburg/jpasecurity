@@ -25,7 +25,14 @@ import java.lang.reflect.Method;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.jpasecurity.SecureEntity;
+import net.sf.jpasecurity.model.ChildTestBean;
+import net.sf.jpasecurity.proxy.model.PackageLocalFinalMethodTestBean;
+import net.sf.jpasecurity.proxy.model.ProtectedFinalMethodTestBean;
+import net.sf.jpasecurity.proxy.model.PublicFinalMethodTestBean;
+import net.sf.jpasecurity.proxy.model.PublicFinalMethodTestBeanInSuperclass;
+import net.sf.jpasecurity.proxy.model.PrivateFinalMethodTestBean;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -67,6 +74,23 @@ public class SecureEntityProxyFactoryTest {
         } catch (IllegalArgumentException e) {
             //expected
         }
+    }
+
+    @Test
+    public void testFinalCheck() {
+        Assert.assertTrue(CgLibSecureEntityProxyFactory.checkClassForNonStaticFinalMethods(ChildTestBean.class));
+        Assert.assertFalse(
+            CgLibSecureEntityProxyFactory.checkClassForNonStaticFinalMethods(PublicFinalMethodTestBean.class));
+        Assert.assertFalse(
+            CgLibSecureEntityProxyFactory.checkClassForNonStaticFinalMethods(ProtectedFinalMethodTestBean.class));
+        Assert.assertFalse(
+            CgLibSecureEntityProxyFactory.checkClassForNonStaticFinalMethods(PackageLocalFinalMethodTestBean.class));
+        Assert.assertFalse(
+            CgLibSecureEntityProxyFactory
+                .checkClassForNonStaticFinalMethods(PublicFinalMethodTestBeanInSuperclass.class));
+        Assert.assertTrue(
+            CgLibSecureEntityProxyFactory
+                .checkClassForNonStaticFinalMethods(PrivateFinalMethodTestBean.class));
     }
 
     public static class TestEntity {
