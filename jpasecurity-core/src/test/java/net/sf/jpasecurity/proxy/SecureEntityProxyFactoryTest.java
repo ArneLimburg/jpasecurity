@@ -30,7 +30,6 @@ import net.sf.jpasecurity.proxy.model.PackageLocalFinalMethodTestBean;
 import net.sf.jpasecurity.proxy.model.ProtectedFinalMethodTestBean;
 import net.sf.jpasecurity.proxy.model.PublicFinalMethodTestBean;
 import net.sf.jpasecurity.proxy.model.PublicFinalMethodTestBeanInSuperclass;
-import net.sf.jpasecurity.proxy.model.PrivateFinalMethodTestBean;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -88,9 +87,6 @@ public class SecureEntityProxyFactoryTest {
         Assert.assertFalse(
             CgLibSecureEntityProxyFactory
                 .checkClassForNonStaticFinalMethods(PublicFinalMethodTestBeanInSuperclass.class));
-        Assert.assertTrue(
-            CgLibSecureEntityProxyFactory
-                .checkClassForNonStaticFinalMethods(PrivateFinalMethodTestBean.class));
     }
 
     public static class TestEntity {
