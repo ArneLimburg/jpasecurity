@@ -28,15 +28,17 @@ public class InMemoryEvaluationParameters extends QueryEvaluationParameters {
     public InMemoryEvaluationParameters(MappingInformation mappingInformation,
                                         Map<Alias, Object> aliases,
                                         Map<String, Object> namedParameters,
-                                        Map<Integer, Object> positionalParameters) {
-        super(mappingInformation, aliases, namedParameters, positionalParameters, true, EvaluationType.ACCESS_CHECK);
+                                        Map<Integer, Object> positionalParameters,
+                                        EvaluationType evaluationType) {
+        super(mappingInformation, aliases, namedParameters, positionalParameters, true, evaluationType);
     }
 
     public InMemoryEvaluationParameters(QueryEvaluationParameters parameters) {
         this(parameters.getMappingInformation(),
              parameters.getAliasValues(),
              parameters.getNamedParameters(),
-             parameters.getPositionalParameters());
+             parameters.getPositionalParameters(),
+             parameters.getEvaluationType());
     }
 
 }

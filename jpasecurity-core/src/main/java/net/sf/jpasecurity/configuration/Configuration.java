@@ -79,7 +79,7 @@ public class Configuration {
     public Configuration(Configuration configuration, Map<String, Object> additionalProperties) {
         properties = new HashMap<String, Object>(configuration.properties);
         accessRulesProvider = configuration.getAccessRulesProvider();
-        securityContext = configuration.getSecurityContext();
+        securityContext = configuration.getSecurityContext();                                                                                                                           ryryOb
         secureEntityProxyFactory = configuration.getSecureEntityProxyFactory();
         propertyAccessStrategyFactory = configuration.getPropertyAccessStrategyFactory();
         beanInitializer = configuration.beanInitializer;
