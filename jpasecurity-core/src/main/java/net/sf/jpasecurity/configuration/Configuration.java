@@ -63,7 +63,6 @@ public class Configuration {
     private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
     private BeanInitializer beanInitializer;
     private ExceptionFactory exceptionFactory;
-    private AccessManager accessManager;
 
     public Configuration() {
         this(null);
