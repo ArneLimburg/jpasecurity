@@ -1142,6 +1142,11 @@ void objectField() #IdentificationVariable: {
     | token = <CURRENT_DATE>
     | token = <CURRENT_TIME>
     | token = <CURRENT_TIMESTAMP>
+    | token = <CASE>
+    | token = <WHEN>
+    | token = <THEN>
+    | token = <ELSE>
+    | token = <END>
     | token = <SELECT>
     | token = <DISTINCT>
     | token = <FROM>
