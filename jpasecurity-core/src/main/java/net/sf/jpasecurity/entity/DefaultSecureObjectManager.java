@@ -184,17 +184,29 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
     }
 
     public <P extends Parameterizable> P setParameter(P parameterizable, int index, Object value) {
-        parameterizable.setParameter(index, convertParameter(value));
+        try {
+            parameterizable.setParameter(index, convertParameter(value));
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("Value for parameter " + index + " is not valid.", e);
+        }
         return parameterizable;
     }
 
     public <P extends Parameterizable> P setParameter(P parameterizable, String name, Object value) {
-        parameterizable.setParameter(name, convertParameter(value));
+        try {
+            parameterizable.setParameter(name, convertParameter(value));
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("Value for parameter " + name + " is not valid.", e);
+        }
         return parameterizable;
     }
 
     public <P extends Parameterizable, T> P setParameter(P parameterizable, Parameter<T> parameter, T value) {
-        parameterizable.setParameter(parameter, convertParameter(value));
+        try {
+            parameterizable.setParameter(parameter, convertParameter(value));
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("Value for parameter " + parameter.getName() + " is not valid.", e);
+        }
         return null;
     }
 
@@ -204,6 +216,9 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
         } else if (value instanceof Collection) {
             Collection<Object> parameter = new ArrayList<Object>();
             for (Object entry: (Collection<?>)value) {
+                if (entry == null) {
+                    throw new NullPointerException("Nullvalue in paramter collection is not allowed.");
+                }
                 if (isSimplePropertyType(entry.getClass())) {
                     parameter.add(entry);
                 } else {
