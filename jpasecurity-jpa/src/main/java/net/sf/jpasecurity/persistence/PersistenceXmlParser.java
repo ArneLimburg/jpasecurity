@@ -110,7 +110,7 @@ public class PersistenceXmlParser extends AbstractXmlParser<PersistenceXmlParser
                 currentPersistenceUnitInfo.getMappingFileNames().add(text);
             } else if (JAR_FILE_TAG.equals(qualifiedName)) {
                 try {
-                    currentPersistenceUnitInfo.getJarFileUrls().add(new URL("jar:" + text));
+                    currentPersistenceUnitInfo.getJarFileUrls().add(new URL(text));
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
                 }
