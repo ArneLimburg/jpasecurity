@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -47,6 +48,18 @@ public class PersistenceXmlParser extends AbstractXmlParser<PersistenceXmlParser
         return getHandler().getPersistenceUnitInfo(persistenceUnitName);
     }
 
+    public void parse(URL url) throws IOException {
+        String externalForm = url.toExternalForm();
+        if (externalForm.endsWith("!/META-INF/persistence.xml")) {
+            String rootUrl = externalForm.substring(0, externalForm.length() - "!/META-INF/persistence.xml".length());
+            getHandler().setCurrentPersistenceUnitRootUrl(new URL(rootUrl));
+        } else if (externalForm.endsWith("/META-INF/persistence.xml")) {
+            String rootUrl = externalForm.substring(0, externalForm.length() - "/META-INF/persistence.xml".length());
+            getHandler().setCurrentPersistenceUnitRootUrl(new URL(rootUrl));
+        }
+        super.parse(url);
+    }
+
     protected static class PersistenceXmlHandler extends DefaultHandler {
 
         private static final String PERSISTENCE_UNIT_TAG = "persistence-unit";
@@ -64,6 +77,7 @@ public class PersistenceXmlParser extends AbstractXmlParser<PersistenceXmlParser
         private static final String VALUE_ATTRIBUTE = "value";
 
         private Map<String, PersistenceUnitInfo> persistenceUnitInfos = new HashMap<String, PersistenceUnitInfo>();
+        private URL currentPersistenceUnitRootUrl;
         private DefaultPersistenceUnitInfo currentPersistenceUnitInfo;
         private StringBuilder currentText = new StringBuilder();
 
@@ -75,9 +89,14 @@ public class PersistenceXmlParser extends AbstractXmlParser<PersistenceXmlParser
             return persistenceUnitInfos.get(persistenceUnitName);
         }
 
+        public void setCurrentPersistenceUnitRootUrl(URL url) {
+            currentPersistenceUnitRootUrl = url;
+        }
+
         public void startElement(String uri, String tag, String qualified, Attributes attributes) throws SAXException {
             if (PERSISTENCE_UNIT_TAG.equals(qualified)) {
                 currentPersistenceUnitInfo = new DefaultPersistenceUnitInfo();
+                currentPersistenceUnitInfo.setPersistenceUnitRootUrl(currentPersistenceUnitRootUrl);
                 currentPersistenceUnitInfo.setPersistenceUnitName(attributes.getValue(PERSISTENCE_UNIT_NAME_ATTRIBUTE));
                 String transactionType = attributes.getValue(TRANSACTION_TYPE_ATTRIBUTE);
                 if (transactionType != null) {
