@@ -290,6 +290,7 @@ public abstract class AbstractSecureObjectTestCase {
         private <T> ClassMappingInformation createMock(Class<T> type) {
             ClassMappingInformation classMapping = EasyMock.createMock(ClassMappingInformation.class);
             expect(classMapping.<T>getEntityType()).andReturn(type).anyTimes();
+            expect(classMapping.isEmbeddable()).andReturn(false).anyTimes();
             if (type.equals(Entity.class)) {
                 ExceptionFactory exceptionFactory = new DefaultExceptionFactory();
                 PropertyAccessStrategy simplePropertyAccessStrategy = EasyMock.createMock(PropertyAccessStrategy.class);
