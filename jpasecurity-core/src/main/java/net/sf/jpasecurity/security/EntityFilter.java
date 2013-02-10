@@ -109,10 +109,6 @@ public class EntityFilter {
         LOG.debug("Evaluating " + accessType + " access for entity of type " + mapping.getEntityName());
         Alias alias = new Alias(Introspector.decapitalize(mapping.getEntityName()));
         AccessDefinition accessDefinition = createAccessDefinition(alias, mapping.getEntityType(), accessType);
-        if (accessDefinition == null) {
-            LOG.info("No access rules defined for access type " + accessType + ". Returning true.");
-            return true;
-        }
         LOG.debug("Using access definition " + accessDefinition);
         QueryEvaluationParameters evaluationParameters
             = new QueryEvaluationParameters(mappingInformation,
