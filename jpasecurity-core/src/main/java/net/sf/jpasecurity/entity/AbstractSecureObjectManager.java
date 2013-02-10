@@ -41,6 +41,7 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.mapping.RelationshipMappingInformation;
 import net.sf.jpasecurity.proxy.Decorator;
 import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
@@ -165,7 +166,11 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         for (PropertyMappingInformation propertyMapping: classMapping.getPropertyMappings()) {
             Object value = propertyMapping.getPropertyValue(unsecureObject);
             if (propertyMapping.isRelationshipMapping()) {
-                value = getSecureObject(value);
+                RelationshipMappingInformation relationshipMapping = (RelationshipMappingInformation)propertyMapping;
+                if (propertyMapping.isManyValued() || !relationshipMapping.getRelatedClassMapping().isEmbeddable()
+                    || !configuration.treatEmbeddablesAsSimpleValues()) {
+                    value = getSecureObject(value);
+                }
             }
             propertyMapping.setPropertyValue(secureObject, value);
         }
@@ -193,7 +198,14 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
                 Object secureValue = propertyMapping.getPropertyValue(secureObject);
                 Object newValue;
                 if (propertyMapping.isRelationshipMapping()) {
-                    newValue = getUnsecureObject(secureValue);
+                    RelationshipMappingInformation relationshipMapping
+                        = (RelationshipMappingInformation)propertyMapping;
+                    if (relationshipMapping.getRelatedClassMapping().isEmbeddable()
+                        && configuration.treatEmbeddablesAsSimpleValues()) {
+                        newValue = secureValue;
+                    } else {
+                        newValue = getUnsecureObject(secureValue);
+                    }
                 } else {
                     newValue = secureValue;
                 }

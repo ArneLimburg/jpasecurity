@@ -53,6 +53,8 @@ public class Configuration {
         = "net.sf.jpasecurity.mapping.property.access.factory";
     public static final String DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS
         = "net.sf.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory";
+    public static final String EMBEDDABLES_AS_SIMPLE_VALUES_PROPERTY
+        = "net.sf.jpasecurity.embeddable.treatAsSimpleValue";
 
     private static final Log LOG = LogFactory.getLog(Configuration.class);
 
@@ -63,6 +65,7 @@ public class Configuration {
     private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
     private BeanInitializer beanInitializer;
     private ExceptionFactory exceptionFactory;
+    private Boolean treatEmbeddablesAsSimpleValues;
 
     public Configuration() {
         this(null);
@@ -153,6 +156,20 @@ public class Configuration {
 
     public void setBeanInitializer(BeanInitializer initializer) {
         beanInitializer = initializer;
+    }
+
+    public boolean treatEmbeddablesAsSimpleValues() {
+        if (treatEmbeddablesAsSimpleValues == null) {
+            Object treatAsSimpleValues = properties.get(EMBEDDABLES_AS_SIMPLE_VALUES_PROPERTY);
+            if (treatAsSimpleValues == null) {
+                treatEmbeddablesAsSimpleValues = false;
+            } else if (treatAsSimpleValues instanceof Boolean) {
+                treatEmbeddablesAsSimpleValues = (Boolean)treatAsSimpleValues;
+            } else {
+                treatEmbeddablesAsSimpleValues = treatAsSimpleValues.toString().trim().toLowerCase().equals("true");
+            }
+        }
+        return treatEmbeddablesAsSimpleValues;
     }
 
     private AccessRulesProvider createAccessRulesProvider() {
