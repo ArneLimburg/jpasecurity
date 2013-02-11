@@ -50,8 +50,9 @@ public class PersistenceXmlParser extends AbstractXmlParser<PersistenceXmlParser
 
     public void parse(URL url) throws IOException {
         String externalForm = url.toExternalForm();
-        if (externalForm.endsWith("!/META-INF/persistence.xml")) {
-            String rootUrl = externalForm.substring(0, externalForm.length() - "!/META-INF/persistence.xml".length());
+        if (externalForm.startsWith("jar:") && externalForm.endsWith("!/META-INF/persistence.xml")) {
+            String rootUrl = externalForm.substring("jar:".length(),
+                                                    externalForm.length() - "!/META-INF/persistence.xml".length());
             getHandler().setCurrentPersistenceUnitRootUrl(new URL(rootUrl));
         } else if (externalForm.endsWith("/META-INF/persistence.xml")) {
             String rootUrl = externalForm.substring(0, externalForm.length() - "/META-INF/persistence.xml".length());
