@@ -231,7 +231,9 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         if (isDirty(propertyMapping, newValue, oldValue)) {
             if (!modified) {
                 checkAccess(accessType, secureObject);
-                fireLifecycleEvent(accessType, classMapping, secureObject);
+                if (accessType == AccessType.UPDATE) {
+                    fireLifecycleEvent(accessType, classMapping, secureObject);
+                }
             }
             propertyMapping.setPropertyValue(unsecureObject, newValue);
             modified = true;
@@ -528,11 +530,7 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     }
 
     void firePersist(final ClassMappingInformation classMapping, final Object entity) {
-        addPreFlushOperation(new Runnable() {
-            public void run() {
-                classMapping.prePersist(entity);
-            }
-        });
+        classMapping.prePersist(entity);
         addPostFlushOperation(new Runnable() {
             public void run() {
                 classMapping.postPersist(entity);
