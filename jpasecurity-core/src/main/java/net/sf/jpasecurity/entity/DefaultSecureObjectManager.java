@@ -85,11 +85,6 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
         preFlush();
         beanStore.persist(unsecureEntity);
         postFlush();
-        // copy back values that where changed on @PrePersist and @PostPersist
-        for (SystemIdentity identity: cascadedEntities) {
-            Object secureObject = identity.getObject();
-            secureCopy(getUnsecureObject(secureObject), secureObject);
-        }
     }
 
     public <T> T merge(T entity) {
@@ -110,11 +105,6 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
         initialize(secureEntity, unsecureEntity, isNew, CascadeType.MERGE, new HashSet<Object>());
         if (isNew) {
             unsecureEntities.put(new SystemIdentity(secureEntity), unsecureEntity);
-            // copy back values that where changed on @PrePersist and @PostPersist
-            for (SystemIdentity identity: cascadedEntities) {
-                Object secureObject = identity.getObject();
-                secureCopy(getUnsecureObject(secureObject), secureObject);
-            }
         }
         return secureEntity;
     }
