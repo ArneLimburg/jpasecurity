@@ -80,29 +80,41 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
 
     public void persist(Object secureEntity) {
         Object unsecureEntity = getUnsecureObject(secureEntity);
-        cascade(secureEntity, unsecureEntity, CascadeType.PERSIST, new HashSet<SystemIdentity>());
+        HashSet<SystemIdentity> cascadedEntities = new HashSet<SystemIdentity>();
+        cascade(secureEntity, unsecureEntity, CascadeType.PERSIST, cascadedEntities);
         preFlush();
         beanStore.persist(unsecureEntity);
         postFlush();
+        // copy back values that where changed on @PrePersist and @PostPersist
+        for (SystemIdentity identity: cascadedEntities) {
+            Object secureObject = identity.getObject();
+            secureCopy(getUnsecureObject(secureObject), secureObject);
+        }
     }
 
     public <T> T merge(T entity) {
         boolean isNew = isNew(entity);
         preFlush();
         T unsecureEntity = getUnsecureObject(entity);
+        HashSet<SystemIdentity> cascadedEntities = new HashSet<SystemIdentity>();
         if (isNew) {
-            cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<SystemIdentity>());
+            cascade(entity, unsecureEntity, CascadeType.MERGE, cascadedEntities);
         }
         executePreFlushOperations();
         unsecureEntity = beanStore.merge(unsecureEntity);
         postFlush();
         if (!isNew) {
-            cascade(entity, unsecureEntity, CascadeType.MERGE, new HashSet<SystemIdentity>());
+            cascade(entity, unsecureEntity, CascadeType.MERGE, cascadedEntities);
         }
         T secureEntity = getSecureObject(unsecureEntity);
         initialize(secureEntity, unsecureEntity, isNew, CascadeType.MERGE, new HashSet<Object>());
         if (isNew) {
             unsecureEntities.put(new SystemIdentity(secureEntity), unsecureEntity);
+            // copy back values that where changed on @PrePersist and @PostPersist
+            for (SystemIdentity identity: cascadedEntities) {
+                Object secureObject = identity.getObject();
+                secureCopy(getUnsecureObject(secureObject), secureObject);
+            }
         }
         return secureEntity;
     }
@@ -242,7 +254,9 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
     public void preFlush() {
         Collection<Map.Entry<SystemIdentity, Object>> entities = unsecureEntities.entrySet();
         for (Map.Entry<SystemIdentity, Object> unsecureEntity: entities.toArray(new Map.Entry[entities.size()])) {
-            unsecureCopy(AccessType.UPDATE, unsecureEntity.getKey().getObject(), unsecureEntity.getValue());
+            Object secureEntity = unsecureEntity.getKey().getObject();
+            AccessType accessType = isNew(secureEntity)? AccessType.CREATE: AccessType.UPDATE;
+            unsecureCopy(accessType, secureEntity, unsecureEntity.getValue());
         }
         executePreFlushOperations();
     }
@@ -334,6 +348,9 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
         Object unsecureEntity = classMapping.newInstance();
         secureEntities.put(new SystemIdentity(unsecureEntity), secureEntity);
         unsecureEntities.put(new SystemIdentity(secureEntity), unsecureEntity);
+        if (accessType == AccessType.CREATE) {
+            firePersist(classMapping, secureEntity);
+        }
         unsecureCopy(accessType, secureEntity, unsecureEntity);
         copyIdAndVersion(secureEntity, unsecureEntity);
         return (T)unsecureEntity;
