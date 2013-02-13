@@ -18,6 +18,7 @@ package net.sf.jpasecurity.jpa;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 
 import net.sf.jpasecurity.BeanStore;
 import net.sf.jpasecurity.LockModeType;
@@ -51,7 +52,12 @@ public class JpaBeanStore implements BeanStore {
     }
 
     public <T> T find(Class<T> type, Object id) {
-        return entityManager.find(type, id);
+        try {
+            return entityManager.find(type, id);
+        } catch (EntityNotFoundException e) {
+            // workaround for hibernate bug
+            return null;
+        }
     }
 
     public <T> T getReference(Class<T> type, Object bean) {
