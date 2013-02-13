@@ -19,6 +19,7 @@ import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
 import static net.sf.jpasecurity.util.Validate.notNull;
 
 import java.beans.Introspector;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -30,6 +31,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -129,7 +131,36 @@ public abstract class AbstractSecurityUnitParser {
     }
 
     protected void parse(URL url) {
-        //TODO support file urls
+        try {
+            File file = new File(url.toURI());
+            if (file.isDirectory()) {
+                parseDirectory(file);
+            } else {
+                parseZip(url);
+            }
+        } catch (URISyntaxException e) {
+            //seems to be no file, so ignore and try zip-stream...
+            parseZip(url);
+        }
+    }
+
+    protected void parseDirectory(File directory) {
+        for (File file: directory.listFiles()) {
+            parseDirectory("", file);
+        }
+    }
+
+    protected void parseDirectory(String directory, File file) {
+        if (file.isDirectory()) {
+            for (File f: file.listFiles()) {
+                parseDirectory(directory + '/' + file.getName(), f);
+            }
+        } else if (file.getName().endsWith(CLASS_ENTRY_SUFFIX)) {
+            parse(getClass(convertFileToClassname(directory + '/' + file.getName())));
+        }
+    }
+
+    protected void parseZip(URL url) {
         try {
             InputStream in = url.openStream();
             try {
@@ -149,6 +180,9 @@ public abstract class AbstractSecurityUnitParser {
     }
 
     private String convertFileToClassname(String name) {
+        if (name.charAt(0) == '/') {
+            name = name.substring(1);
+        }
         return name.substring(0, name.length() - CLASS_ENTRY_SUFFIX.length()).replace('/', '.');
     }
 
