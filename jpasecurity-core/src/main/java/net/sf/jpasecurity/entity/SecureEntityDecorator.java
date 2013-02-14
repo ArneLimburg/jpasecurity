@@ -72,7 +72,8 @@ public class SecureEntityDecorator implements SecureEntity, Touchable, Flushable
             if (hasReadAccess == null) {
                 hasReadAccess = accessManager.isAccessible(accessType, entity);
             }
-            return hasReadAccess;
+            return hasReadAccess
+                || accessManager.isAccessible(accessType, entity); //For runas usage after initial load
         }
         return accessManager.isAccessible(accessType, entity);
     }
