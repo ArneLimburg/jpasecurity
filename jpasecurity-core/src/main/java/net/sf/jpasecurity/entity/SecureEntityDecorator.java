@@ -90,6 +90,9 @@ public class SecureEntityDecorator implements SecureEntity, Touchable, Flushable
     }
 
     public void flush() {
+        if (delegate == null) {
+            return; //must be a method call during default constructor invocation, we don't need to flush then
+        }
         if (!isReadOnly() && isInitialized()) {
             objectManager.unsecureCopy(AccessType.UPDATE, delegate, entity);
         }
@@ -97,6 +100,9 @@ public class SecureEntityDecorator implements SecureEntity, Touchable, Flushable
     }
 
     public void flushCollections() {
+        if (delegate == null) {
+            return; //must be a method call during default constructor invocation, we don't need to flush then
+        }
         if (!isReadOnly() && isInitialized()) {
             objectManager.unsecureCopyCollections(AccessType.UPDATE, delegate, entity);
         }
@@ -111,6 +117,9 @@ public class SecureEntityDecorator implements SecureEntity, Touchable, Flushable
     }
 
     void refresh(boolean checkAccess) {
+        if (delegate == null) {
+            return; //must be a method call during default constructor invocation, we don't need to refresh then
+        }
         if (isUpdating()) {
             return; //we are already refreshing
         }
