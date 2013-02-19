@@ -96,6 +96,10 @@
       <id>sourceforge</id>
       <url>sftp://jpasecurity.sf.net:/home/groups/j/jp/jpasecurity/htdocs/</url>
     </site>
+    <repository>
+      <id>openknowledge</id>
+      <url>scp://repo.openknowledge.de/www/repo/repository</url>
+    </repository>
   </distributionManagement>
 
   <build>
