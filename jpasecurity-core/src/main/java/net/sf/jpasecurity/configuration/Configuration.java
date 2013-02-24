@@ -22,6 +22,8 @@ import java.util.Map;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.mapping.BeanInitializer;
+import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.MappingInformationReceiver;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.mapping.SecureBeanInitializer;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
@@ -170,6 +172,33 @@ public class Configuration {
             }
         }
         return treatEmbeddablesAsSimpleValues;
+    }
+
+    public void injectPersistenceInformation(MappingInformation mapping, Map<String, Object> persistenceProperties) {
+        if (persistenceProperties != null) {
+            persistenceProperties = Collections.unmodifiableMap(persistenceProperties);
+        }
+        injectPersistenceInformation(getSecurityContext(), mapping, persistenceProperties);
+        injectPersistenceInformation(getAccessRulesProvider(), mapping, persistenceProperties);
+    }
+
+    public void injectPersistenceInformation(Object injectionTarget,
+                                             MappingInformation mapping,
+                                             Map<String, Object> persistenceProperties) {
+        if (injectionTarget instanceof MappingInformationReceiver) {
+            MappingInformationReceiver persistenceInformationReceiver
+                = (MappingInformationReceiver)injectionTarget;
+            persistenceInformationReceiver.setMappingProperties(persistenceProperties);
+            persistenceInformationReceiver.setMappingInformation(mapping);
+        }
+        if (injectionTarget instanceof SecurityContextReceiver) {
+            SecurityContextReceiver securityContextReceiver = (SecurityContextReceiver)injectionTarget;
+            securityContextReceiver.setSecurityContext(getSecurityContext());
+        }
+        if (injectionTarget instanceof ConfigurationReceiver) {
+            ConfigurationReceiver configurationReceiver = (ConfigurationReceiver)injectionTarget;
+            configurationReceiver.setConfiguration(this);
+        }
     }
 
     private AccessRulesProvider createAccessRulesProvider() {
