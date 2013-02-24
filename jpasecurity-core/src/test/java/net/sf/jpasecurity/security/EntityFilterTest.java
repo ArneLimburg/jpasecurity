@@ -37,7 +37,6 @@ import net.sf.jpasecurity.configuration.AccessRule;
 import net.sf.jpasecurity.configuration.DefaultExceptionFactory;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.entity.SecureObjectCache;
-import net.sf.jpasecurity.jpql.compiler.NotEvaluatableException;
 import net.sf.jpasecurity.jpql.parser.JpqlAccessRule;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
@@ -316,11 +315,11 @@ public class EntityFilterTest {
     }
 
     @Test
-    public void isAccessible() throws NotEvaluatableException {
+    public void isAccessible() {
         MethodAccessTestBean testBean = new MethodAccessTestBean();
         testBean.setName(NAME);
-        assertTrue(entityFilter.isAccessible(testBean, AccessType.READ));
-        assertFalse(entityFilter.isAccessible(testBean, AccessType.UPDATE));
+        assertTrue(entityFilter.isAccessible(AccessType.READ, testBean));
+        assertFalse(entityFilter.isAccessible(AccessType.UPDATE, testBean));
     }
 
     private Path eq(final Path expected) {

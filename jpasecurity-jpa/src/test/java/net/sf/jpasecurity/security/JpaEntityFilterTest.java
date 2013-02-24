@@ -88,8 +88,8 @@ public class JpaEntityFilterTest {
         Contact contact = new Contact(john, "123456789");
 
         authenticationProvider.authenticate(john);
-        assertTrue(filter.isAccessible(contact, AccessType.READ));
+        assertTrue(filter.isAccessible(AccessType.READ, contact));
         authenticationProvider.authenticate(new User("Mary"));
-        assertFalse(filter.isAccessible(contact, AccessType.READ));
+        assertFalse(filter.isAccessible(AccessType.READ, contact));
     }
 }

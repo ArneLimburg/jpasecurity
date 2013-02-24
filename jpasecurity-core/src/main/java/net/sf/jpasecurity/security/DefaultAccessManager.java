@@ -120,11 +120,13 @@ public class DefaultAccessManager implements AccessManager {
             }
         }
         try {
-            final boolean accessible = entityFilter.isAccessible(entity, accessType);
+            final boolean accessible = entityFilter.isAccessible(accessType, entity);
             if (accessType == AccessType.READ) {
                 cachedReadAccess.put(classMapping, entityId, accessible);
             }
             return accessible;
+        } catch (SecurityException e) {
+            throw e;
         } catch (Exception e) {
             throw new SecurityException(e);
         }
