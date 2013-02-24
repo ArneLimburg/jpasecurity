@@ -103,8 +103,7 @@ public class EntityFilter {
         return queryPreparator;
     }
 
-    public boolean isAccessible(Object entity, AccessType accessType)
-        throws NotEvaluatableException {
+    public boolean isAccessible(AccessType accessType, Object entity) {
         ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
         LOG.debug("Evaluating " + accessType + " access for entity of type " + mapping.getEntityName());
         Alias alias = new Alias(Introspector.decapitalize(mapping.getEntityName()));
@@ -115,7 +114,11 @@ public class EntityFilter {
                                             Collections.singletonMap(alias, entity),
                                             accessDefinition.getQueryParameters(),
                                             Collections.<Integer, Object>emptyMap());
-        return queryEvaluator.<Boolean>evaluate(accessDefinition.getAccessRules(), evaluationParameters);
+        try {
+            return queryEvaluator.<Boolean>evaluate(accessDefinition.getAccessRules(), evaluationParameters);
+        } catch (NotEvaluatableException e) {
+            throw new SecurityException(e);
+        }
     }
 
     public FilterResult<String> filterQuery(String query, AccessType accessType) {
