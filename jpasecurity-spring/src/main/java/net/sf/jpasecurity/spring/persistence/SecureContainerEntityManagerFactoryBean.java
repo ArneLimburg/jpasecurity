@@ -89,7 +89,7 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
         EntityManagerFactory entityManagerFactory = super.createNativeEntityManagerFactory();
         SecurePersistenceProvider persistenceProvider = new SecurePersistenceProvider();
         return persistenceProvider.createSecureEntityManagerFactory(entityManagerFactory,
-                                                                    getPersistenceUnitName(),
+                                                                    getPersistenceUnitInfo(),
                                                                     getJpaPropertyMap(),
                                                                     getConfiguration());
     }
