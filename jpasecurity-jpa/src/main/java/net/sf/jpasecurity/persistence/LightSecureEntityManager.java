@@ -24,6 +24,8 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 
+import net.sf.jpasecurity.AccessManager;
+import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.configuration.Configuration;
 import net.sf.jpasecurity.configuration.SecurityContext;
@@ -36,18 +38,20 @@ import net.sf.jpasecurity.jpql.compiler.SubselectEvaluator;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.persistence.compiler.EntityManagerEvaluator;
 import net.sf.jpasecurity.persistence.security.CriteriaEntityFilter;
+import net.sf.jpasecurity.security.AbstractAccessManager;
 import net.sf.jpasecurity.security.FilterResult;
 
 /**
  * @author Stefan Hildebrandt
  * @author Arne Limburg
  */
-public class LightSecureEntityManager extends DelegatingEntityManager {
+public class LightSecureEntityManager extends DelegatingEntityManager implements AccessManager {
 
     private LightSecureEntityManagerFactory entityManagerFactory;
     private MappingInformation mappingInformation;
     private SecurityContext securityContext;
     private CriteriaEntityFilter entityFilter;
+    private LightAccessManager accessManager;
 
     LightSecureEntityManager(LightSecureEntityManagerFactory parent,
                              EntityManager entityManager,
@@ -70,11 +74,20 @@ public class LightSecureEntityManager extends DelegatingEntityManager {
                                                      configuration.getAccessRulesProvider().getAccessRules(),
                                                      simpleSubselectEvaluator,
                                                      entityManagerEvaluator);
+        this.accessManager = new LightAccessManager(mappingInformation);
     }
 
     @Override
     public LightSecureEntityManagerFactory getEntityManagerFactory() {
         return entityManagerFactory;
+    }
+
+    public <T> T unwrap(Class<T> cls) {
+        if (cls.isAssignableFrom(getClass())) {
+            return (T)this;
+        } else {
+            return super.unwrap(cls);
+        }
     }
 
     public Query createNamedQuery(String name) {
@@ -130,6 +143,25 @@ public class LightSecureEntityManager extends DelegatingEntityManager {
             return new EmptyResultQuery<T>(super.createQuery(criteriaQuery));
         } else {
             return super.createQuery(filterResult.getQuery());
+        }
+    }
+
+    public boolean isAccessible(AccessType accessType, String entityName, Object... constructorArgs) {
+        return accessManager.isAccessible(accessType, entityName, constructorArgs);
+    }
+
+    public boolean isAccessible(AccessType accessType, Object entity) {
+        return accessManager.isAccessible(accessType, entity);
+    }
+
+    private class LightAccessManager extends AbstractAccessManager {
+
+        public LightAccessManager(MappingInformation mappingInformation) {
+            super(mappingInformation);
+        }
+
+        public boolean isAccessible(AccessType accessType, Object entity) {
+            return entityFilter.isAccessible(accessType, entity);
         }
     }
 }
