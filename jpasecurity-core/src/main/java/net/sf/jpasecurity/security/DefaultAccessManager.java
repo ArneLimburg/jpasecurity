@@ -16,8 +16,6 @@
 package net.sf.jpasecurity.security;
 
 import static net.sf.jpasecurity.util.Validate.notNull;
-
-import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
@@ -31,17 +29,11 @@ import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.util.DoubleKeyHashMap;
-import net.sf.jpasecurity.util.ReflectionUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Arne Limburg
  */
-public class DefaultAccessManager implements AccessManager {
-
-    private static final Log LOG = LogFactory.getLog(DefaultAccessManager.class);
+public class DefaultAccessManager extends AbstractAccessManager {
 
     private MappingInformation mappingInformation;
     private BeanInitializer beanInitializer;
@@ -56,6 +48,7 @@ public class DefaultAccessManager implements AccessManager {
                                 SecureEntityProxyFactory secureEntityProxyFactory,
                                 AbstractSecureObjectManager objectManager,
                                 EntityFilter entityFilter) {
+        super(mappingInformation);
         notNull(MappingInformation.class, mappingInformation);
         notNull(BeanInitializer.class, beanInitializer);
         notNull(SecureEntityProxyFactory.class, secureEntityProxyFactory);
@@ -69,7 +62,6 @@ public class DefaultAccessManager implements AccessManager {
     }
 
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
-        ClassMappingInformation classMapping = mappingInformation.getClassMapping(entityName);
         Object[] transientParameters = new Object[parameters.length];
         for (int i = 0; i < transientParameters.length; i++) {
             Object parameter = parameters[i];
@@ -88,20 +80,7 @@ public class DefaultAccessManager implements AccessManager {
                 transientParameters[i] = parameter;
             }
         }
-        Object entity = null;
-        try {
-            entity = ReflectionUtils.newInstance(classMapping.getEntityType(), transientParameters);
-        } catch (RuntimeException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Constructor of " + classMapping.getEntityType()
-                          + " threw exception, hence isAccessible returns false.", e);
-            } else {
-                LOG.info("Constructor of " + classMapping.getEntityType()
-                         + " threw exception (\"" + e.getMessage() + "\"), hence isAccessible returns false.");
-            }
-            return false;
-        }
-        return isAccessible(accessType, entity);
+        return super.isAccessible(accessType, entityName, transientParameters);
     }
 
     public boolean isAccessible(AccessType accessType, Object entity) {

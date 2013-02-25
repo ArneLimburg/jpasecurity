@@ -20,13 +20,14 @@ package net.sf.jpasecurity.util;
  */
 public class Validate {
 
-    public static void notNull(Class<?> type, Object value) {
-        notNull(type.getSimpleName(), value);
+    public static <T> T notNull(Class<T> type, T value) {
+        return notNull(type.getSimpleName(), value);
     }
 
-    public static void notNull(String type, Object value) {
+    public static <T> T notNull(String type, T value) {
         if (value == null) {
             throw new IllegalArgumentException(type + " may not be null");
         }
+        return value;
     }
 }
