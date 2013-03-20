@@ -456,6 +456,11 @@
         <class>net.sf.jpasecurity.model.client.Employee</class>
         <class>net.sf.jpasecurity.model.client.ClientOperationsTracking</class>
         <class>net.sf.jpasecurity.model.client.DataDeliveryMethod</class>
+        <class>net.sf.jpasecurity.model.client.ProcessInstance</class>
+        <class>net.sf.jpasecurity.model.client.ProcessTaskInstance</class>
+        <class>net.sf.jpasecurity.model.client.ProcessInstanceProcessTaskInstance</class>
+        <class>net.sf.jpasecurity.model.client.ClientProcessInstance</class>
+        <class>net.sf.jpasecurity.model.client.ClientTask</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

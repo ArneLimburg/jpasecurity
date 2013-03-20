@@ -19,20 +19,25 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
 import net.sf.jpasecurity.model.client.Client;
 import net.sf.jpasecurity.model.client.ClientOperationsTracking;
+import net.sf.jpasecurity.model.client.ClientProcessInstance;
 import net.sf.jpasecurity.model.client.ClientStaffing;
 import net.sf.jpasecurity.model.client.ClientStatus;
+import net.sf.jpasecurity.model.client.ClientTask;
+import net.sf.jpasecurity.model.client.ProcessInstanceProcessTaskInstance;
 import net.sf.jpasecurity.model.client.Employee;
 import net.sf.jpasecurity.persistence.AbstractEntityTestCase;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 import org.junit.After;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -44,6 +49,8 @@ public class ClientTest extends AbstractEntityTestCase {
     private static final ClientStatus ACTIVE = new ClientStatus("Active");
     private static final ClientStatus CLOSED = new ClientStatus("Closed");
     private static int clientId;
+    private static int operationsTrackingId;
+    private static ClientTask clientTaskPersisted;
 
     @BeforeClass
     public static void createEntityManagerFactory() throws SQLException {
@@ -63,6 +70,20 @@ public class ClientTest extends AbstractEntityTestCase {
         parent.setOperationsTracking(parentTracking);
         parentTracking.setClient(parent);
         ClientOperationsTracking tracking = new ClientOperationsTracking();
+
+        // We create the ClientProcessInstance first
+        ClientProcessInstance clientProcessInstance = new ClientProcessInstance(client, new Date(), "Client Process");
+
+        // Then the Task that will be associated to it
+        ClientTask clientTask = new ClientTask();
+        clientTask.setAssignedEmployee(employee);
+        clientTask.setDescription("Task Description");
+        clientTask.setSequence(0);
+
+        // Then we create the association (manyToMany) between the Instance and the Task
+        ProcessInstanceProcessTaskInstance processInstanceProcessTaskInstance =
+                new ProcessInstanceProcessTaskInstance(clientProcessInstance, clientTask);
+
         EntityManager entityManager = getEntityManagerFactory().createEntityManager();
         entityManager.getTransaction().begin();
         entityManager.persist(parent);
@@ -73,9 +94,20 @@ public class ClientTest extends AbstractEntityTestCase {
         tracking.setClient(client);
         client.setOperationsTracking(tracking);
         entityManager.persist(tracking);
+
+        entityManager.persist(clientProcessInstance);
+        entityManager.persist(clientTask);
+        entityManager.persist(processInstanceProcessTaskInstance);
+
         entityManager.getTransaction().commit();
+
         entityManager.close();
+
         clientId = client.getId();
+        operationsTrackingId = tracking.getId();
+
+        // Saved for the test
+        clientTaskPersisted = clientTask;
     }
 
     @After
@@ -124,10 +156,32 @@ public class ClientTest extends AbstractEntityTestCase {
     @Test
     public void query() {
         TestAuthenticationProvider.authenticate(EMAIL);
-        List<Client> clients
-            = getEntityManager().createQuery("SELECT cl FROM Client cl WHERE cl.id = :id", Client.class)
-                                .setParameter("id", clientId)
-                                .getResultList();
+        List<Client> clients = getEntityManager().createQuery("SELECT cl FROM Client cl WHERE cl.id = :id",
+                Client.class)
+                .setParameter("id", clientId)
+                .getResultList();
         assertEquals(1, clients.size());
+    }
+
+    @Test
+    @Ignore
+    public void queryOperationsTracking() {
+        TestAuthenticationProvider.authenticate(EMAIL);
+        List<ClientOperationsTracking> tracking = getEntityManager().
+                createQuery("SELECT t FROM ClientOperationsTracking t WHERE t.id = :id",
+                ClientOperationsTracking.class)
+                .setParameter("id", operationsTrackingId)
+                .getResultList();
+        assertEquals(1, tracking.size());
+    }
+
+    @Test
+    public void testProcessInstance() {
+        TestAuthenticationProvider.authenticate(EMAIL);
+
+        // This assert will fail. When JPA Security is off the getClient method returns a client
+        // However when we activate JPA Security it returns null. We can update the code
+        // and do a find and the getClient should work, however as I said this worked without JPA Security
+        assertEquals(clientId, clientTaskPersisted.getClient().getId().intValue());
     }
 }
