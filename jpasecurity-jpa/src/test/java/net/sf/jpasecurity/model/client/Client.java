@@ -22,6 +22,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
@@ -35,7 +37,12 @@ import org.hibernate.annotations.LazyToOneOption;
  * @author Arne Limburg
  */
 @Entity
+@NamedQueries(
+        @NamedQuery(name = Client.FIND_ALL_ID_AND_NAME, query =
+        "SELECT new net.sf.jpasecurity.dto.IdAndNameDto (a.id,a.name) FROM Client a ORDER BY a.name"))
 public class Client extends AbstractEntity<Integer> {
+
+    public static final String FIND_ALL_ID_AND_NAME = "Client.FIND_ALL_ID_AND_NAME";
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Client parent;
@@ -49,10 +56,19 @@ public class Client extends AbstractEntity<Integer> {
 
     private String anotherProperty;
 
+    private String name;
+
     @PrimaryKeyJoinColumn
-    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE }, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE }, optional = false)
     @LazyToOne(LazyToOneOption.PROXY)
     private ClientOperationsTracking operationsTracking;
+
+    public Client() {
+    }
+
+    public Client(String name) {
+        this.name = name;
+    }
 
     public Client getParent() {
         return parent;
@@ -80,6 +96,14 @@ public class Client extends AbstractEntity<Integer> {
 
     public void setAnotherProperty(String value) {
         this.anotherProperty = value;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public ClientOperationsTracking getOperationsTracking() {

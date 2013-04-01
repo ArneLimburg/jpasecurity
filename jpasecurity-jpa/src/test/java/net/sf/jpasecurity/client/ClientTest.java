@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import net.sf.jpasecurity.dto.IdAndNameDto;
 
 import net.sf.jpasecurity.model.client.Client;
 import net.sf.jpasecurity.model.client.ClientOperationsTracking;
@@ -46,10 +47,15 @@ import org.junit.Test;
 public class ClientTest extends AbstractEntityTestCase {
 
     private static final String EMAIL = "test@test.org";
+
     private static final ClientStatus ACTIVE = new ClientStatus("Active");
+
     private static final ClientStatus CLOSED = new ClientStatus("Closed");
+
     private static int clientId;
+
     private static int operationsTrackingId;
+
     private static ClientTask clientTaskPersisted;
 
     @BeforeClass
@@ -61,8 +67,8 @@ public class ClientTest extends AbstractEntityTestCase {
     }
 
     public static void createTestData() {
-        Client parent = new Client();
-        Client client = new Client();
+        Client parent = new Client("parentClient");
+        Client client = new Client("originalClient");
         client.setParent(parent);
         Employee employee = new Employee(EMAIL);
         ClientStaffing clientStaffing = new ClientStaffing(client, employee);
@@ -179,5 +185,14 @@ public class ClientTest extends AbstractEntityTestCase {
     public void testProcessInstance() {
         TestAuthenticationProvider.authenticate(EMAIL);
         assertEquals(clientId, clientTaskPersisted.getClient().getId().intValue());
+    }
+
+    @Test
+    public void testIdAndNameDtoFind() {
+        TestAuthenticationProvider.authenticate(EMAIL);
+        EntityManager entityManager = getEntityManager();
+        List<IdAndNameDto> idAndNameDtoList = entityManager
+                .createNamedQuery(Client.FIND_ALL_ID_AND_NAME).getResultList();
+        assertNotNull(idAndNameDtoList);
     }
 }
