@@ -100,7 +100,7 @@ public class ClientTest extends AbstractEntityTestCase {
         entityManager.persist(processInstanceProcessTaskInstance);
 
         entityManager.getTransaction().commit();
-        
+
         entityManager.close();
 
         clientId = client.getId();
