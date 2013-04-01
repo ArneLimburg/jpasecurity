@@ -46,6 +46,7 @@ public class ProcessInstanceProcessTaskInstance extends AbstractEntity<Integer> 
             ProcessTaskInstance processTaskInstance) {
         this.processInstance = processInstance;
         this.processTaskInstance = processTaskInstance;
+        processTaskInstance.getProcessInstanceProcessTaskInstances().add(this);
     }
 
     public ProcessInstance getProcessInstance() {

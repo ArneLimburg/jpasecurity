@@ -15,6 +15,7 @@
  */
 package net.sf.jpasecurity.model.client;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -83,6 +84,9 @@ public class ProcessTaskInstance extends AbstractEntity<Integer> {
     }
 
     public List<ProcessInstanceProcessTaskInstance> getProcessInstanceProcessTaskInstances() {
+        if (processInstanceProcessTaskInstances == null) {
+            processInstanceProcessTaskInstances = new ArrayList<ProcessInstanceProcessTaskInstance>();
+        }
         return processInstanceProcessTaskInstances;
     }
 

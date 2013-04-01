@@ -100,7 +100,7 @@ public class ClientTest extends AbstractEntityTestCase {
         entityManager.persist(processInstanceProcessTaskInstance);
 
         entityManager.getTransaction().commit();
-
+        
         entityManager.close();
 
         clientId = client.getId();
@@ -178,10 +178,6 @@ public class ClientTest extends AbstractEntityTestCase {
     @Test
     public void testProcessInstance() {
         TestAuthenticationProvider.authenticate(EMAIL);
-
-        // This assert will fail. When JPA Security is off the getClient method returns a client
-        // However when we activate JPA Security it returns null. We can update the code
-        // and do a find and the getClient should work, however as I said this worked without JPA Security
         assertEquals(clientId, clientTaskPersisted.getClient().getId().intValue());
     }
 }
