@@ -461,6 +461,7 @@
         <class>net.sf.jpasecurity.model.client.ProcessInstanceProcessTaskInstance</class>
         <class>net.sf.jpasecurity.model.client.ClientProcessInstance</class>
         <class>net.sf.jpasecurity.model.client.ClientTask</class>
+        <class>net.sf.jpasecurity.dto.IdAndNameDto</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

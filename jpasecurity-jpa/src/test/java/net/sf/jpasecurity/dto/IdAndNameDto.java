@@ -15,11 +15,16 @@
  */
 package net.sf.jpasecurity.dto;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 /**
  * Can be used for drop-down lists to map id ane name.
  */
+@Entity
 public class IdAndNameDto {
 
+    @Id
     private Integer id;
 
     private String name;
