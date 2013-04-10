@@ -42,5 +42,13 @@ public interface VisitRepository {
 
     List<Visit> findByPetId(Integer petId);
     List<Visit> findByVetId(Integer vetId);
+    
+    /**
+     * Retrieve a <code>Visit</code> from the data store by id.
+     * @param id the id to search for
+     * @return the <code>Visit</code> if found
+     * @throws org.springframework.dao.DataRetrievalFailureException if not found
+     */
+    Visit findById(int id) throws DataAccessException;
 
 }

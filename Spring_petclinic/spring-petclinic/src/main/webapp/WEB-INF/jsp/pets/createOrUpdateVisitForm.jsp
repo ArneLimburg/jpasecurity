@@ -51,10 +51,16 @@
         <div class="control-group">
             <label class="control-label">Vet </label>
 
-            <div class="controls">
-                <form:input path="vet" items="${vets}"/>
-                <span class="help-inline"><form:errors path="vet"/></span>
-            </div>
+        <div class="controls">
+           	<c:choose>
+             	<c:when test="${visit['new']}">
+               		<form:input path="vet" items="${vets}"/>
+             	</c:when>
+           		<c:otherwise>
+               		${visit.vet.firstName} ${visit.vet.lastName}
+           		</c:otherwise>
+         	</c:choose>
+         	<span class="help-inline"><form:errors path="vet"/></span>
         </div>
         <div class="control-group">
             <label class="control-label">Description </label>
@@ -65,8 +71,15 @@
             </div>
         </div>
         <div class="form-actions">
-            <input type="hidden" name="petId" value="${visit.pet.id}"/>
-            <button type="submit">Add Visit</button>
+          <c:choose>
+            <c:when test="${visit['new']}">
+              <input type="hidden" name="petId" value="${visit.pet.id}"/>
+              <button type="submit">Add Visit</button>
+            </c:when>
+            <c:otherwise>
+              <button type="submit">Update Visit</button>
+            </c:otherwise>
+          </c:choose>
         </div>
     </form:form>
 

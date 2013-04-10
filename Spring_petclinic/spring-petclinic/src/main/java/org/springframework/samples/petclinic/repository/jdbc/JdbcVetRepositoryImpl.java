@@ -20,12 +20,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedBeanPropertyRowMapper;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.orm.ObjectRetrievalFailureException;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.repository.VetRepository;
@@ -47,6 +52,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class JdbcVetRepositoryImpl implements VetRepository {
 
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    
     private JdbcTemplate jdbcTemplate;
 
     @Autowired

@@ -21,6 +21,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.repository.VisitRepository;
 import org.springframework.stereotype.Repository;
@@ -62,5 +63,10 @@ public class JpaVisitRepositoryImpl implements VisitRepository {
         Query query = this.em.createQuery("SELECT visit FROM Visit v where v.vets.id= :id");
         query.setParameter("id", vetId);
         return query.getResultList();
+    }
+
+    @Override
+    public Visit findById(int id) {
+        return this.em.find(Visit.class, id);
     }
 }
