@@ -2,6 +2,7 @@
 
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="datatables" uri="http://github.com/dandelion/datatables" %>
 
@@ -22,7 +23,7 @@
           		<spring:param name="vetId" value="${vet.id}"/>
         	</spring:url>
         	<a href="${fn:escapeXml(vetUrl)}">
-            <c:out value="${vet.firstName} ${vet.lastName}"></c:out>
+            <c:out value="${vet.firstName} ${vet.lastName}"></c:out></a>
         </datatables:column>
         <datatables:column title="Specialties">
             <c:forEach var="specialty" items="${vet.specialties}">

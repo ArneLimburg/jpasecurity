@@ -114,6 +114,12 @@ public class ClinicServiceImpl implements ClinicService {
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public Collection<Visit> findVisits(Vet vet) {
-    	visitRepository.save(vet);
+    	return visitRepository.findByVetId(vet.getId());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Visit findVisitById(int id) throws DataAccessException {
+       return visitRepository.findById(id);
     }
 }

@@ -5,7 +5,8 @@ import java.text.ParseException;
 import java.util.Collection;
 import java.util.Locale;
 
-import org.hibernate.engine.jdbc.internal.Formatter;
+import org.springframework.format.Formatter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.ClinicService;
@@ -22,10 +23,15 @@ public class VetFormatter implements Formatter<Vet> {
     }
 
     @Override
-    public PetType parse(String text, Locale locale) throws ParseException {
-        Collection<PetType> findVets = this.clinicService.findVets();
+    public String print(Vet vet, Locale locale) {
+        return vet.toString();
+    }
+
+    @Override
+    public Vet parse(String text, Locale locale) throws ParseException {
+        Collection<Vet> findVets = this.clinicService.findVets();
         for (Vet vet : findVets) {
-            if (vet.getName().equals(text)) {
+            if (vet.toString().equals(text)) {
                 return vet;
             }
         }

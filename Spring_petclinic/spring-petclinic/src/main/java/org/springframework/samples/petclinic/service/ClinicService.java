@@ -43,6 +43,8 @@ public interface ClinicService {
     public Vet findVetById(int id) throws DataAccessException;
 
     public void saveVisit(Visit visit) throws DataAccessException;
+    
+    public Visit findVisitById(int id) throws DataAccessException; 
 
     public Collection<Vet> findVets() throws DataAccessException;
 

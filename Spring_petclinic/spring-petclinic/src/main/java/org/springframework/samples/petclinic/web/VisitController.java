@@ -80,6 +80,26 @@ public class VisitController {
         }
     }
 
+
+    @RequestMapping(value = "/pets/*/visits/{visitId}/edit", method = RequestMethod.GET)
+    public String initUpdateForm(@PathVariable("visitId") int visitId, Model model) {
+        Visit visit = this.clinicService.findVisitById(visitId);
+        model.addAttribute("visit", visit);
+        return "pets/visitForm";
+    }
+
+    @RequestMapping(value = "/pets/*/visits/{visitId}/edit", method = { RequestMethod.PUT, RequestMethod.POST })
+    public String processUpdateForm(@ModelAttribute("visit") Visit visit, BindingResult result, SessionStatus status) {
+        new VisitValidator().validate(visit, result);
+        if (result.hasErrors()) {
+            return "pets/createOrUpdateVisitForm";
+        } else {
+            this.clinicService.saveVisit(visit);
+            status.setComplete();
+            return "redirect:/vets/" + visit.getVet().getId();
+        }
+    }
+
     @RequestMapping(value = "/owners/*/pets/{petId}/visits", method = RequestMethod.GET)
     public ModelAndView showVisits(@PathVariable int petId) {
         ModelAndView mav = new ModelAndView("visitList");
@@ -89,6 +109,6 @@ public class VisitController {
 
     @ModelAttribute("vets")
     public Collection<Vet> populateVets() {
-        return this.clinicService.getVets();
+        return this.clinicService.findVets();
     }
 }
