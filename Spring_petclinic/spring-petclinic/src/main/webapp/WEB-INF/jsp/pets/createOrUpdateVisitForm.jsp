@@ -54,7 +54,7 @@
         <div class="controls">
            	<c:choose>
              	<c:when test="${visit['new']}">
-               		<form:input path="vet" items="${vets}"/>
+               		<form:select path="vet" items="${vets}"/>
              	</c:when>
            		<c:otherwise>
                		${visit.vet.firstName} ${visit.vet.lastName}

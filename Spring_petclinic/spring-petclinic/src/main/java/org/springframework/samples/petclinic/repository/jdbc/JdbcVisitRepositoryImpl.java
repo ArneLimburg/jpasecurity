@@ -67,12 +67,14 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
     private PetRepository petRepository;
 
     @Autowired
-    public JdbcVisitRepositoryImpl(DataSource dataSource) {
+    public JdbcVisitRepositoryImpl(DataSource dataSource, VetRepository vetRepository) {
+    	this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         this.jdbcTemplate = new JdbcTemplate(dataSource);
 
         this.insertVisit = new SimpleJdbcInsert(dataSource)
                 .withTableName("visits")
                 .usingGeneratedKeyColumns("id");
+        this.vetRepository = vetRepository;
     }
 
 
@@ -83,7 +85,10 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
                     createVisitParameterSource(visit));
             visit.setId(newKey.intValue());
         } else {
-            throw new UnsupportedOperationException("Visit update not supported");
+        	this.namedParameterJdbcTemplate.update(
+                    "UPDATE visits SET id=:id, visit_date=:visit_date, description=:description, " +
+                            "pet_id=:pet_id, vet_id=:vet_id WHERE id=:id",
+                            createVisitParameterSource(visit));
         }
     }
 
@@ -100,7 +105,8 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
                 .addValue("id", visit.getId())
                 .addValue("visit_date", visit.getDate().toDate())
                 .addValue("description", visit.getDescription())
-                .addValue("pet_id", visit.getPet().getId());
+                .addValue("pet_id", visit.getPet().getId())
+        		.addValue("vet_id", visit.getVet().getId());
     }
 
     @Override
