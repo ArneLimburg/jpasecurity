@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -57,7 +59,8 @@ public class JdbcVetRepositoryImpl implements VetRepository {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public JdbcVetRepositoryImpl(JdbcTemplate jdbcTemplate) {
+    public JdbcVetRepositoryImpl(DataSource dataSource, JdbcTemplate jdbcTemplate) {
+    	this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         this.jdbcTemplate = jdbcTemplate;
     }
 

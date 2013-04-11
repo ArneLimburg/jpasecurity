@@ -38,7 +38,7 @@
     <table width="94%">
       <tr>
         <th>Date</th>
-        <td><fmt:formatDate value="${visit.date}" pattern="yyyy-MM-dd"/></td>
+        <td><joda:format value="${visit.date}" pattern="yyyy-MM-dd"/></td>
       </tr>
       <tr>
         <th>Pet</th>

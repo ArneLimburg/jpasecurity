@@ -147,6 +147,7 @@ public abstract class AbstractClinicServiceTests {
 	@Test
 	@Transactional
 	public void updatePet() throws Exception {
+		System.out.println("Hier");
 	    Pet pet7 = this.clinicService.findPetById(7);
 	    String old = pet7.getName();
 	    pet7.setName(old + "X");
@@ -174,14 +175,19 @@ public abstract class AbstractClinicServiceTests {
 	@Transactional
 	public void insertVisit() {
 	    Pet pet7 = this.clinicService.findPetById(7);
+	    Vet v1 = this.clinicService.findVetById(1);
 	    int found = pet7.getVisits().size();
 	    Visit visit = new Visit();
 	    pet7.addVisit(visit);
+	    visit.setVet(v1);
 	    visit.setDescription("test");
 	    // both storeVisit and storePet are necessary to cover all ORM tools
 	    this.clinicService.saveVisit(visit);
+	    int id = visit.getId();
 	    this.clinicService.savePet(pet7);
 	    pet7 = this.clinicService.findPetById(7);
+	    Visit visit2 = this.clinicService.findVisitById(id);
+	    assertEquals(null, visit2.getPet());
 	    assertEquals(found + 1, pet7.getVisits().size());
 	}
 
