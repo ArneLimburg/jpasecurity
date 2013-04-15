@@ -31,11 +31,12 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.orm.ObjectRetrievalFailureException;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.repository.OwnerRepository;
 import org.springframework.samples.petclinic.repository.PetRepository;
-import org.springframework.samples.petclinic.repository.VisitRepository;
+import org.springframework.samples.petclinic.repository.VetRepository;
 import org.springframework.samples.petclinic.util.EntityUtils;
 import org.springframework.stereotype.Repository;
 
@@ -56,11 +57,11 @@ public class JdbcPetRepositoryImpl implements PetRepository {
 
     private OwnerRepository ownerRepository;
 
-    private VisitRepository visitRepository;
+    private VetRepository vetRepository;
 
 
     @Autowired
-    public JdbcPetRepositoryImpl(DataSource dataSource, OwnerRepository ownerRepository, VisitRepository visitRepository) {
+    public JdbcPetRepositoryImpl(DataSource dataSource, OwnerRepository ownerRepository, VetRepository vetRepository) {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 
         this.insertPet = new SimpleJdbcInsert(dataSource)
@@ -68,7 +69,7 @@ public class JdbcPetRepositoryImpl implements PetRepository {
                 .usingGeneratedKeyColumns("id");
 
         this.ownerRepository = ownerRepository;
-        this.visitRepository = visitRepository;
+        this.vetRepository = vetRepository;
     }
 
     @Override
@@ -84,11 +85,11 @@ public class JdbcPetRepositoryImpl implements PetRepository {
     public Pet findById(int id) throws DataAccessException {
         JdbcPet pet;
         try {
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("id", id);
+            Map<String, Object> paramsPet = new HashMap<String, Object>();
+            paramsPet.put("id", id);
             pet = this.namedParameterJdbcTemplate.queryForObject(
                     "SELECT id, name, birth_date, type_id, owner_id FROM pets WHERE id=:id",
-                    params,
+                    paramsPet,
                     new JdbcPetRowMapper());
         } catch (EmptyResultDataAccessException ex) {
             throw new ObjectRetrievalFailureException(Pet.class, new Integer(id));
@@ -97,8 +98,16 @@ public class JdbcPetRepositoryImpl implements PetRepository {
         owner.addPet(pet);
         pet.setType(EntityUtils.getById(findPetTypes(), PetType.class, pet.getTypeId()));
 
-        List<Visit> visits = this.visitRepository.findByPetId(pet.getId());
-        for (Visit visit : visits) {
+        Map<String, Object> paramsVisits = new HashMap<String, Object>();
+        paramsVisits.put("id", id);
+        final List<JdbcVisit> visits = this.namedParameterJdbcTemplate.query(
+                "SELECT id, visit_date, description, vet_id, pet_id FROM visits WHERE pet_id=:id",
+                paramsVisits,
+                new JdbcVisitRowMapper()
+        );
+        for (JdbcVisit visit : visits) {
+        	Vet vet = this.vetRepository.findById(visit.getVetId());
+            visit.setVet(vet);
             pet.addVisit(visit);
         }
         return pet;

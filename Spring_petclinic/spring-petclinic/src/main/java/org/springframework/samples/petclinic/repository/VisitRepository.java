@@ -20,6 +20,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.BaseEntity;
 import org.springframework.samples.petclinic.model.Visit;
+import org.springframework.samples.petclinic.model.Vet;
 
 /**
  * Repository class for <code>Visit</code> domain objects All method names are compliant with Spring Data naming
@@ -41,7 +42,7 @@ public interface VisitRepository {
     void save(Visit visit) throws DataAccessException;
 
     List<Visit> findByPetId(Integer petId);
-    List<Visit> findByVetId(Integer vetId);
+    List<Visit> findByVet(Vet vet);
     
     /**
      * Retrieve a <code>Visit</code> from the data store by id.

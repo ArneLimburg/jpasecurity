@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -67,7 +68,7 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
     private PetRepository petRepository;
 
     @Autowired
-    public JdbcVisitRepositoryImpl(DataSource dataSource, VetRepository vetRepository) {
+    public JdbcVisitRepositoryImpl(DataSource dataSource, VetRepository vetRepository, PetRepository petRepository) {
     	this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         this.jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -75,6 +76,7 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
                 .withTableName("visits")
                 .usingGeneratedKeyColumns("id");
         this.vetRepository = vetRepository;
+        this.petRepository = petRepository;
     }
 
 
@@ -111,39 +113,54 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
 
     @Override
     public List<Visit> findByPetId(Integer petId) {
-        final List<Visit> visits = this.jdbcTemplate.query(
-                "SELECT id, visit_date, description FROM visits WHERE pet_id=?",
-                new ParameterizedRowMapper<Visit>() {
+    	List<Visit> visits = new LinkedList<Visit>();
+        final List<JdbcVisit> jdbcVisits = this.jdbcTemplate.query(
+                "SELECT id, visit_date, description, vet_id FROM visits WHERE pet_id=?",
+                new ParameterizedRowMapper<JdbcVisit>() {
                     @Override
-                    public Visit mapRow(ResultSet rs, int row) throws SQLException {
-                        Visit visit = new Visit();
+                    public JdbcVisit mapRow(ResultSet rs, int row) throws SQLException {
+                    	JdbcVisit visit = new JdbcVisit();
                         visit.setId(rs.getInt("id"));
                         Date visitDate = rs.getDate("visit_date");
                         visit.setDate(new DateTime(visitDate));
                         visit.setDescription(rs.getString("description"));
+                        visit.setVetId(rs.getInt("vet_id"));
                         return visit;
                     }
                 },
                 petId);
+        for (JdbcVisit visit : jdbcVisits) {
+        	Vet vet = this.vetRepository.findById(visit.getVetId());
+            visit.setVet(vet);
+            visits.add(visit);
+        }
         return visits;
     }
 
     @Override
-    public List<Visit> findByVetId(Integer vetId) {
-        final List<Visit> visits = this.jdbcTemplate.query(
-                "SELECT id, visit_date, description FROM visits WHERE vet_id=?",
-                new ParameterizedRowMapper<Visit>() {
+    public List<Visit> findByVet(Vet vet) {
+    	List<Visit> visits = new LinkedList<Visit>();
+        final List<JdbcVisit> jdbcVisits = this.jdbcTemplate.query(
+                "SELECT id, visit_date, description, pet_id FROM visits WHERE vet_id=?",
+                new ParameterizedRowMapper<JdbcVisit>() {
                     @Override
-                    public Visit mapRow(ResultSet rs, int row) throws SQLException {
-                        Visit visit = new Visit();
+                    public JdbcVisit mapRow(ResultSet rs, int row) throws SQLException {
+                    	JdbcVisit visit = new JdbcVisit();
                         visit.setId(rs.getInt("id"));
                         Date visitDate = rs.getDate("visit_date");
                         visit.setDate(new DateTime(visitDate));
                         visit.setDescription(rs.getString("description"));
+                        visit.setPetId(rs.getInt("pet_id"));
                         return visit;
                     }
                 },
-                vetId);
+                vet.getId());
+        for (JdbcVisit visit : jdbcVisits) {
+            visit.setVet(vet);
+            Pet pet = this.petRepository.findById(visit.getPetId());
+            pet.addVisit(visit);
+            visits.add(visit);
+        }
         return visits;
     }
 
