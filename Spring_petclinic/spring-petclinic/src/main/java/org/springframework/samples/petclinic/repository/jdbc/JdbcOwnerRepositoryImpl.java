@@ -52,23 +52,18 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class JdbcOwnerRepositoryImpl implements OwnerRepository {
 
-    private VisitRepository visitRepository;
-
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private SimpleJdbcInsert insertOwner;
 
     @Autowired
-    public JdbcOwnerRepositoryImpl(DataSource dataSource, NamedParameterJdbcTemplate namedParameterJdbcTemplate,
-                                   VisitRepository visitRepository) {
+    public JdbcOwnerRepositoryImpl(DataSource dataSource, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
 
         this.insertOwner = new SimpleJdbcInsert(dataSource)
                 .withTableName("owners")
                 .usingGeneratedKeyColumns("id");
 
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-
-        this.visitRepository = visitRepository;
     }
 
 
@@ -123,7 +118,13 @@ public class JdbcOwnerRepositoryImpl implements OwnerRepository {
         for (JdbcPet pet : pets) {
             owner.addPet(pet);
             pet.setType(EntityUtils.getById(getPetTypes(), PetType.class, pet.getTypeId()));
-            List<Visit> visits = this.visitRepository.findByPetId(pet.getId());
+            Map<String, Object> paramsVisits = new HashMap<String, Object>();
+            paramsVisits.put("id", pet.getId());
+            final List<JdbcVisit> visits = this.namedParameterJdbcTemplate.query(
+                    "SELECT id, visit_date, description, vet_id, pet_id FROM visits WHERE pet_id=:id",
+                    paramsVisits,
+                    new JdbcVisitRowMapper()
+            );
             for (Visit visit : visits) {
                 pet.addVisit(visit);
             }

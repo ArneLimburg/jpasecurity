@@ -18,6 +18,7 @@ package org.springframework.samples.petclinic.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Iterator;
 import java.util.Collection;
 
 import org.joda.time.DateTime;
@@ -102,7 +103,7 @@ public abstract class AbstractClinicServiceTests {
         assertEquals(old + "X", o1.getLastName());
     }
 
-	@Test
+    @Test
 	public void findPet() {
 	    Collection<PetType> types = this.clinicService.findPetTypes();
 	    Pet pet7 = this.clinicService.findPetById(7);
@@ -183,11 +184,8 @@ public abstract class AbstractClinicServiceTests {
 	    visit.setDescription("test");
 	    // both storeVisit and storePet are necessary to cover all ORM tools
 	    this.clinicService.saveVisit(visit);
-	    int id = visit.getId();
 	    this.clinicService.savePet(pet7);
 	    pet7 = this.clinicService.findPetById(7);
-	    Visit visit2 = this.clinicService.findVisitById(id);
-	    assertEquals(null, visit2.getPet());
 	    assertEquals(found + 1, pet7.getVisits().size());
 	}
 

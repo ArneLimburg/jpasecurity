@@ -22,6 +22,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.repository.VisitRepository;
 import org.springframework.stereotype.Repository;
@@ -53,15 +54,16 @@ public class JpaVisitRepositoryImpl implements VisitRepository {
     @Override
     @SuppressWarnings("unchecked")
     public List<Visit> findByPetId(Integer petId) {
-        Query query = this.em.createQuery("SELECT visit FROM Visit v where v.pets.id= :id");
+        Query query = this.em.createQuery("SELECT visit FROM Visit visit where visit.pet.id= :id");
         query.setParameter("id", petId);
         return query.getResultList();
     }
+   
     @Override
     @SuppressWarnings("unchecked")
-    public List<Visit> findByVetId(Integer vetId) {
-        Query query = this.em.createQuery("SELECT visit FROM Visit v where v.vets.id= :id");
-        query.setParameter("id", vetId);
+    public List<Visit> findByVet(Vet vet) {
+        Query query = this.em.createQuery("SELECT visit FROM Visit visit where visit.vet.id= :id");
+        query.setParameter("id", vet.getId());
         return query.getResultList();
     }
 
