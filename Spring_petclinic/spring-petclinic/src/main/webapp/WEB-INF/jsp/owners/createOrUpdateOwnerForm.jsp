@@ -29,11 +29,23 @@
         <petclinic:inputField label="Address" name="address"/>
         <petclinic:inputField label="City" name="city"/>
         <petclinic:inputField label="Telephone" name="telephone"/>
+        
+        <c:choose>
+          <c:when test="${owner['new']}">
+          	<petclinic:inputField label="Username" name="credential.username"/>
+          </c:when>
+          <c:otherwise>
+            Username: ${owner.credential.username}
+          </c:otherwise>
+        </c:choose>
+
+        <petclinic:inputField label="Password" name="credential.newPassword"/>
+
 
         <div class="form-actions">
             <c:choose>
                 <c:when test="${owner['new']}">
-                    <button type="submit">Add Owner</button>
+                    <button type="submit">Register Owner</button>
                 </c:when>
                 <c:otherwise>
                     <button type="submit">Update Owner</button>

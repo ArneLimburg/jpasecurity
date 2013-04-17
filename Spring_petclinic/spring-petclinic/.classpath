@@ -1,287 +1,283 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-  <classpathentry kind="src" path="src/test/java" output="target/test-classes" including="**/*.*|**/*.java"/>
-  <classpathentry kind="src" path="src/test/resources" output="target/test-classes" excluding="**/*.java"/>
-  <classpathentry kind="src" path="src/main/java" including="**/*.*|**/*.java"/>
-  <classpathentry kind="src" path="src/main/resources" excluding="**/*.java"/>
-  <classpathentry kind="output" path="target/classes"/>
-  <classpathentry kind="var" path="M2_REPO/javax/validation/validation-api/1.0.0.GA/validation-api-1.0.0.GA.jar" sourcepath="M2_REPO/javax/validation/validation-api/1.0.0.GA/validation-api-1.0.0.GA-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/javax/validation/validation-api/1.0.0.GA/validation-api-1.0.0.GA-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/javax/servlet/jstl/1.2/jstl-1.2.jar" sourcepath="M2_REPO/javax/servlet/jstl/1.2/jstl-1.2-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/javax/servlet/servlet-api/2.5/servlet-api-2.5.jar" sourcepath="M2_REPO/javax/servlet/servlet-api/2.5/servlet-api-2.5-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/javax/servlet/jsp/jsp-api/2.2/jsp-api-2.2.jar" sourcepath="M2_REPO/javax/servlet/jsp/jsp-api/2.2/jsp-api-2.2-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/javax/servlet/jsp/jsp-api/2.2/jsp-api-2.2-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/javax/xml/bind/jaxb-api/2.2.7/jaxb-api-2.2.7.jar" sourcepath="M2_REPO/javax/xml/bind/jaxb-api/2.2.7/jaxb-api-2.2.7-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/javax/xml/bind/jaxb-api/2.2.7/jaxb-api-2.2.7-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/javax/servlet/jsp/jstl/jstl-api/1.2/jstl-api-1.2.jar" sourcepath="M2_REPO/javax/servlet/jsp/jstl/jstl-api/1.2/jstl-api-1.2-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/javax/servlet/jsp/jstl/jstl-api/1.2/jstl-api-1.2-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/javax/el/el-api/2.2/el-api-2.2.jar" sourcepath="M2_REPO/javax/el/el-api/2.2/el-api-2.2-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/javax/el/el-api/2.2/el-api-2.2-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-  <classpathentry kind="var" path="M2_REPO/org/jadira/usertype/usertype.core/3.1.0.CR1/usertype.core-3.1.0.CR1.jar" sourcepath="M2_REPO/org/jadira/usertype/usertype.core/3.1.0.CR1/usertype.core-3.1.0.CR1-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/jadira/usertype/usertype.core/3.1.0.CR1/usertype.core-3.1.0.CR1-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-entitymanager/4.1.9.Final/hibernate-entitymanager-4.1.9.Final.jar" sourcepath="M2_REPO/org/hibernate/hibernate-entitymanager/4.1.9.Final/hibernate-entitymanager-4.1.9.Final-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/jboss/logging/jboss-logging/3.1.0.GA/jboss-logging-3.1.0.GA.jar" sourcepath="M2_REPO/org/jboss/logging/jboss-logging/3.1.0.GA/jboss-logging-3.1.0.GA-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/jboss/spec/javax/transaction/jboss-transaction-api_1.1_spec/1.0.0.Final/jboss-transaction-api_1.1_spec-1.0.0.Final.jar" sourcepath="M2_REPO/org/jboss/spec/javax/transaction/jboss-transaction-api_1.1_spec/1.0.0.Final/jboss-transaction-api_1.1_spec-1.0.0.Final-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar" sourcepath="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/hibernate/javax/persistence/hibernate-jpa-2.0-api/1.0.1.Final/hibernate-jpa-2.0-api-1.0.1.Final.jar" sourcepath="M2_REPO/org/hibernate/javax/persistence/hibernate-jpa-2.0-api/1.0.1.Final/hibernate-jpa-2.0-api-1.0.1.Final-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/javassist/javassist/3.17.1-GA/javassist-3.17.1-GA.jar" sourcepath="M2_REPO/org/javassist/javassist/3.17.1-GA/javassist-3.17.1-GA-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-core/4.1.9.Final/hibernate-core-4.1.9.Final.jar" sourcepath="M2_REPO/org/hibernate/hibernate-core/4.1.9.Final/hibernate-core-4.1.9.Final-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.7/antlr-2.7.7.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/hibernate/common/hibernate-commons-annotations/4.0.1.Final/hibernate-commons-annotations-4.0.1.Final.jar" sourcepath="M2_REPO/org/hibernate/common/hibernate-commons-annotations/4.0.1.Final/hibernate-commons-annotations-4.0.1.Final-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/hibernate/common/hibernate-commons-annotations/4.0.1.Final/hibernate-commons-annotations-4.0.1.Final-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2.jar" sourcepath="M2_REPO/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/jadira/usertype/usertype.spi/3.1.0.CR1/usertype.spi-3.1.0.CR1.jar" sourcepath="M2_REPO/org/jadira/usertype/usertype.spi/3.1.0.CR1/usertype.spi-3.1.0.CR1-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/jadira/usertype/usertype.spi/3.1.0.CR1/usertype.spi-3.1.0.CR1-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/com/sun/xml/bind/jaxb-impl/2.2.7-b53/jaxb-impl-2.2.7-b53.jar" sourcepath="M2_REPO/com/sun/xml/bind/jaxb-impl/2.2.7-b53/jaxb-impl-2.2.7-b53-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/sun/xml/bind/jaxb-impl/2.2.7-b53/jaxb-impl-2.2.7-b53-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/data/spring-data-jpa/1.3.0.RELEASE/spring-data-jpa-1.3.0.RELEASE.jar" sourcepath="M2_REPO/org/springframework/data/spring-data-jpa/1.3.0.RELEASE/spring-data-jpa-1.3.0.RELEASE-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/data/spring-data-jpa/1.3.0.RELEASE/spring-data-jpa-1.3.0.RELEASE-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/data/spring-data-commons/1.5.0.RELEASE/spring-data-commons-1.5.0.RELEASE.jar" sourcepath="M2_REPO/org/springframework/data/spring-data-commons/1.5.0.RELEASE/spring-data-commons-1.5.0.RELEASE-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/data/spring-data-commons/1.5.0.RELEASE/spring-data-commons-1.5.0.RELEASE-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-core/3.1.4.RELEASE/spring-core-3.1.4.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-core/3.1.4.RELEASE/spring-core-3.1.4.RELEASE-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-asm/3.1.4.RELEASE/spring-asm-3.1.4.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-asm/3.1.4.RELEASE/spring-asm-3.1.4.RELEASE-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-beans/3.1.4.RELEASE/spring-beans-3.1.4.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-beans/3.1.4.RELEASE/spring-beans-3.1.4.RELEASE-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/slf4j/jcl-over-slf4j/1.7.2/jcl-over-slf4j-1.7.2.jar" sourcepath="M2_REPO/org/slf4j/jcl-over-slf4j/1.7.2/jcl-over-slf4j-1.7.2-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/slf4j/jcl-over-slf4j/1.7.2/jcl-over-slf4j-1.7.2-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-orm/3.2.2.RELEASE/spring-orm-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-orm/3.2.2.RELEASE/spring-orm-3.2.2.RELEASE-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-orm/3.2.2.RELEASE/spring-orm-3.2.2.RELEASE-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-jdbc/3.2.2.RELEASE/spring-jdbc-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-jdbc/3.2.2.RELEASE/spring-jdbc-3.2.2.RELEASE-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-jdbc/3.2.2.RELEASE/spring-jdbc-3.2.2.RELEASE-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-tx/3.2.2.RELEASE/spring-tx-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-tx/3.2.2.RELEASE/spring-tx-3.2.2.RELEASE-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-tx/3.2.2.RELEASE/spring-tx-3.2.2.RELEASE-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar" sourcepath="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-aop/3.2.2.RELEASE/spring-aop-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-aop/3.2.2.RELEASE/spring-aop-3.2.2.RELEASE-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-aop/3.2.2.RELEASE/spring-aop-3.2.2.RELEASE-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-context/3.1.4.RELEASE/spring-context-3.1.4.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-context/3.1.4.RELEASE/spring-context-3.1.4.RELEASE-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-expression/3.2.2.RELEASE/spring-expression-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-expression/3.2.2.RELEASE/spring-expression-3.2.2.RELEASE-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-expression/3.2.2.RELEASE/spring-expression-3.2.2.RELEASE-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/aspectj/aspectjrt/1.7.2/aspectjrt-1.7.2.jar" sourcepath="M2_REPO/org/aspectj/aspectjrt/1.7.2/aspectjrt-1.7.2-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/aspectj/aspectjrt/1.7.2/aspectjrt-1.7.2-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-webmvc/3.2.2.RELEASE/spring-webmvc-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-webmvc/3.2.2.RELEASE/spring-webmvc-3.2.2.RELEASE-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-webmvc/3.2.2.RELEASE/spring-webmvc-3.2.2.RELEASE-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-web/3.2.2.RELEASE/spring-web-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-web/3.2.2.RELEASE/spring-web-3.2.2.RELEASE-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-web/3.2.2.RELEASE/spring-web-3.2.2.RELEASE-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-context-support/3.2.2.RELEASE/spring-context-support-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-context-support/3.2.2.RELEASE/spring-context-support-3.2.2.RELEASE-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-context-support/3.2.2.RELEASE/spring-context-support-3.2.2.RELEASE-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-oxm/3.2.2.RELEASE/spring-oxm-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-oxm/3.2.2.RELEASE/spring-oxm-3.2.2.RELEASE-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-oxm/3.2.2.RELEASE/spring-oxm-3.2.2.RELEASE-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-jms/3.2.2.RELEASE/spring-jms-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-jms/3.2.2.RELEASE/spring-jms-3.2.2.RELEASE-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-jms/3.2.2.RELEASE/spring-jms-3.2.2.RELEASE-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/commons-dbcp/commons-dbcp/1.4/commons-dbcp-1.4.jar" sourcepath="M2_REPO/commons-dbcp/commons-dbcp/1.4/commons-dbcp-1.4-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/commons-dbcp/commons-dbcp/1.4/commons-dbcp-1.4-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.5.4/commons-pool-1.5.4.jar" sourcepath="M2_REPO/commons-pool/commons-pool/1.5.4/commons-pool-1.5.4-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/commons-pool/commons-pool/1.5.4/commons-pool-1.5.4-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/slf4j/jul-to-slf4j/1.7.2/jul-to-slf4j-1.7.2.jar" sourcepath="M2_REPO/org/slf4j/jul-to-slf4j/1.7.2/jul-to-slf4j-1.7.2-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/slf4j/jul-to-slf4j/1.7.2/jul-to-slf4j-1.7.2-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/ch/qos/logback/logback-classic/1.0.9/logback-classic-1.0.9.jar" sourcepath="M2_REPO/ch/qos/logback/logback-classic/1.0.9/logback-classic-1.0.9-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/ch/qos/logback/logback-classic/1.0.9/logback-classic-1.0.9-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/ch/qos/logback/logback-core/1.0.9/logback-core-1.0.9.jar" sourcepath="M2_REPO/ch/qos/logback/logback-core/1.0.9/logback-core-1.0.9-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/ch/qos/logback/logback-core/1.0.9/logback-core-1.0.9-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/rome/rome/1.0/rome-1.0.jar" sourcepath="M2_REPO/rome/rome/1.0/rome-1.0-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/rome/rome/1.0/rome-1.0-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/jdom/jdom/1.0/jdom-1.0.jar" sourcepath="M2_REPO/jdom/jdom/1.0/jdom-1.0-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/joda-time/joda-time/2.2/joda-time-2.2.jar" sourcepath="M2_REPO/joda-time/joda-time/2.2/joda-time-2.2-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/joda-time/joda-time/2.2/joda-time-2.2-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/joda-time/joda-time-hibernate/1.3/joda-time-hibernate-1.3.jar" sourcepath="M2_REPO/joda-time/joda-time-hibernate/1.3/joda-time-hibernate-1.3-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/joda-time/joda-time-hibernate/1.3/joda-time-hibernate-1.3-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/joda-time/joda-time-jsptags/1.1.1/joda-time-jsptags-1.1.1.jar" sourcepath="M2_REPO/joda-time/joda-time-jsptags/1.1.1/joda-time-jsptags-1.1.1-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/joda-time/joda-time-jsptags/1.1.1/joda-time-jsptags-1.1.1-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/hsqldb/hsqldb/2.2.9/hsqldb-2.2.9.jar" sourcepath="M2_REPO/org/hsqldb/hsqldb/2.2.9/hsqldb-2.2.9-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/hsqldb/hsqldb/2.2.9/hsqldb-2.2.9-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/glassfish/web/jstl-impl/1.2/jstl-impl-1.2.jar" sourcepath="M2_REPO/org/glassfish/web/jstl-impl/1.2/jstl-impl-1.2-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/glassfish/web/jstl-impl/1.2/jstl-impl-1.2-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-validator/4.3.0.Final/hibernate-validator-4.3.0.Final.jar" sourcepath="M2_REPO/org/hibernate/hibernate-validator/4.3.0.Final/hibernate-validator-4.3.0.Final-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/hibernate/hibernate-validator/4.3.0.Final/hibernate-validator-4.3.0.Final-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-ehcache/4.1.9.Final/hibernate-ehcache-4.1.9.Final.jar" sourcepath="M2_REPO/org/hibernate/hibernate-ehcache/4.1.9.Final/hibernate-ehcache-4.1.9.Final-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache-core/2.6.5/ehcache-core-2.6.5.jar" sourcepath="M2_REPO/net/sf/ehcache/ehcache-core/2.6.5/ehcache-core-2.6.5-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/net/sf/ehcache/ehcache-core/2.6.5/ehcache-core-2.6.5-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/webjars/bootstrap/2.3.0/bootstrap-2.3.0.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/webjars/bootstrap/2.3.0/bootstrap-2.3.0-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/webjars/jquery/1.9.0/jquery-1.9.0.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/webjars/jquery-ui/1.9.2/jquery-ui-1.9.2.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/webjars/jquery-ui/1.9.2/jquery-ui-1.9.2-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-test/3.2.2.RELEASE/spring-test-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-test/3.2.2.RELEASE/spring-test-3.2.2.RELEASE-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-test/3.2.2.RELEASE/spring-test-3.2.2.RELEASE-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/junit/junit/4.11/junit-4.11.jar" sourcepath="M2_REPO/junit/junit/4.11/junit-4.11-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/junit/junit/4.11/junit-4.11-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar" sourcepath="M2_REPO/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar" sourcepath="M2_REPO/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/aspectj/aspectjweaver/1.7.2/aspectjweaver-1.7.2.jar" sourcepath="M2_REPO/org/aspectj/aspectjweaver/1.7.2/aspectjweaver-1.7.2-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/aspectj/aspectjweaver/1.7.2/aspectjweaver-1.7.2-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/com/github/dandelion/datatables-jsp/0.8.8/datatables-jsp-0.8.8.jar" sourcepath="M2_REPO/com/github/dandelion/datatables-jsp/0.8.8/datatables-jsp-0.8.8-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/github/dandelion/datatables-jsp/0.8.8/datatables-jsp-0.8.8-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/com/github/dandelion/datatables-core/0.8.8/datatables-core-0.8.8.jar" sourcepath="M2_REPO/com/github/dandelion/datatables-core/0.8.8/datatables-core-0.8.8-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/github/dandelion/datatables-core/0.8.8/datatables-core-0.8.8-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar" sourcepath="M2_REPO/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6.jar" sourcepath="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/commons-beanutils/commons-beanutils/1.8.3/commons-beanutils-1.8.3.jar" sourcepath="M2_REPO/commons-beanutils/commons-beanutils/1.8.3/commons-beanutils-1.8.3-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/commons-beanutils/commons-beanutils/1.8.3/commons-beanutils-1.8.3-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/com/github/dandelion/datatables-export-itext/0.8.8/datatables-export-itext-0.8.8.jar" sourcepath="M2_REPO/com/github/dandelion/datatables-export-itext/0.8.8/datatables-export-itext-0.8.8-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/github/dandelion/datatables-export-itext/0.8.8/datatables-export-itext-0.8.8-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/com/itextpdf/itextpdf/5.3.4/itextpdf-5.3.4.jar" sourcepath="M2_REPO/com/itextpdf/itextpdf/5.3.4/itextpdf-5.3.4-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/itextpdf/itextpdf/5.3.4/itextpdf-5.3.4-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/com/github/dandelion/datatables-servlet2/0.8.8/datatables-servlet2-0.8.8.jar" sourcepath="M2_REPO/com/github/dandelion/datatables-servlet2/0.8.8/datatables-servlet2-0.8.8-sources.jar">
-    <attributes>
-      <attribute value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/github/dandelion/datatables-servlet2/0.8.8/datatables-servlet2-0.8.8-javadoc.jar!/" name="javadoc_location"/>
-    </attributes>
-  </classpathentry>
+	<classpathentry including="**/*.*|**/*.java" kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry excluding="**/*.java" kind="src" output="target/test-classes" path="src/test/resources"/>
+	<classpathentry including="**/*.*|**/*.java" kind="src" path="src/main/java"/>
+	<classpathentry excluding="**/*.java" kind="src" path="src/main/resources"/>
+	<classpathentry kind="var" path="M2_REPO/javax/validation/validation-api/1.0.0.GA/validation-api-1.0.0.GA.jar" sourcepath="M2_REPO/javax/validation/validation-api/1.0.0.GA/validation-api-1.0.0.GA-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/javax/validation/validation-api/1.0.0.GA/validation-api-1.0.0.GA-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/javax/servlet/jstl/1.2/jstl-1.2.jar" sourcepath="M2_REPO/javax/servlet/jstl/1.2/jstl-1.2-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/servlet/servlet-api/2.5/servlet-api-2.5.jar" sourcepath="M2_REPO/javax/servlet/servlet-api/2.5/servlet-api-2.5-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/servlet/jsp/jsp-api/2.2/jsp-api-2.2.jar" sourcepath="M2_REPO/javax/servlet/jsp/jsp-api/2.2/jsp-api-2.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/javax/servlet/jsp/jsp-api/2.2/jsp-api-2.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/javax/xml/bind/jaxb-api/2.2.7/jaxb-api-2.2.7.jar" sourcepath="M2_REPO/javax/xml/bind/jaxb-api/2.2.7/jaxb-api-2.2.7-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/javax/xml/bind/jaxb-api/2.2.7/jaxb-api-2.2.7-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/javax/servlet/jsp/jstl/jstl-api/1.2/jstl-api-1.2.jar" sourcepath="M2_REPO/javax/servlet/jsp/jstl/jstl-api/1.2/jstl-api-1.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/javax/servlet/jsp/jstl/jstl-api/1.2/jstl-api-1.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/javax/el/el-api/2.2/el-api-2.2.jar" sourcepath="M2_REPO/javax/el/el-api/2.2/el-api-2.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/javax/el/el-api/2.2/el-api-2.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="M2_REPO/org/jadira/usertype/usertype.core/3.1.0.CR1/usertype.core-3.1.0.CR1.jar" sourcepath="M2_REPO/org/jadira/usertype/usertype.core/3.1.0.CR1/usertype.core-3.1.0.CR1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/jadira/usertype/usertype.core/3.1.0.CR1/usertype.core-3.1.0.CR1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-entitymanager/4.1.9.Final/hibernate-entitymanager-4.1.9.Final.jar" sourcepath="M2_REPO/org/hibernate/hibernate-entitymanager/4.1.9.Final/hibernate-entitymanager-4.1.9.Final-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/logging/jboss-logging/3.1.0.GA/jboss-logging-3.1.0.GA.jar" sourcepath="M2_REPO/org/jboss/logging/jboss-logging/3.1.0.GA/jboss-logging-3.1.0.GA-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/spec/javax/transaction/jboss-transaction-api_1.1_spec/1.0.0.Final/jboss-transaction-api_1.1_spec-1.0.0.Final.jar" sourcepath="M2_REPO/org/jboss/spec/javax/transaction/jboss-transaction-api_1.1_spec/1.0.0.Final/jboss-transaction-api_1.1_spec-1.0.0.Final-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar" sourcepath="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/hibernate/javax/persistence/hibernate-jpa-2.0-api/1.0.1.Final/hibernate-jpa-2.0-api-1.0.1.Final.jar" sourcepath="M2_REPO/org/hibernate/javax/persistence/hibernate-jpa-2.0-api/1.0.1.Final/hibernate-jpa-2.0-api-1.0.1.Final-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/javassist/javassist/3.17.1-GA/javassist-3.17.1-GA.jar" sourcepath="M2_REPO/org/javassist/javassist/3.17.1-GA/javassist-3.17.1-GA-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-core/4.1.9.Final/hibernate-core-4.1.9.Final.jar" sourcepath="M2_REPO/org/hibernate/hibernate-core/4.1.9.Final/hibernate-core-4.1.9.Final-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.7/antlr-2.7.7.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/hibernate/common/hibernate-commons-annotations/4.0.1.Final/hibernate-commons-annotations-4.0.1.Final.jar" sourcepath="M2_REPO/org/hibernate/common/hibernate-commons-annotations/4.0.1.Final/hibernate-commons-annotations-4.0.1.Final-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/hibernate/common/hibernate-commons-annotations/4.0.1.Final/hibernate-commons-annotations-4.0.1.Final-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2.jar" sourcepath="M2_REPO/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/jadira/usertype/usertype.spi/3.1.0.CR1/usertype.spi-3.1.0.CR1.jar" sourcepath="M2_REPO/org/jadira/usertype/usertype.spi/3.1.0.CR1/usertype.spi-3.1.0.CR1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/jadira/usertype/usertype.spi/3.1.0.CR1/usertype.spi-3.1.0.CR1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/com/sun/xml/bind/jaxb-impl/2.2.7-b53/jaxb-impl-2.2.7-b53.jar" sourcepath="M2_REPO/com/sun/xml/bind/jaxb-impl/2.2.7-b53/jaxb-impl-2.2.7-b53-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/sun/xml/bind/jaxb-impl/2.2.7-b53/jaxb-impl-2.2.7-b53-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/data/spring-data-jpa/1.3.0.RELEASE/spring-data-jpa-1.3.0.RELEASE.jar" sourcepath="M2_REPO/org/springframework/data/spring-data-jpa/1.3.0.RELEASE/spring-data-jpa-1.3.0.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/data/spring-data-jpa/1.3.0.RELEASE/spring-data-jpa-1.3.0.RELEASE-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/data/spring-data-commons/1.5.0.RELEASE/spring-data-commons-1.5.0.RELEASE.jar" sourcepath="M2_REPO/org/springframework/data/spring-data-commons/1.5.0.RELEASE/spring-data-commons-1.5.0.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/data/spring-data-commons/1.5.0.RELEASE/spring-data-commons-1.5.0.RELEASE-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/slf4j/jcl-over-slf4j/1.7.2/jcl-over-slf4j-1.7.2.jar" sourcepath="M2_REPO/org/slf4j/jcl-over-slf4j/1.7.2/jcl-over-slf4j-1.7.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/slf4j/jcl-over-slf4j/1.7.2/jcl-over-slf4j-1.7.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-orm/3.2.2.RELEASE/spring-orm-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-orm/3.2.2.RELEASE/spring-orm-3.2.2.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-orm/3.2.2.RELEASE/spring-orm-3.2.2.RELEASE-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-jdbc/3.2.2.RELEASE/spring-jdbc-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-jdbc/3.2.2.RELEASE/spring-jdbc-3.2.2.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-jdbc/3.2.2.RELEASE/spring-jdbc-3.2.2.RELEASE-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-tx/3.2.2.RELEASE/spring-tx-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-tx/3.2.2.RELEASE/spring-tx-3.2.2.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-tx/3.2.2.RELEASE/spring-tx-3.2.2.RELEASE-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar" sourcepath="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-aop/3.2.2.RELEASE/spring-aop-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-aop/3.2.2.RELEASE/spring-aop-3.2.2.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-aop/3.2.2.RELEASE/spring-aop-3.2.2.RELEASE-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-expression/3.2.2.RELEASE/spring-expression-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-expression/3.2.2.RELEASE/spring-expression-3.2.2.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-expression/3.2.2.RELEASE/spring-expression-3.2.2.RELEASE-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/aspectj/aspectjrt/1.7.2/aspectjrt-1.7.2.jar" sourcepath="M2_REPO/org/aspectj/aspectjrt/1.7.2/aspectjrt-1.7.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/aspectj/aspectjrt/1.7.2/aspectjrt-1.7.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-webmvc/3.2.2.RELEASE/spring-webmvc-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-webmvc/3.2.2.RELEASE/spring-webmvc-3.2.2.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-webmvc/3.2.2.RELEASE/spring-webmvc-3.2.2.RELEASE-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-web/3.2.2.RELEASE/spring-web-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-web/3.2.2.RELEASE/spring-web-3.2.2.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-web/3.2.2.RELEASE/spring-web-3.2.2.RELEASE-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-context-support/3.2.2.RELEASE/spring-context-support-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-context-support/3.2.2.RELEASE/spring-context-support-3.2.2.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-context-support/3.2.2.RELEASE/spring-context-support-3.2.2.RELEASE-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-oxm/3.2.2.RELEASE/spring-oxm-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-oxm/3.2.2.RELEASE/spring-oxm-3.2.2.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-oxm/3.2.2.RELEASE/spring-oxm-3.2.2.RELEASE-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-jms/3.2.2.RELEASE/spring-jms-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-jms/3.2.2.RELEASE/spring-jms-3.2.2.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-jms/3.2.2.RELEASE/spring-jms-3.2.2.RELEASE-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/commons-dbcp/commons-dbcp/1.4/commons-dbcp-1.4.jar" sourcepath="M2_REPO/commons-dbcp/commons-dbcp/1.4/commons-dbcp-1.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/commons-dbcp/commons-dbcp/1.4/commons-dbcp-1.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.5.4/commons-pool-1.5.4.jar" sourcepath="M2_REPO/commons-pool/commons-pool/1.5.4/commons-pool-1.5.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/commons-pool/commons-pool/1.5.4/commons-pool-1.5.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/slf4j/jul-to-slf4j/1.7.2/jul-to-slf4j-1.7.2.jar" sourcepath="M2_REPO/org/slf4j/jul-to-slf4j/1.7.2/jul-to-slf4j-1.7.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/slf4j/jul-to-slf4j/1.7.2/jul-to-slf4j-1.7.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/ch/qos/logback/logback-classic/1.0.9/logback-classic-1.0.9.jar" sourcepath="M2_REPO/ch/qos/logback/logback-classic/1.0.9/logback-classic-1.0.9-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/ch/qos/logback/logback-classic/1.0.9/logback-classic-1.0.9-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/ch/qos/logback/logback-core/1.0.9/logback-core-1.0.9.jar" sourcepath="M2_REPO/ch/qos/logback/logback-core/1.0.9/logback-core-1.0.9-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/ch/qos/logback/logback-core/1.0.9/logback-core-1.0.9-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/rome/rome/1.0/rome-1.0.jar" sourcepath="M2_REPO/rome/rome/1.0/rome-1.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/rome/rome/1.0/rome-1.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/jdom/jdom/1.0/jdom-1.0.jar" sourcepath="M2_REPO/jdom/jdom/1.0/jdom-1.0-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/joda-time/joda-time/2.2/joda-time-2.2.jar" sourcepath="M2_REPO/joda-time/joda-time/2.2/joda-time-2.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/joda-time/joda-time/2.2/joda-time-2.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/joda-time/joda-time-hibernate/1.3/joda-time-hibernate-1.3.jar" sourcepath="M2_REPO/joda-time/joda-time-hibernate/1.3/joda-time-hibernate-1.3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/joda-time/joda-time-hibernate/1.3/joda-time-hibernate-1.3-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/joda-time/joda-time-jsptags/1.1.1/joda-time-jsptags-1.1.1.jar" sourcepath="M2_REPO/joda-time/joda-time-jsptags/1.1.1/joda-time-jsptags-1.1.1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/joda-time/joda-time-jsptags/1.1.1/joda-time-jsptags-1.1.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/hsqldb/hsqldb/2.2.9/hsqldb-2.2.9.jar" sourcepath="M2_REPO/org/hsqldb/hsqldb/2.2.9/hsqldb-2.2.9-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/hsqldb/hsqldb/2.2.9/hsqldb-2.2.9-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/glassfish/web/jstl-impl/1.2/jstl-impl-1.2.jar" sourcepath="M2_REPO/org/glassfish/web/jstl-impl/1.2/jstl-impl-1.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/glassfish/web/jstl-impl/1.2/jstl-impl-1.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-validator/4.3.0.Final/hibernate-validator-4.3.0.Final.jar" sourcepath="M2_REPO/org/hibernate/hibernate-validator/4.3.0.Final/hibernate-validator-4.3.0.Final-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/hibernate/hibernate-validator/4.3.0.Final/hibernate-validator-4.3.0.Final-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-ehcache/4.1.9.Final/hibernate-ehcache-4.1.9.Final.jar" sourcepath="M2_REPO/org/hibernate/hibernate-ehcache/4.1.9.Final/hibernate-ehcache-4.1.9.Final-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache-core/2.6.5/ehcache-core-2.6.5.jar" sourcepath="M2_REPO/net/sf/ehcache/ehcache-core/2.6.5/ehcache-core-2.6.5-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/net/sf/ehcache/ehcache-core/2.6.5/ehcache-core-2.6.5-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/webjars/bootstrap/2.3.0/bootstrap-2.3.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/webjars/bootstrap/2.3.0/bootstrap-2.3.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/webjars/jquery/1.9.0/jquery-1.9.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/webjars/jquery-ui/1.9.2/jquery-ui-1.9.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/webjars/jquery-ui/1.9.2/jquery-ui-1.9.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-test/3.2.2.RELEASE/spring-test-3.2.2.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-test/3.2.2.RELEASE/spring-test-3.2.2.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/springframework/spring-test/3.2.2.RELEASE/spring-test-3.2.2.RELEASE-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/4.11/junit-4.11.jar" sourcepath="M2_REPO/junit/junit/4.11/junit-4.11-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/junit/junit/4.11/junit-4.11-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar" sourcepath="M2_REPO/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3.jar" sourcepath="M2_REPO/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/hamcrest/hamcrest-library/1.3/hamcrest-library-1.3-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/aspectj/aspectjweaver/1.7.2/aspectjweaver-1.7.2.jar" sourcepath="M2_REPO/org/aspectj/aspectjweaver/1.7.2/aspectjweaver-1.7.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/org/aspectj/aspectjweaver/1.7.2/aspectjweaver-1.7.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/com/github/dandelion/datatables-jsp/0.8.8/datatables-jsp-0.8.8.jar" sourcepath="M2_REPO/com/github/dandelion/datatables-jsp/0.8.8/datatables-jsp-0.8.8-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/github/dandelion/datatables-jsp/0.8.8/datatables-jsp-0.8.8-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/com/github/dandelion/datatables-core/0.8.8/datatables-core-0.8.8.jar" sourcepath="M2_REPO/com/github/dandelion/datatables-core/0.8.8/datatables-core-0.8.8-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/github/dandelion/datatables-core/0.8.8/datatables-core-0.8.8-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar" sourcepath="M2_REPO/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6.jar" sourcepath="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/commons-beanutils/commons-beanutils/1.8.3/commons-beanutils-1.8.3.jar" sourcepath="M2_REPO/commons-beanutils/commons-beanutils/1.8.3/commons-beanutils-1.8.3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/commons-beanutils/commons-beanutils/1.8.3/commons-beanutils-1.8.3-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/com/github/dandelion/datatables-export-itext/0.8.8/datatables-export-itext-0.8.8.jar" sourcepath="M2_REPO/com/github/dandelion/datatables-export-itext/0.8.8/datatables-export-itext-0.8.8-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/github/dandelion/datatables-export-itext/0.8.8/datatables-export-itext-0.8.8-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/com/itextpdf/itextpdf/5.3.4/itextpdf-5.3.4.jar" sourcepath="M2_REPO/com/itextpdf/itextpdf/5.3.4/itextpdf-5.3.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/itextpdf/itextpdf/5.3.4/itextpdf-5.3.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/com/github/dandelion/datatables-servlet2/0.8.8/datatables-servlet2-0.8.8.jar" sourcepath="M2_REPO/com/github/dandelion/datatables-servlet2/0.8.8/datatables-servlet2-0.8.8-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/raffaela.ferrari/.m2/repository/com/github/dandelion/datatables-servlet2/0.8.8/datatables-servlet2-0.8.8-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>

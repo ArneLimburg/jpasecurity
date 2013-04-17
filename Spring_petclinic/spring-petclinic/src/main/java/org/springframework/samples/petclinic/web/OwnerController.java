@@ -21,10 +21,14 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Owner;
+import org.springframework.samples.petclinic.model.Credential;
 import org.springframework.samples.petclinic.service.ClinicService;
+import org.springframework.samples.petclinic.validation.OwnerValidator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,35 +45,52 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Michael Isvy
  */
 @Controller
-@SessionAttributes(types = Owner.class)
+@SessionAttributes("owner")
 public class OwnerController {
 
     private final ClinicService clinicService;
+    private final UserDetailsService userDetailsService;
 
 
     @Autowired
-    public OwnerController(ClinicService clinicService) {
+    public OwnerController(ClinicService clinicService, UserDetailsService userDetailsService) {
         this.clinicService = clinicService;
+        this.userDetailsService = userDetailsService;
     }
 
     @InitBinder
     public void setAllowedFields(WebDataBinder dataBinder) {
-        dataBinder.setDisallowedFields("id");
+        dataBinder.setDisallowedFields("id", "username");
     }
 
     @RequestMapping(value = "/owners/new", method = RequestMethod.GET)
     public String initCreationForm(Model model) {
         Owner owner = new Owner();
+        Credential credential = new Credential();
+        owner.setCredential(credential);
+        credential.setUser(owner);
         model.addAttribute(owner);
+        model.addAttribute(credential); //This is for the pre-authentication filter later
         return "owners/createOrUpdateOwnerForm";
     }
 
     @RequestMapping(value = "/owners/new", method = RequestMethod.POST)
     public String processCreationForm(@Valid Owner owner, BindingResult result, SessionStatus status) {
+    	new OwnerValidator().validate(owner, result);
+		try {
+            userDetailsService.loadUserByUsername(owner.getCredential().getUsername());
+            result.rejectValue("credential.username", "alreadyExists", "already exists");
+        } catch (UsernameNotFoundException e) {
+            //all right, the user does not already exist
+        }
         if (result.hasErrors()) {
             return "owners/createOrUpdateOwnerForm";
         } else {
-            this.clinicService.saveOwner(owner);
+        	this.clinic.storeOwner(owner);
+            Credential credential = owner.getCredential();
+            Authentication authentication
+              = new UsernamePasswordAuthenticationToken(credential, credential, credential.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
             status.setComplete();
             return "redirect:/owners/" + owner.getId();
         }

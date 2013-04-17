@@ -3,8 +3,7 @@
 <table class="footer">
     <tr>
         <td></td>
-        <td align="right"><img src="<spring:url value="/resources/images/springsource-logo.png" htmlEscape="true" />"
-                               alt="Sponsored by SpringSource"/></td>
+        <td align="right"><a href='<spring:url value="j_spring_security_logout"/>'>Logout</a></td>
     </tr>
 </table>
 
