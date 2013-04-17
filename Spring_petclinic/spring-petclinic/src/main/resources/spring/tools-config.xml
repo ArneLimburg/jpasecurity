@@ -7,6 +7,7 @@
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:sec="http://www.springframework.org/schema/security"
        xsi:schemaLocation="http://www.springframework.org/schema/aop
          http://www.springframework.org/schema/aop/spring-aop.xsd
          http://www.springframework.org/schema/beans
@@ -14,7 +15,8 @@
          http://www.springframework.org/schema/cache
          http://www.springframework.org/schema/cache/spring-cache.xsd
          http://www.springframework.org/schema/context
-         http://www.springframework.org/schema/context/spring-context.xsd">
+         http://www.springframework.org/schema/context/spring-context.xsd
+         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
     <!--
         Simply defining this bean will cause requests to owner names to be saved.
@@ -45,5 +47,21 @@
         <property name="configLocation" value="classpath:ehcache.xml"/>
     </bean>
 
+    <sec:http pattern="/login" security="none"/>
+	<sec:http auto-config="true">
+        <sec:intercept-url pattern="/static/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+	    <sec:intercept-url pattern="/owners/new" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <sec:intercept-url pattern="/**" access="ROLE_USER" />
+        <sec:form-login login-page="/login" default-target-url="/"/>
+        <sec:logout />
+    </sec:http>
 
+    <sec:authentication-manager>
+        <sec:authentication-provider user-service-ref="userService">
+          <sec:password-encoder hash="md5"/>
+        </sec:authentication-provider>
+    </sec:authentication-manager>
+
+	
+    <bean id="userService" class="org.springframework.samples.petclinic.security.CredentialService"/>
 </beans>

@@ -10,10 +10,10 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 
     <context-param>
         <param-name>spring.profiles.active</param-name>
-        <param-value>jdbc</param-value>
+        <param-value>jpa</param-value>
         <!-- Available profiles:
+        <param-value>jdbc</param-value>
 		<param-value>jdbc</param-value>
-		<param-value>jpa</param-value> (in the case of plain JPA)
 		<param-value>spring-data-jpa</param-value> (in the case of Spring Data JPA)
 		-->
     </context-param>
@@ -84,6 +84,16 @@ see here: http://static.springsource.org/spring/docs/current/spring-framework-re
     <filter-mapping>
         <filter-name>httpMethodFilter</filter-name>
         <servlet-name>petclinic</servlet-name>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
 </web-app>
