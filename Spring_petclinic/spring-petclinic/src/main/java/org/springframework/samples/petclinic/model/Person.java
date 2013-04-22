@@ -16,10 +16,14 @@
 package org.springframework.samples.petclinic.model;
 
 import javax.persistence.CascadeType;
+import javax.persistence.InheritanceType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.Inheritance;
+
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -28,7 +32,9 @@ import org.hibernate.validator.constraints.NotEmpty;
  *
  * @author Ken Krebs
  */
-@MappedSuperclass
+@Entity
+@Table(name = "persons")
+@Inheritance(strategy=InheritanceType.JOINED)
 public class Person extends BaseEntity {
 
     @Column(name = "first_name")
@@ -40,7 +46,6 @@ public class Person extends BaseEntity {
     protected String lastName;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.EAGER)
-    @Column(name = "credential")
     private Credential credential;
 
     public String getFirstName() {

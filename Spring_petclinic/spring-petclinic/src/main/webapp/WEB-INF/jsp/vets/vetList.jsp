@@ -19,7 +19,7 @@
 
     <datatables:table id="vets" data="${vets.vetList}" cdn="true" row="vet" theme="bootstrap2" cssClass="table table-striped" paginate="false" info="false">
         <datatables:column title="Name">
-        	<spring:url value="vets/{vetId}" var="vetUrl">
+        	<spring:url value="/vets/{vetId}" var="vetUrl">
           		<spring:param name="vetId" value="${vet.id}"/>
         	</spring:url>
         	<a href="${fn:escapeXml(vetUrl)}">

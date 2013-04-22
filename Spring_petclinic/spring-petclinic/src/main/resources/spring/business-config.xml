@@ -26,9 +26,9 @@
     <tx:annotation-driven />
  
 
-    <beans profile="jpa,spring-data-jpa">
+    <beans profile="jpa">
         <!-- JPA EntityManagerFactory -->
-        <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+        <bean id="entityManagerFactory" class="net.sf.jpasecurity.spring.persistence.SecureContainerEntityManagerFactoryBean"
               p:dataSource-ref="dataSource">
             <property name="jpaVendorAdapter">
                 <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
@@ -60,13 +60,5 @@
             PersistenceExceptions will be auto-translated due to @Repository.
         -->
         <context:component-scan base-package="org.springframework.samples.petclinic.repository.jpa"/>
-    </beans>
-
-    <beans profile="spring-data-jpa">
-        <jpa:repositories base-package="org.springframework.samples.petclinic.repository.springdatajpa"/>
-
-        <!-- Custom configuration for the custom implementation based on JPA -->
-        <bean id="ownerRepository"
-              class="org.springframework.samples.petclinic.repository.springdatajpa.JpaOwnerRepositoryImpl"/>
     </beans>
 </beans>

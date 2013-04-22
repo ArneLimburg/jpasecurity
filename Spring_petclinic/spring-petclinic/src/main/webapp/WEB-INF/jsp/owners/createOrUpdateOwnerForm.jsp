@@ -16,8 +16,13 @@
 <div class="container">
     <jsp:include page="../fragments/bodyHeader.jsp"/>
     <c:choose>
-        <c:when test="${owner['new']}"><c:set var="method" value="post"/></c:when>
-        <c:otherwise><c:set var="method" value="put"/></c:otherwise>
+        <c:when test="${owner['new']}">
+			<img src="${banner}"/>
+        	<c:set var="method" value="post"/>
+        </c:when>
+        <c:otherwise>
+        	<c:set var="method" value="put"/>
+        </c:otherwise>
     </c:choose>
 
     <h2>
@@ -54,7 +59,11 @@
         </div>
     </form:form>
 </div>
-<jsp:include page="../fragments/footer.jsp"/>
+<c:choose>
+	<c:when test="${!owner['new']}">
+		<jsp:include page="../fragments/footer.jsp"/>
+	</c:when>
+</c:choose>
 </body>
 
 </html>

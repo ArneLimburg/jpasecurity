@@ -68,9 +68,9 @@ public abstract class AbstractClinicServiceTests {
 
     @Test
     public void findSingleOwner() {
-        Owner owner1 = this.clinicService.findOwnerById(1);
+        Owner owner1 = this.clinicService.findOwnerById(7);
         assertTrue(owner1.getLastName().startsWith("Franklin"));
-        Owner owner10 = this.clinicService.findOwnerById(10);
+        Owner owner10 = this.clinicService.findOwnerById(16);
         assertEquals("Carlos", owner10.getFirstName());
 
         assertEquals(owner1.getPets().size(), 1);
@@ -95,11 +95,11 @@ public abstract class AbstractClinicServiceTests {
     @Test
     @Transactional
     public void updateOwner() throws Exception {
-        Owner o1 = this.clinicService.findOwnerById(1);
+        Owner o1 = this.clinicService.findOwnerById(7);
         String old = o1.getLastName();
         o1.setLastName(old + "X");
         this.clinicService.saveOwner(o1);
-        o1 = this.clinicService.findOwnerById(1);
+        o1 = this.clinicService.findOwnerById(7);
         assertEquals(old + "X", o1.getLastName());
     }
 
@@ -129,7 +129,7 @@ public abstract class AbstractClinicServiceTests {
 	@Test
 	@Transactional
 	public void insertPet() {
-	    Owner owner6 = this.clinicService.findOwnerById(6);
+	    Owner owner6 = this.clinicService.findOwnerById(12);
 	    int found = owner6.getPets().size();
 	    Pet pet = new Pet();
 	    pet.setName("bowser");
@@ -141,7 +141,7 @@ public abstract class AbstractClinicServiceTests {
 	    // both storePet and storeOwner are necessary to cover all ORM tools
 	    this.clinicService.savePet(pet);
 	    this.clinicService.saveOwner(owner6);
-	    owner6 = this.clinicService.findOwnerById(6);
+	    owner6 = this.clinicService.findOwnerById(12);
 	    assertEquals(found + 1, owner6.getPets().size());
 	}
 
