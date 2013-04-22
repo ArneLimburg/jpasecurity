@@ -23,7 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Credential;
 import org.springframework.samples.petclinic.service.ClinicService;
-import org.springframework.samples.petclinic.validation.OwnerValidator;
+import org.springframework.samples.petclinic.web.OwnerValidator;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -86,7 +89,7 @@ public class OwnerController {
         if (result.hasErrors()) {
             return "owners/createOrUpdateOwnerForm";
         } else {
-        	this.clinic.storeOwner(owner);
+        	this.clinicService.saveOwner(owner);
             Credential credential = owner.getCredential();
             Authentication authentication
               = new UsernamePasswordAuthenticationToken(credential, credential, credential.getAuthorities());

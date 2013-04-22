@@ -47,7 +47,7 @@ public class JpaVisitRepositoryImpl implements VisitRepository {
 
     @Override
     public void save(Visit visit) {
-        this.em.merge(visit);
+        Visit merged = this.em.merge(visit);
     }
 
 
