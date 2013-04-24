@@ -54,6 +54,8 @@ public class JpaPetRepositoryImpl implements PetRepository {
     @Override
     public void save(Pet pet) {
         Pet merged = this.em.merge(pet);
+		this.em.flush();
+		pet.setId(merged.getId());
     }
 
 }

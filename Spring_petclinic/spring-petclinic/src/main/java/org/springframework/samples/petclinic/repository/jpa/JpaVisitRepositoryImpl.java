@@ -48,6 +48,8 @@ public class JpaVisitRepositoryImpl implements VisitRepository {
     @Override
     public void save(Visit visit) {
         Visit merged = this.em.merge(visit);
+        this.em.flush();
+        visit.setId(merged.getId());
     }
 
 
