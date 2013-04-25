@@ -150,10 +150,25 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
     }
 
     public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
-        if (lockMode == LockModeType.READ && !isAccessible(AccessType.READ, entity)) {
-            throw new SecurityException("specified entity is not readable for locking");
-        } else if (lockMode == LockModeType.WRITE && !isAccessible(AccessType.UPDATE, entity)) {
-            throw new SecurityException("specified entity is not updateable for locking");
+        switch (lockMode) {
+            case NONE:
+            case OPTIMISTIC:
+            case PESSIMISTIC_READ:
+            case READ:
+                if (!isAccessible(AccessType.READ, entity)) {
+                    throw new SecurityException("specified entity is not readable for locking");
+                }
+                break;
+            case OPTIMISTIC_FORCE_INCREMENT:
+            case PESSIMISTIC_FORCE_INCREMENT:
+            case PESSIMISTIC_WRITE:
+            case WRITE:
+                if (!isAccessible(AccessType.UPDATE, entity)) {
+                    throw new SecurityException("specified entity is not updateable for locking");
+                }
+                break;
+            default:
+                throw new SecurityException("Lock mode " + lockMode + " is not supported! Please create a bug report.");
         }
         if (properties != null) {
             beanStore.lock(getUnsecureObject(entity), lockMode, properties);
