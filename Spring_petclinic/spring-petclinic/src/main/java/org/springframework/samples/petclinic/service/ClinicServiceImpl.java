@@ -47,7 +47,8 @@ public class ClinicServiceImpl implements ClinicService {
     private VisitRepository visitRepository;
 
     @Autowired
-    public ClinicServiceImpl(PetRepository petRepository, VetRepository vetRepository, OwnerRepository ownerRepository, VisitRepository visitRepository) {
+    public ClinicServiceImpl(PetRepository petRepository, VetRepository vetRepository, OwnerRepository ownerRepository,
+            VisitRepository visitRepository) {
         this.petRepository = petRepository;
         this.vetRepository = vetRepository;
         this.ownerRepository = ownerRepository;
@@ -78,13 +79,11 @@ public class ClinicServiceImpl implements ClinicService {
         ownerRepository.save(owner);
     }
 
-
     @Override
     @Transactional
     public void saveVisit(Visit visit) throws DataAccessException {
         visitRepository.save(visit);
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -110,16 +109,16 @@ public class ClinicServiceImpl implements ClinicService {
     public Vet findVetById(int id) throws DataAccessException {
         return vetRepository.findById(id);
     }
-    
+
+    @Override
     @Transactional(readOnly = true)
-    @SuppressWarnings("unchecked")
     public Collection<Visit> findVisits(Vet vet) {
-    	return visitRepository.findByVet(vet);
+        return visitRepository.findByVet(vet);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Visit findVisitById(int id) throws DataAccessException {
-       return visitRepository.findById(id);
+        return visitRepository.findById(id);
     }
 }

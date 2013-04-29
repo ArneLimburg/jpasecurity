@@ -89,7 +89,7 @@ public class PetController {
         return "pets/createOrUpdatePetForm";
     }
 
-    @RequestMapping(value = "/owners/{ownerId}/pets/{petId}/edit", method = {RequestMethod.PUT, RequestMethod.POST})
+    @RequestMapping(value = "/owners/{ownerId}/pets/{petId}/edit", method = {RequestMethod.PUT, RequestMethod.POST })
     public String processUpdateForm(@ModelAttribute("pet") Pet pet, BindingResult result, SessionStatus status) {
         // we're not using @Valid annotation here because it is easier to define such validation rule in Java
         new PetValidator().validate(pet, result);

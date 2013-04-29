@@ -44,7 +44,7 @@ public class VetController {
 
     @RequestMapping("/vets")
     public String showVetList(Model model) {
-        // Here we are returning an object of type 'Vets' rather than a collection of Vet objects 
+        // Here we are returning an object of type 'Vets' rather than a collection of Vet objects
         // so it is simpler for Object-Xml mapping
         Vets vets = new Vets();
         vets.getVetList().addAll(this.clinicService.findVets());
@@ -52,13 +52,13 @@ public class VetController {
         return "vets/vetList";
     }
 
-	/**
+    /**
      * Displaying a vet.
      *
      * @param vetId the ID of the vet to display
      * @return a ModelMap with the model attributes for the view
      */
-    @RequestMapping(value="/vets/{vetId}")
+    @RequestMapping(value = "/vets/{vetId}")
     public ModelAndView showVet(@PathVariable("vetId") int vetId) {
         ModelAndView mav = new ModelAndView("vets/vet");
         Vet vet = this.clinicService.findVetById(vetId);

@@ -11,7 +11,7 @@ import org.springframework.validation.Errors;
 public class OwnerValidator {
 
     public void validate(Owner owner, Errors errors) {
-		if (!StringUtils.hasLength(owner.getCredential().getUsername())) {
+        if (!StringUtils.hasLength(owner.getCredential().getUsername())) {
             errors.rejectValue("credential.username", "required", "required");
         }
         if (owner.getCredential().isNew() && !StringUtils.hasLength(owner.getCredential().getPassword())) {

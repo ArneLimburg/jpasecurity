@@ -12,16 +12,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
         <param-name>spring.profiles.active</param-name>
         <param-value>jpa</param-value>
         <!-- Available profiles:
-        <param-value>jdbc</param-value>
-		<param-value>jdbc</param-value>
-		<param-value>spring-data-jpa</param-value> (in the case of Spring Data JPA)
-		-->
+            <param-value>jdbc</param-value>
+            <param-value>jdbc</param-value>
+            <param-value>spring-data-jpa</param-value> (in the case of Spring Data JPA)
+            -->
     </context-param>
 
     <!--
-- Location of the XML file that defines the root application context.
-- Applied by ContextLoaderServlet.
--->
+    - Location of the XML file that defines the root application context.
+    - Applied by ContextLoaderServlet.
+    -->
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:spring/business-config.xml, classpath:spring/tools-config.xml</param-value>

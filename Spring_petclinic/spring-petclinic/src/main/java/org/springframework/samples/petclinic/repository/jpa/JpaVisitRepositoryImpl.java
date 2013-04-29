@@ -21,7 +21,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.repository.VisitRepository;
@@ -60,7 +59,7 @@ public class JpaVisitRepositoryImpl implements VisitRepository {
         query.setParameter("id", petId);
         return query.getResultList();
     }
-   
+
     @Override
     @SuppressWarnings("unchecked")
     public List<Visit> findByVet(Vet vet) {

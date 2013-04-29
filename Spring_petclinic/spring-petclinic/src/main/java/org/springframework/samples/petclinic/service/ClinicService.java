@@ -39,19 +39,19 @@ public interface ClinicService {
     public Pet findPetById(int id) throws DataAccessException;
 
     public void savePet(Pet pet) throws DataAccessException;
-    
+
     public Vet findVetById(int id) throws DataAccessException;
 
     public void saveVisit(Visit visit) throws DataAccessException;
-    
-    public Visit findVisitById(int id) throws DataAccessException; 
+
+    public Visit findVisitById(int id) throws DataAccessException;
 
     public Collection<Vet> findVets() throws DataAccessException;
 
     public void saveOwner(Owner owner) throws DataAccessException;
 
     Collection<Owner> findOwnerByLastName(String lastName) throws DataAccessException;
-    
+
     Collection<Visit> findVisits(Vet vet) throws DataAccessException;
 
 }

@@ -45,7 +45,8 @@ public class JpaVetRepositoryImpl implements VetRepository {
     @Cacheable(value = "vets")
     @SuppressWarnings("unchecked")
     public Collection<Vet> findAll() {
-        return this.em.createQuery("SELECT vet FROM Vet vet join fetch vet.specialties ORDER BY vet.lastName, vet.firstName").getResultList();
+        return this.em.createQuery("SELECT vet FROM Vet vet join fetch vet.specialties"
+                + " ORDER BY vet.lastName, vet.firstName").getResultList();
     }
 
     @Override
