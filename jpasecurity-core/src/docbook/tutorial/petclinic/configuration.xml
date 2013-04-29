@@ -6,82 +6,121 @@
       <filename>src/main/webapp/WEB-INF/</filename>) by changing the following lines </para>
   <programlisting>
     <![CDATA[
-      <param-value>/WEB-INF/applicationContext-jdbc.xml</param-value>
-      <!--
-      <param-value>/WEB-INF/applicationContext-hibernate.xml</param-value> 
-      <param-value>/WEB-INF/applicationContext-jpa.xml</param-value>
-      -->
+<context-param>
+    <param-name>spring.profiles.active</param-name>
+    <param-value>jdbc</param-value>
+    <!-- Available profiles:
+	    <param-value>jdbc</param-value>
+	    <param-value>jpa</param-value> (in the case of plain JPA)
+	    <param-value>spring-data-jpa</param-value> (in the case of Spring Data JPA)
+	    -->
+</context-param>
     ]]>
   </programlisting>
   <para>into</para>
   <programlisting>
     <![CDATA[
-      <!--
-      <param-value>/WEB-INF/applicationContext-jdbc.xml</param-value>
-      <param-value>/WEB-INF/applicationContext-hibernate.xml</param-value>
-       -->     
-      <param-value>/WEB-INF/applicationContext-jpa.xml</param-value>
+<context-param>
+    <param-name>spring.profiles.active</param-name>
+    <param-value>jpa</param-value>
+    <!-- Available profiles:
+        <param-value>jdbc</param-value>
+	    <param-value>jpa</param-value>  (in the case of plain JPA)
+	    <param-value>spring-data-jpa</param-value> (in the case of Spring Data JPA)
+	    -->
+</context-param>
     ]]>
   </programlisting>
-  <para> We now have to delete the packages <systemitem>org.springframework.samples.petclinic.aspects</systemitem>,
-      <systemitem>org.springframework.samples.petclinic.jdbc</systemitem>,
-      <systemitem>org.springframework.samples.petclinic.hibernate</systemitem> and
-      <systemitem>org.springframework.samples.petclinic.toplink</systemitem>.</para>
-  <para> We don't need any load-time-weaving so we disable AspectJ in the file
-      <filename>applicationContext-jpa.xml</filename> (in the folder
-      <filename>src/main/webapp/WEB-INF/spring/</filename>) by commenting out the following line: </para>
+  <para>Moreover we can delete the profiles for jdbc and sprind-data-jpa. So delete the following lines in <filename>src/main/resources/spring/business-config.xml</filename>:
+  </para>
   <programlisting>
     <![CDATA[
-  <context:load-time-weaver/>
-      ]]>
-  </programlisting>
-  <programlisting>
-    <![CDATA[
-    <bean class="org.springframework.samples.petclinic.aspects.UsageLogAspect" p:historySize="300"/>
+<beans profile="jdbc">
+    <!-- Transaction manager for a single JDBC DataSource (alternative to JTA) -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+          p:dataSource-ref="dataSource"/>
+
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+    <bean id="namedParameterJdbcTemplate"
+          class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+    <context:component-scan base-package="org.springframework.samples.petclinic.repository.jdbc"/>
+</beans>
+[...]
+<beans profile="spring-data-jpa">
+    <jpa:repositories base-package="org.springframework.samples.petclinic.repository.springdatajpa"/>
+
+    <!-- Custom configuration for the custom implementation based on JPA -->
+    <bean id="ownerRepository"
+          class="org.springframework.samples.petclinic.repository.springdatajpa.JpaOwnerRepositoryImpl"/>
+</beans>
     ]]>
   </programlisting>
-  <para>like this</para>
+  <para>and change</para>
   <programlisting>
     <![CDATA[
-  <!--
-    <context:load-time-weaver/>
-  -->
-      ]]>
-  </programlisting>
-  <programlisting>
-    <![CDATA[
+<beans profile="jpa,spring-data-jpa">
+    <!-- JPA EntityManagerFactory -->
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+          p:dataSource-ref="dataSource">
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+                  p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+        </property>
+        <!-- gDickens: BOTH Persistence Unit and Packages to Scan are NOT compatible, persistenceUnit will win -->
+        <property name="persistenceUnitName" value="petclinic"/>
+        <property name="packagesToScan" value="org.springframework.samples.petclinic"/>
+    </bean>
+    <!-- Transaction manager for a single JPA EntityManagerFactory (alternative to JTA) -->
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
+          p:entityManagerFactory-ref="entityManagerFactory"/>
     <!--
-    <bean class="org.springframework.samples.petclinic.aspects.UsageLogAspect" p:historySize="300"/>
+        Post-processor to perform exception translation on @Repository classes (from native
+        exceptions such as JPA PersistenceExceptions to Spring's DataAccessException hierarchy).
     -->
+    <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+</beans>
     ]]>
   </programlisting>
-  <para> We want to use Hibernate. We enable it by changing the following lines in
-      <filename>applicationContext-jpa.xml</filename> (in the folder <filename>src/main/webapp/WEB-INF/</filename>) </para>
-  <programlisting>
-    <![CDATA[  
-			<bean class="org.springframework.orm.jpa.vendor.TopLinkJpaVendorAdapter"
-					p:databasePlatform="${jpa.databasePlatform}" p:showSql="${jpa.showSql}"/>
-			<!--
-      <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"
-					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
-			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
-					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
-      -->
-    ]]>
-  </programlisting>
-  <para>into</para>
+<para>into</para>
   <programlisting>
     <![CDATA[
-			<!--  
-		  <bean class="org.springframework.orm.jpa.vendor.TopLinkJpaVendorAdapter"
-					p:databasePlatform="${jpa.databasePlatform}" p:showSql="${jpa.showSql}"/>
-      <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"
-					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
-			-->
-			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
-					p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+<beans profile="jpa">
+    <!-- JPA EntityManagerFactory -->
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+          p:dataSource-ref="dataSource">
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+                  p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+        </property>
+        <!-- gDickens: BOTH Persistence Unit and Packages to Scan are NOT compatible, persistenceUnit will win -->
+        <property name="persistenceUnitName" value="petclinic"/>
+        <property name="packagesToScan" value="org.springframework.samples.petclinic"/>
+    </bean>
+    <!-- Transaction manager for a single JPA EntityManagerFactory (alternative to JTA) -->
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
+          p:entityManagerFactory-ref="entityManagerFactory"/>
+    <!--
+        Post-processor to perform exception translation on @Repository classes (from native
+        exceptions such as JPA PersistenceExceptions to Spring's DataAccessException hierarchy).
+    -->
+    <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+</beans>
     ]]>
   </programlisting>
+  <para> We now have to delete the packages
+    <systemitem>org.springframework.samples.petclinic.repository.jdbc</systemitem> and
+    <systemitem>org.springframework.samples.petclinic.repository.springdatajpa</systemitem>
+    in <systemitem>src/main/java/</systemitem>.</para>
+  <para>If we have done all this configuration we should be able to start an embedded jetty-server with maven running the petclinic-application: </para>
+  <programlisting>
+    mvn jetty:run
+  </programlisting>    
   <para> If everything works all right, jetty started successfully and you can visit the spring-petclinic
     sample-application <ulink url="http://localhost:8080/">here</ulink>. </para>
 </article>
