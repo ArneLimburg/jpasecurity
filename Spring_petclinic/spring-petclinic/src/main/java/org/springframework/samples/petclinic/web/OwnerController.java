@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Credential;
 import org.springframework.samples.petclinic.service.ClinicService;
-import org.springframework.samples.petclinic.web.OwnerValidator;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -79,8 +78,8 @@ public class OwnerController {
 
     @RequestMapping(value = "/owners/new", method = RequestMethod.POST)
     public String processCreationForm(@Valid Owner owner, BindingResult result, SessionStatus status) {
-    	new OwnerValidator().validate(owner, result);
-		try {
+        new OwnerValidator().validate(owner, result);
+        try {
             userDetailsService.loadUserByUsername(owner.getCredential().getUsername());
             result.rejectValue("credential.username", "alreadyExists", "already exists");
         } catch (UsernameNotFoundException e) {
@@ -89,10 +88,10 @@ public class OwnerController {
         if (result.hasErrors()) {
             return "owners/createOrUpdateOwnerForm";
         } else {
-        	this.clinicService.saveOwner(owner);
+            this.clinicService.saveOwner(owner);
             Credential credential = owner.getCredential();
             Authentication authentication
-              = new UsernamePasswordAuthenticationToken(credential, credential, credential.getAuthorities());
+                = new UsernamePasswordAuthenticationToken(credential, credential, credential.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
             status.setComplete();
             return "redirect:/owners/" + owner.getId();

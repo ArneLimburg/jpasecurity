@@ -12,19 +12,19 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class ClinicController {
 
-	/**
-	 * Custom handler for the welcome view.
-	 * <p>
-	 * Note that this handler relies on the RequestToViewNameTranslator to
-	 * determine the logical view name based on the request URL: "/welcome.do"
-	 * -&gt; "welcome".
-	 */
-	@RequestMapping("/login")
+    /**
+     * Custom handler for the welcome view.
+     * <p>
+     * Note that this handler relies on the RequestToViewNameTranslator to
+     * determine the logical view name based on the request URL: "/welcome.do"
+     * -&gt; "welcome".
+     */
+    @RequestMapping("/login")
     public String loginHandler() {
         return "login";
     }
 
-	/**
+    /**
      * Custom handler for the welcome view.
      * <p>
      * Note that this handler relies on the RequestToViewNameTranslator to

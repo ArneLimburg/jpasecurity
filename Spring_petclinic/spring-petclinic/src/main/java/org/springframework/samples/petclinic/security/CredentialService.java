@@ -18,7 +18,7 @@ public class CredentialService implements UserDetailsService {
 
     @PersistenceContext
     private EntityManager em;
-    
+
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
         try {

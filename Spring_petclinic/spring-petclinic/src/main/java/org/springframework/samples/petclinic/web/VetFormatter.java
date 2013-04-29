@@ -7,7 +7,6 @@ import java.util.Locale;
 
 import org.springframework.format.Formatter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.ClinicService;
 
@@ -37,5 +36,4 @@ public class VetFormatter implements Formatter<Vet> {
         }
         throw new ParseException("vet not found: " + text, 0);
     }
-
 }

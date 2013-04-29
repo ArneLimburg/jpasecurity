@@ -49,7 +49,7 @@ public class VetsAtomView extends AbstractAtomFeedView {
     protected List<Entry> buildFeedEntries(Map<String, Object> model,
                                            HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        Vets vets = (Vets) model.get("vets");
+        Vets vets = (Vets)model.get("vets");
         List<Vet> vetList = vets.getVetList();
         List<Entry> entries = new ArrayList<Entry>(vetList.size());
 

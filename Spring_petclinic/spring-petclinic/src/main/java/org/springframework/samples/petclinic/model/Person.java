@@ -34,7 +34,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 @Entity
 @Table(name = "persons")
-@Inheritance(strategy=InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Person extends BaseEntity {
 
     @Column(name = "first_name")
@@ -67,7 +67,7 @@ public class Person extends BaseEntity {
     public Credential getCredential() {
         return credential;
     }
-    
+
     public void setCredential(Credential credential) {
         this.credential = credential;
     }
