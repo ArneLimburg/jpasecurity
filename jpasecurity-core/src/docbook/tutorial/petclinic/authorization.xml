@@ -15,30 +15,25 @@
   <section>
     <title>Integrating JPA Security</title>
     <para>
-      To use JPA Security, we configure the usage in <filename>applicationContext-jpa.xml</filename>
-      in <filename>src/main/webapp/WEB-INF/</filename>.
+      To use JPA Security, we configure the usage in <filename>business-config.xml</filename>
+      in <filename>src/main/resources/spring/</filename>.
     </para>
     <para>
       Change
     </para>
     <programlisting>
       <![CDATA[
-    <!-- JPA EntityManagerFactory -->
-    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
-            p:dataSource-ref="dataSource">
-        <property name="jpaVendorAdapter">
-            <!--
-            <bean class="org.springframework.orm.jpa.vendor.TopLinkJpaVendorAdapter"
-                    p:databasePlatform="${jpa.databasePlatform}" p:showSql="${jpa.showSql}"/>
-            -->
-            <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"
-                    p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
-            <!--
-            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
-                    p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
-            -->
-        </property>
-    </bean>
+<!-- JPA EntityManagerFactory -->
+<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+      p:dataSource-ref="dataSource">
+    <property name="jpaVendorAdapter">
+        <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+              p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+    </property>
+    <!-- gDickens: BOTH Persistence Unit and Packages to Scan are NOT compatible, persistenceUnit will win -->
+    <property name="persistenceUnitName" value="petclinic"/>
+    <property name="packagesToScan" value="org.springframework.samples.petclinic"/>
+</bean>
       ]]>
     </programlisting>
     <para>
@@ -46,23 +41,17 @@
     </para>
     <programlisting>
       <![CDATA[
-    <!-- JPA EntityManagerFactory -->
-    <bean id="entityManagerFactory" class="net.sf.jpasecurity.spring.persistence.SecureContainerEntityManagerFactoryBean"
-            p:dataSource-ref="dataSource">
-        <property name="persistenceUnitName" value="PetClinic" />
-        <property name="jpaVendorAdapter">
-            <!--
-            <bean class="org.springframework.orm.jpa.vendor.TopLinkJpaVendorAdapter"
-                    p:databasePlatform="${jpa.databasePlatform}" p:showSql="${jpa.showSql}"/>
-            -->
-            <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"
-                    p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
-            <!--
-            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
-                    p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
-            -->
-        </property>
-    </bean>
+<!-- JPA EntityManagerFactory -->
+<bean id="entityManagerFactory" class="net.sf.jpasecurity.spring.persistence.SecureContainerEntityManagerFactoryBean"
+      p:dataSource-ref="dataSource">
+    <property name="jpaVendorAdapter">
+        <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+              p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
+    </property>
+    <!-- gDickens: BOTH Persistence Unit and Packages to Scan are NOT compatible, persistenceUnit will win -->
+    <property name="persistenceUnitName" value="petclinic"/>
+    <property name="packagesToScan" value="org.springframework.samples.petclinic"/>
+</bean>
 	  ]]>
     </programlisting>
     <para>
@@ -110,17 +99,17 @@
                               http://jpasecurity.sf.net/xml/ns/security/security_1_0.xsd"
           version="1.0">
 
-  <persistence-unit name="PetClinic">
-    <access-rule>GRANT                    ACCESS TO Vet vet WHERE vet.credential = CURRENT_PRINCIPAL</access-rule>    
-    <access-rule>GRANT        READ        ACCESS TO Vet vet</access-rule>    
-    <access-rule>GRANT CREATE             ACCESS TO Owner owner</access-rule>
-    <access-rule>GRANT                    ACCESS TO Owner owner WHERE owner.credential = CURRENT_PRINCIPAL</access-rule>
-    <access-rule>GRANT        READ        ACCESS TO Owner owner WHERE owner.id IN (SELECT visit.pet.owner.id FROM Visit visit WHERE visit.vet.credential = CURRENT_PRINCIPAL)</access-rule>
-    <access-rule>GRANT CREATE READ UPDATE ACCESS TO Pet pet WHERE pet.owner.credential = CURRENT_PRINCIPAL</access-rule>    
-    <access-rule>GRANT        READ        ACCESS TO Pet pet WHERE EXISTS (SELECT visit FROM Visit visit WHERE visit.pet = pet AND visit.vet.credential = CURRENT_PRINCIPAL)</access-rule>
-    <access-rule>GRANT CREATE READ        ACCESS TO Visit visit WHERE visit.pet.owner.credential = CURRENT_PRINCIPAL</access-rule>
-    <access-rule>GRANT        READ UPDATE ACCESS TO Visit visit WHERE visit.vet.credential = CURRENT_PRINCIPAL</access-rule>
-  </persistence-unit>
+    <persistence-unit name="petclinic">
+        <access-rule>GRANT                    ACCESS TO Vet vet WHERE vet.credential = CURRENT_PRINCIPAL</access-rule>    
+        <access-rule>GRANT        READ        ACCESS TO Vet vet</access-rule>    
+        <access-rule>GRANT CREATE             ACCESS TO Owner owner</access-rule>
+        <access-rule>GRANT                    ACCESS TO Owner owner WHERE owner.credential = CURRENT_PRINCIPAL</access-rule>
+        <access-rule>GRANT        READ        ACCESS TO Owner owner WHERE owner.id IN (SELECT visit.pet.owner.id FROM Visit visit WHERE visit.vet.credential = CURRENT_PRINCIPAL)</access-rule>
+        <access-rule>GRANT CREATE READ UPDATE ACCESS TO Pet pet WHERE pet.owner.credential = CURRENT_PRINCIPAL</access-rule>    
+        <access-rule>GRANT        READ        ACCESS TO Pet pet WHERE EXISTS (SELECT visit FROM Visit visit WHERE visit.pet = pet AND visit.vet.credential = CURRENT_PRINCIPAL)</access-rule>
+        <access-rule>GRANT CREATE READ        ACCESS TO Visit visit WHERE visit.pet.owner.credential = CURRENT_PRINCIPAL</access-rule>
+        <access-rule>GRANT        READ UPDATE ACCESS TO Visit visit WHERE visit.vet.credential = CURRENT_PRINCIPAL</access-rule>
+    </persistence-unit>
 
 </security>
       ]]>
@@ -148,22 +137,22 @@
     </para>
     <programlisting>
       <![CDATA[
-  <table class="table-buttons">
+<table class="table-buttons">
     <tr>
-      <td colspan="2" align="center">
-        <spring:url value="{ownerId}/edit" var="editUrl">
-          <spring:param name="ownerId" value="${owner.id}" />
-        </spring:url>
-        <a href="${fn:escapeXml(editUrl)}">Edit Owner</a>
-      </td>
-      <td>
-        <spring:url value="{ownerId}/pets/new" var="addUrl">
-          <spring:param name="ownerId" value="${owner.id}" />
-        </spring:url>
-        <a href="${fn:escapeXml(addUrl)}">Add New Pet</a>
-      </td>
+        <td colspan="2" align="center">
+            <spring:url value="{ownerId}/edit" var="editUrl">
+                <spring:param name="ownerId" value="${owner.id}" />
+            </spring:url>
+            <a href="${fn:escapeXml(editUrl)}">Edit Owner</a>
+        </td>
+        <td>
+            <spring:url value="{ownerId}/pets/new" var="addUrl">
+                <spring:param name="ownerId" value="${owner.id}" />
+            </spring:url>
+            <a href="${fn:escapeXml(addUrl)}">Add New Pet</a>
+        </td>
     </tr>
-  </table>
+</table>
       ]]>
     </programlisting>
     <para>
@@ -171,26 +160,26 @@
     </para>
     <programlisting>
       <![CDATA[
-  <table class="table-buttons">
+<table class="table-buttons">
     <tr>
-      <access:updating entity="owner">
-        <td colspan="2" align="center">
-          <spring:url value="{ownerId}/edit" var="editUrl">
-            <spring:param name="ownerId" value="${owner.id}" />
-          </spring:url>
-          <a href="${fn:escapeXml(editUrl)}">Edit Owner</a>
-        </td>
-      </access:updating>
-      <access:creation type="Pet" parameters="owner">
-        <td>
-          <spring:url value="{ownerId}/pets/new" var="addUrl">
-            <spring:param name="ownerId" value="${owner.id}" />
-          </spring:url>
-          <a href="${fn:escapeXml(addUrl)}">Add New Pet</a>
-        </td>
-      </access:creation>
+        <access:updating entity="owner">
+            <td colspan="2" align="center">
+                <spring:url value="{ownerId}/edit" var="editUrl">
+                    <spring:param name="ownerId" value="${owner.id}" />
+                </spring:url>
+                <a href="${fn:escapeXml(editUrl)}">Edit Owner</a>
+            </td>
+        </access:updating>
+        <access:creation type="Pet" parameters="owner">
+            <td>
+                <spring:url value="{ownerId}/pets/new" var="addUrl">
+                    <spring:param name="ownerId" value="${owner.id}" />
+                </spring:url>
+                <a href="${fn:escapeXml(addUrl)}">Add New Pet</a>
+            </td>
+        </access:creation>
     </tr>
-  </table>
+</table>
       ]]>
     </programlisting>
     <para>
@@ -198,33 +187,33 @@
     </para>
     <programlisting>
       <![CDATA[
-    <table class="table-buttons">
-      <tr>
+<table class="table-buttons">
+    <tr>
         <td>
-          <spring:url value="{ownerId}/pets/{petId}/edit" var="petUrl">
-            <spring:param name="ownerId" value="${owner.id}"/>
-            <spring:param name="petId" value="${pet.id}"/>
-          </spring:url>
-          <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
+            <spring:url value="{ownerId}/pets/{petId}/edit" var="petUrl">
+                <spring:param name="ownerId" value="${owner.id}"/>
+                <spring:param name="petId" value="${pet.id}"/>
+            </spring:url>
+            <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
         </td>
         <td></td>
         <td>
-          <spring:url value="{ownerId}/pets/{petId}/visits/new" var="visitUrl">
-            <spring:param name="ownerId" value="${owner.id}"/>
-            <spring:param name="petId" value="${pet.id}"/>
-          </spring:url>
-          <a href="${fn:escapeXml(visitUrl)}">Add Visit</a>
+            <spring:url value="{ownerId}/pets/{petId}/visits/new" var="visitUrl">
+                <spring:param name="ownerId" value="${owner.id}"/>
+                <spring:param name="petId" value="${pet.id}"/>
+            </spring:url>
+            <a href="${fn:escapeXml(visitUrl)}">Add Visit</a>
         </td>
         <td></td>
         <td>
-          <spring:url value="{ownerId}/pets/{petId}/visits.atom" var="feedUrl">
-            <spring:param name="ownerId" value="${owner.id}"/>
-            <spring:param name="petId" value="${pet.id}"/>
-          </spring:url>
-          <a href="${fn:escapeXml(feedUrl)}" rel="alternate" type="application/atom+xml">Atom Feed</a>
+            <spring:url value="{ownerId}/pets/{petId}/visits.atom" var="feedUrl">
+                <spring:param name="ownerId" value="${owner.id}"/>
+                <spring:param name="petId" value="${pet.id}"/>
+            </spring:url>
+            <a href="${fn:escapeXml(feedUrl)}" rel="alternate" type="application/atom+xml">Atom Feed</a>
         </td>
-      </tr>
-    </table>
+    </tr>
+</table>
       ]]>
     </programlisting>
     <para>
@@ -232,37 +221,37 @@
     </para>
     <programlisting>
       <![CDATA[
-    <table class="table-buttons">
-      <tr>
+<table class="table-buttons">
+    <tr>
         <access:updating entity="pet">
-          <td>
-            <spring:url value="{ownerId}/pets/{petId}/edit" var="petUrl">
-              <spring:param name="ownerId" value="${owner.id}"/>
-              <spring:param name="petId" value="${pet.id}"/>
-            </spring:url>
-            <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
-          </td>
+            <td>
+                <spring:url value="{ownerId}/pets/{petId}/edit" var="petUrl">
+                    <spring:param name="ownerId" value="${owner.id}"/>
+                    <spring:param name="petId" value="${pet.id}"/>
+                </spring:url>
+                <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
+            </td>
         </access:updating>
         <td></td>
         <access:creation type="Visit" parameters="pet">
-          <td>
-            <spring:url value="{ownerId}/pets/{petId}/visits/new" var="visitUrl">
-              <spring:param name="ownerId" value="${owner.id}"/>
-              <spring:param name="petId" value="${pet.id}"/>
-            </spring:url>
-            <a href="${fn:escapeXml(visitUrl)}">Add Visit</a>
-          </td>
+            <td>
+                <spring:url value="{ownerId}/pets/{petId}/visits/new" var="visitUrl">
+                    <spring:param name="ownerId" value="${owner.id}"/>
+                    <spring:param name="petId" value="${pet.id}"/>
+                </spring:url>
+                <a href="${fn:escapeXml(visitUrl)}">Add Visit</a>
+            </td>
         </access:creation>
         <td></td>
         <td>
-          <spring:url value="{ownerId}/pets/{petId}/visits.atom" var="feedUrl">
-            <spring:param name="ownerId" value="${owner.id}"/>
-            <spring:param name="petId" value="${pet.id}"/>
-          </spring:url>
-          <a href="${fn:escapeXml(feedUrl)}" rel="alternate" type="application/atom+xml">Atom Feed</a>
+            <spring:url value="{ownerId}/pets/{petId}/visits.atom" var="feedUrl">
+                <spring:param name="ownerId" value="${owner.id}"/>
+                <spring:param name="petId" value="${pet.id}"/>
+            </spring:url>
+            <a href="${fn:escapeXml(feedUrl)}" rel="alternate" type="application/atom+xml">Atom Feed</a>
         </td>
-      </tr>
-    </table>
+    </tr>
+</table>
       ]]>
     </programlisting>
     <para>
