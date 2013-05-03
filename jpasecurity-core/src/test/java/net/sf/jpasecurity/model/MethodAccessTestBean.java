@@ -45,6 +45,11 @@ public class MethodAccessTestBean {
         beanName = name;
     }
 
+    public MethodAccessTestBean(int id, MethodAccessTestBean parent) {
+        identifier = id;
+        parentBean = parent;
+    }
+
     public int getId() {
         return identifier;
     }

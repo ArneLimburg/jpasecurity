@@ -54,6 +54,7 @@ public class AccessRule extends JpqlCompiledStatement {
 
     public AccessRule(JpqlAccessRule rule, TypeDefinition typeDefinition) {
         super(rule,
+              null,
               Collections.singletonList(typeDefinition.getAlias().toPath()),
               Collections.singleton(typeDefinition),
               Collections.<String>emptySet());

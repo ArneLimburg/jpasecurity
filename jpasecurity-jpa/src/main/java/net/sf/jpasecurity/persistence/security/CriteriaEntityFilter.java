@@ -108,7 +108,7 @@ public class CriteriaEntityFilter extends EntityFilter {
         CriteriaHolder criteriaHolder = new CriteriaHolder(query);
         getQueryPreparator().createWhere(accessDefinition.getAccessRules()).visit(criteriaVisitor, criteriaHolder);
         return new CriteriaFilterResult<CriteriaQuery<R>>(
-                query, parameters.size() > 0? parameters: null, criteriaHolder.getParameters());
+                query, parameters.size() > 0? parameters: null, query.getResultType(), criteriaHolder.getParameters());
     }
 
     private Path getPath(int index, Selection<?> selection) {

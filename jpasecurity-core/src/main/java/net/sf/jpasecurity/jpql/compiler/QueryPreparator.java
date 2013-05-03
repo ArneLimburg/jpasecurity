@@ -16,12 +16,15 @@
 package net.sf.jpasecurity.jpql.compiler;
 
 import java.beans.Introspector;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
 import net.sf.jpasecurity.jpql.parser.JpqlAnd;
 import net.sf.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import net.sf.jpasecurity.jpql.parser.JpqlBrackets;
+import net.sf.jpasecurity.jpql.parser.JpqlConstructorParameter;
 import net.sf.jpasecurity.jpql.parser.JpqlEquals;
 import net.sf.jpasecurity.jpql.parser.JpqlExists;
 import net.sf.jpasecurity.jpql.parser.JpqlFrom;
@@ -59,6 +62,7 @@ import net.sf.jpasecurity.mapping.Path;
 public class QueryPreparator {
 
     private final PathReplacer pathReplacer = new PathReplacer();
+    private final ConstructorReplacer constructorReplacer = new ConstructorReplacer();
 
     /**
      * Removes the specified <tt>With</tt>-node from its parent
@@ -299,7 +303,7 @@ public class QueryPreparator {
     /**
      * Creates a <tt>JpqlPath</tt> node for the specified string.
      */
-    public Node createPath(Path path) {
+    public JpqlPath createPath(Path path) {
         JpqlIdentificationVariable identifier = createIdentificationVariable(path.getRootAlias());
         JpqlPath pathNode = appendChildren(new JpqlPath(JpqlParserTreeConstants.JJTPATH), identifier);
         for (String pathComponent: path.getSubpathComponents()) {
@@ -329,11 +333,16 @@ public class QueryPreparator {
      * Creates a <tt>JpqlSelectClause</tt> node to select the specified path.
      */
     public JpqlSelectClause createSelectClause(Path selectedPath) {
-        JpqlSelectExpression expression = new JpqlSelectExpression(JpqlParserTreeConstants.JJTSELECTEXPRESSION);
-        expression = appendChildren(expression, createPath(selectedPath));
+        JpqlSelectExpression expression = createSelectExpression(createPath(selectedPath));
         JpqlSelectExpressions expressions = new JpqlSelectExpressions(JpqlParserTreeConstants.JJTSELECTEXPRESSIONS);
         expressions = appendChildren(expressions, expression);
         return appendChildren(new JpqlSelectClause(JpqlParserTreeConstants.JJTSELECTCLAUSE), expressions);
+    }
+
+    public JpqlSelectExpression createSelectExpression(Node node) {
+        JpqlSelectExpression expression = new JpqlSelectExpression(JpqlParserTreeConstants.JJTSELECTEXPRESSION);
+        expression = appendChildren(expression, node);
+        return expression;
     }
 
     /**
@@ -376,9 +385,15 @@ public class QueryPreparator {
         return identificationVariable;
     }
 
+    public Node removeConstuctor(final Node statementNode) {
+        statementNode.visit(constructorReplacer);
+        return statementNode;
+    }
+
     public void remove(Node node) {
         if (node.jjtGetParent() != null) {
-            for (int i = 0; i < node.jjtGetParent().jjtGetNumChildren(); i++) {
+            Node parent = node.jjtGetParent();
+            for (int i = 0; i < parent.jjtGetNumChildren(); i++) {
                 if (node.jjtGetParent().jjtGetChild(i) == node) {
                     node.jjtGetParent().jjtRemoveChild(i);
                     node.jjtSetParent(null);
@@ -457,6 +472,32 @@ public class QueryPreparator {
 
         public Path getNewPath() {
             return newPath;
+        }
+    }
+
+    private class ConstructorReplacer extends JpqlVisitorAdapter<List<Node>> {
+
+        public boolean visit(JpqlSelectExpressions node, List<Node> nodes) {
+            if (node.jjtGetNumChildren() == 1) {
+                List<Node> constructorParameters = new ArrayList<Node>();
+                node.jjtGetChild(0).visit(this, constructorParameters);
+                if (!constructorParameters.isEmpty()) {
+                    remove(node.jjtGetChild(0));
+                    JpqlSelectExpression[] selectExpressions = new JpqlSelectExpression[constructorParameters.size()];
+                    for (int i = 0; i < selectExpressions.length; i++) {
+                        selectExpressions[i] = createSelectExpression(constructorParameters.get(i));
+                    }
+                    appendChildren(node, selectExpressions);
+                }
+            }
+            return false;
+        }
+
+        public boolean visit(JpqlConstructorParameter node, List<Node> parameters) {
+            for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+                parameters.add(node.jjtGetChild(i));
+            }
+            return false;
         }
     }
 }

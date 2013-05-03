@@ -33,15 +33,18 @@ import net.sf.jpasecurity.mapping.TypeDefinition;
  */
 public class JpqlCompiledStatement extends JpqlStatementHolder {
 
+    private Class<?> constructorArgReturnType;
     private List<Path> selectedPaths;
     private Set<TypeDefinition> typeDefinitions;
     private Set<String> namedParameters;
 
     public JpqlCompiledStatement(Node statement,
+                                 Class<?> constructorArgReturnType,
                                  List<Path> selectedPathes,
                                  Set<TypeDefinition> typeDefinitions,
                                  Set<String> namedParameters) {
         super(statement);
+        this.constructorArgReturnType = constructorArgReturnType;
         this.selectedPaths = selectedPathes;
         this.typeDefinitions = typeDefinitions;
         this.namedParameters = namedParameters;
@@ -49,9 +52,19 @@ public class JpqlCompiledStatement extends JpqlStatementHolder {
 
     public JpqlCompiledStatement(Node statement) {
         this(statement,
+             null,
              Collections.<Path>emptyList(),
              Collections.<TypeDefinition>emptySet(),
              Collections.<String>emptySet());
+    }
+
+    /**
+     * If this query represents a constructor-arg syntax,
+     * returns the java class of the result, otherwise returns <tt>null</tt>
+     * @return the java class of the result or <tt>null</tt>
+     */
+    public Class<?> getConstructorArgReturnType() {
+        return constructorArgReturnType;
     }
 
     /**

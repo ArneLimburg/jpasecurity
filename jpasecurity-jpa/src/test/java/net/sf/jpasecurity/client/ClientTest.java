@@ -193,6 +193,12 @@ public class ClientTest extends AbstractEntityTestCase {
         EntityManager entityManager = getEntityManager();
         List<IdAndNameDto> idAndNameDtoList = entityManager
                 .createNamedQuery(Client.FIND_ALL_ID_AND_NAME).getResultList();
-        assertNotNull(idAndNameDtoList);
+        assertEquals(1, idAndNameDtoList.size());
+        assertEquals(IdAndNameDto.class, idAndNameDtoList.get(0).getClass());
+        assertEquals(clientId, idAndNameDtoList.get(0).getId().intValue());
+
+        IdAndNameDto dto
+            = entityManager.createNamedQuery(Client.FIND_ALL_ID_AND_NAME, IdAndNameDto.class).getSingleResult();
+        assertEquals(clientId, dto.getId().intValue());
     }
 }

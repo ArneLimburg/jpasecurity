@@ -64,6 +64,7 @@ public class JpqlCompiler {
 
     protected final ExceptionFactory exceptionFactory;
     private final MappingInformation mappingInformation;
+    private final ConstructorArgReturnTypeVisitor returnTypeVisitor = new ConstructorArgReturnTypeVisitor();
     private final SelectVisitor selectVisitor = new SelectVisitor();
     private final AliasVisitor aliasVisitor = new AliasVisitor();
     private final CountVisitor countVisitor = new CountVisitor();
@@ -89,10 +90,24 @@ public class JpqlCompiler {
     }
 
     private JpqlCompiledStatement compile(Node statement) {
+        Class<?> constructorArgReturnType = getConstructorArgReturnType(statement);
         List<Path> selectedPathes = getSelectedPaths(statement);
         Set<TypeDefinition> typeDefinitions = getAliasDefinitions(statement);
         Set<String> namedParameters = getNamedParameters(statement);
-        return new JpqlCompiledStatement(statement, selectedPathes, typeDefinitions, namedParameters);
+        return new JpqlCompiledStatement(statement,
+                                         constructorArgReturnType,
+                                         selectedPathes,
+                                         typeDefinitions,
+                                         namedParameters);
+    }
+
+    public Class<?> getConstructorArgReturnType(Node node) {
+        if (node == null) {
+            return null;
+        }
+        ValueHolder<Class<?>> constructorArgReturnTypeHolder = new ValueHolder<Class<?>>();
+        node.visit(returnTypeVisitor, constructorArgReturnTypeHolder);
+        return constructorArgReturnTypeHolder.getValue();
     }
 
     public List<Path> getSelectedPaths(Node node) {
@@ -137,6 +152,18 @@ public class JpqlCompiler {
             node.jjtGetChild(i).visit(positionalParameterVisitor, positionalParameters);
         }
         return Collections.unmodifiableSet(positionalParameters);
+    }
+
+    private class ConstructorArgReturnTypeVisitor extends JpqlVisitorAdapter<ValueHolder<Class<?>>> {
+
+        public boolean visit(JpqlClassName node, ValueHolder<Class<?>> valueHolder) {
+            try {
+                valueHolder.setValue(Class.forName(node.toString()));
+            } catch (ClassNotFoundException e) {
+                throw exceptionFactory.createTypeNotFoundException(node.toString());
+            }
+            return false;
+        }
     }
 
     private class SelectVisitor extends JpqlVisitorAdapter<List<Path>> {
