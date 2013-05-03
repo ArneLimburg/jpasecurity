@@ -17,6 +17,8 @@ package net.sf.jpasecurity.persistence;
 
 import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +34,7 @@ import net.sf.jpasecurity.entity.SecureObjectManager;
 import net.sf.jpasecurity.jpa.JpaParameter;
 import net.sf.jpasecurity.jpa.JpaQuery;
 import net.sf.jpasecurity.mapping.Path;
+import net.sf.jpasecurity.util.ReflectionUtils;
 
 
 /**
@@ -42,17 +45,20 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
 
     private SecureObjectManager objectManager;
     private FetchManager fetchManager;
+    private Class<T> constructorArgReturnType;
     private List<Path> selectedPaths;
     private FlushModeType flushMode;
 
     public SecureQuery(SecureObjectManager objectManager,
                        FetchManager fetchManager,
                        Query query,
+                       Class<T> constructorReturnType,
                        List<Path> selectedPaths,
                        FlushModeType flushMode) {
         super(query);
         this.objectManager = objectManager;
         this.fetchManager = fetchManager;
+        this.constructorArgReturnType = constructorReturnType;
         this.selectedPaths = selectedPaths;
         this.flushMode = flushMode;
     }
@@ -79,7 +85,19 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
 
     public T getSingleResult() {
         preFlush();
-        T result = getSecureResult(super.getSingleResult());
+        T result;
+        if (constructorArgReturnType != null) {
+            Object[] parameters = (Object[])super.getSingleResult();
+            try {
+                result = ReflectionUtils.getConstructor(constructorArgReturnType, parameters).newInstance(parameters);
+            } catch (InvocationTargetException e) {
+                result = ReflectionUtils.throwThrowable(e.getTargetException());
+            } catch (Exception e) {
+                result = ReflectionUtils.throwThrowable(e);
+            }
+        } else {
+            result = getSecureResult(super.getSingleResult());
+        }
         postFlush();
         return result;
     }
@@ -89,8 +107,21 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
         List<T> targetResult = super.getResultList();
         postFlush();
         List<T> proxyResult = new ArrayList<T>();
-        for (T entity: targetResult) {
-            proxyResult.add(getSecureResult(entity));
+        if (constructorArgReturnType != null) {
+            for (Object[] parameters: (List<Object[]>)targetResult) {
+                try {
+                    Constructor<T> constructor = ReflectionUtils.getConstructor(constructorArgReturnType, parameters);
+                    proxyResult.add(constructor.newInstance(parameters));
+                } catch (InvocationTargetException e) {
+                    ReflectionUtils.throwThrowable(e.getTargetException());
+                } catch (Exception e) {
+                    ReflectionUtils.throwThrowable(e);
+                }
+            }
+        } else {
+            for (T entity: targetResult) {
+                proxyResult.add(getSecureResult(entity));
+            }
         }
         return proxyResult;
     }

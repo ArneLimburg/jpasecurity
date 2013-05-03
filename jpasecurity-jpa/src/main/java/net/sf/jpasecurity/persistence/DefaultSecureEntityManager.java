@@ -279,11 +279,22 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         if (filterResult.getQuery() == null) {
             return (Q)new EmptyResultQuery<T>(createDelegateQuery(qlString, resultClass, queryClass));
         } else {
-            Q query = (Q)new SecureQuery<T>(secureObjectManager,
-                                            this,
-                                            createDelegateQuery(filterResult.getQuery(), resultClass, queryClass),
-                                            filterResult.getSelectedPaths(),
-                                            super.getFlushMode());
+            Q query;
+            if (filterResult.getConstructorArgReturnType() != null) {
+                query = (Q)new SecureQuery<T>(secureObjectManager,
+                                              this,
+                                              createDelegateQuery(filterResult.getQuery(), null, Query.class),
+                                              (Class<T>)filterResult.getConstructorArgReturnType(),
+                                              filterResult.getSelectedPaths(),
+                                              super.getFlushMode());
+            } else {
+                query = (Q)new SecureQuery<T>(secureObjectManager,
+                                              this,
+                                              createDelegateQuery(filterResult.getQuery(), resultClass, queryClass),
+                                              null,
+                                              filterResult.getSelectedPaths(),
+                                              super.getFlushMode());
+            }
             if (filterResult.getParameters() != null) {
                 for (Map.Entry<String, Object> parameter: filterResult.getParameters().entrySet()) {
                     query.setParameter(parameter.getKey(), parameter.getValue());
@@ -309,6 +320,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
             SecureQuery<T> query = new SecureQuery<T>(secureObjectManager,
                                       this,
                                       super.createQuery(filterResult.getQuery()),
+                                      null, // TODO how to extract this?
                                       filterResult.getSelectedPaths(),
                                       super.getFlushMode());
             if (filterResult.getParameters() != null && filterResult instanceof CriteriaFilterResult) {

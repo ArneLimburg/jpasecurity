@@ -31,9 +31,9 @@ public class CriteriaFilterResult<Q> extends FilterResult<Q> {
     private List<Parameter<?>> criteriaParameters = new ArrayList<Parameter<?>>();
 
     public CriteriaFilterResult(Q query,
-            Map<String, Object> parameters, List<Parameter<?>> criteriaParameters) {
+            Map<String, Object> parameters, Class<?> constructorArgReturnType, List<Parameter<?>> criteriaParameters) {
 
-        super(query, parameters, null, null);
+        super(query, parameters, constructorArgReturnType, null, null);
         this.criteriaParameters = criteriaParameters;
     }
 

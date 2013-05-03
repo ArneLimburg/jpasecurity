@@ -151,17 +151,21 @@ public class EntityFilter {
             where.jjtSetChild(and, 0);
         }
 
-        final Node statementNode = statement.getStatement();
+        Node statementNode = statement.getStatement();
         LOG.debug("Optimizing filtered query " + statementNode);
 
         optimize(accessDefinition);
         Set<String> parameterNames = compiler.getNamedParameters(accessDefinition.getAccessRules());
         Map<String, Object> parameters = accessDefinition.getQueryParameters();
         parameters.keySet().retainAll(parameterNames);
+        if (statement.getConstructorArgReturnType() != null) {
+            statementNode = queryPreparator.removeConstuctor(statementNode);
+        }
         final String optimizedJpqlStatement = ((SimpleNode)statementNode).toJpqlString();
         LOG.debug("Returning optimized query " + optimizedJpqlStatement);
         return new FilterResult<String>(optimizedJpqlStatement,
                                         parameters.size() > 0? parameters: null,
+                                        statement.getConstructorArgReturnType(),
                                         statement.getSelectedPaths(),
                                         statement.getTypeDefinitions());
     }

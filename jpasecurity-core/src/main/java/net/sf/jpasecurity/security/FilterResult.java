@@ -29,6 +29,7 @@ public class FilterResult<Q> {
 
     private Q query;
     private Map<String, Object> parameters;
+    private Class<?> constructorArgReturnType;
     private List<Path> selectedPaths;
     private Set<TypeDefinition> types;
 
@@ -41,16 +42,22 @@ public class FilterResult<Q> {
 
     public FilterResult(Q query,
                         Map<String, Object> parameters,
+                        Class<?> constructorArgReturnType,
                         List<Path> selectedPaths,
                         Set<TypeDefinition> types) {
         this(query);
         this.parameters = parameters;
+        this.constructorArgReturnType = constructorArgReturnType;
         this.selectedPaths = selectedPaths;
         this.types = types;
     }
 
     public Q getQuery() {
         return query;
+    }
+
+    public Class<?> getConstructorArgReturnType() {
+        return constructorArgReturnType;
     }
 
     public Map<String, Object> getParameters() {
