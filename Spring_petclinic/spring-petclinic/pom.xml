@@ -73,6 +73,7 @@
       
         <mysql.version>5.1.22</mysql.version>
         <jpasecurity.version>0.4.1-SNAPSHOT</jpasecurity.version>
+        <htmlunit.version>1.14</htmlunit.version>
         
     </properties>
 
@@ -418,6 +419,13 @@
 			<artifactId>jpasecurity-spring</artifactId>
 			<version>${jpasecurity.version}</version>
 		 </dependency>
+		 
+		 <dependency>
+			<groupId>htmlunit</groupId>
+			<artifactId>htmlunit</artifactId>
+			<version>${htmlunit.version}</version>
+		 </dependency>
+		
        </dependencies>
 
     <!-- all Maven plugin versions are mentioned in order to guarantee the build reproducibility in the long term -->
