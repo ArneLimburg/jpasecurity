@@ -144,6 +144,32 @@ public abstract class AbstractHtmlTestCase {
     	return null;
     }
 
+    public HtmlPage authenticateAsOwner(String page) {
+        return authenticate(getHtmlPage(page), Role.OWNER);
+    }
+
+    public HtmlPage authenticateAsVet(String page) {
+        return authenticate(getHtmlPage(page), Role.VET);
+    }
+
+    public HtmlPage authenticate(HtmlPage currentPage, Role role) {
+        try {
+            HtmlAnchor loginLink = (HtmlAnchor)getByXPath(currentPage, "//a[text() = 'Login']").iterator().next();
+            HtmlPage loginPage = (HtmlPage)loginLink.click();
+
+            HtmlForm form = getFormByJsfId(loginPage, "loginDialog:loginForm");
+            if (role == Role.OWNER) {
+                getInputByJsfId(form, "username").setValueAttribute("jean");
+                getInputByJsfId(form, "password").setValueAttribute("jean");
+            } else {
+                getInputByJsfId(form, "username").setValueAttribute("james");
+                getInputByJsfId(form, "password").setValueAttribute("james");
+            }
+            return (HtmlPage)getInputByJsfId(form, "loginButton").click();
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
+    }
     public static enum Role {
         OWNER, VET, GUEST
     };
