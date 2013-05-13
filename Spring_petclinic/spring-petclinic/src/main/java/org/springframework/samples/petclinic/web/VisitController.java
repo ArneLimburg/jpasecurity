@@ -80,7 +80,6 @@ public class VisitController {
         }
     }
 
-
     @RequestMapping(value = "/pets/{petId}/visits/{visitId}/edit", method = RequestMethod.GET)
     public String initUpdateForm(@PathVariable("visitId") int visitId, Model model) {
         Visit visit = this.clinicService.findVisitById(visitId);
