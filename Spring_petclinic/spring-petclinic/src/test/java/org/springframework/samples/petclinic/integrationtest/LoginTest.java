@@ -1,10 +1,5 @@
 package org.springframework.samples.petclinic.integrationtest;
 
-import org.springframework.samples.petclinic.integrationtest.PetclinicAssert;
-import org.springframework.samples.petclinic.integrationtest.AbstractHtmlTestCase.Role;
-
-import org.springframework.samples.petclinic.integrationtest.AbstractHtmlTestCase;
-
 import org.springframework.samples.petclinic.integrationtest.junit.ParameterizedJUnit4ClassRunner;
 import org.springframework.samples.petclinic.integrationtest.junit.Parameters;
 
@@ -21,30 +16,50 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 @Parameters("http://localhost:9966/petclinic/")
 public class LoginTest extends AbstractHtmlTestCase {
 
-	protected LoginTest(String url) {
-		super(url);
-	}
+    protected LoginTest(String url) {
+        super(url);
+    }
 
     @Test
     public void unauthenticated() throws JaxenException {
-        PetclinicAssert.assertLoginPage(getHtmlPage("login.xhtml"),  Role.GUEST);
+        PetclinicAssert.assertLoginPage(getHtmlPage("login"),  Role.GUEST);
     }
 
     @Test
     public void authenticatedAsOwner() throws JaxenException {
-    	PetclinicAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.GUEST);
-    	PetclinicAssert.assertWelcomePage(authenticateAsOwner("login.xhtml"), Role.OWNER);   	
+        PetclinicAssert.assertLoginPage(getHtmlPage("login"), Role.GUEST);
+        PetclinicAssert.assertWelcomePage(authenticateAsOwner("login"), Role.OWNER, false);
     }
 
     @Test
     public void authenticatedAsVet() throws JaxenException {
-    	PetclinicAssert.assertLoginPage(getHtmlPage("login.xhtml"), Role.GUEST);
-    	PetclinicAssert.assertWelcomePage(authenticateAsVet("login.xhtml"), Role.VET);       	
+        PetclinicAssert.assertLoginPage(getHtmlPage("login"), Role.GUEST);
+        PetclinicAssert.assertWelcomePage(authenticateAsVet("login"), Role.VET, false);
+    }
+
+    @Test
+    public void logoutLinkTestAsVet() throws JaxenException {
+        HtmlPage logoutLink = testLink(authenticateAsVet("login"), "Logout");
+        PetclinicAssert.assertLoginPage(logoutLink, Role.GUEST);
+    }
+
+    @Test
+    public void logoutLinkTestAsOwner() throws JaxenException {
+        HtmlPage logoutLink = testLink(authenticateAsOwner("login"), "Logout");
+        PetclinicAssert.assertLoginPage(logoutLink, Role.GUEST);
+    }
+
+    @Test
+    public void testResetLink() throws JaxenException {
+        PetclinicAssert.assertLoginPage(getHtmlPage("login"), Role.GUEST);
+        setUsernameAndPassword(getHtmlPage("login"), Role.OWNER);
+        HtmlPage resetLink = testLink(getHtmlPage("login"),  "Reset");
+        PetclinicAssert.assertLoginPage(resetLink, Role.GUEST);
     }
 
     @Test
     public void testRegisterLink() throws JaxenException {
-        HtmlPage registerLink = testLink(getHtmlPage("login.xhtml"),  "Register");
-        PetclinicAssert.assertWelcomePage(registerLink, Role.GUEST);
+        HtmlPage registerLink = testLink(getHtmlPage("login"),  "Register");
+        PetclinicAssert.assertRegisterPage(registerLink, Role.GUEST);
     }
 }
