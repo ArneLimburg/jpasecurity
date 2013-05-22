@@ -5,12 +5,12 @@ import java.util.List;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlSelect;
-import com.gargoylesoftware.htmlunit.html.HtmlTextArea;
 
 import org.junit.Before;
 import org.jaxen.JaxenException;
@@ -33,6 +33,7 @@ public abstract class AbstractHtmlTestCase {
     @Before
     public void createHttpSession() {
         webClient = new WebClient();
+        //TODO
         getPage("entityManagerFactoryReset");
         getHtmlPage("");
     }
@@ -74,9 +75,19 @@ public abstract class AbstractHtmlTestCase {
 
     public HtmlPage testInputLink(HtmlPage page, String linkName) {
         try {
-            HtmlInput inputLink = (HtmlInput)getByXPath(page, "//input[@value = '" + linkName + "']").iterator().next();
+            HtmlInput inputLink = (HtmlInput)getByXPath(page, "//input[@name = '" + linkName + "']").iterator().next();
             HtmlPage inputLinkPage = (HtmlPage)inputLink.click();
             return inputLinkPage;
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    public HtmlPage testButton(HtmlPage page, String linkName) {
+        try {
+            HtmlButton buttonLink = (HtmlButton)getByXPath(page, "//button[text() = '" + linkName + "']").iterator().next();
+            HtmlPage buttonLinkPage = (HtmlPage)buttonLink.click();
+            return buttonLinkPage;
         } catch (IOException e) {
             throw new AssertionError(e);
         }
@@ -92,10 +103,6 @@ public abstract class AbstractHtmlTestCase {
 
     public HtmlSelect getSelectById(DomNode node, String id) {
         return getById(node, HtmlSelect.class, id);
-    }
-
-    public HtmlTextArea getTextAreaById(DomNode node, String id) {
-        return getById(node, HtmlTextArea.class, id);
     }
 
     public <T extends HtmlElement> T getById(DomNode page, Class<T> type, String id) {
@@ -135,37 +142,30 @@ public abstract class AbstractHtmlTestCase {
 
     public HtmlPage authenticate(HtmlPage currentPage, Role role) {
         try {
-            HtmlAnchor loginLink = (HtmlAnchor)getByXPath(currentPage, "//a[text() = 'Login']").iterator().next();
-            HtmlPage loginPage = (HtmlPage)loginLink.click();
-
-            HtmlForm form = getFormById(loginPage, "loginDialog:loginForm");
+            HtmlPage loginPage = getHtmlPage("login");
+            HtmlForm form = loginPage.getFormByName("f");
             if (role == Role.OWNER) {
-                getInputById(form, "username").setValueAttribute("jean");
-                getInputById(form, "password").setValueAttribute("jean");
+                form.getInputByName("j_username").setValueAttribute("jean");
+                form.getInputByName("j_password").setValueAttribute("jean");
             } else {
-                getInputById(form, "username").setValueAttribute("james");
-                getInputById(form, "password").setValueAttribute("james");
+                form.getInputByName("j_username").setValueAttribute("james");
+                form.getInputByName("j_password").setValueAttribute("james");
             }
-            return (HtmlPage)getInputById(form, "loginButton").click();
+            form.getInputByName("submit").click();
+            return currentPage;
         } catch (IOException e) {
             throw new AssertionError(e);
         }
     }
 
     public void setUsernameAndPassword(HtmlPage currentPage, Role role) {
-        try {
-            HtmlAnchor loginLink = (HtmlAnchor)getByXPath(currentPage, "//a[text() = 'Login']").iterator().next();
-            HtmlPage loginPage = (HtmlPage)loginLink.click();
-            HtmlForm form = getFormById(loginPage, "loginDialog:loginForm");
-            if (role == Role.OWNER) {
-                getInputById(form, "username").setValueAttribute("jean");
-                getInputById(form, "password").setValueAttribute("jean");
-            } else {
-                getInputById(form, "username").setValueAttribute("james");
-                getInputById(form, "password").setValueAttribute("james");
-            }
-        } catch (IOException e) {
-            throw new AssertionError(e);
+        HtmlForm form = currentPage.getFormByName("f");
+        if (role == Role.OWNER) {
+            form.getInputByName("j_username").setValueAttribute("jean");
+            form.getInputByName("j_password").setValueAttribute("jean");
+        } else {
+            form.getInputByName("j_username").setValueAttribute("james");
+            form.getInputByName("j_password").setValueAttribute("james");
         }
     }
 
@@ -178,11 +178,7 @@ public abstract class AbstractHtmlTestCase {
         HtmlPage findOwnersPage = getHtmlPage("owners/find.html");
         HtmlForm form = getFormById(findOwnersPage, "search-owner-form");
         getInputById(form, "lastName").setValueAttribute(name);
-        try {
-            return (HtmlPage)form.getButtonByName("findOwners").click();
-        } catch (IOException e) {
-            throw new AssertionError(e);
-        }
+        return (HtmlPage)testButton(findOwnersPage, "findOwners");
     }
 
     public HtmlPage createNewOwner(String credential, Role role) {
@@ -200,11 +196,7 @@ public abstract class AbstractHtmlTestCase {
         getInputById(form, "telephone").setValueAttribute("123456");
         getInputById(form, "credential.username").setValueAttribute(credential);
         getInputById(form, "credential.newPassword").setValueAttribute(credential);
-        try {
-            return (HtmlPage)form.getButtonByName("registerOwner").click();
-        } catch (IOException e) {
-            throw new AssertionError(e);
-        }
+        return (HtmlPage)testButton(newOwnerPage, "Register Owner");
     }
 
     public HtmlPage createNewPet(String name) {
@@ -214,25 +206,17 @@ public abstract class AbstractHtmlTestCase {
         getInputById(form, "name").setValueAttribute(name);
         getInputById(form, "birthDate").setValueAttribute("2013/05/02");
         getSelectById(form, "type").setSelectedAttribute("cat", true);
-        try {
-            return (HtmlPage)form.getButtonByName("addPet").click();
-        } catch (IOException e) {
-            throw new AssertionError(e);
-        }
+        return (HtmlPage)testButton(newOwnerPage, "Add Pet");
     }
 
     public HtmlPage createNewVisit() {
         authenticateAsOwner("owners/12/pets/visits/new");
-        HtmlPage newOwnerPage = getHtmlPage("owners/12/pets/visits/new");
-        HtmlForm form = getFormById(newOwnerPage, "visit");
+        HtmlPage newVisitPage = getHtmlPage("owners/12/pets/visits/new");
+        HtmlForm form = getFormById(newVisitPage, "visit");
         getInputById(form, "date").setValueAttribute("2013/05/02");
         getSelectById(form, "vet").setSelectedAttribute("Carter, James (none)", true);
         getInputById(form, "description").setValueAttribute("accident");
-        try {
-            return (HtmlPage)form.getButtonByName("addVisit").click();
-        } catch (IOException e) {
-            throw new AssertionError(e);
-        }
+        return (HtmlPage)testButton(newVisitPage, "Add Visit");
     }
 
     public HtmlPage updateOwnerWithNewCity(String city) {
@@ -240,11 +224,7 @@ public abstract class AbstractHtmlTestCase {
         HtmlPage updateOwnerPage = getHtmlPage("owners/12/edit.html");
         HtmlForm form = getFormById(updateOwnerPage, "add-owner-form");
         getInputById(form, "city").setValueAttribute(city);
-        try {
-            return (HtmlPage)form.getButtonByName("updateOwner").click();
-        } catch (IOException e) {
-            throw new AssertionError(e);
-        }
+        return (HtmlPage)testButton(updateOwnerPage, "Update Owner");
     }
 
     public HtmlPage updateVisitWithNewDate(String date) {
@@ -252,11 +232,7 @@ public abstract class AbstractHtmlTestCase {
         HtmlPage updateVisitPage = getHtmlPage("owners/12/pets/8/edit");
         HtmlForm form = getFormById(updateVisitPage, "visit");
         getInputById(form, "date").setValueAttribute(date);
-        try {
-            return (HtmlPage)form.getButtonByName("updateVisit").click();
-        } catch (IOException e) {
-            throw new AssertionError(e);
-        }
+        return (HtmlPage)testButton(updateVisitPage, "Update Visit");
     }
 
     public HtmlPage updatePetWithNewName(String name) {
@@ -264,11 +240,7 @@ public abstract class AbstractHtmlTestCase {
         HtmlPage updatePetPage = getHtmlPage("pets/8/visits/2/edit");
         HtmlForm form = getFormById(updatePetPage, "pet");
         getInputById(form, "name").setValueAttribute(name);
-        try {
-            return (HtmlPage)form.getButtonByName("updatePet").click();
-        } catch (IOException e) {
-            throw new AssertionError(e);
-        }
+        return (HtmlPage)testButton(updatePetPage, "Update Pet");
     }
 
     public static enum Role {
