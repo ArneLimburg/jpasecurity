@@ -53,7 +53,7 @@ public class LoginTest extends AbstractHtmlTestCase {
     public void testResetLink() throws JaxenException {
         PetclinicAssert.assertLoginPage(getHtmlPage("login"), Role.GUEST);
         setUsernameAndPassword(getHtmlPage("login"), Role.OWNER);
-        HtmlPage resetLink = testLink(getHtmlPage("login"),  "Reset");
+        HtmlPage resetLink = testInputLink(getHtmlPage("login"),  "reset");
         PetclinicAssert.assertLoginPage(resetLink, Role.GUEST);
     }
 
