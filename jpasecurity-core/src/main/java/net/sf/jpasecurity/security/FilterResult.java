@@ -33,10 +33,12 @@ public class FilterResult<Q> {
     private List<Path> selectedPaths;
     private Set<TypeDefinition> types;
 
-    public FilterResult() {
+    public FilterResult(Class<?> constructorArgReturnType) {
+        this.constructorArgReturnType = constructorArgReturnType;
     }
 
-    public FilterResult(Q query) {
+    public FilterResult(Q query, Class<?> constructorArgReturnType) {
+        this(constructorArgReturnType);
         this.query = query;
     }
 
@@ -45,9 +47,8 @@ public class FilterResult<Q> {
                         Class<?> constructorArgReturnType,
                         List<Path> selectedPaths,
                         Set<TypeDefinition> types) {
-        this(query);
+        this(query, constructorArgReturnType);
         this.parameters = parameters;
-        this.constructorArgReturnType = constructorArgReturnType;
         this.selectedPaths = selectedPaths;
         this.types = types;
     }

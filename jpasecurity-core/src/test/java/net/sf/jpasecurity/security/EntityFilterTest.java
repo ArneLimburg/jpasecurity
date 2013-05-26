@@ -254,6 +254,17 @@ public class EntityFilterTest {
                                  + "FROM MethodAccessTestBean tb INNER JOIN tb.parent p  "
                                  + "WHERE ((p.name = :CURRENT_PRINCIPAL) AND (tb.name = :CURRENT_PRINCIPAL))";
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
+        assertEquals(MethodAccessTestBean.class, result.getConstructorArgReturnType());
+        assertEquals(restrictedQuery, result.getQuery().trim());
+    }
+
+    @Test
+    public void filterAlwaysEvaluatableConstructorQuery() {
+        String plainQuery
+            = "SELECT new net.sf.jpasecurity.model.MethodAccessTestBean('test') FROM MethodAccessTestBean tb";
+        String restrictedQuery = plainQuery;
+        FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
+        assertEquals(MethodAccessTestBean.class, result.getConstructorArgReturnType());
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
 
