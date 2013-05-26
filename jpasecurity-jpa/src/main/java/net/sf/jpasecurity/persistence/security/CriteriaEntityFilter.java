@@ -34,6 +34,7 @@ import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.configuration.AccessRule;
 import net.sf.jpasecurity.configuration.SecurityContext;
 import net.sf.jpasecurity.entity.SecureObjectCache;
+import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.compiler.SubselectEvaluator;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.Path;
@@ -96,7 +97,8 @@ public class CriteriaEntityFilter extends EntityFilter {
             }
         }
         AccessDefinition accessDefinition = createAccessDefinition(selectedTypes, AccessType.READ);
-        FilterResult<CriteriaQuery<R>> filterResult = getAlwaysEvaluatableResult(query, accessDefinition);
+        FilterResult<CriteriaQuery<R>> filterResult
+            = getAlwaysEvaluatableResult(new JpqlCompiledStatement(null), query, accessDefinition);
         if (filterResult != null) {
             return filterResult;
         }

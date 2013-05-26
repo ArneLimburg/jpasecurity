@@ -128,7 +128,7 @@ public class EntityFilter {
         JpqlCompiledStatement statement = compile(query);
 
         AccessDefinition accessDefinition = createAccessDefinition(statement, accessType);
-        FilterResult<String> filterResult = getAlwaysEvaluatableResult(query, accessDefinition);
+        FilterResult<String> filterResult = getAlwaysEvaluatableResult(statement, query, accessDefinition);
         if (filterResult != null) {
             return filterResult;
         }
@@ -288,16 +288,18 @@ public class EntityFilter {
         }
     }
 
-    protected <Q> FilterResult<Q> getAlwaysEvaluatableResult(Q query, AccessDefinition accessDefinition) {
+    protected <Q> FilterResult<Q> getAlwaysEvaluatableResult(JpqlCompiledStatement statement,
+                                                             Q query,
+                                                             AccessDefinition accessDefinition) {
         if (accessDefinition.getAccessRules() instanceof JpqlBooleanLiteral) {
             JpqlBooleanLiteral booleanLiteral = (JpqlBooleanLiteral)accessDefinition.getAccessRules();
             boolean accessRestricted = !Boolean.parseBoolean(booleanLiteral.getValue());
             if (accessRestricted) {
                 LOG.info("No access rules defined for access type. Returning <null> query.");
-                return new FilterResult<Q>();
+                return new FilterResult<Q>(statement.getConstructorArgReturnType());
             } else {
                 LOG.info("No access rules defined for selected type. Returning unfiltered query");
-                return new FilterResult<Q>(query);
+                return new FilterResult<Q>(query, statement.getConstructorArgReturnType());
             }
         }
 
@@ -314,10 +316,10 @@ public class EntityFilter {
             boolean result = queryEvaluator.<Boolean>evaluate(accessDefinition.getAccessRules(), evaluationParameters);
             if (result) {
                 LOG.debug("Access rules are always true for current user and roles. Returning unfiltered query");
-                return new FilterResult<Q>(query);
+                return new FilterResult<Q>(query, statement.getConstructorArgReturnType());
             } else {
                 LOG.debug("Access rules are always false for current user and roles. Returning empty result");
-                return new FilterResult<Q>();
+                return new FilterResult<Q>(statement.getConstructorArgReturnType());
             }
         } catch (NotEvaluatableException e) {
             //access rules need to be applied then
