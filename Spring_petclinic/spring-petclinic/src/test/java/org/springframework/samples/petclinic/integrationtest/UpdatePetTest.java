@@ -12,10 +12,10 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @author Raffaela Ferrari
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
-@Parameters("http://localhost:9966/petclinic/")
+@Parameters({"http://localhost:9966/petclinic/"})
 public class UpdatePetTest extends AbstractHtmlTestCase  {
 
-    protected UpdatePetTest(String url) {
+    public UpdatePetTest(String url) {
         super(url);
     }
 
@@ -56,7 +56,7 @@ public class UpdatePetTest extends AbstractHtmlTestCase  {
 
     @Test
     public void updatePetTest() throws JaxenException {
-        HtmlPage updatePetLink = updatePetWithNewName("max3");
+        HtmlPage updatePetLink = updatePetWithNewName("Maximilian");
         PetclinicAssert.setNewNameForPet("Maximilian");
         PetclinicAssert.assertPersonalInformationPage(updatePetLink, Role.OWNER, 12);
     }

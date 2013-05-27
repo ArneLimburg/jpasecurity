@@ -5,10 +5,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:sec="http://www.springframework.org/schema/security"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
  
     <!-- ========================= RESOURCE DEFINITIONS ========================= -->
 
@@ -28,7 +30,7 @@
 
     <beans profile="jpa">
         <!-- JPA EntityManagerFactory -->
-        <bean id="entityManagerFactory" class="net.sf.jpasecurity.spring.persistence.SecureContainerEntityManagerFactoryBean"
+        <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
               p:dataSource-ref="dataSource">
             <property name="jpaVendorAdapter">
                 <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
@@ -50,6 +52,23 @@
         -->
         <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
+	    <sec:http pattern="/login" security="none"/>
+	    <sec:http auto-config="true">
+	        <sec:intercept-url pattern="/static/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+	        <sec:intercept-url pattern="/owners/new" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+	        <sec:intercept-url pattern="/**" access="ROLE_USER" />
+	        <sec:form-login login-page="/login" default-target-url="/"/>
+	        <sec:logout />
+	    </sec:http>
+	
+	    <sec:authentication-manager>
+	        <sec:authentication-provider user-service-ref="userService">
+	          <sec:password-encoder hash="md5"/>
+	        </sec:authentication-provider>
+	    </sec:authentication-manager>
+	
+	    
+	    <bean id="userService" class="org.springframework.samples.petclinic.security.CredentialService"/>
     </beans>
 
     

@@ -12,34 +12,34 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @author Raffaela Ferrari
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
-@Parameters("http://localhost:9966/petclinic/")
+@Parameters({"http://localhost:9966/petclinic/"})
 public class CreateVisitTest extends AbstractHtmlTestCase  {
 
-    protected CreateVisitTest(String url) {
+    public CreateVisitTest(String url) {
         super(url);
     }
 
     @Test
     public void unauthenticated() throws JaxenException {
-        PetclinicAssert.assertCreateVisitFormPage(getHtmlPage("owners/12/pets/8/new"),  Role.GUEST, 0);
+        PetclinicAssert.assertCreateVisitFormPage(getHtmlPage("owners/12/pets/8/visits/new"),  Role.GUEST, 0);
     }
 
     @Test
     public void authenticatedAsAuthorizedOwner() throws JaxenException {
-        PetclinicAssert.assertCreateVisitFormPage(getHtmlPage("owners/12/pets/8/new"), Role.GUEST, 0);
-        PetclinicAssert.assertCreateVisitFormPage(authenticateAsOwner("owners/12/pets/8/new"), Role.OWNER, 8);
+        PetclinicAssert.assertCreateVisitFormPage(getHtmlPage("owners/12/pets/8/visits/new"), Role.GUEST, 0);
+        PetclinicAssert.assertCreateVisitFormPage(authenticateAsOwner("owners/12/pets/8/visits/new"), Role.OWNER, 8);
     }
 
     @Test
     public void authenticatedAsNotAuthorizedOwner() throws JaxenException {
-        PetclinicAssert.assertCreateVisitFormPage(getHtmlPage("owners/12/pets/6/new"), Role.GUEST, 0);
-        PetclinicAssert.assertCreateVisitFormPage(authenticateAsOwner("owners/12/pets/6/new"), Role.OWNER, 6);
+        PetclinicAssert.assertCreateVisitFormPage(getHtmlPage("owners/12/pets/6/visits/new"), Role.GUEST, 0);
+        PetclinicAssert.assertCreateVisitFormPage(authenticateAsOwner("owners/12/pets/6/visits/new"), Role.OWNER, 6);
     }
 
     @Test
     public void authenticatedAsVet() throws JaxenException {
-        PetclinicAssert.assertCreateVisitFormPage(getHtmlPage("owners/12/pets/8/new"), Role.GUEST, 0);
-        PetclinicAssert.assertCreateVisitFormPage(authenticateAsVet("owners/12/pets/8/new"), Role.VET, 0);
+        PetclinicAssert.assertCreateVisitFormPage(getHtmlPage("owners/12/pets/8/visits/new"), Role.GUEST, 0);
+        PetclinicAssert.assertCreateVisitFormPage(authenticateAsVet("owners/12/pets/8/visits/new"), Role.VET, 0);
     }
 
     @Test
@@ -51,13 +51,13 @@ public class CreateVisitTest extends AbstractHtmlTestCase  {
 
     @Test
     public void logoutLinkTestAsVet() throws JaxenException {
-        HtmlPage logoutLink = testLink(authenticateAsVet("owners/12/pets/8/new"), "Logout");
+        HtmlPage logoutLink = testLink(authenticateAsVet("owners/12/pets/8/visits/new"), "Logout");
         PetclinicAssert.assertCreateVisitFormPage(logoutLink, Role.GUEST, 0);
     }
 
     @Test
     public void logoutLinkTestAsOwner() throws JaxenException {
-        HtmlPage logoutLink = testLink(authenticateAsOwner("owners/12/pets/8/new"), "Logout");
+        HtmlPage logoutLink = testLink(authenticateAsOwner("owners/12/pets/8/visits/new"), "Logout");
         PetclinicAssert.assertCreateVisitFormPage(logoutLink, Role.GUEST, 0);
     }
 }

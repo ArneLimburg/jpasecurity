@@ -13,10 +13,10 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @author Raffaela Ferrari
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
-@Parameters("http://localhost:9966/petclinic/")
+@Parameters({"http://localhost:9966/petclinic/"})
 public class LoginTest extends AbstractHtmlTestCase {
 
-    protected LoginTest(String url) {
+    public LoginTest(String url) {
         super(url);
     }
 
@@ -28,24 +28,24 @@ public class LoginTest extends AbstractHtmlTestCase {
     @Test
     public void authenticatedAsOwner() throws JaxenException {
         PetclinicAssert.assertLoginPage(getHtmlPage("login"), Role.GUEST);
-        PetclinicAssert.assertWelcomePage(authenticateAsOwner("login"), Role.OWNER, false);
+        PetclinicAssert.assertWelcomePage(authenticateAsOwner(""), Role.OWNER, false);
     }
 
     @Test
     public void authenticatedAsVet() throws JaxenException {
         PetclinicAssert.assertLoginPage(getHtmlPage("login"), Role.GUEST);
-        PetclinicAssert.assertWelcomePage(authenticateAsVet("login"), Role.VET, false);
+        PetclinicAssert.assertWelcomePage(authenticateAsVet(""), Role.VET, false);
     }
 
     @Test
     public void logoutLinkTestAsVet() throws JaxenException {
-        HtmlPage logoutLink = testLink(authenticateAsVet("login"), "Logout");
+        HtmlPage logoutLink = testLink(authenticateAsVet(""), "Logout");
         PetclinicAssert.assertLoginPage(logoutLink, Role.GUEST);
     }
 
     @Test
     public void logoutLinkTestAsOwner() throws JaxenException {
-        HtmlPage logoutLink = testLink(authenticateAsOwner("login"), "Logout");
+        HtmlPage logoutLink = testLink(authenticateAsOwner(""), "Logout");
         PetclinicAssert.assertLoginPage(logoutLink, Role.GUEST);
     }
 

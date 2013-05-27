@@ -47,22 +47,4 @@
     <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
         <property name="configLocation" value="classpath:ehcache.xml"/>
     </bean>
-
-    <sec:http pattern="/login" security="none"/>
-	<sec:http auto-config="true">
-        <sec:intercept-url pattern="/static/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-	    <sec:intercept-url pattern="/owners/new" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-        <sec:intercept-url pattern="/**" access="ROLE_USER" />
-        <sec:form-login login-page="/login" default-target-url="/"/>
-        <sec:logout />
-    </sec:http>
-
-    <sec:authentication-manager>
-        <sec:authentication-provider user-service-ref="userService">
-          <sec:password-encoder hash="md5"/>
-        </sec:authentication-provider>
-    </sec:authentication-manager>
-
-	
-    <bean id="userService" class="org.springframework.samples.petclinic.security.CredentialService"/>
 </beans>

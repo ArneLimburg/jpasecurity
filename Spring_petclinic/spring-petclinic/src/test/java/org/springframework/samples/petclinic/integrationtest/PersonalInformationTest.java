@@ -12,10 +12,10 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @author Raffaela Ferrari
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
-@Parameters("http://localhost:9966/petclinic/")
+@Parameters({"http://localhost:9966/petclinic/"})
 public class PersonalInformationTest extends AbstractHtmlTestCase  {
 
-    protected PersonalInformationTest(String url) {
+    public PersonalInformationTest(String url) {
         super(url);
     }
 
