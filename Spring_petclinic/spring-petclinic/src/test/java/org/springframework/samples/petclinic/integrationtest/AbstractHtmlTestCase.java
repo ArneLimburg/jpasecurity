@@ -33,8 +33,10 @@ public abstract class AbstractHtmlTestCase {
     @Before
     public void createHttpSession() {
         webClient = new WebClient();
+        //Wieder raus nehmen
+        webClient.setJavaScriptEnabled(false); 
         //TODO
-        getPage("entityManagerFactoryReset");
+        //getPage("entityManagerFactoryReset");
         getHtmlPage("");
     }
 
@@ -108,7 +110,7 @@ public abstract class AbstractHtmlTestCase {
     public <T extends HtmlElement> T getById(DomNode page, Class<T> type, String id) {
         String elementName = type.getSimpleName().substring(4).toLowerCase();
         T result = null;
-        for (DomNode node: getByXPath(page, elementName + "[@id='" + id + "']")) {
+        for (DomNode node: getByXPath(page, "//" + elementName + "[@id='" + id + "']")) {
             if (type.isInstance(node)) {
                 T element = type.cast(node);
                 if (result != null) {
@@ -133,14 +135,14 @@ public abstract class AbstractHtmlTestCase {
     }
 
     public HtmlPage authenticateAsOwner(String page) {
-        return authenticate(getHtmlPage(page), Role.OWNER);
+        return authenticate(page, Role.OWNER);
     }
 
     public HtmlPage authenticateAsVet(String page) {
-        return authenticate(getHtmlPage(page), Role.VET);
+        return authenticate(page, Role.VET);
     }
 
-    public HtmlPage authenticate(HtmlPage currentPage, Role role) {
+    public HtmlPage authenticate(String currentPage, Role role) {
         try {
             HtmlPage loginPage = getHtmlPage("login");
             HtmlForm form = loginPage.getFormByName("f");
@@ -151,8 +153,8 @@ public abstract class AbstractHtmlTestCase {
                 form.getInputByName("j_username").setValueAttribute("james");
                 form.getInputByName("j_password").setValueAttribute("james");
             }
-            form.getInputByName("submit").click();
-            return currentPage;
+            HtmlPage P = (HtmlPage)form.getInputByName("submit").click();
+            return getHtmlPage(currentPage);
         } catch (IOException e) {
             throw new AssertionError(e);
         }
@@ -178,7 +180,7 @@ public abstract class AbstractHtmlTestCase {
         HtmlPage findOwnersPage = getHtmlPage("owners/find.html");
         HtmlForm form = getFormById(findOwnersPage, "search-owner-form");
         getInputById(form, "lastName").setValueAttribute(name);
-        return (HtmlPage)testButton(findOwnersPage, "findOwners");
+        return (HtmlPage)testButton(findOwnersPage, "Find Owner");
     }
 
     public HtmlPage createNewOwner(String credential, Role role) {
@@ -191,7 +193,7 @@ public abstract class AbstractHtmlTestCase {
         HtmlForm form = getFormById(newOwnerPage, "add-owner-form");
         getInputById(form, "firstName").setValueAttribute("Max");
         getInputById(form, "lastName").setValueAttribute("Muster");
-        getInputById(form, "adress").setValueAttribute("Musterstrasse");
+        getInputById(form, "address").setValueAttribute("Musterstrasse");
         getInputById(form, "city").setValueAttribute("Musterstadt");
         getInputById(form, "telephone").setValueAttribute("123456");
         getInputById(form, "credential.username").setValueAttribute(credential);
@@ -210,8 +212,8 @@ public abstract class AbstractHtmlTestCase {
     }
 
     public HtmlPage createNewVisit() {
-        authenticateAsOwner("owners/12/pets/visits/new");
-        HtmlPage newVisitPage = getHtmlPage("owners/12/pets/visits/new");
+        authenticateAsOwner("owners/12/pets/8/visits/new");
+        HtmlPage newVisitPage = getHtmlPage("owners/12/pets/8/visits/new");
         HtmlForm form = getFormById(newVisitPage, "visit");
         getInputById(form, "date").setValueAttribute("2013/05/02");
         getSelectById(form, "vet").setSelectedAttribute("Carter, James (none)", true);
@@ -224,20 +226,21 @@ public abstract class AbstractHtmlTestCase {
         HtmlPage updateOwnerPage = getHtmlPage("owners/12/edit.html");
         HtmlForm form = getFormById(updateOwnerPage, "add-owner-form");
         getInputById(form, "city").setValueAttribute(city);
+        getInputById(form, "credential.newPassword").setValueAttribute("jean");
         return (HtmlPage)testButton(updateOwnerPage, "Update Owner");
     }
 
     public HtmlPage updateVisitWithNewDate(String date) {
-        authenticateAsOwner("owners/12/pets/8/edit");
-        HtmlPage updateVisitPage = getHtmlPage("owners/12/pets/8/edit");
+        authenticateAsOwner("pets/8/visits/2/edit");
+        HtmlPage updateVisitPage = getHtmlPage("/pets/8/visits/2/edit");
         HtmlForm form = getFormById(updateVisitPage, "visit");
         getInputById(form, "date").setValueAttribute(date);
         return (HtmlPage)testButton(updateVisitPage, "Update Visit");
     }
 
     public HtmlPage updatePetWithNewName(String name) {
-        authenticateAsOwner("pets/8/visits/2/edit");
-        HtmlPage updatePetPage = getHtmlPage("pets/8/visits/2/edit");
+        authenticateAsOwner("owners/12/pets/8/edit");
+        HtmlPage updatePetPage = getHtmlPage("owners/12/pets/8/edit");
         HtmlForm form = getFormById(updatePetPage, "pet");
         getInputById(form, "name").setValueAttribute(name);
         return (HtmlPage)testButton(updatePetPage, "Update Pet");

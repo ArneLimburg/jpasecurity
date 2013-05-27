@@ -12,10 +12,10 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @author Raffaela Ferrari
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
-@Parameters("http://localhost:9966/petclinic/")
+@Parameters({"http://localhost:9966/petclinic/"})
 public class WelcomeTest extends AbstractHtmlTestCase  {
 
-    protected WelcomeTest(String url) {
+    public WelcomeTest(String url) {
         super(url);
     }
 
@@ -52,25 +52,25 @@ public class WelcomeTest extends AbstractHtmlTestCase  {
 
     @Test
     public void testPersonalInformationLinkAsVet() throws JaxenException {
-        HtmlPage personalInfoAsVetLink = testLink(authenticateAsOwner(""), "Personal information");
-        PetclinicAssert.assertPersonalInformationPage(personalInfoAsVetLink, Role.GUEST, 1);
+        HtmlPage personalInfoAsVetLink = testLink(authenticateAsVet(""), "Personal information");
+        PetclinicAssert.assertPersonalInformationPage(personalInfoAsVetLink, Role.VET, 1);
     }
 
     @Test
     public void testPersonalInformationLinkAsOwner() throws JaxenException {
-        HtmlPage personalInfoAsOwnerLink = testLink(authenticateAsOwner(""), "Personal information");
-        PetclinicAssert.assertPersonalInformationPage(personalInfoAsOwnerLink, Role.GUEST, 12);
+        HtmlPage personalInfoAsOwnerLink = testLink(authenticateAsOwner(""), "Personal information ");
+        PetclinicAssert.assertPersonalInformationPage(personalInfoAsOwnerLink, Role.OWNER, 12);
     }
 
     @Test
     public void testAllVeterinariansLink() throws JaxenException {
-        HtmlPage allVeterinarianLink = testLink(authenticateAsOwner(""), "All veterinarian");
+        HtmlPage allVeterinarianLink = testLink(authenticateAsOwner(""), "All veterinarians");
         PetclinicAssert.assertAllVeterinariansPage(allVeterinarianLink, Role.OWNER);
     }
 
     @Test
     public void testFindOwnersLinkAsVet() throws JaxenException {
-        HtmlPage findOwnersLink = testLink(authenticateAsOwner(""), "Find owners");
-        PetclinicAssert.assertWelcomePage(findOwnersLink, Role.OWNER, false);
+        HtmlPage findOwnersLink = testLink(authenticateAsVet(""), " Find owners");
+        PetclinicAssert.assertFindOwnersPage(findOwnersLink, Role.OWNER);
     }
 }

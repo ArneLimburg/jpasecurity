@@ -413,7 +413,7 @@
             <version>${dandelion.datatables.version}</version>
          </dependency>
          
-         <!-- JPA Security -->
+         <!-- JPA Security --> 
          <dependency>
 			<groupId>net.sf.jpasecurity</groupId>
 			<artifactId>jpasecurity-spring</artifactId>
@@ -454,6 +454,9 @@
                     <includes>
                         <include>**/*Tests.java</include>
                     </includes>
+                    <excludes>
+		                <exclude>**/integrationtest/**</exclude>
+		            </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -523,7 +526,46 @@
 		        <port>9966</port>
 		        <path>/petclinic</path>
 		      </configuration>
-		    </plugin> 
+		      <!--
+		      <executions>
+	          <execution>
+	            <id>tomcat-start</id>
+	            <phase>pre-integration-test</phase>
+	            <goals>
+	              <goal>run</goal>
+	            </goals>
+	            <configuration>
+	              <tomcatSetAwait>false</tomcatSetAwait>
+	            </configuration>
+	          </execution>
+	          <execution>
+	            <id>tomcat-stop</id>
+	            <phase>post-integration-test</phase>
+	            <goals>
+	              <goal>shutdown</goal>
+	            </goals>
+	          </execution>
+	        </executions>  -->
+		    </plugin>
+		    <!--
+		    <plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-failsafe-plugin</artifactId>
+		        <version>2.10</version>
+		        <executions>
+		          <execution>
+		            <goals>
+		              <goal>integration-test</goal>
+		              <goal>verify</goal>
+		            </goals>
+		          </execution>
+		        </executions>
+		        <configuration>
+		          <includes>
+		            <include>**/integrationtest/**</include>
+		          </includes>
+		        </configuration>
+		      </plugin>  -->
 			<plugin>
 		        <groupId>org.mortbay.jetty</groupId>
 		        <artifactId>jetty-maven-plugin</artifactId>

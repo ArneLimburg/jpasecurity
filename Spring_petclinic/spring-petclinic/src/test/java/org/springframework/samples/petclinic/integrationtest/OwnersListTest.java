@@ -12,10 +12,10 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @author Raffaela Ferrari
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
-@Parameters("http://localhost:9966/petclinic/")
+@Parameters({"http://localhost:9966/petclinic/"})
 public class OwnersListTest extends AbstractHtmlTestCase  {
 
-    protected OwnersListTest(String url) {
+    public OwnersListTest(String url) {
         super(url);
     }
 
@@ -50,7 +50,7 @@ public class OwnersListTest extends AbstractHtmlTestCase  {
 
     @Test
     public void ownerLinkTest() throws  JaxenException  {
-        HtmlPage ownerLink = testLink(authenticateAsVet("owners.html"), "Coleman");
+        HtmlPage ownerLink = testLink(authenticateAsVet("owners.html"), "Jean Coleman");
         PetclinicAssert.assertPersonalInformationPage(ownerLink, Role.VET, 13);
     }
     //todo check pdf link eventually

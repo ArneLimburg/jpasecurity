@@ -94,7 +94,7 @@ public class OwnerController {
                 = new UsernamePasswordAuthenticationToken(credential, credential, credential.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
             status.setComplete();
-            return "redirect:/owners/" + owner.getId();
+            return "redirect:/";
         }
     }
 

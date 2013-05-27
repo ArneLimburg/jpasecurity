@@ -12,10 +12,10 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  * @author Raffaela Ferrari
  */
 @RunWith(ParameterizedJUnit4ClassRunner.class)
-@Parameters("http://localhost:9966/petclinic/")
+@Parameters({"http://localhost:9966/petclinic/"})
 public class AllVeterinariansTest extends AbstractHtmlTestCase  {
 
-    protected AllVeterinariansTest(String url) {
+    public AllVeterinariansTest(String url) {
         super(url);
     }
 
@@ -40,25 +40,25 @@ public class AllVeterinariansTest extends AbstractHtmlTestCase  {
 
     @Test
     public void vetLinkAsVetTest() throws JaxenException {
-        HtmlPage vetLink = testLink(authenticateAsVet("vets.html"), "James Carter");
+        HtmlPage vetLink = testLink(authenticateAsVet("vets.html"), " James Carter");
         PetclinicAssert.assertPersonalInformationPage(vetLink, Role.VET, 1);
     }
 
     @Test
     public void vetLinkAsOwnerTest() throws JaxenException {
-        HtmlPage vetLink = testLink(authenticateAsVet("vets.html"), "James Carter");
+        HtmlPage vetLink = testLink(authenticateAsVet("vets.html"), " James Carter");
         PetclinicAssert.assertPersonalInformationPage(vetLink, Role.OWNER, 1);
     }
 
     @Test
     public void anotherVetLinkAsVetTest() throws JaxenException {
-        HtmlPage vetLink = testLink(authenticateAsVet("vets.html"), "Rafael Ortega");
+        HtmlPage vetLink = testLink(authenticateAsVet("vets.html"), " Rafael Ortega");
         PetclinicAssert.assertPersonalInformationPage(vetLink, Role.VET, 4);
     }
 
     @Test
     public void anotherVetLinkAsOwnerTest() throws JaxenException {
-        HtmlPage vetLink = testLink(authenticateAsVet("vets.html"), "Rafael Ortega");
+        HtmlPage vetLink = testLink(authenticateAsVet("vets.html"), " Rafael Ortega");
         PetclinicAssert.assertPersonalInformationPage(vetLink, Role.OWNER, 4);
     }
 
