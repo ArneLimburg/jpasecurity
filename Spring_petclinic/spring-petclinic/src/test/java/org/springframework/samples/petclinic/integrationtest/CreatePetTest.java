@@ -42,6 +42,7 @@ public class CreatePetTest extends AbstractHtmlTestCase  {
         PetclinicAssert.assertCreatePetFormPage(authenticateAsVet("owners/12/pets/new.html"), Role.VET, 0);
     }
 
+    //Only test once
     @Test
     public void createPetTest() throws JaxenException {
         HtmlPage createPetLink = createNewPet("Maxi");
