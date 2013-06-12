@@ -56,7 +56,7 @@ public class UpdateVisitTest extends AbstractHtmlTestCase  {
     @Test
     public void updateVisitTest() throws JaxenException {
         HtmlPage updateVisitLink = updateVisitWithNewDate("2013/05/11");
-        PetclinicAssert.setNewDateForVisit("2013/05/11");
+        PetclinicAssert.setNewDateForVisit("2013/05/10");
         PetclinicAssert.assertPersonalInformationPage(updateVisitLink, Role.VET, 1);
     }
 }

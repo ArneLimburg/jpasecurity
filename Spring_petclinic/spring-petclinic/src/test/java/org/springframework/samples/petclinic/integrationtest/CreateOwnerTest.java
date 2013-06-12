@@ -36,18 +36,21 @@ public class CreateOwnerTest  extends AbstractHtmlTestCase {
         PetclinicAssert.assertRegisterPage(authenticateAsVet("owners/new"), Role.VET);
     }
 
+    //Only tests once
     @Test
     public void createNewOwnerTest() throws JaxenException {
         HtmlPage newOwnerLink = createNewOwner("max1", Role.GUEST);
         PetclinicAssert.assertWelcomePage(newOwnerLink, Role.OWNER, true);
     }
 
+    //Only test once
     @Test
     public void createOwnerAsOwnerTest() throws JaxenException {
         HtmlPage newOwnerLink = createNewOwner("max2", Role.OWNER);
         PetclinicAssert.assertWelcomePage(newOwnerLink, Role.OWNER, true);
     }
 
+    //Only test once
     @Test
     public void createOwnerAsVetTest() throws JaxenException {
         HtmlPage newOwnerLink = createNewOwner("max3", Role.VET);

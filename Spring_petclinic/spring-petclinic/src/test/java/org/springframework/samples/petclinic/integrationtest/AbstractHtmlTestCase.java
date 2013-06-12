@@ -1,6 +1,7 @@
 package org.springframework.samples.petclinic.integrationtest;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
@@ -65,6 +66,20 @@ public abstract class AbstractHtmlTestCase {
         }
     }
 
+    public HtmlPage testLink(HtmlPage page, String linkName, int placeOfOccurence) {
+        try {
+        	Iterator<DomNode> iterator = getByXPath(page, "//a[text() = '" + linkName + "']").iterator();
+        	for(int i = 0; i < placeOfOccurence - 1; i ++) {
+        		iterator.next();
+        	}
+            HtmlAnchor link = (HtmlAnchor)iterator.next();
+            HtmlPage linkPage = (HtmlPage)link.click();
+            return linkPage;
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }    	
+    }
+ 
     public HtmlPage testLink(HtmlPage page, String linkName) {
         try {
             HtmlAnchor link = (HtmlAnchor)getByXPath(page, "//a[text() = '" + linkName + "']").iterator().next();
@@ -242,7 +257,9 @@ public abstract class AbstractHtmlTestCase {
         authenticateAsOwner("owners/12/pets/8/edit");
         HtmlPage updatePetPage = getHtmlPage("owners/12/pets/8/edit");
         HtmlForm form = getFormById(updatePetPage, "pet");
+        getInputById(form, "birthDate").setValueAttribute("1995/09/05");
         getInputById(form, "name").setValueAttribute(name);
+        
         return (HtmlPage)testButton(updatePetPage, "Update Pet");
     }
 

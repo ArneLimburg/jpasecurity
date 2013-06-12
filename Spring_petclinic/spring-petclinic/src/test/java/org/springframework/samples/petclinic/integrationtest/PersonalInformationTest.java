@@ -86,7 +86,7 @@ public class PersonalInformationTest extends AbstractHtmlTestCase  {
 
     @Test
     public void editVisitLinkTest() throws JaxenException {
-        HtmlPage editVisitLink = testLink(authenticateAsOwner("vets/1"), "Edit Visit");
+        HtmlPage editVisitLink = testLink(authenticateAsOwner("vets/1"), "Edit Visit", 2);
         PetclinicAssert.assertUpdateVisitFormPage(editVisitLink, Role.VET, 8);
     }
 
