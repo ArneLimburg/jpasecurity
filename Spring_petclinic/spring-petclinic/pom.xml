@@ -525,7 +525,6 @@
 		        <server>tomcat-development-server</server>
 		        <port>9966</port>
 		        <path>/petclinic</path>
-		        <fork>true</fork>
 		      </configuration>
 		      <executions>
 	          <execution>
@@ -535,7 +534,7 @@
 	              <goal>run</goal>
 	            </goals>
 	            <configuration>
-	              <tomcatSetAwait>false</tomcatSetAwait>
+	              <fork>true</fork>
 	            </configuration>
 	          </execution>
 	          <execution>

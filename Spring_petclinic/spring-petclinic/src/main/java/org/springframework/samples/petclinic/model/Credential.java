@@ -32,7 +32,7 @@ public class Credential extends BaseEntity implements UserDetails {
     @Column(name = "password")
     private String password;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id")
     private Person user;
 
