@@ -23,11 +23,6 @@
 <context-param>
     <param-name>spring.profiles.active</param-name>
     <param-value>jpa</param-value>
-    <!-- Available profiles:
-        <param-value>jdbc</param-value>
-	    <param-value>jpa</param-value>  (in the case of plain JPA)
-	    <param-value>spring-data-jpa</param-value> (in the case of Spring Data JPA)
-	    -->
 </context-param>
     ]]>
   </programlisting>
@@ -117,10 +112,10 @@
     <systemitem>org.springframework.samples.petclinic.repository.jdbc</systemitem> and
     <systemitem>org.springframework.samples.petclinic.repository.springdatajpa</systemitem>
     in <systemitem>src/main/java/</systemitem>.</para>
-  <para>If we have done all this configuration we should be able to start an embedded jetty-server with maven running the petclinic-application: </para>
+  <para>If we have done all this configuration we should be able to start an embedded tomcat 7-server with maven running the petclinic-application: </para>
   <programlisting>
-    mvn jetty:run
+    mvn tomcat7:run
   </programlisting>    
   <para> If everything works all right, jetty started successfully and you can visit the spring-petclinic
-    sample-application <ulink url="http://localhost:8080/">here</ulink>. </para>
+    sample-application <ulink url="http://localhost:9966/petclinic/">here</ulink>. </para>
 </article>

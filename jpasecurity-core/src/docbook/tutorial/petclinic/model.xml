@@ -21,9 +21,9 @@
     <title>Modifying the Database</title>
     <para> The first thing to we have to do in order to assign visits to vets, is to change the database to reflect
       this. As we use an in-memory-database (HSQLDB) that is initialized from a script file, we only have to change the
-      script file. We have to stop the server first: </para>
+      script file. We have to stop the server first by pressing the following keys: </para>
     <programlisting>
-mvn jetty:stop
+ctrl + c
     </programlisting>
     <para> We now have to edit the file <filename>initDB.sql</filename> (in
         <filename>src/main/resources/db/hsqldb/</filename>). We have to add a database column to the table
@@ -78,19 +78,19 @@ CREATE INDEX visits_pet_id ON visits (pet_id);
         <filename>populateDB.sql</filename> (in <filename>src/main/resources/db/hsqldb/</filename>)</para>
     <programlisting>
      <![CDATA[
-INSERT INTO visits VALUES (1, 7, '2010-03-04', 'rabies shot');
-INSERT INTO visits VALUES (2, 8, '2011-03-04', 'rabies shot');
-INSERT INTO visits VALUES (3, 8, '2009-06-04', 'neutered');
-INSERT INTO visits VALUES (4, 7, '2008-09-04', 'spayed');
+INSERT INTO visits VALUES (1, 7, '2013-01-01', 'rabies shot');
+INSERT INTO visits VALUES (2, 8, '2013-01-02', 'rabies shot');
+INSERT INTO visits VALUES (3, 8, '2013-01-03', 'neutered');
+INSERT INTO visits VALUES (4, 7, '2013-01-04', 'spayed');
     ]]>
     </programlisting>
     <para> into </para>
     <programlisting>
     <![CDATA[
-INSERT INTO visits VALUES (1, 7, 1, '2010-03-04', 'rabies shot');
-INSERT INTO visits VALUES (2, 8, 1, '2011-03-04', 'rabies shot');
-INSERT INTO visits VALUES (3, 8, 2, '2009-06-04', 'neutered');
-INSERT INTO visits VALUES (4, 7, 3, '2008-09-04', 'spayed');
+INSERT INTO visits VALUES (1, 7, 1, '2013-01-01', 'rabies shot');
+INSERT INTO visits VALUES (2, 8, 1, '2013-01-02', 'rabies shot');
+INSERT INTO visits VALUES (3, 8, 2, '2013-01-03', 'neutered');
+INSERT INTO visits VALUES (4, 7, 3, '2013-01-04', 'spayed');
     ]]>
     </programlisting>
   </section>
@@ -810,7 +810,7 @@ public String processUpdateForm(@ModelAttribute("visit") Visit visit, BindingRes
     </programlisting>
     <para> As we already added a button to edit a visit to <filename>vet.jsp</filename>, we do not need any more to do
       to integrate the visit-editor. We can start our server again and see, if our new relation between visits and vets
-      works. (Navigate to <ulink url="http://localhost:8080/owners/6">Jean
+      works. (Navigate to <ulink url="http://localhost:9966/owners/6">Jean
         Coleman</ulink> as there are already added some visits.) </para>
   </section>
 </article>
