@@ -28,7 +28,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         
-		<!-- Spring -->
+        <!-- Spring -->
         <spring-framework.version>3.2.2.RELEASE</spring-framework.version>
        	<spring-data-jpa.version>1.3.0.RELEASE</spring-data-jpa.version>
        	<spring-security.version>3.1.3.RELEASE</spring-security.version>
@@ -37,12 +37,12 @@
     	<!--  Java EE / Java SE dependencies -->
         <jsp.version>2.2</jsp.version>
         <jstl.version>1.2</jstl.version>
-		<servlet.version>2.5</servlet.version>
+        <servlet.version>2.5</servlet.version>
         <javax-el.version>2.2</javax-el.version>
         <jaxb-api.version>2.2.7</jaxb-api.version>
         <jaxb-impl.version>2.2.7-b53</jaxb-impl.version>
 		
-		<!-- Hibernate / JPA -->
+        <!-- Hibernate / JPA -->
         <hibernate.version>4.1.9.Final</hibernate.version>
         <hibernate-jpa.version>1.0.1.Final</hibernate-jpa.version>
         
@@ -50,15 +50,15 @@
         <validation.version>1.0.0.GA</validation.version>
         <hibernate-validator.version>4.3.0.Final</hibernate-validator.version>
 		
-		<!-- Database access -->
+        <!-- Database access -->
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <ehcache.version>2.6.5</ehcache.version>
         <hsqldb.version>2.2.9</hsqldb.version>
 
- 		<!-- AOP -->
+        <!-- AOP -->
         <aspectj.version>1.7.2</aspectj.version>
  
-		<!-- Logging -->
+        <!-- Logging -->
         <logback.version>1.0.9</logback.version>
         <log4j.version>1.2.17</log4j.version>
         <slf4j.version>1.7.2</slf4j.version>
@@ -70,14 +70,14 @@
         <junit.version>4.11</junit.version>
         <hamcrest.version>1.3</hamcrest.version>
 
-		<!-- Dates -->
+        <!-- Dates -->
         <jodatime-hibernate.version>1.3</jodatime-hibernate.version>
         <jodatime-jsptags.version>1.1.1</jodatime-jsptags.version>
         <jodatime.version>2.2</jodatime.version>
         <jadira-usertype-core.version>3.1.0.CR1</jadira-usertype-core.version>
 
 
-		<!-- Web dependencies -->
+        <!-- Web dependencies -->
         <webjars-bootstrap.version>2.3.0</webjars-bootstrap.version>
         <webjars-jquery-ui.version>1.9.2</webjars-jquery-ui.version>
         <webjars-jquery.version>1.9.0</webjars-jquery.version>
@@ -137,7 +137,7 @@
                 <exclusion>
                     <groupId>org.springframework</groupId>
                     <artifactId>*</artifactId>
-		        </exclusion>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -195,20 +195,20 @@
             <version>${spring-framework.version}</version>
         </dependency>
         <dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-core</artifactId>
-			<version>${spring-security.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-web</artifactId>
-			<version>${spring-security.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-config</artifactId>
-			<version>${spring-security.version}</version>
-		</dependency>          
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${spring-security.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${spring-security.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${spring-security.version}</version>
+        </dependency>          
 
         <!-- Database connection pool -->
         <dependency>
@@ -302,7 +302,7 @@
 
         <!-- MySQL JDBC Connector -->
         <!-- 
-		<dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql.version}</version>
@@ -373,38 +373,38 @@
             <artifactId>spring-test</artifactId>
             <version>${spring-framework.version}</version>
             <scope>test</scope>
-         </dependency>
-         <dependency>
-             <groupId>junit</groupId>
-             <artifactId>junit</artifactId>
-             <version>${junit.version}</version>
-             <scope>test</scope>
-         </dependency>
-         <!-- used by Spring MVC Test framework -->
-         <dependency>
-             <groupId>org.hamcrest</groupId>
-             <artifactId>hamcrest-library</artifactId>
-             <version>${hamcrest.version}</version>
-             <scope>test</scope>
-         </dependency>
-         <dependency>
-             <groupId>org.hamcrest</groupId>
-             <artifactId>hamcrest-core</artifactId>
-             <version>${hamcrest.version}</version>
-             <scope>test</scope>
-         </dependency>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- used by Spring MVC Test framework -->
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>${hamcrest.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>${hamcrest.version}</version>
+            <scope>test</scope>
+        </dependency>
        
         <dependency>
-             <groupId>org.aspectj</groupId>
-             <artifactId>aspectjrt</artifactId>
-             <version>${aspectj.version}</version>
-         </dependency>
-         <dependency>
-             <groupId>org.aspectj</groupId>
-             <artifactId>aspectjweaver</artifactId>
-             <version>${aspectj.version}</version>
-             <scope>runtime</scope>
-         </dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>${aspectj.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectj.version}</version>
+            <scope>runtime</scope>
+        </dependency>
  
 
         <!-- Dandelion -->
@@ -412,24 +412,24 @@
             <groupId>com.github.dandelion</groupId>
             <artifactId>datatables-jsp</artifactId>
             <version>${dandelion.datatables.version}</version>
-         </dependency>
-         <dependency>
+        </dependency>
+        <dependency>
             <groupId>com.github.dandelion</groupId>
             <artifactId>datatables-export-itext</artifactId>
             <version>${dandelion.datatables.version}</version>
-         </dependency>
-         <dependency>
+        </dependency>
+        <dependency>
             <groupId>com.github.dandelion</groupId>
             <artifactId>datatables-servlet2</artifactId>
             <version>${dandelion.datatables.version}</version>
-         </dependency>
+        </dependency>
          
-         <!-- JPA Security -->
-         <dependency>
-			<groupId>net.sf.jpasecurity</groupId>
-			<artifactId>jpasecurity-spring</artifactId>
-			<version>${jpasecurity.version}</version>
-		 </dependency>
+        <!-- JPA Security -->
+        <dependency>
+            <groupId>net.sf.jpasecurity</groupId>
+            <artifactId>jpasecurity-spring</artifactId>
+            <version>${jpasecurity.version}</version>
+        </dependency>
     </dependencies>
 
     <!-- all Maven plugin versions are mentioned in order to guarantee the build reproducibility in the long term -->
@@ -518,24 +518,24 @@
                     </descriptorRefs>
                 </configuration>
             </plugin>
- 		    <plugin>
-		      <groupId>org.apache.tomcat.maven</groupId>
-		      <artifactId>tomcat7-maven-plugin</artifactId>       
-		      <version>2.0</version>     
-		      <configuration>          
-		        <server>tomcat-development-server</server>
-		        <port>9966</port>
-		        <path>/petclinic</path>
-		      </configuration>
-		    </plugin> 
-			<plugin>
-		        <groupId>org.mortbay.jetty</groupId>
-		        <artifactId>jetty-maven-plugin</artifactId>
-		        <configuration>
-		          <stopKey>petclinic</stopKey>
-		          <stopPort>1199</stopPort>
-		        </configuration>
-		    </plugin>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>       
+                <version>2.0</version>     
+                <configuration>          
+                    <server>tomcat-development-server</server>
+                    <port>9966</port>
+                    <path>/petclinic</path>
+                </configuration>
+            </plugin> 
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <configuration>
+                    <stopKey>petclinic</stopKey>
+                    <stopPort>1199</stopPort>
+                </configuration>
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>

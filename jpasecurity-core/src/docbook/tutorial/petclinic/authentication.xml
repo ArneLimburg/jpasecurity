@@ -249,7 +249,7 @@ public class Credential extends BaseEntity implements UserDetails {
     @Column(name = "password")
     private String password;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id")
     private Person user;
     
@@ -514,108 +514,188 @@ public class OwnerValidator {
     <title>Integrating Spring Security</title>
     <para> We now need a simple login mechanism. Since we want to use Spring-Security, we create a credential-service
       that implements the <systemitem>org.springframework.security.userdetails.UserDetailsService</systemitem>
-      interface. </para>
-    <para> We create a package <systemitem>security</systemitem> (by creating the folder
-        <filename>src/main/java/org/springframework/samples/petclinic/security/</filename>) and put
-        <filename>CredentialService.java</filename> into it. </para>
+      interface. Before we add the credential-service, we first have to add a new repository for the credential. Therefore add the interface
+      <filename>CredentialRepository.java</filename> in <filename>src/main/java/org/springframework/samples/petclinic/repository</filename>
+      with the following content:</para>
+      <programlisting>
+      <![CDATA[
+package org.springframework.samples.petclinic.repository;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.samples.petclinic.model.Credential;
+
+public interface CredentialRepository {
+
+	Credential findById(int id) throws DataAccessException;
+
+	Credential findByUsername(String username) throws DataAccessException; 
+}
+      ]]>
+      </programlisting>
+      <para>The implementation of this interface, <filename>JpaCredentialRepositoryImpl.java</filename>, has to be added in 
+          <filename>src/main/java/org/springframework/samples/petclinic/repository/jpa</filename> with the following content:</para>
+      <programlisting>
+      <![CDATA[
+package org.springframework.samples.petclinic.repository.jpa;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.samples.petclinic.model.Credential;
+import org.springframework.samples.petclinic.repository.CredentialRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class JpaCredentialRepositoryImpl implements CredentialRepository{
+
+    @PersistenceContext
+    private EntityManager em;
+
+	@Override
+	public Credential findById(int id) throws DataAccessException {
+        TypedQuery<Credential> query = this.em.createQuery("SELECT credential FROM Credential credential "
+				+ " INNER JOIN FETCH credential.user"
+                + " WHERE credential.id = :id", Credential.class);
+		query.setParameter("id", id);
+		return query.getSingleResult();
+	}
+
+	@Override
+	public Credential findByUsername(String username) {
+	    try {
+	        TypedQuery<Credential> query = this.em.createQuery("SELECT credential FROM Credential credential "
+	                                        + "WHERE credential.username = :username", Credential.class);
+	        query.setParameter("username", username);
+	        return query.getSingleResult();
+	    } catch (NoResultException e) {
+	        throw new UsernameNotFoundException(username, e);
+	    }
+	}
+
+}
+      ]]>
+      </programlisting>
+    <para> We create now a package <systemitem>security</systemitem> (by creating the folder
+        <filename>src/main/java/org/springframework/samples/petclinic/security/</filename>) and put the interface
+        <filename>CredentialService.java</filename> into it. It extends <filename>UserDetailsService</filename>, so that
+        the implementation of the interface has to implement it too.</para>
     <para> The content of <filename>CredentialService.java</filename> follows: </para>
     <programlisting>
       <![CDATA[
 package org.springframework.samples.petclinic.security;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.samples.petclinic.model.Credential;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
-@Repository
-@Transactional
-public class CredentialService implements UserDetailsService {
+public interface CredentialService extends UserDetailsService {
 
-    @PersistenceContext
-    private EntityManager em;
-    
-    @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
-        try {
-            Query query = this.em.createQuery("SELECT credential FROM Credential credential "
-                                            + "INNER JOIN FETCH credential.user "
-                                            + "WHERE credential.username = :username");
-            query.setParameter("username", username);
-            return (UserDetails)query.getSingleResult();
-        } catch (NoResultException e) {
-            throw new UsernameNotFoundException(username, e);
-        }
-    }
+	public Credential findCredentialById(int id) throws DataAccessException;
 }
       ]]>
     </programlisting>
-    <para> We add the security configuration to the Spring tools configuration
-        (<filename>src/main/resources/spring/tools-config.xml</filename>). </para>
+    <para>In the same package we create the implementation of <filename>CredentialService.java</filename>. Add <filename>CredentialServiceImpl.java</filename>
+        in <filename>src/main/java/org/springframework/samples/petclinic/security/</filename>:</para>
+      <programlisting>
+      <![CDATA[
+package org.springframework.samples.petclinic.security;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.samples.petclinic.model.Credential;
+import org.springframework.samples.petclinic.repository.CredentialRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class CredentialServiceImpl implements CredentialService{
+
+	   private CredentialRepository credentialRepository;
+
+	    @Autowired
+	    public CredentialServiceImpl(CredentialRepository credentialRepository) {
+	    	this.credentialRepository = credentialRepository;
+	    }
+
+	    @Transactional(readOnly = true)
+	    public Credential loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException{
+	        return credentialRepository.findByUsername(username);
+	    }
+
+	    @Transactional(readOnly = true)
+	    public Credential findCredentialById(int id) throws DataAccessException {
+	        return credentialRepository.findById(id);
+	    }
+}
+      ]]>
+    </programlisting>     
+    <para> We add the security configuration to the Spring business configuration
+        (<filename>src/main/resources/spring/business-config.xml</filename>). </para>
     <para> First change </para>
     <programlisting>
       <![CDATA[
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:cache="http://www.springframework.org/schema/cache"
-       xsi:schemaLocation="http://www.springframework.org/schema/aop
-         http://www.springframework.org/schema/aop/spring-aop.xsd
-         http://www.springframework.org/schema/beans
-         http://www.springframework.org/schema/beans/spring-beans.xsd
-         http://www.springframework.org/schema/cache
-         http://www.springframework.org/schema/cache/spring-cache.xsd
-         http://www.springframework.org/schema/context
-         http://www.springframework.org/schema/context/spring-context.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
       ]]>
     </programlisting>
     <para> into </para>
     <programlisting>
       <![CDATA[
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:cache="http://www.springframework.org/schema/cache"
-       xmlns:sec="http://www.springframework.org/schema/security"
-       xsi:schemaLocation="http://www.springframework.org/schema/aop
-         http://www.springframework.org/schema/aop/spring-aop.xsd
-         http://www.springframework.org/schema/beans
-         http://www.springframework.org/schema/beans/spring-beans.xsd
-         http://www.springframework.org/schema/cache
-         http://www.springframework.org/schema/cache/spring-cache.xsd
-         http://www.springframework.org/schema/context
-         http://www.springframework.org/schema/context/spring-context.xsd
-         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:sec="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
       ]]>
     </programlisting>
-    <para> Now add the following configuration at the end of <filename>tools-config.xml</filename>. </para>
+    <para> Now change the following configuration of the <filename>business-config.xml</filename>. Change</para>
+    <programlisting>
+        <![CDATA[
+<beans profile="jpa">
+    [...]
+    <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+</beans>
+    ]]>
+    </programlisting>
+     <para>into</para>
     <programlisting>
       <![CDATA[
-<sec:http pattern="/login" security="none"/>
-<sec:http auto-config="true">
-    <sec:intercept-url pattern="/owners/new" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-    <sec:intercept-url pattern="/**" access="ROLE_USER" />
-    <sec:form-login login-page="/login" default-target-url="/"/>
-    <sec:logout />
-</sec:http>
+<beans profile="jpa">
+    [...]
+    <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
-<sec:authentication-manager>
-    <sec:authentication-provider user-service-ref="userService">
-        <sec:password-encoder hash="md5"/>
-    </sec:authentication-provider>
-</sec:authentication-manager>
+    <sec:http pattern="/login" security="none"/>
+    <sec:http auto-config="true">
+        <sec:intercept-url pattern="/static/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <sec:intercept-url pattern="/owners/new" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <sec:intercept-url pattern="/**" access="ROLE_USER" />
+        <sec:form-login login-page="/login" default-target-url="/"/>
+        <sec:logout />
+    </sec:http>
 
+    <sec:authentication-manager>
+        <sec:authentication-provider user-service-ref="userService">
+          <sec:password-encoder hash="md5"/>
+        </sec:authentication-provider>
+    </sec:authentication-manager>
 
-<bean id="userService" class="org.springframework.samples.petclinic.security.CredentialService"/>
+    
+    <bean id="userService" class="org.springframework.samples.petclinic.security.CredentialServiceImpl" />
+</beans>
       ]]>
     </programlisting>
     <para> With this configuration access to our pages is allowed only for users with the role
@@ -790,7 +870,7 @@ else {
       = new UsernamePasswordAuthenticationToken(credential, credential, credential.getAuthorities());
     SecurityContextHolder.getContext().setAuthentication(authentication);
     status.setComplete();
-    return "redirect:/owners/" + owner.getId();
+    return "redirect:/";
 }
       ]]>
     </programlisting>
@@ -801,17 +881,26 @@ else {
       <![CDATA[
 package org.springframework.samples.petclinic.web;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Credential;
 import org.springframework.samples.petclinic.model.Owner;
+import org.springframework.samples.petclinic.model.Person;
 import org.springframework.samples.petclinic.model.Vet;
+import org.springframework.samples.petclinic.security.CredentialService;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import org.springframework.stereotype.Controller;
-
 @Controller
 public class ClinicController {
+
+    private final CredentialService credentialService;
+
+    @Autowired
+    public ClinicController(CredentialService credentialService) {
+        this.credentialService = credentialService;
+    }
 
     /**
      * Custom handler for the welcome view.
@@ -836,6 +925,7 @@ public class ClinicController {
     public ModelAndView welcomeHandler() {
         Credential credential = (Credential)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         ModelAndView mav = new ModelAndView("welcome");
+        Person user = credentialService.findCredentialById(credential.getId()).getUser();
         mav.addObject("person", credential.getUser());
         mav.addObject("vet", credential.getUser() instanceof Vet);
         mav.addObject("owner", credential.getUser() instanceof Owner);
@@ -956,7 +1046,7 @@ public class ClinicController {
     </programlisting>
     <para> When you now start the application you have to login to access the pages. Remember the login data we have put
       into the database (the password was the same as the username) or use the <ulink
-        url="http://localhost:8080/petclinic/owners/new">Register</ulink> link from the
+        url="http://localhost:9966/petclinic/owners/new">Register</ulink> link from the
       login-page to register a new owner. </para>
   </section>
 </article>
