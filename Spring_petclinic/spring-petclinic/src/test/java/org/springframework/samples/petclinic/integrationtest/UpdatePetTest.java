@@ -1,6 +1,7 @@
 package org.springframework.samples.petclinic.integrationtest;
 
 import org.jaxen.JaxenException;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.samples.petclinic.integrationtest.junit.ParameterizedJUnit4ClassRunner;
@@ -59,5 +60,11 @@ public class UpdatePetTest extends AbstractHtmlTestCase  {
         HtmlPage updatePetLink = updatePetWithNewName("Maximilian");
         PetclinicAssert.setNewNameForPet("Maximilian");
         PetclinicAssert.assertPersonalInformationPage(updatePetLink, Role.OWNER, 12);
+    }
+
+    @After
+    public void resetDatabase() {
+        updatePetWithNewName("Max").asXml();
+        PetclinicAssert.setNewNameForPet("Max");    	
     }
 }

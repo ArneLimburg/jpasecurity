@@ -8,15 +8,19 @@ import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.security.CredentialService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class ClinicController {
 
+	private final CredentialService credentialService;
+
 	@Autowired
-	private CredentialService userService;
+	public ClinicController(CredentialService credentialService) {
+		this.credentialService = credentialService;
+	}
+
     /**
      * Custom handler for the welcome view.
      * <p>
@@ -37,11 +41,10 @@ public class ClinicController {
      * -&gt; "welcome".
      */
     @RequestMapping("/")
-    @Transactional
     public ModelAndView welcomeHandler() {
         Credential credential = (Credential)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         ModelAndView mav = new ModelAndView("welcome");
-        Person user = userService.loadUserByUsername(credential.getUsername()).getUser();
+        Person user = credentialService.findCredentialById(credential.getId()).getUser();
         mav.addObject("person", user);
         mav.addObject("vet", user instanceof Vet);
         mav.addObject("owner", user instanceof Owner);

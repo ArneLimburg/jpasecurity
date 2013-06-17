@@ -254,7 +254,7 @@ public abstract class AbstractHtmlTestCase {
     }
 
     public HtmlPage updatePetWithNewName(String name) {
-        authenticateAsOwner("owners/12/pets/8/edit");
+        authenticateAsOwner("owners/12/pets/8/edit").asXml();
         HtmlPage updatePetPage = getHtmlPage("owners/12/pets/8/edit");
         HtmlForm form = getFormById(updatePetPage, "pet");
         getInputById(form, "birthDate").setValueAttribute("1995/09/05");
