@@ -48,7 +48,7 @@ public interface ClinicService {
 
     public Collection<Vet> findVets() throws DataAccessException;
 
-    public void saveOwner(Owner owner) throws DataAccessException;
+    public Owner saveOwner(Owner owner) throws DataAccessException;
 
     Collection<Owner> findOwnerByLastName(String lastName) throws DataAccessException;
 

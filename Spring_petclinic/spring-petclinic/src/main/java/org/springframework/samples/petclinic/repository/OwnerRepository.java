@@ -72,9 +72,10 @@ public interface OwnerRepository {
      * Save an <code>Owner</code> to the data store, either inserting or updating it.
      *
      * @param owner the <code>Owner</code> to save
+     * @return the <code>Owner</code> which was saved
      * @see BaseEntity#isNew
      */
-    void save(Owner owner) throws DataAccessException;
+    Owner save(Owner owner) throws DataAccessException;
 
 
 }
