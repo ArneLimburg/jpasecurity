@@ -88,7 +88,7 @@ public class OwnerController {
         if (result.hasErrors()) {
             return "owners/createOrUpdateOwnerForm";
         } else {
-            this.clinicService.saveOwner(owner);
+            owner = this.clinicService.saveOwner(owner);
             Credential credential = owner.getCredential();
             Authentication authentication
                 = new UsernamePasswordAuthenticationToken(credential, credential, credential.getAuthorities());
