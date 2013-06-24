@@ -511,6 +511,99 @@ public class OwnerValidator {
     </programlisting>
   </section>
   <section>
+      <title>Change save-method</title>
+      <para>
+      We have to change the <systemitem>save</systemitem>-method for owners because after registrating a new owner this owner should be login immediately. Therefore we need the new ids
+      of this owner and of the belonging credential. So we have to change some code. In <filename>ClinicService.java</filename> (in 
+      <filename>src/main/java/org/springframework/samples/petclinic/service/</filename>) change
+      </para>
+      <programlisting>
+      <![CDATA[
+public void saveOwner(Owner owner) throws DataAccessException;
+      ]]>          
+      </programlisting>
+      <para>into</para>
+      <programlisting>
+      <![CDATA[
+public Owner saveOwner(Owner owner) throws DataAccessException;
+      ]]>          
+      </programlisting>
+      <para>So we have to change also the implementation of <filename>ClinicService</filename>. Change the following code in <filename>ClinicServiceImpl.java</filename>
+          (in <filename>src/main/java/org/springframework/samples/petclinic/service/</filename>)
+      </para>
+      <programlisting>
+      <![CDATA[
+@Override
+@Transactional
+public void saveOwner(Owner owner) throws DataAccessException {
+    return ownerRepository.save(owner);
+}
+      ]]>          
+      </programlisting>
+      <para>into</para>
+      <programlisting>
+      <![CDATA[
+@Override
+@Transactional
+public Owner saveOwner(Owner owner) throws DataAccessException {
+    return ownerRepository.save(owner);
+}
+      ]]>          
+      </programlisting>
+      <para>Now the repository of owners has to return a owner, when calling the <systemitem>save</systemitem>-method. Hence we change in <filename>OwnerRepository.java</filename> (in 
+      <filename>src/main/java/org/springframework/samples/petclinic/repository/</filename>)
+      </para>
+      <programlisting>
+      <![CDATA[
+/**
+ * Save an <code>Owner</code> to the data store, either inserting or updating it.
+ *
+ * @param owner the <code>Owner</code> to save
+ * @see BaseEntity#isNew
+ */
+void save(Owner owner) throws DataAccessException;
+      ]]>          
+      </programlisting>
+      <para>into</para>
+      <programlisting>
+      <![CDATA[
+/**
+ * Save an <code>Owner</code> to the data store, either inserting or updating it.
+ *
+ * @param owner the <code>Owner</code> to save
+ * @return the <code>Owner</code> which was saved
+ * @see BaseEntity#isNew
+ */
+Owner save(Owner owner) throws DataAccessException;
+      ]]>          
+      </programlisting>
+      <para>The last thing we do is to change the implementation of the repository for owners. Change the following code in <filename>JpaOwnerRepositoryImpl.java</filename> ( in
+          <filename>src/main/java/org/springframework/samples/petclinic/repository/jpa/</filename>)</para>
+      <programlisting>
+      <![CDATA[
+@Override
+public void save(Owner owner) {
+    if (owner.getId() == null) {
+        this.em.persist(owner);
+    } else {
+        this.em.merge(owner);
+    }
+}
+      ]]>          
+      </programlisting>
+      <para>into</para>
+      <programlisting>
+      <![CDATA[
+@Override
+public Owner save(Owner owner) {
+    Owner merged = this.em.merge(owner);
+    this.em.flush();
+    return merged;
+}
+      ]]>
+      </programlisting>
+  </section>
+  <section>
     <title>Integrating Spring Security</title>
     <para> We now need a simple login mechanism. Since we want to use Spring-Security, we create a credential-service
       that implements the <systemitem>org.springframework.security.userdetails.UserDetailsService</systemitem>
@@ -864,7 +957,7 @@ else {
     <programlisting>
       <![CDATA[
 else {
-    this.clinicService.saveOwner(owner);
+    owner = this.clinicService.saveOwner(owner);
     Credential credential = owner.getCredential();
     Authentication authentication
       = new UsernamePasswordAuthenticationToken(credential, credential, credential.getAuthorities());
