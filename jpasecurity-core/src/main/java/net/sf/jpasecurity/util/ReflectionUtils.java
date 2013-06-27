@@ -161,7 +161,8 @@ public abstract class ReflectionUtils {
             return false;
         }
         for (int i = 0; i < parameterTypes.length; i++) {
-            if (callingTypes[i] != null && !parameterTypes[i].isAssignableFrom(callingTypes[i])) {
+            if (callingTypes[i] != null && !translateFromPrimitive(parameterTypes[i])
+                .isAssignableFrom(callingTypes[i])) {
                 return false;
             }
         }
@@ -175,5 +176,40 @@ public abstract class ReflectionUtils {
             }
         }
         return true;
+    }
+
+    /**
+     * If this specified class represents a primitive type (int, float, etc.) then it is translated into its wrapper
+     * type (Integer, Float, etc.).  If the passed class is not a primitive then it is just returned.
+     */
+    public static Class<?> translateFromPrimitive(Class<?> primitive) {
+        if (!primitive.isPrimitive()) {
+            return (primitive);
+        }
+        if (Boolean.TYPE.equals(primitive)) {
+            return (Boolean.class);
+        }
+        if (Character.TYPE.equals(primitive)) {
+            return (Character.class);
+        }
+        if (Byte.TYPE.equals(primitive)) {
+            return (Byte.class);
+        }
+        if (Short.TYPE.equals(primitive)) {
+            return (Short.class);
+        }
+        if (Integer.TYPE.equals(primitive)) {
+            return (Integer.class);
+        }
+        if (Long.TYPE.equals(primitive)) {
+            return (Long.class);
+        }
+        if (Float.TYPE.equals(primitive)) {
+            return (Float.class);
+        }
+        if (Double.TYPE.equals(primitive)) {
+            return (Double.class);
+        }
+        throw new RuntimeException("Error translating type:" + primitive);
     }
 }
