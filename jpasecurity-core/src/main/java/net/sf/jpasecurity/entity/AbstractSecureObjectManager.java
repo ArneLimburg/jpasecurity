@@ -15,9 +15,6 @@
  */
 package net.sf.jpasecurity.entity;
 
-import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
-import static net.sf.jpasecurity.util.Validate.notNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,6 +43,9 @@ import net.sf.jpasecurity.proxy.Decorator;
 import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
+
+import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
+import static net.sf.jpasecurity.util.Validate.notNull;
 
 /**
  * @author Arne Limburg
@@ -116,18 +116,36 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         } else if (object instanceof Map) {
             return (T)createSecureMap((Map<?, ?>)object, this, accessManager);
         } else {
-            BeanInitializer beanInitializer = configuration.getBeanInitializer();
-            ClassMappingInformation mapping = getClassMapping(object.getClass());
-            if (!mapping.getSubclassMappings().isEmpty()) {
-                // object may be superclass proxy of wrong type, so we have to initialize it
-                object = beanInitializer.initialize(object);
-                mapping = getClassMapping(object.getClass());
-            }
-            SecureEntityInterceptor interceptor = new SecureEntityInterceptor(beanInitializer, this, object);
-            Decorator<SecureEntity> decorator
-                = new SecureEntityDecorator(mapping, beanInitializer, accessManager, this, object);
-            return createSecureEntity(mapping.<T>getEntityType(), interceptor, decorator);
+            return createSecureEntity(object, false);
         }
+    }
+
+    public <T> T createSecureEntity(T object, boolean isTransient) {
+        ClassMappingInformation mapping = getClassMapping(object.getClass());
+        BeanInitializer beanInitializer = configuration.getBeanInitializer();
+        if (!mapping.getSubclassMappings().isEmpty()) {
+            // object may be superclass proxy of wrong type, so we have to initialize it
+            object = beanInitializer.initialize(object);
+            mapping = getClassMapping(object.getClass());
+        }
+        MethodInterceptor interceptor = createInterceptor(beanInitializer, object);
+        Decorator<SecureEntity> decorator
+            = createDecorator(mapping, beanInitializer, accessManager, object, isTransient);
+        return createSecureEntity(mapping.<T>getEntityType(), interceptor, decorator);
+
+    }
+
+    <E> E createSecureEntity(Class<E> type, MethodInterceptor interceptor, Decorator<SecureEntity> decorator) {
+        return (E)configuration.getSecureEntityProxyFactory().createSecureEntityProxy(type, interceptor, decorator);
+    }
+
+    private MethodInterceptor createInterceptor(BeanInitializer beanInitializer, Object object) {
+        return configuration.createMethodInterceptor(beanInitializer, this, object);
+    }
+
+    private Decorator<SecureEntity> createDecorator(ClassMappingInformation mapping, BeanInitializer beanInitializer,
+                                              AccessManager accessManager, Object object, boolean isTransient) {
+        return configuration.createDecorator(mapping, beanInitializer, accessManager, this, object, isTransient);
     }
 
     boolean containsUnsecureObject(Object secureObject) {
@@ -144,19 +162,21 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         }
         secureObject = unwrap(secureObject);
         if (secureObject instanceof SecureEntity) {
-            SecureEntityProxyFactory proxyFactory = configuration.getSecureEntityProxyFactory();
-            SecureEntityInterceptor secureEntityInterceptor
-                = (SecureEntityInterceptor)proxyFactory.getInterceptor((SecureEntity)secureObject);
-            return (T)secureEntityInterceptor.entity;
+            final SecureEntityProxyFactory proxyFactory = configuration.getSecureEntityProxyFactory();
+            final MethodInterceptor interceptor = proxyFactory.getInterceptor((SecureEntity)secureObject);
+            if (interceptor instanceof SecureEntityInterceptor) {
+                final SecureEntityInterceptor secureEntityInterceptor
+                    = (SecureEntityInterceptor)interceptor;
+                return (T)secureEntityInterceptor.entity;
+            }
         } else if (secureObject instanceof AbstractSecureCollection) {
             return (T)((AbstractSecureCollection<?, Collection<?>>)secureObject).getOriginal();
         } else if (secureObject instanceof SecureList) {
             return (T)((SecureList<?>)secureObject).getOriginal();
         } else if (secureObject instanceof DefaultSecureMap) {
             return (T)((DefaultSecureMap<?, ?>)secureObject).getOriginal();
-        } else {
-            return createUnsecureObject(secureObject);
         }
+        return createUnsecureObject(secureObject);
     }
 
     abstract <T> T createUnsecureObject(T secureObject);
@@ -562,10 +582,6 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
                 classMapping.postRemove(entity);
             }
         });
-    }
-
-    <E> E createSecureEntity(Class<E> type, MethodInterceptor interceptor, Decorator<SecureEntity> decorator) {
-        return (E)configuration.getSecureEntityProxyFactory().createSecureEntityProxy(type, interceptor, decorator);
     }
 
     void setRemoved(SecureEntity secureEntity) {

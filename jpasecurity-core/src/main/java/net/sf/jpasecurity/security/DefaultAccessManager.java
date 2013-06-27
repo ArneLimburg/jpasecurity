@@ -15,20 +15,14 @@
  */
 package net.sf.jpasecurity.security;
 
-import static net.sf.jpasecurity.util.Validate.notNull;
 import net.sf.jpasecurity.AccessType;
-import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
-import net.sf.jpasecurity.entity.SecureEntityDecorator;
-import net.sf.jpasecurity.entity.SecureEntityInterceptor;
-import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
-import net.sf.jpasecurity.proxy.Decorator;
 import net.sf.jpasecurity.proxy.EntityProxy;
-import net.sf.jpasecurity.proxy.MethodInterceptor;
-import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.util.DoubleKeyHashMap;
+
+import static net.sf.jpasecurity.util.Validate.notNull;
 
 /**
  * @author Arne Limburg
@@ -36,27 +30,19 @@ import net.sf.jpasecurity.util.DoubleKeyHashMap;
 public class DefaultAccessManager extends AbstractAccessManager {
 
     private MappingInformation mappingInformation;
-    private BeanInitializer beanInitializer;
-    private SecureEntityProxyFactory proxyFactory;
     private AbstractSecureObjectManager objectManager;
     private EntityFilter entityFilter;
     private DoubleKeyHashMap<ClassMappingInformation, Object, Boolean> cachedReadAccess
         = new DoubleKeyHashMap<ClassMappingInformation, Object, Boolean>();
 
     public DefaultAccessManager(MappingInformation mappingInformation,
-                                BeanInitializer beanInitializer,
-                                SecureEntityProxyFactory secureEntityProxyFactory,
                                 AbstractSecureObjectManager objectManager,
                                 EntityFilter entityFilter) {
         super(mappingInformation);
         notNull(MappingInformation.class, mappingInformation);
-        notNull(BeanInitializer.class, beanInitializer);
-        notNull(SecureEntityProxyFactory.class, secureEntityProxyFactory);
         notNull(AbstractSecureObjectManager.class, objectManager);
         notNull(EntityFilter.class, entityFilter);
         this.mappingInformation = mappingInformation;
-        this.beanInitializer = beanInitializer;
-        this.proxyFactory = secureEntityProxyFactory;
         this.objectManager = objectManager;
         this.entityFilter = entityFilter;
     }
@@ -69,13 +55,7 @@ public class DefaultAccessManager extends AbstractAccessManager {
                 parameter = ((EntityProxy)parameter).getEntity();
             }
             if (parameter != null && mappingInformation.containsClassMapping(parameter.getClass())) {
-                ClassMappingInformation mapping = mappingInformation.getClassMapping(parameter.getClass());
-                MethodInterceptor interceptor = new SecureEntityInterceptor(beanInitializer, objectManager, parameter);
-                Decorator<SecureEntity> decorator = new SecureEntityDecorator(mapping, beanInitializer, this,
-                                                                              objectManager, parameter, true);
-                transientParameters[i] = proxyFactory.createSecureEntityProxy(mapping.getEntityType(),
-                                                                              interceptor,
-                                                                              decorator);
+                transientParameters[i] = objectManager.createSecureEntity(parameter, true);
             } else {
                 transientParameters[i] = parameter;
             }
