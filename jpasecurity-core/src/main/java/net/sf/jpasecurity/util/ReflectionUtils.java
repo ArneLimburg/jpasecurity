@@ -19,6 +19,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 /**
@@ -39,7 +40,26 @@ public abstract class ReflectionUtils {
             if (!constructor.isAccessible()) {
                 constructor.setAccessible(true);
             }
-            return constructor.newInstance(parameters);
+            Object[] params = parameters;
+            if (constructor.getDeclaringClass().isMemberClass()
+                && !Modifier.isStatic(constructor.getDeclaringClass().getModifiers())) {
+                // non static member class must be instantiated using
+                // an instance of their enclosing class as the first parameter
+                Object declaring;
+                try {
+                    declaring = constructor.getDeclaringClass().getEnclosingClass()
+                        .getDeclaredConstructor(getTypes(parameters)).newInstance(parameters);
+                } catch (NoSuchMethodException e) {
+                    declaring = constructor.getDeclaringClass().getEnclosingClass()
+                        .getDeclaredConstructor(new Class[]{}).newInstance();
+                }
+                params = new Object[params.length + 1];
+                params[0] = declaring;
+                for (int i = 0; i < parameters.length; i++) {
+                    params[i + 1] = parameters[i];
+                }
+            }
+            return constructor.newInstance(params);
         } catch (InvocationTargetException e) {
             return ReflectionUtils.<T>throwThrowable(e.getCause());
         } catch (Exception e) {
@@ -67,12 +87,18 @@ public abstract class ReflectionUtils {
         Constructor<T> result = null;
         boolean ambiguous = false;
         for (Constructor<T> constructor: getConstructors(type)) {
-            if (match(constructor.getParameterTypes(), parameterTypes)) {
-                if (result == null || isMoreSpecific(constructor.getParameterTypes(), result.getParameterTypes())) {
+            Class<?>[] constructorTypes = constructor.getParameterTypes();
+            if (type.isMemberClass() && !Modifier.isStatic(type.getModifiers())) {
+                // non static member classes always contain their enclosing class as first constructor parameter
+                // so just use the other parameters
+                constructorTypes = Arrays.copyOfRange(constructorTypes, 1, constructorTypes.length);
+            }
+            if (match(constructorTypes, parameterTypes)) {
+                if (result == null || isMoreSpecific(constructorTypes, result.getParameterTypes())) {
                     result = constructor;
                     ambiguous = false;
-                } else if (!isMoreSpecific(constructor.getParameterTypes(), result.getParameterTypes())
-                           && !isMoreSpecific(result.getParameterTypes(), constructor.getParameterTypes())) {
+                } else if (!isMoreSpecific(constructorTypes, result.getParameterTypes())
+                    && !isMoreSpecific(result.getParameterTypes(), constructorTypes)) {
                     ambiguous = true;
                 }
             }
