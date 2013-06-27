@@ -129,4 +129,10 @@
             AND (s IS NULL OR s.name IS NULL OR s.name &lt;> 'Closed'))
     </access-rule>
   </persistence-unit>
+
+  <persistence-unit name="interceptor">
+    <access-rule>
+      GRANT ACCESS TO User user WHERE (-1 in (CURRENT_ROLES))
+    </access-rule>
+  </persistence-unit>
 </security>

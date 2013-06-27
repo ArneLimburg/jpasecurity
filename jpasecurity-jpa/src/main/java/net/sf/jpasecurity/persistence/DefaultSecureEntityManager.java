@@ -15,8 +15,6 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import static net.sf.jpasecurity.AccessType.READ;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,13 +29,15 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.FetchType;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.configuration.Configuration;
-import net.sf.jpasecurity.entity.AbstractSecureObjectManager;
 import net.sf.jpasecurity.entity.DefaultSecureObjectCache;
 import net.sf.jpasecurity.entity.FetchManager;
 import net.sf.jpasecurity.entity.SecureObjectManager;
@@ -56,8 +56,7 @@ import net.sf.jpasecurity.persistence.security.CriteriaFilterResult;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.util.SystemIdentity;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import static net.sf.jpasecurity.AccessType.READ;
 
 /**
  * This class handles invocations on proxies of entity managers.
@@ -113,9 +112,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                                                      objectCacheEvaluator,
                                                      entityManagerEvaluator);
         this.accessManager = configuration.createAccessManager(mapping,
-                                                      configuration.getBeanInitializer(),
-                                                      configuration.getSecureEntityProxyFactory(),
-                                                      (AbstractSecureObjectManager)secureObjectManager,
+                                                      secureObjectManager,
                                                       entityFilter);
     }
 

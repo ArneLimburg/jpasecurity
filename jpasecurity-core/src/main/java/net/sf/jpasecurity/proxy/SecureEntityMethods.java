@@ -35,7 +35,8 @@ public class SecureEntityMethods {
         for (Method method: SecureEntity.class.getMethods()) {
             if (secureEntityMethods.containsKey(method.getName())) {
                 String message
-                    = SecureEntity.class.getName() + " must have more than one method with name " + method.getName();
+                    = SecureEntity.class.getName()
+                    + " must not have more than one method with name " + method.getName();
                 throw new IllegalStateException(message);
             }
             if (method.getParameterTypes().length == 0) {

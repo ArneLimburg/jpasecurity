@@ -19,6 +19,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.ExceptionFactory;
 import net.sf.jpasecurity.mapping.BeanInitializer;
@@ -26,11 +29,10 @@ import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformationReceiver;
 import net.sf.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import net.sf.jpasecurity.mapping.SecureBeanInitializer;
+import net.sf.jpasecurity.proxy.Decorator;
+import net.sf.jpasecurity.proxy.MethodInterceptor;
 import net.sf.jpasecurity.proxy.SecureEntityProxyFactory;
 import net.sf.jpasecurity.util.ReflectionUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Arne Limburg
@@ -51,6 +53,12 @@ public class Configuration {
     public static final String SECURE_ENTITY_PROXY_FACTORY_PROPERTY = "net.sf.jpasecurity.proxy.factory";
     public static final String DEFAULT_SECURE_ENTITY_PROXY_FACTORY_CLASS
         = "net.sf.jpasecurity.proxy.CgLibSecureEntityProxyFactory";
+    public static final String METHOD_INTERCEPTOR_PROPERTY = "net.sf.jpasecurity.proxy.methodInterceptor";
+    public static final String DEFAULT_METHOD_INTERCEPTOR_CLASS
+        = "net.sf.jpasecurity.entity.SecureEntityInterceptor";
+    public static final String DECORATOR_PROPERTY = "net.sf.jpasecurity.proxy.decorator";
+    public static final String DEFAULT_DECORATOR_CLASS
+        = "net.sf.jpasecurity.entity.SecureEntityDecorator";
     public static final String PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY
         = "net.sf.jpasecurity.mapping.property.access.factory";
     public static final String DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS
@@ -211,6 +219,20 @@ public class Configuration {
         return newInstance(AccessManager.class,
                            ACCESS_MANAGER_PROPERTY,
                            DEFAULT_ACCESS_MANAGER_CLASS,
+                           params);
+    }
+
+    public MethodInterceptor createMethodInterceptor(Object... params) {
+        return newInstance(MethodInterceptor.class,
+                           METHOD_INTERCEPTOR_PROPERTY,
+                           DEFAULT_METHOD_INTERCEPTOR_CLASS,
+                           params);
+    }
+
+    public Decorator createDecorator(Object... params) {
+        return newInstance(Decorator.class,
+                           DECORATOR_PROPERTY,
+                           DEFAULT_DECORATOR_CLASS,
                            params);
     }
 
