@@ -82,6 +82,7 @@ TOKEN[IGNORE_CASE]: {
   | <DOT: ".">
   | <EQ: "=">
   | <NE: "<>">
+  | <NEQ: "!=">
   | <GT: ">">
   | <GE: ">=">
   | <LT: "<">
@@ -787,6 +788,7 @@ void stringComp(): {} {
     stringExpression() (
         (<EQ> (stringExpression()|allOrAnyExpression()) #Equals(2))
         | (<NE> (stringExpression()|allOrAnyExpression()) #NotEquals(2))
+        | (<NEQ> (stringExpression()|allOrAnyExpression()) #NotEquals(2))
         | (<GT> (stringExpression() | allOrAnyExpression()) #GreaterThan(2))
         | (<GE> (stringExpression() | allOrAnyExpression()) #GreaterOrEquals(2))
         | (<LT> (stringExpression() | allOrAnyExpression()) #LessThan(2))
@@ -798,6 +800,7 @@ void booleanComp(): {} {
     booleanExpression() (
     (<EQ> (booleanExpression() | allOrAnyExpression()) #Equals(2))
     | (<NE> (booleanExpression() | allOrAnyExpression()) #NotEquals(2))
+    | (<NEQ> (booleanExpression() | allOrAnyExpression()) #NotEquals(2))
     )
 }
 
@@ -805,6 +808,7 @@ void enumComp(): {} {
     enumExpression() (
     (<EQ> (enumExpression() | allOrAnyExpression()) #Equals(2))
     | (<NE> (enumExpression() | allOrAnyExpression()) #NotEquals(2))
+    | (<NEQ> (enumExpression() | allOrAnyExpression()) #NotEquals(2))
     )
 }
 
@@ -812,17 +816,20 @@ void entityComp(): {} {
     entityBeanExpression() (
     (<EQ> ((LOOKAHEAD(allOrAnyExpression()) allOrAnyExpression() | entityBeanExpression()) #Equals(2)))
     | (<NE> ((LOOKAHEAD(allOrAnyExpression()) allOrAnyExpression() | entityBeanExpression()) #NotEquals(2)))
+    | (<NEQ> ((LOOKAHEAD(allOrAnyExpression()) allOrAnyExpression() | entityBeanExpression()) #NotEquals(2)))
     )
 }
 
 void entityTypeComp(): {} {
     LOOKAHEAD(typeDiscriminator()) (typeDiscriminator()
         ((<EQ> entityTypeExpression() #Equals(2))
-        | (<NE> entityTypeExpression() #NotEquals(2)))
+        | (<NE> entityTypeExpression() #NotEquals(2))
+        | (<NEQ> entityTypeExpression() #NotEquals(2)))
     )
   | (entityTypeExpression()
         ((<EQ> typeDiscriminator() #Equals(2))
-        | (<NE> typeDiscriminator() #NotEquals(2)))
+        | (<NE> typeDiscriminator() #NotEquals(2))
+        | (<NEQ> typeDiscriminator() #NotEquals(2)))
     )
 }
 
@@ -835,6 +842,7 @@ void arithmeticComp(): {} {
     | (<LT> (arithmeticExpression() | allOrAnyExpression()) #LessThan(2))
     | (<LE> (arithmeticExpression() | allOrAnyExpression()) #LessOrEquals(2))
     | (<NE> (arithmeticExpression() | allOrAnyExpression()) #NotEquals(2))
+    | (<NEQ> (arithmeticExpression() | allOrAnyExpression()) #NotEquals(2))
     )
 }
 
@@ -846,6 +854,7 @@ void datetimeComp(): {} {
     | (<LT> (datetimeExpression() | allOrAnyExpression()) #LessThan(2))
     | (<LE> (datetimeExpression() | allOrAnyExpression()) #LessOrEquals(2))
     | (<NE> (datetimeExpression() | allOrAnyExpression()) #NotEquals(2))
+    | (<NEQ> (datetimeExpression() | allOrAnyExpression()) #NotEquals(2))
     )
 }
 
