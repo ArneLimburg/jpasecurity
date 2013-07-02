@@ -135,4 +135,10 @@
       GRANT ACCESS TO User user WHERE (-1 in (CURRENT_ROLES))
     </access-rule>
   </persistence-unit>
+
+    <persistence-unit name="not-equals">
+        <access-rule>
+            GRANT ACCESS TO User user WHERE user.name != 'user'
+        </access-rule>
+    </persistence-unit>
 </security>
