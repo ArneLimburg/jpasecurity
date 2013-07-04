@@ -17,6 +17,7 @@ package net.sf.jpasecurity.security.rules;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -121,7 +122,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
         JpqlParser jpqlParser = new JpqlParser();
         ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
         AccessRulesCompiler compiler = new AccessRulesCompiler(persistenceMapping, exceptionFactory);
-        accessRules = new ArrayList<AccessRule>();
+        List<AccessRule> accessRules = new ArrayList<AccessRule>();
         for (String accessRule : rules) {
             try {
                 JpqlAccessRule parsedRule = jpqlParser.parseRule(accessRule);
@@ -132,6 +133,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
                 throw configuration.getExceptionFactory().createRuntimeException(message, e);
             }
         }
+        this.accessRules = Collections.unmodifiableList(accessRules);
     }
 
     /**
