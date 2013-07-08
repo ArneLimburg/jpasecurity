@@ -23,6 +23,7 @@ import javax.persistence.Query;
 
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.repository.OwnerRepository;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -69,7 +70,19 @@ public class JpaOwnerRepositoryImpl implements OwnerRepository {
 
     @Override
     public Owner save(Owner owner) {
-        Owner merged = this.em.merge(owner);
+    	Owner merged = null;
+    	if(owner.getId() != null) {
+    		Owner o = findById(owner.getId());
+	    	o.setFirstName(owner.getFirstName());
+	    	o.setLastName(owner.getLastName());
+	    	o.setAddress(owner.getAddress());
+	    	o.setCity(owner.getCity());
+	    	o.setTelephone(owner.getTelephone());
+	    	o.getCredential().setPassword(owner.getCredential().getPassword());
+	        merged = this.em.merge(o);
+    	} else {
+    		merged = this.em.merge(owner);
+    	}
         this.em.flush();
         return merged;
     }

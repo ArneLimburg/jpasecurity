@@ -64,13 +64,15 @@
     </table>
     <table class="table-buttons">
       <tr>
-        <td>
-          <spring:url value="/pets/{petId}/visits/{visitId}/edit" var="visitUrl">
-            <spring:param name="petId" value="${visit.pet.id}"/>
-            <spring:param name="visitId" value="${visit.id}"/>
-          </spring:url>
-          <a href="${fn:escapeXml(visitUrl)}">Edit Visit</a>
-        </td>
+        <access:updating entity="vet">
+	        <td>
+	          <spring:url value="/pets/{petId}/visits/{visitId}/edit" var="visitUrl">
+	            <spring:param name="petId" value="${visit.pet.id}"/>
+	            <spring:param name="visitId" value="${visit.id}"/>
+	          </spring:url>
+	          <a href="${fn:escapeXml(visitUrl)}">Edit Visit</a>
+	        </td>
+        </access:updating>
       </tr>
     </table>
   </c:forEach>
