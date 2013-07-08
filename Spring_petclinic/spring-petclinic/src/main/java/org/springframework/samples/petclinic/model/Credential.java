@@ -48,7 +48,7 @@ public class Credential extends BaseEntity implements UserDetails {
         return password;
     }
 
-    protected void setPassword(String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 

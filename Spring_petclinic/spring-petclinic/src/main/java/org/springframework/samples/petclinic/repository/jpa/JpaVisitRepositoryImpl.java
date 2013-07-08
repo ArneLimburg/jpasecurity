@@ -46,7 +46,15 @@ public class JpaVisitRepositoryImpl implements VisitRepository {
 
     @Override
     public void save(Visit visit) {
-        Visit merged = this.em.merge(visit);
+        Visit merged = null;
+        if(visit.getId() != null) {
+        	Visit v = findById(visit.getId());
+        	v.setDate(visit.getDate());
+        	v.setDescription(visit.getDescription());
+        	merged = this.em.merge(v); 	
+        } else {
+        	merged = this.em.merge(visit);
+        }
         this.em.flush();
         visit.setId(merged.getId());
     }
