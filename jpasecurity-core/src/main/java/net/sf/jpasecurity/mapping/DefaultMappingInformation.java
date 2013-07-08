@@ -42,7 +42,7 @@ public class DefaultMappingInformation implements MappingInformation {
      * @param persistenceUnitName the name of the persistence unit
      * @param entityTypeMappings the mapping information of the entities contained in the persistence unit
      * @param namedQueries the named queries contained in the persistence unit
-     * @param nativeNamedQueries the named native queries contained in the persistence unit
+     * @param namedNativeQueries the named native queries contained in the persistence unit
      */
     public DefaultMappingInformation(String persistenceUnitName,
                                      Map<Class<?>, ? extends ClassMappingInformation> entityTypeMappings,
@@ -53,6 +53,7 @@ public class DefaultMappingInformation implements MappingInformation {
         this.entityTypeMappings = (Map<Class<?>, ClassMappingInformation>)entityTypeMappings;
         this.namedQueries = namedQueries;
         this.exceptionFactory = exceptionFactory;
+        initializeEntityNameMappings();
     }
 
     public String getSecurityUnitName() {
@@ -103,16 +104,10 @@ public class DefaultMappingInformation implements MappingInformation {
     }
 
     public boolean containsClassMapping(String entityName) {
-        if (entityNameMappings == null) {
-            initializeEntityNameMappings();
-        }
         return entityNameMappings.containsKey(entityName);
     }
 
     public ClassMappingInformation getClassMapping(String entityName) {
-        if (entityNameMappings == null) {
-            initializeEntityNameMappings();
-        }
         ClassMappingInformation classMapping = entityNameMappings.get(entityName);
         if (classMapping == null) {
             throw exceptionFactory.createTypeNotFoundException(entityName);
