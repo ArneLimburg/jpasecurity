@@ -150,25 +150,20 @@ public abstract class AbstractHtmlTestCase {
     }
 
     public HtmlPage authenticateAsOwner(String page) {
-        return authenticate(page, Role.OWNER);
+        return authenticate(page, "jean");
     }
 
     public HtmlPage authenticateAsVet(String page) {
-        return authenticate(page, Role.VET);
+        return authenticate(page, "james");
     }
 
-    public HtmlPage authenticate(String currentPage, Role role) {
+    public HtmlPage authenticate(String currentPage, String name) {
         try {
             HtmlPage loginPage = getHtmlPage("login");
             HtmlForm form = loginPage.getFormByName("f");
-            if (role == Role.OWNER) {
-                form.getInputByName("j_username").setValueAttribute("jean");
-                form.getInputByName("j_password").setValueAttribute("jean");
-            } else {
-                form.getInputByName("j_username").setValueAttribute("james");
-                form.getInputByName("j_password").setValueAttribute("james");
-            }
-            HtmlPage P = (HtmlPage)form.getInputByName("submit").click();
+            form.getInputByName("j_username").setValueAttribute(name);
+            form.getInputByName("j_password").setValueAttribute(name);
+            form.getInputByName("submit").click();
             return getHtmlPage(currentPage);
         } catch (IOException e) {
             throw new AssertionError(e);
@@ -226,6 +221,16 @@ public abstract class AbstractHtmlTestCase {
         return (HtmlPage)testButton(newOwnerPage, "Add Pet");
     }
 
+    public void createNewVisitForOwnerList() {
+        HtmlPage newVisitPage = authenticate("owners/13/pets/9/visits/new", "jeff");
+        HtmlForm form = getFormById(newVisitPage, "visit");
+        getInputById(form, "date").setValueAttribute("2013/05/02");
+        getSelectById(form, "vet").setSelectedAttribute("Leary, Helen (radiology)", true);
+        getInputById(form, "description").setValueAttribute("accident");
+        HtmlPage page = testButton(newVisitPage, "Add Visit");
+        testLink(page, "Logout");
+    }
+
     public HtmlPage createNewVisit() {
         authenticateAsOwner("owners/12/pets/8/visits/new");
         HtmlPage newVisitPage = getHtmlPage("owners/12/pets/8/visits/new");
@@ -246,7 +251,7 @@ public abstract class AbstractHtmlTestCase {
     }
 
     public HtmlPage updateVisitWithNewDate(String date) {
-        authenticateAsOwner("pets/8/visits/2/edit");
+        authenticateAsVet("pets/8/visits/2/edit");
         HtmlPage updateVisitPage = getHtmlPage("/pets/8/visits/2/edit");
         HtmlForm form = getFormById(updateVisitPage, "visit");
         getInputById(form, "date").setValueAttribute(date);

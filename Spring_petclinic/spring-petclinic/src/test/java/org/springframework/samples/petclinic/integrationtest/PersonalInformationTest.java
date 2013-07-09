@@ -26,50 +26,50 @@ public class PersonalInformationTest extends AbstractHtmlTestCase  {
 
     @Test
     public void authenticatedAsAuthorizedOwnerForVet() throws JaxenException {
-        PetclinicAssert.assertPersonalInformationPage(getHtmlPage("owners/12"), Role.GUEST, 0);
-        PetclinicAssert.assertPersonalInformationPage(authenticateAsOwner("owners/12"), Role.OWNER, 12);
-    }
-
-    @Test
-    public void authenticatedAsNotAuthorizedOwnerForVet() throws JaxenException {
-        PetclinicAssert.assertPersonalInformationPage(getHtmlPage("owners/13"), Role.GUEST, 0);
-        PetclinicAssert.assertPersonalInformationPage(authenticateAsOwner("owners/13"), Role.OWNER, 13);
-    }
-
-    @Test
-    public void authenticatedAsAuthorizedOwnerForOwner() throws JaxenException {
         PetclinicAssert.assertPersonalInformationPage(getHtmlPage("vets/1"), Role.GUEST, 0);
         PetclinicAssert.assertPersonalInformationPage(authenticateAsOwner("vets/1"), Role.OWNER, 1);
     }
 
     @Test
-    public void authenticatedAsNotAuthorizedOwnerForOwner() throws JaxenException {
+    public void authenticatedAsNotAuthorizedOwnerForVet() throws JaxenException {
         PetclinicAssert.assertPersonalInformationPage(getHtmlPage("vets/4"), Role.GUEST, 0);
         PetclinicAssert.assertPersonalInformationPage(authenticateAsOwner("vets/4"), Role.OWNER, 4);
     }
 
     @Test
-    public void authenticatedAsAuthorizedVetForVet() throws JaxenException {
+    public void authenticatedAsAuthorizedOwnerForOwner() throws JaxenException {
         PetclinicAssert.assertPersonalInformationPage(getHtmlPage("owners/12"), Role.GUEST, 0);
-        PetclinicAssert.assertPersonalInformationPage(authenticateAsVet("owners/12"), Role.VET, 12);
+        PetclinicAssert.assertPersonalInformationPage(authenticateAsOwner("owners/12"), Role.OWNER, 12);
     }
 
     @Test
-    public void authenticatedAsNotAuthorizedVetForVet() throws JaxenException {
+    public void authenticatedAsNotAuthorizedOwnerForOwner() throws JaxenException {
         PetclinicAssert.assertPersonalInformationPage(getHtmlPage("owners/13"), Role.GUEST, 0);
-        PetclinicAssert.assertPersonalInformationPage(authenticateAsVet("owners/13"), Role.OWNER, 13);
+        PetclinicAssert.assertPersonalInformationPage(authenticateAsOwner("owners/13"), Role.OWNER, 13);
     }
 
     @Test
-    public void authenticatedAsAuthorizedVetForOwner() throws JaxenException {
+    public void authenticatedAsAuthorizedVetForVet() throws JaxenException {
         PetclinicAssert.assertPersonalInformationPage(getHtmlPage("vets/1"), Role.GUEST, 0);
         PetclinicAssert.assertPersonalInformationPage(authenticateAsVet("vets/1"), Role.VET, 1);
     }
 
     @Test
-    public void authenticatedAsNotAuthorizedVetForOwner() throws JaxenException {
+    public void authenticatedAsNotAuthorizedVetForVet() throws JaxenException {
         PetclinicAssert.assertPersonalInformationPage(getHtmlPage("vets/4"), Role.GUEST, 0);
         PetclinicAssert.assertPersonalInformationPage(authenticateAsVet("vets/4"), Role.VET, 4);
+    }
+
+    @Test
+    public void authenticatedAsAuthorizedVetForOwner() throws JaxenException {
+        PetclinicAssert.assertPersonalInformationPage(getHtmlPage("owners/12"), Role.GUEST, 0);
+        PetclinicAssert.assertPersonalInformationPage(authenticateAsVet("owners/12"), Role.VET, 12);
+    }
+
+    @Test
+    public void authenticatedAsNotAuthorizedVetForOwner() throws JaxenException {
+        PetclinicAssert.assertPersonalInformationPage(getHtmlPage("owners/13"), Role.GUEST, 0);
+        PetclinicAssert.assertPersonalInformationPage(authenticateAsVet("owners/13"), Role.OWNER, 13);
     }
 
     @Test
@@ -86,13 +86,13 @@ public class PersonalInformationTest extends AbstractHtmlTestCase  {
 
     @Test
     public void editVisitLinkTest() throws JaxenException {
-        HtmlPage editVisitLink = testLink(authenticateAsOwner("vets/1"), "Edit Visit", 2);
+        HtmlPage editVisitLink = testLink(authenticateAsVet("vets/1"), "Edit Visit", 2);
         PetclinicAssert.assertUpdateVisitFormPage(editVisitLink, Role.VET, 8);
     }
 
     @Test
     public void ownerLinkTest() throws JaxenException {
-        HtmlPage ownerLink = testLink(authenticateAsOwner("vets/1"), "Jean Coleman");
+        HtmlPage ownerLink = testLink(authenticateAsVet("vets/1"), "Jean Coleman");
         PetclinicAssert.assertPersonalInformationPage(ownerLink, Role.VET, 12);
     }
 
