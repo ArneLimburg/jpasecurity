@@ -1,6 +1,7 @@
 package org.springframework.samples.petclinic.integrationtest;
 
 import org.jaxen.JaxenException;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.samples.petclinic.integrationtest.junit.ParameterizedJUnit4ClassRunner;
@@ -19,6 +20,11 @@ public class OwnersListTest extends AbstractHtmlTestCase  {
         super(url);
     }
 
+    @Before
+    public void beforeTest() {
+    	createNewVisitForOwnerList();
+    }
+    
     @Test
     public void unauthenticated() throws JaxenException {
         PetclinicAssert.assertOwnersListPage(getHtmlPage("owners.html"),  Role.GUEST);
@@ -33,7 +39,7 @@ public class OwnersListTest extends AbstractHtmlTestCase  {
     @Test
     public void authenticatedAsVet() throws JaxenException {
         PetclinicAssert.assertOwnersListPage(getHtmlPage("owners.html"), Role.GUEST);
-        PetclinicAssert.assertOwnersListPage(authenticateAsVet("owners.html"), Role.VET);
+        PetclinicAssert.assertOwnersListPage(authenticate("owners.html", "helen"), Role.VET);
     }
 
     @Test
@@ -50,8 +56,8 @@ public class OwnersListTest extends AbstractHtmlTestCase  {
 
     @Test
     public void ownerLinkTest() throws  JaxenException  {
-        HtmlPage ownerLink = testLink(authenticateAsVet("owners.html"), "Jean Coleman");
-        PetclinicAssert.assertPersonalInformationPage(ownerLink, Role.VET, 13);
+        HtmlPage ownerLink = authenticateAsVet("owners.html");
+        PetclinicAssert.assertPersonalInformationPage(ownerLink, Role.VET, 12);
     }
     //todo check pdf link eventually
 }

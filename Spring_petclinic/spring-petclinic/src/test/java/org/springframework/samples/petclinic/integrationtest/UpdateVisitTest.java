@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.springframework.samples.petclinic.integrationtest.junit.ParameterizedJUnit4ClassRunner;
 import org.springframework.samples.petclinic.integrationtest.junit.Parameters;
 
+import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 /**
@@ -29,6 +30,10 @@ public class UpdateVisitTest extends AbstractHtmlTestCase  {
     public void authenticatedAsOwner() throws JaxenException {
         PetclinicAssert.assertUpdateVisitFormPage(getHtmlPage("pets/8/visits/2/edit"), Role.GUEST, 0);
         PetclinicAssert.assertUpdateVisitFormPage(authenticateAsOwner("pets/8/visits/2/edit"), Role.OWNER, 0);
+        HtmlPage updateVisitPage = getHtmlPage("/pets/8/visits/2/edit");
+        HtmlForm form = getFormById(updateVisitPage, "visit");
+        getInputById(form, "date").setValueAttribute("2013/05/11");
+        PetclinicAssert.assertErrorPage((HtmlPage)testButton(updateVisitPage, "Update Visit"), 2);    
     }
 
     @Test
@@ -39,7 +44,8 @@ public class UpdateVisitTest extends AbstractHtmlTestCase  {
 
     @Test
     public void authenticatedAsNotAuthorizedVet() throws JaxenException {
-        //todo
+        PetclinicAssert.assertUpdateVisitFormPage(getHtmlPage("pets/8/visits/3/edit"), Role.GUEST, 0);
+        PetclinicAssert.assertUpdateVisitFormPage(authenticateAsVet("pets/8/visits/3/edit"), Role.VET, 3);
     }
 
     @Test

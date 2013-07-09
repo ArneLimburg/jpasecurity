@@ -39,7 +39,7 @@ public class CreateVisitTest extends AbstractHtmlTestCase  {
     @Test
     public void authenticatedAsVet() throws JaxenException {
         PetclinicAssert.assertCreateVisitFormPage(getHtmlPage("owners/12/pets/8/visits/new"), Role.GUEST, 0);
-        PetclinicAssert.assertCreateVisitFormPage(authenticateAsVet("owners/12/pets/8/visits/new"), Role.VET, 0);
+        PetclinicAssert.assertCreateVisitFormPage(authenticateAsVet("owners/12/pets/8/visits/new"), Role.VET, 8);
     }
 
     @Test
