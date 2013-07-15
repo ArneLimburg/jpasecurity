@@ -401,32 +401,31 @@
             <groupId>com.github.dandelion</groupId>
             <artifactId>datatables-jsp</artifactId>
             <version>${dandelion.datatables.version}</version>
-         </dependency>
-         <dependency>
+        </dependency>
+        <dependency>
             <groupId>com.github.dandelion</groupId>
             <artifactId>datatables-export-itext</artifactId>
             <version>${dandelion.datatables.version}</version>
-         </dependency>
-         <dependency>
+        </dependency>
+        <dependency>
             <groupId>com.github.dandelion</groupId>
             <artifactId>datatables-servlet2</artifactId>
             <version>${dandelion.datatables.version}</version>
-         </dependency>
+        </dependency>
          
-         <!-- JPA Security --> 
-         <dependency>
+        <!-- JPA Security --> 
+        <dependency>
 			<groupId>net.sf.jpasecurity</groupId>
 			<artifactId>jpasecurity-spring</artifactId>
 			<version>${jpasecurity.version}</version>
-		 </dependency>
+		</dependency>
 		 
-		 <dependency>
+		<dependency>
 			<groupId>htmlunit</groupId>
 			<artifactId>htmlunit</artifactId>
 			<version>${htmlunit.version}</version>
-		 </dependency>
-		
-       </dependencies>
+		</dependency>
+    </dependencies>
 
     <!-- all Maven plugin versions are mentioned in order to guarantee the build reproducibility in the long term -->
     <build>

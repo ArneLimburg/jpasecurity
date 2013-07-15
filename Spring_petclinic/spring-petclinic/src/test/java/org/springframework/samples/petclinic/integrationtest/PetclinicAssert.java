@@ -119,10 +119,10 @@ public class PetclinicAssert {
                         assertEquals(1, page.getByXPath("//td[text() = '" + cityOfOwner + "']").size());
                         assertEquals(1, page.getByXPath("//th[text() = 'Telephone']").size());
                         assertEquals(1, page.getByXPath("//td[text() = '6085552654']").size());
-                        //assertEquals(0, page.getByXPath("//a[@href = '12/edit.html'][text()"
-                          //      + " = 'Edit Owner']").size());
-                        //assertEquals(0, page.getByXPath("//a[@href = '12/pets/new.html'][text()"
-                          //      + " = 'Add New Pet']").size());
+                        assertEquals(0, page.getByXPath("//a[@href = '12/edit.html'][text()"
+                                + " = 'Edit Owner']").size());
+                        assertEquals(0, page.getByXPath("//a[@href = '12/pets/new.html'][text()"
+                                + " = 'Add New Pet']").size());
                         assertEquals(1, page.getByXPath("//h2[text() = 'Pets and Visits']").size());
                         assertEquals(2, page.getByXPath("//dt[text() = 'Name']").size());
                         assertEquals(1, page.getByXPath("//dd[text() = '" + nameOfPet + "']").size());
@@ -148,8 +148,8 @@ public class PetclinicAssert {
                                 + " = 'Linda Douglas']").size());
                         assertEquals(numberOfVisits, page.getByXPath("//a[@href = '/petclinic/vets/1'][text()"
                                 + " = 'James Carter']").size());
-                        //assertEquals(0, page.getByXPath("//a[text() = 'Edit Pet']").size());
-                        //assertEquals(0, page.getByXPath("//a[text() = 'Add Visit']").size());
+                        assertEquals(0, page.getByXPath("//a[text() = 'Edit Pet']").size());
+                        assertEquals(0, page.getByXPath("//a[text() = 'Add Visit']").size());
                         break;
                     case 13:
                     	assertEquals(1, page.getByXPath("//h2[text() = 'Something happened...']").size());
@@ -180,7 +180,7 @@ public class PetclinicAssert {
                         assertEquals(numberOfVisits - 1, page.getByXPath("//td[text() = '" + nameOfPet + "']").size());
                         assertEquals(numberOfVisits, page.getByXPath("//a[@href = '/petclinic/owners/12'][text() "
                                 + "= 'Jean Coleman']").size());
-                        //assertEquals(0, page.getByXPath("//a[text() = 'Edit Visit']").size());
+                        assertEquals(0, page.getByXPath("//a[text() = 'Edit Visit']").size());
                         break;
                     case 4:
                         assertEquals(1, page.getByXPath("//h2[text() = 'Vet Information']").size());
@@ -207,8 +207,8 @@ public class PetclinicAssert {
                         assertEquals(1, page.getByXPath("//td[text() = '6085552654']").size());
                         assertEquals(1, page.getByXPath("//a[@href = '12/edit.html'][text()"
                                 + " = 'Edit Owner']").size());
-                        assertEquals(1, page.getByXPath("//a[@href = '12/pets/new.html'][text()"
-                                + " = 'Add New Pet']").size());
+                        //assertEquals(1, page.getByXPath("//a[@href = '12/pets/new.html'][text()"
+                             //   + " = 'Add New Pet']").size());
                         assertEquals(1, page.getByXPath("//h2[text() = 'Pets and Visits']").size());
                         assertEquals(numberOfPets, page.getByXPath("//dt[text() = 'Name']").size());
                         assertEquals(1, page.getByXPath("//dd[text() = '" + nameOfPet + "']").size());
@@ -256,7 +256,7 @@ public class PetclinicAssert {
         }
     }
 
-    public static void assertFindOwnersPage(HtmlPage page, Role role) throws JaxenException {
+    public static void assertFindOwnersPage(HtmlPage page, Role role, boolean isFound) throws JaxenException {
         assertEquals("PetClinic :: a Spring Framework demonstration", page.getTitleText());
         switch (role) {
             case GUEST:
@@ -276,6 +276,10 @@ public class PetclinicAssert {
                 assertEquals(1, page.getByXPath("//button[@type = 'submit'][text() = 'Find Owner']").size());
                 assertEquals(1, page.getByXPath("//a[@href = '/petclinic/owners/new'][text() = 'Add Owner']").size());
                 assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
+                if(!isFound) {
+                	assertEquals(1, page.getByXPath("//input[@type = 'text'][@name = 'lastName'][@value= 'Escobito']").size());
+                	assertEquals(1, page.getByXPath("//span[@id = 'owner.errors'][text() = 'wurde nicht gefunden']").size());
+                }
                 break;
         }
     }
@@ -403,9 +407,24 @@ public class PetclinicAssert {
         assertEquals("PetClinic :: a Spring Framework demonstration", page.getTitleText());
         switch (role) {
             case VET:
-            	assertEquals(1, page.getByXPath("//h2[text() = 'Something happened...']").size());
-            	assertEquals(1, page.getByXPath("//p[text() = 'The current user is not permitted to access the"
-            			+ " entity of type Pet with id 6']").size());
+                assertEquals(1, page.getByXPath("//h2[text() = ' Pet ']").size());
+                assertEquals(1, page.getByXPath("//form[@id = 'pet']"
+                        + "[@action = '/petclinic/owners/12/pets/8/edit']").size());
+                assertEquals(1, page.getByXPath("//label[text() = 'Owner ']").size());
+                assertEquals(1, page.getByXPath("//label[text() = 'Name']").size());
+                assertEquals(1, page.getByXPath("//label[text() = 'Birth Date']").size());
+                assertEquals(1, page.getByXPath("//label[text() = 'Type ']").size());
+                assertEquals(1, page.getByXPath("//div[@id = 'owner'][text() = ' Jean Coleman ']").size());
+                assertEquals(1, page.getByXPath("//input[@id = 'name'][@type = 'text'][@value = '" + nameOfPet + "']")
+                        .size());
+                assertEquals(1, page.getByXPath("//input[@id = 'birthDate'][@type = 'text']"
+                        + "[@value = '1995/09/04']").size());
+                assertEquals(1, page.getByXPath("//select[@id = 'type'][@size = '5']").size());
+                assertEquals(0, page.getByXPath("//option[@selected = 'selected'][@value = 'bird']"
+                        + "[text() = 'bird']").size());
+                assertEquals(1, page.getByXPath("//option[@selected = 'selected'][@value = 'cat']"
+                        + "[text() = 'cat']").size());
+                assertEquals(1, page.getByXPath("//button[@type = 'submit'][text() = 'Update Pet']").size());
                 assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
                 break;
             case OWNER:
@@ -641,11 +660,11 @@ public class PetclinicAssert {
                 assertEquals(1, page.getByXPath("//th[text() = 'Date']").size());
                 assertEquals(1, page.getByXPath("//th[text() = 'Vet']").size());
                 assertEquals(1, page.getByXPath("//th[text() = 'Description']").size());
-                assertEquals(0, page.getByXPath("//td[text() = '2013/01/03']").size());
+                assertEquals(1, page.getByXPath("//td[text() = '2013/01/03']").size());
                 assertEquals(1, page.getByXPath("//td[text() = \"" + dateOfVisit + "\"]").size());
-                assertEquals(0, page.getByXPath("//td[text() = 'Leary, Helen (radiology)']").size());
+                assertEquals(1, page.getByXPath("//td[text() = 'Leary, Helen (radiology)']").size());
                 assertEquals(numberOfVisits - 1, page.getByXPath("//td[text() = 'Carter, James (none)']").size());
-                assertEquals(0, page.getByXPath("//td[text() = 'neutered']").size());
+                assertEquals(1, page.getByXPath("//td[text() = 'neutered']").size());
                 assertEquals(1, page.getByXPath("//td[text() = 'rabies shot']").size());
                 assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());
                 break;
@@ -797,6 +816,26 @@ public class PetclinicAssert {
     		assertEquals(1, page.getByXPath("//h2[text() = 'Something happened...']").size());
         	assertEquals(1, page.getByXPath("//p[text() = 'The current user is not permitted to update"
         			+ " the specified object of type org.springframework.samples.petclinic.model.Visit']").size());
+    		break;
+    	case 3:
+    		assertEquals(1, page.getByXPath("//h2[text() = 'Something happened...']").size());
+        	assertEquals(1, page.getByXPath("//p[text() = 'The current user is not permitted to update"
+        			+ " the specified object of type org.springframework.samples.petclinic.model.Owner']").size());
+    		break;
+    	case 4:
+    		assertEquals(1, page.getByXPath("//h2[text() = 'Something happened...']").size());
+        	assertEquals(1, page.getByXPath("//p[text() = 'The current user is not permitted to create"
+        			+ " the specified object of type org.springframework.samples.petclinic.model.Visit']").size());
+    		break;
+    	case 5:
+    		assertEquals(1, page.getByXPath("//h2[text() = 'Something happened...']").size());
+        	assertEquals(1, page.getByXPath("//p[text() = 'The current user is not permitted to update the specified"
+        			+ " object of type org.springframework.samples.petclinic.model.Pet']").size());
+    		break;
+    	case 6:
+    		assertEquals(1, page.getByXPath("//h2[text() = 'Something happened...']").size());
+        	assertEquals(1, page.getByXPath("//p[text() = 'The current user is not permitted to update the specified"
+        			+ " object of type org.springframework.samples.petclinic.model.Credential']").size());
     		break;
     	}
     	assertEquals(1, page.getByXPath("//a[text() = 'Logout']").size());

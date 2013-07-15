@@ -120,7 +120,7 @@ public class PersonalInformationTest extends AbstractHtmlTestCase  {
         PetclinicAssert.assertUpdateOwnerFormPage(editOwnerLink, Role.OWNER, 12);
     }
 
-    @Test
+    //@Test
     public void addNewPetLinkTest() throws JaxenException {
         HtmlPage addNewPetLink = testLink(authenticateAsOwner("owners/12"), "Add New Pet");
         PetclinicAssert.assertCreatePetFormPage(addNewPetLink, Role.OWNER, 12);

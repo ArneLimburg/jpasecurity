@@ -49,7 +49,6 @@ public class CreatePetTest extends AbstractHtmlTestCase  {
         PetclinicAssert.assertErrorPage((HtmlPage)testButton(newOwnerPage, "Add Pet"), 1);   
     }
 
-    //Only test once
     @Test
     public void createPetTest() throws JaxenException {
         HtmlPage createPetLink = createNewPet("Maxi");

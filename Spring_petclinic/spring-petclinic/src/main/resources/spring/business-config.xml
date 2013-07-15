@@ -26,7 +26,6 @@
 
      <!-- enables scanning for @Transactional annotations -->
     <tx:annotation-driven />
- 
 
     <beans profile="jpa">
         <!-- JPA EntityManagerFactory -->
@@ -35,17 +34,6 @@
             <property name="jpaVendorAdapter">
                 <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
                       p:database="${jpa.database}" p:showSql="${jpa.showSql}" />
-            <!-- <property name="jpaVendorAdapter">
-                <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter"
-                      p:database="${jpa.database}" p:showSql="${jpa.showSql}" />
-            </property>
-            <property name="jpaPropertyMap">
-			    <map>
-			        <entry key="eclipselink.weaving" value="false"/>
-			        <entry key="eclipselink.cache.shared.default" value="false" />
-			        <entry key="eclipselink.cache.size.default" value="0" />
-			        <entry key="eclipselink.cache.type.default" value="None" />
-			    </map> -->
 			</property>
             <!-- gDickens: BOTH Persistence Unit and Packages to Scan are NOT compatible, persistenceUnit will win -->
             <property name="persistenceUnitName" value="petclinic"/>
@@ -55,7 +43,6 @@
         <!-- Transaction manager for a single JPA EntityManagerFactory (alternative to JTA) -->
         <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
               p:entityManagerFactory-ref="entityManagerFactory"/>
-
 
         <!--
             Post-processor to perform exception translation on @Repository classes (from native

@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.springframework.samples.petclinic.integrationtest.junit.ParameterizedJUnit4ClassRunner;
 import org.springframework.samples.petclinic.integrationtest.junit.Parameters;
 
+import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 /**
@@ -38,9 +39,25 @@ public class UpdateOwnerTest extends AbstractHtmlTestCase  {
     }
 
     @Test
-    public void authenticatedAsVet() throws JaxenException {
+    public void authenticatedAsVetForVisitedPetOwner() throws JaxenException {
         PetclinicAssert.assertUpdateOwnerFormPage(getHtmlPage("owners/12/edit.html"), Role.GUEST, 0);
-        PetclinicAssert.assertUpdateOwnerFormPage(authenticateAsVet("owners/12/edit.html"), Role.VET, 0);
+        PetclinicAssert.assertUpdateOwnerFormPage(authenticateAsVet("owners/12/edit.html"), Role.VET, 12);
+        HtmlPage updateOwnerPage = getHtmlPage("owners/12/edit.html");
+        HtmlForm form = getFormById(updateOwnerPage, "add-owner-form");
+        getInputById(form, "city").setValueAttribute("Cansas");
+        getInputById(form, "credential.newPassword").setValueAttribute("jean");
+        HtmlPage errorPage = (HtmlPage)testButton(updateOwnerPage, "Update Owner");
+        PetclinicAssert.assertErrorPage(errorPage, 3);
+        updateOwnerPage = getHtmlPage("owners/12/edit.html");
+        getInputById(form, "credential.newPassword").setValueAttribute("jean");
+        errorPage = (HtmlPage)testButton(updateOwnerPage, "Update Owner");
+        PetclinicAssert.assertErrorPage(errorPage, 6);
+    }
+
+    @Test
+    public void authenticatedAsVet() throws JaxenException {
+        PetclinicAssert.assertUpdateOwnerFormPage(getHtmlPage("owners/13/edit.html"), Role.GUEST, 0);
+        PetclinicAssert.assertUpdateOwnerFormPage(authenticateAsVet("owners/13/edit.html"), Role.VET, 13);
     }
 
     @Test

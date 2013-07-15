@@ -1,9 +1,11 @@
 package org.springframework.samples.petclinic.repository.jpa;
 
-import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+
+import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.persistence.SecureEntityManager;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Credential;
@@ -15,7 +17,7 @@ import org.springframework.stereotype.Repository;
 public class JpaCredentialRepositoryImpl implements CredentialRepository{
 
     @PersistenceContext
-    private EntityManager em;
+    private SecureEntityManager em;
 
 	@Override
 	public Credential findById(int id) throws DataAccessException {
@@ -36,6 +38,17 @@ public class JpaCredentialRepositoryImpl implements CredentialRepository{
 	    } catch (NoResultException e) {
 	        throw new UsernameNotFoundException(username, e);
 	    }
+	}
+
+	@Override
+	public boolean isAccessible(AccessType accessType, String entityName,
+			Object... constructorArgs) {
+		return this.em.isAccessible(accessType, entityName, constructorArgs);
+	}
+
+	@Override
+	public boolean isAccessible(AccessType accessType, Object entity) {
+		return this.em.isAccessible(accessType, entity);
 	}
 
 }
