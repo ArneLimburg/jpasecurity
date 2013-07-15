@@ -100,6 +100,8 @@
           schemaVersion="1.0">
 
     <persistence-unit name="petclinic">
+        <access-rule>GRANT CREATE READ        ACCESS TO Credential credential</access-rule>
+        <access-rule>GRANT             UPDATE ACCESS TO Credential credential WHERE EXISTS (SELECT owner FROM Owner owner, Credential c WHERE owner.credential.id = credential.id AND owner.credential.id = c.id AND c = CURRENT_PRINCIPAL)</access-rule>
         <access-rule>GRANT                    ACCESS TO Vet vet WHERE vet.credential = CURRENT_PRINCIPAL</access-rule>    
         <access-rule>GRANT        READ        ACCESS TO Vet vet</access-rule>    
         <access-rule>GRANT CREATE             ACCESS TO Owner owner</access-rule>
@@ -113,6 +115,103 @@
 
 </security>
       ]]>
+    </programlisting>
+    <para>Now we have to change the save-Method of <filename>JpaPetRepositoryImpl.java</filename> (in <filename>src/main/java/org/springframework/samples/petclinic/repository/jpa/</filename>).
+    Change </para>
+    <programlisting>
+      <![CDATA[
+@Override
+public void save(Pet pet) {
+    if (pet.getId() == null) {
+        this.em.persist(pet);
+    }
+    else {
+        this.em.merge(pet);
+    }
+}
+      ]]>
+    </programlisting>
+    <para>into</para>
+    <programlisting>
+      <![CDATA[
+@Override
+public void save(Pet pet) {
+    Pet merged = null;
+    if(pet.getId() != null) {
+        Pet p = findById(pet.getId());
+        p.setName(pet.getName());
+        p.setBirthDate(pet.getBirthDate());
+        p.setType(pet.getType());
+        merged = this.em.merge(p);
+    } else {
+        merged = this.em.merge(pet);
+    }
+    this.em.flush();
+    pet.setId(merged.getId());
+}
+      ]]>
+    </programlisting>
+    <para>To active accessing for creating a pet or a visit, we need a accessmanager. Therefore change in<filename>OwnerController.java</filename> 
+      (in <filename>src/main/java/org/springframework/samples/petclinic/web/</filename>)</para>
+    <programlisting>
+      <![CDATA[
+private final ClinicService clinicService;
+private final UserDetailsService userDetailsService;
+
+@Autowired
+public OwnerController(ClinicService clinicService, UserDetailsService userDetailsService) {
+    this.clinicService = clinicService;
+    this.userDetailsService = userDetailsService;
+}
+
+[...]
+
+@RequestMapping("/owners/{ownerId}")
+public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
+    ModelAndView mav = new ModelAndView("owners/ownerDetails");
+    mav.addObject(this.clinicService.findOwnerById(ownerId));
+    return mav;
+}
+      ]]>
+    </programlisting>
+    <para>into</para>
+    <programlisting>
+      <![CDATA[
+private final ClinicService clinicService;
+private final UserDetailsService userDetailsService;
+private final AccessManager accessManager;
+
+@Autowired
+public OwnerController(ClinicService clinicService, UserDetailsService userDetailsService, AccessManager accessManager) {
+    this.clinicService = clinicService;
+    this.userDetailsService = userDetailsService;
+    this.accessManager = accessManager;
+}
+
+[...]
+
+@RequestMapping("/owners/{ownerId}")
+public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
+    ModelAndView mav = new ModelAndView("owners/ownerDetails");
+    mav.addObject(this.clinicService.findOwnerById(ownerId));
+    mav.getModelMap().addAttribute(accessManager);
+    return mav;
+}
+      ]]>
+    </programlisting>
+    <para>The last thing we do for authorization is to change <filename>Owner.java</filename> (in <filename>src/main/java/org/springframework/samples/petclinic/model/</filename>). Change</para>
+    <programlisting>
+      <![CDATA[
+@OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+private Set<Pet> pets;
+    ]]>
+    </programlisting>
+    <para>into</para>
+    <programlisting>
+      <![CDATA[
+@OneToMany(cascade = CascadeType.ALL, mappedBy = "owner", fetch = FetchType.EAGER)
+private Set<Pet> pets;
+    ]]>
     </programlisting>
     <para>
       When you now click around in the application, you will see that our authorization problems
@@ -130,29 +229,35 @@
       you get the form to edit it, but the security exception arises when you try to save your changes.
       On a security point of view this is OK, but from the users perspective this is not very nice.
       We would expect not to see the buttons, when we are not allowed to use them - and JPA Security can do this.
-      We have to change <filename>show.jsp</filename> in <filename>src/main/webapp/WEB-INF/jsp/owners/</filename>.
+      We have to change <filename>ownerDetails.jsp</filename> in <filename>src/main/webapp/WEB-INF/jsp/owners/</filename>.
     </para>
     <para>
       Change
     </para>
     <programlisting>
       <![CDATA[
-<table class="table-buttons">
-    <tr>
-        <td colspan="2" align="center">
-            <spring:url value="{ownerId}/edit" var="editUrl">
-                <spring:param name="ownerId" value="${owner.id}" />
-            </spring:url>
-            <a href="${fn:escapeXml(editUrl)}">Edit Owner</a>
-        </td>
-        <td>
-            <spring:url value="{ownerId}/pets/new" var="addUrl">
-                <spring:param name="ownerId" value="${owner.id}" />
-            </spring:url>
-            <a href="${fn:escapeXml(addUrl)}">Add New Pet</a>
-        </td>
-    </tr>
-</table>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="joda" uri="http://www.joda.org/joda/time/tags" %>
+
+[...]
+
+<tr>
+    <td> 
+        <spring:url value="{ownerId}/edit.html" var="editUrl">
+            <spring:param name="ownerId" value="${owner.id}"/>
+        </spring:url>
+        <a href="${fn:escapeXml(editUrl)}" class="btn btn-info">Edit Owner</a>
+    </td>
+    <td>
+        <spring:url value="{ownerId}/pets/new.html" var="addUrl">
+            <spring:param name="ownerId" value="${owner.id}"/>
+        </spring:url>
+        <a href="${fn:escapeXml(addUrl)}"  class="btn btn-success">Add New Pet</a>
+    </td>
+</tr>
       ]]>
     </programlisting>
     <para>
@@ -160,26 +265,33 @@
     </para>
     <programlisting>
       <![CDATA[
-<table class="table-buttons">
-    <tr>
-        <access:updating entity="owner">
-            <td colspan="2" align="center">
-                <spring:url value="{ownerId}/edit" var="editUrl">
-                    <spring:param name="ownerId" value="${owner.id}" />
-                </spring:url>
-                <a href="${fn:escapeXml(editUrl)}">Edit Owner</a>
-            </td>
-        </access:updating>
-        <access:creation type="Pet" parameters="owner">
-            <td>
-                <spring:url value="{ownerId}/pets/new" var="addUrl">
-                    <spring:param name="ownerId" value="${owner.id}" />
-                </spring:url>
-                <a href="${fn:escapeXml(addUrl)}">Add New Pet</a>
-            </td>
-        </access:creation>
-    </tr>
-</table>
+<%@ taglib prefix="access" uri="http://jpasecurity.sf.net/access" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="joda" uri="http://www.joda.org/joda/time/tags" %>
+
+[...]
+
+<tr>
+    <access:updating entity="owner">
+        <td> 
+            <spring:url value="{ownerId}/edit.html" var="editUrl">
+                <spring:param name="ownerId" value="${owner.id}"/>
+            </spring:url>
+            <a href="${fn:escapeXml(editUrl)}" class="btn btn-info">Edit Owner</a>
+        </td>
+    </access:updating>
+    <access:creation type="Pet" parameters="owner">
+        <td>
+            <spring:url value="{ownerId}/pets/new.html" var="addUrl">
+                <spring:param name="ownerId" value="${owner.id}"/>
+            </spring:url>
+            <a href="${fn:escapeXml(addUrl)}"  class="btn btn-success">Add New Pet</a>
+        </td>
+    </acess:creation>
+</tr>
       ]]>
     </programlisting>
     <para>
@@ -187,33 +299,22 @@
     </para>
     <programlisting>
       <![CDATA[
-<table class="table-buttons">
-    <tr>
-        <td>
-            <spring:url value="{ownerId}/pets/{petId}/edit" var="petUrl">
-                <spring:param name="ownerId" value="${owner.id}"/>
-                <spring:param name="petId" value="${pet.id}"/>
-            </spring:url>
-            <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
-        </td>
-        <td></td>
-        <td>
-            <spring:url value="{ownerId}/pets/{petId}/visits/new" var="visitUrl">
-                <spring:param name="ownerId" value="${owner.id}"/>
-                <spring:param name="petId" value="${pet.id}"/>
-            </spring:url>
-            <a href="${fn:escapeXml(visitUrl)}">Add Visit</a>
-        </td>
-        <td></td>
-        <td>
-            <spring:url value="{ownerId}/pets/{petId}/visits.atom" var="feedUrl">
-                <spring:param name="ownerId" value="${owner.id}"/>
-                <spring:param name="petId" value="${pet.id}"/>
-            </spring:url>
-            <a href="${fn:escapeXml(feedUrl)}" rel="alternate" type="application/atom+xml">Atom Feed</a>
-        </td>
-    </tr>
-</table>
+<tr>
+    <td> 
+        <spring:url value="/owners/{ownerId}/pets/{petId}/edit" var="petUrl">
+            <spring:param name="ownerId" value="${owner.id}"/>
+            <spring:param name="petId" value="${pet.id}"/>
+        </spring:url>
+        <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
+    </td>
+    <td>
+        <spring:url value="/owners/{ownerId}/pets/{petId}/visits/new" var="visitUrl">
+            <spring:param name="ownerId" value="${owner.id}"/>
+            <spring:param name="petId" value="${pet.id}"/>
+        </spring:url>
+        <a href="${fn:escapeXml(visitUrl)}">Add Visit</a>
+    </td>
+</tr>
       ]]>
     </programlisting>
     <para>
@@ -221,43 +322,32 @@
     </para>
     <programlisting>
       <![CDATA[
-<table class="table-buttons">
-    <tr>
-        <access:updating entity="pet">
-            <td>
-                <spring:url value="{ownerId}/pets/{petId}/edit" var="petUrl">
-                    <spring:param name="ownerId" value="${owner.id}"/>
-                    <spring:param name="petId" value="${pet.id}"/>
-                </spring:url>
-                <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
-            </td>
-        </access:updating>
-        <td></td>
-        <access:creation type="Visit" parameters="pet">
-            <td>
-                <spring:url value="{ownerId}/pets/{petId}/visits/new" var="visitUrl">
-                    <spring:param name="ownerId" value="${owner.id}"/>
-                    <spring:param name="petId" value="${pet.id}"/>
-                </spring:url>
-                <a href="${fn:escapeXml(visitUrl)}">Add Visit</a>
-            </td>
-        </access:creation>
-        <td></td>
-        <td>
-            <spring:url value="{ownerId}/pets/{petId}/visits.atom" var="feedUrl">
+<tr>
+    <access:updating entity="owner">
+        <td> 
+            <spring:url value="/owners/{ownerId}/pets/{petId}/edit" var="petUrl">
                 <spring:param name="ownerId" value="${owner.id}"/>
                 <spring:param name="petId" value="${pet.id}"/>
             </spring:url>
-            <a href="${fn:escapeXml(feedUrl)}" rel="alternate" type="application/atom+xml">Atom Feed</a>
+            <a href="${fn:escapeXml(petUrl)}">Edit Pet</a>
         </td>
-    </tr>
-</table>
+    </access:updating>
+    <access:creation type="Visit" parameters="pet">
+        <td>
+            <spring:url value="/owners/{ownerId}/pets/{petId}/visits/new" var="visitUrl">
+                <spring:param name="ownerId" value="${owner.id}"/>
+                <spring:param name="petId" value="${pet.id}"/>
+            </spring:url>
+            <a href="${fn:escapeXml(visitUrl)}">Add Visit</a>
+        </td>
+    </access:creation>
+</tr>
       ]]>
     </programlisting>
     <para>
       and you will see, the buttons only appear when you are allowed to click on it
       (that is, when you are logged in as an owner).
-      Configuring the <filename>vet.jsp</filename> the same way remains as an exercise to you.
+      Configuring the <filename>vet.jsp</filename> the same way remains as an exercise to you. Don't forget to insert the tablib for <systemitem>access</systemitem>.
       And so we are at the end of this tutorial. Our application fulfills the requirements from the first page.
     </para>
   </section>
