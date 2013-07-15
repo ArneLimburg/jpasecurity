@@ -5,6 +5,8 @@
           schemaVersion="1.0">
 
   <persistence-unit name="petclinic">
+    <access-rule>GRANT CREATE READ        ACCESS TO Credential credential</access-rule>
+    <access-rule>GRANT             UPDATE ACCESS TO Credential credential WHERE EXISTS (SELECT owner FROM Owner owner, Credential c WHERE owner.credential.id = credential.id AND owner.credential.id = c.id AND c = CURRENT_PRINCIPAL)</access-rule>
     <access-rule>GRANT                    ACCESS TO Vet vet WHERE vet.credential.id IN (SELECT c.id FROM Credential c WHERE c = CURRENT_PRINCIPAL)</access-rule>    
     <access-rule>GRANT        READ        ACCESS TO Vet vet</access-rule>
     <access-rule>GRANT CREATE             ACCESS TO Owner owner</access-rule>

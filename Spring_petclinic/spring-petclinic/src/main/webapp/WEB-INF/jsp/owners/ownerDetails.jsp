@@ -1,5 +1,5 @@
 <!DOCTYPE html> 
-
+<%@ taglib prefix="access" uri="http://jpasecurity.sf.net/access" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -88,7 +88,7 @@
                             </tr>
                         </c:forEach>
                         <tr>
-                            <access:updating entity="owner">
+                            <access:updating entity="pet">
                                 <td> 
                             	    <spring:url value="/owners/{ownerId}/pets/{petId}/edit" var="petUrl">
 			                            <spring:param name="ownerId" value="${owner.id}"/>

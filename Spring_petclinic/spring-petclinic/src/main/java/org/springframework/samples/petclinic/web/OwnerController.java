@@ -19,6 +19,8 @@ import java.util.Collection;
 
 import javax.validation.Valid;
 
+import net.sf.jpasecurity.AccessManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Credential;
@@ -52,12 +54,14 @@ public class OwnerController {
 
     private final ClinicService clinicService;
     private final UserDetailsService userDetailsService;
+    private final AccessManager accessManager;
 
 
     @Autowired
-    public OwnerController(ClinicService clinicService, UserDetailsService userDetailsService) {
+    public OwnerController(ClinicService clinicService, UserDetailsService userDetailsService, AccessManager accessManager) {
         this.clinicService = clinicService;
         this.userDetailsService = userDetailsService;
+        this.accessManager = accessManager;
     }
 
     @InitBinder
@@ -158,6 +162,7 @@ public class OwnerController {
     public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
         ModelAndView mav = new ModelAndView("owners/ownerDetails");
         mav.addObject(this.clinicService.findOwnerById(ownerId));
+        mav.getModelMap().addAttribute(accessManager);
         return mav;
     }
 

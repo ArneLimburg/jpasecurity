@@ -59,5 +59,4 @@ public class OwnersListTest extends AbstractHtmlTestCase  {
         HtmlPage ownerLink = authenticateAsVet("owners.html");
         PetclinicAssert.assertPersonalInformationPage(ownerLink, Role.VET, 12);
     }
-    //todo check pdf link eventually
 }

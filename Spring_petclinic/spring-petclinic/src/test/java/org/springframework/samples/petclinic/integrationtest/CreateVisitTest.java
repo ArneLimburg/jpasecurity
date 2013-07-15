@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.springframework.samples.petclinic.integrationtest.junit.ParameterizedJUnit4ClassRunner;
 import org.springframework.samples.petclinic.integrationtest.junit.Parameters;
 
+import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 /**
@@ -40,6 +41,11 @@ public class CreateVisitTest extends AbstractHtmlTestCase  {
     public void authenticatedAsVet() throws JaxenException {
         PetclinicAssert.assertCreateVisitFormPage(getHtmlPage("owners/12/pets/8/visits/new"), Role.GUEST, 0);
         PetclinicAssert.assertCreateVisitFormPage(authenticateAsVet("owners/12/pets/8/visits/new"), Role.VET, 8);
+        HtmlPage newVisitPage = getHtmlPage("owners/12/pets/8/visits/new");
+        HtmlForm form = getFormById(newVisitPage, "visit");
+        getInputById(form, "description").setValueAttribute("accident");
+        HtmlPage errorPage = (HtmlPage)testButton(newVisitPage, "Add Visit");
+        PetclinicAssert.assertErrorPage(errorPage, 4);
     }
 
     @Test

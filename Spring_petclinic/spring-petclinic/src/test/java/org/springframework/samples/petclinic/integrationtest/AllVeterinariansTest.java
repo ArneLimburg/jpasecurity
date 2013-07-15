@@ -46,7 +46,7 @@ public class AllVeterinariansTest extends AbstractHtmlTestCase  {
 
     @Test
     public void vetLinkAsOwnerTest() throws JaxenException {
-        HtmlPage vetLink = testLink(authenticateAsVet("vets.html"), " James Carter");
+        HtmlPage vetLink = testLink(authenticateAsOwner("vets.html"), " James Carter");
         PetclinicAssert.assertPersonalInformationPage(vetLink, Role.OWNER, 1);
     }
 
@@ -58,7 +58,7 @@ public class AllVeterinariansTest extends AbstractHtmlTestCase  {
 
     @Test
     public void anotherVetLinkAsOwnerTest() throws JaxenException {
-        HtmlPage vetLink = testLink(authenticateAsVet("vets.html"), " Rafael Ortega");
+        HtmlPage vetLink = testLink(authenticateAsOwner("vets.html"), " Rafael Ortega");
         PetclinicAssert.assertPersonalInformationPage(vetLink, Role.OWNER, 4);
     }
 
@@ -73,6 +73,4 @@ public class AllVeterinariansTest extends AbstractHtmlTestCase  {
         HtmlPage logoutLink = testLink(authenticateAsOwner("vets.html"), "Logout");
         PetclinicAssert.assertAllVeterinariansPage(logoutLink, Role.GUEST);
     }
-
-//todo test View as XML and Subscribe to Atom Feed eventually
 }

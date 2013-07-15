@@ -71,6 +71,6 @@ public class WelcomeTest extends AbstractHtmlTestCase  {
     @Test
     public void testFindOwnersLinkAsVet() throws JaxenException {
         HtmlPage findOwnersLink = testLink(authenticateAsVet(""), " Find owners");
-        PetclinicAssert.assertFindOwnersPage(findOwnersLink, Role.OWNER);
+        PetclinicAssert.assertFindOwnersPage(findOwnersLink, Role.OWNER, true);
     }
 }

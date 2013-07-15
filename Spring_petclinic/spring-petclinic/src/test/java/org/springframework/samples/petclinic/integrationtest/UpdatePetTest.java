@@ -41,6 +41,8 @@ public class UpdatePetTest extends AbstractHtmlTestCase  {
     public void authenticatedAsVet() throws JaxenException {
         PetclinicAssert.assertUpdatePetFormPage(getHtmlPage("owners/12/pets/8/edit"), Role.GUEST, 0);
         PetclinicAssert.assertUpdatePetFormPage(authenticateAsVet("owners/12/pets/8/edit"), Role.VET, 0);
+        HtmlPage errorPage = (HtmlPage)testButton(getHtmlPage("owners/12/pets/8/edit"), "Update Pet");
+        PetclinicAssert.assertErrorPage(errorPage, 5);
     }
 
     @Test
