@@ -207,8 +207,8 @@ public class PetclinicAssert {
                         assertEquals(1, page.getByXPath("//td[text() = '6085552654']").size());
                         assertEquals(1, page.getByXPath("//a[@href = '12/edit.html'][text()"
                                 + " = 'Edit Owner']").size());
-                        //assertEquals(1, page.getByXPath("//a[@href = '12/pets/new.html'][text()"
-                             //   + " = 'Add New Pet']").size());
+                        assertEquals(1, page.getByXPath("//a[@href = '12/pets/new.html'][text()"
+                                + " = 'Add New Pet']").size());
                         assertEquals(1, page.getByXPath("//h2[text() = 'Pets and Visits']").size());
                         assertEquals(numberOfPets, page.getByXPath("//dt[text() = 'Name']").size());
                         assertEquals(1, page.getByXPath("//dd[text() = '" + nameOfPet + "']").size());

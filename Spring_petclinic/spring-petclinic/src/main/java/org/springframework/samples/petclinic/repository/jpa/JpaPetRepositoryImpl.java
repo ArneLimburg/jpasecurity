@@ -53,18 +53,15 @@ public class JpaPetRepositoryImpl implements PetRepository {
 
     @Override
     public void save(Pet pet) {
-    	Pet merged = null;
     	if(pet.getId() != null) {
         	Pet p = findById(pet.getId());
     		p.setName(pet.getName());
     		p.setBirthDate(pet.getBirthDate());
     		p.setType(pet.getType());
-    		merged = this.em.merge(p);
     	} else {
-    		merged = this.em.merge(pet);
+    		this.em.persist(pet);
     	}
     	this.em.flush();
-    	pet.setId(merged.getId());
     }
 
 }
