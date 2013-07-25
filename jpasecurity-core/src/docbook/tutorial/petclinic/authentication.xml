@@ -657,12 +657,12 @@ public interface CredentialRepository {
       <![CDATA[
 package org.springframework.samples.petclinic.repository.jpa;
 
-import net.sf.jpasecurity.AccessType;
-
-import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+
+import net.sf.jpasecurity.AccessType;
+import net.sf.jpasecurity.persistence.SecureEntityManager;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Credential;
@@ -674,7 +674,7 @@ import org.springframework.stereotype.Repository;
 public class JpaCredentialRepositoryImpl implements CredentialRepository{
 
     @PersistenceContext
-    private EntityManager em;
+    private SecureEntityManager em;
 
     @Override
     public Credential findById(int id) throws DataAccessException {

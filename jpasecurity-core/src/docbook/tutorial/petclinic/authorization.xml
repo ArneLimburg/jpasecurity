@@ -136,18 +136,15 @@ public void save(Pet pet) {
       <![CDATA[
 @Override
 public void save(Pet pet) {
-    Pet merged = null;
     if(pet.getId() != null) {
         Pet p = findById(pet.getId());
         p.setName(pet.getName());
         p.setBirthDate(pet.getBirthDate());
         p.setType(pet.getType());
-        merged = this.em.merge(p);
     } else {
-        merged = this.em.merge(pet);
+        this.em.persist(pet);
     }
     this.em.flush();
-    pet.setId(merged.getId());
 }
       ]]>
     </programlisting>
@@ -196,6 +193,19 @@ public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
     mav.addObject(this.clinicService.findOwnerById(ownerId));
     mav.getModelMap().addAttribute(accessManager);
     return mav;
+}
+      ]]>
+    </programlisting>
+    <para>Moreover we have to define explicitly a default constructor and a constructor with <systemitem>Owner</systemitem> as parameter for a pet. Therefore add the following code
+    in <filename>Pet.java</filename> (in <filename>src/main/java/org/springframework/samples/petclinic/model/</filename>)</para>
+    <programlisting>
+      <![CDATA[
+public Pet() {
+}
+
+public Pet(Owner owner) {
+    this();
+    setOwner(owner);
 }
       ]]>
     </programlisting>
