@@ -14,7 +14,7 @@
       Unfortunately we currently have no common table for owners and vets. Owners and vets already have some data in
       common, so it seems naturally to create a common base-table. We name it <systemitem>persons</systemitem> and we
       put the <systemitem>first_name</systemitem> and <systemitem>last_name</systemitem> into it. The
-        <systemitem>users</systemitem> table then can reference the table <systemitem>persons</systemitem>. </para>
+        <systemitem>users</systemitem> table can then reference the table <systemitem>persons</systemitem>. </para>
     <para> Again we change the database schema in the file <filename>initDB.sql</filename> (in
         <filename>src/main/resources/db/hsqldb/</filename>). Change the following lines </para>
     <programlisting>
@@ -819,7 +819,7 @@ public class CredentialServiceImpl implements CredentialService{
     <para> Now change the following configuration of the <filename>business-config.xml</filename>. Change</para>
     <programlisting>
         <![CDATA[
-<beans profile="jpa">
+<beans profile="default">
     [...]
     <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 </beans>
@@ -828,7 +828,7 @@ public class CredentialServiceImpl implements CredentialService{
      <para>into</para>
     <programlisting>
       <![CDATA[
-<beans profile="jpa">
+<beans profile="default">
     [...]
     <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
@@ -1080,9 +1080,9 @@ public class ClinicController {
         Credential credential = (Credential)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         ModelAndView mav = new ModelAndView("welcome");
         Person user = credentialService.findCredentialById(credential.getId()).getUser();
-        mav.addObject("person", credential.getUser());
-        mav.addObject("vet", credential.getUser() instanceof Vet);
-        mav.addObject("owner", credential.getUser() instanceof Owner);
+        mav.addObject("person", user);
+        mav.addObject("vet", user instanceof Vet);
+        mav.addObject("owner", user instanceof Owner);
         return mav;
     }
 }

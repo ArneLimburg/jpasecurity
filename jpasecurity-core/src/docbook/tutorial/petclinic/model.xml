@@ -19,7 +19,7 @@
     chapter we are going to realize this. </para>
   <section>
     <title>Modifying the Database</title>
-    <para> The first thing to we have to do in order to assign visits to vets, is to change the database to reflect
+    <para> The first thing we have to do in order to assign visits to vets, is to change the database to reflect
       this. As we use an in-memory-database (HSQLDB) that is initialized from a script file, we only have to change the
       script file. We have to stop the server first by pressing the following keys: </para>
     <programlisting>
@@ -59,6 +59,8 @@ DROP TABLE specialties IF EXISTS;
 DROP TABLE pets IF EXISTS;
 DROP TABLE types IF EXISTS;
 DROP TABLE owners IF EXISTS;
+
+[...]
 
 CREATE TABLE visits (
     id          INTEGER IDENTITY PRIMARY KEY,
@@ -123,7 +125,7 @@ public boolean equals(Object object) {
     </programlisting>
     <para> Now we can modify our model to reflect the relation between visits and vets. We add the following code to the
       file <filename>Visit.java</filename> (in
-      <filename>src/main/java/org/springframework/samples/petclinic/</filename>) </para>
+      <filename>src/main/java/org/springframework/samples/petclinic/model/</filename>) </para>
     <programlisting>
       <![CDATA[
 @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -472,7 +474,7 @@ public ModelAndView showVet(@PathVariable("vetId") int vetId) {
 }
       ]]>
     </programlisting>
-    <para> We also may modify <filename>vetList.jsp</filename> in <filename>src/main/webapp/WEB-INF/jsp/vets/</filename> to add
+    <para> We may also modify <filename>vetList.jsp</filename> in <filename>src/main/webapp/WEB-INF/jsp/vets/</filename> to add
       links to our newly created vet-page. </para>
     <para> Change </para>
     <programlisting>
@@ -620,7 +622,7 @@ public String toString() {
       ]]>
     </programlisting>
     <para> The vet is now displayed human-readable in the drop-down-box, but we have to ensure that the displayed text
-      properly can be reverted to a vet. We do this by adding a vet-formatter. </para>
+        can be reverted to a vet properly. We do this by adding a vet-formatter. </para>
     <para> Create the file <filename>VetFormatter.java</filename> in
         <filename>src/main/java/org/springframework/samples/petclinic/web/</filename> and fill it with the following
       content. </para>
@@ -729,7 +731,7 @@ Visit findById(int id) throws DataAccessException;
 @Override
 @Transactional(readOnly = true)
 public Visit findVisitById(int id) throws DataAccessException {
-    return visitRepository.findById(id);
+    return visitRepository.findBy(id);
 }
       ]]>
     </programlisting>

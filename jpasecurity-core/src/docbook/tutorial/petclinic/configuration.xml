@@ -2,31 +2,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN" "http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
 <article id="configuration">
   <title>Configuration</title>
-  <para> Our application uses JPA as data-access-layer. We configure this in the <filename>web.xml</filename> (in
-      <filename>src/main/webapp/WEB-INF/</filename>) by changing the following lines </para>
-  <programlisting>
-    <![CDATA[
-<context-param>
-    <param-name>spring.profiles.active</param-name>
-    <param-value>jdbc</param-value>
-    <!-- Available profiles:
-	    <param-value>jdbc</param-value>
-	    <param-value>jpa</param-value> (in the case of plain JPA)
-	    <param-value>spring-data-jpa</param-value> (in the case of Spring Data JPA)
-	    -->
-</context-param>
-    ]]>
-  </programlisting>
-  <para>into</para>
-  <programlisting>
-    <![CDATA[
-<context-param>
-    <param-name>spring.profiles.active</param-name>
-    <param-value>jpa</param-value>
-</context-param>
-    ]]>
-  </programlisting>
-  <para>Moreover we can delete the profiles for jdbc and sprind-data-jpa. So delete the following lines in <filename>src/main/resources/spring/business-config.xml</filename>:
+  <para> Our application uses JPA as data-access-layer. So delete the following lines in <filename>src/main/resources/spring/business-config.xml</filename>:
   </para>
   <programlisting>
     <![CDATA[
@@ -51,17 +27,13 @@
 
 <beans profile="spring-data-jpa">
     <jpa:repositories base-package="org.springframework.samples.petclinic.repository.springdatajpa"/>
-
-    <!-- Custom configuration for the custom implementation based on JPA -->
-    <bean id="ownerRepository"
-          class="org.springframework.samples.petclinic.repository.springdatajpa.JpaOwnerRepositoryImpl"/>
 </beans>
     ]]>
   </programlisting>
   <para>and change</para>
   <programlisting>
     <![CDATA[
-<beans profile="jpa,spring-data-jpa">
+<beans profile="default,spring-data-jpa">
     <!-- JPA EntityManagerFactory -->
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
           p:dataSource-ref="dataSource">
@@ -87,7 +59,7 @@
 <para>into</para>
   <programlisting>
     <![CDATA[
-<beans profile="jpa">
+<beans profile="default">
     <!-- JPA EntityManagerFactory -->
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
           p:dataSource-ref="dataSource">
