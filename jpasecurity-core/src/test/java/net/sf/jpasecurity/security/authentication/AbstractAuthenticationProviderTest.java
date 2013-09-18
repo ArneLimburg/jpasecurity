@@ -15,15 +15,15 @@
  */
 package net.sf.jpasecurity.security.authentication;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
+
+import org.junit.Test;
 
 import net.sf.jpasecurity.configuration.AuthenticationProvider;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Arne Limburg
@@ -37,11 +37,6 @@ public abstract class AbstractAuthenticationProviderTest {
     public abstract AuthenticationProvider createAuthenticationProvider();
 
     public abstract void authenticate(Object principal, String... roles);
-
-    @Test
-    public void unauthenticated() {
-        assertUnauthenticated();
-    }
 
     @Test
     public void authenticated() {
