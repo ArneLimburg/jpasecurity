@@ -15,12 +15,11 @@
  */
 package net.sf.jpasecurity.proxy;
 
-import static org.easymock.EasyMock.createNiceMock;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodProxy;
@@ -31,21 +30,22 @@ import net.sf.jpasecurity.proxy.model.ProtectedFinalMethodTestBean;
 import net.sf.jpasecurity.proxy.model.PublicFinalMethodTestBean;
 import net.sf.jpasecurity.proxy.model.PublicFinalMethodTestBeanInSuperclass;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Arne Limburg
  */
-public class SecureEntityProxyFactoryTest {
+public abstract class AbstractSecureEntityProxyFactoryTest {
 
-    private SecureEntityProxyFactory proxyFactory = new CgLibSecureEntityProxyFactory();
+    protected abstract SecureEntityProxyFactory getProxyFactory();
 
     @Test
     public void superMethodThrowsInvocationTargetException() {
-        TestEntity entity = (TestEntity)proxyFactory.createSecureEntityProxy(TestEntity.class,
-                                                                             new SuperMethodInvoker(),
-                                                                             new EmptyDecorator());
+        TestEntity entity = (TestEntity)getProxyFactory().createSecureEntityProxy(TestEntity.class,
+                                                                                  new SuperMethodInvoker(),
+                                                                                  new EmptyDecorator());
         try {
             entity.throwNullPointerException();
         } catch (SuperMethodInvocationException e) {
@@ -55,6 +55,7 @@ public class SecureEntityProxyFactoryTest {
 
     @Test
     public void wrongSecureEntity() {
+        final SecureEntityProxyFactory proxyFactory = getProxyFactory();
         try {
             proxyFactory.getInterceptor(createNiceMock(SecureEntity.class));
             fail("expected IllegalArgumentException since the specified proxy was not created by the factory");
@@ -77,15 +78,15 @@ public class SecureEntityProxyFactoryTest {
 
     @Test
     public void testFinalCheck() {
-        Assert.assertTrue(CgLibSecureEntityProxyFactory.checkClassForNonStaticFinalMethods(ChildTestBean.class));
+        Assert.assertTrue(AbstractSecureEntityProxyFactory.checkClassForNonStaticFinalMethods(ChildTestBean.class));
         Assert.assertFalse(
-            CgLibSecureEntityProxyFactory.checkClassForNonStaticFinalMethods(PublicFinalMethodTestBean.class));
+            AbstractSecureEntityProxyFactory.checkClassForNonStaticFinalMethods(PublicFinalMethodTestBean.class));
         Assert.assertFalse(
-            CgLibSecureEntityProxyFactory.checkClassForNonStaticFinalMethods(ProtectedFinalMethodTestBean.class));
+            AbstractSecureEntityProxyFactory.checkClassForNonStaticFinalMethods(ProtectedFinalMethodTestBean.class));
         Assert.assertFalse(
-            CgLibSecureEntityProxyFactory.checkClassForNonStaticFinalMethods(PackageLocalFinalMethodTestBean.class));
+            AbstractSecureEntityProxyFactory.checkClassForNonStaticFinalMethods(PackageLocalFinalMethodTestBean.class));
         Assert.assertFalse(
-            CgLibSecureEntityProxyFactory
+            AbstractSecureEntityProxyFactory
                 .checkClassForNonStaticFinalMethods(PublicFinalMethodTestBeanInSuperclass.class));
     }
 
