@@ -17,9 +17,6 @@ package net.sf.jpasecurity.proxy;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
@@ -28,26 +25,18 @@ import net.sf.cglib.proxy.MethodProxy;
 import net.sf.jpasecurity.SecureEntity;
 
 /**
- * An implementation of {@link SecureEntityProxyFactory} that uses CGLib
- * to create proxies
+ * An implementation of {@link SecureEntityProxyFactory} that uses CGLib to create proxies
+ *
  * @author Arne Limburg
  */
-public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
+public class CgLibSecureEntityProxyFactory extends AbstractSecureEntityProxyFactory {
 
-    private static final Map<Class, Boolean> CHECKED = new HashMap<Class, Boolean>();
-
-    static {
-        CHECKED.put(Object.class, Boolean.TRUE);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     public SecureEntity createSecureEntityProxy(final Class<?> entityType,
                                                 final MethodInterceptor interceptor,
                                                 final Decorator<SecureEntity> decorator) {
         SecureEntity entity = (SecureEntity)Enhancer.create(entityType,
-                                                            new Class[] {SecureEntity.class},
+                                                            new Class[]{SecureEntity.class},
                                                             new CgLibMethodInterceptor(interceptor, decorator));
         if (!checkClassForNonStaticFinalMethods(entityType)) {
             throw new IllegalArgumentException("entity class " + entityType + " has final methods");
@@ -56,42 +45,19 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
         return entity;
     }
 
-    public static Boolean checkClassForNonStaticFinalMethods(Class<?> entityType) {
-        if (CHECKED.containsKey(entityType)) {
-            return CHECKED.get(entityType);
-        }
-        for (int i = 0; i < entityType.getDeclaredMethods().length; i++) {
-            Method method = entityType.getDeclaredMethods()[i];
-            if (Modifier.isFinal(method.getModifiers())
-                && !Modifier.isStatic(method.getModifiers())
-                && !Modifier.isPrivate(method.getModifiers())
-                ) {
-                CHECKED.put(entityType, Boolean.FALSE);
-                return false;
-            }
-        }
-        final Boolean result = checkClassForNonStaticFinalMethods(entityType.getSuperclass());
-        CHECKED.put(entityType, result);
-        return result;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     public MethodInterceptor getInterceptor(SecureEntity entity) {
         return getCgLibMethodInterceptor(entity).interceptor;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     public Decorator<SecureEntity> getDecorator(SecureEntity entity) {
         return getCgLibMethodInterceptor(entity).decorator;
     }
 
     private CgLibMethodInterceptor getCgLibMethodInterceptor(SecureEntity entity) {
         try {
-            for (Callback callback: getCallbacks(entity)) {
+            for (Callback callback : getCallbacks(entity)) {
                 if (callback instanceof CgLibMethodInterceptor) {
                     return (CgLibMethodInterceptor)callback;
                 }
@@ -126,7 +92,7 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
         public Object intercept(Object object, Method method, Object[] args, MethodProxy proxy) throws Throwable {
             SuperMethod superMethod;
             if (SecureEntityMethods.contains(method)) {
-                superMethod = new CgLibSecureEntityMethod(decorator, method);
+                superMethod = new SecureEntityMethod(decorator, method);
             } else {
                 superMethod = new CgLibSuperMethod(proxy);
             }
@@ -148,21 +114,6 @@ public class CgLibSecureEntityProxyFactory implements SecureEntityProxyFactory {
             } catch (Throwable e) {
                 throw new InvocationTargetException(e);
             }
-        }
-    }
-
-    private class CgLibSecureEntityMethod implements SuperMethod {
-
-        private Decorator<SecureEntity> secureEntityDecorator;
-        private Method method;
-
-        public CgLibSecureEntityMethod(Decorator<SecureEntity> secureEntityDecorator, Method method) {
-            this.secureEntityDecorator = secureEntityDecorator;
-            this.method = method;
-        }
-
-        public Object invoke(Object object, Object... args) throws IllegalAccessException, InvocationTargetException {
-            return method.invoke(secureEntityDecorator, args);
         }
     }
 }
