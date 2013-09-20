@@ -15,8 +15,6 @@
  */
 package net.sf.jpasecurity.persistence;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,14 +22,16 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.acl.Group;
 import net.sf.jpasecurity.model.acl.User;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Arne Limburg
@@ -389,8 +389,6 @@ public class EntityLifecycleTest {
                                       int removeCount,
                                       int updateCount,
                                       int loadCount) {
-        assertEquals("wrong prePersistCount", persistCount, bean.getPrePersistCount());
-        assertEquals("wrong postPersistCount", persistCount, bean.getPostPersistCount());
         assertEquals("wrong prePersistCount", persistCount, bean.getPrePersistCount());
         assertEquals("wrong postPersistCount", persistCount, bean.getPostPersistCount());
         assertEquals("wrong preRemoveCount", removeCount, bean.getPreRemoveCount());
