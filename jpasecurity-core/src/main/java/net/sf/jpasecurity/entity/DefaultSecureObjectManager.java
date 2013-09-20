@@ -15,8 +15,6 @@
  */
 package net.sf.jpasecurity.entity;
 
-import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,6 +38,8 @@ import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.util.SystemIdentity;
+
+import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
 
 /**
  * @author Arne Limburg
@@ -110,7 +110,13 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
     }
 
     public boolean contains(Object entity) {
-        return beanStore.contains(getUnsecureObject(entity));
+        try {
+            entity = getUnsecureObject(entity, false);
+        } catch (IllegalArgumentException e) {
+            // entity is transient or detached
+            // use original entity instead
+        }
+        return beanStore.contains(entity);
     }
 
     public void refresh(Object bean) {
@@ -333,7 +339,7 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
         return super.containsUnsecureObject(secureObject);
     }
 
-    <T> T getUnsecureObject(T secureObject) {
+    <T> T getUnsecureObject(T secureObject, boolean create) {
         if (secureObject == null) {
             return null;
         }
@@ -342,7 +348,7 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
         if (unsecureEntity != null) {
             return (T)unsecureEntity;
         }
-        return super.getUnsecureObject(secureObject);
+        return super.getUnsecureObject(secureObject, create);
     }
 
     <T> T createUnsecureObject(T secureEntity) {

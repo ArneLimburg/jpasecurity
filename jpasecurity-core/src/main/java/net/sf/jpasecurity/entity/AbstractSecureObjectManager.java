@@ -132,7 +132,6 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         Decorator<SecureEntity> decorator
             = createDecorator(mapping, beanInitializer, accessManager, object, isTransient);
         return createSecureEntity(mapping.<T>getEntityType(), interceptor, decorator);
-
     }
 
     <E> E createSecureEntity(Class<E> type, MethodInterceptor interceptor, Decorator<SecureEntity> decorator) {
@@ -157,6 +156,10 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
     }
 
     <T> T getUnsecureObject(T secureObject) {
+        return getUnsecureObject(secureObject, true);
+    }
+
+    <T> T getUnsecureObject(T secureObject, boolean create) {
         if (secureObject == null) {
             return null;
         }
@@ -176,7 +179,10 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         } else if (secureObject instanceof DefaultSecureMap) {
             return (T)((DefaultSecureMap<?, ?>)secureObject).getOriginal();
         }
-        return createUnsecureObject(secureObject);
+        if (create) {
+            return createUnsecureObject(secureObject);
+        }
+        throw new IllegalArgumentException("Cannot retrieve unsecure version from given secure object");
     }
 
     abstract <T> T createUnsecureObject(T secureObject);
