@@ -32,7 +32,7 @@ import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 /**
  * @author Stefan Hildebrandt
  */
-public class NewEntityTest {
+public class ConstructorUsageTest {
 
     public static final String USER1 = "user1";
 
