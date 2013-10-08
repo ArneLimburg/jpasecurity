@@ -23,7 +23,6 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
@@ -37,8 +36,7 @@ public class ConstructorUsageTest {
     public static final String USER1 = "user1";
 
     @Test
-    @Ignore("support for only one constructor argument is broken")
-    public void oneConstructorArgument() {
+    public void oneConstructorArgumentList() {
         TestAuthenticationProvider.authenticate(USER1);
         EntityManagerFactory entityManagerFactory
             = Persistence.createEntityManagerFactory("annotation-based-field-access");
@@ -63,7 +61,7 @@ public class ConstructorUsageTest {
     }
 
     @Test
-    public void moreConstructorArgumentsWithEntity() {
+    public void moreConstructorArgumentsWithEntityList() {
         TestAuthenticationProvider.authenticate(USER1);
         EntityManagerFactory entityManagerFactory
             = Persistence.createEntityManagerFactory("annotation-based-field-access");
@@ -81,6 +79,52 @@ public class ConstructorUsageTest {
         final List resultList = query.getResultList();
         Assert.assertEquals(1, resultList.size());
         final Object result = resultList.get(0);
+        Assert.assertEquals(FieldAccessAnnotationTestBean.class, result.getClass());
+        final FieldAccessAnnotationTestBean actual = (FieldAccessAnnotationTestBean)result;
+        Assert.assertEquals(USER1, actual.getBeanName());
+        Assert.assertEquals(parent.getIdentifier(), actual.getParentBean().getIdentifier());
+        entityManager.close();
+    }
+    @Test
+    public void oneConstructorArgumentSingleResult() {
+        TestAuthenticationProvider.authenticate(USER1);
+        EntityManagerFactory entityManagerFactory
+            = Persistence.createEntityManagerFactory("annotation-based-field-access");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean parent = new FieldAccessAnnotationTestBean(USER1);
+        entityManager.persist(parent);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+
+        entityManager = entityManagerFactory.createEntityManager();
+        final Query query = entityManager.createQuery(
+            "select new net.sf.jpasecurity.model.FieldAccessAnnotationTestBean(faatb.name) "
+                + "from FieldAccessAnnotationTestBean faatb");
+        final Object result = query.getSingleResult();
+        Assert.assertEquals(FieldAccessAnnotationTestBean.class, result.getClass());
+        final FieldAccessAnnotationTestBean actual = (FieldAccessAnnotationTestBean)result;
+        Assert.assertEquals(USER1, actual.getBeanName());
+        entityManager.close();
+    }
+
+    @Test
+    public void moreConstructorArgumentsWithEntitySingleResult() {
+        TestAuthenticationProvider.authenticate(USER1);
+        EntityManagerFactory entityManagerFactory
+            = Persistence.createEntityManagerFactory("annotation-based-field-access");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean parent = new FieldAccessAnnotationTestBean(USER1);
+        entityManager.persist(parent);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+
+        entityManager = entityManagerFactory.createEntityManager();
+        final Query query = entityManager.createQuery(
+            "select new net.sf.jpasecurity.model.FieldAccessAnnotationTestBean(faatb.name, faatb) "
+                + "from FieldAccessAnnotationTestBean faatb");
+        final Object result = query.getSingleResult();
         Assert.assertEquals(FieldAccessAnnotationTestBean.class, result.getClass());
         final FieldAccessAnnotationTestBean actual = (FieldAccessAnnotationTestBean)result;
         Assert.assertEquals(USER1, actual.getBeanName());
