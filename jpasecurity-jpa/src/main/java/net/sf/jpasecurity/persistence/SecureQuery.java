@@ -128,11 +128,11 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
     private T createNewInstance(Object parameter)
         throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         final T result;
-        if(parameter instanceof Object[]){
+        if (parameter instanceof Object[]) {
             Object[] parameters = (Object[])parameter;
             Constructor<T> constructor = ReflectionUtils.getConstructor(constructorArgReturnType, parameters);
             result = constructor.newInstance(parameters);
-        }else{
+        } else {
             Constructor<T> constructor = ReflectionUtils.getConstructor(constructorArgReturnType, parameter);
             result = constructor.newInstance(parameter);
         }
