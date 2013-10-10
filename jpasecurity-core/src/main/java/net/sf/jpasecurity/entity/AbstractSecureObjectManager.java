@@ -28,6 +28,7 @@ import java.util.TreeSet;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.ExceptionFactory;
+import net.sf.jpasecurity.FetchType;
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureMap;
@@ -498,6 +499,10 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         if (!propertyMapping.isRelationshipMapping()) {
             return !nullSaveEquals(newValue, oldValue);
         } else if (propertyMapping.isSingleValued()) {
+            if (propertyMapping.getFetchType() == FetchType.LAZY) {
+                // one value might by proxied version of the other, so == cannot work.
+                return !nullSaveEquals(newValue, oldValue);
+            }
             return true; //because newValue != oldValue
         } else {
             CollectionValuedRelationshipMappingInformation relationshipMapping
