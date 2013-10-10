@@ -30,10 +30,10 @@ import javax.persistence.Inheritance;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PreUpdate;
+import javax.persistence.Transient;
 
-/**
- * @author Arne Limburg
- */
+/** @author Arne Limburg */
 @Entity
 @Inheritance
 public class TestBean {
@@ -49,6 +49,8 @@ public class TestBean {
     private List<TestBean> children = new ArrayList<TestBean>();
     @ManyToMany
     private Map<TestBean, TestBean> related;
+    @Transient
+    private boolean preUpdate;
 
     public TestBean() {
     }
@@ -91,5 +93,32 @@ public class TestBean {
 
     public Map<TestBean, TestBean> getRelated() {
         return related;
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        preUpdate = true;
+    }
+
+    public boolean isPreUpdate() {
+        return preUpdate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || !(o instanceof TestBean)) {
+            return false;
+        }
+
+        TestBean testBean = (TestBean)o;
+        return id != null && id.equals(testBean.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : super.hashCode();
     }
 }

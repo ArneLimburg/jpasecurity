@@ -17,13 +17,15 @@ package net.sf.jpasecurity.persistence;
 
 import javax.persistence.EntityManager;
 
-import net.sf.jpasecurity.model.TestBean;
-import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import net.sf.jpasecurity.model.TestBean;
+import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
+
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Arne Limburg
@@ -33,6 +35,7 @@ public class LazyRelationshipTest extends AbstractEntityTestCase {
     public static final String USER = "user";
 
     private int childId;
+    private int parentId;
 
     @BeforeClass
     public static void createEntityManagerFactory() {
@@ -53,6 +56,7 @@ public class LazyRelationshipTest extends AbstractEntityTestCase {
         closeEntityManager();
         TestAuthenticationProvider.authenticate(null);
         childId = child.getId();
+        parentId = testBean.getId();
     }
 
     @After
@@ -65,5 +69,17 @@ public class LazyRelationshipTest extends AbstractEntityTestCase {
         TestAuthenticationProvider.authenticate(USER);
         createEntityManager();
         getEntityManager().find(TestBean.class, childId);
+    }
+
+    @Test
+    public void testFlushBeforeFind() {
+        TestAuthenticationProvider.authenticate(USER);
+        createEntityManager();
+        getEntityManager().getTransaction().begin();
+        final TestBean child = getEntityManager().find(TestBean.class, childId);
+        getEntityManager().find(TestBean.class, parentId);
+        getEntityManager().flush();
+        getEntityManager().getTransaction().rollback();
+        assertFalse(child.isPreUpdate());
     }
 }
