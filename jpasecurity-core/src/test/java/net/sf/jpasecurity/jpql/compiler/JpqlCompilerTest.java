@@ -15,10 +15,11 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
 import net.sf.jpasecurity.jpql.parser.ParseException;
@@ -26,13 +27,18 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.MethodAccessTestBean;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Arne Limburg
  */
 public class JpqlCompilerTest {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     private MappingInformation mappingInformation;
     private JpqlParser parser;
@@ -75,5 +81,23 @@ public class JpqlCompilerTest {
         JpqlCompiledStatement compiledStatement = compiler.compile(parser.parseQuery(statement));
         assertEquals(1, compiledStatement.getSelectedPaths().size());
         assertEquals("tb", compiledStatement.getSelectedPaths().get(0).toString());
+    }
+
+    @Test
+    public void updateStatementAlias() throws ParseException {
+        String statement = "Update MethodAccessTestBean tb "
+            + "set tb.beanName='horst' where tb.identifier=34";
+        JpqlCompiledStatement compiledStatement = compiler.compile(parser.parseQuery(statement));
+        assertEquals(1, compiledStatement.getTypeDefinitions().size());
+        assertEquals("tb", compiledStatement.getTypeDefinitions().iterator().next().getAlias().getName());
+    }
+
+    @Test
+    public void updateStatementMissingAlias() throws ParseException {
+        expectedException.expect(IllegalStateException.class);
+        expectedException.expectMessage("missing alias for type MethodAccessTestBean");
+        String statement = "Update MethodAccessTestBean "
+            + "set beanName='horst' where identifier=34";
+        compiler.compile(parser.parseQuery(statement));
     }
 }

@@ -391,6 +391,9 @@ public class JpqlCompiler {
         }
 
         private Alias getAlias(Node node) {
+            if (node.jjtGetNumChildren() < 2) {
+                throw exceptionFactory.createMissingAliasException(node.jjtGetChild(0).toString());
+            }
             return new Alias(node.jjtGetChild(1).toString());
         }
 
