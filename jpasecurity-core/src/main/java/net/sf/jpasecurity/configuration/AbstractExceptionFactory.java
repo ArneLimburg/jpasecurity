@@ -63,5 +63,9 @@ public abstract class AbstractExceptionFactory implements ExceptionFactory {
         return createRuntimeException(null, cause);
     }
 
+    public RuntimeException createMissingAliasException(String type) {
+        return createRuntimeException("missing alias for type " + type);
+    }
+
     public abstract RuntimeException createRuntimeException(String errorMessage, Throwable cause);
 }

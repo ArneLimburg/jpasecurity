@@ -29,6 +29,7 @@ public interface ExceptionFactory {
     RuntimeException createTypeNotFoundException(String className);
     RuntimeException createPropertyNotFoundException(Class<?> type, String propertyName);
     RuntimeException createInvalidPathException(String path, String error);
+    RuntimeException createMissingAliasException(String type);
     RuntimeException createRuntimeException(String message);
     RuntimeException createRuntimeException(Throwable cause);
     RuntimeException createRuntimeException(String message, Throwable cause);
