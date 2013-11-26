@@ -147,6 +147,8 @@ public class DefaultSecureObjectManager extends AbstractSecureObjectManager {
         postFlush();
         if (entity instanceof SecureEntity) {
             initialize((SecureEntity)entity, true);
+        } else {
+            secureCopy(unsecureEntity, entity);
         }
         cascadeRefresh(entity, unsecureEntity, new HashSet<SystemIdentity>());
     }
