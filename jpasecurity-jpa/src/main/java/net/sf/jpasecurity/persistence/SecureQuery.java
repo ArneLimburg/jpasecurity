@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.persistence.FlushModeType;
 import javax.persistence.Parameter;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
@@ -36,9 +37,9 @@ import net.sf.jpasecurity.util.ReflectionUtils;
 
 import static net.sf.jpasecurity.util.Types.isSimplePropertyType;
 
-
 /**
  * This class handles invocations on queries.
+ *
  * @author Arne Limburg
  */
 public class SecureQuery<T> extends DelegatingQuery<T> {
@@ -89,7 +90,7 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
         if (constructorArgReturnType != null) {
             Object parameters = super.getSingleResult();
             try {
-                result = createNewInstance(parameters);
+                result = handleConstructorReturnType(parameters);
             } catch (InvocationTargetException e) {
                 result = ReflectionUtils.throwThrowable(e.getTargetException());
             } catch (Exception e) {
@@ -110,7 +111,7 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
         if (constructorArgReturnType != null) {
             for (Object parameter : (List<Object>)targetResult) {
                 try {
-                    proxyResult.add(createNewInstance(parameter));
+                    proxyResult.add(handleConstructorReturnType(parameter));
                 } catch (InvocationTargetException e) {
                     ReflectionUtils.throwThrowable(e.getTargetException());
                 } catch (Exception e) {
@@ -118,25 +119,32 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
                 }
             }
         } else {
-            for (T entity: targetResult) {
+            for (T entity : targetResult) {
                 proxyResult.add(getSecureResult(entity));
             }
         }
         return proxyResult;
     }
 
-    private T createNewInstance(Object parameter)
-        throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        final T result;
-        if (parameter instanceof Object[]) {
-            Object[] parameters = (Object[])parameter;
-            Constructor<T> constructor = ReflectionUtils.getConstructor(constructorArgReturnType, parameters);
-            result = constructor.newInstance(parameters);
-        } else {
-            Constructor<T> constructor = ReflectionUtils.getConstructor(constructorArgReturnType, parameter);
-            result = constructor.newInstance(parameter);
+    T handleConstructorReturnType(Object parameter)
+        throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        try {
+            final T result;
+            if (constructorArgReturnType.isAssignableFrom(parameter.getClass())
+                && parameter.getClass().isAssignableFrom(constructorArgReturnType)) {
+                result = (T)parameter;
+            } else if (parameter instanceof Object[]) {
+                Object[] parameters = (Object[])parameter;
+                Constructor<T> constructor = ReflectionUtils.getConstructor(constructorArgReturnType, parameters);
+                result = constructor.newInstance(parameters);
+            } else {
+                Constructor<T> constructor = ReflectionUtils.getConstructor(constructorArgReturnType, parameter);
+                result = constructor.newInstance(parameter);
+            }
+            return result;
+        } catch (NoSuchMethodException e) {
+            throw new PersistenceException("No constructor for result type of query", e);
         }
-        return result;
     }
 
     private void preFlush() {

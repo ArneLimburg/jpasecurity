@@ -15,35 +15,33 @@
  */
 package net.sf.jpasecurity.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import net.sf.jpasecurity.dto.IdAndNameDto;
-
-import net.sf.jpasecurity.model.client.Client;
-import net.sf.jpasecurity.model.client.ClientOperationsTracking;
-import net.sf.jpasecurity.model.client.ClientProcessInstance;
-import net.sf.jpasecurity.model.client.ClientStaffing;
-import net.sf.jpasecurity.model.client.ClientStatus;
-import net.sf.jpasecurity.model.client.ClientTask;
-import net.sf.jpasecurity.model.client.ProcessInstanceProcessTaskInstance;
-import net.sf.jpasecurity.model.client.Employee;
-import net.sf.jpasecurity.persistence.AbstractEntityTestCase;
-import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/**
- * @author Arne Limburg
- */
+import net.sf.jpasecurity.dto.IdAndNameDto;
+import net.sf.jpasecurity.model.client.Client;
+import net.sf.jpasecurity.model.client.ClientOperationsTracking;
+import net.sf.jpasecurity.model.client.ClientProcessInstance;
+import net.sf.jpasecurity.model.client.ClientStaffing;
+import net.sf.jpasecurity.model.client.ClientStatus;
+import net.sf.jpasecurity.model.client.ClientTask;
+import net.sf.jpasecurity.model.client.Employee;
+import net.sf.jpasecurity.model.client.ProcessInstanceProcessTaskInstance;
+import net.sf.jpasecurity.persistence.AbstractEntityTestCase;
+import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+/** @author Arne Limburg */
 public class ClientTest extends AbstractEntityTestCase {
 
     private static final String EMAIL = "test@test.org";
@@ -88,7 +86,7 @@ public class ClientTest extends AbstractEntityTestCase {
 
         // Then we create the association (manyToMany) between the Instance and the Task
         ProcessInstanceProcessTaskInstance processInstanceProcessTaskInstance =
-                new ProcessInstanceProcessTaskInstance(clientProcessInstance, clientTask);
+            new ProcessInstanceProcessTaskInstance(clientProcessInstance, clientTask);
 
         EntityManager entityManager = getEntityManagerFactory().createEntityManager();
         entityManager.getTransaction().begin();
@@ -163,9 +161,9 @@ public class ClientTest extends AbstractEntityTestCase {
     public void query() {
         TestAuthenticationProvider.authenticate(EMAIL);
         List<Client> clients = getEntityManager().createQuery("SELECT cl FROM Client cl WHERE cl.id = :id",
-                Client.class)
-                .setParameter("id", clientId)
-                .getResultList();
+            Client.class)
+            .setParameter("id", clientId)
+            .getResultList();
         assertEquals(1, clients.size());
     }
 
@@ -174,10 +172,10 @@ public class ClientTest extends AbstractEntityTestCase {
     public void queryOperationsTracking() {
         TestAuthenticationProvider.authenticate(EMAIL);
         List<ClientOperationsTracking> tracking = getEntityManager().
-                createQuery("SELECT t FROM ClientOperationsTracking t WHERE t.id = :id",
+            createQuery("SELECT t FROM ClientOperationsTracking t WHERE t.id = :id",
                 ClientOperationsTracking.class)
-                .setParameter("id", operationsTrackingId)
-                .getResultList();
+            .setParameter("id", operationsTrackingId)
+            .getResultList();
         assertEquals(1, tracking.size());
     }
 
@@ -188,17 +186,33 @@ public class ClientTest extends AbstractEntityTestCase {
     }
 
     @Test
-    public void testIdAndNameDtoFind() {
+    public void testIdAndNameDtoGetSingleResult() {
         TestAuthenticationProvider.authenticate(EMAIL);
         EntityManager entityManager = getEntityManager();
         List<IdAndNameDto> idAndNameDtoList = entityManager
-                .createNamedQuery(Client.FIND_ALL_ID_AND_NAME).getResultList();
+            .createNamedQuery(Client.FIND_ALL_ID_AND_NAME).getResultList();
         assertEquals(1, idAndNameDtoList.size());
         assertEquals(IdAndNameDto.class, idAndNameDtoList.get(0).getClass());
         assertEquals(clientId, idAndNameDtoList.get(0).getId().intValue());
 
         IdAndNameDto dto
             = entityManager.createNamedQuery(Client.FIND_ALL_ID_AND_NAME, IdAndNameDto.class).getSingleResult();
+        assertEquals(clientId, dto.getId().intValue());
+    }
+
+    @Test
+
+    public void testIdAndNameDtoGetResultList() {
+        TestAuthenticationProvider.authenticate(EMAIL);
+        EntityManager entityManager = getEntityManager();
+        List<IdAndNameDto> idAndNameDtoList = entityManager
+            .createNamedQuery(Client.FIND_ALL_ID_AND_NAME).getResultList();
+        assertEquals(1, idAndNameDtoList.size());
+        assertEquals(IdAndNameDto.class, idAndNameDtoList.get(0).getClass());
+        assertEquals(clientId, idAndNameDtoList.get(0).getId().intValue());
+
+        IdAndNameDto dto
+            = entityManager.createNamedQuery(Client.FIND_ALL_ID_AND_NAME, IdAndNameDto.class).getResultList().get(0);
         assertEquals(clientId, dto.getId().intValue());
     }
 }
