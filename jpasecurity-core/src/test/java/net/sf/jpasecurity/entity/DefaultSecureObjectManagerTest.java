@@ -15,37 +15,62 @@
  */
 package net.sf.jpasecurity.entity;
 
-import org.easymock.EasyMock;
-import org.junit.Ignore;
+import java.util.Arrays;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 import net.sf.jpasecurity.AccessManager;
+import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.BeanStore;
+import net.sf.jpasecurity.ExceptionFactory;
+import net.sf.jpasecurity.mapping.BeanInitializer;
 import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
+import net.sf.jpasecurity.mapping.PropertyMappingInformation;
+import net.sf.jpasecurity.mapping.ReflectionFieldAccessStrategy;
+import net.sf.jpasecurity.mapping.SimplePropertyMappingInformation;
 import net.sf.jpasecurity.model.MethodAccessTestBean;
 
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 
 public class DefaultSecureObjectManagerTest {
     @Test
-    @Ignore("TODO")
-    public void testCascadeRefresh() {
+    public void testCascadeRefresh() throws NoSuchFieldException {
+        final MethodAccessTestBean secureEntity = new MethodAccessTestBean("secureEntity");
+        final MethodAccessTestBean unsecureEntity = new MethodAccessTestBean("unsecureEntity");
         MappingInformation mappingInformation = createMock(MappingInformation.class);
         ClassMappingInformation classMapping = createMock(ClassMappingInformation.class);
         String className = MethodAccessTestBean.class.getSimpleName();
         expect(mappingInformation.containsClassMapping(className)).andReturn(true).anyTimes();
         expect(mappingInformation.getClassMapping(MethodAccessTestBean.class)).andReturn(classMapping).anyTimes();
         expect(classMapping.<MethodAccessTestBean>getEntityType()).andReturn(MethodAccessTestBean.class).anyTimes();
-        replay(mappingInformation, classMapping);
-        final BeanStore beanStore = createMock(BeanStore.class);
+        final BeanInitializer beanInitializerMock = createMock(BeanInitializer.class);
+        final ReflectionFieldAccessStrategy propertyAccessStrategy =
+            new ReflectionFieldAccessStrategy(MethodAccessTestBean.class.getDeclaredField("beanName"),
+                beanInitializerMock);
+        final SimplePropertyMappingInformation beanNamePropertyMapping =
+            new SimplePropertyMappingInformation("beanName", String.class, classMapping,
+                propertyAccessStrategy, createMock(ExceptionFactory.class));
+        expect(classMapping.getPropertyMappings())
+            .andReturn(Arrays.<PropertyMappingInformation>asList(beanNamePropertyMapping)).anyTimes();
+        final BeanStore beanStore = createNiceMock(BeanStore.class);
+        expect(beanInitializerMock.initialize(unsecureEntity)).andReturn(unsecureEntity);
         final AccessManager accessManager = createMock(AccessManager.class);
+        expect(accessManager.isAccessible(AccessType.READ, secureEntity)).andReturn(true).anyTimes();
+        replay(mappingInformation, classMapping, beanStore, accessManager, beanInitializerMock);
+
         final DefaultSecureObjectManager defaultSecureObjectManager =
-            new DefaultSecureObjectManager(mappingInformation, beanStore, accessManager);
-        final MethodAccessTestBean mock =
-            EasyMock.createMock(MethodAccessTestBean.class);
-        defaultSecureObjectManager.refresh(mock);
+            new DefaultSecureObjectManager(mappingInformation, beanStore, accessManager) {
+                @Override
+                <T> T getUnsecureObject(T secureObject, boolean create) {
+                    return (T)unsecureEntity;
+                }
+            };
+        defaultSecureObjectManager.refresh(secureEntity);
+        Assert.assertEquals("unsecureEntity", secureEntity.getName());
     }
 }
