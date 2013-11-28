@@ -66,8 +66,8 @@ public class DefaultSecureObjectManagerTest {
         final DefaultSecureObjectManager defaultSecureObjectManager =
             new DefaultSecureObjectManager(mappingInformation, beanStore, accessManager) {
                 @Override
-                <T> T getUnsecureObject(T secureObject, boolean create) {
-                    return (T)unsecureEntity;
+                Object getUnsecureObject(Object secureObject, boolean create) {
+                    return unsecureEntity;
                 }
             };
         defaultSecureObjectManager.refresh(secureEntity);
