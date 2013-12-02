@@ -985,7 +985,7 @@ void functionsReturningStrings(): {} {
 }
 
 void concat() #Concat: {} {
-    <CONCAT> "(" stringExpression() <COMMA> stringExpression() ")"
+    <CONCAT> "(" stringExpression() (<COMMA> stringExpression())+")"
 }
 
 void substring() #Substring: {} {
