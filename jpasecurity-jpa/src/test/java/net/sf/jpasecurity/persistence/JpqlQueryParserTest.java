@@ -19,10 +19,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
-
 import org.junit.After;
 import org.junit.Test;
+
+import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
 /**
  * @author Arne Limburg
@@ -40,13 +40,35 @@ public class JpqlQueryParserTest {
     @Test
     public void distinct() {
         executeQuery("SELECT DISTINCT tb1, tb2 "
-                     + "FROM FieldAccessAnnotationTestBean tb1, FieldAccessAnnotationTestBean tb2");
+            + "FROM FieldAccessAnnotationTestBean tb1, FieldAccessAnnotationTestBean tb2");
     }
 
     @Test
     public void exists() {
         executeQuery("SELECT tb FROM FieldAccessAnnotationTestBean tb "
-                   + "WHERE EXISTS(SELECT tb2 FROM FieldAccessAnnotationTestBean tb2)");
+            + "WHERE EXISTS(SELECT tb2 FROM FieldAccessAnnotationTestBean tb2)");
+    }
+
+    @Test
+    public void dto() {
+        executeQuery("SELECT new net.sf.jpasecurity.dto.IdAndNameDto(tb.id, tb.name) "
+            + "FROM FieldAccessAnnotationTestBean tb "
+            + "WHERE EXISTS(SELECT tb2 FROM FieldAccessAnnotationTestBean tb2)");
+    }
+
+    @Test
+    public void dtoConcat() {
+        executeQuery("SELECT new net.sf.jpasecurity.dto.IdAndNameDto(tb.id, concat(tb.id, tb.name)) "
+            + "FROM FieldAccessAnnotationTestBean tb "
+            + "WHERE EXISTS(SELECT tb2 FROM FieldAccessAnnotationTestBean tb2)");
+    }
+
+    @Test
+    public void dtoConcatMultiParam() {
+        executeQuery("SELECT new net.sf.jpasecurity.dto.IdAndNameDto(tb.id, "
+            + "concat(tb.id, tb.name, tb.name, tb.name, tb.name, tb.name, tb.name, tb.name, tb.name)) "
+            + "FROM FieldAccessAnnotationTestBean tb "
+            + "WHERE EXISTS(SELECT tb2 FROM FieldAccessAnnotationTestBean tb2)");
     }
 
     private void executeQuery(String query) {
