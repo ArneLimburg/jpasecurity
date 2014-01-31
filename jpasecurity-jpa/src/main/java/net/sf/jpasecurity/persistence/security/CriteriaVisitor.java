@@ -484,7 +484,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      */
     public boolean visit(JpqlNot node, CriteriaHolder query) {
         query.setValue(getPredicate(node.jjtGetChild(0), query).not());
-        return true;
+        return false;
     }
 
     /**
@@ -574,7 +574,8 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlIsNull node, CriteriaHolder query) {
-        query.setValue(query.<Expression<?>>getCurrentValue().isNull());
+        final JpqlPath pathElement = (JpqlPath)node.jjtGetChild(0);
+        query.setValue(builder.isNull(getExpression(pathElement, query)));
         return false;
     }
 
