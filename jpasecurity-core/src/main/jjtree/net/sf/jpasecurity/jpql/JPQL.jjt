@@ -669,14 +669,14 @@ void inExpression(): {} {
 }
 
 void positiveInExpression() #In: {} {
-    (singleValuedPathExpression() | inItem())
+    (singleValuedPathExpression() | inItem() | LOOKAHEAD(scalarExpression()) scalarExpression())
     <IN> (("(" (inItem()
              (<COMMA> (inItem()))* | subquery() | collectionValuedPath())
          ")") | inputParameter() | collectionValuedPath())
 }
 
 void negativeInExpression() #In: {} {
-    (singleValuedPathExpression() | inItem())
+    (singleValuedPathExpression() | inItem() | LOOKAHEAD(scalarExpression()) scalarExpression())
     <NOT> <IN>
         (("(" (inItem()
             (<COMMA> (inItem()))* | subquery() | collectionValuedPath())
