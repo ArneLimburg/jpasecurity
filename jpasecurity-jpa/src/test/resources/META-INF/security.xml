@@ -15,6 +15,13 @@
     <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
   </persistence-unit>
 
+  <persistence-unit name="annotation-based-field-access-criteria-access-rules-test">
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'simpleTest' IN (CURRENT_ROLES) AND bean.name = CURRENT_PRINCIPAL</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'isNull' IN (CURRENT_ROLES) AND bean.name is null</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'isNotNull' IN (CURRENT_ROLES) AND bean.name is not null</access-rule>
+  </persistence-unit>
+
   <persistence-unit name="annotation-based-method-access">
     <access-rule>GRANT ACCESS TO MethodAccessAnnotationTestBean bean WHERE bean.name = CURRENT_PRINCIPAL</access-rule>
     <access-rule>GRANT ACCESS TO MethodAccessAnnotationTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
