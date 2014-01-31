@@ -75,27 +75,105 @@ public class CriteriaAccessRulesGeneratorTest extends AbstractEntityTestCase {
 
     @Test
     public void isNullAccessRule() {
-        TestAuthenticationProvider.authenticate("admin", "isNull");
-        EntityManager entityManager = getEntityManager();
-        CriteriaQuery<FieldAccessAnnotationTestBean>
-            criteriaQuery = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);
-        criteriaQuery.from(FieldAccessAnnotationTestBean.class);
-        TypedQuery<FieldAccessAnnotationTestBean> entityQuery = entityManager.createQuery(criteriaQuery);
-        final String queryString = entityQuery.unwrap(Query.class).getQueryString();
-        assertEquals("select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name is null",
-            queryString);
+        check(
+            "isNull",
+            "select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name is null");
     }
 
     @Test
     public void isNotNullAccessRule() {
-        TestAuthenticationProvider.authenticate("admin", "isNotNull");
+        check(
+            "isNotNull",
+            "select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name is not null");
+    }
+
+    @Test
+    public void inStaticStringsAccessRule() {
+        check(
+            "inStaticStrings",
+            "select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name in (:param0)");
+    }
+
+    @Test
+    public void inSubSelectAccessRule() {
+        check(
+            "inSubSelect",
+            "select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name"
+                + " in (select b.name from FieldAccessAnnotationTestBean as b)");
+    }
+
+    @Test
+    public void notInStaticStringsAccessRule() {
+        check(
+            "notRefInStaticStrings",
+            "select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name not in (:param0)");
+    }
+
+    @Test
+    public void notInSubSelectAccessRule() {
+        check(
+            "notRefInSubSelect",
+            "select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name"
+                + " not in (select b.name from FieldAccessAnnotationTestBean as b)");
+    }
+
+    @Test
+    public void refNotInStaticStringsAccessRule() {
+        check(
+            "refNotInStaticStrings",
+            "select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name not in (:param0)");
+    }
+
+    @Test
+    public void refNotInSubSelectAccessRule() {
+        check(
+            "refNotInSubSelect",
+            "select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name"
+                + " not in (select b.name from FieldAccessAnnotationTestBean as b)");
+    }
+
+    @Test
+    public void subSelectJoiningAccessRule() {
+        check(
+            "subSelectJoining",
+            "select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name"
+                + " not in (select b.name from FieldAccessAnnotationTestBean as b,"
+                + " FieldAccessAnnotationTestBean as p where b.parent=p)");
+    }
+
+    @Test
+    public void subSelectJoiningMoreDottingAccessRule() {
+        check(
+            "subSelectJoiningMoreDotting",
+            "select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name"
+                + " not in (select b.name from FieldAccessAnnotationTestBean as b,"
+                + " FieldAccessAnnotationTestBean as p where b.parent.parent=p)");
+    }
+
+    @Test
+    public void notEqual1AccessRule() {
+        check(
+            "notEqual1",
+            "select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name"
+                + " not in (select b.name from FieldAccessAnnotationTestBean as b where b.id<>0)");
+    }
+
+    @Test
+    public void notEqual2AccessRule() {
+        check(
+            "notEqual2",
+            "select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name"
+                + " not in (select b.name from FieldAccessAnnotationTestBean as b where b.id<>0)");
+    }
+
+    private void check(String roleName, String expectedQuery) {
+        TestAuthenticationProvider.authenticate("admin", roleName);
         EntityManager entityManager = getEntityManager();
         CriteriaQuery<FieldAccessAnnotationTestBean>
             criteriaQuery = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);
         criteriaQuery.from(FieldAccessAnnotationTestBean.class);
         TypedQuery<FieldAccessAnnotationTestBean> entityQuery = entityManager.createQuery(criteriaQuery);
         final String queryString = entityQuery.unwrap(Query.class).getQueryString();
-        assertEquals("select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.name is not null",
-            queryString);
+        assertEquals(expectedQuery, queryString);
     }
 }
