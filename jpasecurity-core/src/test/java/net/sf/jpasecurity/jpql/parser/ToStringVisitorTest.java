@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -142,6 +143,107 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.key = ?1");
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.entry = ?1");
         assertAccessRule("GRANT CREATE READ UPDATE DELETE ACCESS TO TestBean bean WHERE bean.id = 0");
+    }
+
+    @Test
+    public void parseWhereCoalesceInExpression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) IN ('Horst')");
+    }
+
+    @Test
+    @Ignore
+    public void parseWhereCoalesceEquals1Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) = 'Horst'");
+    }
+
+    @Test
+    @Ignore
+    public void parseWhereCoalesceEquals2Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE 'Horst' = COALESCE(bean.name)");
+    }
+
+    @Test
+    public void parseWhereCoalesceBetween1Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name)"
+            + " BETWEEN bean.name AND bean.name");
+    }
+
+    @Test
+    public void parseWhereCoalesceBetween2Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
+            + " COALESCE(bean.name) AND bean.name");
+    }
+    @Test
+    public void parseWhereCoalesceBetween3Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
+            + " bean.name AND COALESCE(bean.name)");
+    }
+    @Test
+    public void parseWhereCoalesceBetween4Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) BETWEEN"
+            + " COALESCE(bean.name) AND bean.name");
+    }
+    @Test
+    public void parseWhereCoalesceBetween5Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) BETWEEN"
+            + " bean.name AND COALESCE(bean.name)");
+    }
+    @Test
+    public void parseWhereCoalesceBetween6Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
+            + " COALESCE(bean.name) AND COALESCE(bean.name)");
+    }
+    @Test
+    public void parseWhereCoalesceBetween7Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) BETWEEN"
+            + " COALESCE(bean.name) AND COALESCE(bean.name)");
+    }
+
+    @Test
+    public void parseWhereCoalesceNotBetween1Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) NOT BETWEEN"
+            + " bean.name AND bean.name");
+    }
+
+    @Test
+    public void parseWhereCoalesceNotBetween2Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT BETWEEN"
+            + " COALESCE(bean.name) AND bean.name");
+    }
+    @Test
+    public void parseWhereCoalesceNotBetween3Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT BETWEEN"
+            + " bean.name AND COALESCE(bean.name)");
+    }
+    @Test
+    public void parseWhereCoalesceNotBetween4Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) NOT BETWEEN"
+            + " COALESCE(bean.name) AND bean.name");
+    }
+    @Test
+    public void parseWhereCoalesceNotBetween5Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) NOT BETWEEN"
+            + " bean.name AND COALESCE(bean.name)");
+    }
+    @Test
+    public void parseWhereCoalesceNotBetween6Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT BETWEEN"
+            + " COALESCE(bean.name) AND COALESCE(bean.name)");
+    }
+    @Test
+    public void parseWhereCoalesceNotBetween7Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) NOT BETWEEN"
+            + " COALESCE(bean.name) AND COALESCE(bean.name)");
+    }
+
+    @Test
+    public void parseWhereUpperInFunctions() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE UPPER(bean.name) IN ('Horst')");
+    }
+
+    @Test
+    public void parseWhereUpperEqualsFunctions() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE UPPER(bean.name) = ('Horst')");
     }
 
     public void assertJpql(String query) throws ParseException {

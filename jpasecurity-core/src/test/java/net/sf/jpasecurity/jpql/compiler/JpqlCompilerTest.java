@@ -15,10 +15,10 @@
  */
 package net.sf.jpasecurity.jpql.compiler;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.junit.Assert.assertEquals;
 
 import net.sf.jpasecurity.jpql.JpqlCompiledStatement;
 import net.sf.jpasecurity.jpql.parser.JpqlParser;
@@ -27,10 +27,10 @@ import net.sf.jpasecurity.mapping.ClassMappingInformation;
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.model.MethodAccessTestBean;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  * @author Arne Limburg
@@ -51,6 +51,9 @@ public class JpqlCompilerTest {
         String className = MethodAccessTestBean.class.getSimpleName();
         expect(mappingInformation.containsClassMapping(className)).andReturn(true).anyTimes();
         expect(mappingInformation.getClassMapping(className)).andReturn(classMapping).anyTimes();
+        className = MethodAccessTestBean.class.getName();
+        expect(mappingInformation.containsClassMapping(className)).andReturn(true).anyTimes();
+        expect(mappingInformation.getClassMapping(className)).andReturn(classMapping).anyTimes();
         expect(classMapping.<MethodAccessTestBean>getEntityType()).andReturn(MethodAccessTestBean.class).anyTimes();
         replay(mappingInformation, classMapping);
         parser = new JpqlParser();
@@ -59,10 +62,10 @@ public class JpqlCompilerTest {
 
     @Test
     public void selectedPathsForCount() throws ParseException {
-        String statement = "SELECT COUNT(tb) FROM MethodAccessTestBean tb";
+        String statement = "SELECT COUNT(net) FROM net.sf.jpasecurity.model.MethodAccessTestBean net";
         JpqlCompiledStatement compiledStatement = compiler.compile(parser.parseQuery(statement));
         assertEquals(1, compiledStatement.getSelectedPaths().size());
-        assertEquals("tb", compiledStatement.getSelectedPaths().get(0).toString());
+        assertEquals("net", compiledStatement.getSelectedPaths().get(0).toString());
     }
 
     @Test
