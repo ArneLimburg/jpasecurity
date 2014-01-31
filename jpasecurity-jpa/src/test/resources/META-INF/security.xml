@@ -16,10 +16,19 @@
   </persistence-unit>
 
   <persistence-unit name="annotation-based-field-access-criteria-access-rules-test">
-    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'simpleTest' IN (CURRENT_ROLES) AND bean.name = CURRENT_PRINCIPAL</access-rule>
     <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'admin' IN (CURRENT_ROLES)</access-rule>
     <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'isNull' IN (CURRENT_ROLES) AND bean.name is null</access-rule>
     <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'isNotNull' IN (CURRENT_ROLES) AND bean.name is not null</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'inStaticStrings' IN (CURRENT_ROLES) AND bean.name in ('Foo', 'Bar')</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'inSubSelect' IN (CURRENT_ROLES) AND bean.name in (SELECT b.name FROM FieldAccessAnnotationTestBean b)</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'notRefInStaticStrings' IN (CURRENT_ROLES) AND NOT bean.name in ('Foo', 'Bar')</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'notRefInSubSelect' IN (CURRENT_ROLES) AND NOT bean.name in (SELECT b.name FROM FieldAccessAnnotationTestBean b)</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'refNotInStaticStrings' IN (CURRENT_ROLES) AND bean.name NOT in ('Foo', 'Bar')</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'refNotInSubSelect' IN (CURRENT_ROLES) AND bean.name NOT in (SELECT b.name FROM FieldAccessAnnotationTestBean b)</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'subSelectJoining' IN (CURRENT_ROLES) AND bean.name NOT in (SELECT b.name FROM FieldAccessAnnotationTestBean b, FieldAccessAnnotationTestBean p WHERE b.parent=p)</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'subSelectJoiningMoreDotting' IN (CURRENT_ROLES) AND bean.name NOT in (SELECT b.name FROM FieldAccessAnnotationTestBean b, FieldAccessAnnotationTestBean p WHERE b.parent.parent=p)</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'notEqual1' IN (CURRENT_ROLES) AND bean.name NOT in (SELECT b.name FROM FieldAccessAnnotationTestBean b WHERE b.id != 0)</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'notEqual2' IN (CURRENT_ROLES) AND bean.name NOT in (SELECT b.name FROM FieldAccessAnnotationTestBean b WHERE b.id &lt;> 0)</access-rule>
   </persistence-unit>
 
   <persistence-unit name="annotation-based-method-access">
