@@ -159,7 +159,6 @@ public class EntityManagerFirstLevelCacheTest extends AbstractEntityTestCase {
     }
 
     @Test
-    @Ignore("Problem removing value from first level cache")
     public void removeEntityLoadedAlreadyWithinCurrentEntityManagerExpectFindReturnsNullAfterRemove() {
         createEntityManager();
         getEntityManager().getTransaction().begin();
@@ -183,7 +182,6 @@ public class EntityManagerFirstLevelCacheTest extends AbstractEntityTestCase {
     }
 
     @Test
-    @Ignore("Problem removing value from first level cache")
     public void
     removeEntityWithoutExplicitFlushingLoadedAlreadyWithinCurrentEntityManagerExpectFindReturnsNullAfterRemove() {
         createEntityManager();

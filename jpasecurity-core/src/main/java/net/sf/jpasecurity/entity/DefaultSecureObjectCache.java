@@ -18,8 +18,10 @@ package net.sf.jpasecurity.entity;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.BeanStore;
@@ -127,9 +129,17 @@ public class DefaultSecureObjectCache extends DefaultSecureObjectManager {
     public void postFlush() {
         //copy over ids and version ids
         for (Map<Object, SecureEntity> entities: secureEntities.values().toArray(new Map[secureEntities.size()])) {
-            for (SecureEntity entity: entities.values().toArray(new SecureEntity[entities.size()])) {
+            Set<Object> removed = new HashSet<Object>();
+            for (Map.Entry<Object, SecureEntity> entry : entities.entrySet()) {
+                final SecureEntity entity = entry.getValue();
                 Object unsecureObject = getUnsecureObject(entity);
                 copyIdAndVersion(unsecureObject, entity);
+                if (entity.isRemoved()) {
+                    removed.add(entry.getKey());
+                }
+            }
+            for (Object removedObjectKey : removed) {
+                entities.remove(removedObjectKey);
             }
         }
         super.postFlush();
