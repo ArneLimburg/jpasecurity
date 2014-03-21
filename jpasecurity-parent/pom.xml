@@ -15,6 +15,23 @@
     <url>http://sourceforge.net/tracker/?group_id=219346</url>
   </issueManagement>
 
+  <profiles>
+    <profile>
+      <id>ok-dist</id>
+      <distributionManagement>
+        <repository>
+          <id>jpasecurity-repo</id>
+          <name>jpasecurity-repo-releases</name>
+          <url>https://repository.openknowledge.de/jpasecurity-libs</url>
+        </repository>
+        <snapshotRepository>
+          <id>jpasecurity-repo</id>
+          <name>jpasecurity-repo-snapshots</name>
+          <url>https://repository.openknowledge.de/jpasecurity-libs</url>
+        </snapshotRepository>
+      </distributionManagement>
+    </profile>
+  </profiles>
   <developers>
     <developer>
       <id>arnelim</id>
