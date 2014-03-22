@@ -1,5 +1,3 @@
 <component name="CopyrightManager">
-  <settings default="jpasecurity">
-    <module2copyright />
-  </settings>
+  <settings default="jpasecurity" />
 </component>
