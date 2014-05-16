@@ -90,16 +90,17 @@ public class Configuration {
     }
 
     public Configuration(Configuration configuration, Map<String, Object> additionalProperties) {
-        properties = new HashMap<String, Object>(configuration.properties);
-        accessRulesProvider = configuration.getAccessRulesProvider();
-        securityContext = configuration.getSecurityContext();
-        secureEntityProxyFactory = configuration.getSecureEntityProxyFactory();
-        propertyAccessStrategyFactory = configuration.getPropertyAccessStrategyFactory();
+        Map<String, Object> newProperties = new HashMap<String, Object>(configuration.properties);
+        accessRulesProvider = configuration.accessRulesProvider;
+        securityContext = configuration.securityContext;
+        secureEntityProxyFactory = configuration.secureEntityProxyFactory;
+        propertyAccessStrategyFactory = configuration.propertyAccessStrategyFactory;
         beanInitializer = configuration.beanInitializer;
-        exceptionFactory = configuration.getExceptionFactory();
+        exceptionFactory = configuration.exceptionFactory;
         if (additionalProperties != null) {
-            properties.putAll(additionalProperties);
+            newProperties.putAll(additionalProperties);
         }
+        properties = Collections.unmodifiableMap(newProperties);
     }
 
     public AccessRulesProvider getAccessRulesProvider() {
