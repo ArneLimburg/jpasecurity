@@ -505,6 +505,10 @@
         <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <class>net.sf.jpasecurity.model.client.Client</class>
+        <class>net.sf.jpasecurity.model.client.ClientGroup</class>
+        <class>net.sf.jpasecurity.model.client.ClientStructure</class>
+        <class>net.sf.jpasecurity.model.client.ClientType</class>
+        <class>net.sf.jpasecurity.model.client.ClientTypeGroup</class>
         <class>net.sf.jpasecurity.model.client.ClientStaffing</class>
         <class>net.sf.jpasecurity.model.client.ClientStatus</class>
         <class>net.sf.jpasecurity.model.client.Employee</class>

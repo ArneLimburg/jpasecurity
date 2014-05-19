@@ -28,6 +28,8 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.Bindable;
+import javax.persistence.metamodel.EntityType;
 
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.ExceptionFactory;
@@ -135,11 +137,23 @@ public class CriteriaEntityFilter extends EntityFilter {
 
     private Path getPath(int index, javax.persistence.criteria.Path<?> path) {
         if (path.getParentPath() != null) {
-            return getPath(index, path.getParentPath()).append(((Attribute<?, ?>)path.getModel()).getName());
+            return getPath(index, path.getParentPath()).append(getName(path.getModel()));
         }
         if (path.getAlias() == null) {
             path.alias("alias" + index);
         }
         return new Path(path.getAlias());
+    }
+    
+    private String getName(Bindable<?> bindable) {
+        if (bindable instanceof EntityType) {
+            EntityType<?> entityType = (EntityType<?>)bindable;
+            return entityType.getName();
+        } else if (bindable instanceof Attribute) {
+            Attribute<?, ?> attribute = (Attribute<?, ?>)bindable;
+            return attribute.getName();
+        } else {
+            throw new UnsupportedOperationException("Unsupported subclass of Bindable: " + bindable.getClass().getName());
+        }
     }
 }
