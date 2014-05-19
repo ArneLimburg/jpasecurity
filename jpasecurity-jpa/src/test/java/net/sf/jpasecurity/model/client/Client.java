@@ -47,6 +47,15 @@ public class Client extends AbstractEntity<Integer> {
     @ManyToOne(fetch = FetchType.LAZY)
     private Client parent;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ClientGroup group;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ClientStructure structure;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ClientType type;
+
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE })
     private List<ClientStaffing> staffing = new ArrayList<ClientStaffing>();
 
@@ -56,6 +65,8 @@ public class Client extends AbstractEntity<Integer> {
 
     private String anotherProperty;
 
+    private String number;
+    
     private String name;
 
     @PrimaryKeyJoinColumn
@@ -76,6 +87,18 @@ public class Client extends AbstractEntity<Integer> {
 
     public void setParent(Client parent) {
         this.parent = parent;
+    }
+    
+    public ClientGroup getGroup() {
+        return group;
+    }
+
+    public ClientStructure getStructure() {
+        return structure;
+    }
+
+    public ClientType getType() {
+        return type;
     }
 
     public ClientStatus getCurrentStatus() {
