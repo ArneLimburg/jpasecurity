@@ -49,7 +49,7 @@ public class Client extends AbstractEntity<Integer> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private ClientGroup group;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     private ClientStructure structure;
 
@@ -66,7 +66,7 @@ public class Client extends AbstractEntity<Integer> {
     private String anotherProperty;
 
     private String number;
-    
+
     private String name;
 
     @PrimaryKeyJoinColumn
@@ -88,7 +88,7 @@ public class Client extends AbstractEntity<Integer> {
     public void setParent(Client parent) {
         this.parent = parent;
     }
-    
+
     public ClientGroup getGroup() {
         return group;
     }
