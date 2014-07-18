@@ -144,7 +144,7 @@ public class CriteriaEntityFilter extends EntityFilter {
         }
         return new Path(path.getAlias());
     }
-    
+
     private String getName(Bindable<?> bindable) {
         if (bindable instanceof EntityType) {
             EntityType<?> entityType = (EntityType<?>)bindable;
