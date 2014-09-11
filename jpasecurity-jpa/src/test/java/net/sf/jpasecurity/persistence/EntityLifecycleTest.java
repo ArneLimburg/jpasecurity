@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,16 +24,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import net.sf.jpasecurity.model.FieldAccessAnnotationTestBean;
 import net.sf.jpasecurity.model.acl.Group;
 import net.sf.jpasecurity.model.acl.User;
 import net.sf.jpasecurity.security.authentication.TestAuthenticationProvider;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Arne Limburg
@@ -225,6 +225,40 @@ public class EntityLifecycleTest {
     }
 
     @Test
+    public void updateNewReferenceInstanceWithOldId() {
+        openEntityManager();
+        FieldAccessAnnotationTestBean parentBean = new FieldAccessAnnotationTestBean(USER);
+        FieldAccessAnnotationTestBean childBean = new FieldAccessAnnotationTestBean(USER, parentBean);
+        entityManager.persist(childBean);
+        entityManager.persist(parentBean);
+        closeEntityManager();
+
+        openEntityManager();
+
+        childBean = entityManager.find(FieldAccessAnnotationTestBean.class, childBean.getIdentifier());
+        FieldAccessAnnotationTestBean newParentBeanWithSameIdentifier = new FieldAccessAnnotationTestBean(USER);
+        newParentBeanWithSameIdentifier.setIdentifier(parentBean.getIdentifier());
+        childBean.setParentBean(newParentBeanWithSameIdentifier);
+        closeEntityManager();
+
+        assertLifecycleCount(childBean, 0, 0, 0, 1);
+    }
+
+    @Test
+    public void updateNullReference() {
+        openEntityManager();
+        FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean(USER);
+        entityManager.persist(bean);
+        closeEntityManager();
+
+        openEntityManager();
+        bean = entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
+        closeEntityManager();
+
+        assertLifecycleCount(bean, 0, 0, 0, 1);
+    }
+
+    @Test
     public void merge() {
         openEntityManager();
         FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean(USER);
@@ -257,6 +291,7 @@ public class EntityLifecycleTest {
 
         assertLifecycleCount(bean, 0, 0, 0, 1);
     }
+
     @Test
     public void commitCollectionChanges() {
         openEntityManager();
