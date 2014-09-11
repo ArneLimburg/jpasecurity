@@ -28,7 +28,6 @@ import java.util.TreeSet;
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
 import net.sf.jpasecurity.ExceptionFactory;
-import net.sf.jpasecurity.FetchType;
 import net.sf.jpasecurity.SecureCollection;
 import net.sf.jpasecurity.SecureEntity;
 import net.sf.jpasecurity.SecureMap;
@@ -40,6 +39,7 @@ import net.sf.jpasecurity.mapping.CollectionValuedRelationshipMappingInformation
 import net.sf.jpasecurity.mapping.MappingInformation;
 import net.sf.jpasecurity.mapping.PropertyMappingInformation;
 import net.sf.jpasecurity.mapping.RelationshipMappingInformation;
+import net.sf.jpasecurity.mapping.SingleValuedRelationshipMappingInformation;
 import net.sf.jpasecurity.proxy.Decorator;
 import net.sf.jpasecurity.proxy.EntityProxy;
 import net.sf.jpasecurity.proxy.MethodInterceptor;
@@ -499,11 +499,16 @@ public abstract class AbstractSecureObjectManager implements SecureObjectManager
         if (!propertyMapping.isRelationshipMapping()) {
             return !nullSaveEquals(newValue, oldValue);
         } else if (propertyMapping.isSingleValued()) {
-            if (propertyMapping.getFetchType() == FetchType.LAZY) {
-                // one value might by proxied version of the other, so == cannot work.
-                return !nullSaveEquals(newValue, oldValue);
+            if (null == newValue || null == oldValue) {
+                // if one is null the other one can not be null (see first check)
+                return true;
             }
-            return true; //because newValue != oldValue
+            // both values are not null, so we can compare ids
+            SingleValuedRelationshipMappingInformation relationshipMapping =
+                (SingleValuedRelationshipMappingInformation)propertyMapping;
+            Object newId = relationshipMapping.getRelatedClassMapping().getId(newValue);
+            Object oldId = relationshipMapping.getRelatedClassMapping().getId(oldValue);
+            return !nullSaveEquals(newId, oldId);
         } else {
             CollectionValuedRelationshipMappingInformation relationshipMapping
                 = (CollectionValuedRelationshipMappingInformation)propertyMapping;
