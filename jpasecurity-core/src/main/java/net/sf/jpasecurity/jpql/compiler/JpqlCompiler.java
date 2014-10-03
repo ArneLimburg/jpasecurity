@@ -158,11 +158,19 @@ public class JpqlCompiler {
 
         public boolean visit(JpqlClassName node, ValueHolder<Class<?>> valueHolder) {
             try {
-                valueHolder.setValue(Class.forName(node.toString()));
+                valueHolder.setValue(toClass(node.toString()));
             } catch (ClassNotFoundException e) {
                 throw exceptionFactory.createTypeNotFoundException(node.toString());
             }
             return false;
+        }
+
+        private Class<?> toClass(String classname) throws ClassNotFoundException {
+            try {
+                return Class.forName(classname);
+            } catch (ClassNotFoundException e) {
+                return Thread.currentThread().getContextClassLoader().loadClass(classname);
+            }
         }
     }
 
