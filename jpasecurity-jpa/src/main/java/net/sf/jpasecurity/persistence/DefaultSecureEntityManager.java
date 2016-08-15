@@ -15,6 +15,8 @@
  */
 package net.sf.jpasecurity.persistence;
 
+import static net.sf.jpasecurity.AccessType.READ;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,13 +26,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.LockModeType;
 import javax.persistence.Parameter;
-import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import net.sf.jpasecurity.AccessManager;
 import net.sf.jpasecurity.AccessType;
@@ -56,7 +54,8 @@ import net.sf.jpasecurity.persistence.security.CriteriaFilterResult;
 import net.sf.jpasecurity.security.FilterResult;
 import net.sf.jpasecurity.util.SystemIdentity;
 
-import static net.sf.jpasecurity.AccessType.READ;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * This class handles invocations on proxies of entity managers.
@@ -231,7 +230,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         if (namedNativeQuery != null) {
             return super.createNamedQuery(name);
         }
-        throw new PersistenceException("No named query with name " + name);
+        throw new IllegalArgumentException("No named query with name " + name);
     }
 
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
@@ -243,7 +242,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         if (namedNativeQuery != null) {
             return super.createNamedQuery(name, resultClass);
         }
-        throw new PersistenceException("No named query with name " + name);
+        throw new IllegalArgumentException("No named query with name " + name);
     }
 
     public void flush() {
