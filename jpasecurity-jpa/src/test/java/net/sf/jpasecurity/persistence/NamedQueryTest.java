@@ -40,7 +40,28 @@ import org.junit.Test;
 public class NamedQueryTest {
 
     public static final String USER1 = "user1";
+
     public static final String USER2 = "user2";
+
+    private static final String NON_EXISTING_NAMED_QUERY = "non.existing.query";
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createNamedQueryNonExistingNamedQueryThrowsIllegalArgumentException() {
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.createNamedQuery(NON_EXISTING_NAMED_QUERY).getResultList();
+        entityManager.close();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createNamedQueryWithResultClassNonExistingNamedQueryThrowsIllegalArgumentException() {
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.createNamedQuery(NON_EXISTING_NAMED_QUERY, FieldAccessAnnotationTestBean.class).getResultList();
+        entityManager.close();
+    }
 
     @Test
     public void createNamedQuery() {
