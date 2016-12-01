@@ -80,9 +80,22 @@ public class AutodetectingSecurityContextTest {
 
     @Test
     public void fallbackToDefaultAuthenticationProvider() throws Exception {
-        AuthenticationProvider authenticationProvider
-            = new AutodetectingSecurityContext().autodetectAuthenticationProvider();
+        ClassLoader realClassLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader mockClassLoader = createMock(ClassLoader.class);
+        expect(mockClassLoader.loadClass("org.jpasecurity.spring.authentication.SpringAuthenticationProvider"))
+            .andThrow(new ClassNotFoundException());
+        expect(mockClassLoader.loadClass("org.jpasecurity.security.authentication.EjbAuthenticationProvider"))
+            .andThrow(new ClassNotFoundException());
+        expect(mockClassLoader.loadClass("org.jpasecurity.jsf.authentication.JsfAuthenticationProvider"))
+            .andThrow(new ClassNotFoundException());
+        AutodetectingSecurityContext securityContext = new AutodetectingSecurityContext();
+
+        replay(mockClassLoader);
+        Thread.currentThread().setContextClassLoader(mockClassLoader);
+        AuthenticationProvider authenticationProvider = securityContext.autodetectAuthenticationProvider();
         assertTrue(authenticationProvider instanceof DefaultAuthenticationProvider);
+
+        Thread.currentThread().setContextClassLoader(realClassLoader);
     }
 
     @After
