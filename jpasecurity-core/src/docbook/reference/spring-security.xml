@@ -6,14 +6,14 @@
     If you are using the Spring-framework with Spring Security,
     you don't have to follow the chapter <emphasis>Getting started with JPA Security</emphasis>
     (also you can do and specify the
-    <systemitem>net.sf.jpasecurity.security.authentication.SpringAuthenticationProvider</systemitem> in your
+    <systemitem>org.jpasecurity.security.authentication.SpringAuthenticationProvider</systemitem> in your
     persistence.properties).
   </para>
   <para>
 	The easiest way to integrate Spring-Security is to simply replace your
     <systemitem>LocalEntityManagerFactoryBean</systemitem> or <systemitem>LocalContainerEntityManagerFactoryBean</systemitem>
     in your Spring configuration with the appropriate counterpart in the
-    <systemitem>net.sf.jpasecurity.spring.persistence</systemitem> package (which are <systemitem>SecureLocalEntityManagerFactoryBean</systemitem>
+    <systemitem>org.jpasecurity.spring.persistence</systemitem> package (which are <systemitem>SecureLocalEntityManagerFactoryBean</systemitem>
     and <systemitem>SecureContainerEntityManagerFactoryBean</systemitem>).
   </para>
   <para>

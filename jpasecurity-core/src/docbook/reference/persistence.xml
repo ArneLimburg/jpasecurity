@@ -10,22 +10,22 @@
 <!--  <itemizedlist>-->
 <!--    <listitem>-->
 <!--      <para>-->
-<!--        <systemitem>net.sf.jpasecurity.persistence.provider</systemitem>-->
+<!--        <systemitem>org.jpasecurity.persistence.provider</systemitem>-->
 <!--        - The value of this property may be your original persistence provider-->
 <!--      </para>-->
 <!--    </listitem>-->
 <!--    <listitem>-->
 <!--      <para>-->
-<!--        <systemitem>net.sf.jpasecurity.security.authentication.provider</systemitem>-->
+<!--        <systemitem>org.jpasecurity.security.authentication.provider</systemitem>-->
 <!--        - The value of this property may be an implementation of-->
-<!--        <systemitem>net.sf.jpasecurity.security.authentication.AuthenticationProvider</systemitem>-->
+<!--        <systemitem>org.jpasecurity.security.authentication.AuthenticationProvider</systemitem>-->
 <!--      </para>-->
 <!--    </listitem>-->
 <!--    <listitem>-->
 <!--      <para>-->
-<!--        <systemitem>net.sf.jpasecurity.security.rules.provider</systemitem>-->
+<!--        <systemitem>org.jpasecurity.security.rules.provider</systemitem>-->
 <!--        - The value of this property may be an implementation of-->
-<!--      <systemitem>net.sf.jpasecurity.security.rules.AccessRulesProvider</systemitem>-->
+<!--      <systemitem>org.jpasecurity.security.rules.AccessRulesProvider</systemitem>-->
 <!--      </para>-->
 <!--    </listitem>-->
 <!--  </itemizedlist>-->
@@ -74,14 +74,14 @@
           
   <persistence-unit name="your-persistence-unit-name" transaction-type="...">
 
-    <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+    <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
     <class>your.persistent.ClassName</class>
     <!-- More class-mappings go here -->
     ...
                 
     <properties>
-      <property name="net.sf.jpasecurity.persistence.provider"
+      <property name="org.jpasecurity.persistence.provider"
                 value="your.persistence.provider.ClassName" />
       <!-- persistence-provider-specific properties go here -->
       ...
@@ -94,7 +94,7 @@
     <para>
       We changed the &lt;provider&gt; tag to point to JPA Security's
       implementation of the <systemitem>PersistenceProvider</systemitem> interface
-      and added the property <systemitem>net.sf.jpasecurity.persistence.provider</systemitem>
+      and added the property <systemitem>org.jpasecurity.persistence.provider</systemitem>
       to point to your original persistence provider. That is all you need to integrate JPA Security.
     </para>
   </example>

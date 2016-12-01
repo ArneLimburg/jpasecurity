@@ -436,7 +436,7 @@
          
         <!-- JPA Security -->
         <dependency>
-            <groupId>net.sf.jpasecurity</groupId>
+            <groupId>org.jpasecurity</groupId>
             <artifactId>jpasecurity-spring</artifactId>
             <version>${jpasecurity.version}</version>
         </dependency>

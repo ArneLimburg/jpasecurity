@@ -9,30 +9,30 @@
   <itemizedlist>
     <listitem>
       <para>
-        <systemitem>net.sf.jpasecurity.persistence.provider</systemitem> - This is the only property
+        <systemitem>org.jpasecurity.persistence.provider</systemitem> - This is the only property
         that is required by JPA Security. It specifies the class name of the original persistence provider
         that shall be used by JPA Security to do the actual database access. 
       </para>
     </listitem>
     <listitem>
       <para>
-        <systemitem>net.sf.jpasecurity.security.authentication.provider</systemitem> - This property specifies
+        <systemitem>org.jpasecurity.security.authentication.provider</systemitem> - This property specifies
         the class name of the implementation of an authentication provider which may be any implementation of
-        the interface <systemitem>net.sf.jpasecurity.configuration.AuthenticationProvider</systemitem>.
+        the interface <systemitem>org.jpasecurity.configuration.AuthenticationProvider</systemitem>.
       </para>
     </listitem>
     <listitem>
       <para>
-        <systemitem>net.sf.jpasecurity.security.context</systemitem> - This property specifies
+        <systemitem>org.jpasecurity.security.context</systemitem> - This property specifies
         the class name of the implementation of a security context which may be any implementation of
-        the interface <systemitem>net.sf.jpasecurity.configuration.SecurityContext</systemitem>.
+        the interface <systemitem>org.jpasecurity.configuration.SecurityContext</systemitem>.
       </para>
     </listitem>
     <listitem>
       <para>
-        <systemitem>net.sf.jpasecurity.security.rules.provider</systemitem> - This property specifies
+        <systemitem>org.jpasecurity.security.rules.provider</systemitem> - This property specifies
         the class name of the implementation of an access rules provider which may be any implementation of
-        the interface <systemitem>net.sf.jpasecurity.configuration.AccessRulesProvider</systemitem>.
+        the interface <systemitem>org.jpasecurity.configuration.AccessRulesProvider</systemitem>.
       </para>
     </listitem>
   </itemizedlist>

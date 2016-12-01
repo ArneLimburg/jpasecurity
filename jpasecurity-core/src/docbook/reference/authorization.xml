@@ -230,7 +230,7 @@
           The other predefined way to provide access rules in JPA Security is via Annotations.
           You may annotate your entity classes with one of the following two annotations:
           <systemitem>javax.annotation.security.RolesAllowed</systemitem> and
-          <systemitem>net.sf.jpasecurity.security.rules.Permit</systemitem>.
+          <systemitem>org.jpasecurity.security.rules.Permit</systemitem>.
         </para>
         <para>
           Note that the semantics of the <systemitem>@RolesAllowed</systemitem> annotation slightly differs

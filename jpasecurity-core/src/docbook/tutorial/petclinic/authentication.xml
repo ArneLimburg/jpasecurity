@@ -634,7 +634,7 @@ public Owner save(Owner owner) {
       <![CDATA[
 package org.springframework.samples.petclinic.repository;
 
-import net.sf.jpasecurity.AccessType;
+import org.jpasecurity.AccessType;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Credential;
@@ -661,8 +661,8 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
-import net.sf.jpasecurity.AccessType;
-import net.sf.jpasecurity.persistence.SecureEntityManager;
+import org.jpasecurity.AccessType;
+import org.jpasecurity.persistence.SecureEntityManager;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Credential;
@@ -719,8 +719,8 @@ public class JpaCredentialRepositoryImpl implements CredentialRepository{
       <![CDATA[
 package org.springframework.samples.petclinic.security;
 
-import net.sf.jpasecurity.AccessManager;
-import net.sf.jpasecurity.AccessType;
+import org.jpasecurity.AccessManager;
+import org.jpasecurity.AccessType;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Credential;
@@ -745,7 +745,7 @@ public interface CredentialService extends UserDetailsService, AccessManager {
       <![CDATA[
 package org.springframework.samples.petclinic.security;
 
-import net.sf.jpasecurity.AccessType;
+import org.jpasecurity.AccessType;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;

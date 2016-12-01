@@ -12,7 +12,7 @@
   </para>
   <programlisting>
     <![CDATA[
-package net.sf.jpasecurity.contacts.model;
+package org.jpasecurity.contacts.model;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
@@ -71,7 +71,7 @@ public class User {
   </programlisting>
   <programlisting>
     <![CDATA[
-package net.sf.jpasecurity.contacts.model;
+package org.jpasecurity.contacts.model;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
@@ -145,7 +145,7 @@ public class Contact {
   <programlisting>
     <![CDATA[
     <dependency>
-      <groupId>net.sf.jpasecurity</groupId>
+      <groupId>org.jpasecurity</groupId>
       <artifactId>jpasecurity</artifactId>
       <version>0.4.1-SNAPSHOT</version>
       <classifier>tests</classifier>

@@ -11,27 +11,27 @@
 	<description>JPA Security Tag Library</description>
     <function>
         <name>canCreate</name>
-        <function-class>net.sf.jpasecurity.util.AccessUtils</function-class>
-        <function-signature>boolean canRead(net.sf.jpasecurity.AccessManager, java.lang.Object)</function-signature>
+        <function-class>org.jpasecurity.util.AccessUtils</function-class>
+        <function-signature>boolean canRead(org.jpasecurity.AccessManager, java.lang.Object)</function-signature>
     </function>
     <function>
         <name>canRead</name>
-        <function-class>net.sf.jpasecurity.util.AccessUtils</function-class>
-        <function-signature>boolean canRead(net.sf.jpasecurity.AccessManager, java.lang.Object)</function-signature>
+        <function-class>org.jpasecurity.util.AccessUtils</function-class>
+        <function-signature>boolean canRead(org.jpasecurity.AccessManager, java.lang.Object)</function-signature>
     </function>
     <function>
         <name>canUpdate</name>
-        <function-class>net.sf.jpasecurity.util.AccessUtils</function-class>
-        <function-signature>boolean canUpdate(net.sf.jpasecurity.AccessManager, java.lang.Object)</function-signature>
+        <function-class>org.jpasecurity.util.AccessUtils</function-class>
+        <function-signature>boolean canUpdate(org.jpasecurity.AccessManager, java.lang.Object)</function-signature>
     </function>
     <function>
         <name>canDelete</name>
-        <function-class>net.sf.jpasecurity.util.AccessUtils</function-class>
-        <function-signature>boolean canDelete(net.sf.jpasecurity.AccessManager, java.lang.Object)</function-signature>
+        <function-class>org.jpasecurity.util.AccessUtils</function-class>
+        <function-signature>boolean canDelete(org.jpasecurity.AccessManager, java.lang.Object)</function-signature>
     </function>
 	<tag>
 		<name>creation</name>
-		<tag-class>net.sf.jpasecurity.tags.CreationTag</tag-class>
+		<tag-class>org.jpasecurity.tags.CreationTag</tag-class>
 		<body-content>JSP</body-content>
 		<description>
 		  Renders the inner JSP code only when the current user may create an entity
@@ -58,7 +58,7 @@
 	</tag>
 	<tag>
 		<name>reading</name>
-		<tag-class>net.sf.jpasecurity.tags.ReadingTag</tag-class>
+		<tag-class>org.jpasecurity.tags.ReadingTag</tag-class>
 		<body-content>JSP</body-content>
 		<description>
 		  Renders the inner JSP code only when the current user may read the specified entity
@@ -78,7 +78,7 @@
 	</tag>
 	<tag>
 		<name>updating</name>
-		<tag-class>net.sf.jpasecurity.tags.UpdatingTag</tag-class>
+		<tag-class>org.jpasecurity.tags.UpdatingTag</tag-class>
 		<body-content>JSP</body-content>
 		<description>
 		  Renders the inner JSP code only when the current user may update the specified entity
@@ -98,7 +98,7 @@
 	</tag>
 	<tag>
 		<name>deletion</name>
-		<tag-class>net.sf.jpasecurity.tags.DeletionTag</tag-class>
+		<tag-class>org.jpasecurity.tags.DeletionTag</tag-class>
 		<body-content>JSP</body-content>
 		<description>
 		  Renders the inner JSP code only when the current user may delete the specified entity

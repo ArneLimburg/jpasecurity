@@ -1,1 +1,1 @@
-net.sf.jpasecurity.persistence.SecurePersistenceProvider
+org.jpasecurity.persistence.SecurePersistenceProvider

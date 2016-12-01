@@ -7,15 +7,15 @@
 
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
-    <class>net.sf.jpasecurity.contacts.model.User</class>
-    <class>net.sf.jpasecurity.contacts.model.Contact</class>
-	<class>net.sf.jpasecurity.spring.acl.Sid</class>
-	<class>net.sf.jpasecurity.spring.acl.Principal</class>
-	<class>net.sf.jpasecurity.spring.acl.Role</class>
-	<class>net.sf.jpasecurity.spring.acl.AccessControlList</class>
-	<class>net.sf.jpasecurity.spring.acl.AccessControlEntry</class>
-	<class>net.sf.jpasecurity.spring.acl.AccessControlledEntityType</class>
-	<class>net.sf.jpasecurity.spring.acl.AccessControlledEntityReference</class>
+    <class>org.jpasecurity.contacts.model.User</class>
+    <class>org.jpasecurity.contacts.model.Contact</class>
+	<class>org.jpasecurity.spring.acl.Sid</class>
+	<class>org.jpasecurity.spring.acl.Principal</class>
+	<class>org.jpasecurity.spring.acl.Role</class>
+	<class>org.jpasecurity.spring.acl.AccessControlList</class>
+	<class>org.jpasecurity.spring.acl.AccessControlEntry</class>
+	<class>org.jpasecurity.spring.acl.AccessControlledEntityType</class>
+	<class>org.jpasecurity.spring.acl.AccessControlledEntityReference</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

@@ -6,21 +6,21 @@
 
     <persistence-unit name="subclassing-test" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.TestBean</class>
-        <class>net.sf.jpasecurity.model.TestBeanSubclass</class>
-        <class>net.sf.jpasecurity.model.SuperclassReferencingBean</class>
-        <class>net.sf.jpasecurity.model.AbstractSuperclass</class>
-        <class>net.sf.jpasecurity.model.Subclass1</class>
-        <class>net.sf.jpasecurity.model.Subclass2</class>
+        <class>org.jpasecurity.model.TestBean</class>
+        <class>org.jpasecurity.model.TestBeanSubclass</class>
+        <class>org.jpasecurity.model.SuperclassReferencingBean</class>
+        <class>org.jpasecurity.model.AbstractSuperclass</class>
+        <class>org.jpasecurity.model.Subclass1</class>
+        <class>org.jpasecurity.model.Subclass2</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -33,20 +33,20 @@
 
     <persistence-unit name="classmapping-test" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.AbstractSuperclass</class>
-        <class>net.sf.jpasecurity.model.Subclass1</class>
-        <class>net.sf.jpasecurity.model.Subclass2</class>
-        <class>net.sf.jpasecurity.model.FieldAccessPerIDTestclass</class>
-        <class>net.sf.jpasecurity.model.PropertyAccessPerIDTestclass</class>
+        <class>org.jpasecurity.model.AbstractSuperclass</class>
+        <class>org.jpasecurity.model.Subclass1</class>
+        <class>org.jpasecurity.model.Subclass2</class>
+        <class>org.jpasecurity.model.FieldAccessPerIDTestclass</class>
+        <class>org.jpasecurity.model.PropertyAccessPerIDTestclass</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -58,18 +58,18 @@
     </persistence-unit>
     <persistence-unit name="objectidentity-test" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.objectidentity.ParentEntity</class>
-        <class>net.sf.jpasecurity.model.objectidentity.EntitySuperclass</class>
-        <class>net.sf.jpasecurity.model.objectidentity.ChildEntityType1</class>
+        <class>org.jpasecurity.model.objectidentity.ParentEntity</class>
+        <class>org.jpasecurity.model.objectidentity.EntitySuperclass</class>
+        <class>org.jpasecurity.model.objectidentity.ChildEntityType1</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -81,17 +81,17 @@
     </persistence-unit>
     <persistence-unit name="annotation-based-method-access" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.MethodAccessAnnotationTestBean</class>
+        <class>org.jpasecurity.model.MethodAccessAnnotationTestBean</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-            <property name="net.sf.jpasecurity.mapping.property.access.factory" value="net.sf.jpasecurity.mapping.JavassistPropertyAccessStrategyFactory"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="org.jpasecurity.mapping.property.access.factory" value="org.jpasecurity.mapping.JavassistPropertyAccessStrategyFactory"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -104,14 +104,14 @@
 
     <persistence-unit name="xml-based-method-access" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -124,18 +124,18 @@
 
     <persistence-unit name="annotation-based-field-access" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.FieldAccessAnnotationTestBean</class>
-        <class>net.sf.jpasecurity.model.FieldAccessMapKey</class>
-        <class>net.sf.jpasecurity.model.FieldAccessMapValue</class>
+        <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
+        <class>org.jpasecurity.model.FieldAccessMapKey</class>
+        <class>org.jpasecurity.model.FieldAccessMapValue</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -148,18 +148,18 @@
 
     <persistence-unit name="annotation-based-field-access-criteria-access-rules-test" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.FieldAccessAnnotationTestBean</class>
-        <class>net.sf.jpasecurity.model.FieldAccessMapKey</class>
-        <class>net.sf.jpasecurity.model.FieldAccessMapValue</class>
+        <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
+        <class>org.jpasecurity.model.FieldAccessMapKey</class>
+        <class>org.jpasecurity.model.FieldAccessMapValue</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -171,25 +171,25 @@
     </persistence-unit>
     <persistence-unit name="entity-lifecycle-test" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.FieldAccessAnnotationTestBean</class>
-        <class>net.sf.jpasecurity.model.FieldAccessMapKey</class>
-        <class>net.sf.jpasecurity.model.FieldAccessMapValue</class>
-        <class>net.sf.jpasecurity.model.acl.Acl</class>
-        <class>net.sf.jpasecurity.model.acl.AclEntry</class>
-        <class>net.sf.jpasecurity.model.acl.Group</class>
-        <class>net.sf.jpasecurity.model.acl.Privilege</class>
-        <class>net.sf.jpasecurity.model.acl.Role</class>
-        <class>net.sf.jpasecurity.model.acl.User</class>
-        <class>net.sf.jpasecurity.model.acl.AclProtectedEntity</class>
+        <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
+        <class>org.jpasecurity.model.FieldAccessMapKey</class>
+        <class>org.jpasecurity.model.FieldAccessMapValue</class>
+        <class>org.jpasecurity.model.acl.Acl</class>
+        <class>org.jpasecurity.model.acl.AclEntry</class>
+        <class>org.jpasecurity.model.acl.Group</class>
+        <class>org.jpasecurity.model.acl.Privilege</class>
+        <class>org.jpasecurity.model.acl.Role</class>
+        <class>org.jpasecurity.model.acl.User</class>
+        <class>org.jpasecurity.model.acl.AclProtectedEntity</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -201,25 +201,25 @@
     </persistence-unit>
     <persistence-unit name="first-level-test" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.FieldAccessAnnotationTestBean</class>
-        <class>net.sf.jpasecurity.model.FieldAccessMapKey</class>
-        <class>net.sf.jpasecurity.model.FieldAccessMapValue</class>
-        <class>net.sf.jpasecurity.model.acl.Acl</class>
-        <class>net.sf.jpasecurity.model.acl.AclEntry</class>
-        <class>net.sf.jpasecurity.model.acl.Group</class>
-        <class>net.sf.jpasecurity.model.acl.Privilege</class>
-        <class>net.sf.jpasecurity.model.acl.Role</class>
-        <class>net.sf.jpasecurity.model.acl.User</class>
-        <class>net.sf.jpasecurity.model.acl.AclProtectedEntity</class>
+        <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
+        <class>org.jpasecurity.model.FieldAccessMapKey</class>
+        <class>org.jpasecurity.model.FieldAccessMapValue</class>
+        <class>org.jpasecurity.model.acl.Acl</class>
+        <class>org.jpasecurity.model.acl.AclEntry</class>
+        <class>org.jpasecurity.model.acl.Group</class>
+        <class>org.jpasecurity.model.acl.Privilege</class>
+        <class>org.jpasecurity.model.acl.Role</class>
+        <class>org.jpasecurity.model.acl.User</class>
+        <class>org.jpasecurity.model.acl.AclProtectedEntity</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -232,16 +232,16 @@
 
     <persistence-unit name="lazy-relationship" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.TestBean</class>
+        <class>org.jpasecurity.model.TestBean</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -254,19 +254,19 @@
 
     <persistence-unit name="mixed-protection-level-test" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.ProtectedJoinedEntity</class>
-        <class>net.sf.jpasecurity.model.ProtectedJoiningEntity</class>
-        <class>net.sf.jpasecurity.model.UnprotectedJoinedEntity</class>
-        <class>net.sf.jpasecurity.model.UnprotectedJoiningEntity</class>
+        <class>org.jpasecurity.model.ProtectedJoinedEntity</class>
+        <class>org.jpasecurity.model.ProtectedJoiningEntity</class>
+        <class>org.jpasecurity.model.UnprotectedJoinedEntity</class>
+        <class>org.jpasecurity.model.UnprotectedJoiningEntity</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -279,18 +279,18 @@
 
     <persistence-unit name="access-check" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.FieldAccessAnnotationTestBean</class>
-        <class>net.sf.jpasecurity.model.FieldAccessMapKey</class>
-        <class>net.sf.jpasecurity.model.FieldAccessMapValue</class>
+        <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
+        <class>org.jpasecurity.model.FieldAccessMapKey</class>
+        <class>org.jpasecurity.model.FieldAccessMapValue</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -303,19 +303,19 @@
 
     <persistence-unit name="parent-child" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>META-INF/parent-child.xml</mapping-file>
 
-        <class>net.sf.jpasecurity.model.ChildTestBean</class>
-        <class>net.sf.jpasecurity.model.ParentTestBean</class>
+        <class>org.jpasecurity.model.ChildTestBean</class>
+        <class>org.jpasecurity.model.ParentTestBean</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -328,14 +328,14 @@
 
     <persistence-unit name="xml-based-field-access" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -348,17 +348,17 @@
 
     <persistence-unit name="simple-contacts" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.contacts.model.User</class>
-        <class>net.sf.jpasecurity.contacts.model.Contact</class>
+        <class>org.jpasecurity.contacts.model.User</class>
+        <class>org.jpasecurity.contacts.model.Contact</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.apache.openjpa.persistence.PersistenceProviderImpl"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.apache.openjpa.persistence.PersistenceProviderImpl"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.StaticAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
             <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:contacts" />
             <property name="javax.persistence.jdbc.user" value="sa" />
@@ -372,17 +372,17 @@
 
     <persistence-unit name="ejb-contacts" transaction-type="JTA">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.contacts.model.User</class>
-        <class>net.sf.jpasecurity.contacts.model.Contact</class>
+        <class>org.jpasecurity.contacts.model.User</class>
+        <class>org.jpasecurity.contacts.model.Contact</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.eclipse.persistence.jpa.PersistenceProvider"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.EjbAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.AnnotationAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.eclipse.persistence.jpa.PersistenceProvider"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.EjbAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.AnnotationAccessRulesProvider"/>
             <property name="eclipselink.weaving" value="false"/>
             <property name="eclipselink.logging.level" value="WARNING"/>
         </properties>
@@ -390,21 +390,21 @@
     </persistence-unit>
     <persistence-unit name="acl-model" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.acl.Acl</class>
-        <class>net.sf.jpasecurity.model.acl.AclEntry</class>
-        <class>net.sf.jpasecurity.model.acl.Group</class>
-        <class>net.sf.jpasecurity.model.acl.Privilege</class>
-        <class>net.sf.jpasecurity.model.acl.Role</class>
-        <class>net.sf.jpasecurity.model.acl.User</class>
-        <class>net.sf.jpasecurity.model.acl.AclProtectedEntity</class>
+        <class>org.jpasecurity.model.acl.Acl</class>
+        <class>org.jpasecurity.model.acl.AclEntry</class>
+        <class>org.jpasecurity.model.acl.Group</class>
+        <class>org.jpasecurity.model.acl.Privilege</class>
+        <class>org.jpasecurity.model.acl.Role</class>
+        <class>org.jpasecurity.model.acl.User</class>
+        <class>org.jpasecurity.model.acl.AclProtectedEntity</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -416,21 +416,21 @@
     </persistence-unit>
     <persistence-unit name="acl-model-nocache" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.acl.Acl</class>
-        <class>net.sf.jpasecurity.model.acl.AclEntry</class>
-        <class>net.sf.jpasecurity.model.acl.Group</class>
-        <class>net.sf.jpasecurity.model.acl.Privilege</class>
-        <class>net.sf.jpasecurity.model.acl.Role</class>
-        <class>net.sf.jpasecurity.model.acl.User</class>
-        <class>net.sf.jpasecurity.model.acl.AclProtectedEntity</class>
+        <class>org.jpasecurity.model.acl.Acl</class>
+        <class>org.jpasecurity.model.acl.AclEntry</class>
+        <class>org.jpasecurity.model.acl.Group</class>
+        <class>org.jpasecurity.model.acl.Privilege</class>
+        <class>org.jpasecurity.model.acl.Role</class>
+        <class>org.jpasecurity.model.acl.User</class>
+        <class>org.jpasecurity.model.acl.AclProtectedEntity</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -445,8 +445,8 @@
 
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
-        <class>net.sf.jpasecurity.model.TestBean</class>
-        <class>net.sf.jpasecurity.model.TestBeanSubclass</class>
+        <class>org.jpasecurity.model.TestBean</class>
+        <class>org.jpasecurity.model.TestBeanSubclass</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -463,16 +463,16 @@
 
     <persistence-unit name="with-clause" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.MethodAccessAnnotationTestBean</class>
+        <class>org.jpasecurity.model.MethodAccessAnnotationTestBean</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -485,47 +485,47 @@
 
     <persistence-unit name="alias" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.contacts.model.User</class>
-        <class>net.sf.jpasecurity.contacts.model.Contact</class>
+        <class>org.jpasecurity.contacts.model.User</class>
+        <class>org.jpasecurity.contacts.model.Contact</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="net.sf.jpasecurity.persistence.EasyMockPersistenceProvider"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.jpasecurity.persistence.EasyMockPersistenceProvider"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
         </properties>
 
     </persistence-unit>
 
     <persistence-unit name="client" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.model.client.Client</class>
-        <class>net.sf.jpasecurity.model.client.ClientGroup</class>
-        <class>net.sf.jpasecurity.model.client.ClientStructure</class>
-        <class>net.sf.jpasecurity.model.client.ClientType</class>
-        <class>net.sf.jpasecurity.model.client.ClientTypeGroup</class>
-        <class>net.sf.jpasecurity.model.client.ClientStaffing</class>
-        <class>net.sf.jpasecurity.model.client.ClientStatus</class>
-        <class>net.sf.jpasecurity.model.client.Employee</class>
-        <class>net.sf.jpasecurity.model.client.ClientOperationsTracking</class>
-        <class>net.sf.jpasecurity.model.client.DataDeliveryMethod</class>
-        <class>net.sf.jpasecurity.model.client.ProcessInstance</class>
-        <class>net.sf.jpasecurity.model.client.ProcessTaskInstance</class>
-        <class>net.sf.jpasecurity.model.client.ProcessInstanceProcessTaskInstance</class>
-        <class>net.sf.jpasecurity.model.client.ClientProcessInstance</class>
-        <class>net.sf.jpasecurity.model.client.ClientTask</class>
+        <class>org.jpasecurity.model.client.Client</class>
+        <class>org.jpasecurity.model.client.ClientGroup</class>
+        <class>org.jpasecurity.model.client.ClientStructure</class>
+        <class>org.jpasecurity.model.client.ClientType</class>
+        <class>org.jpasecurity.model.client.ClientTypeGroup</class>
+        <class>org.jpasecurity.model.client.ClientStaffing</class>
+        <class>org.jpasecurity.model.client.ClientStatus</class>
+        <class>org.jpasecurity.model.client.Employee</class>
+        <class>org.jpasecurity.model.client.ClientOperationsTracking</class>
+        <class>org.jpasecurity.model.client.DataDeliveryMethod</class>
+        <class>org.jpasecurity.model.client.ProcessInstance</class>
+        <class>org.jpasecurity.model.client.ProcessTaskInstance</class>
+        <class>org.jpasecurity.model.client.ProcessInstanceProcessTaskInstance</class>
+        <class>org.jpasecurity.model.client.ClientProcessInstance</class>
+        <class>org.jpasecurity.model.client.ClientTask</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -540,16 +540,16 @@
 
     <persistence-unit name="not-equals" transaction-type="RESOURCE_LOCAL">
 
-        <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-        <class>net.sf.jpasecurity.contacts.model.User</class>
+        <class>org.jpasecurity.contacts.model.User</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-            <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-            <property name="net.sf.jpasecurity.security.rules.provider" value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -562,19 +562,19 @@
 
     <persistence-unit name="interceptor" transaction-type="RESOURCE_LOCAL">
 
-      <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+      <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-      <class>net.sf.jpasecurity.contacts.model.User</class>
-      <class>net.sf.jpasecurity.contacts.model.Contact</class>
+      <class>org.jpasecurity.contacts.model.User</class>
+      <class>org.jpasecurity.contacts.model.Contact</class>
 
       <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
       <properties>
-        <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
-        <property name="net.sf.jpasecurity.security.authentication.provider"
-                  value="net.sf.jpasecurity.security.authentication.TestAuthenticationProvider"/>
-        <property name="net.sf.jpasecurity.security.rules.provider"
-                  value="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+        <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+        <property name="org.jpasecurity.security.authentication.provider"
+                  value="org.jpasecurity.security.authentication.TestAuthenticationProvider"/>
+        <property name="org.jpasecurity.security.rules.provider"
+                  value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
         <property name="hibernate.hbm2ddl.auto" value="create-drop" />
         <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
         <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />

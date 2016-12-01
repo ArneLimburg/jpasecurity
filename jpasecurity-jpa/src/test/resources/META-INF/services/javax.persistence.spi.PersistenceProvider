@@ -1,1 +1,1 @@
-net.sf.jpasecurity.persistence.EasyMockPersistenceProvider
+org.jpasecurity.persistence.EasyMockPersistenceProvider

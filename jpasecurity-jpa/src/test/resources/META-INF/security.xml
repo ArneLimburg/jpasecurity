@@ -77,14 +77,14 @@
   <persistence-unit name="acl-model">
     <!-- master user with read access -->
     <access-rule>
-      GRANT READ ACCESS TO net.sf.jpasecurity.model.acl.AccessControlled bean WHERE (-1 IN (CURRENT_ROLES))
+      GRANT READ ACCESS TO org.jpasecurity.model.acl.AccessControlled bean WHERE (-1 IN (CURRENT_ROLES))
     </access-rule>
     <!-- master user with write access -->
     <access-rule>
-      GRANT ACCESS TO net.sf.jpasecurity.model.acl.AccessControlled bean WHERE (-2 IN (CURRENT_ROLES))
+      GRANT ACCESS TO org.jpasecurity.model.acl.AccessControlled bean WHERE (-2 IN (CURRENT_ROLES))
     </access-rule>
     <access-rule>
-      GRANT ACCESS TO net.sf.jpasecurity.model.acl.AccessControlled bean
+      GRANT ACCESS TO org.jpasecurity.model.acl.AccessControlled bean
       WHERE (bean.accessControlList is null OR EXISTS (
       SELECT e FROM Acl acl JOIN acl.entries e
       WHERE acl = bean.accessControlList
@@ -104,14 +104,14 @@
   <persistence-unit name="acl-model-nocache">
     <!-- master user with read access -->
     <access-rule>
-      GRANT READ ACCESS TO net.sf.jpasecurity.model.acl.AccessControlled bean WHERE (-1 IN (CURRENT_ROLES))
+      GRANT READ ACCESS TO org.jpasecurity.model.acl.AccessControlled bean WHERE (-1 IN (CURRENT_ROLES))
     </access-rule>
     <!-- master user with write access -->
     <access-rule>
-      GRANT ACCESS TO net.sf.jpasecurity.model.acl.AccessControlled bean WHERE (-2 IN (CURRENT_ROLES))
+      GRANT ACCESS TO org.jpasecurity.model.acl.AccessControlled bean WHERE (-2 IN (CURRENT_ROLES))
     </access-rule>
     <access-rule>
-      GRANT ACCESS TO net.sf.jpasecurity.model.acl.AccessControlled bean
+      GRANT ACCESS TO org.jpasecurity.model.acl.AccessControlled bean
       WHERE (bean.accessControlList is null OR EXISTS (
       SELECT /* QUERY_OPTIMIZE_NOCACHE */ e FROM Acl acl JOIN acl.entries e
       WHERE acl = bean.accessControlList

@@ -4,87 +4,87 @@
   <namespace>http://jpasecurity.sf.net/facelets</namespace>
   <tag>
     <tag-name>creation</tag-name>
-    <handler-class>net.sf.jpasecurity.jsf.CreationTagHandler</handler-class>
+    <handler-class>org.jpasecurity.jsf.CreationTagHandler</handler-class>
   </tag>
   <tag>
     <tag-name>reading</tag-name>
-    <handler-class>net.sf.jpasecurity.jsf.ReadingTagHandler</handler-class>
+    <handler-class>org.jpasecurity.jsf.ReadingTagHandler</handler-class>
   </tag>
   <tag>
     <tag-name>updating</tag-name>
-    <handler-class>net.sf.jpasecurity.jsf.UpdatingTagHandler</handler-class>
+    <handler-class>org.jpasecurity.jsf.UpdatingTagHandler</handler-class>
   </tag>
   <tag>
     <tag-name>deletion</tag-name>
-    <handler-class>net.sf.jpasecurity.jsf.DeletionTagHandler</handler-class>
+    <handler-class>org.jpasecurity.jsf.DeletionTagHandler</handler-class>
   </tag>
   <tag>
     <tag-name>rolesAllowed</tag-name>
-    <handler-class>net.sf.jpasecurity.jsf.RolesAllowedTagHandler</handler-class>
+    <handler-class>org.jpasecurity.jsf.RolesAllowedTagHandler</handler-class>
   </tag>
   <function>
     <function-name>newBean1</function-name>
-    <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
+    <function-class>org.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String)</function-signature>
   </function>
   <function>
     <function-name>newBean2</function-name>
-    <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
+    <function-class>org.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object)</function-signature>
   </function>
   <function>
     <function-name>newBean3</function-name>
-    <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
+    <function-class>org.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object,java.lang.Object)</function-signature>
   </function>
   <function>
     <function-name>newBean4</function-name>
-    <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
+    <function-class>org.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object)</function-signature>
   </function>
   <function>
     <function-name>newBean5</function-name>
-    <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
+    <function-class>org.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object)</function-signature>
   </function>
   <function>
     <function-name>newBean6</function-name>
-    <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
+    <function-class>org.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object)</function-signature>
   </function>
   <function>
     <function-name>newBean7</function-name>
-    <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
+    <function-class>org.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object)</function-signature>
   </function>
   <function>
     <function-name>newBean8</function-name>
-    <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
+    <function-class>org.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>Object newBean(java.lang.String,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object)</function-signature>
   </function>
   <function>
     <function-name>canCreate</function-name>
-    <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
+    <function-class>org.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>boolean canCreate(java.lang.Object)</function-signature>
   </function>
   <function>
     <function-name>canRead</function-name>
-    <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
+    <function-class>org.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>boolean canRead(java.lang.Object)</function-signature>
   </function>
   <function>
     <function-name>canUpdate</function-name>
-    <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
+    <function-class>org.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>boolean canUpdate(java.lang.Object)</function-signature>
   </function>
   <function>
     <function-name>canDelete</function-name>
-    <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
+    <function-class>org.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>boolean canDelete(java.lang.Object)</function-signature>
   </function>
   <function>
     <function-name>userInRole</function-name>
-    <function-class>net.sf.jpasecurity.jsf.JsfAccessContext</function-class>
+    <function-class>org.jpasecurity.jsf.JsfAccessContext</function-class>
     <function-signature>boolean isUserInRole(java.lang.String)</function-signature>
   </function>
 </facelet-taglib>

@@ -15,9 +15,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import net.sf.jpasecurity.contacts.model.Contact;
-import net.sf.jpasecurity.contacts.model.User;
-import net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider;
+import org.jpasecurity.contacts.model.Contact;
+import org.jpasecurity.contacts.model.User;
+import org.jpasecurity.security.authentication.StaticAuthenticationProvider;
   </programlisting>
   <para>
     To create the users and contacts we must create an EntityManagerFactory, an EntityManager,

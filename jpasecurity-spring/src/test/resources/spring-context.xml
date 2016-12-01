@@ -10,7 +10,7 @@
                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
                            http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
 	
-    <bean id="contactsDao" class="net.sf.jpasecurity.spring.contacts.DefaultContactsDao"/>
+    <bean id="contactsDao" class="org.jpasecurity.spring.contacts.DefaultContactsDao"/>
 
     <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager"
           p:providers-ref="daoAuthenticationProvider" />
@@ -32,21 +32,21 @@
 
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
 
-    <bean id="entityManagerFactory" class="net.sf.jpasecurity.spring.persistence.SecureContainerEntityManagerFactoryBean"
+    <bean id="entityManagerFactory" class="org.jpasecurity.spring.persistence.SecureContainerEntityManagerFactoryBean"
           p:persistenceUnitName="spring-contacts"
           p:authenticationProvider-ref="authenticationProvider"
           p:accessRulesProvider-ref="accessRulesProvider"
           p:dataSource-ref="dataSource" />
     
-    <bean id="authenticationProvider" class="net.sf.jpasecurity.spring.authentication.SpringAuthenticationProvider" />
+    <bean id="authenticationProvider" class="org.jpasecurity.spring.authentication.SpringAuthenticationProvider" />
     
-    <bean id="accessRulesProvider" class="net.sf.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+    <bean id="accessRulesProvider" class="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
 
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
           p:entityManagerFactory-ref="entityManagerFactory" />
 
     <aop:config>
-        <aop:pointcut id="daoMethods" expression="execution(* net.sf.jpasecurity.spring.contacts.DefaultContactsDao.*(..))"/>
+        <aop:pointcut id="daoMethods" expression="execution(* org.jpasecurity.spring.contacts.DefaultContactsDao.*(..))"/>
         <aop:advisor advice-ref="transactionAdvice" pointcut-ref="daoMethods"/>
     </aop:config>
 

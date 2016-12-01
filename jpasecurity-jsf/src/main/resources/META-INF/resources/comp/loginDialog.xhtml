@@ -46,12 +46,12 @@
               <h:commandButton id="loginButton"
                                value="#{cc.attrs.loginButtonText}">
                 <f:param name="outcome" value="#{not empty facesContext.externalContext.requestParameterMap['return']? facesContext.externalContext.requestParameterMap['return']: facesContext.viewRoot.viewId}?#{facesContext.externalContext.requestParameterMap['query']}#{not empty facesContext.externalContext.requestParameterMap['query']? '&amp;': ''}faces-redirect=true&amp;includeViewParams=true}"/>
-                <f:actionListener type="net.sf.jpasecurity.jsf.LoginActionListener"/>
+                <f:actionListener type="org.jpasecurity.jsf.LoginActionListener"/>
               </h:commandButton>
               <h:commandButton id="cancelButton"
                                value="#{cc.attrs.cancelButtonText}">
                 <f:param name="outcome" value="#{not empty facesContext.externalContext.requestParameterMap['return']? facesContext.externalContext.requestParameterMap['return']: facesContext.viewRoot.viewId}?#{facesContext.externalContext.requestParameterMap['query']}#{not empty facesContext.externalContext.requestParameterMap['query']? '&amp;': ''}faces-redirect=true&amp;includeViewParams=true}"/>
-                <f:actionListener type="net.sf.jpasecurity.jsf.LoginActionListener"/>
+                <f:actionListener type="org.jpasecurity.jsf.LoginActionListener"/>
               </h:commandButton>
             </h:panelGroup>
           </h:form>

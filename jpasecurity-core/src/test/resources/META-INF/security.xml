@@ -4,7 +4,7 @@
           version="1.0">
   <persistence-unit name="interface">
     <access-rule>
-      GRANT ACCESS TO net.sf.jpasecurity.model.TestInterface t WHERE t.name = CURRENT_PRINCIPAL 
+      GRANT ACCESS TO org.jpasecurity.model.TestInterface t WHERE t.name = CURRENT_PRINCIPAL 
     </access-rule>
   </persistence-unit>
 </security>

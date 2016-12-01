@@ -4,10 +4,10 @@
   <title>A custom access rules provider</title>
   <para>
     As stated before you may implement your own way of providing access rules (i.e. via JDBC).
-	You have to implement the interface <systemitem>net.sf.jpasecurity.security.rules.AccessRulesProvider</systemitem>
-	and specify the property <systemitem>net.sf.jpasecurity.security.rules.provider</systemitem>
+	You have to implement the interface <systemitem>org.jpasecurity.security.rules.AccessRulesProvider</systemitem>
+	and specify the property <systemitem>org.jpasecurity.security.rules.provider</systemitem>
 	in your <filename>persistence.xml</filename> with the classname of your implementation of the
-	interface <systemitem>net.sf.jpasecurity.security.rules.AccessRulesProvider</systemitem>.
+	interface <systemitem>org.jpasecurity.security.rules.AccessRulesProvider</systemitem>.
     Take a look at its javadoc documentation for further reference.
   </para>
   <section>
@@ -15,19 +15,19 @@
     <para>
       Your custom access rules provider may need additional configuration parameters. You can define them
       via the persistence properties in your <filename>persistence.xml</filename>. All you have to do, is to implement
-      the interface <systemitem>net.sf.jpasecurity.persistence.PersistenceInformationReceiver</systemitem>.
+      the interface <systemitem>org.jpasecurity.persistence.PersistenceInformationReceiver</systemitem>.
       Then you will have the persistence properties injected when your persistence provider is initialized.      
     </para>
   </section>
   <section>
     <title>Implementing an Access Rules Provider</title>
     <para>
-      When you take a look at the methods of <systemitem>net.sf.jpasecurity.rules.AccessRulesProvider</systemitem>,
+      When you take a look at the methods of <systemitem>org.jpasecurity.rules.AccessRulesProvider</systemitem>,
       you may notice that you need to create objects of type
-      <systemitem>net.sf.jpasecurity.security.AccessRule</systemitem>. This objects may be created using a
-      <systemitem>net.sf.jpasecurity.jpql.parser.JpqlParser</systemitem> in conjunction with an
-      <systemitem>net.sf.jpasecurity.security.rules.AccessRulesCompiler</systemitem>, but you may subclass
-      <systemitem>net.sf.jpasecurity.security.rules.AbstractAccessRulesProvider</systemitem>
+      <systemitem>org.jpasecurity.security.AccessRule</systemitem>. This objects may be created using a
+      <systemitem>org.jpasecurity.jpql.parser.JpqlParser</systemitem> in conjunction with an
+      <systemitem>org.jpasecurity.security.rules.AccessRulesCompiler</systemitem>, but you may subclass
+      <systemitem>org.jpasecurity.security.rules.AbstractAccessRulesProvider</systemitem>
       to inherit this functionality. Then you have to override <systemitem>initializeAccessRules</systemitem>
       and call <systemitem>compileRules</systemitem> from within.
     </para>
@@ -44,11 +44,11 @@
         <![CDATA[
 public class JdbcAccessRulesProvider extends AbstractAccessRulesProvider {
 
-  public static final String ACCESS_RULES_JDBC_URL_PROPERTY = "net.sf.jpasecurity.security.rules.jdbc.url";
-  public static final String ACCESS_RULES_JDBC_USERNAME_PROPERTY = "net.sf.jpasecurity.security.rules.jdbc.username";
-  public static final String ACCESS_RULES_JDBC_PASSWORD_PROPERTY = "net.sf.jpasecurity.security.rules.jdbc.password";  
-  public static final String ACCESS_RULES_JDBC_TABLE_PROPERTY = "net.sf.jpasecurity.security.rules.jdbc.table";
-  public static final String ACCESS_RULES_JDBC_COLUMN_PROPERTY = "net.sf.jpasecurity.security.rules.jdbc.column";
+  public static final String ACCESS_RULES_JDBC_URL_PROPERTY = "org.jpasecurity.security.rules.jdbc.url";
+  public static final String ACCESS_RULES_JDBC_USERNAME_PROPERTY = "org.jpasecurity.security.rules.jdbc.username";
+  public static final String ACCESS_RULES_JDBC_PASSWORD_PROPERTY = "org.jpasecurity.security.rules.jdbc.password";  
+  public static final String ACCESS_RULES_JDBC_TABLE_PROPERTY = "org.jpasecurity.security.rules.jdbc.table";
+  public static final String ACCESS_RULES_JDBC_COLUMN_PROPERTY = "org.jpasecurity.security.rules.jdbc.column";
 
   protected void initializeAccessRules() {
     Map<String, String> properties = getPersistenceProperties();
@@ -130,11 +130,11 @@ public class JdbcAccessRulesProvider extends AbstractAccessRulesProvider {
     ...
 
     <properties>
-      <property name="net.sf.jpasecurity.security.rules.jdbc.url" value="jdbc:your.db.url" />
-      <property name="net.sf.jpasecurity.security.rules.jdbc.username" value="your_username" />
-      <property name="net.sf.jpasecurity.security.rules.jdbc.password" value="your_password" />
-      <property name="net.sf.jpasecurity.security.rules.jdbc.table" value="your_table_with_access_rules" />
-      <property name="net.sf.jpasecurity.security.rules.jdbc.column" value="your_column_containing_the_access_rules" />
+      <property name="org.jpasecurity.security.rules.jdbc.url" value="jdbc:your.db.url" />
+      <property name="org.jpasecurity.security.rules.jdbc.username" value="your_username" />
+      <property name="org.jpasecurity.security.rules.jdbc.password" value="your_password" />
+      <property name="org.jpasecurity.security.rules.jdbc.table" value="your_table_with_access_rules" />
+      <property name="org.jpasecurity.security.rules.jdbc.column" value="your_column_containing_the_access_rules" />
     </properties>
 
   </persistence-unit>

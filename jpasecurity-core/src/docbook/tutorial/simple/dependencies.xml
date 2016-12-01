@@ -11,12 +11,12 @@
   <programlisting>
     <![CDATA[
     <dependency>
-      <groupId>net.sf.jpasecurity</groupId>
+      <groupId>org.jpasecurity</groupId>
       <artifactId>jpasecurity-core</artifactId>
       <version>0.4.1-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>net.sf.jpasecurity</groupId>
+      <groupId>org.jpasecurity</groupId>
       <artifactId>jpasecurity-jpa</artifactId>
       <version>0.4.1-SNAPSHOT</version>
     </dependency>
@@ -49,7 +49,7 @@
     We install it with the following command:
   </para>
   <programlisting>
-mvn install:install-file -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity -Dversion=0.4.1-SNAPSHOT -Dpackaging=jar -Dfile=/path/to/jpasecurity-0.4.1-SNAPSHOT.jar
+mvn install:install-file -DgroupId=org.jpasecurity -DartifactId=jpasecurity -Dversion=0.4.1-SNAPSHOT -Dpackaging=jar -Dfile=/path/to/jpasecurity-0.4.1-SNAPSHOT.jar
   </programlisting>
   <para>
     Note again that you have to provide the absolute path to your <systemitem>jpa-security-0.4.1-SNAPSHOT.jar</systemitem>.

@@ -18,7 +18,7 @@
     <title>Authentication in JPA Security</title>
     <para>
       JPA Security uses an implementation of the
-      <systemitem>net.sf.jpasecurity.configuration.SecurityContext</systemitem>
+      <systemitem>org.jpasecurity.configuration.SecurityContext</systemitem>
       interface to be aware of the currently authenticated user
       and other related information (like its roles, tenant, ...) at runtime.
     </para>
@@ -59,13 +59,13 @@
       <para>
         When the described auto-detection strategy does not work for your environment,
         you may specify the class name of any implementation of the
-        <systemitem>net.sf.jpasecurity.configuration.SecurityContext</systemitem> interface as value
-        of the persistence-property <systemitem>net.sf.jpasecurity.security.context</systemitem>
+        <systemitem>org.jpasecurity.configuration.SecurityContext</systemitem> interface as value
+        of the persistence-property <systemitem>org.jpasecurity.security.context</systemitem>
         in your <filename>persistence.xml</filename>. To provide backward compatibility to JPA Security 0.3
-        <systemitem>net.sf.jpasecurity.security.authentication.provider</systemitem> is also valid,
+        <systemitem>org.jpasecurity.security.authentication.provider</systemitem> is also valid,
         if you specify a class name of an implementation of the
-        <systemitem>net.sf.jpasecurity.configuration.AuthenticationProvider</systemitem> interface,
-        but any specification of the <systemitem>net.sf.jpasecurity.security.context</systemitem> property
+        <systemitem>org.jpasecurity.configuration.AuthenticationProvider</systemitem> interface,
+        but any specification of the <systemitem>org.jpasecurity.security.context</systemitem> property
         will take precedence.
       </para>
     </section>

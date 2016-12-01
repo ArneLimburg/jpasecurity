@@ -4,10 +4,10 @@
   <title>Implementing a custom Security Context</title>
   <para>
 	You can implement a custom security context in a similar way like the access rules provider. 
-	You only have to implement the interface <systemitem>net.sf.jpasecurity.configuration.SecurityContext</systemitem>
-	and specify the property <systemitem>net.sf.jpasecurity.security.context</systemitem>
+	You only have to implement the interface <systemitem>org.jpasecurity.configuration.SecurityContext</systemitem>
+	and specify the property <systemitem>org.jpasecurity.security.context</systemitem>
 	in your <filename>persistence.xml</filename> with the classname of your implementation of the
-	interface <systemitem>net.sf.jpasecurity.configuration.SecurityContext</systemitem>.
+	interface <systemitem>org.jpasecurity.configuration.SecurityContext</systemitem>.
     Take a look at its javadoc documentation for further reference.
   </para>
   <section>
@@ -15,7 +15,7 @@
     <para>
       As your access rules provider your custom security context may need additional configuration parameters, too.
       You also can define them via the persistence properties in your <filename>persistence.xml</filename>. Again you have
-      to implement the interface <systemitem>net.sf.jpasecurity.persistence.PersistenceInformationReceiver</systemitem>
+      to implement the interface <systemitem>org.jpasecurity.persistence.PersistenceInformationReceiver</systemitem>
       to have the persistence properties injected when your security context is initialized.      
     </para>
   </section>

@@ -5,7 +5,7 @@
   <para>
     To use Servlet authentication information for JPA Security within your JSF application
     you may integrate JPA Security like described in the previous chapter and specify
-    <systemitem>net.sf.jpasecurity.jsf.authentication.JsfAuthenticationProvider</systemitem>
+    <systemitem>org.jpasecurity.jsf.authentication.JsfAuthenticationProvider</systemitem>
     as authentication provider in your persistence properties.
     You need to define all the roles your application is using
     with the <systemitem>@DeclareRoles</systemitem> annotation at at least one of your entity beans

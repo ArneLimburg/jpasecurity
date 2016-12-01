@@ -10,14 +10,14 @@
   </para>
   <programlisting>
     <![CDATA[
-mvn archetype:create -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity-simple-sample -Dversion=0.4.1-SNAPSHOT
+mvn archetype:create -DgroupId=org.jpasecurity -DartifactId=jpasecurity-simple-sample -Dversion=0.4.1-SNAPSHOT
     ]]>
   </programlisting>
   <para>
     This created a directory called jpasecurity-simple-sample with a file named pom.xml
     and a subdirectory named src in it. Within the src-directory there is a directory-structure
     special to Maven. We will place our classes in src/main/java. Maven already created the
-    packages net.sf.jpasecurity for us. Within this package Maven created a simple
+    packages org.jpasecurity for us. Within this package Maven created a simple
     Hello-World-example called App.java.
     Maven also created src/test/java, but we don't need this directory nor its subdirectories,
     so we can savely delete it.
@@ -26,7 +26,7 @@ mvn archetype:create -DgroupId=net.sf.jpasecurity -DartifactId=jpasecurity-simpl
     to point to the right package:
   </para>
   <programlisting>
-package net.sf.jpasecurity.sample.simple;
+package org.jpasecurity.sample.simple;
   </programlisting>
   <para>
     Our sample shall be compiled and executed with Java 5 and shall be packed into an executable jar file.
@@ -51,7 +51,7 @@ package net.sf.jpasecurity.sample.simple;
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib</classpathPrefix>
-              <mainClass>net.sf.jpasecurity.sample.simple.App</mainClass>
+              <mainClass>org.jpasecurity.sample.simple.App</mainClass>
             </manifest>
           </archive>
         </configuration>

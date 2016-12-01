@@ -24,11 +24,11 @@
           <f:param name="query" value="#{facesContext.externalContext.request.queryString}"/>
         </h:commandLink>
         <h:commandLink value="#{cc.attrs.logoutLabel}" rendered="#{facesContext.externalContext.request.remoteUser != null and !cc.attrs.asynchronous}">
-          <f:actionListener type="net.sf.jpasecurity.jsf.LogoutActionListener"/>
+          <f:actionListener type="org.jpasecurity.jsf.LogoutActionListener"/>
           <f:param name="query" value="#{facesContext.externalContext.request.queryString}"/>
         </h:commandLink>
         <h:commandLink value="#{cc.attrs.logoutLabel}" rendered="#{facesContext.externalContext.request.remoteUser != null and cc.attrs.asynchronous}">
-          <f:actionListener type="net.sf.jpasecurity.jsf.LogoutActionListener"/>
+          <f:actionListener type="org.jpasecurity.jsf.LogoutActionListener"/>
           <f:param name="query" value="#{facesContext.externalContext.request.queryString}"/>
           <f:ajax event="action" render="loginForm #{cc.attrs.refresh}"/>
         </h:commandLink>

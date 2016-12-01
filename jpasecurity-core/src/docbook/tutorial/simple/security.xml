@@ -14,14 +14,14 @@
       <![CDATA[
 <persistence-unit name="contacts" transaction-type="RESOURCE_LOCAL">
 
-  <provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+  <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
-  <class>net.sf.jpasecurity.contacts.model.User</class>
-  <class>net.sf.jpasecurity.contacts.model.Contact</class>
+  <class>org.jpasecurity.contacts.model.User</class>
+  <class>org.jpasecurity.contacts.model.Contact</class>
 
   <properties>
-    <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
-    <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider"/>
+    <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
+    <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.StaticAuthenticationProvider"/>
     <property name="hibernate.hbm2ddl.auto" value="create-drop" />
     <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
     <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -38,7 +38,7 @@
     </para>
     <programlisting>
       <![CDATA[
-<provider>net.sf.jpasecurity.persistence.SecurePersistenceProvider</provider>
+<provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
       ]]>
     </programlisting>
     <para>
@@ -46,8 +46,8 @@
     </para>
     <programlisting>
       <![CDATA[
-    <property name="net.sf.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
-    <property name="net.sf.jpasecurity.security.authentication.provider" value="net.sf.jpasecurity.security.authentication.StaticAuthenticationProvider"/>
+    <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
+    <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.StaticAuthenticationProvider"/>
       ]]>
     </programlisting>
     <para>
@@ -68,7 +68,7 @@
       <![CDATA[
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
-import net.sf.jpasecurity.security.Permit;
+import org.jpasecurity.security.Permit;
       
 @Entity
 @DeclareRoles({"admin", "user"})
@@ -82,7 +82,7 @@ public class User {
     <programlisting>
       <![CDATA[
 import javax.annotation.security.RolesAllowed;
-import net.sf.jpasecurity.security.Permit;
+import org.jpasecurity.security.Permit;
 
 @Entity
 @RolesAllowed("admin")

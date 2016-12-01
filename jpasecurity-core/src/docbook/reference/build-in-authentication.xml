@@ -5,7 +5,7 @@
   <para>
     If you neither use Java EE authentication nor Servlet authentication (via JSF) nor Spring-Security
     you either have to provide your own implementation of the
-    <systemitem>net.sf.jpasecurity.configuration.SecurityContext</systemitem> interface
+    <systemitem>org.jpasecurity.configuration.SecurityContext</systemitem> interface
     or you have to use one of the build-in authentication providers, which are
     <systemitem>DefaultAuthenticationProvider</systemitem> and <systemitem>StaticAuthenticationProvider</systemitem>.
   </para>

@@ -19,8 +19,8 @@
 
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
-    <class>net.sf.jpasecurity.contacts.model.User</class>
-    <class>net.sf.jpasecurity.contacts.model.Contact</class>
+    <class>org.jpasecurity.contacts.model.User</class>
+    <class>org.jpasecurity.contacts.model.Contact</class>
 
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="create-drop" />

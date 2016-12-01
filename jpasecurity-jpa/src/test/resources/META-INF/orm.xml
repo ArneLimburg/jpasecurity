@@ -6,11 +6,11 @@
   <persistence-unit-metadata>
     <persistence-unit-defaults>
       <entity-listeners>
-        <entity-listener class="net.sf.jpasecurity.model.DefaultEntityListener" />
+        <entity-listener class="org.jpasecurity.model.DefaultEntityListener" />
       </entity-listeners>
     </persistence-unit-defaults>
   </persistence-unit-metadata>
-  <package>net.sf.jpasecurity.model</package>
+  <package>org.jpasecurity.model</package>
   <entity class="MethodAccessTestBean" access="PROPERTY">
     <attributes>
       <id name="id"/>
@@ -29,9 +29,9 @@
       </one-to-many>
     </attributes>
   </entity>
-  <entity class="net.sf.jpasecurity.model.FieldAccessXmlTestBean" access="FIELD">
+  <entity class="org.jpasecurity.model.FieldAccessXmlTestBean" access="FIELD">
     <entity-listeners>
-      <entity-listener class="net.sf.jpasecurity.model.TestEntityListener">
+      <entity-listener class="org.jpasecurity.model.TestEntityListener">
         <post-persist method-name="publicTestMethod"/>
         <post-remove method-name="protectedTestMethod"/>
         <post-update method-name="packageProtectedTestMethod"/>

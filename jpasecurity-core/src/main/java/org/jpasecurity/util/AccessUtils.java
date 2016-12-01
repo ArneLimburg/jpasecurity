@@ -1,0 +1,45 @@
+/*
+ * Copyright 2009 Arne Limburg
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
+package org.jpasecurity.util;
+
+import static org.jpasecurity.AccessType.CREATE;
+import static org.jpasecurity.AccessType.DELETE;
+import static org.jpasecurity.AccessType.READ;
+import static org.jpasecurity.AccessType.UPDATE;
+
+import org.jpasecurity.AccessManager;
+
+/**
+ * @author Arne Limburg
+ */
+public abstract class AccessUtils {
+
+    public static boolean canCreate(AccessManager accessManager, Object entity) {
+        return accessManager.isAccessible(CREATE, entity);
+    }
+
+    public static boolean canRead(AccessManager accessManager, Object entity) {
+        return accessManager.isAccessible(READ, entity);
+    }
+
+    public static boolean canUpdate(AccessManager accessManager, Object entity) {
+        return accessManager.isAccessible(UPDATE, entity);
+    }
+
+    public static boolean canDelete(AccessManager accessManager, Object entity) {
+        return accessManager.isAccessible(DELETE, entity);
+    }
+}
