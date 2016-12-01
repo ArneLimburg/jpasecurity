@@ -71,17 +71,7 @@
     <!-- this dependency is just to ensure that this artifact is executed last in build order -->
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>jpasecurity-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>jpasecurity-jpa</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>jpasecurity-web</artifactId>
+      <artifactId>jpasecurity</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

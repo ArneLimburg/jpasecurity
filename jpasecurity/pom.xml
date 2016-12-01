@@ -168,6 +168,21 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jsp_2.2_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-el_2.2_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-servlet_3.0_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>javax.annotation</groupId>
       <artifactId>jsr250-api</artifactId>
       <scope>compile</scope>
@@ -278,7 +293,8 @@
     </dependency>
     <dependency>
       <groupId>commons-dbutils</groupId>
-      <artifactId>commons-dbutils</artifactId>    
+      <artifactId>commons-dbutils</artifactId>
+      <scope>test</scope>    
     </dependency>
   </dependencies>
 </project>

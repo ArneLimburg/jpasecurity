@@ -31,12 +31,7 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>jpasecurity-jpa</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>jpasecurity-web</artifactId>
+      <artifactId>jpasecurity</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
