@@ -30,7 +30,7 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>jpasecurity-core</artifactId>
+      <artifactId>jpasecurity</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
