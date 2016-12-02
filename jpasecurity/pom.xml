@@ -136,8 +136,8 @@
         <configuration>
           <consoleOutput>true</consoleOutput>
           <encoding>UTF-8</encoding>
-          <configLocation>checkstyle/configuration.xml</configLocation>
-          <headerLocation>checkstyle/java.header</headerLocation>
+          <configLocation>${project.basedir}/src/main/checkstyle/configuration.xml</configLocation>
+          <headerLocation>${project.basedir}/src/main/checkstyle/java.header</headerLocation>
         </configuration>
         <executions>
           <execution>
@@ -153,13 +153,6 @@
             </configuration>
           </execution>
         </executions>
-        <dependencies>
-          <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jpasecurity-build</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -211,11 +204,10 @@
             <phase>package</phase>
             <configuration>
               <target description="Checking for cyclic package-dependencies">
-                <xslt in="target/jdepend-report.xml" out="target/jdepend-cycle-check.txt">
-                  <style>
-                    <javaresource name="jdepend/xsl/jdepend-cycle-check.xsl"/>
-                  </style>
-                </xslt>
+                <xslt
+                  in="target/jdepend-report.xml"
+                  out="target/jdepend-cycle-check.txt"
+                  style="${project.basedir}/src/main/jdepend/xsl/jdepend-cycle-check.xsl"/>
 
                 <!-- Fail on cycles -->
                 <fail message="There are cycles in the package-dependencies">
@@ -263,13 +255,6 @@
             </goals>
           </execution>
         </executions>
-        <dependencies>
-          <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jpasecurity-build</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
