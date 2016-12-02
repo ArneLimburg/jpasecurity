@@ -12,7 +12,6 @@
 
   <modules>
     <module>jpasecurity-build</module>
-    <module>jpasecurity-parent</module>
     <module>jpasecurity</module>
   </modules>
 </project>

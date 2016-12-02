@@ -162,7 +162,7 @@ public class AccessCheckTest {
                              + "WHERE c.owner.name = :name GROUP BY c.text ORDER BY cSum";
         // TODO check why the rule is applied twice
         String filteredQuery = " SELECT c.text,  SUM(c.id)  AS cSum FROM Contact c "
-                             + "WHERE (c.owner.name = :name) AND ((c.owner.name = 'user') OR (c.owner.name = 'user')) "
+                             + "WHERE (c.owner.name = :name) AND (c.owner.name = 'user') "
                              + "GROUP BY c.text  ORDER BY cSum";
 
         expect(mock.isOpen()).andReturn(true).anyTimes();
