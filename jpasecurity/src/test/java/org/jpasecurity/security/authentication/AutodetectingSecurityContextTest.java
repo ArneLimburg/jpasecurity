@@ -23,6 +23,7 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URL;
 import java.util.Collections;
 
 import javax.ejb.EJBContext;
@@ -64,6 +65,16 @@ public class AutodetectingSecurityContextTest {
 
     @Test
     public void autodetectEjbAuthenticationProvider() throws Exception {
+        ClassLoader realClassLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader mockClassLoader = createMock(ClassLoader.class);
+        expect(mockClassLoader.loadClass("org.jpasecurity.spring.authentication.SpringAuthenticationProvider"))
+            .andThrow(new ClassNotFoundException());
+        expect(mockClassLoader.loadClass("org.jpasecurity.security.authentication.EjbAuthenticationProvider"))
+            .andReturn((Class)EjbAuthenticationProvider.class);
+        expect(mockClassLoader.getResources("jndi.properties")).andReturn(Collections.<URL>emptyEnumeration());
+        expect(mockClassLoader.loadClass(javaURLContextFactory.class.getName()))
+            .andReturn((Class)javaURLContextFactory.class);
+
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY, javaURLContextFactory.class.getName());
         System.setProperty(Context.URL_PKG_PREFIXES, NamingContext.class.getPackage().getName());
 
@@ -73,9 +84,14 @@ public class AutodetectingSecurityContextTest {
         EJBContext ejbContext = createNiceMock(EJBContext.class);
         initialContext.bind("java:comp/EJBContext", ejbContext);
 
-        AuthenticationProvider authenticationProvider
-            = new AutodetectingSecurityContext().autodetectAuthenticationProvider();
+        AutodetectingSecurityContext securityContext = new AutodetectingSecurityContext();
+
+        replay(mockClassLoader);
+        Thread.currentThread().setContextClassLoader(mockClassLoader);
+        AuthenticationProvider authenticationProvider = securityContext.autodetectAuthenticationProvider();
         assertTrue(authenticationProvider instanceof EjbAuthenticationProvider);
+
+        Thread.currentThread().setContextClassLoader(realClassLoader);
     }
 
     @Test
