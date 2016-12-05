@@ -362,16 +362,14 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.apache.openjpa.persistence.PersistenceProviderImpl"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
             <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.StaticAuthenticationProvider"/>
             <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
             <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:contacts" />
             <property name="javax.persistence.jdbc.user" value="sa" />
             <property name="javax.persistence.jdbc.password" value="" />
-            <property name="openjpa.RuntimeUnenhancedClasses" value="supported"/>
-            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(SchemaAction='add,deleteTableContents')"/>
-            <property name="openjpa.Log" value="DefaultLevel=WARN"/>
+            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
         </properties>
 
     </persistence-unit>

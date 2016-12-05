@@ -76,7 +76,7 @@ public class FieldAccessAnnotationTestBean {
     @JoinColumn(name = "parentBean")
     private FieldAccessAnnotationTestBean parent;
     @OneToMany(mappedBy = "parent",
-               fetch = FetchType.EAGER,
+               fetch = FetchType.LAZY,
                cascade = CascadeType.ALL,
                targetEntity = FieldAccessAnnotationTestBean.class)
     private List<Object> children = new ArrayList<Object>();
@@ -247,6 +247,6 @@ public class FieldAccessAnnotationTestBean {
         if (id == 0) {
             return this == bean;
         }
-        return id == bean.id;
+        return id == bean.getIdentifier();
     }
 }

@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jpasecurity.AccessManager;
+import org.jpasecurity.AccessType;
 import org.jpasecurity.SecureCollection;
 import org.jpasecurity.SecureEntity;
 
@@ -220,6 +221,10 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
 
     void initialize(boolean checkAccess) {
         filtered = createFiltered();
+        AccessManager.Instance.get().delayChecks();
+        original.size();
+        AccessManager.Instance.get().ignoreChecks(AccessType.READ, (Collection<Object>)original);
+        AccessManager.Instance.get().checkNow();
         for (E entity: original) {
             if (isSimplePropertyType(entity.getClass())) {
                 filtered.add(entity);

@@ -26,6 +26,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.easymock.IAnswer;
+import org.jpasecurity.AccessManager;
+import org.jpasecurity.AlwaysPermittingAccessManager;
 import org.jpasecurity.DefaultSecurityUnit;
 import org.jpasecurity.ExceptionFactory;
 import org.jpasecurity.SecurityUnit;
@@ -53,6 +55,7 @@ public class EntityManagerEvaluatorTest {
 
     private static final String SELECT = "SELECT bean FROM MethodAccessTestBean bean ";
 
+    private AccessManager accessManager;
     private MappingInformation mappingInformation;
     private JpqlParser parser;
     private JpqlCompiler compiler;
@@ -107,6 +110,9 @@ public class EntityManagerEvaluatorTest {
         getAlwaysEvaluatableResultParameters =
             new QueryEvaluationParameters(mappingInformation, aliases, namedParameters, positionalParameters, false,
                 QueryEvaluationParameters.EvaluationType.GET_ALWAYS_EVALUATABLE_RESULT);
+
+        accessManager = new AlwaysPermittingAccessManager();
+        AccessManager.Instance.register(accessManager);
     }
 
     @After
@@ -114,6 +120,7 @@ public class EntityManagerEvaluatorTest {
         positionalParameters.clear();
         entities.clear();
         aliases.clear();
+        AccessManager.Instance.unregister(accessManager);
     }
 
     @Test

@@ -66,6 +66,7 @@ public class SimpleContactsTest {
 
     @After
     public void removeTestData() {
+        StaticAuthenticationProvider.authenticate(null, "admin");
         testData.clearTestData(entityManagerFactory);
         StaticAuthenticationProvider.authenticate(null);
     }

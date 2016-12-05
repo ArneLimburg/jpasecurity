@@ -28,6 +28,7 @@ import static org.easymock.EasyMock.verify;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +56,7 @@ import org.jpasecurity.mapping.PropertyMappingInformation;
 import org.jpasecurity.mapping.SecureBeanInitializer;
 import org.jpasecurity.mapping.SimplePropertyMappingInformation;
 import org.jpasecurity.mapping.SingleValuedRelationshipMappingInformation;
+import org.junit.After;
 import org.junit.Before;
 
 /**
@@ -80,9 +82,16 @@ public abstract class AbstractSecureObjectTestCase {
         mapping = createMock(MappingInformation.class);
         beanStore = createMock(BeanStore.class);
         accessManager = createMock(AccessManager.class);
+        AccessManager.Instance.register(accessManager);
         expect(mapping.getClassMapping((Class<?>)anyObject())).andAnswer(new ClassMappingAnswer()).anyTimes();
         expect(beanStore.isLoaded(anyObject())).andReturn(true).anyTimes();
         expect(accessManager.isAccessible(eq(AccessType.READ), anyObject())).andReturn(true).anyTimes();
+        accessManager.delayChecks();
+        expectLastCall().anyTimes();
+        accessManager.ignoreChecks(eq(AccessType.READ), anyObject(Collection.class));
+        expectLastCall().anyTimes();
+        accessManager.checkNow();
+        expectLastCall().anyTimes();
 
         replay(mapping, beanStore, accessManager);
 
@@ -99,6 +108,11 @@ public abstract class AbstractSecureObjectTestCase {
         replaySecureCopy(unsecureEntity, secureEntity);
         secureEntity.refresh();
         resetSecureCopy(unsecureEntity, secureEntity);
+    }
+
+    @After
+    public void unregisterAccessManager() {
+        AccessManager.Instance.unregister(accessManager);
     }
 
     protected MappingInformation getMapping() {

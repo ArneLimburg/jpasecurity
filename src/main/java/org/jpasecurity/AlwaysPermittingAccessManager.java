@@ -15,6 +15,8 @@
  */
 package org.jpasecurity;
 
+import java.util.Collection;
+
 /**
  * An implementation of the {@link AccessManager} that always returns <tt>true</tt>.
  * @author Arne Limburg
@@ -27,5 +29,29 @@ public class AlwaysPermittingAccessManager implements AccessManager {
 
     public boolean isAccessible(AccessType accessType, Object entity) {
         return true;
+    }
+
+    @Override
+    public void checkAccess(AccessType accessType, Object entity) {
+    }
+
+    @Override
+    public void delayChecks() {
+    }
+
+    @Override
+    public void checkNow() {
+    }
+
+    @Override
+    public void disableChecks() {
+    }
+
+    @Override
+    public void enableChecks() {
+    }
+
+    @Override
+    public void ignoreChecks(AccessType accessType, Collection<?> entities) {
     }
 }

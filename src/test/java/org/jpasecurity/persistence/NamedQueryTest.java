@@ -16,6 +16,7 @@
 package org.jpasecurity.persistence;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -81,10 +82,15 @@ public class NamedQueryTest {
         setupFieldAccessAnnotationTestData(factory);
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
-        List<FieldAccessAnnotationTestBean> result = entityManager.createNamedQuery("findAllNative").getResultList();
-        assertEquals(2, result.size()); //no security, both are accessible
-        entityManager.getTransaction().commit();
-        entityManager.close();
+        try {
+            entityManager.createNamedQuery("findAllNative").getResultList();
+            fail("Should have thrown SecurityException");
+        } catch (SecurityException e) {
+            // no filtering, so exception is expected
+        } finally {
+            entityManager.getTransaction().rollback();
+            entityManager.close();
+        }
     }
 
     private FieldAccessAnnotationTestBean setupFieldAccessAnnotationTestData(EntityManagerFactory factory) {

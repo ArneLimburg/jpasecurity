@@ -26,6 +26,7 @@ import javax.persistence.EntityManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jpasecurity.AccessManager;
 import org.jpasecurity.entity.SecureObjectManager;
 import org.jpasecurity.jpa.JpaQuery;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
@@ -128,7 +129,9 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
                     objectManager.setParameter(query, namedParameter.getKey(), namedParameter.getValue());
                 }
             }
+            AccessManager.Instance.get().disableChecks();
             List<?> result = query.getWrappedQuery().getResultList();
+            AccessManager.Instance.get().enableChecks();
             evaluationParameters.setResult(result);
             return result;
         } catch (RuntimeException e) {

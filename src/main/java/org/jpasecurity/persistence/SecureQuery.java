@@ -15,9 +15,12 @@
  */
 package org.jpasecurity.persistence;
 
+import static org.jpasecurity.util.Types.isSimplePropertyType;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.FlushModeType;
@@ -28,14 +31,14 @@ import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 import javax.persistence.TypedQuery;
 
+import org.jpasecurity.AccessManager;
+import org.jpasecurity.AccessType;
 import org.jpasecurity.entity.FetchManager;
 import org.jpasecurity.entity.SecureObjectManager;
 import org.jpasecurity.jpa.JpaParameter;
 import org.jpasecurity.jpa.JpaQuery;
 import org.jpasecurity.mapping.Path;
 import org.jpasecurity.util.ReflectionUtils;
-
-import static org.jpasecurity.util.Types.isSimplePropertyType;
 
 /**
  * This class handles invocations on queries.
@@ -87,6 +90,7 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
     public T getSingleResult() {
         preFlush();
         T result;
+        AccessManager.Instance.get().delayChecks();
         if (constructorArgReturnType != null) {
             Object parameters = super.getSingleResult();
             try {
@@ -99,12 +103,14 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
         } else {
             result = getSecureResult(super.getSingleResult());
         }
+        AccessManager.Instance.get().ignoreChecks(AccessType.READ, Collections.singleton(result));
         postFlush();
         return result;
     }
 
     public List<T> getResultList() {
         preFlush();
+        AccessManager.Instance.get().delayChecks();
         List<T> targetResult = super.getResultList();
         postFlush();
         List<T> proxyResult = new ArrayList<T>();
@@ -123,6 +129,7 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
                 proxyResult.add(getSecureResult(entity));
             }
         }
+        AccessManager.Instance.get().ignoreChecks(AccessType.READ, targetResult);
         return proxyResult;
     }
 

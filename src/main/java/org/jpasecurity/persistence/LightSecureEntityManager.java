@@ -24,7 +24,6 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 
-import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.ExceptionFactory;
 import org.jpasecurity.configuration.Configuration;
@@ -45,7 +44,7 @@ import org.jpasecurity.security.FilterResult;
  * @author Stefan Hildebrandt
  * @author Arne Limburg
  */
-public class LightSecureEntityManager extends DelegatingEntityManager implements AccessManager {
+public class LightSecureEntityManager extends DelegatingEntityManager {
 
     private LightSecureEntityManagerFactory entityManagerFactory;
     private MappingInformation mappingInformation;

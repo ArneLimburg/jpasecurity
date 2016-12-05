@@ -18,6 +18,7 @@ package org.jpasecurity.entity;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import org.jpasecurity.AccessManager;
 import org.jpasecurity.AlwaysPermittingAccessManager;
 import org.jpasecurity.BeanStore;
 import org.jpasecurity.DefaultSecurityUnit;
@@ -31,6 +32,7 @@ import org.jpasecurity.mapping.MappingInformation;
 import org.jpasecurity.mapping.MappingInformationReceiver;
 import org.jpasecurity.mapping.bean.JavaBeanSecurityUnitParser;
 import org.jpasecurity.model.MethodAccessTestBean;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,6 +40,8 @@ import org.junit.Test;
  * @author Arne Limburg
  */
 public class SecureEntityTest {
+
+    private AccessManager accessManager = new AlwaysPermittingAccessManager();
 
     private MethodAccessTestBean unsecureBean;
     private MethodAccessTestBean secureBean;
@@ -60,12 +64,18 @@ public class SecureEntityTest {
             ((SecurityContextReceiver)accessRulesProvider).setSecurityContext(configuration.getSecurityContext());
         }
         SecureObjectManager objectManager
-            = new DefaultSecureObjectCache(mapping, beanStore, new AlwaysPermittingAccessManager(), configuration);
+            = new DefaultSecureObjectCache(mapping, beanStore, accessManager, configuration);
 
         unsecureBean = new MethodAccessTestBean();
         beanStore.persist(unsecureBean);
 
         secureBean = objectManager.getSecureObject(unsecureBean);
+        AccessManager.Instance.register(accessManager);
+    }
+
+    @After
+    public void unregisterAccessManager() {
+        AccessManager.Instance.unregister(accessManager);
     }
 
     @Test

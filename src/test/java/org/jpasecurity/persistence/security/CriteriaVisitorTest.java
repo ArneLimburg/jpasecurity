@@ -17,6 +17,7 @@ package org.jpasecurity.persistence.security;
 
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
@@ -32,6 +33,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.jpasecurity.AccessManager;
 import org.jpasecurity.configuration.AccessRule;
 import org.jpasecurity.configuration.SecurityContext;
 import org.jpasecurity.jpql.parser.JpqlParser;
@@ -44,6 +46,7 @@ import org.jpasecurity.mapping.TypeDefinition;
 import org.jpasecurity.model.TestBean;
 import org.jpasecurity.persistence.JpaExceptionFactory;
 import org.jpasecurity.security.rules.AccessRulesCompiler;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,6 +57,7 @@ public class CriteriaVisitorTest {
 
     private MappingInformation mappingInformation;
     private SecurityContext securityContext;
+    private AccessManager accessManager;
     private JpqlParser parser;
     private AccessRulesCompiler compiler;
     private CriteriaVisitor criteriaVisitor;
@@ -73,7 +77,9 @@ public class CriteriaVisitorTest {
             .andReturn(TestBean.class);
         expect(classMapping.<TestBean>getEntityType()).andReturn(TestBean.class).anyTimes();
         securityContext = createMock(SecurityContext.class);
-        replay(mappingInformation, classMapping, securityContext);
+        accessManager = createNiceMock(AccessManager.class);
+        AccessManager.Instance.register(accessManager);
+        replay(mappingInformation, classMapping, securityContext, accessManager);
         parser = new JpqlParser();
         compiler = new AccessRulesCompiler(mappingInformation, new JpaExceptionFactory());
         entityManagerFactory = Persistence.createEntityManagerFactory("hibernate");
@@ -88,6 +94,11 @@ public class CriteriaVisitorTest {
         entityManager.persist(bean2);
         entityManager.getTransaction().commit();
         entityManager.close();
+    }
+
+    @After
+    public void unregisterAccessManager() {
+        AccessManager.Instance.unregister(accessManager);
     }
 
     @Test
