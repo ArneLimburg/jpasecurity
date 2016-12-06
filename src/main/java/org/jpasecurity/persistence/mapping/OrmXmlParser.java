@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import java.util.List;
 
 import javax.persistence.FetchType;
 import javax.persistence.PersistenceException;
+import javax.persistence.spi.PersistenceUnitInfo;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -41,7 +42,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jpasecurity.CascadeType;
 import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.SecurityUnit;
 import org.jpasecurity.mapping.AccessState;
 import org.jpasecurity.mapping.ClassMappingInformation;
 import org.jpasecurity.mapping.DefaultClassMappingInformation;
@@ -207,18 +207,18 @@ public class OrmXmlParser extends JpaAnnotationParser {
 
     private Collection<Document> mappingDocuments = new ArrayList<Document>();
 
-    public OrmXmlParser(SecurityUnit securityUnit, ExceptionFactory exceptionFactory) {
+    public OrmXmlParser(PersistenceUnitInfo securityUnit, ExceptionFactory exceptionFactory) {
         this(securityUnit, new DefaultPropertyAccessStrategyFactory(), exceptionFactory);
     }
 
-    public OrmXmlParser(SecurityUnit securityUnit,
+    public OrmXmlParser(PersistenceUnitInfo securityUnit,
                         PropertyAccessStrategyFactory propertyAccessStrategyFactory,
                         ExceptionFactory exceptionFactory) {
         super(securityUnit, propertyAccessStrategyFactory, exceptionFactory);
     }
 
     @Override
-    public void parseSecurityUnit(SecurityUnit securityUnit) {
+    public void parseSecurityUnit(PersistenceUnitInfo securityUnit) {
         parse(securityUnit, "META-INF/orm.xml");
         for (String mappingFilename: securityUnit.getMappingFileNames()) {
             parse(securityUnit, mappingFilename);
@@ -671,7 +671,7 @@ public class OrmXmlParser extends JpaAnnotationParser {
         }
     }
 
-    private void parse(SecurityUnit securityUnit, String mappingFilename) {
+    private void parse(PersistenceUnitInfo securityUnit, String mappingFilename) {
         try {
             for (Enumeration<URL> mappings = getResources(mappingFilename); mappings.hasMoreElements();) {
                 mappingDocuments.add(parse(securityUnit, mappings.nextElement().openStream()));
@@ -681,7 +681,7 @@ public class OrmXmlParser extends JpaAnnotationParser {
         }
     }
 
-    private Document parse(SecurityUnit securityUnit, InputStream stream) throws IOException {
+    private Document parse(PersistenceUnitInfo securityUnit, InputStream stream) throws IOException {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -697,7 +697,7 @@ public class OrmXmlParser extends JpaAnnotationParser {
         }
     }
 
-    private void parse(SecurityUnit securityUnit, Document mappingDocument) {
+    private void parse(PersistenceUnitInfo securityUnit, Document mappingDocument) {
         parseNamedQueries(mappingDocument);
         parseDefaultEntityListeners(mappingDocument);
         String packageName = getPackageName(mappingDocument);

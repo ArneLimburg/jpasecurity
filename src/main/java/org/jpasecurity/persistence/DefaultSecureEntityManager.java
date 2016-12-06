@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2012 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,7 @@ package org.jpasecurity.persistence;
 import static org.jpasecurity.AccessType.READ;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -35,39 +33,28 @@ import org.apache.commons.logging.LogFactory;
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.FetchType;
-import org.jpasecurity.SecureEntity;
 import org.jpasecurity.configuration.Configuration;
-import org.jpasecurity.entity.DefaultSecureObjectCache;
-import org.jpasecurity.entity.FetchManager;
-import org.jpasecurity.entity.SecureObjectManager;
-import org.jpasecurity.jpa.JpaBeanStore;
 import org.jpasecurity.jpql.compiler.MappedPathEvaluator;
-import org.jpasecurity.jpql.compiler.ObjectCacheSubselectEvaluator;
 import org.jpasecurity.jpql.compiler.PathEvaluator;
 import org.jpasecurity.jpql.compiler.SimpleSubselectEvaluator;
 import org.jpasecurity.jpql.compiler.SubselectEvaluator;
-import org.jpasecurity.mapping.ClassMappingInformation;
 import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.PropertyMappingInformation;
 import org.jpasecurity.persistence.compiler.EntityManagerEvaluator;
 import org.jpasecurity.persistence.security.CriteriaEntityFilter;
 import org.jpasecurity.persistence.security.CriteriaFilterResult;
 import org.jpasecurity.security.FilterResult;
-import org.jpasecurity.util.SystemIdentity;
 
 /**
  * This class handles invocations on proxies of entity managers.
  * @author Arne Limburg
  */
 public class DefaultSecureEntityManager extends DelegatingEntityManager
-                                        implements SecureEntityManager, FetchManager {
+                                        implements SecureEntityManager {
 
     private static final Log LOG = LogFactory.getLog(DefaultSecureEntityManager.class);
 
     private SecureEntityManagerFactory entityManagerFactory;
     private MappingInformation mappingInformation;
-    private SecureObjectManager secureObjectManager;
     private AccessManager accessManager;
     private CriteriaEntityFilter entityFilter;
 
@@ -75,43 +62,22 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
                                          EntityManager entityManager,
                                          Configuration configuration,
                                          MappingInformation mapping) {
-        this(parent, entityManager, configuration, mapping, null);
-    }
-
-    protected DefaultSecureEntityManager(SecureEntityManagerFactory parent,
-                                         EntityManager entityManager,
-                                         Configuration configuration,
-                                         MappingInformation mapping,
-                                         SecureObjectManager secureObjectManager) {
         super(entityManager);
         entityManagerFactory = parent;
-        if (secureObjectManager == null) {
-            secureObjectManager = new DefaultSecureObjectCache(mapping,
-                                                               new JpaBeanStore(entityManager),
-                                                               this,
-                                                               configuration);
-        }
         this.mappingInformation = mapping;
-        this.secureObjectManager = secureObjectManager;
         ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
         PathEvaluator pathEvaluator = new MappedPathEvaluator(mappingInformation, exceptionFactory);
         SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator(exceptionFactory);
-        SubselectEvaluator objectCacheEvaluator
-            = new ObjectCacheSubselectEvaluator(secureObjectManager, exceptionFactory);
         SubselectEvaluator entityManagerEvaluator
-            = new EntityManagerEvaluator(entityManager, secureObjectManager, pathEvaluator);
-        this.entityFilter = new CriteriaEntityFilter(secureObjectManager,
-                                                     mappingInformation,
+            = new EntityManagerEvaluator(entityManager, pathEvaluator);
+        this.entityFilter = new CriteriaEntityFilter(mappingInformation,
                                                      configuration.getSecurityContext(),
                                                      entityManager.getCriteriaBuilder(),
                                                      exceptionFactory,
                                                      configuration.getAccessRulesProvider().getAccessRules(),
                                                      simpleSubselectEvaluator,
-                                                     objectCacheEvaluator,
                                                      entityManagerEvaluator);
-        this.accessManager = configuration.createAccessManager(mapping,
-                                                      secureObjectManager,
-                                                      entityFilter);
+        this.accessManager = configuration.createAccessManager(mapping, entityFilter);
         AccessManager.Instance.register(accessManager);
     }
 
@@ -122,24 +88,22 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
 
     public void persist(Object entity) {
         AccessManager.Instance.register(accessManager);
-        secureObjectManager.persist(entity);
+        super.persist(entity);
     }
 
     public <T> T merge(T entity) {
         AccessManager.Instance.register(accessManager);
-        return secureObjectManager.merge(entity);
+        return super.merge(entity);
     }
 
     public void remove(Object entity) {
         AccessManager.Instance.register(accessManager);
-        secureObjectManager.preFlush();
-        secureObjectManager.remove(entity);
-        secureObjectManager.postFlush();
+        super.remove(entity);
     }
 
     public void detach(Object entity) {
         AccessManager.Instance.register(accessManager);
-        secureObjectManager.detach(entity);
+        super.detach(entity);
     }
 
     public <T> T find(Class<T> type, Object id) {
@@ -156,14 +120,6 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
 
     public <T> T find(Class<T> type, Object id, LockModeType lockMode, Map<String, Object> properties) {
         AccessManager.Instance.register(accessManager);
-        if (secureObjectManager instanceof DefaultSecureObjectCache) {
-            ClassMappingInformation mapping = mappingInformation.getClassMapping(type);
-            final DefaultSecureObjectCache secureObjectCache = (DefaultSecureObjectCache)secureObjectManager;
-            if (secureObjectCache.containsSecureEntity(mapping, id)) {
-                return (T)secureObjectCache.getSecureEntity(mapping, id);
-            }
-        }
-        secureObjectManager.preFlush();
         accessManager.delayChecks();
         T entity;
         if (lockMode != null && properties != null) {
@@ -175,74 +131,57 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         } else {
             entity = super.find(type, id);
         }
-        secureObjectManager.postFlush();
         accessManager.checkNow();
-        if (entity == null) {
-            return null;
-        }
-        if (!isAccessible(READ, entity)) {
-            ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-            throw new SecurityException("The current user is not permitted to access the entity of type "
-                + mapping.getEntityName() + " with id " + mapping.getId(entity));
-        }
-        entity = secureObjectManager.getSecureObject(entity);
-        if (entity instanceof SecureEntity) {
-            SecureEntity secureEntity = (SecureEntity)entity;
-            if (!secureEntity.isInitialized()) {
-                secureEntity.refresh();
-            }
-        }
-        fetch(entity);
         return entity;
     }
 
     public void refresh(Object entity) {
         AccessManager.Instance.register(accessManager);
-        secureObjectManager.refresh(entity);
+        super.refresh(entity);
     }
 
     public void refresh(Object entity, LockModeType lockMode) {
         AccessManager.Instance.register(accessManager);
-        secureObjectManager.refresh(entity, org.jpasecurity.LockModeType.valueOf(lockMode.name()));
+        super.refresh(entity, lockMode);
     }
 
     public void refresh(Object entity, Map<String, Object> properties) {
         AccessManager.Instance.register(accessManager);
-        secureObjectManager.refresh(entity, properties);
+        super.refresh(entity, properties);
     }
 
     public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
         AccessManager.Instance.register(accessManager);
-        secureObjectManager.refresh(entity, org.jpasecurity.LockModeType.valueOf(lockMode.name()), properties);
+        super.refresh(entity, lockMode, properties);
     }
 
     public <T> T getReference(Class<T> type, Object id) {
         AccessManager.Instance.register(accessManager);
-        return secureObjectManager.getSecureObject(super.getReference(type, id));
+        return super.getReference(type, id);
     }
 
     public void lock(Object entity, LockModeType lockMode) {
         AccessManager.Instance.register(accessManager);
-        secureObjectManager.lock(entity, org.jpasecurity.LockModeType.valueOf(lockMode.name()));
+        super.lock(entity, lockMode);
     }
 
     public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
         AccessManager.Instance.register(accessManager);
-        secureObjectManager.lock(entity, org.jpasecurity.LockModeType.valueOf(lockMode.name()), properties);
+        super.lock(entity, lockMode, properties);
     }
 
     public boolean contains(Object entity) {
         AccessManager.Instance.register(accessManager);
-        return secureObjectManager.contains(entity);
+        return super.contains(entity);
     }
 
     public Query createNamedQuery(String name) {
         AccessManager.Instance.register(accessManager);
-        final String namedQuery = mappingInformation.getNamedQuery(name);
+        String namedQuery = mappingInformation.getNamedQuery(name);
         if (namedQuery != null) {
             return createQuery(namedQuery);
         }
-        final String namedNativeQuery = mappingInformation.getNamedNativeQuery(name);
+        String namedNativeQuery = mappingInformation.getNamedNativeQuery(name);
         if (namedNativeQuery != null) {
             return super.createNamedQuery(name);
         }
@@ -251,11 +190,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
 
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
         AccessManager.Instance.register(accessManager);
-        final String namedQuery = mappingInformation.getNamedQuery(name);
+        String namedQuery = mappingInformation.getNamedQuery(name);
         if (namedQuery != null) {
             return createQuery(namedQuery, resultClass);
         }
-        final String namedNativeQuery = mappingInformation.getNamedNativeQuery(name);
+        String namedNativeQuery = mappingInformation.getNamedNativeQuery(name);
         if (namedNativeQuery != null) {
             return super.createNamedQuery(name, resultClass);
         }
@@ -264,14 +203,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
 
     public void flush() {
         AccessManager.Instance.register(accessManager);
-        secureObjectManager.preFlush();
         super.flush();
-        secureObjectManager.postFlush();
     }
 
     public void clear() {
         AccessManager.Instance.register(accessManager);
-        secureObjectManager.clear();
         super.clear();
     }
 
@@ -305,16 +241,12 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         } else {
             Q query;
             if (filterResult.getConstructorArgReturnType() != null) {
-                query = (Q)new SecureQuery<T>(secureObjectManager,
-                                              this,
-                                              createDelegateQuery(filterResult.getQuery(), null, Query.class),
+                query = (Q)new SecureQuery<T>(createDelegateQuery(filterResult.getQuery(), null, Query.class),
                                               (Class<T>)filterResult.getConstructorArgReturnType(),
                                               filterResult.getSelectedPaths(),
                                               super.getFlushMode());
             } else {
-                query = (Q)new SecureQuery<T>(secureObjectManager,
-                                              this,
-                                              createDelegateQuery(filterResult.getQuery(), resultClass, queryClass),
+                query = (Q)new SecureQuery<T>(createDelegateQuery(filterResult.getQuery(), resultClass, queryClass),
                                               null,
                                               filterResult.getSelectedPaths(),
                                               super.getFlushMode());
@@ -343,9 +275,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         if (filterResult.getQuery() == null) {
             return new EmptyResultQuery<T>(super.createQuery(criteriaQuery));
         } else {
-            SecureQuery<T> query = new SecureQuery<T>(secureObjectManager,
-                                      this,
-                                      super.createQuery(filterResult.getQuery()),
+            SecureQuery<T> query = new SecureQuery<T>(super.createQuery(filterResult.getQuery()),
                                       null, // TODO how to extract this?
                                       filterResult.getSelectedPaths(),
                                       super.getFlushMode());
@@ -363,44 +293,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
 
     public EntityTransaction getTransaction() {
         AccessManager.Instance.register(accessManager);
-        return new SecureTransaction(super.getTransaction(), secureObjectManager);
-    }
-
-    public void fetch(Object entity) {
-        AccessManager.Instance.register(accessManager);
-        fetch(entity, new HashSet<SystemIdentity>());
-    }
-
-    private void fetch(Object entity, Set<SystemIdentity> alreadyFetchedEntities) {
-        if (entity == null || alreadyFetchedEntities.contains(new SystemIdentity(entity))) {
-            return;
-        }
-        alreadyFetchedEntities.add(new SystemIdentity(entity));
-        if (!mappingInformation.containsClassMapping(entity.getClass())) {
-            LOG.debug("No class mapping found for entity " + entity);
-            return;
-        }
-        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-        for (PropertyMappingInformation propertyMapping: mapping.getPropertyMappings()) {
-            if (propertyMapping.isRelationshipMapping() && propertyMapping.getFetchType() == FetchType.EAGER) {
-                if (secureObjectManager.isLoaded(entity, propertyMapping.getPropertyName())) {
-                    Object value = propertyMapping.getPropertyValue(entity);
-                    if (value instanceof Collection) {
-                        Collection<?> collection = (Collection<?>)value;
-                        for (Object entry: collection) {
-                            fetch(entry, alreadyFetchedEntities);
-                        }
-                    } else if (value instanceof Map) {
-                        Map<?, ?> map = (Map<?, ?>)value;
-                        for (Object entry: map.values()) {
-                            fetch(entry, alreadyFetchedEntities);
-                        }
-                    } else {
-                        fetch(value, alreadyFetchedEntities);
-                    }
-                }
-            }
-        }
+        return super.getTransaction();
     }
 
     public <T> T unwrap(Class<T> cls) {
@@ -412,6 +305,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
     }
 
+    public LockModeType getLockMode(Object entity) {
+        AccessManager.Instance.register(accessManager);
+        return super.getLockMode(entity);
+    }
+
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
         AccessManager.Instance.register(accessManager);
         return accessManager.isAccessible(accessType, entityName, parameters);
@@ -420,20 +318,6 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     public boolean isAccessible(AccessType accessType, Object entity) {
         AccessManager.Instance.register(accessManager);
         return accessManager.isAccessible(accessType, entity);
-    }
-
-    public boolean isDeletedEntity(Object entity) {
-        AccessManager.Instance.register(accessManager);
-        if (!(entity instanceof SecureEntity)) {
-            return false;
-        }
-        SecureEntity secureEntity = (SecureEntity)entity;
-        return secureEntity.isRemoved();
-    }
-
-    public LockModeType getLockMode(Object entity) {
-        AccessManager.Instance.register(accessManager);
-        return LockModeType.valueOf(secureObjectManager.getLockMode(entity).name());
     }
 
     @Override

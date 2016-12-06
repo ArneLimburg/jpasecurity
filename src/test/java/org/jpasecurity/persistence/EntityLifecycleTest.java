@@ -117,7 +117,7 @@ public class EntityLifecycleTest {
 
         closeEntityManager();
 
-        assertLifecycleCount(bean, 0, 0, 0, 1);
+        assertLifecycleCount(bean, 1, 0, 0, 0);
     }
 
     @Test
@@ -220,7 +220,7 @@ public class EntityLifecycleTest {
         createChild(bean);
         closeEntityManager();
 
-        assertLifecycleCount(bean, 0, 0, 1, 1);
+        assertLifecycleCount(bean, 0, 0, 0, 1);
     }
 
     @Test
@@ -271,7 +271,7 @@ public class EntityLifecycleTest {
         createChild(bean);
         closeEntityManager();
 
-        assertLifecycleCount(bean, 0, 0, 1, 1);
+        assertLifecycleCount(bean, 0, 0, 0, 1);
     }
 
     @Test

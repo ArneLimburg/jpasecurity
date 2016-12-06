@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,18 @@ package org.jpasecurity.entity;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.jpasecurity.AccessManager;
-
 
 /**
  * @author Arne Limburg
  */
 public class DefaultSecureCollection<E, T extends Collection<E>> extends AbstractSecureCollection<E, T> {
 
-    public DefaultSecureCollection(T target, AbstractSecureObjectManager objectManager, AccessManager accessManager) {
-        super(target, objectManager, accessManager);
+    public DefaultSecureCollection(T target) {
+        super(target);
     }
 
-    DefaultSecureCollection(T target, T filtered, AbstractSecureObjectManager objectManager) {
-        super(target, filtered, objectManager);
+    DefaultSecureCollection(T target, T filtered) {
+        super(target, filtered);
     }
 
     protected T createFiltered() {

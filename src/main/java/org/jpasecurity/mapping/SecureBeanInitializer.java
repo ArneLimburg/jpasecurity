@@ -15,7 +15,6 @@
  */
 package org.jpasecurity.mapping;
 
-import org.jpasecurity.SecureEntity;
 
 /**
  * @author Arne Limburg
@@ -23,9 +22,6 @@ import org.jpasecurity.SecureEntity;
 public class SecureBeanInitializer implements BeanInitializer {
 
     public <T> T initialize(T bean) {
-        if ((bean instanceof SecureEntity) && !((SecureEntity)bean).isInitialized()) {
-            ((SecureEntity)bean).refresh();
-        }
         return bean;
     }
 }

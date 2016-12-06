@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
 import java.util.Collection;
 
-import org.jpasecurity.DefaultSecurityUnit;
-import org.jpasecurity.SecurityUnit;
 import org.jpasecurity.configuration.AccessRule;
 import org.jpasecurity.configuration.Configuration;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
@@ -34,12 +33,12 @@ import org.jpasecurity.jpql.parser.ParseException;
 import org.jpasecurity.mapping.ClassMappingInformation;
 import org.jpasecurity.mapping.MappingInformation;
 import org.jpasecurity.mapping.Path;
-import org.jpasecurity.mapping.bean.JavaBeanSecurityUnitParser;
+import org.jpasecurity.mapping.PropertyMappingInformation;
 import org.jpasecurity.model.ChildTestBean;
 import org.jpasecurity.model.MethodAccessTestBean;
 import org.jpasecurity.model.ParentTestBean;
+import org.jpasecurity.model.TestInterface;
 import org.jpasecurity.security.authentication.AutodetectingSecurityContext;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -48,13 +47,28 @@ import org.junit.Test;
 public class AccessRulesCompilerTest {
 
     @Test
-    @Ignore("This test is bogus")
     public void rulesOnInterfaces() {
-        SecurityUnit securityUnit = new DefaultSecurityUnit("interface");
-        securityUnit.getManagedClassNames().add(ParentTestBean.class.getName());
-        securityUnit.getManagedClassNames().add(ChildTestBean.class.getName());
-        securityUnit.getManagedClassNames().add(MethodAccessTestBean.class.getName());
-        MappingInformation mappingInformation = new JavaBeanSecurityUnitParser(securityUnit).parse();
+        MappingInformation mappingInformation = createMock(MappingInformation.class);
+        ClassMappingInformation parentTestBeanMapping = createMock(ClassMappingInformation.class);
+        ClassMappingInformation childTestBeanMapping = createMock(ClassMappingInformation.class);
+        ClassMappingInformation methodAccessTestBeanMapping = createMock(ClassMappingInformation.class);
+        PropertyMappingInformation nameMapping = createMock(PropertyMappingInformation.class);
+        expect(mappingInformation.getSecurityUnitName()).andReturn("interface");
+        expect(mappingInformation.containsClassMapping(TestInterface.class.getName())).andReturn(false);
+        expect(mappingInformation.resolveClassMappings(TestInterface.class)).andReturn(Arrays.asList(
+                parentTestBeanMapping, childTestBeanMapping));
+        expect(mappingInformation.getClassMapping(ParentTestBean.class)).andReturn(parentTestBeanMapping);
+        expect(mappingInformation.getClassMapping(ChildTestBean.class)).andReturn(childTestBeanMapping);
+        expect(mappingInformation.getClassMapping(MethodAccessTestBean.class)).andReturn(methodAccessTestBeanMapping);
+        expect(parentTestBeanMapping.getEntityType()).andReturn((Class)ParentTestBean.class);
+        expect(childTestBeanMapping.getEntityType()).andReturn((Class)ChildTestBean.class);
+        expect(methodAccessTestBeanMapping.getEntityType()).andReturn((Class)MethodAccessTestBean.class);
+        expect(parentTestBeanMapping.getPropertyMapping("name")).andReturn(nameMapping);
+        expect(childTestBeanMapping.getPropertyMapping("name")).andReturn(nameMapping);
+        expect(methodAccessTestBeanMapping.getPropertyMapping("name")).andReturn(nameMapping);
+        expect(nameMapping.getProperyType()).andReturn((Class)String.class).anyTimes();
+        replay(mappingInformation, parentTestBeanMapping, childTestBeanMapping, methodAccessTestBeanMapping,
+                nameMapping);
         XmlAccessRulesProvider accessRulesProvider = new XmlAccessRulesProvider();
         accessRulesProvider.setMappingInformation(mappingInformation);
         accessRulesProvider.setConfiguration(new Configuration());

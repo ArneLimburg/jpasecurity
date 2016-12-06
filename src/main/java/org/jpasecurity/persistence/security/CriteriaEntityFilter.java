@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 - 2012 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ import org.jpasecurity.AccessType;
 import org.jpasecurity.ExceptionFactory;
 import org.jpasecurity.configuration.AccessRule;
 import org.jpasecurity.configuration.SecurityContext;
-import org.jpasecurity.entity.SecureObjectCache;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.compiler.SubselectEvaluator;
 import org.jpasecurity.mapping.MappingInformation;
@@ -54,14 +53,13 @@ public class CriteriaEntityFilter extends EntityFilter {
 
     private final CriteriaVisitor criteriaVisitor;
 
-    public CriteriaEntityFilter(SecureObjectCache objectCache,
-                                MappingInformation mappingInformation,
+    public CriteriaEntityFilter(MappingInformation mappingInformation,
                                 SecurityContext securityContext,
                                 CriteriaBuilder criteriaBuilder,
                                 ExceptionFactory exceptionFactory,
                                 Collection<AccessRule> accessRules,
                                 SubselectEvaluator... evaluators) {
-        super(objectCache, mappingInformation, securityContext, exceptionFactory, accessRules, evaluators);
+        super(mappingInformation, securityContext, exceptionFactory, accessRules, evaluators);
         criteriaVisitor = new CriteriaVisitor(mappingInformation, criteriaBuilder, securityContext);
     }
 

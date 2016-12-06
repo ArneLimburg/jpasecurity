@@ -21,12 +21,14 @@ import static org.junit.Assert.fail;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.RollbackException;
 
 import org.jpasecurity.model.ChildTestBean;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.model.MethodAccessAnnotationTestBean;
 import org.jpasecurity.model.ParentTestBean;
 import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.util.ReflectionUtils;
 import org.junit.After;
 import org.junit.Test;
 
@@ -132,10 +134,10 @@ public class PropertyAccessTest {
         }
         entityManager2.getTransaction().commit();
         entityManager2.close();
-        final EntityManager entityManager3 = factory.createEntityManager();
+        EntityManager entityManager3 = factory.createEntityManager();
         entityManager3.getTransaction().begin();
-        final ParentTestBean bean3 = entityManager3.find(ParentTestBean.class, bean.getId());
-        assertEquals(0, bean3.getVersion());
+        ParentTestBean bean3 = entityManager3.find(ParentTestBean.class, bean.getId());
+        assertEquals(1, bean3.getVersion());
         entityManager3.getTransaction().commit();
         entityManager3.close();
     }
@@ -152,13 +154,17 @@ public class PropertyAccessTest {
         entityManager.close();
 
         try {
-            entityManager = factory.createEntityManager();
-            entityManager.getTransaction().begin();
-            bean = entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
-            bean.setBeanName(USER2);
-            entityManager.getTransaction().commit();
-            entityManager.close();
-            fail("should have thrown exception, since we are not allowed to see beans with name " + USER2);
+            try {
+                entityManager = factory.createEntityManager();
+                entityManager.getTransaction().begin();
+                bean = entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
+                bean.setBeanName(USER2);
+                entityManager.getTransaction().commit();
+                entityManager.close();
+                fail("should have thrown exception, since we are not allowed to see beans with name " + USER2);
+            } catch (RollbackException e) {
+                ReflectionUtils.throwThrowable(e.getCause());
+            }
         } catch (SecurityException e) {
             //expected
         }
@@ -254,7 +260,7 @@ public class PropertyAccessTest {
         assertEquals(1, bean.getNamePropertyReadCount());
         assertEquals(2, bean.getNamePropertyWriteCount());
         entityManager.getTransaction().commit();
-        assertEquals(2, bean.getNamePropertyReadCount());
+        assertEquals(3, bean.getNamePropertyReadCount());
         assertEquals(2, bean.getNamePropertyWriteCount());
         entityManager.close();
     }

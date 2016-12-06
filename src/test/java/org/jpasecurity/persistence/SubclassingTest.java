@@ -16,9 +16,6 @@
 package org.jpasecurity.persistence;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -33,7 +30,6 @@ import org.jpasecurity.model.TestBeanSubclass;
 import org.jpasecurity.security.authentication.TestAuthenticationProvider;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -96,41 +92,6 @@ public class SubclassingTest {
         entityManager.getTransaction().begin();
         entityManager.merge(superclass);
         entityManager.getTransaction().commit();
-        entityManager.close();
-    }
-
-
-    @Test
-    public void testIdentity() {
-        TestAuthenticationProvider.authenticate(USER);
-        EntityManager entityManager = factory.createEntityManager();
-        TestBean child
-            = entityManager.createQuery("SELECT bean FROM TestBean bean WHERE bean.parent IS NOT NULL", TestBean.class)
-                .getSingleResult();
-        assertSame(child.getParent(), entityManager.find(TestBean.class, child.getParent().getId()));
-        TestBean parentFromQuery
-            = entityManager.createQuery("SELECT bean FROM TestBean bean WHERE id=:id",
-                TestBean.class).setParameter("id", child.getParent().getId())
-                .getSingleResult();
-        assertSame(child.getParent(), parentFromQuery);
-        TestBean parentFromQuerySubType
-            = entityManager.createQuery("SELECT bean FROM TestBeanSubclass bean WHERE id=:id",
-                TestBeanSubclass.class).setParameter("id", child.getParent().getId())
-                .getSingleResult();
-        assertSame(child.getParent(), parentFromQuerySubType);
-        entityManager.close();
-    }
-
-    @Test
-    @Ignore("Is not compatible with ObjectIdentityTest")
-    public void loadingOfRelatedSubclass() {
-        TestAuthenticationProvider.authenticate(USER);
-        EntityManager entityManager = factory.createEntityManager();
-        TestBean child
-            = entityManager.createQuery("SELECT bean FROM TestBean bean WHERE bean.parent IS NOT NULL", TestBean.class)
-                .getSingleResult();
-        assertFalse(child.getParent() instanceof TestBeanSubclass);
-        assertTrue(entityManager.find(TestBean.class, child.getParent().getId()) instanceof TestBeanSubclass);
         entityManager.close();
     }
 }

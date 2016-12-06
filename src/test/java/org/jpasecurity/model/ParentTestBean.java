@@ -18,6 +18,8 @@ package org.jpasecurity.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jpasecurity.entity.SecureCollections;
+
 /**
  * @author Stefan Hildebrandt
  */
@@ -44,7 +46,7 @@ public class ParentTestBean implements TestInterface {
     }
 
     public List<ChildTestBean> getChildren() {
-        return children;
+        return SecureCollections.secureList(children);
     }
 
     public void setChildren(List<ChildTestBean> children) {

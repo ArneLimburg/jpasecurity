@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,13 @@
  */
 package org.jpasecurity.jpql.compiler;
 
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,11 +30,7 @@ import javax.persistence.Query;
 
 import org.easymock.IAnswer;
 import org.jpasecurity.AccessManager;
-import org.jpasecurity.AlwaysPermittingAccessManager;
-import org.jpasecurity.DefaultSecurityUnit;
 import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.SecurityUnit;
-import org.jpasecurity.entity.SecureObjectManager;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.JpqlStatement;
@@ -39,8 +38,8 @@ import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.jpasecurity.jpql.parser.Node;
 import org.jpasecurity.jpql.parser.ParseException;
 import org.jpasecurity.mapping.Alias;
+import org.jpasecurity.mapping.ClassMappingInformation;
 import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.bean.JavaBeanSecurityUnitParser;
 import org.jpasecurity.model.ChildTestBean;
 import org.jpasecurity.model.MethodAccessTestBean;
 import org.jpasecurity.persistence.compiler.EntityManagerEvaluator;
@@ -65,7 +64,6 @@ public class EntityManagerEvaluatorTest {
     private QueryEvaluationParameters optimizeParameters;
     private QueryEvaluationParameters getAlwaysEvaluatableResultParameters;
     private Map<Alias, Object> aliases = new HashMap<Alias, Object>();
-    private QueryEvaluator queryEvaluator;
     private Map<String, Object> namedParameters = new HashMap<String, Object>();
     private Map<Integer, Object> positionalParameters = new HashMap<Integer, Object>();
     private SetMap<Class<?>, Object> entities = new SetHashMap<Class<?>, Object>();
@@ -74,30 +72,36 @@ public class EntityManagerEvaluatorTest {
     @Before
     public void initialize() {
         exceptionFactory = createMock(ExceptionFactory.class);
-        SecurityUnit securityUnit = new DefaultSecurityUnit("test");
-        securityUnit.getManagedClassNames().add(MethodAccessTestBean.class.getName());
-        securityUnit.getManagedClassNames().add(ChildTestBean.class.getName());
-        mappingInformation = new JavaBeanSecurityUnitParser(securityUnit).parse();
+        mappingInformation = createMock(MappingInformation.class);
+        expect(mappingInformation.containsClassMapping(MethodAccessTestBean.class.getSimpleName()))
+            .andReturn(true).anyTimes();
+        expect(mappingInformation.containsClassMapping(ChildTestBean.class.getSimpleName()))
+            .andReturn(true).anyTimes();
+        ClassMappingInformation methodAccessTestBeanMapping = createMock(ClassMappingInformation.class);
+        ClassMappingInformation childTestBeanMapping = createMock(ClassMappingInformation.class);
+        expect(mappingInformation.getClassMapping(MethodAccessTestBean.class.getSimpleName()))
+            .andReturn(methodAccessTestBeanMapping).anyTimes();
+        expect(mappingInformation.getClassMapping(ChildTestBean.class.getSimpleName()))
+            .andReturn(childTestBeanMapping).anyTimes();
+        expect(methodAccessTestBeanMapping.getEntityType()).andReturn((Class)MethodAccessTestBean.class).anyTimes();
+        expect(childTestBeanMapping.getEntityType()).andReturn((Class)ChildTestBean.class).anyTimes();
         parser = new JpqlParser();
         compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
         final EntityManager entityManagerMock = createMock(EntityManager.class);
-        expect(entityManagerMock.isOpen()).andAnswer(new IAnswer<Boolean>() {
-            public Boolean answer() throws Throwable {
-                return Boolean.TRUE;
-            }
-        }).anyTimes();
+        expect(entityManagerMock.isOpen()).andReturn(true).anyTimes();
         expect(entityManagerMock.createQuery(
             " SELECT innerBean FROM MethodAccessTestBean innerBean WHERE :path0 = innerBean"))
             .andAnswer(new IAnswer<Query>() {
                 public Query answer() throws Throwable {
-                    return createMock(Query.class);
+                    Query mock = createMock(Query.class);
+                    expect(mock.setParameter(anyObject(String.class), anyObject())).andReturn(mock).anyTimes();
+                    expect(mock.getResultList()).andReturn(Collections.emptyList());
+                    replay(mock);
+                    return mock;
                 }
             }).anyTimes();
-        replay(entityManagerMock);
-        entityManagerEvaluator = new EntityManagerEvaluator(
-            entityManagerMock,
-            createMock(SecureObjectManager.class), createMock(
-                PathEvaluator.class));
+        replay(entityManagerMock, mappingInformation, methodAccessTestBeanMapping, childTestBeanMapping);
+        entityManagerEvaluator = new EntityManagerEvaluator(entityManagerMock, createMock(PathEvaluator.class));
         isAccessibleParameters =
             new QueryEvaluationParameters(mappingInformation, aliases, namedParameters, positionalParameters, false,
                 QueryEvaluationParameters.EvaluationType.ACCESS_CHECK);
@@ -111,7 +115,8 @@ public class EntityManagerEvaluatorTest {
             new QueryEvaluationParameters(mappingInformation, aliases, namedParameters, positionalParameters, false,
                 QueryEvaluationParameters.EvaluationType.GET_ALWAYS_EVALUATABLE_RESULT);
 
-        accessManager = new AlwaysPermittingAccessManager();
+        accessManager = createNiceMock(AccessManager.class);
+        replay(accessManager);
         AccessManager.Instance.register(accessManager);
     }
 

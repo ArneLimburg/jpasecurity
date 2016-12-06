@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,22 +22,18 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.jpasecurity.AccessManager;
-
 /**
  * A sorted set-implementation of secure collection.
  * @author Arne Limburg
  */
 public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>> implements SortedSet<E> {
 
-    public SecureSortedSet(SortedSet<E> set, AbstractSecureObjectManager objectManager, AccessManager accessManager) {
-        super(set, objectManager, accessManager);
+    public SecureSortedSet(SortedSet<E> set) {
+        super(set);
     }
 
-    SecureSortedSet(SortedSet<E> original,
-                    SortedSet<E> filtered,
-                    AbstractSecureObjectManager objectManager) {
-        super(original, filtered, objectManager);
+    SecureSortedSet(SortedSet<E> original, SortedSet<E> filtered) {
+        super(original, filtered);
     }
 
     protected SortedSet<E> createFiltered() {

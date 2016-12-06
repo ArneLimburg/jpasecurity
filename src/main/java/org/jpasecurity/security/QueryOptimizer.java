@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,19 @@ package org.jpasecurity.security;
 
 import java.util.Map;
 
-import org.jpasecurity.entity.SecureObjectCache;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.compiler.NotEvaluatableException;
 import org.jpasecurity.jpql.compiler.QueryEvaluationParameters;
 import org.jpasecurity.jpql.compiler.QueryEvaluator;
 import org.jpasecurity.jpql.compiler.QueryPreparator;
-import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
-import org.jpasecurity.jpql.parser.Node;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.MappingInformation;
-
 import org.jpasecurity.jpql.parser.JpqlAnd;
 import org.jpasecurity.jpql.parser.JpqlBrackets;
 import org.jpasecurity.jpql.parser.JpqlOr;
+import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
+import org.jpasecurity.jpql.parser.Node;
+import org.jpasecurity.mapping.Alias;
+import org.jpasecurity.mapping.MappingInformation;
 
 /**
  * Optimizes a query by evaluating subtrees in memory.
@@ -48,8 +46,7 @@ public class QueryOptimizer {
                           Map<Alias, Object> aliases,
                           Map<String, Object> namedParameters,
                           Map<Integer, Object> positionalParameters,
-                          QueryEvaluator evaluator,
-                          SecureObjectCache objectCache) {
+                          QueryEvaluator evaluator) {
         this.evaluator = evaluator;
         this.parameters = new QueryEvaluationParameters(mappingInformation,
                                                         aliases,

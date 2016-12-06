@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,31 +20,23 @@ import static org.jpasecurity.AccessType.READ;
 import static org.jpasecurity.util.Types.isSimplePropertyType;
 
 import java.util.AbstractCollection;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
-import org.jpasecurity.SecureCollection;
-import org.jpasecurity.SecureEntity;
 
 /**
  * This is the base class for secure collections.
  * Secure collections filter collections based on the accessibility of their elements.
  * @author Arne Limburg
  */
-public abstract class AbstractSecureCollection<E, T extends Collection<E>> extends AbstractCollection<E>
-                                                                           implements SecureCollection<E> {
+public abstract class AbstractSecureCollection<E, T extends Collection<E>> extends AbstractCollection<E> {
 
     static final Object UNDEFINED = new Object();
 
-    private final List<CollectionOperation<E, T>> operations = new ArrayList<CollectionOperation<E, T>>();
     private T original;
     private T filtered;
-    private AbstractSecureObjectManager objectManager;
-    private AccessManager accessManager;
 
     /**
      * Creates a collection that filters the specified (original) collection
@@ -52,12 +44,8 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
      * @param collection the original collection
      * @param objectManager the object manager
      */
-    AbstractSecureCollection(T collection,
-                             AbstractSecureObjectManager objectManager,
-                             AccessManager accessManager) {
+    AbstractSecureCollection(T collection) {
         this.original = collection;
-        this.objectManager = objectManager;
-        this.accessManager = accessManager;
     }
 
     /**
@@ -66,10 +54,8 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
      * @param filtered the (initialized) filtered collection
      * @param objectManager the object manager
      */
-    AbstractSecureCollection(T original,
-                             T filtered,
-                             AbstractSecureObjectManager objectManager) {
-        this(original, objectManager, null);
+    AbstractSecureCollection(T original, T filtered) {
+        this(original);
         this.filtered = filtered;
     }
 
@@ -77,106 +63,38 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         return new FilteredIterator(getFiltered().iterator());
     }
 
-    public boolean add(final E entity) {
-        addOperation(new CollectionOperation<E, T>() {
-            public void flush(T original, AbstractSecureObjectManager objectManager) {
-                original.add(objectManager.getUnsecureObject(entity));
-            }
-        });
-        return getFiltered().add(entity);
+    public boolean add(E entity) {
+        getFiltered().add(entity);
+        return getOriginal().add(entity);
     }
 
-    public boolean addAll(final Collection<? extends E> collection) {
-        addOperation(new CollectionOperation<E, T>() {
-            public void flush(T original, AbstractSecureObjectManager objectManager) {
-                if (collection instanceof AbstractSecureCollection) {
-                    AbstractSecureCollection<E, Collection<E>> abstractSecureCollection
-                        = (AbstractSecureCollection<E, Collection<E>>)collection;
-                    original.addAll(abstractSecureCollection.getOriginal());
-                } else if (collection instanceof SecureList) {
-                    original.addAll(((SecureList<E>)collection).getOriginal());
-                } else {
-                    for (E entry: collection) {
-                        original.add(objectManager.getUnsecureObject(entry));
-                    }
-                }
-            }
-        });
-        return getFiltered().addAll(collection);
+    public boolean addAll(Collection<? extends E> collection) {
+        getFiltered().addAll(collection);
+        return getOriginal().addAll(collection);
     }
 
-    public boolean remove(final Object entity) {
-        addOperation(new CollectionOperation<E, T>() {
-            public void flush(T original, AbstractSecureObjectManager objectManager) {
-                original.remove(objectManager.getUnsecureObject(entity));
-            }
-        });
-        return getFiltered().remove(entity);
+    public boolean remove(Object entity) {
+        getFiltered().remove(entity);
+        return getOriginal().remove(entity);
     }
 
-    public boolean removeAll(final Collection<?> collection) {
-        addOperation(new CollectionOperation<E, T>() {
-            public void flush(T original, AbstractSecureObjectManager objectManager) {
-                if (collection instanceof AbstractSecureCollection) {
-                    original.removeAll(((AbstractSecureCollection<E, Collection<E>>)collection).getOriginal());
-                } else if (collection instanceof SecureList) {
-                    original.removeAll(((SecureList<E>)collection).getOriginal());
-                } else {
-                    for (Object entry: collection) {
-                        original.remove(objectManager.getUnsecureObject(entry));
-                    }
-                }
-            }
-        });
-        return getFiltered().removeAll(collection);
+    public boolean removeAll(Collection<?> collection) {
+        getFiltered().removeAll(collection);
+        return getOriginal().removeAll(collection);
     }
 
-    public boolean retainAll(final Collection<?> collection) {
-        addOperation(new CollectionOperation<E, T>() {
-            public void flush(T original, AbstractSecureObjectManager objectManager) {
-                if (collection instanceof AbstractSecureCollection) {
-                    original.retainAll(((AbstractSecureCollection<E, Collection<E>>)collection).getOriginal());
-                } else if (collection instanceof SecureList) {
-                    original.retainAll(((SecureList<E>)collection).getOriginal());
-                } else {
-                    List<Object> list = new ArrayList<Object>();
-                    for (Object entry: collection) {
-                        list.add(getObjectManager().getUnsecureObject(entry));
-                    }
-                    original.retainAll(list);
-                }
-            }
-        });
-        return getFiltered().retainAll(collection);
-    }
-
-    public SecureCollection<E> merge(SecureCollection<E> secureCollection) {
-        if (!(secureCollection instanceof AbstractSecureCollection)) {
-            throw new IllegalArgumentException("cannot merge collection of type " + secureCollection.getClass().getName());
-        }
-        ((AbstractSecureCollection<E, T>)secureCollection).operations.addAll(operations);
-        return secureCollection;
+    public boolean retainAll(Collection<?> collection) {
+        getFiltered().retainAll(collection);
+        return getOriginal().retainAll(collection);
     }
 
     public void clear() {
-        addOperation(new CollectionOperation<E, T>() {
-            public void flush(T original, AbstractSecureObjectManager objectManager) {
-                original.clear();
-            }
-        });
         getFiltered().clear();
+        getOriginal().clear();
     }
 
     public int size() {
         return getFiltered().size();
-    }
-
-    final void addOperation(CollectionOperation<E, T> operation) {
-        operations.add(operation);
-    }
-
-    final AbstractSecureObjectManager getObjectManager() {
-        return objectManager;
     }
 
     final T getOriginal() {
@@ -194,23 +112,8 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
 
     abstract T createFiltered();
 
-    boolean isReadable(Object entity) {
-        return accessManager.isAccessible(READ, entity);
-    }
-
     public boolean isInitialized() {
         return filtered != null;
-    }
-
-    public boolean isDirty() {
-        return !operations.isEmpty();
-    }
-
-    public void flush() {
-        for (CollectionOperation<E, T> operation: operations) {
-            operation.flush(getOriginal(), getObjectManager());
-        }
-        operations.clear();
     }
 
     void checkInitialized() {
@@ -221,20 +124,16 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
 
     void initialize(boolean checkAccess) {
         filtered = createFiltered();
-        AccessManager.Instance.get().delayChecks();
-        original.size();
-        AccessManager.Instance.get().ignoreChecks(AccessType.READ, (Collection<Object>)original);
-        AccessManager.Instance.get().checkNow();
+        AccessManager accessManager = AccessManager.Instance.get();
+        accessManager.delayChecks();
+        accessManager.ignoreChecks(AccessType.READ, original);
+        accessManager.checkNow();
         for (E entity: original) {
             if (isSimplePropertyType(entity.getClass())) {
                 filtered.add(entity);
             }
-            if (!checkAccess || isReadable(entity)) {
-                E secureEntity = objectManager.getSecureObject(entity);
-                if (secureEntity instanceof SecureEntity) {
-                    objectManager.initialize((SecureEntity)secureEntity, checkAccess);
-                }
-                filtered.add(secureEntity);
+            if (!checkAccess || accessManager.isAccessible(READ, entity)) {
+                filtered.add(entity);
             }
         }
     }

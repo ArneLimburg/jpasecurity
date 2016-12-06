@@ -29,6 +29,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.FlushModeType;
 import javax.persistence.Persistence;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
@@ -67,10 +68,6 @@ public class AccessCheckTest {
         grandchild.setParentBean(child);
         child.getChildBeans().add(grandchild);
         bean = entityManager.merge(bean);
-        assertEquals(1, bean.getChildBeans().size());
-        assertEquals(CHILD, bean.getChildBeans().iterator().next().getBeanName());
-        assertEquals(1, child.getChildBeans().size());
-        assertEquals(GRANDCHILD, child.getChildBeans().iterator().next().getBeanName());
         entityManager.getTransaction().commit();
         entityManager.close();
 
@@ -107,9 +104,11 @@ public class AccessCheckTest {
             bean.setBeanName("new BeanName");
             entityManager.getTransaction().commit();
             fail("expected security exception");
-        } catch (SecurityException e) {
-            // expected
-            entityManager.getTransaction().rollback();
+        } catch (PersistenceException e) {
+            assertEquals(SecurityException.class, e.getCause().getClass());
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
         }
         entityManager.close();
     }
@@ -144,8 +143,8 @@ public class AccessCheckTest {
             ((MethodAccessAnnotationTestBean)bean.getParent()).setName(USER1);
             entityManager.getTransaction().commit();
             fail("expected SecurityException");
-        } catch (SecurityException e) {
-            //expected
+        } catch (PersistenceException e) {
+            assertEquals(SecurityException.class, e.getCause().getClass());
         }
         entityManager.close();
     }

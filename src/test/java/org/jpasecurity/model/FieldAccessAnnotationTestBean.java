@@ -44,6 +44,8 @@ import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
 import javax.persistence.Transient;
 
+import org.jpasecurity.entity.SecureCollections;
+
 /**
  * @author Arne Limburg
  */
@@ -177,7 +179,7 @@ public class FieldAccessAnnotationTestBean {
     }
 
     public List<FieldAccessAnnotationTestBean> getChildBeans() {
-        return (List<FieldAccessAnnotationTestBean>)(List<?>)children;
+        return SecureCollections.secureList((List<FieldAccessAnnotationTestBean>)(List<?>)children);
     }
 
     public void setChildren(List<Object> childBeans) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,12 +59,12 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import javax.persistence.Version;
+import javax.persistence.spi.PersistenceUnitInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jpasecurity.CascadeType;
 import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.SecurityUnit;
 import org.jpasecurity.mapping.AbstractSecurityUnitParser;
 import org.jpasecurity.mapping.AccessState;
 import org.jpasecurity.mapping.DefaultClassMappingInformation;
@@ -84,11 +84,11 @@ public abstract class JpaAnnotationParser extends AbstractSecurityUnitParser {
 
     private static final Log LOG = LogFactory.getLog(JpaAnnotationParser.class);
 
-    public JpaAnnotationParser(SecurityUnit securityUnit, ExceptionFactory exceptionFactory) {
+    public JpaAnnotationParser(PersistenceUnitInfo securityUnit, ExceptionFactory exceptionFactory) {
         this(securityUnit, new DefaultPropertyAccessStrategyFactory(), exceptionFactory);
     }
 
-    public JpaAnnotationParser(SecurityUnit securityUnit,
+    public JpaAnnotationParser(PersistenceUnitInfo securityUnit,
                                PropertyAccessStrategyFactory propertyAccessStrategyFactory,
                                ExceptionFactory exceptionFactory) {
         super(securityUnit, propertyAccessStrategyFactory, exceptionFactory);

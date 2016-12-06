@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Stefan Hildebrandt
+ * Copyright 2013 - 2016 Stefan Hildebrandt, Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,6 @@ import javax.persistence.Query;
 
 import org.jpasecurity.dto.IdAndNameDto;
 import org.jpasecurity.dto.IdDto;
-import org.jpasecurity.entity.FetchManager;
-import org.jpasecurity.entity.SecureObjectManager;
 import org.jpasecurity.mapping.Path;
 import org.junit.Test;
 
@@ -87,8 +85,6 @@ public class SecureQueryTest {
     public void testHandleConstructorReturnTypePPNotMatchingTypeType()
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         SecureQuery<IdDto> simpleDtoSecureQuery = new SecureQuery<IdDto>(
-            createMock(SecureObjectManager.class),
-            createMock(FetchManager.class),
             createMock(Query.class),
             IdDto.class,
             Collections.<Path>emptyList(),
@@ -100,8 +96,6 @@ public class SecureQueryTest {
 
     private <T> SecureQuery<T> createSecureQuery(Class<T> queryClassType) {
         return new SecureQuery<T>(
-            createMock(SecureObjectManager.class),
-            createMock(FetchManager.class),
             createMock(Query.class),
             queryClassType,
             Collections.<Path>emptyList(),

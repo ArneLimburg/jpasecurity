@@ -26,7 +26,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import org.jpasecurity.SecureEntity;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.persistence.AbstractEntityTestCase;
 import org.jpasecurity.security.authentication.TestAuthenticationProvider;
@@ -122,7 +121,6 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
         query.multiselect(bean, bean.get("parent"));
         List<Tuple> beans = entityManager.createQuery(query).getResultList();
         assertEquals(1, beans.size());
-        assertTrue(beans.iterator().next().get(0) instanceof SecureEntity);
         assertEquals(accessibleBean, beans.iterator().next().get(0));
         assertEquals(inaccessibleBean, beans.iterator().next().get(1));
 

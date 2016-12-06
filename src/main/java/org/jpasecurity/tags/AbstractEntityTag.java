@@ -18,7 +18,6 @@ package org.jpasecurity.tags;
 import javax.servlet.jsp.PageContext;
 
 import org.jpasecurity.AccessType;
-import org.jpasecurity.SecureEntity;
 
 /**
  * A tag that renders the jsp body only if a specified entity is accessible.
@@ -43,11 +42,7 @@ public abstract class AbstractEntityTag extends AbstractSecurityTag {
 
     protected boolean isAccessible() {
         Object entity = resolveEntity();
-        if (entity instanceof SecureEntity) {
-            return ((SecureEntity)entity).isAccessible(getAccessType());
-        } else {
-            return getAccessManager().isAccessible(getAccessType(), entity);
-        }
+        return getAccessManager().isAccessible(getAccessType(), entity);
     }
 
     protected abstract AccessType getAccessType();

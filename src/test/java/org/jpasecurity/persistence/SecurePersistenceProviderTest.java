@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.jpasecurity.persistence;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -79,26 +78,6 @@ public class SecurePersistenceProviderTest {
             = securePersistenceProvider.createContainerEntityManagerFactory(createPersistenceUnitInfo(),
                                                                             Collections.EMPTY_MAP);
         assertTrue(entityManagerFactory.createEntityManager() instanceof SecureEntityManager);
-    }
-
-    @Test
-    public void createLightEntityManagerFactory() {
-        PersistenceUnitInfo info = createPersistenceUnitInfo();
-        info.getProperties().put(SecurePersistenceProvider.SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY,
-                                 SecurePersistenceProvider.SECURE_PERSISTENCE_PROVIDER_TYPE_LIGHT);
-        EntityManagerFactory entityManagerFactory
-            = securePersistenceProvider.createContainerEntityManagerFactory(info, null);
-        assertFalse(entityManagerFactory.createEntityManager() instanceof SecureEntityManager);
-    }
-
-    @Test
-    public void overriddenLightEntityManagerFactory() {
-        Map<String, String> properties
-            = Collections.singletonMap(SecurePersistenceProvider.SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY,
-                                       SecurePersistenceProvider.SECURE_PERSISTENCE_PROVIDER_TYPE_LIGHT);
-        EntityManagerFactory entityManagerFactory
-            = securePersistenceProvider.createEntityManagerFactory("annotation-based-method-access", properties);
-        assertFalse(entityManagerFactory.createEntityManager() instanceof SecureEntityManager);
     }
 
     private PersistenceUnitInfo createPersistenceUnitInfo() {

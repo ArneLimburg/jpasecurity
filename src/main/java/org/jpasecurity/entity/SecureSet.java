@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@
  */
 package org.jpasecurity.entity;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
-
-import org.jpasecurity.AccessManager;
 
 /**
  * A set-implementation of secure collection.
@@ -26,15 +24,15 @@ import org.jpasecurity.AccessManager;
  */
 public class SecureSet<E> extends AbstractSecureCollection<E, Set<E>> implements Set<E> {
 
-    public SecureSet(Set<E> set, AbstractSecureObjectManager objectManager, AccessManager accessManager) {
-        super(set, objectManager, accessManager);
+    public SecureSet(Set<E> set) {
+        super(set);
     }
 
-    SecureSet(Set<E> original, Set<E> filtered, AbstractSecureObjectManager objectManager) {
-        super(original, filtered, objectManager);
+    SecureSet(Set<E> original, Set<E> filtered) {
+        super(original, filtered);
     }
 
     protected Set<E> createFiltered() {
-        return new HashSet<E>();
+        return new LinkedHashSet<E>();
     }
 }

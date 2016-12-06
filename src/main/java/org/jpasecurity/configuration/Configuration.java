@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 - 2011 Arne Limburg
+ * Copyright 2010 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,6 @@ import org.jpasecurity.mapping.MappingInformation;
 import org.jpasecurity.mapping.MappingInformationReceiver;
 import org.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import org.jpasecurity.mapping.SecureBeanInitializer;
-import org.jpasecurity.proxy.Decorator;
-import org.jpasecurity.proxy.MethodInterceptor;
-import org.jpasecurity.proxy.SecureEntityProxyFactory;
 import org.jpasecurity.util.ReflectionUtils;
 
 /**
@@ -70,7 +67,6 @@ public class Configuration {
     private Map<String, Object> properties;
     private AccessRulesProvider accessRulesProvider;
     private SecurityContext securityContext;
-    private SecureEntityProxyFactory secureEntityProxyFactory;
     private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
     private BeanInitializer beanInitializer;
     private ExceptionFactory exceptionFactory;
@@ -92,7 +88,6 @@ public class Configuration {
         Map<String, Object> newProperties = new HashMap<String, Object>(configuration.properties);
         accessRulesProvider = configuration.accessRulesProvider;
         securityContext = configuration.securityContext;
-        secureEntityProxyFactory = configuration.secureEntityProxyFactory;
         propertyAccessStrategyFactory = configuration.propertyAccessStrategyFactory;
         beanInitializer = configuration.beanInitializer;
         exceptionFactory = configuration.exceptionFactory;
@@ -122,17 +117,6 @@ public class Configuration {
 
     public void setSecurityContext(SecurityContext securityContext) {
         this.securityContext = securityContext;
-    }
-
-    public SecureEntityProxyFactory getSecureEntityProxyFactory() {
-        if (secureEntityProxyFactory == null) {
-            secureEntityProxyFactory = createSecureEntityProxyFactory();
-        }
-        return secureEntityProxyFactory;
-    }
-
-    public void setSecureEntityProxyFactory(SecureEntityProxyFactory secureEntityProxyFactory) {
-        this.secureEntityProxyFactory = secureEntityProxyFactory;
     }
 
     public PropertyAccessStrategyFactory getPropertyAccessStrategyFactory() {
@@ -222,20 +206,6 @@ public class Configuration {
                            params);
     }
 
-    public MethodInterceptor createMethodInterceptor(Object... params) {
-        return newInstance(MethodInterceptor.class,
-                           METHOD_INTERCEPTOR_PROPERTY,
-                           DEFAULT_METHOD_INTERCEPTOR_CLASS,
-                           params);
-    }
-
-    public Decorator createDecorator(Object... params) {
-        return newInstance(Decorator.class,
-                           DECORATOR_PROPERTY,
-                           DEFAULT_DECORATOR_CLASS,
-                           params);
-    }
-
     private SecurityContext createSecurityContext() {
         if (!properties.containsKey(SECURITY_CONTEXT_PROPERTY)) {
             AuthenticationProvider authenticationProvider = createAuthenticationProvider();
@@ -248,12 +218,6 @@ public class Configuration {
 
     private AuthenticationProvider createAuthenticationProvider() {
         return newInstance(AuthenticationProvider.class, AUTHENTICATION_PROVIDER_PROPERTY, null);
-    }
-
-    private SecureEntityProxyFactory createSecureEntityProxyFactory() {
-        return newInstance(SecureEntityProxyFactory.class,
-                           SECURE_ENTITY_PROXY_FACTORY_PROPERTY,
-                           DEFAULT_SECURE_ENTITY_PROXY_FACTORY_CLASS);
     }
 
     private PropertyAccessStrategyFactory createPropertyAccessStrategyFactory() {

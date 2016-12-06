@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.jpasecurity.mapping.PropertyAccessStrategyFactory;
 import org.jpasecurity.persistence.JpaExceptionFactory;
 import org.jpasecurity.persistence.SecureEntityManager;
 import org.jpasecurity.persistence.SecurePersistenceProvider;
-import org.jpasecurity.proxy.SecureEntityProxyFactory;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 /**
@@ -66,14 +65,6 @@ public class SecureContainerEntityManagerFactoryBean extends LocalContainerEntit
 
     public void setAccessRulesProvider(AccessRulesProvider accessRulesProvider) {
         getConfiguration().setAccessRulesProvider(accessRulesProvider);
-    }
-
-    public SecureEntityProxyFactory getSecureEntityProxyFactory() {
-        return getConfiguration().getSecureEntityProxyFactory();
-    }
-
-    public void setSecureEntityProxyFactory(SecureEntityProxyFactory secureEntityProxyFactory) {
-        getConfiguration().setSecureEntityProxyFactory(secureEntityProxyFactory);
     }
 
     public PropertyAccessStrategyFactory getPropertyAccessStrategyFactory() {

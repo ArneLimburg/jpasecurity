@@ -29,7 +29,6 @@ import javax.persistence.Persistence;
 import org.jpasecurity.contacts.ContactsTestData;
 import org.jpasecurity.contacts.model.Contact;
 import org.jpasecurity.contacts.model.User;
-import org.jpasecurity.persistence.SecureEntityTester;
 import org.jpasecurity.security.authentication.StaticAuthenticationProvider;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -134,12 +133,6 @@ public class SimpleContactsTest {
         assertEquals(2, contacts.size());
         assertTrue(contacts.contains(testData.getMarysContact1()));
         assertTrue(contacts.contains(testData.getMarysContact2()));
-    }
-
-    @Test
-    public void proxying() throws Exception {
-        StaticAuthenticationProvider.authenticate(null, "admin");
-        assertTrue(SecureEntityTester.isSecureEntity(getAllUsers().get(0)));
     }
 
     public List<User> getAllUsers() {

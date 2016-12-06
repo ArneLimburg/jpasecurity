@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ import org.jpasecurity.AccessType;
 import org.jpasecurity.configuration.AccessRule;
 import org.jpasecurity.configuration.DefaultExceptionFactory;
 import org.jpasecurity.configuration.SecurityContext;
-import org.jpasecurity.entity.SecureObjectCache;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.ParseException;
@@ -66,7 +65,6 @@ public class EntityFilterTest {
 
     @Before
     public void initialize() throws ParseException {
-        SecureObjectCache objectCache = createMock(SecureObjectCache.class);
         MappingInformation mappingInformation = createMock(MappingInformation.class);
         ClassMappingInformation classMapping = createMock(ClassMappingInformation.class);
         PropertyMappingInformation idPropertyMapping = createMock(PropertyMappingInformation.class);
@@ -134,9 +132,9 @@ public class EntityFilterTest {
                         .anyTimes();
         expect(securityContext.getAliases()).andReturn(Collections.singleton(CURRENT_PRINCIPAL)).anyTimes();
         expect(securityContext.getAliasValue(CURRENT_PRINCIPAL)).andReturn(NAME).anyTimes();
-        replay(objectCache, mappingInformation, classMapping, idPropertyMapping, namePropertyMapping,
+        replay(mappingInformation, classMapping, idPropertyMapping, namePropertyMapping,
                beanPropertyMapping, securityContext);
-        entityFilter = new EntityFilter(objectCache, mappingInformation, securityContext,
+        entityFilter = new EntityFilter(mappingInformation, securityContext,
                                         new DefaultExceptionFactory(), initializeAccessRules(mappingInformation));
     }
 

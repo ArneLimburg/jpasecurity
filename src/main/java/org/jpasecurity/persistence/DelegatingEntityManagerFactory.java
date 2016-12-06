@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,5 +72,9 @@ public class DelegatingEntityManagerFactory implements EntityManagerFactory {
 
     public PersistenceUnitUtil getPersistenceUnitUtil() {
         return delegate.getPersistenceUnitUtil();
+    }
+
+    protected EntityManagerFactory getDelegate() {
+        return delegate;
     }
 }

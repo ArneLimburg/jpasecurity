@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,15 @@
  */
 package org.jpasecurity.security;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 
 import org.jpasecurity.AccessType;
 import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.SecurityUnit;
 import org.jpasecurity.configuration.AccessRule;
 import org.jpasecurity.configuration.AuthenticationProviderSecurityContext;
 import org.jpasecurity.configuration.DefaultExceptionFactory;
 import org.jpasecurity.configuration.SecurityContext;
-import org.jpasecurity.entity.SecureObjectManager;
-import org.jpasecurity.jpa.JpaSecurityUnit;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.Node;
@@ -67,8 +58,7 @@ public class JpaInheritenceEntityFilterTest {
         persistenceUnitInfo.getManagedClassNames().add(SecondAclProtectedEntity.class.getName());
         persistenceUnitInfo.getManagedClassNames().add(AbstractEntity.class.getName());
         persistenceUnitInfo.getManagedClassNames().add(Group.class.getName());
-        SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
-        mappingInformation = new OrmXmlParser(securityUnitInformation, new JpaExceptionFactory()).parse();
+        mappingInformation = new OrmXmlParser(persistenceUnitInfo, new JpaExceptionFactory()).parse();
         JpqlParser parser = new JpqlParser();
         JpqlAccessRule rule
             = parser.parseRule(
@@ -77,15 +67,10 @@ public class JpaInheritenceEntityFilterTest {
             );
         AccessRulesCompiler compiler = new AccessRulesCompiler(mappingInformation, new DefaultExceptionFactory());
         accessRules = compiler.compile(rule);
-        SecureObjectManager secureObjectManager = createMock(SecureObjectManager.class);
         DefaultAuthenticationProvider authenticationProvider = new DefaultAuthenticationProvider();
         SecurityContext securityContext = new AuthenticationProviderSecurityContext(authenticationProvider);
-        expect(secureObjectManager.getSecureObjects((Class<Object>)anyObject()))
-            .andReturn(Collections.<Object>emptySet()).anyTimes();
-        replay(secureObjectManager);
         ExceptionFactory exceptionFactory = new DefaultExceptionFactory();
-        filter = new EntityFilter(secureObjectManager,
-            mappingInformation,
+        filter = new EntityFilter(mappingInformation,
             securityContext,
             exceptionFactory,
             accessRules);

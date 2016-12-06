@@ -40,7 +40,6 @@ import org.glassfish.embeddable.archive.ScatteredArchive;
 import org.jpasecurity.contacts.ContactsTestData;
 import org.jpasecurity.contacts.model.Contact;
 import org.jpasecurity.contacts.model.User;
-import org.jpasecurity.persistence.SecureEntityTester;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -191,11 +190,5 @@ public class EjbContactsTest {
         assertEquals(2, contacts.size());
         assertTrue(contacts.contains(testData.getMarysContact1()));
         assertTrue(contacts.contains(testData.getMarysContact2()));
-    }
-
-    @Test
-    public void proxying() throws Exception {
-        login("admin");
-        assertTrue(SecureEntityTester.isSecureEntity(contactsDao.getAllUsers().get(0)));
     }
 }

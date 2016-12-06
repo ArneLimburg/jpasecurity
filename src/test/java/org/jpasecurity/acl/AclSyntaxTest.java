@@ -27,6 +27,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
+import javax.persistence.PersistenceException;
 
 import org.jpasecurity.model.acl.Acl;
 import org.jpasecurity.model.acl.AclEntry;
@@ -40,7 +41,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /** @author Arne Limburg */
@@ -187,7 +187,8 @@ public class AclSyntaxTest {
     public void updateAclProtectedEntityWithReadAllPrivilege() {
         TestAuthenticationProvider.authenticate(user2.getId(), READ_ACCESS_PRIVILEGE);
         EntityManager entityManager = entityManagerFactory.createEntityManager();
-        final EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
         try {
             final AclProtectedEntity result =
                 entityManager.find(AclProtectedEntity.class, entity.getId());
@@ -196,8 +197,8 @@ public class AclSyntaxTest {
             try {
                 transaction.commit();
                 fail("Expect SecurityException");
-            } catch (SecurityException e) {
-                //expected
+            } catch (PersistenceException e) {
+                assertEquals(SecurityException.class, e.getCause().getClass());
             }
         } finally {
             if (transaction.isActive()) {
@@ -281,8 +282,8 @@ public class AclSyntaxTest {
             e.setSomeProperty("test" + System.currentTimeMillis());
             transaction.commit();
             fail("Expect exception!");
-        } catch (SecurityException e) {
-            //Expected
+        } catch (PersistenceException e) {
+            assertEquals(SecurityException.class, e.getCause().getClass());
         } finally {
             if (transaction.isActive()) {
                 transaction.rollback();
@@ -291,7 +292,6 @@ public class AclSyntaxTest {
         }
     }
 
-    @Ignore("Probably will be fixed when the proxy stuff is gone")
     @Test
     public void updateAclProtectedEntityFullAccessPrivilege() {
         TestAuthenticationProvider.authenticate(user2.getId(), FULL_ACCESS_PRIVILEGE);

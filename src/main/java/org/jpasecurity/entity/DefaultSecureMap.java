@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,28 +20,22 @@ import static org.jpasecurity.util.Types.isSimplePropertyType;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.jpasecurity.AccessManager;
-import org.jpasecurity.SecureEntity;
-import org.jpasecurity.SecureMap;
+import org.jpasecurity.AccessType;
 
 /**
  * @author Arne Limburg
  */
-public class DefaultSecureMap<K, V> extends AbstractMap<K, V> implements SecureMap<K, V> {
+public class DefaultSecureMap<K, V> extends AbstractMap<K, V> {
 
-    private final List<MapOperation<K, V>> operations = new ArrayList<MapOperation<K, V>>();
     private final SecureEntrySet entrySet = new SecureEntrySet();
     private Map<K, V> original;
     private Map<K, V> filtered;
-    private AbstractSecureObjectManager objectManager;
-    private AccessManager accessManager;
 
     /**
      * Creates a map that filters the specified (original) map
@@ -49,10 +43,8 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> implements SecureM
      * @param map the original map
      * @param objectManager the object manager
      */
-    DefaultSecureMap(Map<K, V> original, AbstractSecureObjectManager objectManager, AccessManager accessManager) {
+    DefaultSecureMap(Map<K, V> original) {
         this.original = original;
-        this.objectManager = objectManager;
-        this.accessManager = accessManager;
     }
 
     /**
@@ -61,18 +53,14 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> implements SecureM
      * @param filtered the (initialized) filtered collection
      * @param objectManager the object manager
      */
-    DefaultSecureMap(Map<K, V> original, Map<K, V> filtered, AbstractSecureObjectManager objectManager) {
-        this(original, objectManager, null);
+    DefaultSecureMap(Map<K, V> original, Map<K, V> filtered) {
+        this(original);
         this.filtered = filtered;
     }
 
     public void clear() {
-        addOperation(new MapOperation<K, V>() {
-            public void flush(Map<K, V> original, AbstractSecureObjectManager objectManager) {
-                original.clear();
-            }
-        });
         getFiltered().clear();
+        getOriginal().clear();
     }
 
     public boolean containsKey(Object key) {
@@ -91,38 +79,21 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> implements SecureM
         return getFiltered().isEmpty();
     }
 
-    public V put(final K key, final V value) {
-        addOperation(new MapOperation<K, V>() {
-            public void flush(Map<K, V> original, AbstractSecureObjectManager objectManager) {
-                original.put(getUnsecureKey(key, objectManager), objectManager.getUnsecureObject(value));
-            }
-        });
-        return getFiltered().put(key, value);
+    public V put(K key, V value) {
+        V oldFilteredValue = getFiltered().put(key, value);
+        getOriginal().put(key, value);
+        return oldFilteredValue;
     }
 
-    public void putAll(final Map<? extends K, ? extends V> map) {
-        addOperation(new MapOperation<K, V>() {
-            public void flush(Map<K, V> original, AbstractSecureObjectManager objectManager) {
-                if (map instanceof DefaultSecureMap) {
-                    original.putAll(((DefaultSecureMap<K, V>)map).original);
-                } else {
-                    for (Map.Entry<? extends K, ? extends V> entry: map.entrySet()) {
-                        original.put(getUnsecureKey(entry.getKey(), objectManager),
-                                     objectManager.getUnsecureObject(entry.getValue()));
-                    }
-                }
-            }
-        });
+    public void putAll(Map<? extends K, ? extends V> map) {
         getFiltered().putAll(map);
+        getOriginal().putAll(map);
     }
 
-    public V remove(final Object key) {
-        addOperation(new MapOperation<K, V>() {
-            public void flush(Map<K, V> original, AbstractSecureObjectManager objectManager) {
-                original.remove(getUnsecureKey(key, objectManager));
-            }
-        });
-        return getFiltered().remove(key);
+    public V remove(Object key) {
+        V oldFilteredValue = getFiltered().remove(key);
+        getOriginal().remove(key);
+        return oldFilteredValue;
     }
 
     public int size() {
@@ -137,25 +108,6 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> implements SecureM
         return filtered != null;
     }
 
-    public boolean isDirty() {
-        return !operations.isEmpty();
-    }
-
-    public SecureMap<K, V> merge(SecureMap<K, V> secureMap) {
-        if (!(secureMap instanceof DefaultSecureMap)) {
-            throw new IllegalArgumentException("cannot merge map of type " + secureMap.getClass().getName());
-        }
-        ((DefaultSecureMap<K, V>)secureMap).operations.addAll(operations);
-        return secureMap;
-    }
-
-    public void flush() {
-        for (MapOperation<K, V> operation: operations) {
-            operation.flush(original, objectManager);
-        }
-        operations.clear();
-    }
-
     Map<K, V> getFiltered() {
         checkInitialized();
         return filtered;
@@ -163,10 +115,6 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> implements SecureM
 
     Map<K, V> getOriginal() {
         return original;
-    }
-
-    private <T> T getUnsecureKey(T key, AbstractSecureObjectManager objectManager) {
-        return isSimplePropertyType(key.getClass())? key: objectManager.getUnsecureObject(key);
     }
 
     void checkInitialized() {
@@ -177,44 +125,27 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> implements SecureM
 
     void initialize(boolean checkAccess) {
         filtered = new LinkedHashMap<K, V>();
+        AccessManager accessManager = AccessManager.Instance.get();
+        accessManager.delayChecks();
+        accessManager.ignoreChecks(AccessType.READ, original.keySet());
+        accessManager.ignoreChecks(AccessType.READ, original.values());
+        accessManager.checkNow();
         for (Map.Entry<K, V> entry: original.entrySet()) {
             K key = entry.getKey();
             V value = entry.getValue();
-            K secureKey = null;
-            V secureValue = null;
             boolean filteredOut = false;
-            if (isSimplePropertyType(key.getClass())) {
-                secureKey = key;
-            } else if (!checkAccess || isReadable(key)) {
-                secureKey = objectManager.getSecureObject(key);
-                if (secureKey instanceof SecureEntity) {
-                    objectManager.initialize((SecureEntity)secureKey, checkAccess);
+            if (checkAccess) {
+                if (!isSimplePropertyType(key.getClass()) && !accessManager.isAccessible(READ, key)) {
+                    filteredOut = true;
                 }
-            } else {
-                filteredOut = true;
-            }
-            if (isSimplePropertyType(value.getClass())) {
-                secureValue = value;
-            } else if (!checkAccess || isReadable(value)) {
-                secureValue = objectManager.getSecureObject(value);
-                if (secureValue instanceof SecureEntity) {
-                    objectManager.initialize((SecureEntity)secureValue, checkAccess);
+                if (!isSimplePropertyType(value.getClass()) && !accessManager.isAccessible(READ, value)) {
+                    filteredOut = true;
                 }
-            } else {
-                filteredOut = true;
             }
             if (!filteredOut) {
-                filtered.put(secureKey, secureValue);
+                filtered.put(key, value);
             }
         }
-    }
-
-    private boolean isReadable(Object entity) {
-        return accessManager.isAccessible(READ, entity);
-    }
-
-    private void addOperation(MapOperation<K, V> operation) {
-        operations.add(operation);
     }
 
     private class SecureEntrySet extends AbstractSet<Map.Entry<K, V>> {
@@ -283,14 +214,10 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> implements SecureM
             return entry.getValue();
         }
 
-        public V setValue(final V value) {
-            addOperation(new MapOperation<K, V>() {
-                public void flush(Map<K, V> original, AbstractSecureObjectManager objectManager) {
-                    original.put(getUnsecureKey(entry.getKey(), objectManager),
-                                 objectManager.getUnsecureObject(value));
-                }
-            });
-            return entry.setValue(value);
+        public V setValue(V value) {
+            V oldFilteredValue = entry.setValue(value);
+            getOriginal().put(entry.getKey(), entry.getValue());
+            return oldFilteredValue;
         }
 
         public int hashCode() {

@@ -27,7 +27,6 @@ import junit.framework.TestCase;
 
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
-import org.jpasecurity.SecureEntity;
 
 /**
  * @author Arne Limburg
@@ -104,24 +103,6 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
         initializeAccessManager(PageContext.APPLICATION_SCOPE, false);
         assertEquals(Tag.SKIP_BODY, entityTag.doStartTag());
         verify(accessManager);
-    }
-
-    public void testAccessibleSecureEntity() {
-        SecureEntity secureEntity = createMock(SecureEntity.class);
-        expect(secureEntity.isAccessible(getAccessType())).andReturn(true);
-        replay(secureEntity);
-        initializeEntity(secureEntity, PageContext.PAGE_SCOPE);
-        assertEquals(Tag.EVAL_BODY_INCLUDE, entityTag.doStartTag());
-        verify(secureEntity);
-    }
-
-    public void testNotAccessibleSecureEntity() {
-        SecureEntity secureEntity = createMock(SecureEntity.class);
-        expect(secureEntity.isAccessible(getAccessType())).andReturn(false);
-        replay(secureEntity);
-        initializeEntity(secureEntity, PageContext.PAGE_SCOPE);
-        assertEquals(Tag.SKIP_BODY, entityTag.doStartTag());
-        verify(secureEntity);
     }
 
     public void testNoEntity() {

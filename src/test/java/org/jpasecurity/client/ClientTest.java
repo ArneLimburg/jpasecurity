@@ -145,15 +145,33 @@ public class ClientTest extends AbstractEntityTestCase {
         Client client = entityManager.find(Client.class, clientId);
         assertNotNull(client);
         entityManager.getTransaction().begin();
-        client.setCurrentStatus(CLOSED);
+        entityManager.createQuery("UPDATE Client c SET c.currentStatus = :status WHERE c.id = :id")
+            .setParameter("id", clientId)
+            .setParameter("status", entityManager.merge(CLOSED))
+            .executeUpdate();
         entityManager.getTransaction().commit();
         entityManager.close();
 
-        entityManager = getEntityManager();
-        entityManager.getTransaction().begin();
-        Client foundClient = entityManager.find(Client.class, clientId);
-        foundClient.setAnotherProperty("new value");
-        entityManager.getTransaction().commit();
+        try {
+            entityManager = getEntityManager();
+            entityManager.getTransaction().begin();
+            Client foundClient = entityManager.find(Client.class, clientId);
+            foundClient.setAnotherProperty("new value");
+            entityManager.getTransaction().commit();
+        } finally {
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            entityManager.close();
+            entityManager = getEntityManager();
+            entityManager.getTransaction().begin();
+            entityManager.createQuery("UPDATE Client c SET c.currentStatus = :status WHERE c.id = :id")
+                .setParameter("id", clientId)
+                .setParameter("status", entityManager.merge(ACTIVE))
+                .executeUpdate();
+            entityManager.getTransaction().commit();
+            entityManager.close();
+        }
     }
 
     @Test
@@ -200,7 +218,6 @@ public class ClientTest extends AbstractEntityTestCase {
     }
 
     @Test
-
     public void testIdAndNameDtoGetResultList() {
         TestAuthenticationProvider.authenticate(EMAIL);
         EntityManager entityManager = getEntityManager();

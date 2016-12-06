@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,19 @@
  */
 package org.jpasecurity.entity;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
- * @author Arne Limburg
+ * This class consists exclusively of static methods that return
+ * collections, that filter entities based on there accessibility regarding read access.
+ * The returned collection is a wrapper around the specified collection,
+ * that just contains the entities that the user may read.
+ * Changes to the wrapper are reflected to the original collection.
+ * <strong>Note</strong> that
  */
-public interface SecureObjectCache {
+public class SecureCollections {
 
-    boolean isSecureObject(Object object);
-    <E> E getSecureObject(E object);
-    <E> Collection<E> getSecureObjects(Class<E> type);
+    public static <E> List<E> secureList(List<E> list) {
+        return new SecureList<E>(list);
+    }
 }

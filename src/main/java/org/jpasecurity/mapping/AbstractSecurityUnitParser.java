@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,12 +43,13 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.persistence.spi.PersistenceUnitInfo;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jpasecurity.CascadeType;
 import org.jpasecurity.ExceptionFactory;
 import org.jpasecurity.FetchType;
-import org.jpasecurity.SecurityUnit;
 
 /**
  * Parses security units and created mapping information.
@@ -67,17 +68,17 @@ public abstract class AbstractSecurityUnitParser {
     protected final PropertyAccessStrategyFactory propertyAccessStrategyFactory;
     protected final ExceptionFactory exceptionFactory;
 
-    private SecurityUnit securityUnit;
+    private PersistenceUnitInfo securityUnit;
     private Map<Class<?>, DefaultClassMappingInformation> classMappings;
     private Map<String, String> namedQueries;
     private Map<String, String> namedNativeQueries;
     private List<EntityListener> defaultEntityListeners;
     private ClassLoader classLoader;
 
-    public AbstractSecurityUnitParser(SecurityUnit securityUnit,
+    public AbstractSecurityUnitParser(PersistenceUnitInfo securityUnit,
                                       PropertyAccessStrategyFactory propertyAccessStrategyFactory,
                                       ExceptionFactory exceptionFactory) {
-        notNull(SecurityUnit.class, securityUnit);
+        notNull(PersistenceUnitInfo.class, securityUnit);
         notNull(PropertyAccessStrategyFactory.class, propertyAccessStrategyFactory);
         notNull(ExceptionFactory.class, exceptionFactory);
         this.securityUnit = securityUnit;
@@ -85,7 +86,7 @@ public abstract class AbstractSecurityUnitParser {
         this.exceptionFactory = exceptionFactory;
     }
 
-    protected SecurityUnit getSecurityUnit() {
+    protected PersistenceUnitInfo getSecurityUnit() {
         return securityUnit;
     }
 
@@ -110,15 +111,15 @@ public abstract class AbstractSecurityUnitParser {
         defaultEntityListeners = new ArrayList<EntityListener>();
         classLoader = findClassLoader(securityUnit);
         parseSecurityUnit(securityUnit);
-        String securityUnitName = securityUnit.getSecurityUnitName();
+        String securityUnitName = securityUnit.getPersistenceUnitName();
         return new DefaultMappingInformation(securityUnitName,
             classMappings, namedQueries, namedNativeQueries, exceptionFactory);
     }
 
-    protected void parseSecurityUnit(SecurityUnit securityUnit) {
+    protected void parseSecurityUnit(PersistenceUnitInfo securityUnit) {
         if (!securityUnit.excludeUnlistedClasses()) {
-            if (securityUnit.getSecurityUnitRootUrl() != null) {
-                parse(securityUnit.getSecurityUnitRootUrl());
+            if (securityUnit.getPersistenceUnitRootUrl() != null) {
+                parse(securityUnit.getPersistenceUnitRootUrl());
             }
         }
         for (URL url: securityUnit.getJarFileUrls()) {
@@ -759,7 +760,7 @@ public abstract class AbstractSecurityUnitParser {
         return hasPropertySetter(entityClass.getSuperclass(), propertySetterName, propertyType);
     }
 
-    private ClassLoader findClassLoader(SecurityUnit securityUnitInformation) {
+    private ClassLoader findClassLoader(PersistenceUnitInfo securityUnitInformation) {
         ClassLoader classLoader = securityUnitInformation.getClassLoader();
         if (classLoader != null) {
             return classLoader;

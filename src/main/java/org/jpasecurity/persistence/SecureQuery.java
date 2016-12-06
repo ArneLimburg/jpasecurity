@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,19 +24,13 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.FlushModeType;
-import javax.persistence.Parameter;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
-import javax.persistence.TypedQuery;
 
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
-import org.jpasecurity.entity.FetchManager;
-import org.jpasecurity.entity.SecureObjectManager;
-import org.jpasecurity.jpa.JpaParameter;
-import org.jpasecurity.jpa.JpaQuery;
 import org.jpasecurity.mapping.Path;
 import org.jpasecurity.util.ReflectionUtils;
 
@@ -47,48 +41,19 @@ import org.jpasecurity.util.ReflectionUtils;
  */
 public class SecureQuery<T> extends DelegatingQuery<T> {
 
-    private SecureObjectManager objectManager;
-    private FetchManager fetchManager;
     private Class<T> constructorArgReturnType;
     private List<Path> selectedPaths;
-    private FlushModeType flushMode;
 
-    public SecureQuery(SecureObjectManager objectManager,
-                       FetchManager fetchManager,
-                       Query query,
+    public SecureQuery(Query query,
                        Class<T> constructorReturnType,
                        List<Path> selectedPaths,
                        FlushModeType flushMode) {
         super(query);
-        this.objectManager = objectManager;
-        this.fetchManager = fetchManager;
         this.constructorArgReturnType = constructorReturnType;
         this.selectedPaths = selectedPaths;
-        this.flushMode = flushMode;
-    }
-
-    public TypedQuery<T> setFlushMode(FlushModeType flushMode) {
-        this.flushMode = flushMode;
-        return super.setFlushMode(flushMode);
-    }
-
-    public TypedQuery<T> setParameter(int index, Object parameter) {
-        objectManager.setParameter(new JpaQuery(getDelegate()), index, parameter);
-        return this;
-    }
-
-    public TypedQuery<T> setParameter(String name, Object parameter) {
-        objectManager.setParameter(new JpaQuery(getDelegate()), name, parameter);
-        return this;
-    }
-
-    public <P> TypedQuery<T> setParameter(Parameter<P> parameter, P value) {
-        objectManager.setParameter(new JpaQuery(getDelegate()), new JpaParameter<P>(parameter), value);
-        return this;
     }
 
     public T getSingleResult() {
-        preFlush();
         T result;
         AccessManager.Instance.get().delayChecks();
         if (constructorArgReturnType != null) {
@@ -104,15 +69,13 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
             result = getSecureResult(super.getSingleResult());
         }
         AccessManager.Instance.get().ignoreChecks(AccessType.READ, Collections.singleton(result));
-        postFlush();
+        AccessManager.Instance.get().checkNow();
         return result;
     }
 
     public List<T> getResultList() {
-        preFlush();
         AccessManager.Instance.get().delayChecks();
         List<T> targetResult = super.getResultList();
-        postFlush();
         List<T> proxyResult = new ArrayList<T>();
         if (constructorArgReturnType != null) {
             for (Object parameter : (List<Object>)targetResult) {
@@ -130,6 +93,7 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
             }
         }
         AccessManager.Instance.get().ignoreChecks(AccessType.READ, targetResult);
+        AccessManager.Instance.get().checkNow();
         return proxyResult;
     }
 
@@ -154,18 +118,6 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
         }
     }
 
-    private void preFlush() {
-        if (flushMode == FlushModeType.AUTO) {
-            objectManager.preFlush();
-        }
-    }
-
-    private void postFlush() {
-        if (flushMode == FlushModeType.AUTO) {
-            objectManager.postFlush();
-        }
-    }
-
     private <R> R getSecureResult(R result) {
         if (result == null) {
             return null;
@@ -177,19 +129,16 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
             return (R)new SecureTuple((Tuple)result);
         }
         if (!(result instanceof Object[])) {
-            result = objectManager.getSecureObject(result);
-            fetchManager.fetch(result);
             return result;
         }
         Object[] scalarResult = (Object[])result;
+        List<Object> entitiesToIgnore = new ArrayList<Object>();
         for (int i = 0; i < scalarResult.length; i++) {
             if (scalarResult[i] != null && !isSimplePropertyType(scalarResult[i].getClass())) {
-                scalarResult[i] = objectManager.getSecureObject(scalarResult[i]);
-                if (selectedPaths != null) {
-                    fetchManager.fetch(scalarResult[i]);
-                }
+                entitiesToIgnore.add(scalarResult[i]);
             }
         }
+        AccessManager.Instance.get().ignoreChecks(AccessType.READ, entitiesToIgnore);
         return (R)scalarResult;
     }
 

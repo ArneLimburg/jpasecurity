@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,19 +24,9 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import org.jpasecurity.AlwaysPermittingAccessManager;
-import org.jpasecurity.BeanLoader;
-import org.jpasecurity.SecurityUnit;
 import org.jpasecurity.configuration.Configuration;
 import org.jpasecurity.configuration.ConfigurationReceiver;
 import org.jpasecurity.configuration.SecurityContextReceiver;
-import org.jpasecurity.entity.AbstractSecureObjectManager;
-import org.jpasecurity.entity.DefaultBeanStore;
-import org.jpasecurity.entity.DefaultSecureObjectLoader;
-import org.jpasecurity.entity.DefaultSecureObjectManager;
-import org.jpasecurity.entity.SecureObjectLoader;
-import org.jpasecurity.jpa.JpaBeanLoader;
-import org.jpasecurity.jpa.JpaSecurityUnit;
 import org.jpasecurity.mapping.MappingInformation;
 import org.jpasecurity.mapping.MappingInformationReceiver;
 import org.jpasecurity.persistence.mapping.OrmXmlParser;
@@ -50,7 +40,6 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
     private MappingInformation mappingInformation;
     private Configuration configuration;
     private boolean configurationInitialized;
-    private PersistenceUnitUtil securePersistenceUnitUtil;
 
     protected SecureEntityManagerFactory(EntityManagerFactory entityManagerFactory,
                                          PersistenceUnitInfo persistenceUnitInfo,
@@ -67,8 +56,7 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
             throw new IllegalArgumentException("configuration may not be null");
         }
         this.configuration = configuration;
-        SecurityUnit securityUnitInformation = new JpaSecurityUnit(persistenceUnitInfo);
-        OrmXmlParser jpaParser = new OrmXmlParser(securityUnitInformation,
+        OrmXmlParser jpaParser = new OrmXmlParser(persistenceUnitInfo,
                                                   configuration.getPropertyAccessStrategyFactory(),
                                                   configuration.getExceptionFactory());
         mappingInformation = jpaParser.parse();
@@ -77,14 +65,6 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
         if (properties != null) {
             persistenceProperties.putAll(properties);
         }
-        BeanLoader beanLoader = new JpaBeanLoader(entityManagerFactory.getPersistenceUnitUtil());
-        AbstractSecureObjectManager objectManager
-            = new DefaultSecureObjectManager(mappingInformation,
-                                             new DefaultBeanStore(),
-                                             new AlwaysPermittingAccessManager(),
-                                             configuration);
-        SecureObjectLoader secureObjectLoader = new DefaultSecureObjectLoader(beanLoader, objectManager);
-        securePersistenceUnitUtil = new SecurePersistenceUnitUtil(secureObjectLoader);
     }
 
     protected Configuration getConfiguration(Map<String, Object> persistenceProperties) {
@@ -109,7 +89,7 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
     }
 
     public PersistenceUnitUtil getPersistenceUnitUtil() {
-        return securePersistenceUnitUtil;
+        return getDelegate().getPersistenceUnitUtil();
     }
 
     protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, Object> properties) {

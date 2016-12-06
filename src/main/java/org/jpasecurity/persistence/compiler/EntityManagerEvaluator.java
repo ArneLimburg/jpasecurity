@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,11 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jpasecurity.AccessManager;
-import org.jpasecurity.entity.SecureObjectManager;
-import org.jpasecurity.jpa.JpaQuery;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.compiler.AbstractSubselectEvaluator;
 import org.jpasecurity.jpql.compiler.NotEvaluatableException;
@@ -51,23 +50,14 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
     private static final Log LOG = LogFactory.getLog(EntityManagerEvaluator.class);
 
     private final EntityManager entityManager;
-    private final SecureObjectManager objectManager;
     private final QueryPreparator queryPreparator;
     private final PathEvaluator pathEvaluator;
 
-    public EntityManagerEvaluator(EntityManager entityManager,
-                                  PathEvaluator pathEvaluator) {
-        this(entityManager, null, pathEvaluator);
-    }
-
-    public EntityManagerEvaluator(EntityManager entityManager,
-                                  SecureObjectManager objectManager,
-                                  PathEvaluator pathEvaluator) {
+    public EntityManagerEvaluator(EntityManager entityManager, PathEvaluator pathEvaluator) {
         if (pathEvaluator == null) {
             throw new IllegalArgumentException("PathEvaluator may not be null");
         }
         this.entityManager = entityManager;
-        this.objectManager = objectManager;
         this.queryPreparator = new QueryPreparator();
         this.pathEvaluator = pathEvaluator;
     }
@@ -113,24 +103,15 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
         String queryString = ((JpqlSubselect)statement.getStatement()).toJpqlString();
         LOG.info("executing query " + queryString);
         try {
-            JpaQuery query = new JpaQuery(entityManager.createQuery(queryString));
+            Query query = entityManager.createQuery(queryString);
             for (String namedParameter: statement.getNamedParameters()) {
-                if (objectManager == null) {
-                    query.setParameter(namedParameter, evaluationParameters.getNamedParameterValue(namedParameter));
-                } else {
-                    objectManager.setParameter(query, namedParameter,
-                        evaluationParameters.getNamedParameterValue(namedParameter));
-                }
+                query.setParameter(namedParameter, evaluationParameters.getNamedParameterValue(namedParameter));
             }
             for (Map.Entry<String, Object> namedParameter: namedParameterValues.entrySet()) {
-                if (objectManager == null) {
-                    query.setParameter(namedParameter.getKey(), namedParameter.getValue());
-                } else {
-                    objectManager.setParameter(query, namedParameter.getKey(), namedParameter.getValue());
-                }
+                query.setParameter(namedParameter.getKey(), namedParameter.getValue());
             }
             AccessManager.Instance.get().disableChecks();
-            List<?> result = query.getWrappedQuery().getResultList();
+            List<?> result = query.getResultList();
             AccessManager.Instance.get().enableChecks();
             evaluationParameters.setResult(result);
             return result;

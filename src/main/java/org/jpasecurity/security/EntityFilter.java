@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2012 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jpasecurity.AccessType;
+import org.jpasecurity.ExceptionFactory;
+import org.jpasecurity.configuration.AccessRule;
+import org.jpasecurity.configuration.SecurityContext;
+import org.jpasecurity.jpql.JpqlCompiledStatement;
+import org.jpasecurity.jpql.compiler.JpqlCompiler;
+import org.jpasecurity.jpql.compiler.NotEvaluatableException;
+import org.jpasecurity.jpql.compiler.QueryEvaluationParameters;
+import org.jpasecurity.jpql.compiler.QueryEvaluator;
+import org.jpasecurity.jpql.compiler.QueryPreparator;
+import org.jpasecurity.jpql.compiler.SubselectEvaluator;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import org.jpasecurity.jpql.parser.JpqlBrackets;
@@ -35,23 +48,8 @@ import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.JpqlPath;
 import org.jpasecurity.jpql.parser.JpqlStatement;
 import org.jpasecurity.jpql.parser.JpqlWhere;
-import org.jpasecurity.jpql.parser.ParseException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jpasecurity.AccessType;
-import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.configuration.AccessRule;
-import org.jpasecurity.configuration.SecurityContext;
-import org.jpasecurity.entity.SecureObjectCache;
-import org.jpasecurity.jpql.JpqlCompiledStatement;
-import org.jpasecurity.jpql.compiler.JpqlCompiler;
-import org.jpasecurity.jpql.compiler.NotEvaluatableException;
-import org.jpasecurity.jpql.compiler.QueryEvaluationParameters;
-import org.jpasecurity.jpql.compiler.QueryEvaluator;
-import org.jpasecurity.jpql.compiler.QueryPreparator;
-import org.jpasecurity.jpql.compiler.SubselectEvaluator;
 import org.jpasecurity.jpql.parser.Node;
+import org.jpasecurity.jpql.parser.ParseException;
 import org.jpasecurity.jpql.parser.SimpleNode;
 import org.jpasecurity.mapping.Alias;
 import org.jpasecurity.mapping.ClassMappingInformation;
@@ -76,15 +74,13 @@ public class EntityFilter {
     private final SecurityContext securityContext;
     private final JpqlParser parser;
     protected final JpqlCompiler compiler;
-    private final SecureObjectCache objectCache;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final QueryEvaluator queryEvaluator;
     private final QueryPreparator queryPreparator = new QueryPreparator();
     private final Collection<AccessRule> accessRules;
     private final ExceptionFactory exceptionFactory;
 
-    public EntityFilter(SecureObjectCache objectCache,
-                        MappingInformation mappingInformation,
+    public EntityFilter(MappingInformation mappingInformation,
                         SecurityContext securityContext,
                         ExceptionFactory exceptionFactory,
                         Collection<AccessRule> accessRules,
@@ -93,7 +89,6 @@ public class EntityFilter {
         this.securityContext = securityContext;
         this.parser = new JpqlParser();
         this.compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
-        this.objectCache = objectCache;
         this.queryEvaluator = new QueryEvaluator(compiler, exceptionFactory, evaluators);
         this.accessRules = accessRules;
         this.exceptionFactory = exceptionFactory;
@@ -332,8 +327,7 @@ public class EntityFilter {
                                                       Collections.EMPTY_MAP,
                                                       accessDefinition.getQueryParameters(),
                                                       Collections.EMPTY_MAP,
-                                                      queryEvaluator,
-                                                      objectCache);
+                                                      queryEvaluator);
         optimizer.optimize(accessDefinition.getAccessRules());
     }
 

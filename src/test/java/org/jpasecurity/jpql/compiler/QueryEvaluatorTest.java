@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.jpasecurity.jpql.compiler;
 
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.getCurrentArguments;
 import static org.easymock.EasyMock.replay;
@@ -26,19 +27,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.easymock.IAnswer;
-import org.jpasecurity.DefaultSecurityUnit;
 import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.SecurityUnit;
 import org.jpasecurity.configuration.DefaultExceptionFactory;
-import org.jpasecurity.entity.SecureObjectManager;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.parser.JpqlFrom;
 import org.jpasecurity.jpql.parser.JpqlGroupBy;
@@ -52,13 +49,13 @@ import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.jpasecurity.jpql.parser.JpqlWhere;
 import org.jpasecurity.jpql.parser.ParseException;
 import org.jpasecurity.mapping.Alias;
+import org.jpasecurity.mapping.ClassMappingInformation;
 import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.bean.JavaBeanSecurityUnitParser;
+import org.jpasecurity.mapping.Path;
+import org.jpasecurity.mapping.PropertyMappingInformation;
 import org.jpasecurity.model.ChildTestBean;
 import org.jpasecurity.model.MethodAccessTestBean;
 import org.jpasecurity.model.ParentTestBean;
-import org.jpasecurity.util.SetHashMap;
-import org.jpasecurity.util.SetMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,27 +79,87 @@ public class QueryEvaluatorTest {
     private Map<Alias, Object> aliases = new HashMap<Alias, Object>();
     private Map<String, Object> namedParameters = new HashMap<String, Object>();
     private Map<Integer, Object> positionalParameters = new HashMap<Integer, Object>();
-    private SetMap<Class<?>, Object> entities = new SetHashMap<Class<?>, Object>();
 
     @Before
     public void initialize() {
-        SecureObjectManager objectManager = createMock(SecureObjectManager.class);
-        expect(objectManager.getSecureObjects((Class<Object>)anyObject())).andAnswer(new IAnswer<Collection<Object>>() {
-            public Collection<Object> answer() throws Throwable {
-                return (Collection<Object>)entities.get(getCurrentArguments()[0]);
+        exceptionFactory = createMock(ExceptionFactory.class);
+        mappingInformation = createMock(MappingInformation.class);
+        expect(mappingInformation.containsClassMapping(MethodAccessTestBean.class.getSimpleName()))
+            .andReturn(true).anyTimes();
+        expect(mappingInformation.containsClassMapping(ChildTestBean.class.getSimpleName()))
+            .andReturn(true).anyTimes();
+        ClassMappingInformation methodAccessTestBeanMapping = createMock(ClassMappingInformation.class);
+        ClassMappingInformation childTestBeanMapping = createMock(ClassMappingInformation.class);
+        expect(mappingInformation.getClassMapping(MethodAccessTestBean.class.getSimpleName()))
+            .andReturn(methodAccessTestBeanMapping).anyTimes();
+        expect(mappingInformation.getClassMapping(MethodAccessTestBean.class))
+            .andReturn(methodAccessTestBeanMapping).anyTimes();
+        expect(mappingInformation.getClassMapping(ChildTestBean.class.getSimpleName()))
+            .andReturn(childTestBeanMapping).anyTimes();
+        expect(mappingInformation.getClassMapping(ChildTestBean.class))
+            .andReturn(childTestBeanMapping).anyTimes();
+        expect(mappingInformation.getClassMapping(ParentTestBean.class))
+            .andThrow(new IllegalStateException("Mapping not found")).anyTimes();
+        expect(mappingInformation.isMapPath(eq(new Path("bean.related")), anyObject(Set.class)))
+            .andReturn(true).anyTimes();
+        expect(mappingInformation.isMapPath(eq(new Path("bean.parent")), anyObject(Set.class)))
+            .andReturn(false).anyTimes();
+        expect(mappingInformation.getKeyType(eq(new Path("bean.related")), anyObject(Set.class)))
+            .andReturn((Class)MethodAccessTestBean.class).anyTimes();
+        expect(mappingInformation.getType(eq(new Path("bean.parent")), anyObject(Set.class)))
+            .andReturn(MethodAccessTestBean.class).anyTimes();
+        expect(mappingInformation.getType(eq(new Path("bean.related")), anyObject(Set.class)))
+            .andReturn((Class)MethodAccessTestBean.class).anyTimes();
+        expect(methodAccessTestBeanMapping.getEntityType()).andReturn((Class)MethodAccessTestBean.class).anyTimes();
+        expect(childTestBeanMapping.getEntityType()).andReturn((Class)ChildTestBean.class).anyTimes();
+        PropertyMappingInformation idPropertyMapping = createMock(PropertyMappingInformation.class);
+        PropertyMappingInformation namePropertyMapping = createMock(PropertyMappingInformation.class);
+        PropertyMappingInformation parentPropertyMapping = createMock(PropertyMappingInformation.class);
+        PropertyMappingInformation childrenPropertyMapping = createMock(PropertyMappingInformation.class);
+        PropertyMappingInformation relatedPropertyMapping = createMock(PropertyMappingInformation.class);
+        expect(methodAccessTestBeanMapping.containsPropertyMapping("id")).andReturn(true).anyTimes();
+        expect(methodAccessTestBeanMapping.containsPropertyMapping("name")).andReturn(true).anyTimes();
+        expect(methodAccessTestBeanMapping.containsPropertyMapping("parent")).andReturn(true).anyTimes();
+        expect(methodAccessTestBeanMapping.containsPropertyMapping("children")).andReturn(true).anyTimes();
+        expect(methodAccessTestBeanMapping.containsPropertyMapping("related")).andReturn(true).anyTimes();
+        expect(methodAccessTestBeanMapping.getPropertyMapping("id")).andReturn(idPropertyMapping).anyTimes();
+        expect(methodAccessTestBeanMapping.getPropertyMapping("name")).andReturn(namePropertyMapping).anyTimes();
+        expect(methodAccessTestBeanMapping.getPropertyMapping("parent")).andReturn(parentPropertyMapping).anyTimes();
+        expect(methodAccessTestBeanMapping.getPropertyMapping("children"))
+            .andReturn(childrenPropertyMapping).anyTimes();
+        expect(methodAccessTestBeanMapping.getPropertyMapping("related")).andReturn(relatedPropertyMapping).anyTimes();
+        expect(idPropertyMapping.getPropertyValue(anyObject())).andAnswer(new IAnswer<Object>() {
+            public Object answer() throws Throwable {
+                return ((MethodAccessTestBean)getCurrentArguments()[0]).getId();
             }
         }).anyTimes();
-        exceptionFactory = createMock(ExceptionFactory.class);
-        replay(objectManager, exceptionFactory);
-        SecurityUnit securityUnit = new DefaultSecurityUnit("test");
-        securityUnit.getManagedClassNames().add(MethodAccessTestBean.class.getName());
-        securityUnit.getManagedClassNames().add(ChildTestBean.class.getName());
-        mappingInformation = new JavaBeanSecurityUnitParser(securityUnit).parse();
+        expect(namePropertyMapping.getPropertyValue(anyObject())).andAnswer(new IAnswer<Object>() {
+            public Object answer() throws Throwable {
+                return ((MethodAccessTestBean)getCurrentArguments()[0]).getName();
+            }
+        }).anyTimes();
+        expect(parentPropertyMapping.getPropertyValue(anyObject())).andAnswer(new IAnswer<Object>() {
+            public Object answer() throws Throwable {
+                return ((MethodAccessTestBean)getCurrentArguments()[0]).getParent();
+            }
+        }).anyTimes();
+        expect(childrenPropertyMapping.getPropertyValue(anyObject())).andAnswer(new IAnswer<Object>() {
+            public Object answer() throws Throwable {
+                return ((MethodAccessTestBean)getCurrentArguments()[0]).getChildren();
+            }
+        }).anyTimes();
+        expect(relatedPropertyMapping.getPropertyValue(anyObject())).andAnswer(new IAnswer<Object>() {
+            public Object answer() throws Throwable {
+                return ((MethodAccessTestBean)getCurrentArguments()[0]).getRelated();
+            }
+        }).anyTimes();
+        replay(exceptionFactory, mappingInformation, methodAccessTestBeanMapping, childTestBeanMapping,
+               idPropertyMapping, namePropertyMapping, parentPropertyMapping, childrenPropertyMapping,
+               relatedPropertyMapping);
         parser = new JpqlParser();
         compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
         SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator(exceptionFactory);
-        SubselectEvaluator objectCacheEvaluator = new ObjectCacheSubselectEvaluator(objectManager, exceptionFactory);
-        queryEvaluator = new QueryEvaluator(compiler, exceptionFactory, simpleSubselectEvaluator, objectCacheEvaluator);
+        queryEvaluator = new QueryEvaluator(compiler, exceptionFactory, simpleSubselectEvaluator);
         parameters = new QueryEvaluationParameters(mappingInformation, aliases, namedParameters, positionalParameters);
     }
 
@@ -111,7 +168,6 @@ public class QueryEvaluatorTest {
         aliases.clear();
         namedParameters.clear();
         positionalParameters.clear();
-        entities.clear();
     }
 
     @Test
@@ -261,7 +317,6 @@ public class QueryEvaluatorTest {
         JpqlCompiledStatement statement = compile(SELECT + "WHERE bean = " + "CASE bean.name WHEN :name THEN bean "
                                                   + "WHEN :name2 THEN bean ELSE NULL END");
         MethodAccessTestBean bean = new MethodAccessTestBean("test1");
-        entities.put(MethodAccessTestBean.class, Collections.<Object> singleton(bean));
         aliases.put(new Alias("bean"), bean);
 
         //first is true, second is false
@@ -334,7 +389,6 @@ public class QueryEvaluatorTest {
         MethodAccessTestBean wrongChild = new MethodAccessTestBean("wrongChild");
         wrongBean.getRelated().put(wrongChild, null);
         wrongChild.setParent(wrongBean);
-        entities.put(MethodAccessTestBean.class, new HashSet<Object>(Arrays.asList(bean, wrongBean)));
         aliases.put(new Alias("b"), bean);
         namedParameters.put("beanName", "test");
 
@@ -365,7 +419,6 @@ public class QueryEvaluatorTest {
         MethodAccessTestBean wrongChild = new MethodAccessTestBean("wrongChild");
         wrongBean.getRelated().put(null, wrongChild);
         wrongChild.setParent(wrongBean);
-        entities.put(MethodAccessTestBean.class, new HashSet<Object>(Arrays.asList(bean, wrongBean)));
         aliases.put(new Alias("b"), bean);
         namedParameters.put("beanName", "test");
 
@@ -424,7 +477,6 @@ public class QueryEvaluatorTest {
                                                   + " OR TYPE(:bean) = MethodAccessTestBean");
         MethodAccessTestBean bean = new MethodAccessTestBean("test");
         ChildTestBean wrongBean = new ChildTestBean();
-        entities.put(MethodAccessTestBean.class, Collections.<Object> singleton(bean));
         aliases.put(new Alias("bean"), bean);
 
         //both are true
@@ -453,7 +505,6 @@ public class QueryEvaluatorTest {
         JpqlCompiledStatement statement = compile(SELECT + "WHERE bean = " + "CASE WHEN bean.name = :name THEN bean "
                                                   + "WHEN bean.id = ?1 THEN bean ELSE NULL END");
         MethodAccessTestBean bean = new MethodAccessTestBean("test1");
-        entities.put(MethodAccessTestBean.class, Collections.<Object> singleton(bean));
         aliases.put(new Alias("bean"), bean);
 
         //first is true, second is false
@@ -520,7 +571,6 @@ public class QueryEvaluatorTest {
                       + " WHERE bean.name = COALESCE(parent.name, KEY(related).name, VALUE(related).name, b.name)");
         MethodAccessTestBean bean = new MethodAccessTestBean();
         MethodAccessTestBean b = new MethodAccessTestBean();
-        entities.put(MethodAccessTestBean.class, Collections.<Object> singleton(bean));
         aliases.put(new Alias("bean"), bean);
         aliases.put(new Alias("b"), b);
         aliases.put(new Alias("parent"), null);
@@ -895,21 +945,14 @@ public class QueryEvaluatorTest {
     @Test
     public void evaluateExists() throws Exception {
         JpqlCompiledStatement statement = compile(SELECT + "WHERE EXISTS (" + SELECT.replace("bean", "bean1")
-                                                  + "WHERE bean1.parent = bean)");
+                                                  + "WHERE bean1 = bean AND bean1.parent IS NOT NULL)");
         MethodAccessTestBean parent = new MethodAccessTestBean("test1");
         MethodAccessTestBean child = new MethodAccessTestBean("test2");
         child.setParent(parent);
 
         aliases.put(new Alias("bean"), parent);
-        entities.getNotNull(MethodAccessTestBean.class).clear();
-        try {
-            queryEvaluator.evaluate(statement.getWhereClause(), parameters);
-            fail();
-        } catch (NotEvaluatableException e) {
-            //expected
-        }
-
-        entities.add(MethodAccessTestBean.class, child);
+        assertFalse(evaluate(statement.getWhereClause(), parameters));
+        aliases.put(new Alias("bean"), child);
         assertTrue(evaluate(statement.getWhereClause(), parameters));
     }
 

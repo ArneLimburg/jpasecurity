@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.jpasecurity.SecurityUnit;
-import org.jpasecurity.jpa.JpaSecurityUnit;
 import org.jpasecurity.mapping.MappingInformation;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.persistence.mapping.OrmXmlParser;
@@ -150,8 +148,7 @@ public class NamedQueryTest {
     private MappingInformation parseOrmFile(String ormFileName) {
         DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
         persistenceUnitInfo.getMappingFileNames().add(ormFileName);
-        SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
-        return new OrmXmlParser(securityUnit, new JpaExceptionFactory()).parse();
+        return new OrmXmlParser(persistenceUnitInfo, new JpaExceptionFactory()).parse();
     }
 
     @After

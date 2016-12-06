@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,10 +40,6 @@ public class SecurePersistenceProvider implements PersistenceProvider {
 
     public static final String PERSISTENCE_PROVIDER_PROPERTY = "javax.persistence.provider";
     public static final String NATIVE_PERSISTENCE_PROVIDER_PROPERTY = "org.jpasecurity.persistence.provider";
-    public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY
-        = "org.jpasecurity.persistence.provider.type";
-    public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_LIGHT = "light";
-    public static final String SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT = "default";
     private static final String ECLIPSELINK_PERSISTENCE_PROVIDER = "org.eclipse.persistence.jpa.PersistenceProvider";
     private static final String SECURE_ECLIPSELINK_PERSISTENCE_PROVIDER
         = "org.jpasecurity.persistence.eclipselink.PersistenceProvider";
@@ -120,18 +116,10 @@ public class SecurePersistenceProvider implements PersistenceProvider {
                                                                  PersistenceUnitInfo persistenceUnitInfo,
                                                                  Map<String, Object> properties,
                                                                  Configuration configuration) {
-        String persistenceUnitType = getPersistenceUnitTypeProperty(persistenceUnitInfo, properties);
-        if (SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT.equals(persistenceUnitType)) {
-            return new SecureEntityManagerFactory(nativeEntityManagerFactory,
-                                                  persistenceUnitInfo,
-                                                  properties,
-                                                  configuration);
-        } else {
-            return new LightSecureEntityManagerFactory(nativeEntityManagerFactory,
-                                                       persistenceUnitInfo,
-                                                       properties,
-                                                       configuration);
-        }
+        return new SecureEntityManagerFactory(nativeEntityManagerFactory,
+                                              persistenceUnitInfo,
+                                              properties,
+                                              configuration);
     }
 
     private PersistenceUnitInfo createPersistenceUnitInfo(String persistenceUnitName) {
@@ -168,20 +156,6 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             properties = new HashMap<String, String>(properties);
             properties.put(PERSISTENCE_PROVIDER_PROPERTY, persistenceProvider.getClass().getName());
             return properties;
-        }
-    }
-
-    private String getPersistenceUnitTypeProperty(PersistenceUnitInfo persistenceUnitInfo,
-                                                  Map<String, Object> properties) {
-        Object property = properties.get(SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY);
-        if (property != null) {
-            return property.toString();
-        }
-        property = (String)persistenceUnitInfo.getProperties().get(SECURE_PERSISTENCE_PROVIDER_TYPE_PROPERTY);
-        if (SECURE_PERSISTENCE_PROVIDER_TYPE_LIGHT.equals(property)) {
-            return SECURE_PERSISTENCE_PROVIDER_TYPE_LIGHT;
-        } else {
-            return SECURE_PERSISTENCE_PROVIDER_TYPE_DEFAULT;
         }
     }
 

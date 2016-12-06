@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Stefan Hildebrandt
+ * Copyright 2011 - 2016 Stefan Hildebrandt, Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,6 @@ import java.util.Set;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.SecurityUnit;
-import org.jpasecurity.jpa.JpaSecurityUnit;
 import org.jpasecurity.mapping.AbstractSecurityUnitParser;
 import org.jpasecurity.mapping.Alias;
 import org.jpasecurity.mapping.MappingInformation;
@@ -153,9 +151,8 @@ public class AclValueIteratorTest {
         persistenceUnitInfo.getManagedClassNames().add(Acl.class.getName());
         persistenceUnitInfo.getManagedClassNames().add(AclEntry.class.getName());
         persistenceUnitInfo.getManagedClassNames().add(User.class.getName());
-        SecurityUnit securityUnit = new JpaSecurityUnit(persistenceUnitInfo);
         ExceptionFactory exceptionFactory = new JpaExceptionFactory();
-        AbstractSecurityUnitParser parser = new OrmXmlParser(securityUnit, exceptionFactory);
+        AbstractSecurityUnitParser parser = new OrmXmlParser(persistenceUnitInfo, exceptionFactory);
         final MappingInformation mappingInformation = parser.parse();
         return new MappedPathEvaluator(mappingInformation, exceptionFactory);
     }
