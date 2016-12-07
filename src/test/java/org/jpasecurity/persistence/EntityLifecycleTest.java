@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import javax.persistence.Persistence;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.model.acl.Group;
 import org.jpasecurity.model.acl.User;
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -380,12 +380,12 @@ public class EntityLifecycleTest {
 
     @Before
     public void login() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
     }
 
     @After
     public void logout() {
-        TestAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 
     @After

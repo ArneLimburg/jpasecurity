@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import javax.persistence.Query;
 
 import org.jpasecurity.model.MethodAccessAnnotationTestBean;
 import org.jpasecurity.model.acl.PrivilegeType;
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -77,14 +77,14 @@ public class QueryTest {
             = Persistence.createEntityManagerFactory("annotation-based-method-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
-        TestAuthenticationProvider.authenticate("root", "admin");
+        TestSecurityContext.authenticate("root", "admin");
         ParentChildTestData testData = new ParentChildTestData(entityManager);
         MethodAccessAnnotationTestBean child1 = testData.createPermutations(USER1, USER2).iterator().next();
         MethodAccessAnnotationTestBean parent1 = (MethodAccessAnnotationTestBean)child1.getParent();
         entityManager.getTransaction().commit();
         entityManager.close();
 
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         List<Object[]> result
@@ -96,7 +96,7 @@ public class QueryTest {
         entityManager.getTransaction().commit();
         entityManager.close();
         entityManagerFactory.close();
-        TestAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 
     @Test
@@ -105,13 +105,13 @@ public class QueryTest {
             = Persistence.createEntityManagerFactory("annotation-based-method-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
-        TestAuthenticationProvider.authenticate("root", "admin");
+        TestSecurityContext.authenticate("root", "admin");
         ParentChildTestData testData = new ParentChildTestData(entityManager);
         MethodAccessAnnotationTestBean child1 = testData.createPermutations(USER1, USER2).iterator().next();
         entityManager.getTransaction().commit();
         entityManager.close();
 
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         List<MethodAccessAnnotationTestBean> result
@@ -125,6 +125,6 @@ public class QueryTest {
         entityManager.getTransaction().commit();
         entityManager.close();
         entityManagerFactory.close();
-        TestAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.TypeDefinition;
+import org.jpasecurity.Alias;
+import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.util.ListHashMap;
 import org.jpasecurity.util.ListMap;
 import org.jpasecurity.util.SetMap;

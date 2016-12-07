@@ -21,28 +21,34 @@ import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.Query;
+import javax.persistence.metamodel.BasicType;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.PluralAttribute;
+import javax.persistence.metamodel.SingularAttribute;
 
 import org.easymock.IAnswer;
 import org.jpasecurity.AccessManager;
-import org.jpasecurity.ExceptionFactory;
+import org.jpasecurity.Alias;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.JpqlStatement;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.jpasecurity.jpql.parser.Node;
 import org.jpasecurity.jpql.parser.ParseException;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.ClassMappingInformation;
-import org.jpasecurity.mapping.MappingInformation;
 import org.jpasecurity.model.ChildTestBean;
 import org.jpasecurity.model.MethodAccessTestBean;
-import org.jpasecurity.persistence.compiler.EntityManagerEvaluator;
+import org.jpasecurity.model.ParentTestBean;
+import org.jpasecurity.persistence.EntityManagerEvaluator;
 import org.jpasecurity.util.SetHashMap;
 import org.jpasecurity.util.SetMap;
 import org.junit.After;
@@ -55,14 +61,10 @@ public class EntityManagerEvaluatorTest {
     private static final String SELECT = "SELECT bean FROM MethodAccessTestBean bean ";
 
     private AccessManager accessManager;
-    private MappingInformation mappingInformation;
+    private Metamodel metamodel;
     private JpqlParser parser;
     private JpqlCompiler compiler;
-    private ExceptionFactory exceptionFactory;
-    private QueryEvaluationParameters isAccessibleParameters;
-    private QueryEvaluationParameters isAccessibleParametersInMemoryParameters;
-    private QueryEvaluationParameters optimizeParameters;
-    private QueryEvaluationParameters getAlwaysEvaluatableResultParameters;
+    private QueryEvaluationParameters parameters;
     private Map<Alias, Object> aliases = new HashMap<Alias, Object>();
     private Map<String, Object> namedParameters = new HashMap<String, Object>();
     private Map<Integer, Object> positionalParameters = new HashMap<Integer, Object>();
@@ -70,23 +72,68 @@ public class EntityManagerEvaluatorTest {
     private EntityManagerEvaluator entityManagerEvaluator;
 
     @Before
-    public void initialize() {
-        exceptionFactory = createMock(ExceptionFactory.class);
-        mappingInformation = createMock(MappingInformation.class);
-        expect(mappingInformation.containsClassMapping(MethodAccessTestBean.class.getSimpleName()))
-            .andReturn(true).anyTimes();
-        expect(mappingInformation.containsClassMapping(ChildTestBean.class.getSimpleName()))
-            .andReturn(true).anyTimes();
-        ClassMappingInformation methodAccessTestBeanMapping = createMock(ClassMappingInformation.class);
-        ClassMappingInformation childTestBeanMapping = createMock(ClassMappingInformation.class);
-        expect(mappingInformation.getClassMapping(MethodAccessTestBean.class.getSimpleName()))
-            .andReturn(methodAccessTestBeanMapping).anyTimes();
-        expect(mappingInformation.getClassMapping(ChildTestBean.class.getSimpleName()))
-            .andReturn(childTestBeanMapping).anyTimes();
-        expect(methodAccessTestBeanMapping.getEntityType()).andReturn((Class)MethodAccessTestBean.class).anyTimes();
-        expect(childTestBeanMapping.getEntityType()).andReturn((Class)ChildTestBean.class).anyTimes();
+    public void initialize() throws NoSuchMethodException {
+        metamodel = createMock(Metamodel.class);
+        PersistenceUnitUtil persistenceUnitUtil = createMock(PersistenceUnitUtil.class);
+
+        EntityType methodAccessTestBeanType = createMock(EntityType.class);
+        EntityType childTestBeanType = createMock(EntityType.class);
+        BasicType intType = createMock(BasicType.class);
+        BasicType stringType = createMock(BasicType.class);
+        SingularAttribute idAttribute = createMock(SingularAttribute.class);
+        SingularAttribute nameAttribute = createMock(SingularAttribute.class);
+        SingularAttribute parentAttribute = createMock(SingularAttribute.class);
+        PluralAttribute childrenAttribute = createMock(PluralAttribute.class);
+        PluralAttribute relatedAttribute = createMock(PluralAttribute.class);
+        expect(metamodel.getEntities()).andReturn(new HashSet<EntityType<?>>(Arrays.<EntityType<?>>asList(
+                methodAccessTestBeanType, childTestBeanType))).anyTimes();
+        expect(metamodel.entity(MethodAccessTestBean.class)).andReturn(methodAccessTestBeanType).anyTimes();
+        expect(metamodel.managedType(MethodAccessTestBean.class)).andReturn(methodAccessTestBeanType).anyTimes();
+        expect(metamodel.entity(ChildTestBean.class)).andReturn(childTestBeanType).anyTimes();
+        expect(metamodel.managedType(ChildTestBean.class)).andReturn(childTestBeanType).anyTimes();
+        expect(metamodel.managedType(ParentTestBean.class))
+            .andThrow(new IllegalArgumentException("managed type not found"));
+        expect(metamodel.embeddable(ParentTestBean.class))
+            .andThrow(new IllegalArgumentException("embeddable not found"));
+        expect(methodAccessTestBeanType.getName()).andReturn(MethodAccessTestBean.class.getSimpleName()).anyTimes();
+        expect(methodAccessTestBeanType.getJavaType()).andReturn((Class)MethodAccessTestBean.class).anyTimes();
+        expect(methodAccessTestBeanType.getAttributes()).andReturn(new HashSet(Arrays.asList(
+                idAttribute, nameAttribute, parentAttribute, childrenAttribute, relatedAttribute))).anyTimes();
+        expect(methodAccessTestBeanType.getAttribute("id")).andReturn(idAttribute).anyTimes();
+        expect(methodAccessTestBeanType.getAttribute("name")).andReturn(nameAttribute).anyTimes();
+        expect(methodAccessTestBeanType.getAttribute("parent")).andReturn(parentAttribute).anyTimes();
+        expect(methodAccessTestBeanType.getAttribute("children")).andReturn(childrenAttribute).anyTimes();
+        expect(methodAccessTestBeanType.getAttribute("related")).andReturn(relatedAttribute).anyTimes();
+        expect(childTestBeanType.getName()).andReturn(ChildTestBean.class.getSimpleName()).anyTimes();
+        expect(childTestBeanType.getJavaType()).andReturn((Class)ChildTestBean.class).anyTimes();
+        expect(idAttribute.getName()).andReturn("id").anyTimes();
+        expect(idAttribute.isCollection()).andReturn(false).anyTimes();
+        expect(idAttribute.getType()).andReturn(intType).anyTimes();
+        expect(idAttribute.getJavaMember()).andReturn(MethodAccessTestBean.class.getDeclaredMethod("getId")).anyTimes();
+        expect(nameAttribute.getName()).andReturn("name").anyTimes();
+        expect(nameAttribute.isCollection()).andReturn(false).anyTimes();
+        expect(nameAttribute.getType()).andReturn(stringType).anyTimes();
+        expect(nameAttribute.getJavaMember())
+            .andReturn(MethodAccessTestBean.class.getDeclaredMethod("getName")).anyTimes();
+        expect(parentAttribute.getName()).andReturn("parent").anyTimes();
+        expect(parentAttribute.isCollection()).andReturn(false).anyTimes();
+        expect(parentAttribute.getType()).andReturn(methodAccessTestBeanType).anyTimes();
+        expect(parentAttribute.getJavaMember())
+            .andReturn(MethodAccessTestBean.class.getDeclaredMethod("getParent")).anyTimes();
+        expect(childrenAttribute.getName()).andReturn("children").anyTimes();
+        expect(childrenAttribute.isCollection()).andReturn(true).anyTimes();
+        expect(childrenAttribute.getElementType()).andReturn(methodAccessTestBeanType).anyTimes();
+        expect(childrenAttribute.getJavaMember())
+            .andReturn(MethodAccessTestBean.class.getDeclaredMethod("getChildren")).anyTimes();
+        expect(relatedAttribute.getName()).andReturn("related").anyTimes();
+        expect(relatedAttribute.isCollection()).andReturn(true).anyTimes();
+        expect(relatedAttribute.getElementType()).andReturn(methodAccessTestBeanType).anyTimes();
+        expect(relatedAttribute.getJavaMember())
+            .andReturn(MethodAccessTestBean.class.getDeclaredMethod("getRelated")).anyTimes();
+        replay(metamodel, methodAccessTestBeanType, childTestBeanType, stringType, idAttribute, nameAttribute,
+                parentAttribute, childrenAttribute, relatedAttribute);
         parser = new JpqlParser();
-        compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
+        compiler = new JpqlCompiler(metamodel);
         final EntityManager entityManagerMock = createMock(EntityManager.class);
         expect(entityManagerMock.isOpen()).andReturn(true).anyTimes();
         expect(entityManagerMock.createQuery(
@@ -100,20 +147,13 @@ public class EntityManagerEvaluatorTest {
                     return mock;
                 }
             }).anyTimes();
-        replay(entityManagerMock, mappingInformation, methodAccessTestBeanMapping, childTestBeanMapping);
+        replay(entityManagerMock, persistenceUnitUtil);
         entityManagerEvaluator = new EntityManagerEvaluator(entityManagerMock, createMock(PathEvaluator.class));
-        isAccessibleParameters =
-            new QueryEvaluationParameters(mappingInformation, aliases, namedParameters, positionalParameters, false,
-                QueryEvaluationParameters.EvaluationType.ACCESS_CHECK);
-        isAccessibleParametersInMemoryParameters =
-            new QueryEvaluationParameters(mappingInformation, aliases, namedParameters, positionalParameters, true,
-                QueryEvaluationParameters.EvaluationType.ACCESS_CHECK);
-        optimizeParameters =
-            new QueryEvaluationParameters(mappingInformation, aliases, namedParameters, positionalParameters, false,
-                QueryEvaluationParameters.EvaluationType.OPTIMIZE_QUERY);
-        getAlwaysEvaluatableResultParameters =
-            new QueryEvaluationParameters(mappingInformation, aliases, namedParameters, positionalParameters, false,
-                QueryEvaluationParameters.EvaluationType.GET_ALWAYS_EVALUATABLE_RESULT);
+        parameters = new QueryEvaluationParameters(metamodel,
+                                                   persistenceUnitUtil,
+                                                   aliases,
+                                                   namedParameters,
+                                                   positionalParameters);
 
         accessManager = createNiceMock(AccessManager.class);
         replay(accessManager);
@@ -135,36 +175,7 @@ public class EntityManagerEvaluatorTest {
                 + "WHERE EXISTS (SELECT innerBean "
                 + " FROM MethodAccessTestBean innerBean"
                 + " WHERE bean.parent=innerBean)");
-        entityManagerEvaluator.evaluate(jpqlCompiledStatement, isAccessibleParameters);
-    }
-
-    @Test
-    public void evaluateSubSelectSimpleEvaluatorDisabledByHint() throws Exception {
-        final JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
-            SELECT
-                + "WHERE EXISTS " + "(SELECT /* IS_ACCESSIBLE_NODB */ innerBean "
-                + " FROM MethodAccessTestBean innerBean"
-                + " WHERE innerBean=bean)");
-        try {
-            entityManagerEvaluator.evaluate(jpqlCompiledStatement, isAccessibleParameters);
-        } catch (NotEvaluatableException e) {
-            Assert.assertEquals("EntityManagerEvaluator is disabled by IS_ACCESSIBLE_NODB hint in mode ACCESS_CHECK",
-                e.getMessage());
-        }
-    }
-
-    @Test
-    public void evaluateSubSelectSimpleEvaluatorDisabledByInMemory() throws Exception {
-        final JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
-            SELECT
-                + "WHERE EXISTS " + "(SELECT innerBean "
-                + " FROM MethodAccessTestBean innerBean"
-                + " WHERE innerBean=bean)");
-        try {
-            entityManagerEvaluator.evaluate(jpqlCompiledStatement, isAccessibleParametersInMemoryParameters);
-        } catch (NotEvaluatableException e) {
-            Assert.assertEquals("Only in memory evaluation", e.getMessage());
-        }
+        entityManagerEvaluator.evaluate(jpqlCompiledStatement, parameters);
     }
 
     @Test
@@ -176,19 +187,7 @@ public class EntityManagerEvaluatorTest {
                 + " WHERE innerBean=bean)");
         Assert.assertTrue(
             entityManagerEvaluator.canEvaluate((JpqlSubselect)jpqlCompiledStatement.getStatement(),
-                isAccessibleParameters));
-    }
-
-    @Test
-    public void evaluateSubselectCanEvaluateIsAccessibleInMemory() throws Exception {
-        final JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
-            SELECT
-                + "WHERE EXISTS (SELECT innerBean "
-                + " FROM MethodAccessTestBean innerBean"
-                + " WHERE innerBean=bean)");
-        Assert.assertFalse(
-            entityManagerEvaluator.canEvaluate((JpqlSubselect)jpqlCompiledStatement.getStatement(),
-                isAccessibleParametersInMemoryParameters));
+                parameters));
     }
 
     @Test
@@ -200,79 +199,7 @@ public class EntityManagerEvaluatorTest {
                 + " WHERE innerBean=bean)");
         Assert.assertFalse(
             entityManagerEvaluator.canEvaluate((JpqlSubselect)jpqlCompiledStatement.getStatement(),
-                isAccessibleParameters));
-    }
-
-    @Test
-    public void evaluateSubselectCanEvaluateOptimize() throws Exception {
-        final JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
-            SELECT
-                + "WHERE EXISTS " + "(SELECT innerBean "
-                + " FROM MethodAccessTestBean innerBean"
-                + " WHERE innerBean=bean)");
-        Assert.assertFalse(
-            entityManagerEvaluator.canEvaluate((JpqlSubselect)jpqlCompiledStatement.getStatement(),
-                optimizeParameters));
-    }
-
-    @Test
-    public void evaluateSubselectCanEvaluateOptimizeNoDbAccessHint() throws Exception {
-        final JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
-            SELECT
-                + "WHERE EXISTS " + "(SELECT /* IS_ACCESSIBLE_NODB */ innerBean "
-                + " FROM MethodAccessTestBean innerBean"
-                + " WHERE innerBean=bean)");
-        Assert.assertFalse(
-            entityManagerEvaluator.canEvaluate((JpqlSubselect)jpqlCompiledStatement.getStatement(),
-                optimizeParameters));
-    }
-
-    @Test
-    public void evaluateSubselectCanEvaluateGetAlwaysEvaluatableResultParameters() throws Exception {
-        final JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
-            SELECT
-                + "WHERE EXISTS " + "(SELECT innerBean "
-                + " FROM MethodAccessTestBean innerBean"
-                + " WHERE innerBean=bean)");
-        Assert.assertFalse(
-            entityManagerEvaluator.canEvaluate((JpqlSubselect)jpqlCompiledStatement.getStatement(),
-                getAlwaysEvaluatableResultParameters));
-    }
-
-    @Test
-    public void evaluateSubselectCanEvaluateGetAlwaysEvaluatableResultParametersNoDbAccessHint() throws Exception {
-        final JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
-            SELECT
-                + "WHERE EXISTS " + "(SELECT /* IS_ACCESSIBLE_NODB */ innerBean "
-                + " FROM MethodAccessTestBean innerBean"
-                + " WHERE innerBean=bean)");
-        Assert.assertFalse(
-            entityManagerEvaluator.canEvaluate((JpqlSubselect)jpqlCompiledStatement.getStatement(),
-                getAlwaysEvaluatableResultParameters));
-    }
-
-    @Test
-    public void evaluateSubselectNoExists() throws Exception {
-        final JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
-            SELECT
-                + "WHERE bean IN " + "(SELECT innerBean "
-                + " FROM MethodAccessTestBean innerBean"
-                + " WHERE innerBean=bean)");
-        Assert.assertFalse(
-            entityManagerEvaluator.canEvaluate((JpqlSubselect)jpqlCompiledStatement.getStatement(),
-                getAlwaysEvaluatableResultParameters));
-    }
-
-    @Test
-    public void evaluateSubselectNoExistsNoDbAccessHint() throws Exception {
-        final JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
-            SELECT
-                + "WHERE bean IN " + "(SELECT /* IS_ACCESSIBLE_NODB */ innerBean "
-                + " FROM MethodAccessTestBean innerBean"
-                + " WHERE innerBean=bean)");
-        Assert.assertFalse(
-            entityManagerEvaluator.canEvaluate((JpqlSubselect)jpqlCompiledStatement.getStatement(),
-                getAlwaysEvaluatableResultParameters));
+                parameters));
     }
 
     private JpqlCompiledStatement getCompiledSubselect(String query) throws ParseException {

@@ -32,16 +32,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
-import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.configuration.Configuration;
+import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import org.jpasecurity.jpql.compiler.PathEvaluator;
 import org.jpasecurity.jpql.compiler.SimpleSubselectEvaluator;
 import org.jpasecurity.jpql.compiler.SubselectEvaluator;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.persistence.compiler.EntityManagerEvaluator;
 import org.jpasecurity.persistence.security.CriteriaEntityFilter;
 import org.jpasecurity.persistence.security.CriteriaFilterResult;
+import org.jpasecurity.security.AccessRule;
+import org.jpasecurity.security.DefaultAccessManager;
 import org.jpasecurity.security.FilterResult;
 
 /**
@@ -54,30 +53,26 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     private static final Log LOG = LogFactory.getLog(DefaultSecureEntityManager.class);
 
     private SecureEntityManagerFactory entityManagerFactory;
-    private MappingInformation mappingInformation;
     private AccessManager accessManager;
     private CriteriaEntityFilter entityFilter;
 
     protected DefaultSecureEntityManager(SecureEntityManagerFactory parent,
                                          EntityManager entityManager,
-                                         Configuration configuration,
-                                         MappingInformation mapping) {
+                                         SecurityContext securityContext,
+                                         Collection<AccessRule> accessRules) {
         super(entityManager);
         entityManagerFactory = parent;
-        this.mappingInformation = mapping;
-        ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
-        PathEvaluator pathEvaluator = new MappedPathEvaluator(mappingInformation, exceptionFactory);
-        SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator(exceptionFactory);
+        PathEvaluator pathEvaluator = new MappedPathEvaluator(parent.getMetamodel(), parent.getPersistenceUnitUtil());
+        SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator();
         SubselectEvaluator entityManagerEvaluator
             = new EntityManagerEvaluator(entityManager, pathEvaluator);
-        this.entityFilter = new CriteriaEntityFilter(mappingInformation,
-                                                     configuration.getSecurityContext(),
+        this.entityFilter = new CriteriaEntityFilter(parent.getMetamodel(),
+                                                     parent.getPersistenceUnitUtil(),
                                                      entityManager.getCriteriaBuilder(),
-                                                     exceptionFactory,
-                                                     configuration.getAccessRulesProvider().getAccessRules(),
+                                                     accessRules,
                                                      simpleSubselectEvaluator,
                                                      entityManagerEvaluator);
-        this.accessManager = configuration.createAccessManager(mapping, entityFilter);
+        this.accessManager = new DefaultAccessManager(getMetamodel(), securityContext, entityFilter);
         AccessManager.Instance.register(accessManager);
     }
 
@@ -177,28 +172,20 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
 
     public Query createNamedQuery(String name) {
         AccessManager.Instance.register(accessManager);
-        String namedQuery = mappingInformation.getNamedQuery(name);
+        String namedQuery = entityManagerFactory.getNamedQuery(name);
         if (namedQuery != null) {
             return createQuery(namedQuery);
         }
-        String namedNativeQuery = mappingInformation.getNamedNativeQuery(name);
-        if (namedNativeQuery != null) {
-            return super.createNamedQuery(name);
-        }
-        throw new IllegalArgumentException("No named query with name " + name);
+        return super.createNamedQuery(name); // must be named native query
     }
 
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
         AccessManager.Instance.register(accessManager);
-        String namedQuery = mappingInformation.getNamedQuery(name);
+        String namedQuery = entityManagerFactory.getNamedQuery(name);
         if (namedQuery != null) {
             return createQuery(namedQuery, resultClass);
         }
-        String namedNativeQuery = mappingInformation.getNamedNativeQuery(name);
-        if (namedNativeQuery != null) {
-            return super.createNamedQuery(name, resultClass);
-        }
-        throw new IllegalArgumentException("No named query with name " + name);
+        return super.createNamedQuery(name, resultClass); // must be named native query
     }
 
     public void flush() {
@@ -318,6 +305,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     public boolean isAccessible(AccessType accessType, Object entity) {
         AccessManager.Instance.register(accessManager);
         return accessManager.isAccessible(accessType, entity);
+    }
+
+    @Override
+    public SecurityContext getContext() {
+        return accessManager.getContext();
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import javax.persistence.criteria.Root;
 
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.persistence.AbstractEntityTestCase;
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -52,7 +52,7 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
 
     @Before
     public void setUp() {
-        TestAuthenticationProvider.authenticate("admin", "admin");
+        TestSecurityContext.authenticate("admin", "admin");
         EntityManager entityManager = getEntityManager();
         inaccessibleBean = new FieldAccessAnnotationTestBean("");
         accessibleBean = new FieldAccessAnnotationTestBean(USER, inaccessibleBean);
@@ -66,18 +66,18 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
 
     @After
     public void tearDown() {
-        TestAuthenticationProvider.authenticate("admin", "admin");
+        TestSecurityContext.authenticate("admin", "admin");
         EntityManager entityManager = getEntityManager();
         entityManager.getTransaction().begin();
         entityManager.remove(entityManager.merge(accessibleBean));
         entityManager.remove(entityManager.merge(inaccessibleBean));
         entityManager.getTransaction().commit();
-        TestAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 
     @Test
     public void noSelection() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = getEntityManager();
         CriteriaQuery<FieldAccessAnnotationTestBean> query
             = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);
@@ -89,7 +89,7 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
 
     @Test
     public void simpleSelection() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = getEntityManager();
         CriteriaQuery<FieldAccessAnnotationTestBean> query
             = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);
@@ -102,7 +102,7 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
 
     @Test
     public void aggregateSelection() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = getEntityManager();
         CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
@@ -114,7 +114,7 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
 
     @Test
     public void compountSelection() {
-        TestAuthenticationProvider.authenticate("admin", "admin");
+        TestSecurityContext.authenticate("admin", "admin");
         EntityManager entityManager = getEntityManager();
         CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
@@ -124,14 +124,14 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
         assertEquals(accessibleBean, beans.iterator().next().get(0));
         assertEquals(inaccessibleBean, beans.iterator().next().get(1));
 
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         beans = entityManager.createQuery(query).getResultList();
         assertTrue(beans.isEmpty());
     }
 
     @Test
     public void condition() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = getEntityManager();
         CriteriaQuery<FieldAccessAnnotationTestBean> query
             = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);

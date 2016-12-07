@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.util.Collection;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.parser.Node;
 import org.jpasecurity.jpql.parser.SimpleNode;
-
 import org.jpasecurity.jpql.parser.JpqlHint;
 import org.jpasecurity.jpql.parser.JpqlSelectClause;
 
@@ -57,7 +56,7 @@ public abstract class AbstractSubselectEvaluator implements SubselectEvaluator {
     }
 
     protected boolean isAccessCheck(QueryEvaluationParameters parameters) {
-        return (parameters.getEvaluationType() == QueryEvaluationParameters.EvaluationType.ACCESS_CHECK);
+        return parameters.getEvaluationType() == QueryEvaluationParameters.EvaluationType.ACCESS_CHECK;
     }
 
     protected boolean isQueryOptimize(QueryEvaluationParameters parameters) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,20 @@
  */
 package org.jpasecurity.model;
 
+import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+
 
 /**
  * @author Stefan Hildebrandt
  */
+@NamedQuery(name = "ChildTestBean.findAll", query = "SELECT c FROM ChildTestBean c")
+@NamedQueries({
+    @NamedQuery(name = "ChildTestBean.findById", query = "SELECT c FROM ChildTestBean c WHERE c.id = :id"),
+    @NamedQuery(name = "ChildTestBean.findByName", query = "SELECT c FROM ChildTestBean c WHERE c.name = :name"),
+})
+@Entity
 public class ChildTestBean implements TestInterface {
 
     private int id;

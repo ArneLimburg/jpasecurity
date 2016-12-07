@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
+                 version="2.0">
+    <named-query name="ParentTestBean.findById">
+        <query>SELECT p FROM ParentTestBean p WHERE p.id = :id</query>
+    </named-query>
+    <entity class="org.jpasecurity.ParentTestBean" access="PROPERTY">
+        <named-query name="findByName">
+            <query>SELECT p FROM ParentTestBean p WHERE p.name = :name</query>
+        </named-query>
+        <attributes>
+            <id name="id"/>
+            <one-to-many name="children"/>
+        </attributes>
+    </entity>
+</entity-mappings>

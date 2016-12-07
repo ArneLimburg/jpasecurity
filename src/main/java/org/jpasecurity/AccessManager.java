@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,12 @@ public interface AccessManager {
      * @throws SecurityException if the entity is not accessible
      */
     void checkAccess(AccessType accessType, Object entity);
+
+    /**
+     * Returns the {@link SecurityContext} of this <tt>AccessManager</tt>.
+     * @return the security context
+     */
+    SecurityContext getContext();
 
     /**
      * Delays all checks until {@link #checkNow()} is called.

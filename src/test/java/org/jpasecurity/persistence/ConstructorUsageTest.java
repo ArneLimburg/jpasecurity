@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class ConstructorUsageTest {
 
     @Test
     public void oneConstructorArgumentList() {
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         EntityManagerFactory entityManagerFactory
             = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -61,7 +61,7 @@ public class ConstructorUsageTest {
 
     @Test
     public void moreConstructorArgumentsWithEntityList() {
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         EntityManagerFactory entityManagerFactory
             = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -86,7 +86,7 @@ public class ConstructorUsageTest {
     }
     @Test
     public void oneConstructorArgumentSingleResult() {
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         EntityManagerFactory entityManagerFactory
             = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -109,7 +109,7 @@ public class ConstructorUsageTest {
 
     @Test
     public void moreConstructorArgumentsWithEntitySingleResult() {
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         EntityManagerFactory entityManagerFactory
             = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();

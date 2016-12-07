@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
 
-import org.jpasecurity.ExceptionFactory;
+import javax.persistence.metamodel.Metamodel;
+
+import org.jpasecurity.SecurityContext;
 import org.jpasecurity.util.ListHashMap;
 import org.jpasecurity.util.ListMap;
 import org.jpasecurity.xml.AbstractXmlParser;
@@ -36,10 +38,15 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
 
+    private String persistenceUnitName;
+
+    public XmlAccessRulesProvider(String persistenceUnitName, Metamodel metamodel, SecurityContext securityContext) {
+        super(metamodel, securityContext);
+        this.persistenceUnitName = persistenceUnitName;
+    }
+
     protected void initializeAccessRules() {
-        String persistenceUnitName = getPersistenceMapping().getSecurityUnitName();
-        ExceptionFactory exceptionFactory = getConfiguration().getExceptionFactory();
-        RulesParser parser = new RulesParser(persistenceUnitName, exceptionFactory);
+        RulesParser parser = new RulesParser(persistenceUnitName);
         try {
             for (Enumeration<URL> urls
                     = Thread.currentThread().getContextClassLoader().getResources("META-INF/security.xml");
@@ -56,8 +63,8 @@ public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
 
         private String persistenceUnitName;
 
-        public RulesParser(String persistenceUnitName, ExceptionFactory exceptionFactory) {
-            super(new RulesHandler(), exceptionFactory);
+        public RulesParser(String persistenceUnitName) {
+            super(new RulesHandler());
             this.persistenceUnitName = persistenceUnitName;
         }
 

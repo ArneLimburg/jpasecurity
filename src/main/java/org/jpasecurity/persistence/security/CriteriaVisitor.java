@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,10 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
+import javax.persistence.metamodel.Metamodel;
 
-import org.apache.openjpa.persistence.query.TrimSpec;
-import org.jpasecurity.configuration.SecurityContext;
+import org.jpasecurity.Alias;
+import org.jpasecurity.Path;
 import org.jpasecurity.jpql.parser.JpqlAbs;
 import org.jpasecurity.jpql.parser.JpqlAdd;
 import org.jpasecurity.jpql.parser.JpqlAll;
@@ -117,9 +118,7 @@ import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
 import org.jpasecurity.jpql.parser.JpqlWith;
 import org.jpasecurity.jpql.parser.Node;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.Path;
+import org.jpasecurity.persistence.mapping.ManagedTypeFilter;
 
 /**
  * This visitor creates a {@link javax.persistence.criteria.CriteriaQuery} of a query tree.
@@ -127,19 +126,14 @@ import org.jpasecurity.mapping.Path;
  */
 public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
 
-    private MappingInformation mappingInformation;
+    private Metamodel metamodel;
     private CriteriaBuilder builder;
-    private SecurityContext securityContext;
 
-    public CriteriaVisitor(MappingInformation mappingInformation,
-                           CriteriaBuilder criteriaBuilder,
-                           SecurityContext securityContext) {
-        notNull(MappingInformation.class, mappingInformation);
+    public CriteriaVisitor(Metamodel metamodel, CriteriaBuilder criteriaBuilder) {
+        notNull(Metamodel.class, metamodel);
         notNull(CriteriaBuilder.class, criteriaBuilder);
-        notNull(SecurityContext.class, securityContext);
-        this.mappingInformation = mappingInformation;
+        this.metamodel = metamodel;
         this.builder = criteriaBuilder;
-        this.securityContext = securityContext;
     }
 
     /**
@@ -163,7 +157,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
         AbstractQuery<?> query = criteriaHolder.getCurrentQuery();
         String entityName = node.jjtGetChild(0).toString();
         Alias alias = getAlias(node);
-        Class<Object> entityType = mappingInformation.getClassMapping(entityName.trim()).getEntityType();
+        Class<?> entityType = ManagedTypeFilter.forModel(metamodel).filter(entityName.trim()).getJavaType();
         query.from(entityType).alias(alias.getName());
         return false;
     }
@@ -324,7 +318,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     public boolean visit(JpqlConstructor node, CriteriaHolder query) {
         node.jjtGetChild(0).visit(this, query);
         String entityName = query.<String>getCurrentValue();
-        Class<?> entityType = mappingInformation.getClassMapping(entityName).getEntityType();
+        Class<?> entityType = ManagedTypeFilter.forModel(metamodel).filter(entityName.trim()).getJavaType();
         List<Selection<?>> constructorParameters = new ArrayList<Selection<?>>();
         query.setValue(constructorParameters);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
@@ -593,11 +587,15 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     public boolean visit(JpqlMemberOf node, CriteriaHolder query) {
         assert node.jjtGetNumChildren() == 2;
         node.jjtGetChild(0).visit(this, query);
+        buildMemberOf(node, query);
+        return false;
+    }
+
+    private <V, W extends Collection<V>> void buildMemberOf(JpqlMemberOf node, CriteriaHolder query) {
         if (query.isValueOfType(Expression.class)) {
-            Expression<Object> memberExpression = query.<Expression<Object>>getCurrentValue();
+            Expression<V> memberExpression = query.<Expression<V>>getCurrentValue();
             node.jjtGetChild(1).visit(this, query);
-            Expression<Collection<Object>> collectionExpression
-                = query.<Expression<Collection<Object>>>getCurrentValue();
+            Expression<W> collectionExpression = query.<Expression<W>>getCurrentValue();
             query.setValue(builder.isMember(memberExpression, collectionExpression));
         } else {
             Object member = query.getValue();
@@ -606,7 +604,6 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
                 = query.<Expression<Collection<Object>>>getCurrentValue();
             query.setValue(builder.isMember(member, collectionExpression));
         }
-        return false;
     }
 
     /**
@@ -819,7 +816,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlTrimLeading node, CriteriaHolder query) {
-        query.setValue(TrimSpec.LEADING);
+        query.setValue(Trimspec.LEADING);
         return false;
     }
 
@@ -827,7 +824,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlTrimTrailing node, CriteriaHolder query) {
-        query.setValue(TrimSpec.TRAILING);
+        query.setValue(Trimspec.TRAILING);
         return false;
     }
 
@@ -835,7 +832,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlTrimBoth node, CriteriaHolder query) {
-        query.setValue(TrimSpec.BOTH);
+        query.setValue(Trimspec.BOTH);
         return false;
     }
 

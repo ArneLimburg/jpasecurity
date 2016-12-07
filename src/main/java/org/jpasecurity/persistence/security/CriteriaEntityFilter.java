@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -30,15 +31,13 @@ import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Bindable;
 import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.AccessType;
-import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.configuration.AccessRule;
-import org.jpasecurity.configuration.SecurityContext;
+import org.jpasecurity.Path;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.compiler.SubselectEvaluator;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.Path;
+import org.jpasecurity.security.AccessRule;
 import org.jpasecurity.security.EntityFilter;
 import org.jpasecurity.security.FilterResult;
 import org.jpasecurity.util.Types;
@@ -53,14 +52,13 @@ public class CriteriaEntityFilter extends EntityFilter {
 
     private final CriteriaVisitor criteriaVisitor;
 
-    public CriteriaEntityFilter(MappingInformation mappingInformation,
-                                SecurityContext securityContext,
+    public CriteriaEntityFilter(Metamodel metamodel,
+                                PersistenceUnitUtil util,
                                 CriteriaBuilder criteriaBuilder,
-                                ExceptionFactory exceptionFactory,
                                 Collection<AccessRule> accessRules,
                                 SubselectEvaluator... evaluators) {
-        super(mappingInformation, securityContext, exceptionFactory, accessRules, evaluators);
-        criteriaVisitor = new CriteriaVisitor(mappingInformation, criteriaBuilder, securityContext);
+        super(metamodel, util, accessRules, evaluators);
+        criteriaVisitor = new CriteriaVisitor(metamodel, criteriaBuilder);
     }
 
     public <R> FilterResult<CriteriaQuery<R>> filterQuery(CriteriaQuery<R> query) {

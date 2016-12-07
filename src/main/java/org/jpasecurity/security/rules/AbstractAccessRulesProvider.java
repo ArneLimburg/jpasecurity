@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,25 @@
  */
 package org.jpasecurity.security.rules;
 
+import static org.jpasecurity.util.Validate.notNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.configuration.AccessRule;
-import org.jpasecurity.configuration.AccessRulesProvider;
-import org.jpasecurity.configuration.Configuration;
-import org.jpasecurity.configuration.ConfigurationReceiver;
-import org.jpasecurity.configuration.SecurityContext;
-import org.jpasecurity.configuration.SecurityContextReceiver;
+import javax.persistence.metamodel.Metamodel;
+
+import org.jpasecurity.Configuration;
+import org.jpasecurity.ConfigurationReceiver;
+import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jpql.compiler.MappingEvaluator;
 import org.jpasecurity.jpql.compiler.QueryPreparator;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.MappingInformationReceiver;
-
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.ParseException;
+import org.jpasecurity.security.AccessRule;
 
 /**
  * A base class for implementations of the {@link AccessRulesProvider} interface
@@ -45,24 +43,18 @@ import org.jpasecurity.jpql.parser.ParseException;
  * @author Arne Limburg
  */
 public abstract class AbstractAccessRulesProvider implements AccessRulesProvider,
-                                                             MappingInformationReceiver,
-                                                             ConfigurationReceiver,
-                                                             SecurityContextReceiver {
+                                                             ConfigurationReceiver {
 
-    private MappingInformation persistenceMapping;
+    private Metamodel persistenceMapping;
     private Map<String, Object> persistenceProperties;
     private Configuration configuration;
     private SecurityContext securityContext;
     private List<AccessRule> accessRules;
 
-    public MappingInformation getPersistenceMapping() {
-        return persistenceMapping;
+    protected AbstractAccessRulesProvider(Metamodel metamodel, SecurityContext securityContext) {
+        persistenceMapping = notNull(Metamodel.class, metamodel);
+        this.securityContext = notNull(SecurityContext.class, securityContext);
     }
-
-    public final void setMappingInformation(MappingInformation persistenceMapping) {
-        this.persistenceMapping = persistenceMapping;
-    }
-
     public Map<String, Object> getPersistenceProperties() {
         return persistenceProperties;
     }
@@ -77,14 +69,6 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
 
     public final void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
-    }
-
-    public SecurityContext getSecurityContext() {
-        return securityContext;
-    }
-
-    public final void setSecurityContext(SecurityContext securityContext) {
-        this.securityContext = securityContext;
     }
 
     /**
@@ -114,15 +98,8 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
      * @param rules the rules as <tt>String</tt>s.
      */
     protected void compileRules(Collection<String> rules) {
-        if (persistenceMapping == null) {
-            throw new IllegalStateException("persistenceMapping not initialized");
-        }
-        if (accessRules != null) {
-            throw new IllegalStateException("access rules are already compiled");
-        }
         JpqlParser jpqlParser = new JpqlParser();
-        ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
-        AccessRulesCompiler compiler = new AccessRulesCompiler(persistenceMapping, exceptionFactory);
+        AccessRulesCompiler compiler = new AccessRulesCompiler(persistenceMapping);
         List<AccessRule> accessRules = new ArrayList<AccessRule>();
         for (String accessRule : rules) {
             try {
@@ -141,8 +118,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
      * Check whether the mapping is consistent with the rules
      */
     private void checkAccessRules() {
-        ExceptionFactory exceptionFactory = configuration.getExceptionFactory();
-        MappingEvaluator evaluator = new MappingEvaluator(persistenceMapping, securityContext, exceptionFactory);
+        MappingEvaluator evaluator = new MappingEvaluator(persistenceMapping, securityContext);
         QueryPreparator preparator = new QueryPreparator();
         for (AccessRule accessRule: accessRules) {
             evaluator.evaluate(preparator.createPath(accessRule.getSelectedPath()), accessRule.getTypeDefinitions());

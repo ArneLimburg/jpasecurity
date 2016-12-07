@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,13 +74,19 @@ public class EasyMockPersistenceProvider implements PersistenceProvider {
     private class EasyMockEntityManagerFactory implements EntityManagerFactory {
 
         private boolean open = true;
+        private Metamodel metamodel;
+        private CriteriaBuilder criteriaBuilder;
+
+        public EasyMockEntityManagerFactory() {
+            metamodel = EasyMock.createMock(Metamodel.class);
+            criteriaBuilder = EasyMock.createMock(CriteriaBuilder.class);
+        }
 
         public EntityManager createEntityManager() {
             if (!open) {
                 throw new IllegalStateException("already closed");
             }
             EntityManager entityManager = EasyMock.createMock(EntityManager.class);
-            CriteriaBuilder criteriaBuilder = EasyMock.createMock(CriteriaBuilder.class);
             EasyMock.expect(entityManager.getCriteriaBuilder()).andReturn(criteriaBuilder).anyTimes();
             EasyMock.expect(entityManager.getDelegate()).andReturn(entityManager).anyTimes();
             EasyMock.replay(entityManager);
@@ -100,27 +106,22 @@ public class EasyMockPersistenceProvider implements PersistenceProvider {
         }
 
         public CriteriaBuilder getCriteriaBuilder() {
-            // TODO Auto-generated method stub
-            return null;
+            return criteriaBuilder;
         }
 
         public Metamodel getMetamodel() {
-            // TODO Auto-generated method stub
-            return null;
+            return metamodel;
         }
 
         public Map<String, Object> getProperties() {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public Cache getCache() {
-            // TODO Auto-generated method stub
             return null;
         }
 
         public PersistenceUnitUtil getPersistenceUnitUtil() {
-            // TODO Auto-generated method stub
             return null;
         }
     }

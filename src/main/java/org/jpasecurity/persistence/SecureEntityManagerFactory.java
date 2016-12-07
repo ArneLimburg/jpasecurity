@@ -15,21 +15,23 @@
  */
 package org.jpasecurity.persistence;
 
+import static org.jpasecurity.util.Validate.notNull;
+
+import java.lang.reflect.Constructor;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnitUtil;
-import javax.persistence.spi.PersistenceUnitInfo;
+import javax.persistence.metamodel.Metamodel;
 
-import org.jpasecurity.configuration.Configuration;
-import org.jpasecurity.configuration.ConfigurationReceiver;
-import org.jpasecurity.configuration.SecurityContextReceiver;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.MappingInformationReceiver;
-import org.jpasecurity.persistence.mapping.OrmXmlParser;
+import org.jpasecurity.SecurityContext;
+import org.jpasecurity.security.AccessRule;
+import org.jpasecurity.security.rules.AccessRulesParser;
+import org.jpasecurity.security.rules.AccessRulesProvider;
 
 /**
  * This class is a factory that creates {@link org.jpasecurity.persistence.SecureEntityManager}s.
@@ -37,42 +39,24 @@ import org.jpasecurity.persistence.mapping.OrmXmlParser;
  */
 public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory implements EntityManagerFactory {
 
-    private MappingInformation mappingInformation;
-    private Configuration configuration;
-    private boolean configurationInitialized;
+    private String persistenceUnitName;
+    private Class<? extends SecurityContext> securityContextType;
+    private Map<String, String> namedQueries = new ConcurrentHashMap<String, String>();
+    private Collection<AccessRule> accessRules;
 
-    protected SecureEntityManagerFactory(EntityManagerFactory entityManagerFactory,
-                                         PersistenceUnitInfo persistenceUnitInfo,
-                                         Map<String, Object> properties,
-                                         Configuration configuration) {
+    public SecureEntityManagerFactory(String persistenceUnitName,
+                                      EntityManagerFactory entityManagerFactory,
+                                      Collection<String> ormXmlLocations,
+                                      Class<? extends SecurityContext> contextType,
+                                      Class<? extends AccessRulesProvider> providerType) {
         super(entityManagerFactory);
-        if (entityManagerFactory == null) {
-            throw new IllegalArgumentException("entityManagerFactory may not be null");
-        }
-        if (persistenceUnitInfo == null) {
-            throw new IllegalArgumentException("persistenceUnitInfo may not be null");
-        }
-        if (configuration == null) {
-            throw new IllegalArgumentException("configuration may not be null");
-        }
-        this.configuration = configuration;
-        OrmXmlParser jpaParser = new OrmXmlParser(persistenceUnitInfo,
-                                                  configuration.getPropertyAccessStrategyFactory(),
-                                                  configuration.getExceptionFactory());
-        mappingInformation = jpaParser.parse();
-        Map<String, Object> persistenceProperties
-            = new HashMap<String, Object>((Map<String, Object>)(Map<?, Object>)persistenceUnitInfo.getProperties());
-        if (properties != null) {
-            persistenceProperties.putAll(properties);
-        }
-    }
-
-    protected Configuration getConfiguration(Map<String, Object> persistenceProperties) {
-        if (!configurationInitialized) {
-            injectPersistenceInformation(persistenceProperties);
-            configurationInitialized = true;
-        }
-        return configuration;
+        securityContextType = notNull("SecurityContext class", contextType);
+        namedQueries = new NamedQueryParser(entityManagerFactory.getMetamodel(), ormXmlLocations).parseNamedQueries();
+        accessRules = new AccessRulesParser(persistenceUnitName,
+                                            entityManagerFactory.getMetamodel(),
+                                            newInstance(securityContextType),
+                                            newInstance(notNull("AccessRulesProvider class", providerType)))
+                                                .parseAccessRules();
     }
 
     public EntityManager createEntityManager() {
@@ -83,11 +67,6 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
         return createSecureEntityManager(super.createEntityManager(map), map);
     }
 
-    public void close() {
-        configuration = null;
-        super.close();
-    }
-
     public PersistenceUnitUtil getPersistenceUnitUtil() {
         return getDelegate().getPersistenceUnitUtil();
     }
@@ -95,36 +74,40 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
     protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, Object> properties) {
         return new DefaultSecureEntityManager(this,
                                               entityManager,
-                                              new Configuration(getConfiguration(properties), properties),
-                                              mappingInformation);
+                                              newInstance(securityContextType),
+                                              accessRules);
     }
 
-    private void injectPersistenceInformation(Map<String, Object> persistenceProperties) {
-        if (persistenceProperties != null) {
-            persistenceProperties = Collections.unmodifiableMap(persistenceProperties);
-        }
-        injectPersistenceInformation(configuration.getSecurityContext(), persistenceProperties);
-        injectPersistenceInformation(configuration.getAccessRulesProvider(), persistenceProperties);
+    String getNamedQuery(String name) {
+        return namedQueries.get(name);
     }
 
-    private void injectPersistenceInformation(Object injectionTarget, Map<String, Object> persistenceProperties) {
-        if (injectionTarget instanceof MappingInformationReceiver) {
-            MappingInformationReceiver persistenceInformationReceiver
-                = (MappingInformationReceiver)injectionTarget;
-            persistenceInformationReceiver.setMappingProperties(persistenceProperties);
-            persistenceInformationReceiver.setMappingInformation(mappingInformation);
+    private <T> T newInstance(Class<T> type) {
+        try {
+            try {
+                Constructor<T> constructor = type.getConstructor(String.class, Metamodel.class, SecurityContext.class);
+                return constructor.newInstance(persistenceUnitName, getMetamodel(), newInstance(securityContextType));
+            } catch (NoSuchMethodException noStringMetamodelConstructor) {
+                try {
+                    Constructor<T> constructor = type.getConstructor(String.class, Metamodel.class);
+                    return constructor.newInstance(persistenceUnitName, getMetamodel());
+                } catch (NoSuchMethodException noMetamodelStringConstructor) {
+                    try {
+                        Constructor<T> constructor = type.getConstructor(String.class);
+                        return constructor.newInstance(persistenceUnitName);
+                    } catch (NoSuchMethodException noStringConstructor) {
+                        try {
+                            Constructor<T> constructor = type.getConstructor(Metamodel.class);
+                            return constructor.newInstance(getMetamodel());
+                        } catch (NoSuchMethodException noMetamodelConstructor) {
+                            Constructor<T> constructor = type.getConstructor();
+                            return constructor.newInstance();
+                        }
+                    }
+                }
+            }
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
         }
-        if (injectionTarget instanceof SecurityContextReceiver) {
-            SecurityContextReceiver securityContextReceiver = (SecurityContextReceiver)injectionTarget;
-            securityContextReceiver.setSecurityContext(configuration.getSecurityContext());
-        }
-        if (injectionTarget instanceof ConfigurationReceiver) {
-            ConfigurationReceiver configurationReceiver = (ConfigurationReceiver)injectionTarget;
-            configurationReceiver.setConfiguration(configuration);
-        }
-    }
-
-    protected MappingInformation getMappingInformation() {
-        return mappingInformation;
     }
 }

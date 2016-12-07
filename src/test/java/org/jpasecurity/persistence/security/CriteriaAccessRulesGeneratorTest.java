@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Stefan Hildebrandt
+ * Copyright 2014 - 2016 Stefan Hildebrandt
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import org.hibernate.Query;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.persistence.AbstractEntityTestCase;
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -51,7 +51,7 @@ public class CriteriaAccessRulesGeneratorTest extends AbstractEntityTestCase {
 
     @Before
     public void setUp() {
-        TestAuthenticationProvider.authenticate("admin", "admin");
+        TestSecurityContext.authenticate("admin", "admin");
         EntityManager entityManager = getEntityManager();
         inaccessibleBean = new FieldAccessAnnotationTestBean("");
         accessibleBean = new FieldAccessAnnotationTestBean(USER, inaccessibleBean);
@@ -65,13 +65,13 @@ public class CriteriaAccessRulesGeneratorTest extends AbstractEntityTestCase {
 
     @After
     public void tearDown() {
-        TestAuthenticationProvider.authenticate("admin", "admin");
+        TestSecurityContext.authenticate("admin", "admin");
         EntityManager entityManager = getEntityManager();
         entityManager.getTransaction().begin();
         entityManager.remove(entityManager.merge(accessibleBean));
         entityManager.remove(entityManager.merge(inaccessibleBean));
         entityManager.getTransaction().commit();
-        TestAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 
     @Test
@@ -168,7 +168,7 @@ public class CriteriaAccessRulesGeneratorTest extends AbstractEntityTestCase {
     }
 
     private void check(String roleName, String expectedQuery) {
-        TestAuthenticationProvider.authenticate("admin", roleName);
+        TestSecurityContext.authenticate("admin", roleName);
         EntityManager entityManager = getEntityManager();
         CriteriaQuery<FieldAccessAnnotationTestBean>
             criteriaQuery = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);

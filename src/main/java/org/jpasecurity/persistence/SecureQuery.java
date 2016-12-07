@@ -31,7 +31,7 @@ import javax.persistence.TupleElement;
 
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
-import org.jpasecurity.mapping.Path;
+import org.jpasecurity.Path;
 import org.jpasecurity.util.ReflectionUtils;
 
 /**

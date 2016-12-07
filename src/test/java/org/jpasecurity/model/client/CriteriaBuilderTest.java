@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Arne Limburg
+ * Copyright 2014 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
 import org.jpasecurity.persistence.AbstractEntityTestCase;
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -38,7 +38,7 @@ public class CriteriaBuilderTest extends AbstractEntityTestCase {
 
     @BeforeClass
     public static void createEntityManagerFactory() throws SQLException {
-        TestAuthenticationProvider.authenticate(EMAIL);
+        TestSecurityContext.authenticate(EMAIL);
         createEntityManagerFactory("client");
         dropForeignKey("jdbc:hsqldb:mem:test", "sa", "", "CLIENTOPERATIONSTRACKING", "CLIENT");
     }

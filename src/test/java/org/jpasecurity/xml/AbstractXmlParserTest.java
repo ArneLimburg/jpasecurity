@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,12 @@ import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.isA;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -62,7 +58,7 @@ public class AbstractXmlParserTest {
     public void initialize() {
         ContentHandler contentHandler = createNiceMock(ContentHandler.class);
         exceptionFactory = createMock(ExceptionFactory.class);
-        parser = new TestXmlParser(new DelegatingXmlHandler(contentHandler), exceptionFactory);
+        parser = new TestXmlParser(new DelegatingXmlHandler(contentHandler));
     }
 
     @After
@@ -87,33 +83,6 @@ public class AbstractXmlParserTest {
         parser.parse(new URL("file:./non-existing-file.xml"));
     }
 
-    @Test(expected = IORuntimeException.class)
-    public void parseIOException() {
-        expect(exceptionFactory.createRuntimeException(isA(IOException.class))).andReturn(new IORuntimeException());
-        replay(exceptionFactory);
-        parser.parse(new InputStream() {
-            public int read() throws IOException {
-                throw new IOException();
-            }
-        });
-    }
-
-    @Test(expected = ParserConfigurationRuntimeException.class)
-    public void parseParserConfiguraitonException() {
-        expect(exceptionFactory.createRuntimeException(isA(ParserConfigurationException.class)))
-            .andReturn(new ParserConfigurationRuntimeException());
-        replay(exceptionFactory);
-        System.setProperty(SAX_PARSER_FACTORY_PROPERTY_NAME, TextSAXParserFactory.class.getName());
-        parser.parse(new ByteArrayInputStream(new byte[0]));
-    }
-
-    @Test(expected = SaxRuntimeException.class)
-    public void parseSAXException() throws IOException {
-        expect(exceptionFactory.createRuntimeException(isA(SAXException.class))).andReturn(new SaxRuntimeException());
-        replay(exceptionFactory);
-        parser.parse(new URL("file:."));
-    }
-
     public static class TextSAXParserFactory extends SAXParserFactory {
 
         public SAXParser newSAXParser() throws ParserConfigurationException, SAXException {
@@ -132,8 +101,8 @@ public class AbstractXmlParserTest {
 
     public static class TestXmlParser extends AbstractXmlParser<DelegatingXmlHandler> {
 
-        public TestXmlParser(DelegatingXmlHandler xmlHandler, ExceptionFactory exceptionFactory) {
-            super(xmlHandler, exceptionFactory);
+        public TestXmlParser(DelegatingXmlHandler xmlHandler) {
+            super(xmlHandler);
         }
     }
 

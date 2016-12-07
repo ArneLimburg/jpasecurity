@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2012 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.jpasecurity.jpql.compiler;
 
+import static org.jpasecurity.persistence.mapping.ManagedTypeFilter.forModel;
+import static org.jpasecurity.util.Validate.notNull;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -26,13 +29,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
-import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.jpql.JpqlCompiledStatement;
-import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
-import org.jpasecurity.jpql.parser.Node;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.Path;
+import javax.persistence.PersistenceUnitUtil;
 
+import org.jpasecurity.Alias;
+import org.jpasecurity.Path;
+import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.parser.JpqlAbs;
 import org.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
 import org.jpasecurity.jpql.parser.JpqlAdd;
@@ -97,7 +98,10 @@ import org.jpasecurity.jpql.parser.JpqlTrimTrailing;
 import org.jpasecurity.jpql.parser.JpqlType;
 import org.jpasecurity.jpql.parser.JpqlUpper;
 import org.jpasecurity.jpql.parser.JpqlValue;
+import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhen;
+import org.jpasecurity.jpql.parser.Node;
+import org.jpasecurity.persistence.mapping.ManagedTypeFilter;
 
 /**
  * This implementation of the {@link JpqlVisitorAdapter} evaluates queries in memory,
@@ -112,20 +116,12 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
 
     private final JpqlCompiler compiler;
-    private final ExceptionFactory exceptionFactory;
+    private final PersistenceUnitUtil util;
     private final SubselectEvaluator[] subselectEvaluators;
 
-    public QueryEvaluator(JpqlCompiler compiler,
-                          ExceptionFactory exceptionFactory,
-                          SubselectEvaluator... subselectEvaluators) {
-        if (compiler == null) {
-            throw new IllegalArgumentException("compiler may not be null");
-        }
-        if (exceptionFactory == null) {
-            throw new IllegalArgumentException("exceptionFactory may not be null");
-        }
-        this.compiler = compiler;
-        this.exceptionFactory = exceptionFactory;
+    public QueryEvaluator(JpqlCompiler compiler, PersistenceUnitUtil util, SubselectEvaluator... subselectEvaluators) {
+        this.compiler = notNull(JpqlCompiler.class, compiler);
+        this.util = notNull(PersistenceUnitUtil.class, util);
         this.subselectEvaluators = subselectEvaluators;
         for (SubselectEvaluator subselectEvaluator: subselectEvaluators) {
             subselectEvaluator.setQueryEvaluator(this);
@@ -143,7 +139,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
 
     public <R> R evaluate(Node node, QueryEvaluationParameters parameters) throws NotEvaluatableException {
         node.visit(this, parameters);
-        return parameters.<R> getResult();
+        return parameters.<R>getResult();
     }
 
     public boolean visit(JpqlSelectClause node, QueryEvaluationParameters data) {
@@ -176,7 +172,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             node.jjtGetChild(0).visit(this, data);
             Path path = new Path(node.toString());
             if (path.hasSubpath()) {
-                PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMappingInformation(), exceptionFactory);
+                PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMetamodel(), util);
                 data.setResult(pathEvaluator.evaluate(data.getResult(), path.getSubpath()));
             }
         } catch (NotEvaluatableException e) {
@@ -190,11 +186,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             node.jjtGetChild(0).visit(this, data);
             String path = node.toString();
             int index = path.indexOf('.');
-            if (index != -1) {
-                PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMappingInformation(), exceptionFactory);
-                Collection<Object> rootCollection = Collections.singleton(data.getResult());
-                data.setResult(pathEvaluator.evaluateAll(rootCollection, path.substring(index + 1)));
-            }
+            PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMetamodel(), util);
+            Collection<Object> rootCollection = Collections.singleton(data.getResult());
+            data.setResult(pathEvaluator.evaluateAll(rootCollection, path.substring(index + 1)));
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
         }
@@ -223,7 +217,6 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     }
 
     public boolean visit(JpqlAnd node, QueryEvaluationParameters data) {
-        boolean undefined = false;
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(this, data);
             try {
@@ -231,16 +224,12 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
                     //The result is false, when we return here it stays false
                     return false;
                 }
-                //TODO exceptionFreie lösung suchen
             } catch (NotEvaluatableException e) {
-                undefined = true;
+                data.setResultUndefined();
+                return false;
             }
         }
-        if (undefined) {
-            data.setResultUndefined();
-        } else {
-            data.setResult(Boolean.TRUE);
-        }
+        data.setResult(Boolean.TRUE);
         return false;
     }
 
@@ -259,23 +248,22 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 3);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable<Object> value = data.<Comparable<Object>> getResult();
+            Comparable<Object> value = data.<Comparable<Object>>getResult();
             node.jjtGetChild(1).visit(this, data);
             Comparable<Object> lower;
             try {
-                lower = data.<Comparable<Object>> getResult();
+                lower = data.<Comparable<Object>>getResult();
             } catch (NotEvaluatableException e) {
                 lower = null;
             }
             node.jjtGetChild(2).visit(this, data);
             Comparable<Object> upper;
             try {
-                upper = data.<Comparable<Object>> getResult();
+                upper = data.<Comparable<Object>>getResult();
             } catch (NotEvaluatableException e) {
                 upper = null;
             }
-            if ((lower != null && lower.compareTo(value) > 0)
-                || (upper != null && upper.compareTo(value) < 0)) {
+            if ((lower != null && lower.compareTo(value) > 0) || (upper != null && upper.compareTo(value) < 0)) {
                 data.setResult(false);
             } else if (lower == null || upper == null) {
                 data.setResultUndefined();
@@ -350,11 +338,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             if (pattern.charAt(index) == '_') {
                 regularExpressionBuilder.append('.');
                 index++;
-            } else if (pattern.charAt(index) == '%') {
+            } else { //if (pattern.charAt(index) == '%') {
                 regularExpressionBuilder.append(".*");
                 index++;
-            } else {
-                throw new IllegalStateException();
             }
             specialCharacterIndex = indexOfSpecialCharacter(pattern, index);
             appendSubPattern(regularExpressionBuilder, pattern, index, specialCharacterIndex);
@@ -372,7 +358,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         int i3 = pattern.indexOf("\\%", startIndex);
         int i4 = pattern.indexOf("%", startIndex);
         int min = pattern.length();
-        if (i1 > -1 && i1 < min) {
+        if (i1 > -1) {
             min = i1;
         }
         if (i2 > -1 && i2 < min) {
@@ -466,9 +452,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable<Object> value1 = data.<Comparable<Object>> getResult();
+            Comparable<Object> value1 = data.<Comparable<Object>>getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable<Object> value2 = data.<Comparable<Object>> getResult();
+            Comparable<Object> value2 = data.<Comparable<Object>>getResult();
             data.setResult(value1.compareTo(value2) > 0);
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -480,9 +466,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable<Object> value1 = data.<Comparable<Object>> getResult();
+            Comparable<Object> value1 = data.<Comparable<Object>>getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable<Object> value2 = data.<Comparable<Object>> getResult();
+            Comparable<Object> value2 = data.<Comparable<Object>>getResult();
             data.setResult(value1.compareTo(value2) >= 0);
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -494,9 +480,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable<Object> value1 = data.<Comparable<Object>> getResult();
+            Comparable<Object> value1 = data.<Comparable<Object>>getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable<Object> value2 = data.<Comparable<Object>> getResult();
+            Comparable<Object> value2 = data.<Comparable<Object>>getResult();
             data.setResult(value1.compareTo(value2) < 0);
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -508,9 +494,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 2);
         try {
             node.jjtGetChild(0).visit(this, data);
-            Comparable<Object> value1 = data.<Comparable<Object>> getResult();
+            Comparable<Object> value1 = data.<Comparable<Object>>getResult();
             node.jjtGetChild(1).visit(this, data);
-            Comparable<Object> value2 = data.<Comparable<Object>> getResult();
+            Comparable<Object> value2 = data.<Comparable<Object>>getResult();
             data.setResult(value1.compareTo(value2) <= 0);
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
@@ -785,7 +771,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     }
 
     public boolean visit(JpqlAbstractSchemaName node, QueryEvaluationParameters data) {
-        data.setResult(data.getMappingInformation().getClassMapping(node.toString().trim()).getEntityType());
+        data.setResult(ManagedTypeFilter.forModel(data.getMetamodel()).filter(node.toString().trim()).getJavaType());
         return false;
     }
 
@@ -930,7 +916,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 1);
         node.jjtGetChild(0).visit(this, data);
         try {
-            data.setResult(data.getMappingInformation().getClassMapping(data.getResult().getClass()).getEntityType());
+            data.setResult(forModel(data.getMetamodel()).filter(data.getResult().getClass()).getJavaType());
         } catch (NotEvaluatableException e) {
             // ignore
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.configuration.DefaultExceptionFactory;
-import org.jpasecurity.jpql.JpqlCompiledStatement;
-import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
-import org.jpasecurity.jpql.parser.Node;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.ClassMappingInformation;
-import org.jpasecurity.mapping.ConditionalPath;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.Path;
-import org.jpasecurity.mapping.TypeDefinition;
-import org.jpasecurity.util.ValueHolder;
+import javax.persistence.PersistenceException;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.ManagedType;
+import javax.persistence.metamodel.MapAttribute;
+import javax.persistence.metamodel.Metamodel;
 
+import org.jpasecurity.Alias;
+import org.jpasecurity.Path;
+import org.jpasecurity.jpql.JpqlCompiledStatement;
+import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.jpql.parser.JpqlCase;
 import org.jpasecurity.jpql.parser.JpqlClassName;
 import org.jpasecurity.jpql.parser.JpqlCoalesce;
@@ -55,7 +53,11 @@ import org.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
 import org.jpasecurity.jpql.parser.JpqlSelectExpression;
 import org.jpasecurity.jpql.parser.JpqlStatement;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
+import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhen;
+import org.jpasecurity.jpql.parser.Node;
+import org.jpasecurity.persistence.mapping.ManagedTypeFilter;
+import org.jpasecurity.util.ValueHolder;
 
 /**
  * Compiles a {@link JpqlStatement} into a {@link JpqlCompiledStatement}.
@@ -63,8 +65,7 @@ import org.jpasecurity.jpql.parser.JpqlWhen;
  */
 public class JpqlCompiler {
 
-    protected final ExceptionFactory exceptionFactory;
-    private final MappingInformation mappingInformation;
+    private final Metamodel metamodel;
     private final ConstructorArgReturnTypeVisitor returnTypeVisitor = new ConstructorArgReturnTypeVisitor();
     private final SelectVisitor selectVisitor = new SelectVisitor();
     private final AliasVisitor aliasVisitor = new AliasVisitor();
@@ -73,13 +74,8 @@ public class JpqlCompiler {
     private final NamedParameterVisitor namedParameterVisitor = new NamedParameterVisitor();
     private final PositionalParameterVisitor positionalParameterVisitor = new PositionalParameterVisitor();
 
-    public JpqlCompiler(MappingInformation mappingInformation) {
-        this(mappingInformation, new DefaultExceptionFactory());
-    }
-
-    public JpqlCompiler(MappingInformation mappingInformation, ExceptionFactory exceptionFactory) {
-        this.mappingInformation = mappingInformation;
-        this.exceptionFactory = exceptionFactory;
+    public JpqlCompiler(Metamodel metamodel) {
+        this.metamodel = metamodel;
     }
 
     public JpqlCompiledStatement compile(JpqlStatement statement) {
@@ -113,7 +109,7 @@ public class JpqlCompiler {
 
     public List<Path> getSelectedPaths(Node node) {
         if (node == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         List<Path> selectedPaths = new ArrayList<Path>();
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
@@ -161,7 +157,7 @@ public class JpqlCompiler {
             try {
                 valueHolder.setValue(toClass(node.toString()));
             } catch (ClassNotFoundException e) {
-                throw exceptionFactory.createTypeNotFoundException(node.toString());
+                throw new PersistenceException(e);
             }
             return false;
         }
@@ -320,7 +316,7 @@ public class JpqlCompiler {
                 type = Long.class;
             } else {
                 try {
-                    type = mappingInformation.getType(path, typeDefinitions);
+                    type = TypeDefinition.Filter.managedTypeForPath(path).filter(typeDefinitions).getJavaType();
                 } catch (TypeNotPresentException e) {
                     type = null; // must be determined later
                 }
@@ -333,21 +329,21 @@ public class JpqlCompiler {
             String abstractSchemaName = node.jjtGetChild(0).toString().trim();
             Alias alias = getAlias(node);
             Collection<Class<?>> types = new HashSet<Class<?>>();
-            if (mappingInformation.containsClassMapping(abstractSchemaName)) {
-                types.add(mappingInformation.getClassMapping(abstractSchemaName).getEntityType());
+            EntityType<?> entityType = ManagedTypeFilter.forModel(metamodel).filter(abstractSchemaName);
+            if (entityType != null) {
+                types.add(entityType.getJavaType());
             } else {
                 try {
                     Class<?> type = Thread.currentThread().getContextClassLoader().loadClass(abstractSchemaName);
-                    Collection<ClassMappingInformation> classMappings = mappingInformation.resolveClassMappings(type);
-                    for (ClassMappingInformation classMapping: classMappings) {
-                        types.add(classMapping.getEntityType());
+                    for (ManagedType<?> managedTypes: ManagedTypeFilter.forModel(metamodel).filterAll(type)) {
+                        types.add(managedTypes.getJavaType());
                     }
                 } catch (ClassNotFoundException e) {
-                    throw exceptionFactory.createTypeNotFoundException(abstractSchemaName.trim());
+                    throw new PersistenceException("Managed type not found for type " + abstractSchemaName.trim());
                 }
             }
             if (types.isEmpty()) {
-                throw exceptionFactory.createTypeNotFoundException(abstractSchemaName.trim());
+                throw new PersistenceException("Managed type not found for type " + abstractSchemaName.trim());
             }
             for (Class<?> type: types) {
                 typeDefinitions.add(new TypeDefinition(alias, type));
@@ -382,15 +378,28 @@ public class JpqlCompiler {
                                   boolean fetchJoin) {
             Path fetchPath = new Path(node.jjtGetChild(0).toString());
             Class<?> keyType = null;
-            if (mappingInformation.isMapPath(fetchPath, typeDefinitions)) {
-                keyType = mappingInformation.getKeyType(fetchPath, typeDefinitions);
+            Attribute<?, ?> attribute = TypeDefinition.Filter.attributeForPath(fetchPath)
+                    .withMetamodel(metamodel)
+                    .filter(typeDefinitions);
+            Class<?> type;
+            if (attribute instanceof MapAttribute) {
+                MapAttribute<?, ?, ?> mapAttribute = (MapAttribute<?, ?, ?>)attribute;
+                keyType = mapAttribute.getKeyJavaType();
+                type = mapAttribute.getBindableJavaType();
+            } else {
+                type = TypeDefinition.Filter.managedTypeForPath(fetchPath)
+                        .withMetamodel(metamodel)
+                        .filter(typeDefinitions)
+                        .getJavaType();
             }
-            Class<?> type = mappingInformation.getType(fetchPath, typeDefinitions);
+            if (keyType != null) {
+                typeDefinitions.add(new TypeDefinition(keyType, fetchPath, innerJoin, fetchJoin));
+            }
             if (node.jjtGetNumChildren() == 1) {
-                typeDefinitions.add(new TypeDefinition(keyType, type, fetchPath, innerJoin, fetchJoin));
+                typeDefinitions.add(new TypeDefinition(type, fetchPath, innerJoin, fetchJoin));
             } else {
                 Alias alias = getAlias(node);
-                typeDefinitions.add(new TypeDefinition(alias, keyType, type, fetchPath, innerJoin, fetchJoin));
+                typeDefinitions.add(new TypeDefinition(alias, type, fetchPath, innerJoin, fetchJoin));
             }
             return false;
         }
@@ -401,7 +410,7 @@ public class JpqlCompiler {
 
         private Alias getAlias(Node node) {
             if (node.jjtGetNumChildren() < 2) {
-                throw exceptionFactory.createMissingAliasException(node.jjtGetChild(0).toString());
+                throw new PersistenceException("Missing alias for type " + node.jjtGetChild(0).toString());
             }
             return new Alias(node.jjtGetChild(1).toString());
         }
@@ -410,7 +419,10 @@ public class JpqlCompiler {
             for (TypeDefinition typeDefinition: typeDefinitions) {
                 if (typeDefinition.isPreliminary()) {
                     try {
-                        Class<?> type = mappingInformation.getType(typeDefinition.getJoinPath(), typeDefinitions);
+                        Class<?> type = TypeDefinition.Filter.managedTypeForPath(typeDefinition.getJoinPath())
+                                .withMetamodel(metamodel)
+                                .filter(typeDefinitions)
+                                .getJavaType();
                         typeDefinition.setType(type);
                     } catch (TypeNotPresentException e) {
                         // must be determined later

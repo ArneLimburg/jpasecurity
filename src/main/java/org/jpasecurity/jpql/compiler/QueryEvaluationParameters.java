@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,16 @@
  */
 package org.jpasecurity.jpql.compiler;
 
+import static org.jpasecurity.util.Validate.notNull;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.MappingInformation;
+import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.metamodel.Metamodel;
+
+import org.jpasecurity.Alias;
 
 /**
  * @author Arne Limburg
@@ -35,53 +39,51 @@ public class QueryEvaluationParameters {
 
     private static final Object UNDEFINED = new Object();
 
-    private final MappingInformation mappingInformation;
+    private final Metamodel metamodel;
+    private final PersistenceUnitUtil persistenceUnitUtil;
     private final Map<Alias, Object> aliases;
     private final Map<String, Object> namedParameters;
     private final Map<Integer, Object> positionalParameters;
     private final EvaluationType evaluationType;
-    private final boolean inMemory;
     private Object result = UNDEFINED;
 
-    public QueryEvaluationParameters(MappingInformation mappingInformation,
+    public QueryEvaluationParameters(Metamodel metamodel,
+                                     PersistenceUnitUtil util,
                                      Map<Alias, Object> aliases,
                                      Map<String, Object> namedParameters,
                                      Map<Integer, Object> positionalParameters) {
-        this(mappingInformation, aliases, namedParameters, positionalParameters, false,  EvaluationType.ACCESS_CHECK);
+        this(metamodel, util, aliases, namedParameters, positionalParameters,  EvaluationType.ACCESS_CHECK);
     }
 
-    public QueryEvaluationParameters(MappingInformation mappingInformation,
+    public QueryEvaluationParameters(Metamodel metamodel,
+                                     PersistenceUnitUtil persistenceUnitUtil,
                                      Map<Alias, Object> aliases,
                                      Map<String, Object> namedParameters,
                                      Map<Integer, Object> positionalParameters,
-                                     boolean inMemory, //TODO replace by evaluationType if possible
                                      EvaluationType evaluationType) {
-        if (mappingInformation == null) {
-            throw new IllegalArgumentException("mappingInformation may not be null");
-        }
-        this.mappingInformation = mappingInformation;
+        this.metamodel = notNull(Metamodel.class, metamodel);
+        this.persistenceUnitUtil = notNull(PersistenceUnitUtil.class, persistenceUnitUtil);
         this.aliases = aliases;
         this.namedParameters = namedParameters;
         this.positionalParameters = positionalParameters;
-        this.inMemory = inMemory;
         this.evaluationType = evaluationType;
     }
 
     public QueryEvaluationParameters(QueryEvaluationParameters parameters) {
-        this(parameters.mappingInformation,
+        this(parameters.metamodel,
+             parameters.persistenceUnitUtil,
              parameters.aliases,
              parameters.namedParameters,
              parameters.positionalParameters,
-             parameters.inMemory,
              parameters.getEvaluationType());
     }
 
-    public MappingInformation getMappingInformation() {
-        return mappingInformation;
+    public Metamodel getMetamodel() {
+        return metamodel;
     }
 
-    public boolean isInMemory() {
-        return inMemory;
+    public PersistenceUnitUtil getPersistenceUnitUtil() {
+        return persistenceUnitUtil;
     }
 
     public Set<Alias> getAliases() {

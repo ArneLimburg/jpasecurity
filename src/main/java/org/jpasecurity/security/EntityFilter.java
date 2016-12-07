@@ -16,6 +16,10 @@
 
 package org.jpasecurity.security;
 
+import static org.jpasecurity.jpql.TypeDefinition.Filter.attributeForPath;
+import static org.jpasecurity.jpql.TypeDefinition.Filter.typeForAlias;
+import static org.jpasecurity.util.Validate.notNull;
+
 import java.beans.Introspector;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,13 +30,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.jpasecurity.persistence.mapping.ManagedTypeFilter.forModel;
+
+import javax.persistence.PersistenceException;
+import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.MapAttribute;
+import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.Attribute.PersistentAttributeType;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
-import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.configuration.AccessRule;
-import org.jpasecurity.configuration.SecurityContext;
+import org.jpasecurity.Alias;
+import org.jpasecurity.Path;
+import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
+import org.jpasecurity.jpql.TypeDefinition;
+import org.jpasecurity.jpql.compiler.ConditionalPath;
 import org.jpasecurity.jpql.compiler.JpqlCompiler;
 import org.jpasecurity.jpql.compiler.NotEvaluatableException;
 import org.jpasecurity.jpql.compiler.QueryEvaluationParameters;
@@ -51,13 +68,6 @@ import org.jpasecurity.jpql.parser.JpqlWhere;
 import org.jpasecurity.jpql.parser.Node;
 import org.jpasecurity.jpql.parser.ParseException;
 import org.jpasecurity.jpql.parser.SimpleNode;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.ClassMappingInformation;
-import org.jpasecurity.mapping.ConditionalPath;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.Path;
-import org.jpasecurity.mapping.PropertyMappingInformation;
-import org.jpasecurity.mapping.TypeDefinition;
 
 /**
  * This class handles the access control.
@@ -70,28 +80,25 @@ public class EntityFilter {
 
     private static final Log LOG = LogFactory.getLog(EntityFilter.class);
 
-    private final MappingInformation mappingInformation;
-    private final SecurityContext securityContext;
+    private final Metamodel metamodel;
+    private final PersistenceUnitUtil persistenceUnitUtil;
     private final JpqlParser parser;
     protected final JpqlCompiler compiler;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final QueryEvaluator queryEvaluator;
     private final QueryPreparator queryPreparator = new QueryPreparator();
     private final Collection<AccessRule> accessRules;
-    private final ExceptionFactory exceptionFactory;
 
-    public EntityFilter(MappingInformation mappingInformation,
-                        SecurityContext securityContext,
-                        ExceptionFactory exceptionFactory,
+    public EntityFilter(Metamodel metamodel,
+                        PersistenceUnitUtil util,
                         Collection<AccessRule> accessRules,
                         SubselectEvaluator... evaluators) {
-        this.mappingInformation = mappingInformation;
-        this.securityContext = securityContext;
+        this.metamodel = notNull(Metamodel.class, metamodel);
+        this.persistenceUnitUtil = notNull(PersistenceUnitUtil.class, util);
         this.parser = new JpqlParser();
-        this.compiler = new JpqlCompiler(mappingInformation, exceptionFactory);
-        this.queryEvaluator = new QueryEvaluator(compiler, exceptionFactory, evaluators);
+        this.compiler = new JpqlCompiler(metamodel);
+        this.queryEvaluator = new QueryEvaluator(compiler, util, evaluators);
         this.accessRules = accessRules;
-        this.exceptionFactory = exceptionFactory;
     }
 
     public QueryPreparator getQueryPreparator() {
@@ -99,13 +106,14 @@ public class EntityFilter {
     }
 
     public boolean isAccessible(AccessType accessType, Object entity) {
-        ClassMappingInformation mapping = mappingInformation.getClassMapping(entity.getClass());
-        LOG.debug("Evaluating " + accessType + " access for entity of type " + mapping.getEntityName());
-        Alias alias = new Alias(Introspector.decapitalize(mapping.getEntityName()));
-        AccessDefinition accessDefinition = createAccessDefinition(alias, mapping.getEntityType(), accessType);
+        EntityType<?> mapping = metamodel.entity(entity.getClass());
+        LOG.debug("Evaluating " + accessType + " access for entity of type " + mapping.getName());
+        Alias alias = new Alias(Introspector.decapitalize(mapping.getName()));
+        AccessDefinition accessDefinition = createAccessDefinition(alias, mapping.getJavaType(), accessType);
         LOG.debug("Using access definition " + accessDefinition);
         QueryEvaluationParameters evaluationParameters
-            = new QueryEvaluationParameters(mappingInformation,
+            = new QueryEvaluationParameters(metamodel,
+                                            persistenceUnitUtil,
                                             Collections.singletonMap(alias, entity),
                                             accessDefinition.getQueryParameters(),
                                             Collections.<Integer, Object>emptyMap());
@@ -182,15 +190,14 @@ public class EntityFilter {
             AccessDefinition typedAccessDefinition = null;
             for (AccessRule accessRule: accessRules) {
                 if (!appliedRules.contains(accessRule.getStatement())) {
-                    if (accessRule.isAssignable(selectedType.getValue(), mappingInformation)) {
+                    if (accessRule.isAssignable(selectedType.getValue(), metamodel)) {
                         restricted = true;
                         restrictedTypes.add(selectedType.getValue());
                         appliedRules.add((JpqlAccessRule)accessRule.getStatement());
                         if (accessRule.grantsAccess(accessType)) {
                             typedAccessDefinition = appendAccessDefinition(typedAccessDefinition,
                                                                            accessRule,
-                                                                           selectedType.getKey(),
-                                                                           securityContext);
+                                                                           selectedType.getKey());
                         }
                     }
                 }
@@ -198,7 +205,7 @@ public class EntityFilter {
             Map<JpqlAccessRule, Set<AccessRule>> mayBeRules = new HashMap<JpqlAccessRule, Set<AccessRule>>();
             for (AccessRule accessRule : accessRules) {
                 if (!appliedRules.contains(accessRule.getStatement())) {
-                    if (accessRule.mayBeAssignable(selectedType.getValue(), mappingInformation)) {
+                    if (accessRule.mayBeAssignable(selectedType.getValue(), metamodel)) {
                         Set<AccessRule> accessRulesSet = mayBeRules.get(accessRule.getStatement());
                         if (accessRulesSet == null) {
                             accessRulesSet = new HashSet<AccessRule>();
@@ -213,11 +220,11 @@ public class EntityFilter {
                 AccessRule bestRule = null;
                 Class<?> bestRuleSelectedType = null;
                 for (AccessRule accessRule : accessRulesByStatement) {
-                    final Class<?> accessRuleSelectedType = accessRule.getSelectedType(mappingInformation);
+                    final Class<?> accessRuleSelectedType = accessRule.getSelectedType(metamodel);
                     //TODO remove filter mapped superclasses
                     if (bestRule == null) {
                         bestRule = accessRule;
-                        bestRuleSelectedType = bestRule.getSelectedType(mappingInformation);
+                        bestRuleSelectedType = bestRule.getSelectedType(metamodel);
                     } else {
                         if (accessRuleSelectedType.isAssignableFrom(bestRuleSelectedType)) {
                             bestRule = accessRule;
@@ -228,16 +235,21 @@ public class EntityFilter {
                 bestMayBeRules.add(bestRule);
             }
             for (AccessRule accessRule : bestMayBeRules) {
-                if (accessRule.mayBeAssignable(selectedType.getValue(), mappingInformation)) {
+                if (accessRule.mayBeAssignable(selectedType.getValue(), metamodel)) {
                     restricted = true;
-                    restrictedTypes.add(accessRule.getSelectedType(mappingInformation));
+                    restrictedTypes.add(accessRule.getSelectedType(metamodel));
                     if (accessRule.grantsAccess(accessType)) {
-                        Class<?> type = accessRule.getSelectedType(mappingInformation);
-                        Node instanceOf
-                            = queryPreparator.createInstanceOf(selectedType.getKey(),
-                                                               mappingInformation.getClassMapping(type));
-                        AccessDefinition preparedAccessRule
-                            = prepareAccessRule(accessRule, selectedType.getKey(), securityContext);
+                        Class<?> type = accessRule.getSelectedType(metamodel);
+                        Node instanceOf = null;
+                        for (EntityType<?> entityType: forModel(metamodel).filterEntities(type)) {
+                            Node node = queryPreparator.createInstanceOf(selectedType.getKey(), entityType);
+                            if (instanceOf == null) {
+                                instanceOf = node;
+                            } else {
+                                instanceOf = queryPreparator.createOr(instanceOf, node);
+                            }
+                        }
+                        AccessDefinition preparedAccessRule = prepareAccessRule(accessRule, selectedType.getKey());
                         preparedAccessRule.mergeNode(instanceOf);
                         typedAccessDefinition = preparedAccessRule.append(typedAccessDefinition);
                     }
@@ -246,9 +258,15 @@ public class EntityFilter {
             if (restrictedTypes.size() > 0 && !restrictedTypes.contains(selectedType.getValue())) {
                 Node superclassNode = null;
                 for (Class<?> restrictedType: restrictedTypes) {
-                    Node instanceOf
-                        = queryPreparator.createInstanceOf(selectedType.getKey(),
-                                                           mappingInformation.getClassMapping(restrictedType));
+                    Node instanceOf = null;
+                    for (EntityType<?> entityType: forModel(metamodel).filterEntities(restrictedType)) {
+                        Node node = queryPreparator.createInstanceOf(selectedType.getKey(), entityType);
+                        if (instanceOf == null) {
+                            instanceOf = node;
+                        } else {
+                            instanceOf = queryPreparator.createOr(instanceOf, node);
+                        }
+                    }
                     if (superclassNode == null) {
                         superclassNode = queryPreparator.createNot(instanceOf);
                     } else {
@@ -302,11 +320,11 @@ public class EntityFilter {
 
         try {
             QueryEvaluationParameters evaluationParameters
-                = new QueryEvaluationParameters(mappingInformation,
+                = new QueryEvaluationParameters(metamodel,
+                                                persistenceUnitUtil,
                                                 Collections.<Alias, Object>emptyMap(),
                                                 accessDefinition.getQueryParameters(),
                                                 Collections.<Integer, Object>emptyMap(),
-                                                true,
                                                 QueryEvaluationParameters.EvaluationType.GET_ALWAYS_EVALUATABLE_RESULT);
             boolean result = queryEvaluator.<Boolean>evaluate(accessDefinition.getAccessRules(), evaluationParameters);
             if (result) {
@@ -323,19 +341,19 @@ public class EntityFilter {
     }
 
     protected void optimize(AccessDefinition accessDefinition) {
-        QueryOptimizer optimizer = new QueryOptimizer(mappingInformation,
-                                                      Collections.EMPTY_MAP,
+        QueryOptimizer optimizer = new QueryOptimizer(metamodel,
+                                                      persistenceUnitUtil,
+                                                      Collections.<Alias, Object>emptyMap(),
                                                       accessDefinition.getQueryParameters(),
-                                                      Collections.EMPTY_MAP,
+                                                      Collections.<Integer, Object>emptyMap(),
                                                       queryEvaluator);
         optimizer.optimize(accessDefinition.getAccessRules());
     }
 
     private AccessDefinition appendAccessDefinition(AccessDefinition accessDefinition,
                                                     AccessRule accessRule,
-                                                    Path selectedPath,
-                                                    SecurityContext securityContext) {
-        return prepareAccessRule(accessRule, selectedPath, securityContext).append(accessDefinition);
+                                                    Path selectedPath) {
+        return prepareAccessRule(accessRule, selectedPath).append(accessDefinition);
     }
 
     private Node appendNode(Node accessRules, Node accessRule) {
@@ -346,15 +364,13 @@ public class EntityFilter {
         }
     }
 
-    private AccessDefinition prepareAccessRule(AccessRule accessRule,
-                                               Path selectedPath,
-                                               SecurityContext securityContext) {
+    private AccessDefinition prepareAccessRule(AccessRule accessRule, Path selectedPath) {
         if (accessRule.getWhereClause() == null) {
             return new AccessDefinition(queryPreparator.createBoolean(true));
         }
         accessRule = accessRule.clone();
         Map<String, Object> queryParameters = new HashMap<String, Object>();
-        expand(accessRule, securityContext, queryParameters);
+        expand(accessRule, queryParameters);
         Node preparedAccessRule = queryPreparator.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
         queryPreparator.replace(preparedAccessRule, accessRule.getSelectedPath(), selectedPath);
         return new AccessDefinition(preparedAccessRule, queryParameters);
@@ -368,13 +384,14 @@ public class EntityFilter {
                 compiledStatement = compiler.compile(statement);
                 statementCache.put(query, compiledStatement);
             } catch (ParseException e) {
-                throw exceptionFactory.createRuntimeException(e);
+                throw new PersistenceException(e);
             }
         }
         return compiledStatement.clone();
     }
 
-    private void expand(AccessRule accessRule, SecurityContext securityContext, Map<String, Object> queryParameters) {
+    private void expand(AccessRule accessRule, Map<String, Object> queryParameters) {
+        SecurityContext securityContext = AccessManager.Instance.get().getContext();
         for (Alias alias: securityContext.getAliases()) {
             Collection<JpqlIn> inNodes = accessRule.getInNodes(alias);
             if (inNodes.size() > 0) {
@@ -446,26 +463,29 @@ public class EntityFilter {
         if (!selectedPath.hasParentPath()) {
             return selectedPath;
         }
-        PropertyMappingInformation propertyMapping
-            = mappingInformation.getPropertyMapping(selectedPath, typeDefinitions);
-        if (propertyMapping.isRelationshipMapping()) {
-            return selectedPath;
-        } else {
+        Attribute<?, ?> attribute
+            = TypeDefinition.Filter.attributeForPath(selectedPath).withMetamodel(metamodel).filter(typeDefinitions);
+        if (attribute.getPersistentAttributeType() == PersistentAttributeType.BASIC) {
             return selectedPath.getParentPath();
+        } else {
+            return selectedPath;
         }
     }
 
     private Class<?> getSelectedType(Path entityPath, Set<TypeDefinition> typeDefinitions) {
         if (entityPath.isKeyPath()) {
-            Class<?> keyType = mappingInformation.getKeyType(entityPath.getRootAlias(), typeDefinitions);
+            Path keyPath = new Path(entityPath.getRootAlias().toString());
+            MapAttribute<?, ?, ?> mapAttribute
+                = (MapAttribute<?, ?, ?>)attributeForPath(keyPath).withMetamodel(metamodel).filter(typeDefinitions);
+            Class<?> keyType = mapAttribute.getKeyJavaType();
             if (!entityPath.hasSubpath()) {
                 return keyType;
             }
-            return mappingInformation.getPropertyMapping(keyType, entityPath).getProperyType();
+            return attributeForPath(new Path(entityPath.getSubpath())).withRootType(keyType).filter().getJavaType();
         } else if (entityPath.hasSubpath()) {
-            return mappingInformation.getPropertyMapping(entityPath, typeDefinitions).getProperyType();
+            return attributeForPath(entityPath).withMetamodel(metamodel).filter(typeDefinitions).getJavaType();
         } else {
-            return mappingInformation.getType(entityPath.getRootAlias(), typeDefinitions);
+            return typeForAlias(entityPath.getRootAlias()).withMetamodel(metamodel).filter(typeDefinitions);
         }
     }
 

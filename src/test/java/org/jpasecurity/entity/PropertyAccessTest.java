@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.jpasecurity.model.ChildTestBean;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.model.MethodAccessAnnotationTestBean;
 import org.jpasecurity.model.ParentTestBean;
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.jpasecurity.util.ReflectionUtils;
 import org.junit.After;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class PropertyAccessTest {
 
     @Test
     public void navigateOneToMany() {
-        TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
+        TestSecurityContext.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -56,7 +56,7 @@ public class PropertyAccessTest {
 
         entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         bean = entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
         assertEquals(1, bean.getChildBeans().size());
         assertEquals(USER1, bean.getChildBeans().get(0).getBeanName());
@@ -68,7 +68,7 @@ public class PropertyAccessTest {
 
     @Test
     public void methodBasedMapping() {
-        TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
+        TestSecurityContext.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-method-access");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -90,7 +90,7 @@ public class PropertyAccessTest {
 
     @Test
     public void oneToManyMapping() {
-        TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
+        TestSecurityContext.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("parent-child");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -103,7 +103,7 @@ public class PropertyAccessTest {
 
         entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         bean = entityManager.find(ParentTestBean.class, bean.getId());
         assertEquals(1, bean.getChildren().size());
         assertEquals(USER1, bean.getChildren().get(0).getName());
@@ -113,7 +113,7 @@ public class PropertyAccessTest {
 
     @Test
     public void identityMapping() {
-        TestAuthenticationProvider.authenticate(ADMIN, ADMIN);
+        TestSecurityContext.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("parent-child");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -144,7 +144,7 @@ public class PropertyAccessTest {
 
     @Test
     public void update() {
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -172,12 +172,12 @@ public class PropertyAccessTest {
         entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         bean = entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
-        TestAuthenticationProvider.authenticate(USER2);
+        TestSecurityContext.authenticate(USER2);
         bean.setBeanName(USER2);
         entityManager.getTransaction().commit();
         entityManager.close();
 
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         try {
@@ -188,7 +188,7 @@ public class PropertyAccessTest {
         entityManager.getTransaction().rollback();
         entityManager.close();
 
-        TestAuthenticationProvider.authenticate(USER2);
+        TestSecurityContext.authenticate(USER2);
         entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         bean = entityManager.find(FieldAccessAnnotationTestBean.class, bean.getIdentifier());
@@ -199,7 +199,7 @@ public class PropertyAccessTest {
 
     @Test
     public void fieldBasedPropertyAccessCount() {
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -231,7 +231,7 @@ public class PropertyAccessTest {
 
     @Test
     public void methodBasedPropertyAccessCount() {
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-method-access");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -267,6 +267,6 @@ public class PropertyAccessTest {
 
     @After
     public void logout() {
-        TestAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 }

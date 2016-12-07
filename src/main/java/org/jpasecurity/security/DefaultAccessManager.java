@@ -17,27 +17,21 @@ package org.jpasecurity.security;
 
 import static org.jpasecurity.util.Validate.notNull;
 
+import javax.persistence.metamodel.Metamodel;
+
 import org.jpasecurity.AccessType;
-import org.jpasecurity.mapping.ClassMappingInformation;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.util.DoubleKeyHashMap;
+import org.jpasecurity.SecurityContext;
 
 /**
  * @author Arne Limburg
  */
 public class DefaultAccessManager extends AbstractAccessManager {
 
-    private MappingInformation mappingInformation;
     private EntityFilter entityFilter;
-    private DoubleKeyHashMap<ClassMappingInformation, Object, Boolean> cachedReadAccess
-        = new DoubleKeyHashMap<ClassMappingInformation, Object, Boolean>();
 
-    public DefaultAccessManager(MappingInformation mappingInformation, EntityFilter entityFilter) {
-        super(mappingInformation);
-        notNull(MappingInformation.class, mappingInformation);
-        notNull(EntityFilter.class, entityFilter);
-        this.mappingInformation = mappingInformation;
-        this.entityFilter = entityFilter;
+    public DefaultAccessManager(Metamodel metamodel, SecurityContext context, EntityFilter entityFilter) {
+        super(metamodel, context);
+        this.entityFilter = notNull(EntityFilter.class, entityFilter);
     }
 
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
@@ -53,24 +47,6 @@ public class DefaultAccessManager extends AbstractAccessManager {
         if (entity == null) {
             return false;
         }
-        final ClassMappingInformation classMapping = mappingInformation.getClassMapping(entity.getClass());
-        final Object entityId = classMapping.getId(entity);
-        if (accessType == AccessType.READ) {
-            final Boolean isAccessible = cachedReadAccess.get(classMapping, entityId);
-            if (isAccessible != null) {
-                return isAccessible;
-            }
-        }
-        try {
-            final boolean accessible = entityFilter.isAccessible(accessType, entity);
-            if (accessType == AccessType.READ) {
-                cachedReadAccess.put(classMapping, entityId, accessible);
-            }
-            return accessible;
-        } catch (SecurityException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new SecurityException(e);
-        }
+        return entityFilter.isAccessible(accessType, entity);
     }
 }

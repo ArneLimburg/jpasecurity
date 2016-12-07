@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import org.jpasecurity.security.Permit;
-
 /**
  * @author Arne Limburg
  */
 @Entity
 @RolesAllowed("admin")
-@Permit(rule = "owner.name = CURRENT_PRINCIPAL")
 public class Contact implements Serializable {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)

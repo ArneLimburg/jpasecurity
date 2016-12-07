@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import javax.faces.context.FacesContext;
 
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
-import org.jpasecurity.configuration.AuthenticationProviderSecurityContext;
-import org.jpasecurity.configuration.SecurityContext;
+import org.jpasecurity.Alias;
+import org.jpasecurity.AuthenticationProviderSecurityContext;
+import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jsf.authentication.JsfAuthenticationProvider;
-import org.jpasecurity.mapping.Alias;
 
 /**
  * @author Arne Limburg

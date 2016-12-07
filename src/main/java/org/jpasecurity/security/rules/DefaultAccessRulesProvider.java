@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,45 @@
  */
 package org.jpasecurity.security.rules;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.jpasecurity.configuration.AccessRule;
-import org.jpasecurity.configuration.AccessRulesProvider;
-import org.jpasecurity.configuration.Configuration;
-import org.jpasecurity.configuration.ConfigurationReceiver;
-import org.jpasecurity.configuration.SecurityContext;
-import org.jpasecurity.configuration.SecurityContextReceiver;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.MappingInformationReceiver;
+import javax.persistence.metamodel.Metamodel;
+
+import org.jpasecurity.Configuration;
+import org.jpasecurity.ConfigurationReceiver;
+import org.jpasecurity.SecurityContext;
+import org.jpasecurity.security.AccessRule;
 
 /**
  * This implementation of the {@link AccessRulesProvider} interface.
  * @author Arne Limburg
  */
 public class DefaultAccessRulesProvider implements AccessRulesProvider,
-                                                   MappingInformationReceiver,
-                                                   SecurityContextReceiver,
                                                    ConfigurationReceiver {
 
-    private final AnnotationAccessRulesProvider annotationRulesProvider = new AnnotationAccessRulesProvider();
-    private final XmlAccessRulesProvider xmlRulesProvider = new XmlAccessRulesProvider();
+    private final AnnotationAccessRulesProvider annotationRulesProvider;
+    private final XmlAccessRulesProvider xmlRulesProvider;
     private List<AccessRule> accessRules;
+
+    public DefaultAccessRulesProvider(String persistenceUnitName, Metamodel metamodel) {
+        SecurityContext context = (SecurityContext)Proxy.newProxyInstance(
+                Thread.currentThread().getContextClassLoader(),
+                new Class[] {SecurityContext.class},
+                new InvocationHandler() {
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        return method.invoke(proxy, args);
+                    }
+                });
+        annotationRulesProvider = new AnnotationAccessRulesProvider(metamodel, context);
+        xmlRulesProvider = new XmlAccessRulesProvider(persistenceUnitName, metamodel, context);
+    }
 
     public List<AccessRule> getAccessRules() {
         if (accessRules == null) {
@@ -52,19 +65,9 @@ public class DefaultAccessRulesProvider implements AccessRulesProvider,
         return accessRules;
     }
 
-    public void setMappingInformation(MappingInformation persistenceMapping) {
-        annotationRulesProvider.setMappingInformation(persistenceMapping);
-        xmlRulesProvider.setMappingInformation(persistenceMapping);
-    }
-
     public void setMappingProperties(Map<String, Object> properties) {
         annotationRulesProvider.setMappingProperties(properties);
         xmlRulesProvider.setMappingProperties(properties);
-    }
-
-    public void setSecurityContext(SecurityContext securityContext) {
-        annotationRulesProvider.setSecurityContext(securityContext);
-        xmlRulesProvider.setSecurityContext(securityContext);
     }
 
     public void setConfiguration(Configuration configuration) {

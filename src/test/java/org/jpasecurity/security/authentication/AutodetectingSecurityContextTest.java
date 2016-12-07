@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2010 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ import javax.naming.NamingException;
 
 import org.apache.commons.naming.NamingContext;
 import org.apache.commons.naming.java.javaURLContextFactory;
-import org.jpasecurity.configuration.AuthenticationProvider;
-import org.jpasecurity.mapping.Alias;
+import org.jpasecurity.Alias;
+import org.jpasecurity.AuthenticationProvider;
 import org.junit.After;
 import org.junit.Test;
 
