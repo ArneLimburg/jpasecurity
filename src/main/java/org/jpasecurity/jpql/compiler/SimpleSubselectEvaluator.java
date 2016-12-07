@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 - 2011 Arne Limburg
+ * Copyright 2010 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jpasecurity.ExceptionFactory;
+import org.jpasecurity.Alias;
+import org.jpasecurity.Path;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
-import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
-import org.jpasecurity.jpql.parser.Node;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.Path;
-import org.jpasecurity.mapping.TypeDefinition;
-import org.jpasecurity.util.SetHashMap;
-import org.jpasecurity.util.SetMap;
-import org.jpasecurity.util.ValueHolder;
-
+import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.jpql.parser.JpqlEquals;
 import org.jpasecurity.jpql.parser.JpqlExists;
 import org.jpasecurity.jpql.parser.JpqlGroupBy;
@@ -44,8 +37,13 @@ import org.jpasecurity.jpql.parser.JpqlInnerJoin;
 import org.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import org.jpasecurity.jpql.parser.JpqlOuterJoin;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
+import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
 import org.jpasecurity.jpql.parser.JpqlWith;
+import org.jpasecurity.jpql.parser.Node;
+import org.jpasecurity.util.SetHashMap;
+import org.jpasecurity.util.SetMap;
+import org.jpasecurity.util.ValueHolder;
 
 /**
  * A subselect-evaluator that evaluates subselects only by the specified aliases.
@@ -53,17 +51,12 @@ import org.jpasecurity.jpql.parser.JpqlWith;
  */
 public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
 
-    private final ExceptionFactory exceptionFactory;
     private final QueryPreparator queryPreparator = new QueryPreparator();
     private final ReplacementVisitor replacementVisitor = new ReplacementVisitor();
     private final WithClauseVisitor withClauseVisitor = new WithClauseVisitor();
     private final OuterJoinWithClauseVisitor outerJoinWithClauseVisitor = new OuterJoinWithClauseVisitor();
     private final GroupByClauseVisitor groupByClauseVisitor = new GroupByClauseVisitor();
     private final HavingClauseVisitor havingClauseVisitor = new HavingClauseVisitor();
-
-    public SimpleSubselectEvaluator(ExceptionFactory exceptionFactory) {
-        this.exceptionFactory = exceptionFactory;
-    }
 
     public Collection<?> evaluate(JpqlCompiledStatement subselect,
                                   QueryEvaluationParameters parameters)
@@ -187,7 +180,8 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     private List<Object> evaluateSubselect(JpqlCompiledStatement subselect,
                                            QueryEvaluationParameters parameters,
                                            SetMap<Alias, Object> variants) {
-        PathEvaluator pathEvaluator = new MappedPathEvaluator(parameters.getMappingInformation(), exceptionFactory);
+        PathEvaluator pathEvaluator
+            = new MappedPathEvaluator(parameters.getMetamodel(), parameters.getPersistenceUnitUtil());
         List<Path> selectedPaths = subselect.getSelectedPaths();
         List<Object> resultList = new ArrayList<Object>();
         Set<TypeDefinition> types = subselect.getTypeDefinitions();
@@ -195,7 +189,8 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
             Map<Alias, Object> aliases = new HashMap<Alias, Object>(parameters.getAliasValues());
             aliases.putAll(v.next());
             QueryEvaluationParameters subselectParameters
-                = new QueryEvaluationParameters(parameters.getMappingInformation(),
+                = new QueryEvaluationParameters(parameters.getMetamodel(),
+                                                parameters.getPersistenceUnitUtil(),
                                                 aliases,
                                                 parameters.getNamedParameters(),
                                                 parameters.getPositionalParameters());
@@ -327,13 +322,15 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     private class ReplacementVisitor extends JpqlVisitorAdapter<Set<Replacement>> {
 
         public boolean visit(JpqlEquals node, Set<Replacement> replacements) {
-            String child0 = node.jjtGetChild(0).toString();
-            String child1 = node.jjtGetChild(1).toString();
+            Path child0 = new Path(node.jjtGetChild(0).toString());
+            Path child1 = new Path(node.jjtGetChild(1).toString());
             for (Replacement replacement: replacements) {
                 Alias alias = replacement.getTypeDefinition().getAlias();
-                if (child0.equals(alias.getName()) && !child1.equals(alias.getName())) {
+                if (child0.getRootAlias().equals(alias) && !child0.hasSubpath()
+                        && (!child1.getRootAlias().equals(alias) || child1.hasSubpath())) {
                     replacement.setReplacement(node.jjtGetChild(1));
-                } else if (child1.equals(alias.getName()) && !child0.equals(alias.getName())) {
+                } else if (child1.getRootAlias().equals(alias) && !child1.hasSubpath()
+                        && (!child0.getRootAlias().equals(alias) || child0.hasSubpath())) {
                     replacement.setReplacement(node.jjtGetChild(0));
                 }
             }

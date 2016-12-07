@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.jpasecurity.model.Subclass1;
 import org.jpasecurity.model.SuperclassReferencingBean;
 import org.jpasecurity.model.TestBean;
 import org.jpasecurity.model.TestBeanSubclass;
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class SubclassingTest {
 
     @Before
     public void createTestData() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         factory = Persistence.createEntityManagerFactory("subclassing-test");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -57,7 +57,7 @@ public class SubclassingTest {
         entityManager.persist(new SuperclassReferencingBean(subclass));
         entityManager.getTransaction().commit();
         entityManager.close();
-        TestAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 
     @After
@@ -70,7 +70,7 @@ public class SubclassingTest {
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         assertEquals(1, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         assertEquals(2, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
         entityManager.getTransaction().commit();
         entityManager.close();

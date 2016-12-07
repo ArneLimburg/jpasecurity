@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 - 2011 Arne Limburg
+ * Copyright 2010 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.jpasecurity.persistence;
 
 import javax.persistence.PersistenceException;
 
-import org.jpasecurity.configuration.AbstractExceptionFactory;
+import org.jpasecurity.AbstractExceptionFactory;
 
 /**
  * @author Arne Limburg

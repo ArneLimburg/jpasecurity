@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Stefan Hildebrandt
+ * Copyright 2012 - 2016 Stefan Hildebrandt
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import javax.persistence.Persistence;
 import org.jpasecurity.model.objectidentity.ChildEntityType1;
 import org.jpasecurity.model.objectidentity.EntitySuperclass;
 import org.jpasecurity.model.objectidentity.ParentEntity;
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -52,7 +52,7 @@ public class ObjectIdentityTest {
 
     @Before
     public void createTestData() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         factory = Persistence.createEntityManagerFactory("objectidentity-test");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -106,7 +106,7 @@ public class ObjectIdentityTest {
 
         entityManager.getTransaction().commit();
         entityManager.close();
-        TestAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 
     @After
@@ -118,7 +118,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentityFindByIdBeforeFindById() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         ParentEntity child
             = entityManager.find(ParentEntity.class, PARENT_ENTITY_ID);
@@ -128,7 +128,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentityGetReferenceBeforeFindById() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         ParentEntity child
             = entityManager.getReference(ParentEntity.class, PARENT_ENTITY_ID);
@@ -138,7 +138,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentityFindByIdAfterSingleResultQuery() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         ParentEntity parentEntity
             = entityManager
@@ -150,7 +150,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentityFindByIdAfterRelationInitialisation() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         ParentEntity parentEntity
             = entityManager
@@ -161,7 +161,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentityFindByIdAfterLazyRelationInitialisation() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         ParentEntity parentEntity
             = entityManager.find(ParentEntity.class, PARENT_ENTITY_ID);
@@ -173,7 +173,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentityFindByIdAfterLazyAbstractRelationInitialisation() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         ParentEntity parentEntity
             = entityManager.find(ParentEntity.class, PARENT_ENTITY_ID);
@@ -186,7 +186,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentityFindByIdAfterCollectionInitialisation() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         ParentEntity parentEntity
             = entityManager
@@ -207,7 +207,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentityCollectionInitialisationAfterFindById() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         final ChildEntityType1 childEntity = entityManager.find(ChildEntityType1.class, CHILD_ENTITY_ID_MANY_TO_ONE_1);
         ParentEntity parentEntity
@@ -226,7 +226,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentitySingleQueryResultAfterFindById() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         final ParentEntity byFindById = entityManager.find(ParentEntity.class, PARENT_ENTITY_ID);
         ParentEntity byQuery
@@ -239,7 +239,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentityListQueryResultAfterFindById() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         final ChildEntityType1 byFindById = entityManager.find(ChildEntityType1.class, CHILD_ENTITY_ID_MANY_TO_ONE_1);
         ParentEntity parent
@@ -259,7 +259,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentityAbstractListQueryAfterFindById() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         final ChildEntityType1
             byFindById = entityManager.find(ChildEntityType1.class, CHILD_ENTITY_ID_ABSTRACT_MANY_TO_ONE_1);
@@ -280,7 +280,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentityAbstractListFindByIdAfterQuery() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         ParentEntity parent
             = entityManager
@@ -301,7 +301,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentityAbstractLazyListQueryAfterFindById() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         final ChildEntityType1
             byFindById = entityManager.find(ChildEntityType1.class, CHILD_ENTITY_ID_ABSTRACT_LAZY_MANY_TO_ONE_1);
@@ -322,7 +322,7 @@ public class ObjectIdentityTest {
 
     @Test
     public void testIdentityAbstractLazyListFindByIdAfterQuery() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = factory.createEntityManager();
         ParentEntity parent
             = entityManager

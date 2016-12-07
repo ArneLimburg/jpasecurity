@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+
 /**
  * @author Arne Limburg
  */
+@NamedQueries({
+    @NamedQuery(name = "MethodAccessTestBean.findById",
+                query = "SELECT m FROM MethodAccessTestBean m WHERE m.id = :id"),
+    @NamedQuery(name = "MethodAccessTestBean.findByName",
+                query = "SELECT m FROM MethodAccessTestBean m WHERE m.name = :name"),
+})
+@Entity
 public class MethodAccessTestBean {
 
     private int identifier;
@@ -50,6 +64,7 @@ public class MethodAccessTestBean {
         parentBean = parent;
     }
 
+    @Id
     public int getId() {
         return identifier;
     }
@@ -71,6 +86,7 @@ public class MethodAccessTestBean {
         return setNameCalled;
     }
 
+    @ManyToOne
     public MethodAccessTestBean getParent() {
         return parentBean;
     }
@@ -79,6 +95,7 @@ public class MethodAccessTestBean {
         parentBean = parent;
     }
 
+    @OneToMany
     public List<MethodAccessTestBean> getChildren() {
         return childBeans;
     }
@@ -87,6 +104,7 @@ public class MethodAccessTestBean {
         childBeans = children;
     }
 
+    @OneToMany
     public Map<MethodAccessTestBean, MethodAccessTestBean> getRelated() {
         return map;
     }

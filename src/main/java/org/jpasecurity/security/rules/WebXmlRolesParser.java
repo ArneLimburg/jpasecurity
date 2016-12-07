@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package org.jpasecurity.security.rules;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.configuration.DefaultExceptionFactory;
 import org.jpasecurity.security.rules.WebXmlRolesParser.XmlRolesHandler;
 import org.jpasecurity.xml.AbstractXmlParser;
 import org.xml.sax.Attributes;
@@ -33,11 +31,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class WebXmlRolesParser extends AbstractXmlParser<XmlRolesHandler> {
 
     public WebXmlRolesParser() {
-        this(new DefaultExceptionFactory());
-    }
-
-    public WebXmlRolesParser(ExceptionFactory factory) {
-        super(new XmlRolesHandler(), factory);
+        super(new XmlRolesHandler());
     }
 
     public Set<String> getRoles() {

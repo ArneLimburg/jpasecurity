@@ -17,6 +17,10 @@ package org.jpasecurity.security;
 
 import java.util.Map;
 
+import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.metamodel.Metamodel;
+
+import org.jpasecurity.Alias;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.compiler.NotEvaluatableException;
 import org.jpasecurity.jpql.compiler.QueryEvaluationParameters;
@@ -28,8 +32,6 @@ import org.jpasecurity.jpql.parser.JpqlOr;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
 import org.jpasecurity.jpql.parser.Node;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.MappingInformation;
 
 /**
  * Optimizes a query by evaluating subtrees in memory.
@@ -42,17 +44,18 @@ public class QueryOptimizer {
     private final NodeOptimizer nodeOptimizer = new NodeOptimizer();
     private final QueryPreparator queryPreparator = new QueryPreparator();
 
-    public QueryOptimizer(MappingInformation mappingInformation,
+    public QueryOptimizer(Metamodel metamodel,
+                          PersistenceUnitUtil persistenceUnitUtil,
                           Map<Alias, Object> aliases,
                           Map<String, Object> namedParameters,
                           Map<Integer, Object> positionalParameters,
                           QueryEvaluator evaluator) {
         this.evaluator = evaluator;
-        this.parameters = new QueryEvaluationParameters(mappingInformation,
+        this.parameters = new QueryEvaluationParameters(metamodel,
+                                                        persistenceUnitUtil,
                                                         aliases,
                                                         namedParameters,
                                                         positionalParameters,
-                                                        true,
                                                         QueryEvaluationParameters.EvaluationType.OPTIMIZE_QUERY);
     }
 

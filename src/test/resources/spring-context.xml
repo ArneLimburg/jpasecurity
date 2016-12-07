@@ -32,16 +32,12 @@
 
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
 
-    <bean id="entityManagerFactory" class="org.jpasecurity.spring.persistence.SecureContainerEntityManagerFactoryBean"
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
           p:persistenceUnitName="spring-contacts"
-          p:authenticationProvider-ref="authenticationProvider"
-          p:accessRulesProvider-ref="accessRulesProvider"
           p:dataSource-ref="dataSource" />
     
     <bean id="authenticationProvider" class="org.jpasecurity.spring.authentication.SpringAuthenticationProvider" />
     
-    <bean id="accessRulesProvider" class="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
           p:entityManagerFactory-ref="entityManagerFactory" />
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import javax.persistence.PersistenceException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jpasecurity.ExceptionFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -36,11 +36,9 @@ public abstract class AbstractXmlParser<H extends DefaultHandler> {
 
     private static final Log LOG = LogFactory.getLog(AbstractXmlParser.class);
     private H handler;
-    private ExceptionFactory exceptionFactory;
 
-    public AbstractXmlParser(H xmlHandler, ExceptionFactory factory) {
+    public AbstractXmlParser(H xmlHandler) {
         handler = xmlHandler;
-        exceptionFactory = factory;
     }
 
     protected H getHandler() {
@@ -64,11 +62,11 @@ public abstract class AbstractXmlParser<H extends DefaultHandler> {
             SAXParser parser = factory.newSAXParser();
             parser.parse(xml, handler);
         } catch (ParserConfigurationException e) {
-            throw exceptionFactory.createRuntimeException(e);
+            throw new PersistenceException(e);
         } catch (SAXException e) {
-            throw exceptionFactory.createRuntimeException(e);
+            throw new PersistenceException(e);
         } catch (IOException e) {
-            throw exceptionFactory.createRuntimeException(e);
+            throw new PersistenceException(e);
         }
     }
 }

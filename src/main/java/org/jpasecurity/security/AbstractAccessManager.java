@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Arne Limburg
+ * Copyright 2013 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
-import org.jpasecurity.mapping.ClassMappingInformation;
-import org.jpasecurity.mapping.MappingInformation;
+import org.jpasecurity.SecurityContext;
+import org.jpasecurity.persistence.mapping.ManagedTypeFilter;
 import org.jpasecurity.util.ReflectionUtils;
 
 /**
@@ -38,27 +41,29 @@ public abstract class AbstractAccessManager implements AccessManager {
 
     private static final Log LOG = LogFactory.getLog(AbstractAccessManager.class);
 
-    private MappingInformation mappingInformation;
+    private Metamodel metamodel;
+    private SecurityContext context;
     private boolean checkInProgress;
     private int checksDisabled;
     private int checksDelayed;
     private Map<Object, AccessType> entitiesToCheck = new HashMap<Object, AccessType>();
 
-    public AbstractAccessManager(MappingInformation mappingInformation) {
-        this.mappingInformation = notNull(MappingInformation.class, mappingInformation);
+    public AbstractAccessManager(Metamodel metamodel, SecurityContext context) {
+        this.metamodel = notNull(Metamodel.class, metamodel);
+        this.context = notNull(SecurityContext.class, context);
     }
 
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
-        ClassMappingInformation classMapping = mappingInformation.getClassMapping(entityName);
+        EntityType<?> classMapping = ManagedTypeFilter.forModel(metamodel).filter(entityName);
         Object entity = null;
         try {
-            entity = ReflectionUtils.newInstance(classMapping.getEntityType(), parameters);
+            entity = ReflectionUtils.newInstance(classMapping.getJavaType(), parameters);
         } catch (RuntimeException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Constructor of " + classMapping.getEntityType()
+                LOG.debug("Constructor of " + classMapping.getJavaType()
                           + " threw exception, hence isAccessible returns false.", e);
             } else {
-                LOG.info("Constructor of " + classMapping.getEntityType()
+                LOG.info("Constructor of " + classMapping.getJavaType()
                          + " threw exception (\"" + e.getMessage() + "\"), hence isAccessible returns false.");
             }
             return false;
@@ -85,6 +90,10 @@ public abstract class AbstractAccessManager implements AccessManager {
         } finally {
             endCheck();
         }
+    }
+
+    public SecurityContext getContext() {
+        return context;
     }
 
     public boolean areChecksDisabled() {

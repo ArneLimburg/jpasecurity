@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,24 @@
  */
 package org.jpasecurity.jpql.compiler;
 
+import static org.jpasecurity.persistence.mapping.ManagedTypeFilter.forModel;
+import static org.jpasecurity.util.Validate.notNull;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.configuration.SecurityContext;
-import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
-import org.jpasecurity.jpql.parser.Node;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.ClassMappingInformation;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.PropertyMappingInformation;
-import org.jpasecurity.mapping.SimplePropertyMappingInformation;
-import org.jpasecurity.mapping.TypeDefinition;
+import javax.persistence.PersistenceException;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.ManagedType;
+import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.PluralAttribute;
+import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.Attribute.PersistentAttributeType;
+import javax.persistence.metamodel.Type.PersistenceType;
 
+import org.jpasecurity.Alias;
+import org.jpasecurity.SecurityContext;
+import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.jpql.parser.JpqlFromItem;
 import org.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
 import org.jpasecurity.jpql.parser.JpqlInnerJoin;
@@ -36,6 +40,9 @@ import org.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import org.jpasecurity.jpql.parser.JpqlOuterJoin;
 import org.jpasecurity.jpql.parser.JpqlPath;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
+import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
+import org.jpasecurity.jpql.parser.Node;
+import org.jpasecurity.persistence.mapping.ManagedTypeFilter;
 
 /**
  * This evaluator is used to check queries and rules.
@@ -45,25 +52,12 @@ import org.jpasecurity.jpql.parser.JpqlSubselect;
  */
 public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
 
-    private MappingInformation mappingInformation;
+    private Metamodel metamodel;
     private SecurityContext securityContext;
-    private ExceptionFactory exceptionFactory;
 
-    public MappingEvaluator(MappingInformation mappingInformation,
-                            SecurityContext securityContext,
-                            ExceptionFactory exceptionFactory) {
-        if (mappingInformation == null) {
-            throw new IllegalArgumentException("mappingInformation may not be null");
-        }
-        if (securityContext == null) {
-            throw new IllegalArgumentException("securityContext may not be null");
-        }
-        if (exceptionFactory == null) {
-            throw new IllegalArgumentException("exceptionFactory may not be null");
-        }
-        this.mappingInformation = mappingInformation;
-        this.securityContext = securityContext;
-        this.exceptionFactory = exceptionFactory;
+    public MappingEvaluator(Metamodel metamodel, SecurityContext securityContext) {
+        this.metamodel = notNull(Metamodel.class, metamodel);
+        this.securityContext = notNull(SecurityContext.class, securityContext);
     }
 
     /**
@@ -77,14 +71,17 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
         Alias alias = new Alias(node.jjtGetChild(0).getValue());
         Class<?> type = getType(alias, typeDefinitions);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-            ClassMappingInformation classMapping = mappingInformation.getClassMapping(type);
-            String propertyName = node.jjtGetChild(i).getValue();
-            PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(propertyName);
-            if (propertyMapping instanceof SimplePropertyMappingInformation && i < node.jjtGetNumChildren() - 1) {
-                String error = "Cannot navigate through simple property in class " + type.getName();
-                throw exceptionFactory.createInvalidPathException(propertyName, error);
+            ManagedType<?> managedType = forModel(metamodel).filter(type);
+            String attributeName = node.jjtGetChild(i).getValue();
+            Attribute<?, ?> attribute = managedType.getAttribute(attributeName);
+            if (attribute instanceof SingularAttribute
+                && ((SingularAttribute<?, ?>)attribute).getType().getPersistenceType() == PersistenceType.BASIC
+                && i < node.jjtGetNumChildren() - 1) {
+                String error = "Cannot navigate through simple property "
+                        + attributeName + " in class " + type.getName();
+                throw new PersistenceException(error);
             }
-            type = propertyMapping.getProperyType();
+            type = attribute.getJavaType();
         }
         return false;
     }
@@ -102,7 +99,8 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
     public boolean visit(JpqlFromItem node, Set<TypeDefinition> typeDefinitions) {
         String typeName = node.jjtGetChild(0).toString().trim();
         Alias alias = new Alias(node.jjtGetChild(1).toString().trim());
-        typeDefinitions.add(new TypeDefinition(alias, mappingInformation.getClassMapping(typeName).getEntityType()));
+        typeDefinitions.add(new TypeDefinition(alias,
+                ManagedTypeFilter.forModel(metamodel).filter(typeName).getJavaType()));
         return false;
     }
 
@@ -130,19 +128,27 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
         Node aliasNode = node.jjtGetChild(1);
         Alias rootAlias = new Alias(pathNode.jjtGetChild(0).toString());
         Class<?> rootType = getType(rootAlias, typeDefinitions);
-        ClassMappingInformation classMapping = mappingInformation.getClassMapping(rootType);
+        ManagedType<?> managedType = forModel(metamodel).filter(rootType);
         for (int i = 1; i < pathNode.jjtGetNumChildren(); i++) {
-            Class<?> propertyType
-                = classMapping.getPropertyMapping(pathNode.jjtGetChild(i).toString()).getProperyType();
-            classMapping = mappingInformation.getClassMapping(propertyType);
+            Attribute<?, ?> attribute = managedType.getAttribute(pathNode.jjtGetChild(i).toString());
+            if (attribute.getPersistentAttributeType() == PersistentAttributeType.BASIC) {
+                throw new PersistenceException("Cannot navigate through basic property "
+                        + pathNode.jjtGetChild(i) + " of path " + pathNode);
+            }
+            if (attribute.isCollection()) {
+                PluralAttribute<?, ?, ?> pluralAttribute = (PluralAttribute<?, ?, ?>)attribute;
+                managedType = (ManagedType<?>)pluralAttribute.getElementType();
+            } else {
+                managedType = (ManagedType<?>)((SingularAttribute)attribute).getType();
+            }
         }
-        typeDefinitions.add(new TypeDefinition(new Alias(aliasNode.toString()), classMapping.getEntityType()));
+        typeDefinitions.add(new TypeDefinition(new Alias(aliasNode.toString()), managedType.getJavaType()));
         return false;
     }
 
     public Class<?> getType(Alias alias, Set<TypeDefinition> typeDefinitions) {
         if (securityContext.getAliases().contains(alias)) {
-            Object aliasValue = securityContext.getAliasValues(alias);
+            Object aliasValue = securityContext.getAliasValue(alias);
             if (aliasValue != null) {
                 return aliasValue.getClass();
             }
@@ -154,6 +160,6 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
                 return typeDefinition.getType();
             }
         }
-        throw exceptionFactory.createTypeDefinitionNotFoundException(alias.getName());
+        throw new PersistenceException("type not found for name " + alias.getName());
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,22 +25,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jpasecurity.configuration.AuthenticationProvider;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.MappingInformationReceiver;
+import org.jpasecurity.AuthenticationProvider;
 import org.jpasecurity.security.rules.WebXmlRolesParser;
 
 /**
  * @author Arne Limburg
  */
-public abstract class AbstractRoleBasedAuthenticationProvider implements AuthenticationProvider,
-                                                                         MappingInformationReceiver {
+public abstract class AbstractRoleBasedAuthenticationProvider implements AuthenticationProvider {
 
     private Set<String> roles = new HashSet<String>();
-
-    public void setMappingInformation(MappingInformation mappingInformation) {
-        roles.addAll(new DeclareRolesParser().parseDeclaredRoles(mappingInformation.getSecureClasses()));
-    }
 
     public Object getPrincipal() {
         Principal principal = getCallerPrincipal();

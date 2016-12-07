@@ -1,5 +1,5 @@
 /*
- * Copyright 2008, 2009 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,15 +29,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.metamodel.ManagedType;
+import javax.persistence.metamodel.Metamodel;
+
 import org.jpasecurity.AccessType;
+import org.jpasecurity.Alias;
+import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jpql.compiler.QueryPreparator;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.Node;
-import org.jpasecurity.mapping.Alias;
 import org.jpasecurity.security.Permit;
 import org.jpasecurity.util.ListMap;
 import org.jpasecurity.util.SetMap;
-
 import org.jpasecurity.jpql.parser.JpqlFromItem;
 import org.jpasecurity.jpql.parser.JpqlInnerJoin;
 import org.jpasecurity.jpql.parser.JpqlOuterJoin;
@@ -59,10 +62,18 @@ import org.jpasecurity.jpql.parser.ParseException;
 public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
 
     private static final Alias THIS_ALIAS = new Alias("this");
+    private final Metamodel metamodel;
+    private final SecurityContext securityContext;
     private final RolesAllowedParser rolesAllowedParser = new RolesAllowedParser();
     private final PermissionParser permissionParser = new PermissionParser();
     private final JpqlParser whereClauseParser = new JpqlParser();
     private final AliasVisitor aliasVisitor = new AliasVisitor();
+
+    public AnnotationAccessRulesProvider(Metamodel metamodel, SecurityContext securityContext) {
+        super(metamodel, securityContext);
+        this.metamodel = metamodel;
+        this.securityContext = securityContext;
+    }
 
     /**
      * Initializes the access rules by parsing the persistent classes
@@ -70,9 +81,9 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
      */
     protected void initializeAccessRules() {
         Set<String> rules = new HashSet<String>();
-        for (Class<?> annotatedClass: getPersistenceMapping().getSecureClasses()) {
-            rules.addAll(parseAllowedRoles(annotatedClass));
-            rules.addAll(parsePermissions(annotatedClass));
+        for (ManagedType<?> annotatedType: metamodel.getManagedTypes()) {
+            rules.addAll(parseAllowedRoles(annotatedType.getJavaType()));
+            rules.addAll(parsePermissions(annotatedType.getJavaType()));
         }
         rules.remove(null);
         compileRules(rules);
@@ -220,7 +231,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
                 queryPreparator.replace(path.jjtGetChild(0), queryPreparator.createIdentificationVariable(alias));
             } else if (!declaredAliases.contains(a)
                 && (path.jjtGetNumChildren() > 1
-                    || (!getSecurityContext().getAliases().contains(a)))) {
+                    || (!securityContext.getAliases().contains(a)))) {
                 queryPreparator.prepend(alias.toPath(), path);
             }
             return false;

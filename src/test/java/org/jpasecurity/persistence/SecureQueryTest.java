@@ -26,9 +26,9 @@ import javax.persistence.FlushModeType;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
+import org.jpasecurity.Path;
 import org.jpasecurity.dto.IdAndNameDto;
 import org.jpasecurity.dto.IdDto;
-import org.jpasecurity.mapping.Path;
 import org.junit.Test;
 
 public class SecureQueryTest {

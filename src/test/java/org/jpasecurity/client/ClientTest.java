@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.jpasecurity.model.client.ClientTask;
 import org.jpasecurity.model.client.Employee;
 import org.jpasecurity.model.client.ProcessInstanceProcessTaskInstance;
 import org.jpasecurity.persistence.AbstractEntityTestCase;
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -57,10 +57,11 @@ public class ClientTest extends AbstractEntityTestCase {
 
     @BeforeClass
     public static void createEntityManagerFactory() throws SQLException {
-        TestAuthenticationProvider.authenticate(EMAIL);
+        TestSecurityContext.authenticate(EMAIL);
         createEntityManagerFactory("client");
         dropForeignKey("jdbc:hsqldb:mem:test", "sa", "", "CLIENTOPERATIONSTRACKING", "CLIENT");
         createTestData();
+        TestSecurityContext.authenticate(null);
     }
 
     public static void createTestData() {
@@ -115,12 +116,12 @@ public class ClientTest extends AbstractEntityTestCase {
 
     @After
     public void logout() {
-        TestAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 
     @Test
     public void access() {
-        TestAuthenticationProvider.authenticate(EMAIL);
+        TestSecurityContext.authenticate(EMAIL);
         EntityManager entityManager = getEntityManager();
         Client client = entityManager.find(Client.class, clientId);
         assertNotNull(client);
@@ -134,13 +135,13 @@ public class ClientTest extends AbstractEntityTestCase {
 
     @Test(expected = SecurityException.class)
     public void wrongEmail() {
-        TestAuthenticationProvider.authenticate("wrong@email.org");
+        TestSecurityContext.authenticate("wrong@email.org");
         assertNotNull(getEntityManager().find(Client.class, clientId));
     }
 
     @Test(expected = SecurityException.class)
     public void wrongStatus() {
-        TestAuthenticationProvider.authenticate(EMAIL);
+        TestSecurityContext.authenticate(EMAIL);
         EntityManager entityManager = getEntityManager();
         Client client = entityManager.find(Client.class, clientId);
         assertNotNull(client);
@@ -176,7 +177,7 @@ public class ClientTest extends AbstractEntityTestCase {
 
     @Test
     public void query() {
-        TestAuthenticationProvider.authenticate(EMAIL);
+        TestSecurityContext.authenticate(EMAIL);
         List<Client> clients = getEntityManager().createQuery("SELECT cl FROM Client cl WHERE cl.id = :id",
             Client.class)
             .setParameter("id", clientId)
@@ -187,7 +188,7 @@ public class ClientTest extends AbstractEntityTestCase {
     @Test
     @Ignore
     public void queryOperationsTracking() {
-        TestAuthenticationProvider.authenticate(EMAIL);
+        TestSecurityContext.authenticate(EMAIL);
         List<ClientOperationsTracking> tracking = getEntityManager().
             createQuery("SELECT t FROM ClientOperationsTracking t WHERE t.id = :id",
                 ClientOperationsTracking.class)
@@ -198,13 +199,13 @@ public class ClientTest extends AbstractEntityTestCase {
 
     @Test
     public void testProcessInstance() {
-        TestAuthenticationProvider.authenticate(EMAIL);
+        TestSecurityContext.authenticate(EMAIL);
         assertEquals(clientId, clientTaskPersisted.getClient().getId().intValue());
     }
 
     @Test
     public void testIdAndNameDtoGetSingleResult() {
-        TestAuthenticationProvider.authenticate(EMAIL);
+        TestSecurityContext.authenticate(EMAIL);
         EntityManager entityManager = getEntityManager();
         List<IdAndNameDto> idAndNameDtoList = entityManager
             .createNamedQuery(Client.FIND_ALL_ID_AND_NAME).getResultList();
@@ -219,7 +220,7 @@ public class ClientTest extends AbstractEntityTestCase {
 
     @Test
     public void testIdAndNameDtoGetResultList() {
-        TestAuthenticationProvider.authenticate(EMAIL);
+        TestSecurityContext.authenticate(EMAIL);
         EntityManager entityManager = getEntityManager();
         List<IdAndNameDto> idAndNameDtoList = entityManager
             .createNamedQuery(Client.FIND_ALL_ID_AND_NAME).getResultList();

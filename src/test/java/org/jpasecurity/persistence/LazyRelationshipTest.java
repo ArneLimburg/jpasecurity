@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.jpasecurity.persistence;
 import javax.persistence.EntityManager;
 
 import org.jpasecurity.model.TestBean;
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -38,12 +38,13 @@ public class LazyRelationshipTest extends AbstractEntityTestCase {
 
     @BeforeClass
     public static void createEntityManagerFactory() {
+        TestSecurityContext.authenticate(USER);
         createEntityManagerFactory("lazy-relationship");
     }
 
     @Before
     public void createTestData() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         EntityManager entityManager = getEntityManager();
         entityManager.getTransaction().begin();
         TestBean testBean = new TestBean(USER);
@@ -53,26 +54,26 @@ public class LazyRelationshipTest extends AbstractEntityTestCase {
         entityManager.persist(child);
         entityManager.getTransaction().commit();
         closeEntityManager();
-        TestAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
         childId = child.getId();
         parentId = testBean.getId();
     }
 
     @After
     public void unauthenticate() {
-        TestAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 
     @Test
     public void accessChild() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         createEntityManager();
         getEntityManager().find(TestBean.class, childId);
     }
 
     @Test
     public void testFlushBeforeFind() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
         createEntityManager();
         getEntityManager().getTransaction().begin();
         final TestBean child = getEntityManager().find(TestBean.class, childId);

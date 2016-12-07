@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,38 +15,48 @@
  */
 package org.jpasecurity.jpql.compiler;
 
+import static org.jpasecurity.persistence.mapping.ManagedTypeFilter.forModel;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.mapping.ClassMappingInformation;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.PropertyMappingInformation;
+import javax.persistence.PersistenceException;
+import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.ManagedType;
+import javax.persistence.metamodel.Metamodel;
+
+import org.jpasecurity.BeanInitializer;
+import org.jpasecurity.SecureBeanInitializer;
 
 /**
  * @author Arne Limburg
  */
 public class MappedPathEvaluator implements PathEvaluator {
 
-    private MappingInformation mappingInformation;
-    private ExceptionFactory exceptionFactory;
+    private Metamodel metamodel;
+    private BeanInitializer beanInitializer;
 
-    public MappedPathEvaluator(MappingInformation mappingInformation, ExceptionFactory exceptionFactory) {
-        this.mappingInformation = mappingInformation;
-        this.exceptionFactory = exceptionFactory;
+    public MappedPathEvaluator(Metamodel metamodel, PersistenceUnitUtil unitUtil) {
+        this.metamodel = metamodel;
+        this.beanInitializer = new SecureBeanInitializer(unitUtil);
     }
 
     public Object evaluate(Object root, String path) {
         if (root == null) {
             return null;
         }
-        final Collection<?> rootCollection =
+        Collection<?> rootCollection =
             root instanceof Collection ? (Collection<?>)root : Collections.singleton(root);
         Collection<?> result = evaluateAll(rootCollection, path);
         if (result.size() > 1) {
-            throw exceptionFactory.createInvalidPathException(path, "path is not single-valued");
+            throw new PersistenceException(path + " is not single-valued");
         }
         return result.isEmpty()? null: result.iterator().next();
     }
@@ -61,10 +71,10 @@ public class MappedPathEvaluator implements PathEvaluator {
                 if (rootObject == null) {
                     continue;
                 }
-                ClassMappingInformation classMapping = mappingInformation.getClassMapping(rootObject.getClass());
-                if (classMapping.containsPropertyMapping(property)) {
-                    PropertyMappingInformation propertyMapping = classMapping.getPropertyMapping(property);
-                    Object result = propertyMapping.getPropertyValue(rootObject);
+                ManagedType<?> managedType = forModel(metamodel).filter(rootObject.getClass());
+                if (containsAttribute(managedType, property)) {
+                    Attribute<?, ?> propertyMapping = managedType.getAttribute(property);
+                    Object result = getValue(rootObject, propertyMapping);
                     if (result instanceof Collection) {
                         resultCollection.addAll((Collection<R>)result);
                     } else if (result != null) {
@@ -82,5 +92,40 @@ public class MappedPathEvaluator implements PathEvaluator {
             }
         }
         return resultCollection;
+    }
+
+    private boolean containsAttribute(ManagedType<?> managedType, String name) {
+        for (Attribute<?, ?> attributes : managedType.getAttributes()) {
+            if (attributes.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Object getValue(Object target, Attribute<?, ?> attribute) {
+        try {
+            Member member = attribute.getJavaMember();
+            if (member instanceof Field) {
+                Field field = (Field)member;
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
+                }
+                target = beanInitializer.initialize(target);
+                return field.get(target);
+            } else if (member instanceof Method) {
+                Method method = (Method)member;
+                if (!method.isAccessible()) {
+                    method.setAccessible(true);
+                }
+                return method.invoke(target);
+            } else {
+                throw new UnsupportedOperationException("Unsupported member type " + member.getClass().getName());
+            }
+        } catch (InvocationTargetException e) {
+            throw new PersistenceException(e);
+        } catch (IllegalAccessException e) {
+            throw new PersistenceException(e);
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,28 +17,30 @@ package org.jpasecurity.jpql.compiler;
 
 import java.util.Map;
 
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.MappingInformation;
+import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.metamodel.Metamodel;
+
+import org.jpasecurity.Alias;
 
 /**
  * @author Arne Limburg
  */
 public class InMemoryEvaluationParameters extends QueryEvaluationParameters {
 
-    public InMemoryEvaluationParameters(MappingInformation mappingInformation,
+    public InMemoryEvaluationParameters(Metamodel mappingInformation,
+                                        PersistenceUnitUtil util,
                                         Map<Alias, Object> aliases,
                                         Map<String, Object> namedParameters,
-                                        Map<Integer, Object> positionalParameters,
-                                        EvaluationType evaluationType) {
-        super(mappingInformation, aliases, namedParameters, positionalParameters, true, evaluationType);
+                                        Map<Integer, Object> positionalParameters) {
+        super(mappingInformation, util, aliases, namedParameters, positionalParameters, EvaluationType.ACCESS_CHECK);
     }
 
     public InMemoryEvaluationParameters(QueryEvaluationParameters parameters) {
-        this(parameters.getMappingInformation(),
+        this(parameters.getMetamodel(),
+             parameters.getPersistenceUnitUtil(),
              parameters.getAliasValues(),
              parameters.getNamedParameters(),
-             parameters.getPositionalParameters(),
-             parameters.getEvaluationType());
+             parameters.getPositionalParameters());
     }
 
 }

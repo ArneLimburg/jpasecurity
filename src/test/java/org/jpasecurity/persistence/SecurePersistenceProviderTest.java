@@ -93,8 +93,8 @@ public class SecurePersistenceProviderTest {
         persistenceUnitInfo.setExcludeUnlistedClasses(true);
         Properties properties = persistenceUnitInfo.getProperties();
         properties.put("org.jpasecurity.persistence.provider", "org.hibernate.ejb.HibernatePersistence");
-        properties.put("org.jpasecurity.security.authentication.provider",
-                       "org.jpasecurity.security.authentication.TestAuthenticationProvider");
+        properties.put("org.jpasecurity.security.context",
+                       "org.jpasecurity.security.authentication.TestSecurityContext");
         properties.put("org.jpasecurity.security.rules.provider",
                        "org.jpasecurity.security.rules.XmlAccessRulesProvider");
         properties.put("hibernate.hbm2ddl.auto", "create-drop");

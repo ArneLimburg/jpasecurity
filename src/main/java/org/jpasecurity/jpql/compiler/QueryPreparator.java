@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,11 @@ import java.beans.Introspector;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jpasecurity.jpql.JpqlCompiledStatement;
-import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
-import org.jpasecurity.jpql.parser.Node;
-import org.jpasecurity.jpql.parser.SimpleNode;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.ClassMappingInformation;
-import org.jpasecurity.mapping.Path;
+import javax.persistence.metamodel.EntityType;
 
+import org.jpasecurity.Alias;
+import org.jpasecurity.Path;
+import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
 import org.jpasecurity.jpql.parser.JpqlAnd;
 import org.jpasecurity.jpql.parser.JpqlBooleanLiteral;
@@ -54,8 +51,11 @@ import org.jpasecurity.jpql.parser.JpqlSelectExpression;
 import org.jpasecurity.jpql.parser.JpqlSelectExpressions;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.jpasecurity.jpql.parser.JpqlValue;
+import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
 import org.jpasecurity.jpql.parser.JpqlWith;
+import org.jpasecurity.jpql.parser.Node;
+import org.jpasecurity.jpql.parser.SimpleNode;
 
 /**
  * @author Arne Limburg
@@ -349,10 +349,10 @@ public class QueryPreparator {
     /**
      * Creates a <tt>JpqlSelectClause</tt> node to select the specified path.
      */
-    public JpqlFrom createFrom(ClassMappingInformation classMapping, Alias alias) {
+    public JpqlFrom createFrom(EntityType<?> classMapping, Alias alias) {
         JpqlIdentificationVariableDeclaration declaration
             = new JpqlIdentificationVariableDeclaration(JpqlParserTreeConstants.JJTIDENTIFICATIONVARIABLEDECLARATION);
-        declaration = appendChildren(declaration, createFromItem(new Alias(classMapping.getEntityName()), alias));
+        declaration = appendChildren(declaration, createFromItem(new Alias(classMapping.getName()), alias));
         return appendChildren(new JpqlFrom(JpqlParserTreeConstants.JJTFROM), declaration);
     }
 
@@ -363,13 +363,13 @@ public class QueryPreparator {
                               createIdentificationVariable(alias));
     }
 
-    public Node createInstanceOf(Path path, ClassMappingInformation classMapping) {
+    public Node createInstanceOf(Path path, EntityType<?> classMapping) {
         return appendChildren(new JpqlExists(JpqlParserTreeConstants.JJTEXISTS),
                               createSubselectById(path, classMapping));
     }
 
-    public JpqlSubselect createSubselectById(Path path, ClassMappingInformation classMapping) {
-        Alias alias = new Alias(Introspector.decapitalize(classMapping.getEntityName()));
+    public JpqlSubselect createSubselectById(Path path, EntityType<?> classMapping) {
+        Alias alias = new Alias(Introspector.decapitalize(classMapping.getName()));
         if (!path.hasSubpath() && path.getRootAlias().equals(alias)) {
             alias = new Alias(alias.toString() + '0');
         }

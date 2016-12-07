@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Arne Limburg
+ * Copyright 2010 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import javax.persistence.Persistence;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.model.FieldAccessMapKey;
 import org.jpasecurity.model.FieldAccessMapValue;
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.Test;
 
 /**
@@ -36,7 +36,7 @@ public class MapTest {
 
     @Test
     public void mapMapping() {
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         EntityManagerFactory entityManagerFactory
             = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = entityManagerFactory.createEntityManager();

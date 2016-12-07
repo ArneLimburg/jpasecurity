@@ -24,20 +24,24 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
-import org.jpasecurity.configuration.AccessRule;
-import org.jpasecurity.configuration.Configuration;
+import javax.persistence.metamodel.BasicType;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.Type.PersistenceType;
+
+import org.jpasecurity.Configuration;
+import org.jpasecurity.Path;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.ParseException;
-import org.jpasecurity.mapping.ClassMappingInformation;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.Path;
-import org.jpasecurity.mapping.PropertyMappingInformation;
 import org.jpasecurity.model.ChildTestBean;
 import org.jpasecurity.model.MethodAccessTestBean;
 import org.jpasecurity.model.ParentTestBean;
-import org.jpasecurity.model.TestInterface;
+import org.jpasecurity.security.AccessRule;
 import org.jpasecurity.security.authentication.AutodetectingSecurityContext;
 import org.junit.Test;
 
@@ -48,31 +52,35 @@ public class AccessRulesCompilerTest {
 
     @Test
     public void rulesOnInterfaces() {
-        MappingInformation mappingInformation = createMock(MappingInformation.class);
-        ClassMappingInformation parentTestBeanMapping = createMock(ClassMappingInformation.class);
-        ClassMappingInformation childTestBeanMapping = createMock(ClassMappingInformation.class);
-        ClassMappingInformation methodAccessTestBeanMapping = createMock(ClassMappingInformation.class);
-        PropertyMappingInformation nameMapping = createMock(PropertyMappingInformation.class);
-        expect(mappingInformation.getSecurityUnitName()).andReturn("interface");
-        expect(mappingInformation.containsClassMapping(TestInterface.class.getName())).andReturn(false);
-        expect(mappingInformation.resolveClassMappings(TestInterface.class)).andReturn(Arrays.asList(
-                parentTestBeanMapping, childTestBeanMapping));
-        expect(mappingInformation.getClassMapping(ParentTestBean.class)).andReturn(parentTestBeanMapping);
-        expect(mappingInformation.getClassMapping(ChildTestBean.class)).andReturn(childTestBeanMapping);
-        expect(mappingInformation.getClassMapping(MethodAccessTestBean.class)).andReturn(methodAccessTestBeanMapping);
-        expect(parentTestBeanMapping.getEntityType()).andReturn((Class)ParentTestBean.class);
-        expect(childTestBeanMapping.getEntityType()).andReturn((Class)ChildTestBean.class);
-        expect(methodAccessTestBeanMapping.getEntityType()).andReturn((Class)MethodAccessTestBean.class);
-        expect(parentTestBeanMapping.getPropertyMapping("name")).andReturn(nameMapping);
-        expect(childTestBeanMapping.getPropertyMapping("name")).andReturn(nameMapping);
-        expect(methodAccessTestBeanMapping.getPropertyMapping("name")).andReturn(nameMapping);
-        expect(nameMapping.getProperyType()).andReturn((Class)String.class).anyTimes();
-        replay(mappingInformation, parentTestBeanMapping, childTestBeanMapping, methodAccessTestBeanMapping,
-                nameMapping);
-        XmlAccessRulesProvider accessRulesProvider = new XmlAccessRulesProvider();
-        accessRulesProvider.setMappingInformation(mappingInformation);
+        Metamodel metamodel = createMock(Metamodel.class);
+        EntityType parentTestBeanType = createMock(EntityType.class);
+        EntityType childTestBeanType = createMock(EntityType.class);
+        EntityType methodAccessTestBeanType = createMock(EntityType.class);
+        BasicType stringType = createMock(BasicType.class);
+        SingularAttribute nameAttribute = createMock(SingularAttribute.class);
+        expect(metamodel.getManagedTypes()).andReturn(new HashSet(Arrays.asList(
+                parentTestBeanType, childTestBeanType, methodAccessTestBeanType)));
+        expect(metamodel.getEntities()).andReturn(new HashSet(Arrays.asList(
+                parentTestBeanType, childTestBeanType, methodAccessTestBeanType)));
+        expect(metamodel.managedType(ParentTestBean.class)).andReturn(parentTestBeanType).anyTimes();
+        expect(metamodel.managedType(ChildTestBean.class)).andReturn(childTestBeanType).anyTimes();
+        expect(metamodel.managedType(MethodAccessTestBean.class)).andReturn(methodAccessTestBeanType).anyTimes();
+        expect(parentTestBeanType.getName()).andReturn(ParentTestBean.class.getSimpleName()).anyTimes();
+        expect(parentTestBeanType.getJavaType()).andReturn(ParentTestBean.class).anyTimes();
+        expect(parentTestBeanType.getAttribute("name")).andReturn(nameAttribute);
+        expect(childTestBeanType.getName()).andReturn(ChildTestBean.class.getSimpleName()).anyTimes();
+        expect(childTestBeanType.getJavaType()).andReturn(ChildTestBean.class).anyTimes();
+        expect(childTestBeanType.getAttribute("name")).andReturn(nameAttribute);
+        expect(methodAccessTestBeanType.getName()).andReturn(MethodAccessTestBean.class.getSimpleName()).anyTimes();
+        expect(methodAccessTestBeanType.getJavaType()).andReturn(MethodAccessTestBean.class).anyTimes();
+        expect(methodAccessTestBeanType.getAttribute("name")).andReturn(nameAttribute);
+        expect(nameAttribute.getType()).andReturn(stringType).anyTimes();
+        expect(nameAttribute.getJavaType()).andReturn(String.class).anyTimes();
+        expect(stringType.getPersistenceType()).andReturn(PersistenceType.BASIC).anyTimes();
+        replay(metamodel, parentTestBeanType, childTestBeanType, methodAccessTestBeanType, nameAttribute, stringType);
+        XmlAccessRulesProvider accessRulesProvider
+            = new XmlAccessRulesProvider("interface", metamodel, new AutodetectingSecurityContext());
         accessRulesProvider.setConfiguration(new Configuration());
-        accessRulesProvider.setSecurityContext(new AutodetectingSecurityContext());
         assertEquals(2, accessRulesProvider.getAccessRules().size());
     }
 
@@ -84,16 +92,15 @@ public class AccessRulesCompilerTest {
                     + "     WHERE e.email=CURRENT_PRINCIPAL AND cs.employee=e "
                     + "       AND cs.client= cd.clientRelation.client AND cs.endDate IS NULL "
                     + "       AND (cst.name <> 'Closed' OR cst.name IS NULL ))";
-        MappingInformation mappingInformation = createMock(MappingInformation.class);
-        ClassMappingInformation clientTradeImportMonitorMapping = createMock(ClassMappingInformation.class);
-        expect(mappingInformation.containsClassMapping("ClientDetails")).andReturn(true);
-        expect(mappingInformation.getClassMapping("ClientDetails")).andReturn(clientTradeImportMonitorMapping);
-        expect(clientTradeImportMonitorMapping.<ClientDetails>getEntityType())
-            .andReturn(ClientDetails.class).anyTimes();
+        Metamodel metamodel = createMock(Metamodel.class);
+        EntityType clientTradeImportMonitorType = createMock(EntityType.class);
+        expect(metamodel.getEntities()).andReturn(Collections.<EntityType<?>>singleton(clientTradeImportMonitorType));
+        expect(clientTradeImportMonitorType.getName()).andReturn(ClientDetails.class.getSimpleName());
+        expect(clientTradeImportMonitorType.getJavaType()).andReturn(ClientDetails.class);
         JpqlParser parser = new JpqlParser();
-        AccessRulesCompiler compiler = new AccessRulesCompiler(mappingInformation);
+        AccessRulesCompiler compiler = new AccessRulesCompiler(metamodel);
 
-        replay(mappingInformation, clientTradeImportMonitorMapping);
+        replay(metamodel, clientTradeImportMonitorType);
 
         JpqlAccessRule accessRule = parser.parseRule(rule);
         Collection<AccessRule> compiledRules = compiler.compile(accessRule);

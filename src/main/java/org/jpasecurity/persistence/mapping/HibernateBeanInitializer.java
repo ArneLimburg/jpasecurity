@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package org.jpasecurity.persistence.mapping;
 
 import org.hibernate.proxy.HibernateProxy;
-import org.jpasecurity.mapping.BeanInitializer;
+import org.jpasecurity.BeanInitializer;
 
 /**
  * @author Arne Limburg

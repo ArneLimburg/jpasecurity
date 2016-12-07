@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2011 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jpasecurity.configuration.AuthenticationProvider;
-import org.jpasecurity.configuration.AuthenticationProviderSecurityContext;
-import org.jpasecurity.configuration.Configuration;
-import org.jpasecurity.configuration.ConfigurationReceiver;
-import org.jpasecurity.configuration.SecurityContext;
-import org.jpasecurity.configuration.SecurityContextReceiver;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.MappingInformationReceiver;
+import org.jpasecurity.Alias;
+import org.jpasecurity.AuthenticationProvider;
+import org.jpasecurity.AuthenticationProviderSecurityContext;
+import org.jpasecurity.Configuration;
+import org.jpasecurity.ConfigurationReceiver;
+import org.jpasecurity.SecurityContext;
+import org.jpasecurity.SecurityContextReceiver;
 
 /**
  * This class tries to detect the security context for an application.
@@ -58,7 +55,6 @@ import org.jpasecurity.mapping.MappingInformationReceiver;
  */
 public class AutodetectingSecurityContext implements SecurityContext,
                                                      ConfigurationReceiver,
-                                                     MappingInformationReceiver,
                                                      SecurityContextReceiver {
 
     private static final Log LOG = LogFactory.getLog(AutodetectingSecurityContext.class);
@@ -116,14 +112,6 @@ public class AutodetectingSecurityContext implements SecurityContext,
 
     public void setConfiguration(Configuration configuration) {
         securityContext.setConfiguration(configuration);
-    }
-
-    public void setMappingInformation(MappingInformation persistenceMapping) {
-        securityContext.setMappingInformation(persistenceMapping);
-    }
-
-    public void setMappingProperties(Map<String, Object> properties) {
-        securityContext.setMappingProperties(properties);
     }
 
     public void setSecurityContext(SecurityContext newSecurityContext) {

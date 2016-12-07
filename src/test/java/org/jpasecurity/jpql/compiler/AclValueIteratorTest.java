@@ -15,30 +15,32 @@
  */
 package org.jpasecurity.jpql.compiler;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.persistence.spi.PersistenceUnitInfo;
+import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
 
-import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.mapping.AbstractSecurityUnitParser;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.Path;
-import org.jpasecurity.mapping.TypeDefinition;
+import org.jpasecurity.Alias;
+import org.jpasecurity.Path;
+import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.model.acl.Acl;
 import org.jpasecurity.model.acl.AclEntry;
 import org.jpasecurity.model.acl.Group;
 import org.jpasecurity.model.acl.User;
-import org.jpasecurity.persistence.DefaultPersistenceUnitInfo;
-import org.jpasecurity.persistence.JpaExceptionFactory;
-import org.jpasecurity.persistence.mapping.OrmXmlParser;
 import org.jpasecurity.util.SetHashMap;
 import org.jpasecurity.util.SetMap;
 import org.junit.Before;
@@ -73,7 +75,7 @@ public class AclValueIteratorTest {
     }
 
     @Test(expected = NoSuchElementException.class)
-    public void acl() {
+    public void acl() throws NoSuchFieldException {
         int groupId = 0;
         final Group group1 = new Group();
         group1.setId(++groupId);
@@ -145,15 +147,26 @@ public class AclValueIteratorTest {
         valueIterator.next();
     }
 
-    private MappedPathEvaluator createPathEvaluator() {
-        PersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
-        persistenceUnitInfo.getManagedClassNames().add(Group.class.getName());
-        persistenceUnitInfo.getManagedClassNames().add(Acl.class.getName());
-        persistenceUnitInfo.getManagedClassNames().add(AclEntry.class.getName());
-        persistenceUnitInfo.getManagedClassNames().add(User.class.getName());
-        ExceptionFactory exceptionFactory = new JpaExceptionFactory();
-        AbstractSecurityUnitParser parser = new OrmXmlParser(persistenceUnitInfo, exceptionFactory);
-        final MappingInformation mappingInformation = parser.parse();
-        return new MappedPathEvaluator(mappingInformation, exceptionFactory);
+    private MappedPathEvaluator createPathEvaluator() throws NoSuchFieldException {
+        Metamodel metamodel = createMock(Metamodel.class);
+        PersistenceUnitUtil persistenceUnitUtil = createMock(PersistenceUnitUtil.class);
+        EntityType userType = createMock(EntityType.class);
+        EntityType groupType = createMock(EntityType.class);
+        Attribute groupsAttribute = createMock(Attribute.class);
+        Attribute fullHierarchyAttribute = createMock(Attribute.class);
+        expect(metamodel.managedType(User.class)).andReturn(userType).anyTimes();
+        expect(metamodel.managedType(Group.class)).andReturn(groupType).anyTimes();
+        expect(persistenceUnitUtil.isLoaded(anyObject())).andReturn(true).anyTimes();
+        expect(userType.getAttributes()).andReturn(Collections.singleton(groupsAttribute)).anyTimes();
+        expect(userType.getAttribute("groups")).andReturn(groupsAttribute).anyTimes();
+        expect(groupType.getAttributes()).andReturn(Collections.singleton(fullHierarchyAttribute)).anyTimes();
+        expect(groupType.getAttribute("fullHierarchy")).andReturn(fullHierarchyAttribute).anyTimes();
+        expect(groupsAttribute.getName()).andReturn("groups").anyTimes();
+        expect(groupsAttribute.getJavaMember()).andReturn(User.class.getDeclaredField("groups")).anyTimes();
+        expect(fullHierarchyAttribute.getName()).andReturn("fullHierarchy").anyTimes();
+        expect(fullHierarchyAttribute.getJavaMember())
+            .andReturn(Group.class.getDeclaredField("fullHierarchy")).anyTimes();
+        replay(metamodel, persistenceUnitUtil, userType, groupType, groupsAttribute, fullHierarchyAttribute);
+        return new MappedPathEvaluator(metamodel, persistenceUnitUtil);
     }
 }

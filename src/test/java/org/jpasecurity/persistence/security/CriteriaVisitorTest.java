@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.jpasecurity.persistence.security;
 
-import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
@@ -23,8 +22,8 @@ import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -32,19 +31,15 @@ import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.AccessManager;
-import org.jpasecurity.configuration.AccessRule;
-import org.jpasecurity.configuration.SecurityContext;
+import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.ParseException;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.ClassMappingInformation;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.mapping.Path;
-import org.jpasecurity.mapping.TypeDefinition;
 import org.jpasecurity.model.TestBean;
-import org.jpasecurity.persistence.JpaExceptionFactory;
+import org.jpasecurity.security.AccessRule;
 import org.jpasecurity.security.rules.AccessRulesCompiler;
 import org.junit.After;
 import org.junit.Before;
@@ -55,7 +50,7 @@ import org.junit.Test;
  */
 public class CriteriaVisitorTest {
 
-    private MappingInformation mappingInformation;
+    private Metamodel metamodel;
     private SecurityContext securityContext;
     private AccessManager accessManager;
     private JpqlParser parser;
@@ -67,25 +62,19 @@ public class CriteriaVisitorTest {
 
     @Before
     public void initialize() {
-        mappingInformation = createMock(MappingInformation.class);
-        expect(mappingInformation.containsClassMapping("TestBean")).andReturn(true).anyTimes();
-        ClassMappingInformation classMapping = createMock(ClassMappingInformation.class);
-        expect(mappingInformation.getClassMapping("TestBean")).andReturn(classMapping).anyTimes();
-        expect(mappingInformation.<TestBean>getType((Path)anyObject(), (Set<TypeDefinition>)anyObject()))
-            .andReturn(TestBean.class);
-        expect(mappingInformation.<TestBean>getType((Alias)anyObject(), (Set<TypeDefinition>)anyObject()))
-            .andReturn(TestBean.class);
-        expect(classMapping.<TestBean>getEntityType()).andReturn(TestBean.class).anyTimes();
+        metamodel = createMock(Metamodel.class);
+        EntityType testBeanType = createMock(EntityType.class);
+        expect(metamodel.getEntities()).andReturn(Collections.<EntityType<?>>singleton(testBeanType));
+        expect(testBeanType.getName()).andReturn(TestBean.class.getSimpleName());
+        expect(testBeanType.getJavaType()).andReturn(TestBean.class);
         securityContext = createMock(SecurityContext.class);
         accessManager = createNiceMock(AccessManager.class);
         AccessManager.Instance.register(accessManager);
-        replay(mappingInformation, classMapping, securityContext, accessManager);
+        replay(metamodel, testBeanType, securityContext, accessManager);
         parser = new JpqlParser();
-        compiler = new AccessRulesCompiler(mappingInformation, new JpaExceptionFactory());
+        compiler = new AccessRulesCompiler(metamodel);
         entityManagerFactory = Persistence.createEntityManagerFactory("hibernate");
-        criteriaVisitor = new CriteriaVisitor(mappingInformation,
-                                              entityManagerFactory.getCriteriaBuilder(),
-                                              securityContext);
+        criteriaVisitor = new CriteriaVisitor(metamodel, entityManagerFactory.getCriteriaBuilder());
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         bean1 = new TestBean();

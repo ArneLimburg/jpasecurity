@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Test;
 
@@ -71,7 +71,7 @@ public class JpqlQueryParserTest {
     }
 
     private void executeQuery(String query) {
-        TestAuthenticationProvider.authenticate(USER1);
+        TestSecurityContext.authenticate(USER1);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -82,6 +82,6 @@ public class JpqlQueryParserTest {
 
     @After
     public void logout() {
-        TestAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 }

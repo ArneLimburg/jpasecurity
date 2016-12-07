@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,9 +36,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.easymock.IAnswer;
-import org.jpasecurity.mapping.Alias;
-import org.jpasecurity.mapping.Path;
-import org.jpasecurity.mapping.TypeDefinition;
+import org.jpasecurity.Alias;
+import org.jpasecurity.Path;
+import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.model.MethodAccessTestBean;
 import org.jpasecurity.model.MethodAccessTestBeanBuilder;
 import org.jpasecurity.util.SetHashMap;

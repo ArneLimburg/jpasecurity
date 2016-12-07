@@ -15,27 +15,32 @@
  */
 package org.jpasecurity.security;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
+import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.SingularAttribute;
+
+import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
-import org.jpasecurity.ExceptionFactory;
-import org.jpasecurity.configuration.AccessRule;
-import org.jpasecurity.configuration.AuthenticationProviderSecurityContext;
-import org.jpasecurity.configuration.DefaultExceptionFactory;
-import org.jpasecurity.configuration.SecurityContext;
+import org.jpasecurity.Alias;
 import org.jpasecurity.contacts.model.Contact;
 import org.jpasecurity.contacts.model.User;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlParser;
-import org.jpasecurity.mapping.MappingInformation;
-import org.jpasecurity.persistence.DefaultPersistenceUnitInfo;
-import org.jpasecurity.persistence.JpaExceptionFactory;
-import org.jpasecurity.persistence.mapping.OrmXmlParser;
-import org.jpasecurity.security.authentication.DefaultAuthenticationProvider;
 import org.jpasecurity.security.rules.AccessRulesCompiler;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,37 +49,55 @@ import org.junit.Test;
  */
 public class JpaEntityFilterTest {
 
-    private MappingInformation mappingInformation;
+    private Metamodel metamodel;
+    private AccessManager accessManager;
     private Collection<AccessRule> accessRules;
 
     @Before
     public void initialize() throws Exception {
-        DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
-        persistenceUnitInfo.getManagedClassNames().add(Contact.class.getName());
-        persistenceUnitInfo.getManagedClassNames().add(User.class.getName());
-        mappingInformation = new OrmXmlParser(persistenceUnitInfo, new JpaExceptionFactory()).parse();
+        metamodel = createMock(Metamodel.class);
+        EntityType contactType = createMock(EntityType.class);
+        SingularAttribute ownerAttribute = createMock(SingularAttribute.class);
+        accessManager = createMock(AccessManager.class);
+        expect(accessManager.getContext()).andReturn(new DefaultSecurityContext()).anyTimes();
+        expect(contactType.getName()).andReturn(Contact.class.getSimpleName()).anyTimes();
+        expect(contactType.getJavaType()).andReturn((Class)Contact.class).anyTimes();
+        expect(metamodel.getEntities())
+            .andReturn(new HashSet<EntityType<?>>(Arrays.<EntityType<?>>asList(contactType))).anyTimes();
+        expect(metamodel.entity(Contact.class)).andReturn(contactType).anyTimes();
+        expect(metamodel.managedType(Contact.class)).andReturn(contactType).anyTimes();
+        expect(contactType.getAttributes()).andReturn(Collections.singleton(ownerAttribute)).anyTimes();
+        expect(contactType.getAttribute("owner")).andReturn(ownerAttribute).anyTimes();
+        expect(ownerAttribute.getName()).andReturn("owner").anyTimes();
+        expect(ownerAttribute.getJavaMember()).andReturn(Contact.class.getDeclaredField("owner")).anyTimes();
+        replay(metamodel, contactType, ownerAttribute, accessManager);
+        AccessManager.Instance.register(accessManager);
+
         JpqlParser parser = new JpqlParser();
         JpqlAccessRule rule
             = parser.parseRule("GRANT READ ACCESS TO Contact contact WHERE contact.owner = CURRENT_PRINCIPAL");
-        AccessRulesCompiler compiler = new AccessRulesCompiler(mappingInformation, new DefaultExceptionFactory());
+        AccessRulesCompiler compiler = new AccessRulesCompiler(metamodel);
         accessRules = compiler.compile(rule);
+    }
+
+    @After
+    public void removeAccessManager() {
+        AccessManager.Instance.unregister(accessManager);
     }
 
     @Test
     public void access() throws Exception {
-        DefaultAuthenticationProvider authenticationProvider = new DefaultAuthenticationProvider();
-        SecurityContext securityContext = new AuthenticationProviderSecurityContext(authenticationProvider);
-        ExceptionFactory exceptionFactory = new DefaultExceptionFactory();
-        EntityFilter filter = new EntityFilter(mappingInformation,
-                                               securityContext,
-                                               exceptionFactory,
-                                               accessRules);
+        DefaultSecurityContext securityContext = (DefaultSecurityContext)AccessManager.Instance.get().getContext();
+        PersistenceUnitUtil persistenceUnitUtil = createMock(PersistenceUnitUtil.class);
+        expect(persistenceUnitUtil.isLoaded(anyObject())).andReturn(true).anyTimes();
+        replay(persistenceUnitUtil);
+        EntityFilter filter = new EntityFilter(metamodel, persistenceUnitUtil, accessRules);
         User john = new User("John");
         Contact contact = new Contact(john, "123456789");
 
-        authenticationProvider.authenticate(john);
+        securityContext.register(new Alias("CURRENT_PRINCIPAL"), john);
         assertTrue(filter.isAccessible(AccessType.READ, contact));
-        authenticationProvider.authenticate(new User("Mary"));
+        securityContext.register(new Alias("CURRENT_PRINCIPAL"), new User("Mary"));
         assertFalse(filter.isAccessible(AccessType.READ, contact));
     }
 }

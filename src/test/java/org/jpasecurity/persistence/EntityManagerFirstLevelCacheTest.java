@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Stefan Hildebrandt
+ * Copyright 2014 - 2016 Stefan Hildebrandt
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
-import org.jpasecurity.security.authentication.TestAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -41,12 +41,12 @@ public class EntityManagerFirstLevelCacheTest extends AbstractEntityTestCase {
 
     @Before
     public void createTestData() {
-        TestAuthenticationProvider.authenticate(USER);
+        TestSecurityContext.authenticate(USER);
     }
 
     @After
     public void unauthenticate() {
-        TestAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 
     @Test

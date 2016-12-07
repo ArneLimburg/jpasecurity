@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.jpasecurity.security.Permit;
-
 /**
  * @author Arne Limburg
  */
@@ -35,7 +33,6 @@ import org.jpasecurity.security.Permit;
 @DeclareRoles({ "admin", "user" })
 @RolesAllowed("admin")
 @Table(name = "USR")
-@Permit(rule = "name = CURRENT_PRINCIPAL")
 public class User implements Serializable {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)

@@ -15,6 +15,8 @@
  */
 package org.jpasecurity.persistence;
 
+import static org.jpasecurity.util.Validate.notNull;
+
 import java.util.Map;
 
 import javax.persistence.Cache;
@@ -32,10 +34,7 @@ public class DelegatingEntityManagerFactory implements EntityManagerFactory {
     private EntityManagerFactory delegate;
 
     public DelegatingEntityManagerFactory(EntityManagerFactory delegate) {
-        if (delegate == null) {
-            throw new IllegalArgumentException("delegate may not be null");
-        }
-        this.delegate = delegate;
+        this.delegate = notNull(EntityManagerFactory.class, delegate);
     }
 
     public EntityManager createEntityManager() {

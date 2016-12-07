@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import javax.persistence.Persistence;
 import org.jpasecurity.contacts.ContactsTestData;
 import org.jpasecurity.contacts.model.Contact;
 import org.jpasecurity.contacts.model.User;
-import org.jpasecurity.security.authentication.StaticAuthenticationProvider;
+import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -46,7 +46,9 @@ public class SimpleContactsTest {
 
     @BeforeClass
     public static void createEntityManagerFactory() {
+        TestSecurityContext.authenticate(null, "admin");
         entityManagerFactory = Persistence.createEntityManagerFactory("simple-contacts");
+        TestSecurityContext.authenticate(null);
     }
 
     @AfterClass
@@ -57,17 +59,17 @@ public class SimpleContactsTest {
 
     @Before
     public void createTestData() {
-        StaticAuthenticationProvider.authenticate(null, "admin");
+        TestSecurityContext.authenticate(null, "admin");
         testData = new ContactsTestData();
         testData.createTestData(entityManagerFactory);
-        StaticAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 
     @After
     public void removeTestData() {
-        StaticAuthenticationProvider.authenticate(null, "admin");
+        TestSecurityContext.authenticate(null, "admin");
         testData.clearTestData(entityManagerFactory);
-        StaticAuthenticationProvider.authenticate(null);
+        TestSecurityContext.authenticate(null);
     }
 
     @Test
@@ -90,7 +92,7 @@ public class SimpleContactsTest {
 
     @Test
     public void getAuthenticatedAsAdmin() {
-        StaticAuthenticationProvider.authenticate(null, "admin");
+        TestSecurityContext.authenticate(null, "admin");
         assertEquals(2, getAllUsers().size());
         assertEquals(testData.getJohn(), getUser("John"));
         assertEquals(testData.getMary(), getUser("Mary"));
@@ -99,7 +101,7 @@ public class SimpleContactsTest {
 
     @Test
     public void getAuthenticatedAsJohn() {
-        StaticAuthenticationProvider.authenticate(testData.getJohn(), "user");
+        TestSecurityContext.authenticate(testData.getJohn(), "user");
         List<User> allUsers = getAllUsers();
         assertEquals(1, allUsers.size());
         assertEquals(testData.getJohn(), allUsers.get(0));
@@ -118,7 +120,7 @@ public class SimpleContactsTest {
 
     @Test
     public void getAuthenticatedAsMary() {
-        StaticAuthenticationProvider.authenticate(testData.getMary(), "user");
+        TestSecurityContext.authenticate(testData.getMary(), "user");
         List<User> allUsers = getAllUsers();
         assertEquals(1, allUsers.size());
         assertEquals(testData.getMary(), allUsers.get(0));

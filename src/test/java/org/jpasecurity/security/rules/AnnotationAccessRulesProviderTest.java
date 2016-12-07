@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Arne Limburg
+ * Copyright 2011 - 2016 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,11 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.jpasecurity.configuration.Configuration;
-import org.jpasecurity.configuration.SecurityContext;
-import org.jpasecurity.mapping.Alias;
+import javax.persistence.metamodel.Metamodel;
+
+import org.jpasecurity.Alias;
+import org.jpasecurity.Configuration;
+import org.jpasecurity.SecurityContext;
 import org.jpasecurity.security.Permit;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,11 +41,11 @@ public class AnnotationAccessRulesProviderTest {
 
     @Before
     public void initializeProvider() {
+        Metamodel metamodel = createMock(Metamodel.class);
         SecurityContext securityContext = createMock(SecurityContext.class);
         expect(securityContext.getAliases()).andReturn(Collections.singleton(new Alias("CURRENT_USER"))).anyTimes();
-        replay(securityContext);
-        annotationAccessRulesProvider = new AnnotationAccessRulesProvider();
-        annotationAccessRulesProvider.setSecurityContext(securityContext);
+        replay(metamodel, securityContext);
+        annotationAccessRulesProvider = new AnnotationAccessRulesProvider(metamodel, securityContext);
         annotationAccessRulesProvider.setConfiguration(new Configuration());
     }
 
