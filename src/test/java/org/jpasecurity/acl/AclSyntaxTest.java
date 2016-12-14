@@ -304,7 +304,7 @@ public class AclSyntaxTest {
             transaction.begin();
             entityManager.find(User.class, user.getId());
             AclProtectedEntity e = entityManager.find(AclProtectedEntity.class, entity.getId());
-            entity.getAccessControlList().getEntries().size();
+            e.getAccessControlList().getEntries().size();
             e.setSomeProperty("test" + System.currentTimeMillis());
             transaction.commit();
         } finally {

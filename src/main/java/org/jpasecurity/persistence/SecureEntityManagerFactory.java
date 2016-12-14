@@ -26,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.Query;
+import javax.persistence.SynchronizationType;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.SecurityContext;
@@ -67,8 +69,21 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
         return createSecureEntityManager(super.createEntityManager(map), map);
     }
 
+    public EntityManager createEntityManager(SynchronizationType synchronizationType, Map properties) {
+        return createSecureEntityManager(super.createEntityManager(synchronizationType, properties), properties);
+    }
+
+    public EntityManager createEntityManager(SynchronizationType synchronizationType) {
+        return createSecureEntityManager(super.createEntityManager(synchronizationType),
+                Collections.<String, Object>emptyMap());
+    }
+
     public PersistenceUnitUtil getPersistenceUnitUtil() {
         return getDelegate().getPersistenceUnitUtil();
+    }
+
+    public void addNamedQuery(String name, Query query) {
+        throw new UnsupportedOperationException("delayed registering of named queries is not supported with JPA Security");
     }
 
     protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, Object> properties) {

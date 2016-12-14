@@ -23,8 +23,11 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.criteria.CommonAbstractCriteria;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
@@ -109,6 +112,35 @@ public class CriteriaEntityFilter extends EntityFilter {
         getQueryPreparator().createWhere(accessDefinition.getAccessRules()).visit(criteriaVisitor, criteriaHolder);
         return new CriteriaFilterResult<CriteriaQuery<R>>(
                 query, parameters.size() > 0? parameters: null, query.getResultType(), criteriaHolder.getParameters());
+    }
+
+    public FilterResult<CriteriaUpdate> filterQuery(CriteriaUpdate query) {
+        return filterQuery(query, query.getRoot());
+    }
+
+    public FilterResult<CriteriaDelete> filterQuery(CriteriaDelete query) {
+        return filterQuery(query, query.getRoot());
+    }
+
+    private <Q extends CommonAbstractCriteria> FilterResult<Q> filterQuery(Q query, Root<?> root) {
+        Map<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
+        Path path = getPath(0, root);
+        selectedTypes.put(path, root.getJavaType());
+        AccessDefinition accessDefinition = createAccessDefinition(selectedTypes, AccessType.READ);
+        FilterResult<Q> filterResult
+            = getAlwaysEvaluatableResult(new JpqlCompiledStatement(null), query, accessDefinition);
+        if (filterResult != null) {
+            return filterResult;
+        }
+        optimize(accessDefinition);
+        Set<String> parameterNames = compiler.getNamedParameters(accessDefinition.getAccessRules());
+        Map<String, Object> parameters = accessDefinition.getQueryParameters();
+        parameters.keySet().retainAll(parameterNames);
+
+        CriteriaHolder criteriaHolder = new CriteriaHolder(query);
+        getQueryPreparator().createWhere(accessDefinition.getAccessRules()).visit(criteriaVisitor, criteriaHolder);
+        return new CriteriaFilterResult<Q>(
+                query, parameters.size() > 0? parameters: null, criteriaHolder.getParameters());
     }
 
     private Path getPath(int index, Selection<?> selection) {

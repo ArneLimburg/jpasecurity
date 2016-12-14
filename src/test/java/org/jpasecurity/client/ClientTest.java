@@ -45,9 +45,9 @@ public class ClientTest extends AbstractEntityTestCase {
 
     private static final String EMAIL = "test@test.org";
 
-    private static final ClientStatus ACTIVE = new ClientStatus("Active");
+    private static ClientStatus active = new ClientStatus("Active");
 
-    private static final ClientStatus CLOSED = new ClientStatus("Closed");
+    private static ClientStatus closed = new ClientStatus("Closed");
 
     private static int clientId;
 
@@ -90,6 +90,8 @@ public class ClientTest extends AbstractEntityTestCase {
 
         EntityManager entityManager = getEntityManagerFactory().createEntityManager();
         entityManager.getTransaction().begin();
+        active = entityManager.merge(active);
+        closed = entityManager.merge(closed);
         entityManager.persist(parent);
         entityManager.persist(parentTracking);
         entityManager.persist(employee);
@@ -126,7 +128,7 @@ public class ClientTest extends AbstractEntityTestCase {
         Client client = entityManager.find(Client.class, clientId);
         assertNotNull(client);
         entityManager.getTransaction().begin();
-        client.setCurrentStatus(ACTIVE);
+        client.setCurrentStatus(entityManager.merge(active));
         entityManager.getTransaction().commit();
         entityManager.close();
 
@@ -148,7 +150,7 @@ public class ClientTest extends AbstractEntityTestCase {
         entityManager.getTransaction().begin();
         entityManager.createQuery("UPDATE Client c SET c.currentStatus = :status WHERE c.id = :id")
             .setParameter("id", clientId)
-            .setParameter("status", entityManager.merge(CLOSED))
+            .setParameter("status", entityManager.merge(closed))
             .executeUpdate();
         entityManager.getTransaction().commit();
         entityManager.close();
@@ -168,7 +170,7 @@ public class ClientTest extends AbstractEntityTestCase {
             entityManager.getTransaction().begin();
             entityManager.createQuery("UPDATE Client c SET c.currentStatus = :status WHERE c.id = :id")
                 .setParameter("id", clientId)
-                .setParameter("status", entityManager.merge(ACTIVE))
+                .setParameter("status", entityManager.merge(active))
                 .executeUpdate();
             entityManager.getTransaction().commit();
             entityManager.close();

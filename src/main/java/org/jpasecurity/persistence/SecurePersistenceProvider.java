@@ -125,8 +125,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         if (nativePersistenceProvider == null) {
             return;
         }
-        // JPA 2.1
-//        nativePersistenceProvider.generateSchema(unitInfo, properties);
+        nativePersistenceProvider.generateSchema(unitInfo, properties);
     }
 
     public boolean generateSchema(String unitName, Map properties) {
@@ -139,9 +138,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         if (nativePersistenceProvider == null) {
             return false;
         }
-        // JPA 2.1
-        return false;
-//        return nativePersistenceProvider.generateSchema(unitName, properties);
+        return nativePersistenceProvider.generateSchema(unitName, properties);
     }
 
     @Override

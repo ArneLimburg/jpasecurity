@@ -20,9 +20,12 @@ import static org.jpasecurity.util.Validate.notNull;
 import java.util.Map;
 
 import javax.persistence.Cache;
+import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.Query;
+import javax.persistence.SynchronizationType;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
 
@@ -71,6 +74,26 @@ public class DelegatingEntityManagerFactory implements EntityManagerFactory {
 
     public PersistenceUnitUtil getPersistenceUnitUtil() {
         return delegate.getPersistenceUnitUtil();
+    }
+
+    public <T> void addNamedEntityGraph(String name, EntityGraph<T> graph) {
+        delegate.addNamedEntityGraph(name, graph);
+    }
+
+    public void addNamedQuery(String name, Query query) {
+        delegate.addNamedQuery(name, query);
+    }
+
+    public EntityManager createEntityManager(SynchronizationType type, Map properties) {
+        return delegate.createEntityManager(type, properties);
+    }
+
+    public EntityManager createEntityManager(SynchronizationType type) {
+        return delegate.createEntityManager(type);
+    }
+
+    public <T> T unwrap(Class<T> type) {
+        return delegate.unwrap(type);
     }
 
     protected EntityManagerFactory getDelegate() {

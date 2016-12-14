@@ -26,7 +26,10 @@ import javax.persistence.LockModeType;
 import javax.persistence.Parameter;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CommonAbstractCriteria;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -256,26 +259,49 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
     }
 
+    public Query createQuery(CriteriaUpdate criteria) {
+        AccessManager.Instance.register(accessManager);
+        FilterResult<CriteriaUpdate> filterResult = entityFilter.filterQuery(criteria);
+        if (filterResult.getQuery() == null) {
+            return new EmptyResultQuery(super.createQuery(criteria));
+        } else {
+            return createQuery(super.createQuery(filterResult.getQuery()), filterResult);
+        }
+    }
+
+    public Query createQuery(CriteriaDelete criteria) {
+        AccessManager.Instance.register(accessManager);
+        FilterResult<CriteriaDelete> filterResult = entityFilter.filterQuery(criteria);
+        if (filterResult.getQuery() == null) {
+            return new EmptyResultQuery(super.createQuery(criteria));
+        } else {
+            return createQuery(super.createQuery(filterResult.getQuery()), filterResult);
+        }
+    }
+
     public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
         AccessManager.Instance.register(accessManager);
         FilterResult<CriteriaQuery<T>> filterResult = entityFilter.filterQuery(criteriaQuery);
         if (filterResult.getQuery() == null) {
             return new EmptyResultQuery<T>(super.createQuery(criteriaQuery));
         } else {
-            SecureQuery<T> query = new SecureQuery<T>(super.createQuery(filterResult.getQuery()),
-                                      null, // TODO how to extract this?
-                                      filterResult.getSelectedPaths(),
-                                      super.getFlushMode());
-            if (filterResult.getParameters() != null && filterResult instanceof CriteriaFilterResult) {
-                CriteriaFilterResult<CriteriaQuery<T>> criteriaResult
-                    = (CriteriaFilterResult<CriteriaQuery<T>>)filterResult;
-                for (Parameter<?> parameter: criteriaResult.getCriteriaParameters()) {
-                    query.setParameter((Parameter<Object>)parameter,
-                                       filterResult.getParameters().get(parameter.getName()));
-                }
-            }
-            return query;
+            return createQuery(super.createQuery(filterResult.getQuery()), filterResult);
         }
+    }
+
+    private <C extends CommonAbstractCriteria, Q extends Query> Q createQuery(Q query, FilterResult<C> filterResult) {
+        Q secureQuery = (Q)new SecureQuery(query,
+                null, // TODO how to extract this?
+                filterResult.getSelectedPaths(),
+                super.getFlushMode());
+        if (filterResult.getParameters() != null && filterResult instanceof CriteriaFilterResult) {
+            CriteriaFilterResult<C> criteriaResult = (CriteriaFilterResult<C>)filterResult;
+            for (Parameter<?> parameter: criteriaResult.getCriteriaParameters()) {
+                Object value = filterResult.getParameters().get(parameter.getName());
+                secureQuery.setParameter((Parameter<Object>)parameter, value);
+            }
+        }
+        return secureQuery;
     }
 
     public EntityTransaction getTransaction() {
