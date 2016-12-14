@@ -35,6 +35,11 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Bindable;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.PluralAttribute;
+import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.Type;
+import javax.persistence.metamodel.Bindable.BindableType;
+import javax.persistence.metamodel.Type.PersistenceType;
 
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Path;
@@ -74,17 +79,19 @@ public class CriteriaEntityFilter extends EntityFilter {
                 }
             }
         } else if (!selection.isCompoundSelection()) {
-            Path path = getPath(0, selection);
-            if (path.hasSubpath() || !Types.isSimplePropertyType(selection.getJavaType())) {
-                selectedTypes.put(path, selection.getJavaType());
+            Path path = getSelectedPath(0, selection);
+            Class<?> selectedType = getSelectedType(selection);
+            if (!Types.isSimplePropertyType(selectedType)) {
+                selectedTypes.put(path, selectedType);
             }
         } else {
             List<Selection<?>> compoundSelectionItems = selection.getCompoundSelectionItems();
             for (int i = 0; i < compoundSelectionItems.size(); i++) {
                 Selection<?> s = compoundSelectionItems.get(i);
-                Path path = getPath(i, s);
-                if (path.hasSubpath() || !Types.isSimplePropertyType(s.getJavaType())) {
-                    selectedTypes.put(path, s.getJavaType());
+                Path path = getSelectedPath(i, s);
+                Class<?> selectedType = getSelectedType(s);
+                if (!Types.isSimplePropertyType(selectedType)) {
+                    selectedTypes.put(path, selectedType);
                 }
             }
         }
@@ -124,7 +131,7 @@ public class CriteriaEntityFilter extends EntityFilter {
 
     private <Q extends CommonAbstractCriteria> FilterResult<Q> filterQuery(Q query, Root<?> root) {
         Map<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
-        Path path = getPath(0, root);
+        Path path = getSelectedPath(0, root);
         selectedTypes.put(path, root.getJavaType());
         AccessDefinition accessDefinition = createAccessDefinition(selectedTypes, AccessType.READ);
         FilterResult<Q> filterResult
@@ -143,9 +150,9 @@ public class CriteriaEntityFilter extends EntityFilter {
                 query, parameters.size() > 0? parameters: null, criteriaHolder.getParameters());
     }
 
-    private Path getPath(int index, Selection<?> selection) {
+    private Path getSelectedPath(int index, Selection<?> selection) {
         if (selection instanceof Expression) {
-            return getPath(index, (Expression<?>)selection);
+            return getSelectedPath(index, (Expression<?>)selection);
         }
         if (selection.getAlias() == null) {
             selection.alias("alias" + index);
@@ -153,9 +160,9 @@ public class CriteriaEntityFilter extends EntityFilter {
         return new Path(selection.getAlias());
     }
 
-    private Path getPath(int index, Expression<?> expression) {
+    private Path getSelectedPath(int index, Expression<?> expression) {
         if (expression instanceof javax.persistence.criteria.Path) {
-            return getPath(index, (javax.persistence.criteria.Path<?>)expression);
+            return getSelectedPath(index, (javax.persistence.criteria.Path<?>)expression);
         }
         if (expression.getAlias() == null) {
             expression.alias("alias" + index);
@@ -163,9 +170,14 @@ public class CriteriaEntityFilter extends EntityFilter {
         return new Path(expression.getAlias());
     }
 
-    private Path getPath(int index, javax.persistence.criteria.Path<?> path) {
+    private Path getSelectedPath(int index, javax.persistence.criteria.Path<?> path) {
         if (path.getParentPath() != null) {
-            return getPath(index, path.getParentPath()).append(getName(path.getModel()));
+            Type<?> type = getType(path.getModel());
+            if (type.getPersistenceType() == PersistenceType.BASIC
+                || type.getPersistenceType() == PersistenceType.EMBEDDABLE) {
+                return getSelectedPath(index, path.getParentPath());
+            }
+            return getSelectedPath(index, path.getParentPath()).append(getName(path.getModel()));
         }
         if (path.getAlias() == null) {
             path.alias("alias" + index);
@@ -173,15 +185,49 @@ public class CriteriaEntityFilter extends EntityFilter {
         return new Path(path.getAlias());
     }
 
+    private Class<?> getSelectedType(Selection<?> selection) {
+        if (selection instanceof Expression) {
+            return getSelectedType((Expression<?>)selection);
+        }
+        return selection.getJavaType();
+    }
+
+    private Class<?> getSelectedType(Expression<?> expression) {
+        if (expression instanceof javax.persistence.criteria.Path) {
+            return getSelectedType((javax.persistence.criteria.Path<?>)expression);
+        }
+        return expression.getJavaType();
+    }
+
+    private Class<?> getSelectedType(javax.persistence.criteria.Path<?> path) {
+        Type<?> type = getType(path.getModel());
+        if (type.getPersistenceType() == PersistenceType.BASIC
+            || type.getPersistenceType() == PersistenceType.EMBEDDABLE) {
+            return getSelectedType(path.getParentPath());
+        } else {
+            return type.getJavaType();
+        }
+    }
+
+    private Type<?> getType(Bindable<?> bindable) {
+        if (bindable.getBindableType() == BindableType.SINGULAR_ATTRIBUTE) {
+            SingularAttribute<?, ?> attribute = (SingularAttribute<?, ?>)bindable;
+            return attribute.getType();
+        } else if (bindable.getBindableType() == BindableType.PLURAL_ATTRIBUTE) {
+            PluralAttribute<?, ?, ?> attribute = (PluralAttribute<?, ?, ?>)bindable;
+            return attribute.getElementType();
+        } else { //bindable.getBindableType == BindableType.ENTITY_TYPE
+            return (EntityType<?>)bindable;
+        }
+    }
+
     private String getName(Bindable<?> bindable) {
-        if (bindable instanceof EntityType) {
+        if (bindable.getBindableType() == BindableType.ENTITY_TYPE) {
             EntityType<?> entityType = (EntityType<?>)bindable;
             return entityType.getName();
-        } else if (bindable instanceof Attribute) {
+        } else {
             Attribute<?, ?> attribute = (Attribute<?, ?>)bindable;
             return attribute.getName();
-        } else {
-            throw new UnsupportedOperationException("Unsupported subclass of Bindable: " + bindable.getClass().getName());
         }
     }
 }

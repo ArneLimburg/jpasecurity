@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -74,6 +75,8 @@ public class FieldAccessAnnotationTestBean {
     private int id;
     @Column(name = "beanName")
     private String name;
+    @Embedded
+    private SimpleEmbeddable embeddable;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parentBean")
     private FieldAccessAnnotationTestBean parent;
@@ -132,6 +135,14 @@ public class FieldAccessAnnotationTestBean {
     public void setBeanName(String beanName) {
         namePropertyWriteCount++;
         name = beanName;
+    }
+
+    public SimpleEmbeddable getSimpleEmbeddable() {
+        return embeddable;
+    }
+
+    public void setSimpleEmbeddable(SimpleEmbeddable embeddable) {
+        this.embeddable = embeddable;
     }
 
     public int getNamePropertyReadCount() {

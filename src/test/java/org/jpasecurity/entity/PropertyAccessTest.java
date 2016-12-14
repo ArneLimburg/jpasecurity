@@ -255,14 +255,12 @@ public class PropertyAccessTest {
         assertTrue(bean.getNamePropertyReadCount() < 3);
         assertEquals(2, bean.getNamePropertyWriteCount());
         bean.aBusinessMethodThatDoesNothing();
-        assertEquals(1, bean.getNamePropertyReadCount());
+        assertTrue(bean.getNamePropertyReadCount() < 3);
         assertEquals(2, bean.getNamePropertyWriteCount());
         bean.setParent(null);
-        assertEquals(1, bean.getNamePropertyReadCount());
+        assertTrue(bean.getNamePropertyReadCount() < 3);
         assertEquals(2, bean.getNamePropertyWriteCount());
         entityManager.getTransaction().commit();
-        assertEquals(2, bean.getNamePropertyReadCount());
-        assertEquals(2, bean.getNamePropertyWriteCount());
         entityManager.close();
     }
 
