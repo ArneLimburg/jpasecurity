@@ -25,8 +25,8 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
@@ -47,7 +47,7 @@ import org.jpasecurity.jpql.parser.JpqlSubselect;
  */
 public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
 
-    private static final Log LOG = LogFactory.getLog(EntityManagerEvaluator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EntityManagerEvaluator.class);
 
     private final EntityManager entityManager;
     private final QueryPreparator queryPreparator;

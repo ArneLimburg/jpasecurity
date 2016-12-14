@@ -31,8 +31,8 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.SecurityContext;
@@ -53,7 +53,7 @@ import org.jpasecurity.security.FilterResult;
 public class DefaultSecureEntityManager extends DelegatingEntityManager
                                         implements SecureEntityManager {
 
-    private static final Log LOG = LogFactory.getLog(DefaultSecureEntityManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultSecureEntityManager.class);
 
     private SecureEntityManagerFactory entityManagerFactory;
     private AccessManager accessManager;

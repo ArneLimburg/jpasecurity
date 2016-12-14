@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 //import org.jpasecurity.security.rules.AccessRulesProvider;
 import org.jpasecurity.util.ReflectionUtils;
 
@@ -56,7 +56,7 @@ public class Configuration {
     public static final String EMBEDDABLES_AS_SIMPLE_VALUES_PROPERTY
         = "org.jpasecurity.embeddable.treatAsSimpleValue";
 
-    private static final Log LOG = LogFactory.getLog(Configuration.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
 
     private Map<String, Object> properties;
     private SecurityContext securityContext;

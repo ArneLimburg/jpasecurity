@@ -24,8 +24,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -34,7 +34,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public abstract class AbstractXmlParser<H extends DefaultHandler> {
 
-    private static final Log LOG = LogFactory.getLog(AbstractXmlParser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractXmlParser.class);
     private H handler;
 
     public AbstractXmlParser(H xmlHandler) {
