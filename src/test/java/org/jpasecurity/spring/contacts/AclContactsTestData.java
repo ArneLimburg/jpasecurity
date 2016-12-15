@@ -73,6 +73,7 @@ public class AclContactsTestData extends ContactsTestData {
     protected User createUser(EntityManager entityManager, String name) {
         authenticate(name);
         User user = super.createUser(entityManager, name);
+        entityManager.flush();
         ObjectIdentity id = new ObjectIdentityImpl(user);
         MutableAcl acl = aclService.createAcl(id);
         acl.insertAce(0, CREATE, acl.getOwner(), true);

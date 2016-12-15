@@ -24,15 +24,15 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Arne Limburg
  */
 public class LogoutActionListener implements ActionListener {
 
-    private static final Log LOG = LogFactory.getLog(LogoutActionListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LogoutActionListener.class);
 
     public void processAction(ActionEvent actionEvent) {
         FacesContext context = FacesContext.getCurrentInstance();

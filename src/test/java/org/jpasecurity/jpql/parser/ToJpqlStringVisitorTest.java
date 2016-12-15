@@ -18,15 +18,15 @@ package org.jpasecurity.jpql.parser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
 
 /** @author Arne Limburg */
 public class ToJpqlStringVisitorTest {
 
-    private static final Log LOG = LogFactory.getLog(ToStringVisitor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ToStringVisitor.class);
 
     private JpqlParser parser;
     private ToJpqlStringVisitor toJpqlStringVisitor;

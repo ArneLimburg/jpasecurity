@@ -48,16 +48,16 @@ public class MockitoPersistenceProvider implements PersistenceProvider {
     public EntityManagerFactory createEntityManagerFactory(String name, Map properties) {
         return getMock().createEntityManagerFactory(name, properties);
     }
-    //JPA 2.1
-//    @Override
-//    public void generateSchema(PersistenceUnitInfo info, Map properties) {
-//        getMock().generateSchema(info, properties);
-//    }
-//
-//    @Override
-//    public boolean generateSchema(String name, Map properties) {
-//        return getMock().generateSchema(name, properties);
-//    }
+
+    @Override
+    public void generateSchema(PersistenceUnitInfo info, Map properties) {
+        getMock().generateSchema(info, properties);
+    }
+
+    @Override
+    public boolean generateSchema(String name, Map properties) {
+        return getMock().generateSchema(name, properties);
+    }
 
     @Override
     public ProviderUtil getProviderUtil() {

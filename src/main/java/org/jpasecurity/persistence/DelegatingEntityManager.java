@@ -15,17 +15,22 @@
  */
 package org.jpasecurity.persistence;
 
+import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
+import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
 
 /**
@@ -186,10 +191,6 @@ public class DelegatingEntityManager implements EntityManager {
         return delegate.getProperties();
     }
 
-    public <T> T unwrap(Class<T> cls) {
-        return delegate.unwrap(cls);
-    }
-
     public EntityManagerFactory getEntityManagerFactory() {
         return delegate.getEntityManagerFactory();
     }
@@ -200,6 +201,54 @@ public class DelegatingEntityManager implements EntityManager {
 
     public Metamodel getMetamodel() {
         return delegate.getMetamodel();
+    }
+
+    public <T> EntityGraph<T> createEntityGraph(Class<T> type) {
+        return delegate.createEntityGraph(type);
+    }
+
+    public EntityGraph<?> createEntityGraph(String name) {
+        return delegate.createEntityGraph(name);
+    }
+
+    public StoredProcedureQuery createNamedStoredProcedureQuery(String query) {
+        return delegate.createNamedStoredProcedureQuery(query);
+    }
+
+    public Query createQuery(CriteriaDelete query) {
+        return delegate.createQuery(query);
+    }
+
+    public Query createQuery(CriteriaUpdate query) {
+        return delegate.createQuery(query);
+    }
+
+    public StoredProcedureQuery createStoredProcedureQuery(String query, Class... parameterTypes) {
+        return delegate.createStoredProcedureQuery(query, parameterTypes);
+    }
+
+    public StoredProcedureQuery createStoredProcedureQuery(String query, String... parameterNames) {
+        return delegate.createStoredProcedureQuery(query, parameterNames);
+    }
+
+    public StoredProcedureQuery createStoredProcedureQuery(String query) {
+        return delegate.createStoredProcedureQuery(query);
+    }
+
+    public EntityGraph<?> getEntityGraph(String name) {
+        return delegate.getEntityGraph(name);
+    }
+
+    public <T> List<EntityGraph<? super T>> getEntityGraphs(Class<T> type) {
+        return delegate.getEntityGraphs(type);
+    }
+
+    public boolean isJoinedToTransaction() {
+        return delegate.isJoinedToTransaction();
+    }
+
+    public <T> T unwrap(Class<T> cls) {
+        return delegate.unwrap(cls);
     }
 
     public EntityManager getUnsecureEntityManager() {

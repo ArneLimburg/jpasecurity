@@ -27,6 +27,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
+import org.jpasecurity.model.SimpleEmbeddable;
 import org.jpasecurity.persistence.AbstractEntityTestCase;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
@@ -56,6 +57,7 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
         EntityManager entityManager = getEntityManager();
         inaccessibleBean = new FieldAccessAnnotationTestBean("");
         accessibleBean = new FieldAccessAnnotationTestBean(USER, inaccessibleBean);
+        accessibleBean.setSimpleEmbeddable(new SimpleEmbeddable("embedded-name"));
         entityManager.getTransaction().begin();
         entityManager.persist(inaccessibleBean);
         entityManager.persist(accessibleBean);
@@ -101,6 +103,32 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
     }
 
     @Test
+    public void simpleSelectionWithBasicPath() {
+        TestSecurityContext.authenticate(USER);
+        EntityManager entityManager = getEntityManager();
+        CriteriaQuery<String> query
+            = criteriaBuilder.createQuery(String.class);
+        Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
+        query.select(bean.<String>get("name"));
+        List<String> beans = entityManager.createQuery(query).getResultList();
+        assertEquals(1, beans.size());
+        assertEquals(accessibleBean.getBeanName(), beans.iterator().next());
+    }
+
+    @Test
+    public void simpleSelectionWithEmbeddedPath() {
+        TestSecurityContext.authenticate(USER);
+        EntityManager entityManager = getEntityManager();
+        CriteriaQuery<SimpleEmbeddable> query
+            = criteriaBuilder.createQuery(SimpleEmbeddable.class);
+        Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
+        query.select(bean.<SimpleEmbeddable>get("embeddable"));
+        List<SimpleEmbeddable> beans = entityManager.createQuery(query).getResultList();
+        assertEquals(1, beans.size());
+        assertEquals(accessibleBean.getSimpleEmbeddable(), beans.iterator().next());
+    }
+
+    @Test
     public void aggregateSelection() {
         TestSecurityContext.authenticate(USER);
         EntityManager entityManager = getEntityManager();
@@ -127,6 +155,19 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
         TestSecurityContext.authenticate(USER);
         beans = entityManager.createQuery(query).getResultList();
         assertTrue(beans.isEmpty());
+    }
+
+    @Test
+    public void compountSelectionWithBasicAndEmbeddedPath() {
+        TestSecurityContext.authenticate(USER);
+        EntityManager entityManager = getEntityManager();
+        CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
+        Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
+        query.multiselect(bean.<String>get("name"), bean.<SimpleEmbeddable>get("embeddable"));
+        List<Tuple> beans = entityManager.createQuery(query).getResultList();
+        assertEquals(1, beans.size());
+        assertEquals(accessibleBean.getBeanName(), beans.iterator().next().get(0));
+        assertEquals(accessibleBean.getSimpleEmbeddable(), beans.iterator().next().get(1));
     }
 
     @Test

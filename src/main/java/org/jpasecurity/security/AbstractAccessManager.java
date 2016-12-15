@@ -26,20 +26,20 @@ import java.util.Map.Entry;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.persistence.mapping.ManagedTypeFilter;
 import org.jpasecurity.util.ReflectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Arne Limburg
  */
 public abstract class AbstractAccessManager implements AccessManager {
 
-    private static final Log LOG = LogFactory.getLog(AbstractAccessManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractAccessManager.class);
 
     private Metamodel metamodel;
     private SecurityContext context;

@@ -217,7 +217,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
         Path path = new Path(node.jjtGetChild(0).toString());
         Alias alias = getAlias(node);
         From<?, ?> from = query.getFrom(path.getRootAlias());
-        Join<Object, Object> join = from.join(path.toString(), JoinType.LEFT);
+        Join<Object, Object> join = from.join(path.getSubpath(), JoinType.LEFT);
         if (alias != null) {
             join.alias(alias.getName());
         }

@@ -40,8 +40,8 @@ import javax.persistence.metamodel.MapAttribute;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
@@ -78,7 +78,7 @@ import org.jpasecurity.jpql.parser.SimpleNode;
  */
 public class EntityFilter {
 
-    private static final Log LOG = LogFactory.getLog(EntityFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EntityFilter.class);
 
     private final Metamodel metamodel;
     private final PersistenceUnitUtil persistenceUnitUtil;

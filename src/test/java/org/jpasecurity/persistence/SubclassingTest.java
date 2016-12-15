@@ -41,6 +41,8 @@ public class SubclassingTest {
 
     private EntityManagerFactory factory;
 
+    private SuperclassReferencingBean superclassReferencingBean;
+
     @Before
     public void createTestData() {
         TestSecurityContext.authenticate(USER);
@@ -54,7 +56,8 @@ public class SubclassingTest {
         testBean.setParent(testBeanSubclass);
         AbstractEntity subclass = new Subclass1();
         entityManager.persist(subclass);
-        entityManager.persist(new SuperclassReferencingBean(subclass));
+        superclassReferencingBean = new SuperclassReferencingBean(subclass);
+        entityManager.persist(superclassReferencingBean);
         entityManager.getTransaction().commit();
         entityManager.close();
         TestSecurityContext.authenticate(null);
@@ -86,7 +89,8 @@ public class SubclassingTest {
     @Test
     public void referenceToSuperclass() {
         EntityManager entityManager = factory.createEntityManager();
-        AbstractSuperclass<Integer> superclass = entityManager.find(SuperclassReferencingBean.class, 1).getSuperclass();
+        AbstractSuperclass<Integer> superclass
+            = entityManager.find(SuperclassReferencingBean.class, superclassReferencingBean.getId()).getSuperclass();
         entityManager.close();
         entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();

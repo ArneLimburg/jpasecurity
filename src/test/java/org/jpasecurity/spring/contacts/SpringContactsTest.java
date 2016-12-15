@@ -32,6 +32,7 @@ import org.jpasecurity.spring.acl.Principal;
 import org.jpasecurity.spring.acl.Role;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -46,6 +47,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 /**
  * @author Arne Limburg
  */
+@Ignore("TODO")
 public class SpringContactsTest {
 
     private ConfigurableApplicationContext applicationContext;

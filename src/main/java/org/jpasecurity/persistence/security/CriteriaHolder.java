@@ -21,7 +21,10 @@ import java.util.Stack;
 
 import javax.persistence.Parameter;
 import javax.persistence.criteria.AbstractQuery;
+import javax.persistence.criteria.CommonAbstractCriteria;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
@@ -36,11 +39,11 @@ import org.jpasecurity.util.ValueHolder;
  */
 public class CriteriaHolder extends ValueHolder<Object> {
 
-    private CriteriaQuery<?> criteriaQuery;
+    private CommonAbstractCriteria criteriaQuery;
     private Stack<Subquery<?>> subqueries = new Stack<Subquery<?>>();
     private List<Parameter<?>> parameters = new ArrayList<Parameter<?>>();
 
-    public CriteriaHolder(CriteriaQuery<?> query) {
+    public CriteriaHolder(CommonAbstractCriteria query) {
         criteriaQuery = query;
         setValue(query);
     }
@@ -109,6 +112,16 @@ public class CriteriaHolder extends ValueHolder<Object> {
 
     public List<Parameter<?>> getParameters() {
         return parameters;
+    }
+
+    private From<?, ?> getFrom(CommonAbstractCriteria query, Alias alias) {
+        if (query instanceof CriteriaUpdate) {
+            return ((CriteriaUpdate<?>)query).getRoot();
+        } else if (query instanceof CriteriaDelete) {
+            return ((CriteriaUpdate<?>)query).getRoot();
+        } else {
+            return getFrom((AbstractQuery<?>)query, alias);
+        }
     }
 
     private From<?, ?> getFrom(AbstractQuery<?> query, Alias alias) {

@@ -15,38 +15,41 @@
  */
 package org.jpasecurity.model.client;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.ForeignKey;
 
 /**
  *
  * @author Joe Amoros
  */
 @Entity
-public class ClientOperationsTracking extends AbstractEntity<Integer> {
+public class ClientOperationsTracking implements Serializable {
 
-    @PrimaryKeyJoinColumn
+    @Id
     @NotNull(message = "validation.mandatoryField")
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    @ForeignKey(name = "FK_client_operation_tracking_client_id")
     private Client client;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @ForeignKey(name = "FK_client_data_delivery_method_id")
     @Fetch(FetchMode.JOIN)
     private DataDeliveryMethod dataDeliveryMethod;
 
     private Boolean ftpInPlaceWithClient;
 
     private Boolean dataImportAutomated;
+
+    public Integer getId() {
+        return client != null ? client.getId(): null;
+    }
 
     public Client getClient() {
         return client;

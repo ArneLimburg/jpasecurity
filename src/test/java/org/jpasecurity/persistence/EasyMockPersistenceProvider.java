@@ -21,10 +21,13 @@ import java.util.Enumeration;
 import java.util.Map;
 
 import javax.persistence.Cache;
+import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.Query;
+import javax.persistence.SynchronizationType;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.spi.PersistenceProvider;
@@ -124,10 +127,41 @@ public class EasyMockPersistenceProvider implements PersistenceProvider {
         public PersistenceUnitUtil getPersistenceUnitUtil() {
             return null;
         }
+
+        @Override
+        public <T> void addNamedEntityGraph(String arg0, EntityGraph<T> arg1) {
+        }
+
+        @Override
+        public void addNamedQuery(String arg0, Query arg1) {
+        }
+
+        @Override
+        public EntityManager createEntityManager(SynchronizationType arg0) {
+            return null;
+        }
+
+        @Override
+        public EntityManager createEntityManager(SynchronizationType arg0, Map arg1) {
+            return null;
+        }
+
+        @Override
+        public <T> T unwrap(Class<T> arg0) {
+            return null;
+        }
     }
 
     public ProviderUtil getProviderUtil() {
-        // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void generateSchema(PersistenceUnitInfo arg0, Map arg1) {
+    }
+
+    @Override
+    public boolean generateSchema(String arg0, Map arg1) {
+        return false;
     }
 }

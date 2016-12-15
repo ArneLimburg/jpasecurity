@@ -20,8 +20,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jpasecurity.Alias;
 import org.jpasecurity.AuthenticationProvider;
 import org.jpasecurity.AuthenticationProviderSecurityContext;
@@ -57,7 +57,7 @@ public class AutodetectingSecurityContext implements SecurityContext,
                                                      ConfigurationReceiver,
                                                      SecurityContextReceiver {
 
-    private static final Log LOG = LogFactory.getLog(AutodetectingSecurityContext.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AutodetectingSecurityContext.class);
 
     private static final List<String> AUTHENTICATION_PROVIDER_CLASS_NAMES;
     static {
