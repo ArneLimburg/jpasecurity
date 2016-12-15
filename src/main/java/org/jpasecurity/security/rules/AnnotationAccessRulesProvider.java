@@ -131,8 +131,8 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
                 for (Permit permission: annotations.getValue()) {
                     Alias alias = new Alias(Introspector.decapitalize(name));
                     JpqlWhere whereClause = null;
-                    if (permission.rule().trim().length() > 0) {
-                        whereClause = whereClauseParser.parseWhereClause("WHERE " + permission.rule());
+                    if (permission.where().trim().length() > 0) {
+                        whereClause = whereClauseParser.parseWhereClause("WHERE " + permission.where());
                         alias = findUnusedAlias(whereClause, alias);
                         appendAlias(whereClause, alias);
                     }

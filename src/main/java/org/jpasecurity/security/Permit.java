@@ -45,5 +45,5 @@ import org.jpasecurity.AccessType;
 public @interface Permit {
 
     AccessType[] access() default { CREATE, READ, UPDATE, DELETE };
-    String rule() default "";
+    String where() default "";
 }

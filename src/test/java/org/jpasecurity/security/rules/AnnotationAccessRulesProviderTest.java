@@ -60,7 +60,7 @@ public class AnnotationAccessRulesProviderTest {
                      permissions.iterator().next());
     }
 
-    @Permit(rule = "name = 'root' "
+    @Permit(where = "name = 'root' "
                  + "OR this IN (SELECT bean FROM Bean bean WHERE bean = this) "
                  + "OR EXISTS (SELECT user FROM User user WHERE user = CURRENT_USER AND user.name = name)")
     private static class Bean {

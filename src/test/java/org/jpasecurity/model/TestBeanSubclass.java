@@ -24,7 +24,7 @@ import org.jpasecurity.security.Permit;
  * @author Arne Limburg
  */
 @Entity
-@Permit(rule = "owner = CURRENT_PRINCIPAL")
+@Permit(where = "owner = CURRENT_PRINCIPAL")
 public class TestBeanSubclass extends TestBean {
 
     @Basic

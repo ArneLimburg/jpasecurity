@@ -90,8 +90,8 @@ public class AccessRulesParser {
     private JpqlAccessRule createAccessRule(Class<?> type, Permit permission) throws ParseException {
         Alias alias = new Alias(Introspector.decapitalize(type.getSimpleName()));
         JpqlWhere whereClause = null;
-        if (permission.rule().trim().length() > 0) {
-            whereClause = jpqlParser.parseWhereClause("WHERE " + permission.rule());
+        if (permission.where().trim().length() > 0) {
+            whereClause = jpqlParser.parseWhereClause("WHERE " + permission.where());
             alias = findUnusedAlias(whereClause, alias);
             appendAlias(whereClause, alias);
         }
