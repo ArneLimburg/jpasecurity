@@ -47,7 +47,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 /**
  * @author Arne Limburg
  */
-@Ignore("TODO")
+@Ignore("TODO: Update spring version")
 public class SpringContactsTest {
 
     private ConfigurableApplicationContext applicationContext;
