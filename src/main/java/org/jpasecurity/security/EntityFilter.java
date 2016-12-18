@@ -474,18 +474,25 @@ public class EntityFilter {
 
     private Class<?> getSelectedType(Path entityPath, Set<TypeDefinition> typeDefinitions) {
         if (entityPath.isKeyPath()) {
-            Path keyPath = new Path(entityPath.getRootAlias().toString());
-            MapAttribute<?, ?, ?> mapAttribute
-                = (MapAttribute<?, ?, ?>)attributeForPath(keyPath).withMetamodel(metamodel).filter(typeDefinitions);
+            TypeDefinition typeDefinition = typeForAlias(entityPath.getRootAlias())
+                    .withMetamodel(metamodel)
+                    .filter(typeDefinitions);
+            MapAttribute<?, ?, ?> mapAttribute = (MapAttribute<?, ?, ?>)attributeForPath(typeDefinition.getJoinPath())
+                    .withMetamodel(metamodel)
+                    .filter(typeDefinitions);
             Class<?> keyType = mapAttribute.getKeyJavaType();
             if (!entityPath.hasSubpath()) {
                 return keyType;
             }
-            return attributeForPath(new Path(entityPath.getSubpath())).withRootType(keyType).filter().getJavaType();
+            return attributeForPath(new Path(entityPath.getSubpath()))
+                    .withMetamodel(metamodel)
+                    .withRootType(keyType)
+                    .filter()
+                    .getJavaType();
         } else if (entityPath.hasSubpath()) {
             return attributeForPath(entityPath).withMetamodel(metamodel).filter(typeDefinitions).getJavaType();
         } else {
-            return typeForAlias(entityPath.getRootAlias()).withMetamodel(metamodel).filter(typeDefinitions);
+            return typeForAlias(entityPath.getRootAlias()).withMetamodel(metamodel).filter(typeDefinitions).getType();
         }
     }
 

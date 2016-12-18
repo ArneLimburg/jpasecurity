@@ -57,7 +57,6 @@ import org.jpasecurity.model.MethodAccessTestBean;
 import org.jpasecurity.security.rules.AccessRulesCompiler;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -123,6 +122,12 @@ public class EntityFilterTest {
         expect(childrenAttribute.getJavaMember())
             .andReturn(MethodAccessTestBean.class.getDeclaredMethod("getChildren"));
         expect(relatedAttribute.getName()).andReturn("related").anyTimes();
+        expect(relatedAttribute.isCollection()).andReturn(true).anyTimes();
+        expect(relatedAttribute.getKeyJavaType()).andReturn(MethodAccessTestBean.class).anyTimes();
+        expect(relatedAttribute.getBindableJavaType()).andReturn(MethodAccessTestBean.class).anyTimes();
+        expect(relatedAttribute.getElementType()).andReturn(entityType).anyTimes();
+        expect(relatedAttribute.getJavaMember())
+            .andReturn(MethodAccessTestBean.class.getDeclaredMethod("getRelated"));
         replay(metamodel, persistenceUnitUtil, accessManager, securityContext, entityType, idAttribute, nameAttribute,
                 parentAttribute, childrenAttribute, relatedAttribute, integerType);
         entityFilter = new EntityFilter(metamodel, persistenceUnitUtil, initializeAccessRules(metamodel));
@@ -204,7 +209,6 @@ public class EntityFilterTest {
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
 
-    @Ignore("TODO")
     @Test
     public void filterCoalesceQuery() {
         String plainQuery = "SELECT COALESCE(parent.name, KEY(related).name, VALUE(related).name, tb.name) "
@@ -286,7 +290,6 @@ public class EntityFilterTest {
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
 
-    @Ignore("Implement correct key handling")
     @Test
     public void filterKeyQuery() {
         String plainQuery = "SELECT KEY(related) FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.related related";
@@ -302,7 +305,6 @@ public class EntityFilterTest {
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
 
-    @Ignore("TODO")
     @Test
     public void filterValueQuery() {
         String plainQuery = "SELECT VALUE(related) FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.related related";
@@ -320,7 +322,6 @@ public class EntityFilterTest {
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
 
-    @Ignore("Implement correct key handling")
     @Test
     public void filterEntryQuery() {
         String plainQuery = "SELECT ENTRY(related) FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.related related";
@@ -332,7 +333,6 @@ public class EntityFilterTest {
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
 
-    @Ignore("TODO")
     @Test
     public void isAccessible() {
         MethodAccessTestBean testBean = new MethodAccessTestBean();

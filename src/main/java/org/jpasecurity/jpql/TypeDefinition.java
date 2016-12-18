@@ -187,7 +187,7 @@ public class TypeDefinition {
         protected abstract T transform(TypeDefinition typeDefinition);
     }
 
-    public static class AliasTypeFilter extends Filter<AliasTypeFilter, Class<?>> {
+    public static class AliasTypeFilter extends Filter<AliasTypeFilter, TypeDefinition> {
 
         private Alias alias;
 
@@ -200,8 +200,8 @@ public class TypeDefinition {
         }
 
         @Override
-        protected Class<?> transform(TypeDefinition typeDefinition) {
-            return typeDefinition.getType();
+        protected TypeDefinition transform(TypeDefinition typeDefinition) {
+            return typeDefinition;
         }
     }
 
@@ -216,6 +216,9 @@ public class TypeDefinition {
 
         public AttributeFilter withRootType(Class<?> rootType) {
             this.rootType = rootType;
+            String[] newPathElements = new String[pathElements.length + 1];
+            System.arraycopy(pathElements, 0, newPathElements, 1, pathElements.length);
+            pathElements = newPathElements;
             return this;
         }
 
