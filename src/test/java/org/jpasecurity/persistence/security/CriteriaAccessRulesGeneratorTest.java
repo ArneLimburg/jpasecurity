@@ -29,13 +29,11 @@ import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
-@Ignore("FIXME")
 public class CriteriaAccessRulesGeneratorTest extends AbstractEntityTestCase {
 
     public static final String USER = "user";
