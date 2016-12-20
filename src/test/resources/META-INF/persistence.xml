@@ -8,6 +8,7 @@
         transaction-type="RESOURCE_LOCAL">
         <mapping-file>META-INF/parent.orm.xml</mapping-file>
         <mapping-file>META-INF/empty.orm.xml</mapping-file>
+        <mapping-file>security.orm.xml</mapping-file>
     </persistence-unit>
 
     <persistence-unit
@@ -15,6 +16,7 @@
         transaction-type="JTA">
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
         <non-jta-data-source>java:/DefaultDS</non-jta-data-source>
+        <mapping-file>security.orm.xml</mapping-file>
         <class>org.jpasecurity.MethodAccessTestBean</class>
         <class>org.jpasecurity.ParentTestBean</class>
         <class>org.jpasecurity.ChildTestBean</class>
@@ -32,6 +34,8 @@
     <persistence-unit name="subclassing-test" transaction-type="RESOURCE_LOCAL">
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+        <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.TestBean</class>
         <class>org.jpasecurity.model.TestBeanSubclass</class>
@@ -60,6 +64,8 @@
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
+        <mapping-file>security.orm.xml</mapping-file>
+
         <class>org.jpasecurity.model.AbstractSuperclass</class>
         <class>org.jpasecurity.model.Subclass1</class>
         <class>org.jpasecurity.model.Subclass2</class>
@@ -85,6 +91,8 @@
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
+        <mapping-file>security.orm.xml</mapping-file>
+
         <class>org.jpasecurity.model.objectidentity.ParentEntity</class>
         <class>org.jpasecurity.model.objectidentity.EntitySuperclass</class>
         <class>org.jpasecurity.model.objectidentity.ChildEntityType1</class>
@@ -109,6 +117,7 @@
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>META-INF/test.orm.xml</mapping-file>
+        <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.MethodAccessAnnotationTestBean</class>
 
@@ -134,6 +143,7 @@
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>META-INF/test.orm.xml</mapping-file>
+        <mapping-file>security.orm.xml</mapping-file>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -154,6 +164,8 @@
     <persistence-unit name="annotation-based-field-access" transaction-type="RESOURCE_LOCAL">
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+        <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
         <class>org.jpasecurity.model.FieldAccessMapKey</class>
@@ -179,6 +191,8 @@
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
+        <mapping-file>security.orm.xml</mapping-file>
+
         <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
         <class>org.jpasecurity.model.FieldAccessMapKey</class>
         <class>org.jpasecurity.model.FieldAccessMapValue</class>
@@ -201,6 +215,8 @@
     <persistence-unit name="entity-lifecycle-test" transaction-type="RESOURCE_LOCAL">
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+        <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
         <class>org.jpasecurity.model.FieldAccessMapKey</class>
@@ -231,6 +247,8 @@
     <persistence-unit name="first-level-test" transaction-type="RESOURCE_LOCAL">
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+        <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
         <class>org.jpasecurity.model.FieldAccessMapKey</class>
@@ -263,6 +281,8 @@
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
+        <mapping-file>security.orm.xml</mapping-file>
+
         <class>org.jpasecurity.model.TestBean</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
@@ -284,6 +304,8 @@
     <persistence-unit name="mixed-protection-level-test" transaction-type="RESOURCE_LOCAL">
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+        <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.ProtectedJoinedEntity</class>
         <class>org.jpasecurity.model.ProtectedJoiningEntity</class>
@@ -310,6 +332,8 @@
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
+        <mapping-file>security.orm.xml</mapping-file>
+
         <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
         <class>org.jpasecurity.model.FieldAccessMapKey</class>
         <class>org.jpasecurity.model.FieldAccessMapValue</class>
@@ -335,6 +359,7 @@
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
         <mapping-file>META-INF/parent-child.xml</mapping-file>
+        <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.ChildTestBean</class>
         <class>org.jpasecurity.model.ParentTestBean</class>
@@ -359,6 +384,7 @@
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>META-INF/parent-child.xml</mapping-file>
+        <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.ChildTestBean</class>
         <class>org.jpasecurity.model.ParentTestBean</class>
@@ -384,6 +410,7 @@
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
         
         <mapping-file>META-INF/test.orm.xml</mapping-file>
+        <mapping-file>security.orm.xml</mapping-file>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -404,6 +431,8 @@
     <persistence-unit name="simple-contacts" transaction-type="RESOURCE_LOCAL">
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+        <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.contacts.model.User</class>
         <class>org.jpasecurity.contacts.model.Contact</class>
@@ -427,6 +456,8 @@
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
+        <mapping-file>security.orm.xml</mapping-file>
+
         <class>org.jpasecurity.contacts.model.User</class>
         <class>org.jpasecurity.contacts.model.Contact</class>
 
@@ -444,6 +475,8 @@
     <persistence-unit name="acl-model" transaction-type="RESOURCE_LOCAL">
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+        <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.acl.Acl</class>
         <class>org.jpasecurity.model.acl.AclEntry</class>
@@ -470,6 +503,8 @@
     <persistence-unit name="acl-model-nocache" transaction-type="RESOURCE_LOCAL">
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+        <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.acl.Acl</class>
         <class>org.jpasecurity.model.acl.AclEntry</class>
@@ -498,6 +533,8 @@
 
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
+        <mapping-file>security.orm.xml</mapping-file>
+
         <class>org.jpasecurity.model.TestBean</class>
         <class>org.jpasecurity.model.TestBeanSubclass</class>
 
@@ -517,6 +554,8 @@
     <persistence-unit name="with-clause" transaction-type="RESOURCE_LOCAL">
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+        <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.MethodAccessAnnotationTestBean</class>
 
@@ -540,6 +579,8 @@
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
+        <mapping-file>security.orm.xml</mapping-file>
+
         <class>org.jpasecurity.contacts.model.User</class>
         <class>org.jpasecurity.contacts.model.Contact</class>
 
@@ -556,6 +597,8 @@
     <persistence-unit name="client" transaction-type="RESOURCE_LOCAL">
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+        <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.client.Client</class>
         <class>org.jpasecurity.model.client.ClientGroup</class>
@@ -595,6 +638,8 @@
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
+        <mapping-file>security.orm.xml</mapping-file>
+
         <class>org.jpasecurity.contacts.model.User</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
@@ -616,6 +661,8 @@
     <persistence-unit name="interceptor" transaction-type="RESOURCE_LOCAL">
 
       <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+      <mapping-file>security.orm.xml</mapping-file>
 
       <class>org.jpasecurity.contacts.model.User</class>
       <class>org.jpasecurity.contacts.model.Contact</class>
@@ -643,6 +690,8 @@
 
     <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
+    <mapping-file>security.orm.xml</mapping-file>
+
     <class>org.jpasecurity.contacts.model.User</class>
     <class>org.jpasecurity.contacts.model.Contact</class>
 	<class>org.jpasecurity.spring.acl.Sid</class>
@@ -662,5 +711,21 @@
       <property name="hibernate.hbm2ddl.auto" value="create-drop" />
     </properties>
 
+  </persistence-unit>
+  
+  <persistence-unit name="task" transaction-type="RESOURCE_LOCAL">
+    <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+    <mapping-file>security.orm.xml</mapping-file>
+    <class>org.jpasecurity.model.Task</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties>
+      <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
+      <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
+      <property name="javax.persistence.jdbc.user" value="sa"/>
+      <property name="javax.persistence.jdbc.password" value=""/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
+      <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+    </properties>
   </persistence-unit>
 </persistence>

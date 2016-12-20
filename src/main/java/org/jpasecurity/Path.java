@@ -119,6 +119,28 @@ public class Path {
         return new Path(toString() + '.' + name);
     }
 
+    public boolean isEnumValue() {
+        return getEnumValue() != null;
+    }
+
+    public Enum getEnumValue() {
+        String pathName = toString();
+        int lastDot = pathName.lastIndexOf('.');
+        if (lastDot < 0) {
+            return null;
+        }
+        String className = pathName.substring(0, lastDot);
+        Class<? extends Enum> enumType = loadEnumClass(className);
+        if (enumType == null) {
+            return null;
+        }
+        try {
+            return Enum.valueOf(enumType, pathName.substring(lastDot + 1));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     public String toString() {
         StringBuilder builder = new StringBuilder();
         if (isKeyPath()) {
@@ -155,5 +177,13 @@ public class Path {
 
     private boolean isEntrySegment(String rootSegment) {
         return rootSegment.toUpperCase().startsWith(ENTRY_FUNCTION);
+    }
+
+    private Class<? extends Enum> loadEnumClass(String className) {
+        try {
+            return (Class<? extends Enum>)Thread.currentThread().getContextClassLoader().loadClass(className);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
     }
 }

@@ -31,6 +31,7 @@ import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
+import org.jpasecurity.Path;
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jpql.compiler.QueryPreparator;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
@@ -199,7 +200,8 @@ public class AccessRulesParser {
             if (THIS_ALIAS.equals(a)) {
                 queryPreparator.replace(path.jjtGetChild(0), queryPreparator.createIdentificationVariable(alias));
             } else if (!declaredAliases.contains(a)
-                && (path.jjtGetNumChildren() > 1 || (!securityContext.getAliases().contains(a)))) {
+                && (path.jjtGetNumChildren() > 1 || (!securityContext.getAliases().contains(a)))
+                && (!new Path(path.toString()).isEnumValue())) {
                 queryPreparator.prepend(alias.toPath(), path);
             }
             return false;

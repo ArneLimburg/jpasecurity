@@ -421,8 +421,12 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         try {
             node.jjtGetChild(0).visit(this, data);
             Object value1 = convert(data.getResult());
+            Path rightHandSide = new Path(node.jjtGetChild(1).toString());
             if (value1 == null) {
                 data.setResult(false);
+            } else if (rightHandSide.isEnumValue()) {
+                Object value2 = rightHandSide.getEnumValue();
+                data.setResult(value1.equals(value2));
             } else {
                 node.jjtGetChild(1).visit(this, data);
                 Object value2 = convert(data.getResult());
@@ -439,9 +443,15 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         try {
             node.jjtGetChild(0).visit(this, data);
             Object value1 = data.getResult();
-            node.jjtGetChild(1).visit(this, data);
-            Object value2 = data.getResult();
-            data.setResult(!value1.equals(value2));
+            Path rightHandSide = new Path(node.jjtGetChild(1).toString());
+            if ((value1 == null || value1 instanceof Enum) && rightHandSide.isEnumValue()) {
+                Object value2 = rightHandSide.getEnumValue();
+                data.setResult(!value2.equals(value1));
+            } else {
+                node.jjtGetChild(1).visit(this, data);
+                Object value2 = data.getResult();
+                data.setResult(!value1.equals(value2));
+            }
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
         }
