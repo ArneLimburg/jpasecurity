@@ -109,9 +109,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     private Set<Replacement> getReplacements(Set<TypeDefinition> types, Node statement) {
         Set<Replacement> replacements = new HashSet<Replacement>();
         for (TypeDefinition type: types) {
-            if (!type.isJoin()) {
-                replacements.add(new Replacement(type));
-            }
+            replacements.add(new Replacement(type));
         }
         statement.visit(replacementVisitor, replacements);
         evaluateJoinPathReplacements(replacements);
@@ -122,16 +120,21 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         for (Replacement replacement: replacements) {
             if (replacement.getTypeDefinition().isJoin()) {
                 Path joinPath = replacement.getTypeDefinition().getJoinPath();
+                Alias rootAlias = joinPath.getRootAlias();
                 Node replacementNode = replacement.getReplacement();
-                Replacement rootReplacement = getReplacement(joinPath.getRootAlias(), replacements);
-                while (rootReplacement != null && rootReplacement.getReplacement() != null) {
+                Replacement rootReplacement = getReplacement(rootAlias, replacements);
+                Set<Alias> replacedAliases = new HashSet<Alias>();
+                while (rootReplacement != null
+                       && rootReplacement.getReplacement() != null
+                       && !replacedAliases.contains(rootAlias)) {
+                    replacedAliases.add(rootAlias);
                     Node rootNode = rootReplacement.getReplacement().clone();
                     for (int i = 1; i < replacementNode.jjtGetNumChildren(); i++) {
                         rootNode.jjtAddChild(replacementNode.jjtGetChild(i), rootNode.jjtGetNumChildren());
                     }
                     replacement.setReplacement(rootNode);
-                    Alias newRootAlias = new Alias(rootNode.jjtGetChild(0).toString());
-                    rootReplacement = getReplacement(newRootAlias, replacements);
+                    rootAlias = new Alias(rootNode.jjtGetChild(0).toString());
+                    rootReplacement = getReplacement(rootAlias, replacements);
                     replacementNode = rootNode;
                 }
             }
@@ -354,7 +357,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
                 throw new IllegalStateException("Subselect join without alias found: " + node);
             }
             for (Replacement replacement: replacements) {
-                if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias())) {
+                if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias().toString())) {
                     replacement.setReplacement(node.jjtGetChild(0));
                 }
             }
