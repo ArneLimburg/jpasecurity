@@ -35,11 +35,6 @@ public class StaticSecurityContext implements SecurityContext {
     private static final Object NULL = new Object();
     private static Map<Alias, Object> values = new ConcurrentHashMap<Alias, Object>();
 
-    static {
-        values.put(new Alias("CURRENT_PRINCIPAL"), NULL);
-        values.put(new Alias("CURRENT_ROLES"), Collections.emptySet());
-    }
-
     /**
      * Sets the current authenticated principal to the specified principal, assigning the specified roles.
      * @param principal the principal
@@ -61,6 +56,10 @@ public class StaticSecurityContext implements SecurityContext {
 
     public static void register(Alias alias, Object value) {
         values.put(alias, value != null? value: NULL);
+    }
+
+    public static void unauthenticate() {
+        values.clear();
     }
 
     @Override
