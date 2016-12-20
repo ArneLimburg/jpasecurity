@@ -18,7 +18,6 @@ package org.jpasecurity.security;
 import static org.jpasecurity.util.Validate.notNull;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,6 +30,7 @@ import org.jpasecurity.AccessType;
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.persistence.mapping.ManagedTypeFilter;
 import org.jpasecurity.util.ReflectionUtils;
+import org.jpasecurity.util.SimpleMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public abstract class AbstractAccessManager implements AccessManager {
     private boolean checkInProgress;
     private int checksDisabled;
     private int checksDelayed;
-    private Map<Object, AccessType> entitiesToCheck = new HashMap<Object, AccessType>();
+    private Map<Object, AccessType> entitiesToCheck = new SimpleMap<Object, AccessType>();
 
     public AbstractAccessManager(Metamodel metamodel, SecurityContext context) {
         this.metamodel = notNull(Metamodel.class, metamodel);
