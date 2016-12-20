@@ -56,20 +56,23 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
     public T getSingleResult() {
         T result;
         AccessManager.Instance.get().delayChecks();
-        if (constructorArgReturnType != null) {
-            Object parameters = super.getSingleResult();
-            try {
-                result = handleConstructorReturnType(parameters);
-            } catch (InvocationTargetException e) {
-                result = ReflectionUtils.throwThrowable(e.getTargetException());
-            } catch (Exception e) {
-                result = ReflectionUtils.throwThrowable(e);
+        try {
+            if (constructorArgReturnType != null) {
+                Object parameters = super.getSingleResult();
+                try {
+                    result = handleConstructorReturnType(parameters);
+                } catch (InvocationTargetException e) {
+                    result = ReflectionUtils.throwThrowable(e.getTargetException());
+                } catch (Exception e) {
+                    result = ReflectionUtils.throwThrowable(e);
+                }
+            } else {
+                result = getSecureResult(super.getSingleResult());
             }
-        } else {
-            result = getSecureResult(super.getSingleResult());
+            AccessManager.Instance.get().ignoreChecks(AccessType.READ, Collections.singleton(result));
+        } finally {
+            AccessManager.Instance.get().checkNow();
         }
-        AccessManager.Instance.get().ignoreChecks(AccessType.READ, Collections.singleton(result));
-        AccessManager.Instance.get().checkNow();
         return result;
     }
 
