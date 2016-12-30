@@ -26,7 +26,6 @@ import java.util.Map;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.Configuration;
-import org.jpasecurity.ConfigurationReceiver;
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.security.AccessRule;
 
@@ -34,8 +33,7 @@ import org.jpasecurity.security.AccessRule;
  * This implementation of the {@link AccessRulesProvider} interface.
  * @author Arne Limburg
  */
-public class DefaultAccessRulesProvider implements AccessRulesProvider,
-                                                   ConfigurationReceiver {
+public class DefaultAccessRulesProvider implements AccessRulesProvider {
 
     private final AnnotationAccessRulesProvider annotationRulesProvider;
     private final XmlAccessRulesProvider xmlRulesProvider;

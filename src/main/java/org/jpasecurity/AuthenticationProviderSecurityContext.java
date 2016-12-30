@@ -26,30 +26,18 @@ import java.util.Collections;
  *
  * @author Arne Limburg
  */
-public class AuthenticationProviderSecurityContext implements SecurityContext,
-                                                              ConfigurationReceiver,
-                                                              SecurityContextReceiver {
+public class AuthenticationProviderSecurityContext implements SecurityContext, SecurityContextReceiver {
 
     public static final Alias CURRENT_PRINCIPAL = new Alias("CURRENT_PRINCIPAL");
     public static final Alias CURRENT_ROLES = new Alias("CURRENT_ROLES");
 
     private AuthenticationProvider authenticationProvider;
-    private ConfigurationReceiver configurationReceiver;
     private SecurityContextReceiver securityContextReceiver;
 
     public AuthenticationProviderSecurityContext(AuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
-        if (authenticationProvider instanceof ConfigurationReceiver) {
-            configurationReceiver = (ConfigurationReceiver)authenticationProvider;
-        }
         if (authenticationProvider instanceof SecurityContextReceiver) {
             securityContextReceiver = (SecurityContextReceiver)authenticationProvider;
-        }
-    }
-
-    public void setConfiguration(Configuration configuration) {
-        if (configurationReceiver != null) {
-            configurationReceiver.setConfiguration(configuration);
         }
     }
 

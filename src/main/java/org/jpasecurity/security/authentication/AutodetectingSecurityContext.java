@@ -20,15 +20,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jpasecurity.Alias;
 import org.jpasecurity.AuthenticationProvider;
 import org.jpasecurity.AuthenticationProviderSecurityContext;
-import org.jpasecurity.Configuration;
-import org.jpasecurity.ConfigurationReceiver;
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.SecurityContextReceiver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class tries to detect the security context for an application.
@@ -53,9 +51,7 @@ import org.jpasecurity.SecurityContextReceiver;
  * </ol>
  * @author Arne Limburg
  */
-public class AutodetectingSecurityContext implements SecurityContext,
-                                                     ConfigurationReceiver,
-                                                     SecurityContextReceiver {
+public class AutodetectingSecurityContext implements SecurityContext, SecurityContextReceiver {
 
     private static final Logger LOG = LoggerFactory.getLogger(AutodetectingSecurityContext.class);
 
@@ -108,10 +104,6 @@ public class AutodetectingSecurityContext implements SecurityContext,
 
     public <T> Collection<T> getAliasValues(Alias alias) {
         return securityContext.getAliasValues(alias);
-    }
-
-    public void setConfiguration(Configuration configuration) {
-        securityContext.setConfiguration(configuration);
     }
 
     public void setSecurityContext(SecurityContext newSecurityContext) {

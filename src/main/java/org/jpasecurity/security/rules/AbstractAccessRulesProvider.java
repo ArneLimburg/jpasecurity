@@ -27,7 +27,6 @@ import javax.persistence.PersistenceException;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.Configuration;
-import org.jpasecurity.ConfigurationReceiver;
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jpql.compiler.MappingEvaluator;
 import org.jpasecurity.jpql.compiler.QueryPreparator;
@@ -43,8 +42,7 @@ import org.jpasecurity.security.AccessRule;
  * @see #compileRules(Collection)
  * @author Arne Limburg
  */
-public abstract class AbstractAccessRulesProvider implements AccessRulesProvider,
-                                                             ConfigurationReceiver {
+public abstract class AbstractAccessRulesProvider implements AccessRulesProvider {
 
     private Metamodel persistenceMapping;
     private Map<String, Object> persistenceProperties;
