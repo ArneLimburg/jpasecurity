@@ -16,7 +16,6 @@
 package org.jpasecurity.xml;
 
 import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expectLastCall;
@@ -31,7 +30,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.jpasecurity.ExceptionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,13 +49,11 @@ public class AbstractXmlParserTest {
 
     public static final String SAX_PARSER_FACTORY_PROPERTY_NAME = "javax.xml.parsers.SAXParserFactory";
 
-    private ExceptionFactory exceptionFactory;
     private AbstractXmlParser<DelegatingXmlHandler> parser;
 
     @Before
     public void initialize() {
         ContentHandler contentHandler = createNiceMock(ContentHandler.class);
-        exceptionFactory = createMock(ExceptionFactory.class);
         parser = new TestXmlParser(new DelegatingXmlHandler(contentHandler));
     }
 

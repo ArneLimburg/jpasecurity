@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.PersistenceException;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 
@@ -161,7 +162,7 @@ public class AnnotationAccessRulesProvider extends AbstractAccessRulesProvider {
             }
             return rules;
         } catch (ParseException e) {
-            throw getConfiguration().getExceptionFactory().createRuntimeException(e);
+            throw new PersistenceException(e);
         }
     }
 

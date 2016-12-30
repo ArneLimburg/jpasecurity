@@ -61,7 +61,6 @@ public class Configuration {
     private SecurityContext securityContext;
     private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
     private BeanInitializer beanInitializer;
-    private ExceptionFactory exceptionFactory;
     private Boolean treatEmbeddablesAsSimpleValues;
 
     public Configuration() {
@@ -81,7 +80,6 @@ public class Configuration {
         securityContext = configuration.securityContext;
         propertyAccessStrategyFactory = configuration.propertyAccessStrategyFactory;
         beanInitializer = configuration.beanInitializer;
-        exceptionFactory = configuration.exceptionFactory;
         if (additionalProperties != null) {
             newProperties.putAll(additionalProperties);
         }
@@ -108,17 +106,6 @@ public class Configuration {
 
     public void setPropertyAccessStrategyFactory(PropertyAccessStrategyFactory propertyAccessStrategyFactory) {
         this.propertyAccessStrategyFactory = propertyAccessStrategyFactory;
-    }
-
-    public ExceptionFactory getExceptionFactory() {
-        if (exceptionFactory == null) {
-            exceptionFactory = new DefaultExceptionFactory();
-        }
-        return exceptionFactory;
-    }
-
-    public void setExceptionFactory(ExceptionFactory exceptionFactory) {
-        this.exceptionFactory = exceptionFactory;
     }
 
     public BeanInitializer getBeanInitializer() {

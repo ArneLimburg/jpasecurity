@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.PersistenceException;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.Configuration;
@@ -108,7 +109,7 @@ public abstract class AbstractAccessRulesProvider implements AccessRulesProvider
                 accessRules.addAll(compiledRules);
             } catch (ParseException e) {
                 String message = "Parse error in '" + accessRule + "'";
-                throw configuration.getExceptionFactory().createRuntimeException(message, e);
+                throw new PersistenceException(message, e);
             }
         }
         this.accessRules = Collections.unmodifiableList(accessRules);

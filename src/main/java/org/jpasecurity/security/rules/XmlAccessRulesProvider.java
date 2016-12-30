@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.persistence.PersistenceException;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.SecurityContext;
@@ -54,7 +55,7 @@ public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
                 parser.parse(urls.nextElement());
             }
         } catch (IOException e) {
-            throw getConfiguration().getExceptionFactory().createRuntimeException(e);
+            throw new PersistenceException(e);
         }
         compileRules(parser.getAccessRules());
     }
