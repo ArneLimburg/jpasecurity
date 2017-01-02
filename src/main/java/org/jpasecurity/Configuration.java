@@ -39,19 +39,6 @@ public class Configuration {
     public static final String ACCESS_MANAGER_PROPERTY = "org.jpasecurity.security.accessManager";
     public static final String DEFAULT_ACCESS_MANAGER_CLASS
         = "org.jpasecurity.security.DefaultAccessManager";
-    public static final String SECURE_ENTITY_PROXY_FACTORY_PROPERTY = "org.jpasecurity.proxy.factory";
-    public static final String DEFAULT_SECURE_ENTITY_PROXY_FACTORY_CLASS
-        = "org.jpasecurity.proxy.CgLibSecureEntityProxyFactory";
-    public static final String METHOD_INTERCEPTOR_PROPERTY = "org.jpasecurity.proxy.methodInterceptor";
-    public static final String DEFAULT_METHOD_INTERCEPTOR_CLASS
-        = "org.jpasecurity.entity.SecureEntityInterceptor";
-    public static final String DECORATOR_PROPERTY = "org.jpasecurity.proxy.decorator";
-    public static final String DEFAULT_DECORATOR_CLASS
-        = "org.jpasecurity.entity.SecureEntityDecorator";
-    public static final String PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY
-        = "org.jpasecurity.mapping.property.access.factory";
-    public static final String DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS
-        = "org.jpasecurity.mapping.DefaultPropertyAccessStrategyFactory";
     public static final String EMBEDDABLES_AS_SIMPLE_VALUES_PROPERTY
         = "org.jpasecurity.embeddable.treatAsSimpleValue";
 
@@ -59,7 +46,6 @@ public class Configuration {
 
     private Map<String, Object> properties;
     private SecurityContext securityContext;
-    private PropertyAccessStrategyFactory propertyAccessStrategyFactory;
     private BeanInitializer beanInitializer;
     private Boolean treatEmbeddablesAsSimpleValues;
 
@@ -78,7 +64,6 @@ public class Configuration {
     public Configuration(Configuration configuration, Map<String, Object> additionalProperties) {
         Map<String, Object> newProperties = new HashMap<String, Object>(configuration.properties);
         securityContext = configuration.securityContext;
-        propertyAccessStrategyFactory = configuration.propertyAccessStrategyFactory;
         beanInitializer = configuration.beanInitializer;
         if (additionalProperties != null) {
             newProperties.putAll(additionalProperties);
@@ -95,17 +80,6 @@ public class Configuration {
 
     public void setSecurityContext(SecurityContext securityContext) {
         this.securityContext = securityContext;
-    }
-
-    public PropertyAccessStrategyFactory getPropertyAccessStrategyFactory() {
-        if (propertyAccessStrategyFactory == null) {
-            propertyAccessStrategyFactory = createPropertyAccessStrategyFactory();
-        }
-        return propertyAccessStrategyFactory;
-    }
-
-    public void setPropertyAccessStrategyFactory(PropertyAccessStrategyFactory propertyAccessStrategyFactory) {
-        this.propertyAccessStrategyFactory = propertyAccessStrategyFactory;
     }
 
     public BeanInitializer getBeanInitializer() {
@@ -142,19 +116,6 @@ public class Configuration {
 
     private SecurityContext createSecurityContext() {
         return newInstance(SecurityContext.class, SECURITY_CONTEXT_PROPERTY, DEFAULT_SECURITY_CONTEXT_CLASS);
-    }
-
-    private PropertyAccessStrategyFactory createPropertyAccessStrategyFactory() {
-        try {
-            return newInstance(PropertyAccessStrategyFactory.class,
-                               PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY,
-                               DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS,
-                               getBeanInitializer());
-        } catch (IllegalArgumentException e) {
-            return newInstance(PropertyAccessStrategyFactory.class,
-                               PROPERY_ACCESS_STRATEGY_FACTORY_PROPERTY,
-                               DEFAULT_PROPERTY_ACCESS_STRATEGY_FACTORY_CLASS);
-        }
     }
 
     private <T> T newInstance(Class<T> type, String propertyName, String defaultPropertyValue, Object... parameters) {
