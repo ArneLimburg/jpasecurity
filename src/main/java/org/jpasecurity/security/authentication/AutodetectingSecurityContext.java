@@ -21,29 +21,26 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jpasecurity.Alias;
-import org.jpasecurity.AuthenticationProvider;
-import org.jpasecurity.AuthenticationProviderSecurityContext;
 import org.jpasecurity.SecurityContext;
-import org.jpasecurity.SecurityContextReceiver;
+import org.jpasecurity.security.DefaultSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This class tries to detect the security context for an application.
- * Internally it uses an {@link AuthenticationProviderSecurityContext}.
- * For that security context the following authentication providers are used in the specified order:
+ * For that security context the following security contexts are used in the specified order:
  * <ol>
  *   <li>
  *     If a <tt>org.springframework.security.context.SecurityContextHolder</tt> is present in the classpath,
- *     a {@link org.jpasecurity.spring.authentication.SpringAuthenticationProvider} is used.
+ *     a {@link org.jpasecurity.spring.authentication.SpringSecurityContext} is used.
  *   </li>
  *   <li>
  *     If an <tt>javax.faces.context.FacesContext</tt> is present in the classpath,
- *     a {@link org.jpasecurity.jsf.authentication} is used.
+ *     a {@link org.jpasecurity.jsf.authentication.JsfSecurityContext} is used.
  *   </li>
  *   <li>
  *     If an <tt>javax.ejb.EJBContext</tt> is accessible via JNDI lookup,
- *     an {@link EjbAuthenticationProvider} is used.
+ *     an {@link EjbSecurityContext} is used.
  *   </li>
  *   <li>
  *     If none of the former conditions is true, a {@link DefaultAuthenticationProvider} is used.
@@ -51,35 +48,35 @@ import org.slf4j.LoggerFactory;
  * </ol>
  * @author Arne Limburg
  */
-public class AutodetectingSecurityContext implements SecurityContext, SecurityContextReceiver {
+public class AutodetectingSecurityContext implements SecurityContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(AutodetectingSecurityContext.class);
 
-    private static final List<String> AUTHENTICATION_PROVIDER_CLASS_NAMES;
+    private static final List<String> SECURITY_CONTEXT_CLASS_NAMES;
     static {
         List<String> authenticationProviderClassNames = new ArrayList<String>();
-        authenticationProviderClassNames.add("org.jpasecurity.spring.authentication.SpringAuthenticationProvider");
-        authenticationProviderClassNames.add("org.jpasecurity.security.authentication.EjbAuthenticationProvider");
-        authenticationProviderClassNames.add("org.jpasecurity.jsf.authentication.JsfAuthenticationProvider");
-        AUTHENTICATION_PROVIDER_CLASS_NAMES = Collections.unmodifiableList(authenticationProviderClassNames);
+        authenticationProviderClassNames.add("org.jpasecurity.spring.authentication.SpringSecurityContext");
+        authenticationProviderClassNames.add("org.jpasecurity.security.authentication.EjbSecurityContext");
+        authenticationProviderClassNames.add("org.jpasecurity.jsf.authentication.JsfSecurityContext");
+        SECURITY_CONTEXT_CLASS_NAMES = Collections.unmodifiableList(authenticationProviderClassNames);
     }
 
-    private AuthenticationProviderSecurityContext securityContext;
+    private SecurityContext securityContext;
 
     public AutodetectingSecurityContext() {
-        securityContext = new AuthenticationProviderSecurityContext(autodetectAuthenticationProvider());
+        securityContext = autodetectSecurityContext();
     }
 
-    protected AuthenticationProvider autodetectAuthenticationProvider() {
-        for (String providerClassName: AUTHENTICATION_PROVIDER_CLASS_NAMES) {
+    protected SecurityContext autodetectSecurityContext() {
+        for (String providerClassName: SECURITY_CONTEXT_CLASS_NAMES) {
             try {
                 ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-                Class<? extends AuthenticationProvider> authenticationProviderClass
-                    = (Class<? extends AuthenticationProvider>)currentClassLoader.loadClass(providerClassName);
+                Class<? extends SecurityContext> securityContextClass
+                    = (Class<? extends SecurityContext>)currentClassLoader.loadClass(providerClassName);
                 LOG.info("autodetected presence of class " + providerClassName);
-                AuthenticationProvider authenticationProvider = authenticationProviderClass.newInstance();
+                SecurityContext securityContext = securityContextClass.newInstance();
                 LOG.info("using " + providerClassName);
-                return authenticationProvider;
+                return securityContext;
             } catch (IllegalAccessException e) {
                 throw new SecurityException(e);
             } catch (ClassNotFoundException e) {
@@ -91,7 +88,7 @@ public class AutodetectingSecurityContext implements SecurityContext, SecurityCo
             }
         }
         LOG.info("falling back to DefaultAuthenticationPovider");
-        return new DefaultAuthenticationProvider();
+        return new DefaultSecurityContext();
     }
 
     public Collection<Alias> getAliases() {
@@ -104,9 +101,5 @@ public class AutodetectingSecurityContext implements SecurityContext, SecurityCo
 
     public <T> Collection<T> getAliasValues(Alias alias) {
         return securityContext.getAliasValues(alias);
-    }
-
-    public void setSecurityContext(SecurityContext newSecurityContext) {
-        securityContext.setSecurityContext(newSecurityContext);
     }
 }

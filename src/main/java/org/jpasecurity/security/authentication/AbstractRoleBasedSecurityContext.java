@@ -15,6 +15,10 @@
  */
 package org.jpasecurity.security.authentication;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableCollection;
+import static org.jpasecurity.Alias.alias;
+
 import java.io.IOException;
 import java.net.URL;
 import java.security.Principal;
@@ -22,18 +26,44 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.jpasecurity.AuthenticationProvider;
+import org.jpasecurity.Alias;
+import org.jpasecurity.SecurityContext;
 import org.jpasecurity.security.rules.WebXmlRolesParser;
 
 /**
  * @author Arne Limburg
  */
-public abstract class AbstractRoleBasedAuthenticationProvider implements AuthenticationProvider {
+public abstract class AbstractRoleBasedSecurityContext implements SecurityContext {
 
+    public static final Alias CURRENT_PRINCIPAL = alias("CURRENT_PRINCIPAL");
+    public static final Alias CURRENT_ROLES = alias("CURRENT_ROLES");
+    public static final Collection<Alias> ALIASES = unmodifiableCollection(asList(CURRENT_PRINCIPAL, CURRENT_ROLES));
     private Set<String> roles = new HashSet<String>();
+
+    public Collection<Alias> getAliases() {
+        return ALIASES;
+    }
+
+    @Override
+    public Object getAliasValue(Alias alias) {
+        if (CURRENT_PRINCIPAL.equals(alias)) {
+            return getPrincipal();
+        } else if (CURRENT_ROLES.equals(alias)) {
+            return getRoles();
+        } else {
+            throw new IllegalArgumentException("alias " + alias + " not known");
+        }
+    }
+
+    @Override
+    public <T> Collection<T> getAliasValues(Alias alias) {
+        if (CURRENT_ROLES.equals(alias)) {
+            return (Collection<T>)getRoles();
+        }
+        throw new IllegalArgumentException("alias " + alias + " not known");
+    }
 
     public Object getPrincipal() {
         Principal principal = getCallerPrincipal();
@@ -48,10 +78,6 @@ public abstract class AbstractRoleBasedAuthenticationProvider implements Authent
             }
         }
         return filteredRoles;
-    }
-
-    public void setMappingProperties(Map<String, Object> properties) {
-        //not needed
     }
 
     protected abstract Principal getCallerPrincipal();

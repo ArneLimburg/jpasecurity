@@ -21,39 +21,40 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
-import org.jpasecurity.AuthenticationProvider;
+import org.jpasecurity.Alias;
+import org.jpasecurity.SecurityContext;
 import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
-public abstract class AbstractAuthenticationProviderTest {
+public abstract class AbstractSecurityContextTest {
 
     public static final String USER = "user";
     public static final String ROLE1 = "role1";
     public static final String ROLE2 = "role2";
 
-    public abstract AuthenticationProvider createAuthenticationProvider();
+    public abstract SecurityContext createSecurityContext();
 
     public abstract void authenticate(Object principal, String... roles);
 
     @Test
     public void authenticated() {
+        SecurityContext securityContext = createSecurityContext();
         authenticate(USER, ROLE1, ROLE2);
-        assertAuthenticated();
+        assertAuthenticated(securityContext);
         authenticate(null);
     }
 
     protected void assertUnauthenticated() {
-        AuthenticationProvider authenticationProvider = createAuthenticationProvider();
-        assertNull(authenticationProvider.getPrincipal());
-        assertEquals(0, authenticationProvider.getRoles().size());
+        SecurityContext securityContext = createSecurityContext();
+        assertNull(securityContext.getAliasValue(new Alias("CURRENT_PRINCIPAL")));
+        assertEquals(0, securityContext.getAliasValues(new Alias("CURRENT_ROLES")).size());
     }
 
-    protected void assertAuthenticated() {
-        AuthenticationProvider authenticationProvider = createAuthenticationProvider();
-        assertEquals(USER, authenticationProvider.getPrincipal());
-        assertEquals(2, authenticationProvider.getRoles().size());
-        assertTrue(authenticationProvider.getRoles().containsAll(Arrays.asList(ROLE1, ROLE2)));
+    protected void assertAuthenticated(SecurityContext securityContext) {
+        assertEquals(USER, securityContext.getAliasValue(new Alias("CURRENT_PRINCIPAL")));
+        assertEquals(2, securityContext.getAliasValues(new Alias("CURRENT_ROLES")).size());
+        assertTrue(securityContext.getAliasValues(new Alias("CURRENT_ROLES")).containsAll(Arrays.asList(ROLE1, ROLE2)));
     }
 }

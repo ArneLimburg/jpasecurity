@@ -21,16 +21,15 @@ import javax.faces.context.FacesContext;
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
-import org.jpasecurity.AuthenticationProviderSecurityContext;
 import org.jpasecurity.SecurityContext;
-import org.jpasecurity.jsf.authentication.JsfAuthenticationProvider;
+import org.jpasecurity.jsf.authentication.JsfSecurityContext;
 
 /**
  * @author Arne Limburg
  */
 public final class JsfAccessContext {
 
-    private static final Alias CURRENT_ROLES = AuthenticationProviderSecurityContext.CURRENT_ROLES;
+    private static final Alias CURRENT_ROLES = new Alias("CURRENT_ROLES");
 
     public static SecureBeanDefinition newBean(String name) {
         return new SecureBeanDefinition(name);
@@ -146,7 +145,7 @@ public final class JsfAccessContext {
         ELContext elContext = FacesContext.getCurrentInstance().getELContext();
         Object securityContext = elContext.getELResolver().getValue(elContext, null, "securityContext");
         if (securityContext == null || !(securityContext instanceof SecurityContext)) {
-            securityContext = new AuthenticationProviderSecurityContext(new JsfAuthenticationProvider());
+            securityContext = new JsfSecurityContext();
         }
         return (SecurityContext)securityContext;
     }

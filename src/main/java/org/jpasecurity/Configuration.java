@@ -141,17 +141,7 @@ public class Configuration {
     }
 
     private SecurityContext createSecurityContext() {
-        if (!properties.containsKey(SECURITY_CONTEXT_PROPERTY)) {
-            AuthenticationProvider authenticationProvider = createAuthenticationProvider();
-            if (authenticationProvider != null) {
-                return new AuthenticationProviderSecurityContext(authenticationProvider);
-            }
-        }
         return newInstance(SecurityContext.class, SECURITY_CONTEXT_PROPERTY, DEFAULT_SECURITY_CONTEXT_CLASS);
-    }
-
-    private AuthenticationProvider createAuthenticationProvider() {
-        return newInstance(AuthenticationProvider.class, AUTHENTICATION_PROVIDER_PROPERTY, null);
     }
 
     private PropertyAccessStrategyFactory createPropertyAccessStrategyFactory() {

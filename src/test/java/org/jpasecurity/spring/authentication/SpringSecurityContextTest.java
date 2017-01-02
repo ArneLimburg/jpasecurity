@@ -22,8 +22,8 @@ import static org.easymock.EasyMock.replay;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.jpasecurity.AuthenticationProvider;
-import org.jpasecurity.security.authentication.AbstractAuthenticationProviderTest;
+import org.jpasecurity.SecurityContext;
+import org.jpasecurity.security.authentication.AbstractSecurityContextTest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
@@ -33,10 +33,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /**
  * @author Arne Limburg
  */
-public class SpringAuthenticationProviderTest extends AbstractAuthenticationProviderTest {
+public class SpringSecurityContextTest extends AbstractSecurityContextTest {
 
-    public AuthenticationProvider createAuthenticationProvider() {
-        return new SpringAuthenticationProvider();
+    public SecurityContext createSecurityContext() {
+        return new SpringSecurityContext();
     }
 
     public void authenticate(Object principal, String... roles) {

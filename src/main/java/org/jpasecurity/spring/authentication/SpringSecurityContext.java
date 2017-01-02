@@ -15,12 +15,13 @@
  */
 package org.jpasecurity.spring.authentication;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.jpasecurity.AuthenticationProvider;
+import org.jpasecurity.security.authentication.AbstractRoleBasedSecurityContext;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,7 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /**
  * @author Arne Limburg
  */
-public class SpringAuthenticationProvider implements AuthenticationProvider {
+public class SpringSecurityContext extends AbstractRoleBasedSecurityContext {
 
     public Object getPrincipal() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -49,5 +50,15 @@ public class SpringAuthenticationProvider implements AuthenticationProvider {
             roles.add(authority.getAuthority());
         }
         return roles;
+    }
+
+    @Override
+    protected Principal getCallerPrincipal() {
+        return null; // not needed
+    }
+
+    @Override
+    protected boolean isCallerInRole(String roleName) {
+        return false; // not needed
     }
 }

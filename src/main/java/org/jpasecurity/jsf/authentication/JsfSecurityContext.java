@@ -22,18 +22,18 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.jpasecurity.security.authentication.AbstractRoleBasedAuthenticationProvider;
+import org.jpasecurity.security.authentication.AbstractRoleBasedSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Arne Limburg
  */
-public class JsfAuthenticationProvider extends AbstractRoleBasedAuthenticationProvider {
+public class JsfSecurityContext extends AbstractRoleBasedSecurityContext {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JsfAuthenticationProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JsfSecurityContext.class);
 
-    public JsfAuthenticationProvider() {
+    public JsfSecurityContext() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         if (facesContext != null) {
             ServletContext context = (ServletContext)facesContext.getExternalContext().getContext();

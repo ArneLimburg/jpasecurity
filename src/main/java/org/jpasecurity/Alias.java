@@ -25,6 +25,10 @@ public class Alias {
 
     private String name;
 
+    public static Alias alias(String name) {
+        return new Alias(name);
+    }
+
     public Alias(String name) {
         if (name == null) {
             throw new IllegalArgumentException("name may not be null");

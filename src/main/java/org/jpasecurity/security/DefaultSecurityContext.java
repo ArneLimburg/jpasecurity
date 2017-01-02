@@ -17,15 +17,15 @@ package org.jpasecurity.security;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.jpasecurity.Alias;
 import org.jpasecurity.SecurityContext;
 
 public class DefaultSecurityContext implements SecurityContext {
 
-    private Map<Alias, Object> values = new ConcurrentHashMap<Alias, Object>();
+    private Map<Alias, Object> values = new HashMap<Alias, Object>();
 
     @Override
     public Collection<Alias> getAliases() {
@@ -39,10 +39,15 @@ public class DefaultSecurityContext implements SecurityContext {
 
     @Override
     public <T> Collection<T> getAliasValues(Alias alias) {
-        return (Collection<T>)values.get(alias);
+        Collection<T> collection = (Collection<T>)values.get(alias);
+        return collection != null ? collection : Collections.<T>emptySet();
     }
 
     public void register(Alias alias, Object value) {
         values.put(alias, value);
+    }
+
+    public void unauthenticate() {
+        values.clear();
     }
 }

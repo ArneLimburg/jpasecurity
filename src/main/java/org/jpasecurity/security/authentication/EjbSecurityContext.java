@@ -25,11 +25,11 @@ import javax.naming.NamingException;
 /**
  * @author Arne Limburg
  */
-public class EjbAuthenticationProvider extends AbstractRoleBasedAuthenticationProvider {
+public class EjbSecurityContext extends AbstractRoleBasedSecurityContext {
 
     private EJBContext context;
 
-    public EjbAuthenticationProvider() {
+    public EjbSecurityContext() {
         try {
             InitialContext initialContext = new InitialContext();
             context = (EJBContext)initialContext.lookup("java:comp/EJBContext");
