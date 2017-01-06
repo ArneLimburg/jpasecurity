@@ -45,9 +45,10 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     static final String SECURITY_CONTEXT_PROPERTY = "org.jpasecurity.security.context";
     static final String ACCESS_RULES_PROVIDER_PROPERTY = "org.jpasecurity.security.rules.provider";
     private static final String DEFAULT_ORM_XML_LOCATION = "META-INF/orm.xml";
-    private static final String DEFAULT_SECURITY_CONTEXT_PROPERTY = "org.jpasecurity.security.DefaultSecurityContext";
+    private static final String DEFAULT_SECURITY_CONTEXT_PROPERTY
+        = "org.jpasecurity.security.authentication.AutodetectingSecurityContext";
     private static final String DEFAULT_ACCESS_RULES_PROVIDER_CLASS
-        = "org.jpasecurity.security.rules.DefaultAccessRulesProvider";
+        = "org.jpasecurity.security.rules.XmlAccessRulesProvider";
 
     @Override
     public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo unitInfo, Map properties) {

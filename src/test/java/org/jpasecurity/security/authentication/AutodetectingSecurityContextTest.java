@@ -37,12 +37,15 @@ import org.jpasecurity.Alias;
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.security.DefaultSecurityContext;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
 public class AutodetectingSecurityContextTest {
+
+    private ClassLoader classLoader;
 
     @Test
     public void autodetectAuthenticationProvider() {
@@ -66,9 +69,12 @@ public class AutodetectingSecurityContextTest {
 
     @Test
     public void autodetectEjbSecurityContext() throws Exception {
-        ClassLoader realClassLoader = Thread.currentThread().getContextClassLoader();
         ClassLoader mockClassLoader = createMock(ClassLoader.class);
         expect(mockClassLoader.loadClass("org.jpasecurity.spring.authentication.SpringSecurityContext"))
+            .andThrow(new ClassNotFoundException());
+        expect(mockClassLoader.loadClass("org.jpasecurity.security.authentication.CdiSecurityContext"))
+            .andThrow(new ClassNotFoundException());
+        expect(mockClassLoader.loadClass("org.jpasecurity.jsf.authentication.JsfSecurityContext"))
             .andThrow(new ClassNotFoundException());
         expect(mockClassLoader.loadClass("org.jpasecurity.security.authentication.EjbSecurityContext"))
             .andReturn((Class)EjbSecurityContext.class);
@@ -91,19 +97,18 @@ public class AutodetectingSecurityContextTest {
         Thread.currentThread().setContextClassLoader(mockClassLoader);
         SecurityContext authenticationProvider = securityContext.autodetectSecurityContext();
         assertTrue(authenticationProvider instanceof EjbSecurityContext);
-
-        Thread.currentThread().setContextClassLoader(realClassLoader);
     }
 
     @Test
     public void fallbackToDefaultAuthenticationProvider() throws Exception {
-        ClassLoader realClassLoader = Thread.currentThread().getContextClassLoader();
         ClassLoader mockClassLoader = createMock(ClassLoader.class);
         expect(mockClassLoader.loadClass("org.jpasecurity.spring.authentication.SpringSecurityContext"))
             .andThrow(new ClassNotFoundException());
-        expect(mockClassLoader.loadClass("org.jpasecurity.security.authentication.EjbSecurityContext"))
+        expect(mockClassLoader.loadClass("org.jpasecurity.security.authentication.CdiSecurityContext"))
             .andThrow(new ClassNotFoundException());
         expect(mockClassLoader.loadClass("org.jpasecurity.jsf.authentication.JsfSecurityContext"))
+            .andThrow(new ClassNotFoundException());
+        expect(mockClassLoader.loadClass("org.jpasecurity.security.authentication.EjbSecurityContext"))
             .andThrow(new ClassNotFoundException());
         AutodetectingSecurityContext securityContext = new AutodetectingSecurityContext();
 
@@ -111,12 +116,16 @@ public class AutodetectingSecurityContextTest {
         Thread.currentThread().setContextClassLoader(mockClassLoader);
         SecurityContext context = securityContext.autodetectSecurityContext();
         assertTrue(context instanceof DefaultSecurityContext);
+    }
 
-        Thread.currentThread().setContextClassLoader(realClassLoader);
+    @Before
+    public void storeClassLoader() {
+        classLoader = Thread.currentThread().getContextClassLoader();
     }
 
     @After
     public void tearDown() throws Exception {
+        Thread.currentThread().setContextClassLoader(classLoader);
         try {
             InitialContext initialContext = new InitialContext();
             initialContext.unbind("java:comp");

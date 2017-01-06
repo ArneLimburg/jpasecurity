@@ -31,8 +31,14 @@ import org.slf4j.LoggerFactory;
  * For that security context the following security contexts are used in the specified order:
  * <ol>
  *   <li>
- *     If a <tt>org.springframework.security.context.SecurityContextHolder</tt> is present in the classpath,
- *     a {@link org.jpasecurity.spring.authentication.SpringSecurityContext} is used.
+ *     If CDI 1.1 is available in the classpath and it provides a bean of type
+ *     <tt>org.jpasecurity.SecurityContext</tt>,
+ *     a {@link org.jpasecurity.security.authentication.CdiSecurityContext} is used
+ *     and calls are delegated to that bean.
+ *   </li>
+ *   <li>
+ *     If an <tt>javax.faces.context.FacesContext</tt> is present in the classpath,
+ *     a {@link org.jpasecurity.jsf.authentication.JsfSecurityContext} is used.
  *   </li>
  *   <li>
  *     If an <tt>javax.faces.context.FacesContext</tt> is present in the classpath,
@@ -56,8 +62,9 @@ public class AutodetectingSecurityContext implements SecurityContext {
     static {
         List<String> authenticationProviderClassNames = new ArrayList<String>();
         authenticationProviderClassNames.add("org.jpasecurity.spring.authentication.SpringSecurityContext");
-        authenticationProviderClassNames.add("org.jpasecurity.security.authentication.EjbSecurityContext");
+        authenticationProviderClassNames.add("org.jpasecurity.security.authentication.CdiSecurityContext");
         authenticationProviderClassNames.add("org.jpasecurity.jsf.authentication.JsfSecurityContext");
+        authenticationProviderClassNames.add("org.jpasecurity.security.authentication.EjbSecurityContext");
         SECURITY_CONTEXT_CLASS_NAMES = Collections.unmodifiableList(authenticationProviderClassNames);
     }
 
@@ -77,14 +84,10 @@ public class AutodetectingSecurityContext implements SecurityContext {
                 SecurityContext securityContext = securityContextClass.newInstance();
                 LOG.info("using " + providerClassName);
                 return securityContext;
-            } catch (IllegalAccessException e) {
-                throw new SecurityException(e);
-            } catch (ClassNotFoundException e) {
+            } catch (NoClassDefFoundError e) {
                 //ignore and try next authentication provider
-            } catch (InstantiationException e) {
-                LOG.debug("could not instantiate class " + providerClassName, e);
-            } catch (IllegalStateException e) {
-                LOG.debug("constructor of class " + providerClassName + " threw exception", e);
+            } catch (ReflectiveOperationException e) {
+                //ignore and try next authentication provider
             }
         }
         LOG.info("falling back to DefaultAuthenticationPovider");

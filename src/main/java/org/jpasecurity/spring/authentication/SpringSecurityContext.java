@@ -25,6 +25,7 @@ import org.jpasecurity.security.authentication.AbstractRoleBasedSecurityContext;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -32,8 +33,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class SpringSecurityContext extends AbstractRoleBasedSecurityContext {
 
+    private SecurityContext context;
+
+    public SpringSecurityContext() {
+        context = SecurityContextHolder.getContext();
+    }
+
     public Object getPrincipal() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = context.getAuthentication();
         if (authentication == null || (authentication instanceof AnonymousAuthenticationToken)) {
             return null;
         }
@@ -41,7 +48,7 @@ public class SpringSecurityContext extends AbstractRoleBasedSecurityContext {
     }
 
     public Collection<String> getRoles() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = context.getAuthentication();
         if (authentication == null || authentication.getAuthorities() == null) {
             return Collections.EMPTY_LIST;
         }
