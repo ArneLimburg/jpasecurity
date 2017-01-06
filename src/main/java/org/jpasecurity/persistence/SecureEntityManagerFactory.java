@@ -43,22 +43,20 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
 
     private String persistenceUnitName;
     private Class<? extends SecurityContext> securityContextType;
+    private Class<? extends AccessRulesProvider> accessRulesProviderType;
     private Map<String, String> namedQueries = new ConcurrentHashMap<String, String>();
     private Collection<AccessRule> accessRules;
 
-    public SecureEntityManagerFactory(String persistenceUnitName,
+    public SecureEntityManagerFactory(String unitName,
                                       EntityManagerFactory entityManagerFactory,
                                       Collection<String> ormXmlLocations,
                                       Class<? extends SecurityContext> contextType,
                                       Class<? extends AccessRulesProvider> providerType) {
         super(entityManagerFactory);
+        persistenceUnitName = notNull("persistence-unit name", unitName);
         securityContextType = notNull("SecurityContext class", contextType);
+        accessRulesProviderType = notNull("AccessRulesProvider class", providerType);
         namedQueries = new NamedQueryParser(entityManagerFactory.getMetamodel(), ormXmlLocations).parseNamedQueries();
-        accessRules = new AccessRulesParser(persistenceUnitName,
-                                            entityManagerFactory.getMetamodel(),
-                                            newInstance(securityContextType),
-                                            newInstance(notNull("AccessRulesProvider class", providerType)))
-                                                .parseAccessRules();
     }
 
     public EntityManager createEntityManager() {
@@ -90,11 +88,29 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
         return new DefaultSecureEntityManager(this,
                                               entityManager,
                                               newInstance(securityContextType),
-                                              accessRules);
+                                              getAccessRules());
     }
 
     String getNamedQuery(String name) {
         return namedQueries.get(name);
+    }
+
+    private Collection<AccessRule> getAccessRules() {
+        if (accessRules == null) {
+            accessRules = parseAccessRules();
+        }
+        return accessRules;
+    }
+
+    private synchronized Collection<AccessRule> parseAccessRules() {
+        if (accessRules != null) {
+            return accessRules;
+        }
+        Collection<AccessRule> accessRules = new AccessRulesParser(persistenceUnitName,
+                getMetamodel(),
+                newInstance(securityContextType),
+                newInstance(accessRulesProviderType)).parseAccessRules();
+        return accessRules;
     }
 
     private <T> T newInstance(Class<T> type) {
