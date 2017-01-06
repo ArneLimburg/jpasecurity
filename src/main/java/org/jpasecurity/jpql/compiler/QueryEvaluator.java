@@ -184,11 +184,11 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     public boolean visit(JpqlCollectionValuedPath node, QueryEvaluationParameters data) {
         try {
             node.jjtGetChild(0).visit(this, data);
-            String path = node.toString();
-            int index = path.indexOf('.');
-            PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMetamodel(), util);
-            Collection<Object> rootCollection = Collections.singleton(data.getResult());
-            data.setResult(pathEvaluator.evaluateAll(rootCollection, path.substring(index + 1)));
+            Path path = new Path(node.toString());
+            if (path.hasSubpath()) {
+                PathEvaluator pathEvaluator = new MappedPathEvaluator(data.getMetamodel(), util);
+                data.setResult(pathEvaluator.evaluateAll(Collections.singleton(data.getResult()), path.getSubpath()));
+            }
         } catch (NotEvaluatableException e) {
             data.setResultUndefined();
         }
@@ -384,7 +384,11 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
         validateChildCount(node, 1);
         try {
             node.jjtGetChild(0).visit(this, data);
-            data.setResult(data.getResult() == null);
+            if (data.getResult() instanceof Collection) {
+                data.setResult(((Collection<?>)data.getResult()).isEmpty());
+            } else {
+                data.setResult(data.getResult() == null);
+            }
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
         }

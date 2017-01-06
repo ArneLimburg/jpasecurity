@@ -36,6 +36,7 @@ import org.jpasecurity.jpql.parser.JpqlHaving;
 import org.jpasecurity.jpql.parser.JpqlInnerJoin;
 import org.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import org.jpasecurity.jpql.parser.JpqlOuterJoin;
+import org.jpasecurity.jpql.parser.JpqlPath;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
@@ -314,7 +315,11 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         }
 
         public void setReplacement(Node replacement) {
-            this.replacement = replacement;
+            if (replacement instanceof JpqlPath) {
+                this.replacement = queryPreparator.createCollectionValuedPath((JpqlPath)replacement);
+            } else {
+                this.replacement = replacement;
+            }
         }
 
         public String toString() {

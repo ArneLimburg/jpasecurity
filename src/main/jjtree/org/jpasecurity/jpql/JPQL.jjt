@@ -340,11 +340,11 @@ void join(): {} {
 }
 
 void innerJoin() #InnerJoin: {} {
-    [<INNER>] <JOIN> joinAssociationPathExpression() [<AS>] identificationVariable() [LOOKAHEAD(1) with()]
+    [<INNER>] <JOIN> joinPathExpression() [<AS>] identificationVariable() [LOOKAHEAD(1) with()]
 }
 
 void outerJoin() #OuterJoin: {} {
-    <LEFT> [<OUTER>] <JOIN> joinAssociationPathExpression() [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
+    <LEFT> [<OUTER>] <JOIN> joinPathExpression() [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
 }
 
 void fetchJoin(): {} {
@@ -352,18 +352,18 @@ void fetchJoin(): {} {
 }
 
 void outerFetchJoin() #OuterFetchJoin: {} {
-    <LEFT> [<OUTER>] <JOIN> <FETCH> joinAssociationPathExpression() [[LOOKAHEAD(1) <AS>] identificationVariable()] [LOOKAHEAD(1) with()]
+    <LEFT> [<OUTER>] <JOIN> <FETCH> joinPathExpression() [[LOOKAHEAD(1) <AS>] identificationVariable()] [LOOKAHEAD(1) with()]
 }
 
 void innerFetchJoin() #InnerFetchJoin: {} {
-    [<INNER>] <JOIN> <FETCH> joinAssociationPathExpression() [[LOOKAHEAD(1) <AS>] identificationVariable()] [LOOKAHEAD(1) with()] 
+    [<INNER>] <JOIN> <FETCH> joinPathExpression() [[LOOKAHEAD(1) <AS>] identificationVariable()] [LOOKAHEAD(1) with()] 
 }
 
 void with() #With: {} {
     <WITH> conditionalExpression()
 }
 
-void joinAssociationPathExpression() #Path: {} {
+void joinPathExpression() #CollectionValuedPath: {} {
     // a join path is any dot-separated path expression starting with a
     // non-reserved word containing at minimum two path components
     identificationVariable() (<DOT> objectField())+
@@ -371,7 +371,7 @@ void joinAssociationPathExpression() #Path: {} {
 
 void collectionMemberDeclaration() #InCollection: {} {
     // synonymous with "INNER JOIN path AS identifier" (InnerJoin)
-    <IN> "(" joinAssociationPathExpression() ")" [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
+    <IN> "(" joinPathExpression() ")" [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
 }
 
 void qualifiedPathExpression() #Path: {} {

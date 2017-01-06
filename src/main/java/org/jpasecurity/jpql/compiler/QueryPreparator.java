@@ -28,6 +28,7 @@ import org.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
 import org.jpasecurity.jpql.parser.JpqlAnd;
 import org.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import org.jpasecurity.jpql.parser.JpqlBrackets;
+import org.jpasecurity.jpql.parser.JpqlCollectionValuedPath;
 import org.jpasecurity.jpql.parser.JpqlConstructorParameter;
 import org.jpasecurity.jpql.parser.JpqlEquals;
 import org.jpasecurity.jpql.parser.JpqlExists;
@@ -315,6 +316,20 @@ public class QueryPreparator {
             pathNode.jjtAddChild(identifier, pathNode.jjtGetNumChildren());
         }
         return pathNode;
+    }
+
+    /**
+     * Creates a <tt>JpqlPath</tt> node for the specified string.
+     */
+    public JpqlCollectionValuedPath createCollectionValuedPath(JpqlPath path) {
+        Node clonedPath = path.clone();
+        JpqlCollectionValuedPath newPath
+            = new JpqlCollectionValuedPath(JpqlParserTreeConstants.JJTCOLLECTIONVALUEDPATH);
+        for (int i = 0; i < clonedPath.jjtGetNumChildren(); i++) {
+            newPath.jjtAddChild(clonedPath.jjtGetChild(i), i);
+            clonedPath.jjtGetChild(i).jjtSetParent(newPath);
+        }
+        return newPath;
     }
 
     /**
