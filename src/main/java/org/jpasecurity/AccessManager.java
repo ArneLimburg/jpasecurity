@@ -94,11 +94,15 @@ public interface AccessManager {
             = new ConcurrentHashMap<Thread, AccessManager>();
 
         public static AccessManager get() {
-            return registeredAccessManagers.get(Thread.currentThread());
+            AccessManager accessManager = registeredAccessManagers.get(Thread.currentThread());
+            if (accessManager == null) {
+                throw new SecurityException("No AccessManager available. Please ensure that the EntityManager is open");
+            }
+            return accessManager;
         }
 
         public static void register(AccessManager manager) {
-            if (get() == manager) {
+            if (registeredAccessManagers.get(Thread.currentThread()) == manager) {
                 return;
             }
             registeredAccessManagers.values().remove(manager);
