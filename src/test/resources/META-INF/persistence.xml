@@ -452,6 +452,28 @@
 
     </persistence-unit>
 
+    <persistence-unit name="annotationbased-contacts" transaction-type="RESOURCE_LOCAL">
+
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+        <mapping-file>security.orm.xml</mapping-file>
+
+        <class>org.jpasecurity.contacts.annotationbased.Contact</class>
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <properties>
+            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:contacts" />
+            <property name="javax.persistence.jdbc.user" value="sa" />
+            <property name="javax.persistence.jdbc.password" value="" />
+            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+        </properties>
+
+    </persistence-unit>
+
     <persistence-unit name="ejb-contacts" transaction-type="JTA">
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>

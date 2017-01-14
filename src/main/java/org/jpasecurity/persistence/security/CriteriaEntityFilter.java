@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 - 2016 Arne Limburg
+ * Copyright 2011 - 2017 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,19 @@
  */
 package org.jpasecurity.persistence.security;
 
+import static java.util.Collections.singleton;
+
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CommonAbstractCriteria;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
@@ -42,6 +47,7 @@ import javax.persistence.metamodel.Type;
 import javax.persistence.metamodel.Type.PersistenceType;
 
 import org.jpasecurity.AccessType;
+import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.compiler.SubselectEvaluator;
@@ -104,7 +110,7 @@ public class CriteriaEntityFilter extends EntityFilter {
                 selectedTypes.put(new Path(alias), root.getJavaType());
             }
         }
-        AccessDefinition accessDefinition = createAccessDefinition(selectedTypes, AccessType.READ);
+        AccessDefinition accessDefinition = createAccessDefinition(selectedTypes, AccessType.READ, getAliases(query));
         FilterResult<CriteriaQuery<R>> filterResult
             = getAlwaysEvaluatableResult(new JpqlCompiledStatement(null), query, accessDefinition);
         if (filterResult != null) {
@@ -133,7 +139,10 @@ public class CriteriaEntityFilter extends EntityFilter {
         Map<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
         Path path = getSelectedPath(0, root);
         selectedTypes.put(path, root.getJavaType());
-        AccessDefinition accessDefinition = createAccessDefinition(selectedTypes, AccessType.READ);
+        AccessDefinition accessDefinition = createAccessDefinition(
+                selectedTypes,
+                AccessType.READ,
+                root.getAlias() != null? singleton(new Alias(root.getAlias())): Collections.<Alias>emptySet());
         FilterResult<Q> filterResult
             = getAlwaysEvaluatableResult(new JpqlCompiledStatement(null), query, accessDefinition);
         if (filterResult != null) {
@@ -148,6 +157,16 @@ public class CriteriaEntityFilter extends EntityFilter {
         getQueryPreparator().createWhere(accessDefinition.getAccessRules()).visit(criteriaVisitor, criteriaHolder);
         return new CriteriaFilterResult<Q>(
                 query, parameters.size() > 0? parameters: null, criteriaHolder.getParameters());
+    }
+
+    private Set<Alias> getAliases(AbstractQuery<?> query) {
+        Set<Alias> aliases = new HashSet<Alias>();
+        for (Root<?> root: query.getRoots()) {
+            if (root.getAlias() != null) {
+                aliases.add(new Alias(root.getAlias()));
+            }
+        }
+        return aliases;
     }
 
     private Path getSelectedPath(int index, Selection<?> selection) {

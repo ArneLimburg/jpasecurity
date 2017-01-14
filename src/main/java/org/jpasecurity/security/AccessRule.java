@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2016 Arne Limburg
+ * Copyright 2008 - 2017 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,14 +31,18 @@ import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.TypeDefinition;
-import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlCreate;
 import org.jpasecurity.jpql.parser.JpqlDelete;
+import org.jpasecurity.jpql.parser.JpqlFromItem;
 import org.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import org.jpasecurity.jpql.parser.JpqlIn;
+import org.jpasecurity.jpql.parser.JpqlInnerJoin;
+import org.jpasecurity.jpql.parser.JpqlOuterJoin;
 import org.jpasecurity.jpql.parser.JpqlRead;
 import org.jpasecurity.jpql.parser.JpqlUpdate;
+import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
+import org.jpasecurity.jpql.parser.Node;
 
 /**
  * This class represents compiled JPA Security access rules.
@@ -52,6 +56,7 @@ public class AccessRule extends JpqlCompiledStatement {
     public static final String DEFAULT_ROLES_PARAMETER_NAME = "roles";
 
     private Set<AccessType> access;
+    private Set<Alias> aliases;
 
     public AccessRule(JpqlAccessRule rule, TypeDefinition typeDefinition) {
         super(rule,
@@ -67,6 +72,10 @@ public class AccessRule extends JpqlCompiledStatement {
 
     public Class<?> getSelectedType(Metamodel metamodel) {
         return getSelectedTypes(metamodel).values().iterator().next();
+    }
+
+    public TypeDefinition getTypeDefinition() {
+        return getTypeDefinitions().iterator().next();
     }
 
     public Collection<JpqlIdentificationVariable> getIdentificationVariableNodes(Alias alias) {
@@ -98,6 +107,15 @@ public class AccessRule extends JpqlCompiledStatement {
             return false;
         }
         return type.isAssignableFrom(getSelectedType(metamodel));
+    }
+
+    public Set<Alias> getAliases() {
+        if (aliases == null) {
+            Set<Alias> declaredAliases = new HashSet<Alias>();
+            visit(new AliasVisitor(), declaredAliases);
+            aliases = Collections.unmodifiableSet(declaredAliases);
+        }
+        return aliases;
     }
 
     public boolean grantsCreateAccess() {
@@ -157,6 +175,28 @@ public class AccessRule extends JpqlCompiledStatement {
         public boolean visit(JpqlDelete node, Collection<AccessType> access) {
             access.add(AccessType.DELETE);
             return true;
+        }
+    }
+
+    private class AliasVisitor extends JpqlVisitorAdapter<Set<Alias>> {
+
+        public boolean visit(JpqlFromItem from, Set<Alias> declaredAliases) {
+            return visitAlias(from, declaredAliases);
+        }
+
+        public boolean visit(JpqlInnerJoin join, Set<Alias> declaredAliases) {
+            return visitAlias(join, declaredAliases);
+        }
+
+        public boolean visit(JpqlOuterJoin join, Set<Alias> declaredAliases) {
+            return visitAlias(join, declaredAliases);
+        }
+
+        public boolean visitAlias(Node node, Set<Alias> declaredAliases) {
+            if (node.jjtGetNumChildren() == 2) {
+                declaredAliases.add(new Alias(node.jjtGetChild(1).getValue().toLowerCase()));
+            }
+            return false;
         }
     }
 

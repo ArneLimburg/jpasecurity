@@ -48,7 +48,7 @@ public class SimpleContactsTest {
     public static void createEntityManagerFactory() {
         TestSecurityContext.authenticate(null, "admin");
         entityManagerFactory = Persistence.createEntityManagerFactory("simple-contacts");
-        TestSecurityContext.authenticate(null);
+        TestSecurityContext.unauthenticate();
     }
 
     @AfterClass
@@ -62,7 +62,7 @@ public class SimpleContactsTest {
         TestSecurityContext.authenticate(null, "admin");
         testData = new ContactsTestData();
         testData.createTestData(entityManagerFactory);
-        TestSecurityContext.authenticate(null);
+        TestSecurityContext.unauthenticate();
     }
 
     @After

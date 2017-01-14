@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2016 Arne Limburg
+ * Copyright 2008 - 2017 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static org.easymock.EasyMock.replay;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -123,7 +124,7 @@ public class JpaInheritenceEntityFilterTest {
         final HashMap<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
         selectedTypes.put(new Path("i"), SecondAclProtectedEntity.class);
         final EntityFilter.AccessDefinition accessDefinition =
-            filter.createAccessDefinition(selectedTypes, AccessType.READ);
+            filter.createAccessDefinition(selectedTypes, AccessType.READ, Collections.<Alias>emptySet());
         final Node accessRules1 = accessDefinition.getAccessRules();
         Assert.assertEquals("(((i.accessControlList IS  NULL ) OR (i.accessControlList = :CURRENT_PRINCIPAL)))",
             accessRules1.toString());
@@ -134,7 +135,7 @@ public class JpaInheritenceEntityFilterTest {
         final HashMap<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
         selectedTypes.put(new Path("i"), AbstractAclProtectedEntity.class);
         final EntityFilter.AccessDefinition accessDefinition =
-            filter.createAccessDefinition(selectedTypes, AccessType.READ);
+            filter.createAccessDefinition(selectedTypes, AccessType.READ, Collections.<Alias>emptySet());
         final Node accessRules1 = accessDefinition.getAccessRules();
         Assert.assertEquals("(((i.accessControlList IS  NULL ) OR (i.accessControlList = :CURRENT_PRINCIPAL)))",
             accessRules1.toString());
@@ -146,7 +147,7 @@ public class JpaInheritenceEntityFilterTest {
         selectedTypes.put(new Path("i"), SecondAclProtectedEntity.class);
         selectedTypes.put(new Path("b"), AclProtectedEntity.class);
         final EntityFilter.AccessDefinition accessDefinition =
-            filter.createAccessDefinition(selectedTypes, AccessType.READ);
+            filter.createAccessDefinition(selectedTypes, AccessType.READ, Collections.<Alias>emptySet());
         final Node accessRules1 = accessDefinition.getAccessRules();
         Assert.assertEquals("(((i.accessControlList IS  NULL ) OR (i.accessControlList = :CURRENT_PRINCIPAL)) "
                 + "AND ((b.accessControlList IS  NULL ) OR (b.accessControlList = :CURRENT_PRINCIPAL)))",
@@ -159,7 +160,7 @@ public class JpaInheritenceEntityFilterTest {
         final HashMap<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
         selectedTypes.put(new Path("i"), AbstractEntity.class);
         final EntityFilter.AccessDefinition accessDefinition =
-            filter.createAccessDefinition(selectedTypes, AccessType.READ);
+            filter.createAccessDefinition(selectedTypes, AccessType.READ, Collections.<Alias>emptySet());
         final Node accessRules1 = accessDefinition.getAccessRules();
         Assert.assertEquals(
             "(( EXISTS "
@@ -178,7 +179,7 @@ public class JpaInheritenceEntityFilterTest {
         selectedTypes.put(new Path("i"), AbstractEntity.class);
         selectedTypes.put(new Path("b"), AbstractEntity.class);
         final EntityFilter.AccessDefinition accessDefinition =
-            filter.createAccessDefinition(selectedTypes, AccessType.READ);
+            filter.createAccessDefinition(selectedTypes, AccessType.READ, Collections.<Alias>emptySet());
         final Node accessRules1 = accessDefinition.getAccessRules();
         Assert.assertEquals(
             "(( EXISTS ( SELECT abstractAclProtectedEntity FROM AbstractAclProtectedEntity abstractAclProtectedEntity"

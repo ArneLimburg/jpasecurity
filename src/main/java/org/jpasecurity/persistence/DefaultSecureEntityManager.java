@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2016 Arne Limburg
+ * Copyright 2008 - 2017 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,11 +174,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public Query createNamedQuery(String name) {
-        AccessManager.Instance.register(accessManager);
         String namedQuery = entityManagerFactory.getNamedQuery(name);
         if (namedQuery != null) {
             return createQuery(namedQuery);
         }
+        AccessManager.Instance.register(accessManager);
         return super.createNamedQuery(name); // must be named native query
     }
 

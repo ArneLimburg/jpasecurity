@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2016 Arne Limburg
+ * Copyright 2008 - 2017 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.jpasecurity.security;
 
 import static org.jpasecurity.jpql.TypeDefinition.Filter.attributeForPath;
 import static org.jpasecurity.jpql.TypeDefinition.Filter.typeForAlias;
+import static org.jpasecurity.persistence.mapping.ManagedTypeFilter.forModel;
 import static org.jpasecurity.util.Validate.notNull;
 
 import java.beans.Introspector;
@@ -30,18 +31,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.jpasecurity.persistence.mapping.ManagedTypeFilter.forModel;
-
 import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.MapAttribute;
 import javax.persistence.metamodel.Metamodel;
-import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
@@ -64,10 +61,13 @@ import org.jpasecurity.jpql.parser.JpqlIn;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.JpqlPath;
 import org.jpasecurity.jpql.parser.JpqlStatement;
+import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
 import org.jpasecurity.jpql.parser.Node;
 import org.jpasecurity.jpql.parser.ParseException;
 import org.jpasecurity.jpql.parser.SimpleNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class handles the access control.
@@ -80,14 +80,15 @@ public class EntityFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntityFilter.class);
 
+    protected final JpqlCompiler compiler;
     private final Metamodel metamodel;
     private final PersistenceUnitUtil persistenceUnitUtil;
     private final JpqlParser parser;
-    protected final JpqlCompiler compiler;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final QueryEvaluator queryEvaluator;
     private final QueryPreparator queryPreparator = new QueryPreparator();
     private final Collection<AccessRule> accessRules;
+    private final ReplaceAliasVisitor replaceAliasVisitor = new ReplaceAliasVisitor();
 
     public EntityFilter(Metamodel metamodel,
                         PersistenceUnitUtil util,
@@ -174,14 +175,18 @@ public class EntityFilter {
     }
 
     protected AccessDefinition createAccessDefinition(JpqlCompiledStatement statement, AccessType accessType) {
-        return createAccessDefinition(getSelectedEntityTypes(statement), accessType);
+        return createAccessDefinition(getSelectedEntityTypes(statement), accessType, getAliases(statement));
     }
 
     private AccessDefinition createAccessDefinition(Alias alias, Class<?> type, AccessType accessType) {
-        return createAccessDefinition(Collections.<Path, Class<?>>singletonMap(alias.toPath(), type), accessType);
+        return createAccessDefinition(
+                Collections.<Path, Class<?>>singletonMap(alias.toPath(), type),
+                accessType,
+                Collections.<Alias>emptySet());
     }
 
-    protected AccessDefinition createAccessDefinition(Map<Path, Class<?>> selectedTypes, AccessType accessType) {
+    protected AccessDefinition createAccessDefinition(
+            Map<Path, Class<?>> selectedTypes, AccessType accessType, Set<Alias> usedAliases) {
         AccessDefinition accessDefinition = null;
         boolean restricted = false;
         for (Map.Entry<Path, Class<?>> selectedType: selectedTypes.entrySet()) {
@@ -197,7 +202,8 @@ public class EntityFilter {
                         if (accessRule.grantsAccess(accessType)) {
                             typedAccessDefinition = appendAccessDefinition(typedAccessDefinition,
                                                                            accessRule,
-                                                                           selectedType.getKey());
+                                                                           selectedType.getKey(),
+                                                                           usedAliases);
                         }
                     }
                 }
@@ -249,7 +255,8 @@ public class EntityFilter {
                                 instanceOf = queryPreparator.createOr(instanceOf, node);
                             }
                         }
-                        AccessDefinition preparedAccessRule = prepareAccessRule(accessRule, selectedType.getKey());
+                        AccessDefinition preparedAccessRule
+                            = prepareAccessRule(accessRule, selectedType.getKey(), usedAliases);
                         preparedAccessRule.mergeNode(instanceOf);
                         typedAccessDefinition = preparedAccessRule.append(typedAccessDefinition);
                     }
@@ -352,8 +359,9 @@ public class EntityFilter {
 
     private AccessDefinition appendAccessDefinition(AccessDefinition accessDefinition,
                                                     AccessRule accessRule,
-                                                    Path selectedPath) {
-        return prepareAccessRule(accessRule, selectedPath).append(accessDefinition);
+                                                    Path selectedPath,
+                                                    Set<Alias> usedAliases) {
+        return prepareAccessRule(accessRule, selectedPath, usedAliases).append(accessDefinition);
     }
 
     private Node appendNode(Node accessRules, Node accessRule) {
@@ -364,11 +372,17 @@ public class EntityFilter {
         }
     }
 
-    private AccessDefinition prepareAccessRule(AccessRule accessRule, Path selectedPath) {
+    private AccessDefinition prepareAccessRule(AccessRule accessRule, Path selectedPath, Set<Alias> usedAliases) {
         if (accessRule.getWhereClause() == null) {
             return new AccessDefinition(queryPreparator.createBoolean(true));
         }
         accessRule = accessRule.clone();
+        Set<Alias> ruleAliases = accessRule.getAliases();
+        for (Alias usedAlias: usedAliases) {
+            if (ruleAliases.contains(usedAlias)) {
+                accessRule = replace(accessRule, usedAlias, getUnusedAlias(usedAlias, ruleAliases));
+            }
+        }
         Map<String, Object> queryParameters = new HashMap<String, Object>();
         expand(accessRule, queryParameters);
         Node preparedAccessRule = queryPreparator.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
@@ -496,6 +510,44 @@ public class EntityFilter {
         }
     }
 
+    private Set<Alias> getAliases(JpqlCompiledStatement statement) {
+        Set<Alias> aliases = new HashSet<Alias>();
+        for (TypeDefinition typeDefinition: statement.getTypeDefinitions()) {
+            if (typeDefinition.getAlias() != null) {
+                aliases.add(typeDefinition.getAlias());
+            }
+        }
+        return aliases;
+    }
+
+    private Alias getUnusedAlias(Alias usedAlias, Set<Alias> ruleAliases) {
+        int i = 0;
+        Alias unusedAlias;
+        do {
+            unusedAlias = new Alias(usedAlias.getName() + i++);
+        } while (ruleAliases.contains(unusedAlias));
+        return unusedAlias;
+    }
+
+    private AccessRule replace(AccessRule rule, Alias source, Alias target) {
+        TypeDefinition typeDefinition = rule.getTypeDefinition();
+        if (typeDefinition.getAlias().equals(source)) {
+            if (typeDefinition.getJoinPath() == null) {
+                typeDefinition = new TypeDefinition(target, typeDefinition.getType());
+            } else {
+                typeDefinition = new TypeDefinition(
+                        target,
+                        typeDefinition.getKeyType(),
+                        typeDefinition.getType(),
+                        typeDefinition.getJoinPath(),
+                        typeDefinition.isInnerJoin(),
+                        typeDefinition.isFetchJoin());
+            }
+        }
+        rule.getStatement().visit(replaceAliasVisitor, new AliasReplacement(source, target));
+        return new AccessRule((JpqlAccessRule)rule.getStatement(), typeDefinition);
+    }
+
     public class AccessDefinition {
 
         private Node accessRules;
@@ -566,5 +618,33 @@ public class EntityFilter {
 
     protected enum Evaluatable {
         ALWAYS_TRUE, ALWAYS_FALSE, DEPENDING;
+    }
+
+    private static class ReplaceAliasVisitor extends JpqlVisitorAdapter<AliasReplacement> {
+        @Override
+        public boolean visit(JpqlIdentificationVariable variable, AliasReplacement replacement) {
+            if (variable.getValue().equals(replacement.getSource().getName())) {
+                variable.setValue(replacement.getTarget().getName());
+            }
+            return false;
+        }
+    }
+
+    static class AliasReplacement {
+        private Alias source;
+        private Alias target;
+
+        AliasReplacement(Alias source, Alias target) {
+            this.source = source;
+            this.target = target;
+        }
+
+        Alias getSource() {
+            return source;
+        }
+
+        Alias getTarget() {
+            return target;
+        }
     }
 }
