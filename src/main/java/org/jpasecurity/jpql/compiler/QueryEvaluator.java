@@ -217,6 +217,7 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     }
 
     public boolean visit(JpqlAnd node, QueryEvaluationParameters data) {
+        boolean undefined = false;
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(this, data);
             try {
@@ -225,11 +226,14 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
                     return false;
                 }
             } catch (NotEvaluatableException e) {
-                data.setResultUndefined();
-                return false;
+                undefined = true;
             }
         }
-        data.setResult(Boolean.TRUE);
+        if (undefined) {
+            data.setResultUndefined();
+        } else {
+            data.setResult(Boolean.TRUE);
+        }
         return false;
     }
 

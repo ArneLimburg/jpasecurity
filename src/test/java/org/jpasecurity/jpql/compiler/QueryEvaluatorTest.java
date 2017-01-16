@@ -55,7 +55,6 @@ import org.jpasecurity.model.MethodAccessTestBean;
 import org.jpasecurity.model.ParentTestBean;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class QueryEvaluatorTest {
@@ -680,7 +679,6 @@ public class QueryEvaluatorTest {
         }
     }
 
-    @Ignore("Fix problem, where query is not evaluatable")
     @Test
     public void evaluateAnd() throws Exception {
         JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.name = :name AND bean.id = ?1");
