@@ -133,6 +133,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         return entity;
     }
 
+    public void joinTransaction() {
+        AccessManager.Instance.register(accessManager);
+        super.joinTransaction();
+    }
+
     public void refresh(Object entity) {
         AccessManager.Instance.register(accessManager);
         super.refresh(entity);
