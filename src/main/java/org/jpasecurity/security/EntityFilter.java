@@ -315,10 +315,10 @@ public class EntityFilter {
             JpqlBooleanLiteral booleanLiteral = (JpqlBooleanLiteral)accessDefinition.getAccessRules();
             boolean accessRestricted = !Boolean.parseBoolean(booleanLiteral.getValue());
             if (accessRestricted) {
-                LOG.info("No access rules defined for access type. Returning <null> query.");
+                LOG.debug("No access rules defined for access type. Returning <null> query.");
                 return new FilterResult<Q>(statement.getConstructorArgReturnType());
             } else {
-                LOG.info("No access rules defined for selected type. Returning unfiltered query");
+                LOG.debug("No access rules defined for selected type. Returning unfiltered query");
                 return new FilterResult<Q>(query, statement.getConstructorArgReturnType());
             }
         }
