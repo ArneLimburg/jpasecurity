@@ -38,6 +38,7 @@ import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.MapAttribute;
 import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.SingularAttribute;
 
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
@@ -504,7 +505,10 @@ public class EntityFilter {
                     .filter()
                     .getJavaType();
         } else if (entityPath.hasSubpath()) {
-            return attributeForPath(entityPath).withMetamodel(metamodel).filter(typeDefinitions).getJavaType();
+            SingularAttribute<?, ?> attribute = (SingularAttribute<?, ?>)attributeForPath(entityPath)
+                    .withMetamodel(metamodel)
+                    .filter(typeDefinitions);
+            return attribute.getType().getJavaType();
         } else {
             return typeForAlias(entityPath.getRootAlias()).withMetamodel(metamodel).filter(typeDefinitions).getType();
         }
