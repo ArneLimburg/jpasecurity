@@ -31,7 +31,6 @@ import org.jpasecurity.jpql.parser.JpqlBrackets;
 import org.jpasecurity.jpql.parser.JpqlCollectionValuedPath;
 import org.jpasecurity.jpql.parser.JpqlConstructorParameter;
 import org.jpasecurity.jpql.parser.JpqlEquals;
-import org.jpasecurity.jpql.parser.JpqlExists;
 import org.jpasecurity.jpql.parser.JpqlFrom;
 import org.jpasecurity.jpql.parser.JpqlFromItem;
 import org.jpasecurity.jpql.parser.JpqlIdentificationVariable;
@@ -51,6 +50,7 @@ import org.jpasecurity.jpql.parser.JpqlSelectClause;
 import org.jpasecurity.jpql.parser.JpqlSelectExpression;
 import org.jpasecurity.jpql.parser.JpqlSelectExpressions;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
+import org.jpasecurity.jpql.parser.JpqlType;
 import org.jpasecurity.jpql.parser.JpqlValue;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
@@ -313,7 +313,7 @@ public class QueryPreparator {
                 = new JpqlIdentificationVariable(JpqlParserTreeConstants.JJTIDENTIFICATIONVARIABLE);
             identificationVariable.setValue(pathComponent);
             identificationVariable.jjtSetParent(pathNode);
-            pathNode.jjtAddChild(identifier, pathNode.jjtGetNumChildren());
+            pathNode.jjtAddChild(identificationVariable, pathNode.jjtGetNumChildren());
         }
         return pathNode;
     }
@@ -379,8 +379,11 @@ public class QueryPreparator {
     }
 
     public Node createInstanceOf(Path path, EntityType<?> classMapping) {
-        return appendChildren(new JpqlExists(JpqlParserTreeConstants.JJTEXISTS),
-                              createSubselectById(path, classMapping));
+        return createEquals(
+                appendChildren(new JpqlType(JpqlParserTreeConstants.JJTTYPE), createPath(path)),
+                appendChildren(
+                        new JpqlAbstractSchemaName(JpqlParserTreeConstants.JJTABSTRACTSCHEMANAME),
+                        createIdentificationVariable(classMapping.getName())));
     }
 
     public JpqlSubselect createSubselectById(Path path, EntityType<?> classMapping) {
@@ -395,9 +398,13 @@ public class QueryPreparator {
     }
 
     public JpqlIdentificationVariable createIdentificationVariable(Alias value) {
+        return createIdentificationVariable(value.toString());
+    }
+
+    public JpqlIdentificationVariable createIdentificationVariable(String value) {
         JpqlIdentificationVariable identificationVariable
             = new JpqlIdentificationVariable(JpqlParserTreeConstants.JJTIDENTIFICATIONVARIABLE);
-        identificationVariable.setValue(value.toString());
+        identificationVariable.setValue(value);
         return identificationVariable;
     }
 
