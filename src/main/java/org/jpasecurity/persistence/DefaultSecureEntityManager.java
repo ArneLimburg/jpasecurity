@@ -20,6 +20,8 @@ import static org.jpasecurity.AccessType.READ;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.LockModeType;
@@ -30,9 +32,9 @@ import javax.persistence.criteria.CommonAbstractCriteria;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
+import javax.transaction.Synchronization;
+import javax.transaction.TransactionSynchronizationRegistry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.SecurityContext;
@@ -45,6 +47,8 @@ import org.jpasecurity.persistence.security.CriteriaFilterResult;
 import org.jpasecurity.security.AccessRule;
 import org.jpasecurity.security.DefaultAccessManager;
 import org.jpasecurity.security.FilterResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class handles invocations on proxies of entity managers.
@@ -211,7 +215,12 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         try {
             super.close();
         } finally {
-            AccessManager.Instance.unregister(accessManager);
+            TransactionSynchronizationRegistry transaction = getTransactionSynchronizationRegistry();
+            if (isTransactionActive(transaction)) {
+                unregisterAccessManagerAfterTransaction(transaction);
+            } else {
+                AccessManager.Instance.unregister(accessManager);
+            }
         }
     }
 
@@ -372,5 +381,30 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     @Override
     public void ignoreChecks(AccessType accessType, Collection<?> entities) {
         accessManager.ignoreChecks(accessType, entities);
+    }
+
+    private TransactionSynchronizationRegistry getTransactionSynchronizationRegistry() {
+        try {
+            return InitialContext.doLookup("java:comp/TransactionSynchronizationRegistry");
+        } catch (NamingException e) {
+            return null;
+        }
+    }
+
+    private boolean isTransactionActive(TransactionSynchronizationRegistry transaction) {
+        return transaction != null && transaction.getTransactionKey() != null;
+    }
+
+    private void unregisterAccessManagerAfterTransaction(TransactionSynchronizationRegistry transaction) {
+        transaction.registerInterposedSynchronization(new Synchronization() {
+            @Override
+            public void beforeCompletion() {
+                // nothing to do
+            }
+            @Override
+            public void afterCompletion(int status) {
+                AccessManager.Instance.unregister(accessManager);
+            }
+        });
     }
 }
