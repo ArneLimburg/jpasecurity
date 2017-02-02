@@ -19,6 +19,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Implementations of this interface may be used to check whether an
  * entity is accessible given a specific access type.
@@ -90,18 +93,22 @@ public interface AccessManager {
 
     abstract static class Instance {
 
+        private static final Logger LOG = LoggerFactory.getLogger(AccessManager.class);
+
         private static Map<Thread, AccessManager> registeredAccessManagers
             = new ConcurrentHashMap<Thread, AccessManager>();
 
         public static AccessManager get() {
             AccessManager accessManager = registeredAccessManagers.get(Thread.currentThread());
             if (accessManager == null) {
+                LOG.warn("No AccessManager found in thread {}", Thread.currentThread().getName());
                 throw new SecurityException("No AccessManager available. Please ensure that the EntityManager is open");
             }
             return accessManager;
         }
 
         public static void register(AccessManager manager) {
+            LOG.info("registering AccessManager#{}", System.identityHashCode(manager));
             if (registeredAccessManagers.get(Thread.currentThread()) == manager) {
                 return;
             }
@@ -110,6 +117,7 @@ public interface AccessManager {
         }
 
         public static void unregister(AccessManager manager) {
+            LOG.info("unregistering AccessManager#{}", System.identityHashCode(manager));
             registeredAccessManagers.values().remove(manager);
         }
     }

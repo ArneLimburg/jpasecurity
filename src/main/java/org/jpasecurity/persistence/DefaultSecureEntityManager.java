@@ -207,6 +207,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public void close() {
+        LOG.info("Closing SecureEntityManager");
         try {
             super.close();
         } finally {
