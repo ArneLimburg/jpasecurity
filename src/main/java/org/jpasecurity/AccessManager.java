@@ -108,10 +108,10 @@ public interface AccessManager {
         }
 
         public static void register(AccessManager manager) {
-            LOG.info("registering AccessManager#{}", System.identityHashCode(manager));
             if (registeredAccessManagers.get(Thread.currentThread()) == manager) {
                 return;
             }
+            LOG.info("registering AccessManager#{}", System.identityHashCode(manager));
             registeredAccessManagers.values().remove(manager);
             registeredAccessManagers.put(Thread.currentThread(), manager);
         }
