@@ -15,8 +15,6 @@
  */
 package org.jpasecurity;
 
-
-
 /**
  * A class that represents an alias in an access rule or query
  * @author Arne Limburg

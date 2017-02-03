@@ -49,7 +49,7 @@
         <properties>
             <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
-            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -77,7 +77,7 @@
         <properties>
             <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
-            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -102,7 +102,7 @@
         <properties>
             <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
-            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -290,7 +290,7 @@
         <properties>
             <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
-            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -317,7 +317,7 @@
         <properties>
             <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
-            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
@@ -643,7 +643,7 @@
         <properties>
             <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
-            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.DefaultAccessRulesProvider"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
