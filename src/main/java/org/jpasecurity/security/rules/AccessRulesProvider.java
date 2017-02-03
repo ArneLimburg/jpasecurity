@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2016 Arne Limburg
+ * Copyright 2008 - 2017 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,10 @@
  */
 package org.jpasecurity.security.rules;
 
-import java.util.List;
-
-import org.jpasecurity.security.AccessRule;
+import java.util.Collection;
 
 /**
- * This interface may be implemented to access <tt>AccessRule</tt>s.
- * Implementations don't need to cache rules as {@link #getAccessRules()}
- * may be called only once per <tt>EntityManager</tt>.
- *
- * If the <tt>AuthenticationProvider</tt> needs information about the configured
- * persistence information like entity mapping information or persistence properties,
- * it may also implement the
- * {@link org.jpasecurity.mapping.MappingInformationReceiver} interface
- * to become this information injected during runtime.
+ * This interface may be implemented to provide a custom source for access rules.
  *
  * @author Arne Limburg
  */
@@ -37,5 +27,5 @@ public interface AccessRulesProvider {
     /**
      * Returns the access rules used for security.
      */
-    List<AccessRule> getAccessRules();
+    Collection<String> getAccessRules();
 }

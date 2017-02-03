@@ -18,13 +18,13 @@ package org.jpasecurity.security.rules;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
 import javax.persistence.PersistenceException;
-import javax.persistence.metamodel.Metamodel;
 
-import org.jpasecurity.SecurityContext;
 import org.jpasecurity.util.ListHashMap;
 import org.jpasecurity.util.ListMap;
 import org.jpasecurity.xml.AbstractXmlParser;
@@ -37,13 +37,14 @@ import org.xml.sax.helpers.DefaultHandler;
  * in the <tt>META-INF</tt> folder and provides the contained access rules.
  * @author Arne Limburg
  */
-public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
+public class XmlAccessRulesProvider implements AccessRulesProvider {
 
     private String persistenceUnitName;
+    private Collection<String> accessRules;
 
-    public XmlAccessRulesProvider(String persistenceUnitName, Metamodel metamodel, SecurityContext securityContext) {
-        super(metamodel, securityContext);
+    public XmlAccessRulesProvider(String persistenceUnitName) {
         this.persistenceUnitName = persistenceUnitName;
+        initializeAccessRules();
     }
 
     protected void initializeAccessRules() {
@@ -57,7 +58,12 @@ public class XmlAccessRulesProvider extends AbstractAccessRulesProvider {
         } catch (IOException e) {
             throw new PersistenceException(e);
         }
-        compileRules(parser.getAccessRules());
+        accessRules = Collections.unmodifiableList(parser.getAccessRules());
+    }
+
+    @Override
+    public Collection<String> getAccessRules() {
+        return accessRules;
     }
 
     private static class RulesParser extends AbstractXmlParser<XmlAccessRulesProvider.RulesParser.RulesHandler> {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2016 Arne Limburg
+ * Copyright 2008 - 2017 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ import org.jpasecurity.security.AccessRule;
  */
 public class AccessRulesCompiler extends JpqlCompiler {
 
-    public AccessRulesCompiler(Metamodel mappingInformation) {
-        super(mappingInformation);
+    public AccessRulesCompiler(Metamodel metamodel) {
+        super(metamodel);
     }
 
     public Collection<AccessRule> compile(JpqlAccessRule rule) {

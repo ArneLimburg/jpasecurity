@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Arne Limburg
+ * Copyright 2016 - 2017 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ public class AccessRulesParser {
     private final AliasVisitor aliasVisitor = new AliasVisitor();
     private Metamodel metamodel;
     private SecurityContext securityContext;
-    private XmlAccessRulesProvider xmlProvider;
+    private AccessRulesProvider accessRulesProvider;
     private AccessRulesCompiler compiler;
 
     public AccessRulesParser(String persistenceUnitName,
@@ -68,7 +68,7 @@ public class AccessRulesParser {
                              AccessRulesProvider accessRulesProvider) {
         this.metamodel = notNull(Metamodel.class, metamodel);
         this.securityContext = notNull(SecurityContext.class, securityContext);
-        xmlProvider = new XmlAccessRulesProvider(persistenceUnitName, metamodel, securityContext);
+        this.accessRulesProvider = notNull(AccessRulesProvider.class, accessRulesProvider);
         compiler = new AccessRulesCompiler(metamodel);
     }
 
@@ -81,7 +81,9 @@ public class AccessRulesParser {
                     rules.addAll(compiler.compile(createAccessRule(annotations.getKey(), permission)));
                 }
             }
-            rules.addAll(xmlProvider.getAccessRules());
+            for (String rule: accessRulesProvider.getAccessRules()) {
+                rules.addAll(compiler.compile(jpqlParser.parseRule(rule)));
+            }
             return rules;
         } catch (ParseException e) {
             throw new PersistenceException(e);

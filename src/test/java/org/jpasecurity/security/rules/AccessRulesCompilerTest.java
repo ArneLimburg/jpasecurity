@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 - 2016 Arne Limburg
+ * Copyright 2011 - 2017 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.Type.PersistenceType;
 
-import org.jpasecurity.Configuration;
 import org.jpasecurity.Path;
+import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.ParseException;
@@ -42,7 +42,6 @@ import org.jpasecurity.model.ChildTestBean;
 import org.jpasecurity.model.MethodAccessTestBean;
 import org.jpasecurity.model.ParentTestBean;
 import org.jpasecurity.security.AccessRule;
-import org.jpasecurity.security.authentication.AutodetectingSecurityContext;
 import org.junit.Test;
 
 /**
@@ -52,6 +51,7 @@ public class AccessRulesCompilerTest {
 
     @Test
     public void rulesOnInterfaces() {
+        SecurityContext securityContext = createMock(SecurityContext.class);
         Metamodel metamodel = createMock(Metamodel.class);
         EntityType parentTestBeanType = createMock(EntityType.class);
         EntityType childTestBeanType = createMock(EntityType.class);
@@ -59,7 +59,7 @@ public class AccessRulesCompilerTest {
         BasicType stringType = createMock(BasicType.class);
         SingularAttribute nameAttribute = createMock(SingularAttribute.class);
         expect(metamodel.getManagedTypes()).andReturn(new HashSet(Arrays.asList(
-                parentTestBeanType, childTestBeanType, methodAccessTestBeanType)));
+                parentTestBeanType, childTestBeanType, methodAccessTestBeanType))).anyTimes();
         expect(metamodel.getEntities()).andReturn(new HashSet(Arrays.asList(
                 parentTestBeanType, childTestBeanType, methodAccessTestBeanType)));
         expect(metamodel.managedType(ParentTestBean.class)).andReturn(parentTestBeanType).anyTimes();
@@ -77,11 +77,11 @@ public class AccessRulesCompilerTest {
         expect(nameAttribute.getType()).andReturn(stringType).anyTimes();
         expect(nameAttribute.getJavaType()).andReturn(String.class).anyTimes();
         expect(stringType.getPersistenceType()).andReturn(PersistenceType.BASIC).anyTimes();
-        replay(metamodel, parentTestBeanType, childTestBeanType, methodAccessTestBeanType, nameAttribute, stringType);
-        XmlAccessRulesProvider accessRulesProvider
-            = new XmlAccessRulesProvider("interface", metamodel, new AutodetectingSecurityContext());
-        accessRulesProvider.setConfiguration(new Configuration());
-        assertEquals(2, accessRulesProvider.getAccessRules().size());
+        replay(securityContext, metamodel);
+        replay(parentTestBeanType, childTestBeanType, methodAccessTestBeanType, nameAttribute, stringType);
+        AccessRulesParser parser
+            = new AccessRulesParser("interface", metamodel, securityContext, new XmlAccessRulesProvider("interface"));
+        assertEquals(2, parser.parseAccessRules().size());
     }
 
     @Test
