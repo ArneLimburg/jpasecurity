@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 - 2016 Arne Limburg
+ * Copyright 2010 - 2017 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.jpasecurity.persistence;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -23,12 +26,15 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.SharedCacheMode;
+import javax.persistence.ValidationMode;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 
@@ -81,17 +87,29 @@ public class SecurePersistenceProviderTest {
     }
 
     private PersistenceUnitInfo createPersistenceUnitInfo() {
-        DefaultPersistenceUnitInfo persistenceUnitInfo = new DefaultPersistenceUnitInfo();
-        persistenceUnitInfo.setPersistenceUnitRootUrl(createPersistenceUnitRootUrl());
-        persistenceUnitInfo.setPersistenceUnitName("annotation-based-field-access");
-        persistenceUnitInfo.setPersistenceUnitTransactionType(PersistenceUnitTransactionType.RESOURCE_LOCAL);
-        persistenceUnitInfo.setPersistenceProviderClassName(SecurePersistenceProvider.class.getName());
-        persistenceUnitInfo.setClassLoader(Thread.currentThread().getContextClassLoader());
-        persistenceUnitInfo.getManagedClassNames().add(FieldAccessAnnotationTestBean.class.getName());
-        persistenceUnitInfo.getManagedClassNames().add(FieldAccessMapKey.class.getName());
-        persistenceUnitInfo.getManagedClassNames().add(FieldAccessMapValue.class.getName());
-        persistenceUnitInfo.setExcludeUnlistedClasses(true);
-        Properties properties = persistenceUnitInfo.getProperties();
+        PersistenceUnitInfo persistenceUnitInfo = createMock(PersistenceUnitInfo.class);
+        expect(persistenceUnitInfo.getPersistenceUnitRootUrl()).andReturn(createPersistenceUnitRootUrl()).anyTimes();
+        expect(persistenceUnitInfo.getPersistenceUnitName()).andReturn("annotation-based-field-access").anyTimes();
+        expect(persistenceUnitInfo.getTransactionType())
+            .andReturn(PersistenceUnitTransactionType.RESOURCE_LOCAL).anyTimes();
+        expect(persistenceUnitInfo.getValidationMode()).andReturn(ValidationMode.AUTO).anyTimes();
+        expect(persistenceUnitInfo.getSharedCacheMode()).andReturn(SharedCacheMode.UNSPECIFIED).anyTimes();
+        expect(persistenceUnitInfo.getJtaDataSource()).andReturn(null).anyTimes();
+        expect(persistenceUnitInfo.getNonJtaDataSource()).andReturn(null).anyTimes();
+        expect(persistenceUnitInfo.getNewTempClassLoader()).andReturn(null).anyTimes();
+        expect(persistenceUnitInfo.getMappingFileNames()).andReturn(Collections.<String>emptyList()).anyTimes();
+        expect(persistenceUnitInfo.getJarFileUrls()).andReturn(Collections.<URL>emptyList()).anyTimes();
+        expect(persistenceUnitInfo.getPersistenceProviderClassName())
+            .andReturn(SecurePersistenceProvider.class.getName()).anyTimes();
+        expect(persistenceUnitInfo.getClassLoader())
+            .andReturn(Thread.currentThread().getContextClassLoader()).anyTimes();
+        expect(persistenceUnitInfo.getManagedClassNames()).andReturn(Arrays.asList(
+            FieldAccessAnnotationTestBean.class.getName(),
+            FieldAccessMapKey.class.getName(),
+            FieldAccessMapValue.class.getName()
+        )).anyTimes();
+        expect(persistenceUnitInfo.excludeUnlistedClasses()).andReturn(true).anyTimes();
+        Properties properties = new Properties();
         properties.put("org.jpasecurity.persistence.provider", "org.hibernate.ejb.HibernatePersistence");
         properties.put("org.jpasecurity.security.context",
                        "org.jpasecurity.security.authentication.TestSecurityContext");
@@ -103,6 +121,8 @@ public class SecurePersistenceProviderTest {
         properties.put("hibernate.connection.url", "jdbc:hsqldb:mem:test");
         properties.put("hibernate.connection.username", "sa");
         properties.put("hibernate.connection.password", "");
+        expect(persistenceUnitInfo.getProperties()).andReturn(properties).anyTimes();
+        replay(persistenceUnitInfo);
         return persistenceUnitInfo;
     }
 

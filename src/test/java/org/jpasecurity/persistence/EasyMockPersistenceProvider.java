@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 - 2016 Arne Limburg
+ * Copyright 2011 - 2017 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,17 @@
  */
 package org.jpasecurity.persistence;
 
-import java.io.IOException;
+import static java.lang.Thread.currentThread;
+
 import java.net.URL;
-import java.util.Enumeration;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Cache;
 import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.Query;
 import javax.persistence.SynchronizationType;
@@ -47,26 +48,18 @@ public class EasyMockPersistenceProvider implements PersistenceProvider {
             && getClass().getName().equals(map.get(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY))) {
             return new EasyMockEntityManagerFactory();
         }
-        PersistenceXmlParser persistenceXmlParser = new PersistenceXmlParser();
         try {
-            for (Enumeration<URL> e = Thread.currentThread().getContextClassLoader()
-                            .getResources("META-INF/persistence.xml"); e.hasMoreElements();) {
-                try {
-                    persistenceXmlParser.parse(e.nextElement());
-                    if (persistenceXmlParser.containsPersistenceUnitInfo(emName)) {
-                        PersistenceUnitInfo info = persistenceXmlParser.getPersistenceUnitInfo(emName);
-                        if (getClass().getName().equals(info.getPersistenceProviderClassName())) {
-                            return new EasyMockEntityManagerFactory();
-                        }
-                    }
-                } catch (IOException ioException) {
-                    //ignore
-                }
+            List<URL> persistenceXmlLocations
+                = Collections.list(currentThread().getContextClassLoader().getResources("META-INF/persistence.xml"));
+            XmlParser xmlParser = new XmlParser(persistenceXmlLocations);
+            if (getClass().getName().equals(xmlParser.parsePersistenceProvider(emName))) {
+                return new EasyMockEntityManagerFactory();
+            } else {
+                return null;
             }
-        } catch (IOException e) {
-            throw new PersistenceException(e);
+        } catch (Exception e) {
+            return null;
         }
-        return null;
     }
 
     public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info,
