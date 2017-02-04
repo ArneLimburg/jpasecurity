@@ -18,7 +18,7 @@ package org.jpasecurity.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jpasecurity.entity.SecureCollections;
+import org.jpasecurity.collection.SecureCollections;
 
 /**
  * @author Stefan Hildebrandt

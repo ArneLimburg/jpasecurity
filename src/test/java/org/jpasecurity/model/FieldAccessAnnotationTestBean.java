@@ -45,7 +45,7 @@ import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
 import javax.persistence.Transient;
 
-import org.jpasecurity.entity.SecureCollections;
+import org.jpasecurity.collection.SecureCollections;
 
 /**
  * @author Arne Limburg

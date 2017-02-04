@@ -14,7 +14,7 @@
  * and limitations under the License.
  */
 
-package org.jpasecurity.entity;
+package org.jpasecurity.collection;
 
 import static org.jpasecurity.AccessType.READ;
 import static org.jpasecurity.util.Types.isSimplePropertyType;

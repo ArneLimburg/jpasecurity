@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package org.jpasecurity.entity;
+package org.jpasecurity.collection;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
+ * A set-implementation of secure collection.
  * @author Arne Limburg
  */
-public class DefaultSecureCollection<E, T extends Collection<E>> extends AbstractSecureCollection<E, T> {
+public class SecureSet<E> extends AbstractSecureCollection<E, Set<E>> implements Set<E> {
 
-    public DefaultSecureCollection(T target) {
-        super(target);
+    public SecureSet(Set<E> set) {
+        super(set);
     }
 
-    DefaultSecureCollection(T target, T filtered) {
-        super(target, filtered);
+    SecureSet(Set<E> original, Set<E> filtered) {
+        super(original, filtered);
     }
 
-    protected T createFiltered() {
-        return (T)new ArrayList<E>();
+    protected Set<E> createFiltered() {
+        return new LinkedHashSet<E>();
     }
 }
