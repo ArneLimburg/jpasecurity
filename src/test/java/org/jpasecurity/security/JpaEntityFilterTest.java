@@ -18,6 +18,7 @@ package org.jpasecurity.security;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -60,6 +61,10 @@ public class JpaEntityFilterTest {
         SingularAttribute ownerAttribute = createMock(SingularAttribute.class);
         accessManager = createMock(AccessManager.class);
         expect(accessManager.getContext()).andReturn(new DefaultSecurityContext()).anyTimes();
+        accessManager.delayChecks();
+        expectLastCall().anyTimes();
+        accessManager.checkNow();
+        expectLastCall().anyTimes();
         expect(contactType.getName()).andReturn(Contact.class.getSimpleName()).anyTimes();
         expect(contactType.getJavaType()).andReturn((Class)Contact.class).anyTimes();
         expect(metamodel.getEntities())

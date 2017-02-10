@@ -30,6 +30,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.Type.PersistenceType;
 
+import org.jpasecurity.AccessManager;
 import org.jpasecurity.Alias;
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jpql.TypeDefinition;
@@ -148,11 +149,13 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
 
     public Class<?> getType(Alias alias, Set<TypeDefinition> typeDefinitions) {
         if (securityContext.getAliases().contains(alias)) {
-            Object aliasValue = securityContext.getAliasValue(alias);
-            if (aliasValue != null) {
-                return aliasValue.getClass();
+            Object aliasValue;
+            try {
+                AccessManager.Instance.get().delayChecks();
+                aliasValue = securityContext.getAliasValue(alias);
+            } finally {
+                AccessManager.Instance.get().checkNow();
             }
-            aliasValue = securityContext.getAliasValue(alias);
             return aliasValue == null? Object.class: aliasValue.getClass();
         }
         for (TypeDefinition typeDefinition: typeDefinitions) {

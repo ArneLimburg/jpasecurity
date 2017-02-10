@@ -17,6 +17,7 @@ package org.jpasecurity.security;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.getCurrentArguments;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reportMatcher;
@@ -87,6 +88,10 @@ public class EntityFilterTest {
         expect(metamodel.managedType(MethodAccessTestBean.class)).andReturn(entityType).anyTimes();
         expect(metamodel.entity(MethodAccessTestBean.class)).andReturn(entityType).anyTimes();
         expect(accessManager.getContext()).andReturn(securityContext).anyTimes();
+        accessManager.delayChecks();
+        expectLastCall().anyTimes();
+        accessManager.checkNow();
+        expectLastCall().anyTimes();
         expect(securityContext.getAliases()).andReturn(Collections.singleton(CURRENT_PRINCIPAL)).anyTimes();
         expect(securityContext.getAliasValue(CURRENT_PRINCIPAL)).andReturn(NAME).anyTimes();
         expect(entityType.getName()).andReturn(MethodAccessTestBean.class.getSimpleName()).anyTimes();

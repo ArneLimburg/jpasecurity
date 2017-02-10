@@ -419,7 +419,12 @@ public class EntityFilter {
                     }
                     queryPreparator.replace(nodeToReplace, queryPreparator.createNamedParameter(alias.getName()));
                 }
-                queryParameters.put(alias.getName(), securityContext.getAliasValue(alias));
+                try {
+                    AccessManager.Instance.get().delayChecks();
+                    queryParameters.put(alias.getName(), securityContext.getAliasValue(alias));
+                } finally {
+                    AccessManager.Instance.get().checkNow();
+                }
             }
         }
     }

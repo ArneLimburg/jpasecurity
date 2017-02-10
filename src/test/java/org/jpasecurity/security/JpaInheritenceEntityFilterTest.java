@@ -17,6 +17,7 @@ package org.jpasecurity.security;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 
 import java.util.Arrays;
@@ -71,6 +72,10 @@ public class JpaInheritenceEntityFilterTest {
         DefaultSecurityContext securityContext = new DefaultSecurityContext();
         securityContext.register(new Alias("CURRENT_PRINCIPAL"), "user");
         expect(accessManager.getContext()).andReturn(securityContext).anyTimes();
+        accessManager.delayChecks();
+        expectLastCall().anyTimes();
+        accessManager.checkNow();
+        expectLastCall().anyTimes();
         expect(metamodel.getManagedTypes()).andReturn(new HashSet<ManagedType<?>>(Arrays.<ManagedType<?>>asList(
                 abstractAclProtectedEntityType, aclProtectedEntityType, secondAclProtectedEntityType,
                 abstractEntityType, groupType))).anyTimes();
