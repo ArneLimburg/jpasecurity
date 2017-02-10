@@ -87,9 +87,11 @@ public abstract class AbstractAccessManager implements AccessManager {
                         + entity.getClass().getSimpleName()
                         + " is not accessible with access type " + accessType);
             }
-        } finally {
-            endCheck();
+        } catch (SecurityException e) {
+            abortCheck();
+            throw e;
         }
+        endCheck();
     }
 
     public SecurityContext getContext() {
@@ -149,6 +151,11 @@ public abstract class AbstractAccessManager implements AccessManager {
 
     private void startCheck() {
         checkInProgress = true;
+    }
+
+    private void abortCheck() {
+        checkInProgress = false;
+        entitiesToCheck.clear();
     }
 
     private void endCheck() {
