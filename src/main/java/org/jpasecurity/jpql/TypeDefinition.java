@@ -179,12 +179,14 @@ public class TypeDefinition {
                     return transform(typeDefinition);
                 }
             }
-            return null;
+            throw new PersistenceException("No type found for alias " + getFilterAlias());
         }
 
         protected abstract boolean filter(TypeDefinition typeDefinition);
 
         protected abstract T transform(TypeDefinition typeDefinition);
+
+        protected abstract Alias getFilterAlias();
     }
 
     public static class AliasTypeFilter extends Filter<AliasTypeFilter, TypeDefinition> {
@@ -202,6 +204,11 @@ public class TypeDefinition {
         @Override
         protected TypeDefinition transform(TypeDefinition typeDefinition) {
             return typeDefinition;
+        }
+
+        @Override
+        protected Alias getFilterAlias() {
+            return alias;
         }
     }
 
@@ -250,6 +257,11 @@ public class TypeDefinition {
             }
             return result;
         }
+
+        @Override
+        protected Alias getFilterAlias() {
+            return new Alias(pathElements[0]);
+        }
     }
 
     public static class ManagedTypeFilter extends Filter<ManagedTypeFilter, ManagedType<?>> {
@@ -287,6 +299,11 @@ public class TypeDefinition {
             } else {
                 return (ManagedType<?>)((SingularAttribute<?, ?>)attribute).getType();
             }
+        }
+
+        @Override
+        protected Alias getFilterAlias() {
+            return filter.getFilterAlias();
         }
     }
 }
