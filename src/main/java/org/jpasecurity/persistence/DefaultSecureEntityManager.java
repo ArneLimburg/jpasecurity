@@ -62,6 +62,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     private SecureEntityManagerFactory entityManagerFactory;
     private AccessManager accessManager;
     private CriteriaEntityFilter entityFilter;
+    private boolean closed = false;
 
     protected DefaultSecureEntityManager(SecureEntityManagerFactory parent,
                                          EntityManager entityManager,
@@ -140,6 +141,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     public void joinTransaction() {
         AccessManager.Instance.register(accessManager);
         super.joinTransaction();
+        unregisterAccessManagerAfterTransaction();
     }
 
     public void refresh(Object entity) {
@@ -215,10 +217,8 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         try {
             super.close();
         } finally {
-            TransactionSynchronizationRegistry transaction = getTransactionSynchronizationRegistry();
-            if (isTransactionActive(transaction)) {
-                unregisterAccessManagerAfterTransaction(transaction);
-            } else {
+            closed = true;
+            if (!isTransactionActive()) {
                 AccessManager.Instance.unregister(accessManager);
             }
         }
@@ -391,19 +391,22 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
     }
 
-    private boolean isTransactionActive(TransactionSynchronizationRegistry transaction) {
+    private boolean isTransactionActive() {
+        TransactionSynchronizationRegistry transaction = getTransactionSynchronizationRegistry();
         return transaction != null && transaction.getTransactionKey() != null;
     }
 
-    private void unregisterAccessManagerAfterTransaction(TransactionSynchronizationRegistry transaction) {
-        transaction.registerInterposedSynchronization(new Synchronization() {
+    private void unregisterAccessManagerAfterTransaction() {
+        getTransactionSynchronizationRegistry().registerInterposedSynchronization(new Synchronization() {
             @Override
             public void beforeCompletion() {
                 // nothing to do
             }
             @Override
             public void afterCompletion(int status) {
-                AccessManager.Instance.unregister(accessManager);
+                if (closed) {
+                    AccessManager.Instance.unregister(accessManager);
+                }
             }
         });
     }
