@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -458,7 +459,8 @@ public class EntityFilter {
 
     private Map<Path, Class<?>> getSelectedEntityTypes(JpqlCompiledStatement statement) {
         Set<TypeDefinition> typeDefinitions = statement.getTypeDefinitions();
-        Map<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
+        //ToDo: change to HashMap then moving to java 8
+        Map<Path, Class<?>> selectedTypes = new LinkedHashMap<Path, Class<?>>();
         // first process all non-conditional paths
         for (Path selectedPath: statement.getSelectedPaths()) {
             if (!(selectedPath instanceof ConditionalPath)) {
