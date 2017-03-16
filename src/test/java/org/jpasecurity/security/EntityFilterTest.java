@@ -15,6 +15,7 @@
  */
 package org.jpasecurity.security;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
@@ -188,13 +189,12 @@ public class EntityFilterTest {
                             + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child";
         String restrictedQuery = "SELECT  CASE tb.name WHEN 'parent' THEN child.id WHEN 'child' THEN child.parent.id "
                                  + "ELSE tb.id END FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child "
-                                 + " WHERE (( NOT (tb.name = 'parent') OR (child.name = :CURRENT_PRINCIPAL))"
-                                 + " AND ( NOT ( NOT (tb.name = 'parent') AND  NOT (tb.name = 'child'))"
-                                 + " OR (tb.name = :CURRENT_PRINCIPAL))"
-                                 + " AND ( NOT ( NOT (tb.name = 'parent') AND (tb.name = 'child'))"
-                                 + " OR (child.parent.name = :CURRENT_PRINCIPAL)))";
+                                 + " WHERE (( NOT ( NOT (tb.name = 'parent') AND  NOT (tb.name = 'child'))"
+                                 + " OR (tb.name = :CURRENT_PRINCIPAL)) AND ( NOT ( NOT (tb.name = 'parent')"
+                                 + " AND (tb.name = 'child')) OR (child.parent.name = :CURRENT_PRINCIPAL))"
+                                 + " AND ( NOT (tb.name = 'parent') OR (child.name = :CURRENT_PRINCIPAL)))";
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
-        assertEquals(restrictedQuery, result.getQuery().trim());
+        assertThat(result.getQuery().trim()).isEqualTo(restrictedQuery);
     }
 
     @Test
@@ -205,11 +205,11 @@ public class EntityFilterTest {
         String restrictedQuery = "SELECT  CASE  WHEN child IS  NULL  THEN tb.id "
                                  + "WHEN child.name = :name THEN child.id " + "ELSE child.parent.id END "
                                  + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child "
-                                 + " WHERE (( NOT (child IS  NULL ) OR (tb.name = :CURRENT_PRINCIPAL))"
-                                 + " AND ( NOT ( NOT (child IS  NULL ) AND  NOT (child.name = :name))"
+                                 + " WHERE (( NOT ( NOT (child IS  NULL ) AND  NOT (child.name = :name))"
                                  + " OR (child.parent.name = :CURRENT_PRINCIPAL))"
                                  + " AND ( NOT ( NOT (child IS  NULL ) AND (child.name = :name))"
-                                 + " OR (child.name = :CURRENT_PRINCIPAL)))";
+                                 + " OR (child.name = :CURRENT_PRINCIPAL)) AND ( NOT (child IS  NULL )"
+                                 + " OR (tb.name = :CURRENT_PRINCIPAL)))";
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
@@ -222,20 +222,24 @@ public class EntityFilterTest {
         String restrictedQuery = "SELECT  COALESCE(parent.name,  KEY(related).name,  VALUE(related).name, tb.name) "
                                  + " FROM MethodAccessTestBean tb"
                                  + " LEFT OUTER JOIN tb.parent parent  LEFT OUTER JOIN tb.related related "
-                                 + " WHERE (( NOT ( NOT (parent.name IS NOT NULL ) AND"
-                                 + "  NOT ( KEY(related).name IS NOT NULL ) AND"
-                                 + "  NOT ( VALUE(related).name IS NOT NULL ) AND (tb.name IS NOT NULL ))"
+                                 + " WHERE (( NOT ( NOT (parent.name IS NOT NULL )"
+                                 + " AND  NOT ( KEY(related).name IS NOT NULL )"
+                                 + " AND  NOT ( VALUE(related).name IS NOT NULL )"
+                                 + " AND  NOT (tb.name IS NOT NULL ))"
                                  + " OR (tb.name = :CURRENT_PRINCIPAL))"
-                                 + " AND ( NOT (parent.name IS NOT NULL ) OR (parent.name = :CURRENT_PRINCIPAL))"
-                                 + " AND ( NOT ( NOT (parent.name IS NOT NULL ) AND ( KEY(related).name IS NOT NULL ))"
+                                 + " AND ( NOT ( NOT (parent.name IS NOT NULL )"
+                                 + " AND  NOT ( KEY(related).name IS NOT NULL )"
+                                 + " AND  NOT ( VALUE(related).name IS NOT NULL )"
+                                 + " AND (tb.name IS NOT NULL )) OR (tb.name = :CURRENT_PRINCIPAL))"
+                                 + " AND ( NOT ( NOT (parent.name IS NOT NULL )"
+                                 + " AND  NOT ( KEY(related).name IS NOT NULL )"
+                                 + " AND ( VALUE(related).name IS NOT NULL ))"
                                  + " OR (related.name = :CURRENT_PRINCIPAL))"
-                                 + " AND ( NOT ( NOT (parent.name IS NOT NULL ) AND"
-                                 + "  NOT ( KEY(related).name IS NOT NULL ) AND"
-                                 + "  NOT ( VALUE(related).name IS NOT NULL ) AND"
-                                 + "  NOT (tb.name IS NOT NULL )) OR (tb.name = :CURRENT_PRINCIPAL))"
-                                 + " AND ( NOT ( NOT (parent.name IS NOT NULL ) AND"
-                                 + "  NOT ( KEY(related).name IS NOT NULL ) AND ( VALUE(related).name IS NOT NULL ))"
-                                 + " OR (related.name = :CURRENT_PRINCIPAL)))";
+                                 + " AND ( NOT ( NOT (parent.name IS NOT NULL )"
+                                 + " AND ( KEY(related).name IS NOT NULL ))"
+                                 + " OR (related.name = :CURRENT_PRINCIPAL))"
+                                 + " AND ( NOT (parent.name IS NOT NULL )"
+                                 + " OR (parent.name = :CURRENT_PRINCIPAL)))";
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
@@ -284,15 +288,15 @@ public class EntityFilterTest {
                                  + "ELSE child.parent.id END, "
                                  + "tb.name "
                                  + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child  "
-                                 + "WHERE ((tb.name = :CURRENT_PRINCIPAL) "
-                                 + "AND ( NOT ( NOT ( TYPE(child)  = TestBeanSubclass )"
-                                 + " AND ( TYPE(child)  = MethodAccessTestBean ))"
-                                 + " OR (child.name = :CURRENT_PRINCIPAL)) "
-                                 + "AND ( NOT ( NOT ( TYPE(child)  = TestBeanSubclass )"
+                                 + "WHERE (( NOT ( NOT ( TYPE(child)  = TestBeanSubclass )"
                                  + " AND  NOT ( TYPE(child)  = MethodAccessTestBean ))"
-                                 + " OR (child.parent.name = :CURRENT_PRINCIPAL)))";
+                                 + " OR (child.parent.name = :CURRENT_PRINCIPAL))"
+                                 + " AND ( NOT ( NOT ( TYPE(child)  = TestBeanSubclass )"
+                                 + " AND ( TYPE(child)  = MethodAccessTestBean ))"
+                                 + " OR (child.name = :CURRENT_PRINCIPAL))"
+                                 + " AND (tb.name = :CURRENT_PRINCIPAL))";
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
-        assertEquals(restrictedQuery, result.getQuery().trim());
+        assertThat(result.getQuery().trim()).isEqualTo(restrictedQuery);
     }
 
     @Test
