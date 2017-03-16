@@ -180,7 +180,7 @@ public class EntityFilterTest {
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
-     
+
     @Test
     public void filterSimpleCaseQuery() {
         String plainQuery = "SELECT CASE tb.name "
@@ -196,7 +196,7 @@ public class EntityFilterTest {
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
-     
+
     @Test
     public void filterCaseQuery() {
         String plainQuery = "SELECT CASE WHEN child IS NULL THEN tb.id "
@@ -213,7 +213,7 @@ public class EntityFilterTest {
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
-     
+
     @Test
     public void filterCoalesceQuery() {
         String plainQuery = "SELECT COALESCE(parent.name, KEY(related).name, VALUE(related).name, tb.name) "
@@ -248,7 +248,7 @@ public class EntityFilterTest {
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
-     
+
     @Test
     public void filterConstructorQuery() {
         String plainQuery = "SELECT new org.jpasecurity.model.MethodAccessTestBean(tb.id, p) "
@@ -270,7 +270,7 @@ public class EntityFilterTest {
         assertEquals(MethodAccessTestBean.class, result.getConstructorArgReturnType());
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
-     
+
     @Test
     public void filterConstructorQueryWithCase() {
         String plainQuery = "SELECT new org.jpasecurity.model.MethodAccessTestBean("
@@ -327,7 +327,7 @@ public class EntityFilterTest {
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
 
-     
+
     @Test
     public void filterEntryQuery() {
         String plainQuery = "SELECT ENTRY(related) FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.related related";
