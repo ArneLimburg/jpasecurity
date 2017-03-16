@@ -15,7 +15,6 @@
  */
 package org.jpasecurity.security;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
@@ -25,6 +24,8 @@ import static org.easymock.EasyMock.reportMatcher;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 
 import org.easymock.IAnswer;
 import org.easymock.IArgumentMatcher;
@@ -194,7 +195,7 @@ public class EntityFilterTest {
                                  + " AND (tb.name = 'child')) OR (child.parent.name = :CURRENT_PRINCIPAL))"
                                  + " AND ( NOT (tb.name = 'parent') OR (child.name = :CURRENT_PRINCIPAL)))";
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
-        assertThat(result.getQuery().trim()).isEqualTo(restrictedQuery);
+        assertEquals(result.getQuery().trim(), restrictedQuery);
     }
 
     @Test
@@ -296,7 +297,8 @@ public class EntityFilterTest {
                                  + " OR (child.name = :CURRENT_PRINCIPAL))"
                                  + " AND (tb.name = :CURRENT_PRINCIPAL))";
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
-        assertThat(result.getQuery().trim()).isEqualTo(restrictedQuery);
+        assertEquals(restrictedQuery, result.getQuery().trim());
+        assertThat(result.getQuery().trim(), is(restrictedQuery));
     }
 
     @Test
