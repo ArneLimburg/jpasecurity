@@ -41,7 +41,6 @@ import org.jpasecurity.model.MethodAccessTestBean;
 import org.jpasecurity.security.rules.AccessRulesCompiler;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -181,7 +180,7 @@ public class EntityFilterTest {
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
-    @Ignore
+     
     @Test
     public void filterSimpleCaseQuery() {
         String plainQuery = "SELECT CASE tb.name "
@@ -197,7 +196,7 @@ public class EntityFilterTest {
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
-    @Ignore
+     
     @Test
     public void filterCaseQuery() {
         String plainQuery = "SELECT CASE WHEN child IS NULL THEN tb.id "
@@ -214,7 +213,7 @@ public class EntityFilterTest {
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
-    @Ignore
+     
     @Test
     public void filterCoalesceQuery() {
         String plainQuery = "SELECT COALESCE(parent.name, KEY(related).name, VALUE(related).name, tb.name) "
@@ -249,7 +248,7 @@ public class EntityFilterTest {
         FilterResult<String> result = entityFilter.filterQuery(plainQuery, AccessType.READ);
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
-    @Ignore
+     
     @Test
     public void filterConstructorQuery() {
         String plainQuery = "SELECT new org.jpasecurity.model.MethodAccessTestBean(tb.id, p) "
@@ -271,7 +270,7 @@ public class EntityFilterTest {
         assertEquals(MethodAccessTestBean.class, result.getConstructorArgReturnType());
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
-    @Ignore
+     
     @Test
     public void filterConstructorQueryWithCase() {
         String plainQuery = "SELECT new org.jpasecurity.model.MethodAccessTestBean("
@@ -285,10 +284,10 @@ public class EntityFilterTest {
                                  + "ELSE child.parent.id END, "
                                  + "tb.name "
                                  + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child  "
-                                 + "WHERE (( NOT ( NOT ( TYPE(child)  = TestBeanSubclass )"
+                                 + "WHERE ((tb.name = :CURRENT_PRINCIPAL) "
+                                 + "AND ( NOT ( NOT ( TYPE(child)  = TestBeanSubclass )"
                                  + " AND ( TYPE(child)  = MethodAccessTestBean ))"
                                  + " OR (child.name = :CURRENT_PRINCIPAL)) "
-                                 + "AND (tb.name = :CURRENT_PRINCIPAL) "
                                  + "AND ( NOT ( NOT ( TYPE(child)  = TestBeanSubclass )"
                                  + " AND  NOT ( TYPE(child)  = MethodAccessTestBean ))"
                                  + " OR (child.parent.name = :CURRENT_PRINCIPAL)))";
@@ -328,7 +327,7 @@ public class EntityFilterTest {
         assertEquals(restrictedQuery, result.getQuery().trim());
     }
 
-    @Ignore
+     
     @Test
     public void filterEntryQuery() {
         String plainQuery = "SELECT ENTRY(related) FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.related related";
