@@ -1,4 +1,4 @@
-#JPA Security
+# JPA Security
 JPA Security is an Access Control Solution for the Java Persistence API (JPA). Its features include:
 
 * High Performance querying: With JPA Security your access control is performed in the database. You may query the database for all objects of a certain type and will get only the objects you have read access for. This filtering occurs in the database. Unaccessible queried objects will not be loaded into memory.
