@@ -71,10 +71,6 @@ public class DoubleKeyHashMap<A, B, V> implements Map<DoubleKey<A, B>, V> {
         return store.remove(key);
     }
 
-    public V remove(A keyA, B keyB) {
-        return store.remove(new DoubleKey<A, B>(keyA, keyB));
-    }
-
     public void clear() {
         store.clear();
     }
