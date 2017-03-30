@@ -659,4 +659,35 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <profiles>
+        <profile>
+            <id>hibernate</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>provider</name>
+                    <value>org.hibernate.ejb.HibernatePersistence</value>
+                </property>
+            </activation>
+        </profile>
+        <profile>
+            <id>eclipselink</id>
+            <activation>
+                <property>
+                    <name>provider</name>
+                    <value>org.eclipse.persistence.jpa.PersistenceProvider</value>
+                </property>
+            </activation>
+        </profile>
+        <profile>
+            <id>openjpa</id>
+            <activation>
+                <property>
+                    <name>provider</name>
+                    <value>org.apache.openjpa.persistence.PersistenceProviderImpl</value>
+                </property>
+            </activation>
+        </profile>
+
+    </profiles>
 </project>
