@@ -30,10 +30,12 @@ import org.jpasecurity.model.MethodAccessAnnotationTestBean;
 import org.jpasecurity.model.acl.PrivilegeType;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.Test;
+import org.junit.Ignore;
 
 /**
  * @author Arne Limburg
  */
+@Ignore
 public class QueryTest {
 
     public static final String USER1 = "user1";
