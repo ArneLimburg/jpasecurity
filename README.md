@@ -8,4 +8,4 @@ JPA Security is an Access Control Solution for the Java Persistence API (JPA). I
 * Easy Extensibility: With the extensibility of JPA Security it is easy to provide your own access control paradigm, access rules storage or login mechanism.
 
 
-© 2008-2011 JPA Security
+© 2008-2017 JPA Security
