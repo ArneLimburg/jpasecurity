@@ -31,11 +31,13 @@ import org.jpasecurity.model.ParentTestBean;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.jpasecurity.util.ReflectionUtils;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
+@Ignore
 public class PropertyAccessTest {
 
     public static final String USER1 = "user1";

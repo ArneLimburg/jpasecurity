@@ -30,8 +30,9 @@ import javax.persistence.criteria.Selection;
 import org.jpasecurity.persistence.AbstractEntityTestCase;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
-
+@Ignore
 public class CriteriaBuilderTest extends AbstractEntityTestCase {
 
     private static final String EMAIL = "test@test.org";

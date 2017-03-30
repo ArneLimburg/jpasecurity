@@ -30,11 +30,13 @@ import org.jpasecurity.model.acl.User;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
+@Ignore
 public class EntityLifecycleTest {
 
     public static final String USER = "user";

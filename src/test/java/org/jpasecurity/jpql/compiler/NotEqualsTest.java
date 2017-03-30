@@ -22,6 +22,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.jpasecurity.contacts.model.User;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -29,6 +30,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Michael Kotten
  */
+@Ignore
 public class NotEqualsTest {
 
     @Test(expected = SecurityException.class)

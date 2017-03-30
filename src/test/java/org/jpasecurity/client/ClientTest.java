@@ -41,6 +41,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /** @author Arne Limburg */
+@Ignore
 public class ClientTest extends AbstractEntityTestCase {
 
     private static final String EMAIL = "test@test.org";
