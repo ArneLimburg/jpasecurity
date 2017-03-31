@@ -132,12 +132,14 @@ public abstract class AbstractAccessManager implements AccessManager {
             checksDelayed--;
         }
         if (!areChecksDelayed() && !areChecksDisabled() && !entitiesToCheck.isEmpty()) {
-            Iterator<Entry<Object, AccessType>> iterator = entitiesToCheck.entrySet().iterator();
-            Entry<Object, AccessType> entry = iterator.next();
-            AccessType accessType = entry.getValue();
-            Object entity = entry.getKey();
-            iterator.remove();
-            checkAccess(accessType, entity);
+            do {
+                Iterator<Entry<Object, AccessType>> iterator = entitiesToCheck.entrySet().iterator();
+                Entry<Object, AccessType> entry = iterator.next();
+                AccessType accessType = entry.getValue();
+                Object entity = entry.getKey();
+                checkAccess(accessType, entity);
+                entitiesToCheck.remove(entity);
+            } while (!entitiesToCheck.isEmpty());
         }
     }
 
@@ -160,8 +162,5 @@ public abstract class AbstractAccessManager implements AccessManager {
 
     private void endCheck() {
         checkInProgress = false;
-        if (!areChecksDelayed()) {
-            checkNow();
-        }
     }
 }
