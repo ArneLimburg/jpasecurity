@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.FlushModeType;
 import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.Query;
 import javax.persistence.metamodel.BasicType;
@@ -142,6 +143,7 @@ public class EntityManagerEvaluatorTest {
                 public Query answer() throws Throwable {
                     Query mock = createMock(Query.class);
                     expect(mock.setParameter(anyObject(String.class), anyObject())).andReturn(mock).anyTimes();
+                    expect(mock.setFlushMode(FlushModeType.COMMIT)).andReturn(mock).anyTimes();
                     expect(mock.getResultList()).andReturn(Collections.emptyList());
                     replay(mock);
                     return mock;
