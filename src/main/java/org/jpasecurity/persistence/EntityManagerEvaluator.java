@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.FlushModeType;
 import javax.persistence.Query;
 
 import org.slf4j.Logger;
@@ -108,6 +109,7 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
                 query.setParameter(namedParameter.getKey(), namedParameter.getValue());
             }
             AccessManager.Instance.get().disableChecks();
+            query.setFlushMode(FlushModeType.COMMIT);
             List<?> result = query.getResultList();
             AccessManager.Instance.get().enableChecks();
             evaluationParameters.setResult(result);
