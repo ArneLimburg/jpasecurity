@@ -17,9 +17,12 @@ package org.jpasecurity;
 
 import static org.jpasecurity.util.Validate.notNull;
 
+import java.lang.reflect.Method;
+
 import javax.persistence.PersistenceUnitUtil;
 
 import org.hibernate.proxy.LazyInitializer;
+import org.jpasecurity.util.ReflectionUtils;
 
 /**
  * @author Arne Limburg
@@ -47,8 +50,9 @@ public class SecureBeanInitializer implements BeanInitializer {
             return new HibernateUnproxyUtil();
         } catch (ClassNotFoundException noHibernateInClassPath) {
             try {
-                Thread.currentThread().getContextClassLoader().loadClass("org.apache.openjpa.util.Proxy");
-                return new OpenJpaUnproxyUtil();
+                Class<?> proxyClass
+                    = Thread.currentThread().getContextClassLoader().loadClass("org.apache.openjpa.util.Proxy");
+                return new OpenJpaUnproxyUtil(proxyClass);
             } catch (ClassNotFoundException noOpenJpaInClassPath) {
                 return new NoOpUnproxyUtil();
             }
@@ -81,12 +85,20 @@ public class SecureBeanInitializer implements BeanInitializer {
         }
     }
 
-    private static class OpenJpaUnproxyUtil implements UnproxyUtil {
+    private static final class OpenJpaUnproxyUtil implements UnproxyUtil {
+
+        private Class<?> proxyClass;
+        private Method copyMethod;
+
+        private OpenJpaUnproxyUtil(Class<?> proxyClass) {
+            this.proxyClass = proxyClass;
+            copyMethod = ReflectionUtils.getMethod(proxyClass, "copy", Object.class);
+        }
 
         @Override
         public <T> T unproxy(T proxy) {
-            if (proxy instanceof org.apache.openjpa.util.Proxy) {
-                return (T)((org.apache.openjpa.util.Proxy)proxy).copy(proxy);
+            if (proxyClass.isInstance(proxy)) {
+                return (T)ReflectionUtils.invokeMethod(proxy, copyMethod, proxy);
             } else {
                 return proxy;
             }

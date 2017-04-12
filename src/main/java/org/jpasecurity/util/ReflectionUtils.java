@@ -112,6 +112,14 @@ public abstract class ReflectionUtils {
         return result;
     }
 
+    public static Method getMethod(Class<?> type, String name, Class<?>... parameterTypes) {
+        try {
+            return type.getMethod(name, parameterTypes);
+        } catch (Exception e) {
+            return throwThrowable(e);
+        }
+    }
+
     public static Object getFieldValue(Field field, Object target) {
         try {
             field.setAccessible(true);

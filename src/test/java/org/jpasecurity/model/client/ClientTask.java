@@ -18,7 +18,6 @@ package org.jpasecurity.model.client;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-import org.apache.commons.collections.CollectionUtils;
 
 /**
  *
@@ -33,7 +32,7 @@ public class ClientTask extends ProcessTaskInstance {
 
     public Client getClient() {
         // Without JPASecurity the below get method returns a list
-        if (CollectionUtils.isNotEmpty(getProcessInstanceProcessTaskInstances())) {
+        if (getProcessInstanceProcessTaskInstances() != null && !getProcessInstanceProcessTaskInstances().isEmpty()) {
             ClientProcessInstance processInstance = (ClientProcessInstance)
                     getProcessInstanceProcessTaskInstances().get(0).getProcessInstance();
             if (processInstance != null) {
