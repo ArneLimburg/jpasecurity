@@ -15,11 +15,10 @@
  */
 package org.jpasecurity.security;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reset;
-import static org.easymock.EasyMock.verify;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -166,15 +165,13 @@ public class AccessCheckTest {
                              + "WHERE (c.owner.name = :name) AND (c.owner.name = 'user') "
                              + "GROUP BY c.text  ORDER BY cSum";
 
-        expect(mock.isOpen()).andReturn(true).anyTimes();
-        expect(mock.getFlushMode()).andReturn(FlushModeType.AUTO);
-        expect(mock.createQuery(filteredQuery)).andReturn(createMock(Query.class));
-
-        replay(mock);
+        when(mock.isOpen()).thenReturn(true);
+        when(mock.getFlushMode()).thenReturn(FlushModeType.AUTO);
+        when(mock.createQuery(filteredQuery)).thenReturn(mock(Query.class));
 
         entityManager.createQuery(originalQuery);
 
-        verify(mock);
+        verify(mock).createQuery(filteredQuery);
     }
 
     @After

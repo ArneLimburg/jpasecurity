@@ -15,10 +15,9 @@
  */
 package org.jpasecurity.tags;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
@@ -42,7 +41,7 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
         entityTag = createEntityTag();
         entityTag.setPageContext(pageContext);
         entityTag.setEntity("testEntity");
-        accessManager = createMock(AccessManager.class);
+        accessManager = mock(AccessManager.class);
     }
 
     public void tearDown() {
@@ -53,56 +52,56 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
         initializeEntity(PageContext.PAGE_SCOPE);
         initializeAccessManager(PageContext.PAGE_SCOPE, true);
         assertEquals(Tag.EVAL_BODY_INCLUDE, entityTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(getAccessType(), entity);
     }
 
     public void testNotAccessiblePageScope() {
         initializeEntity(PageContext.PAGE_SCOPE);
         initializeAccessManager(PageContext.PAGE_SCOPE, false);
         assertEquals(Tag.SKIP_BODY, entityTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(getAccessType(), entity);
     }
 
     public void testAccessibleRequestScope() {
         initializeEntity(PageContext.REQUEST_SCOPE);
         initializeAccessManager(PageContext.REQUEST_SCOPE, true);
         assertEquals(Tag.EVAL_BODY_INCLUDE, entityTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(getAccessType(), entity);
     }
 
     public void testNotAccessibleRequestScope() {
         initializeEntity(PageContext.REQUEST_SCOPE);
         initializeAccessManager(PageContext.REQUEST_SCOPE, false);
         assertEquals(Tag.SKIP_BODY, entityTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(getAccessType(), entity);
     }
 
     public void testAccessibleSessionScope() {
         initializeEntity(PageContext.SESSION_SCOPE);
         initializeAccessManager(PageContext.SESSION_SCOPE, true);
         assertEquals(Tag.EVAL_BODY_INCLUDE, entityTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(getAccessType(), entity);
     }
 
     public void testNotAccessibleSessionScope() {
         initializeEntity(PageContext.SESSION_SCOPE);
         initializeAccessManager(PageContext.SESSION_SCOPE, false);
         assertEquals(Tag.SKIP_BODY, entityTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(getAccessType(), entity);
     }
 
     public void testAccessibleApplicationScope() {
         initializeEntity(PageContext.APPLICATION_SCOPE);
         initializeAccessManager(PageContext.APPLICATION_SCOPE, true);
         assertEquals(Tag.EVAL_BODY_INCLUDE, entityTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(getAccessType(), entity);
     }
 
     public void testNotAccessibleApplicationScope() {
         initializeEntity(PageContext.APPLICATION_SCOPE);
         initializeAccessManager(PageContext.APPLICATION_SCOPE, false);
         assertEquals(Tag.SKIP_BODY, entityTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(getAccessType(), entity);
     }
 
     public void testNoEntity() {
@@ -140,9 +139,8 @@ public abstract class AbstractEntityTagTestCase extends TestCase {
     public void initializeAccessManager(AccessManager accessManager, int scope, boolean accessible) {
         if (accessManager != null) {
             pageContext.setAttribute("accessManager", accessManager, scope);
-            expect(accessManager.isAccessible(getAccessType(), entity)).andReturn(accessible);
+            when(accessManager.isAccessible(getAccessType(), entity)).thenReturn(accessible);
         }
-        replay(accessManager);
     }
 
     public abstract AbstractEntityTag createEntityTag();

@@ -15,10 +15,9 @@
  */
 package org.jpasecurity.tags;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
@@ -44,7 +43,7 @@ public class CreationTagTest extends TestCase {
         creationTag.setPageContext(pageContext);
         creationTag.setType("org.jpasecurity.model.TestEntity");
         creationTag.setParameters("param1, param2, 1, 2.3");
-        accessManager = createMock(AccessManager.class);
+        accessManager = mock(AccessManager.class);
     }
 
     public void tearDown() {
@@ -54,56 +53,55 @@ public class CreationTagTest extends TestCase {
     public void testAccessiblePageScope() {
         initializeAccessManager(PageContext.PAGE_SCOPE, true);
         assertEquals(Tag.EVAL_BODY_INCLUDE, creationTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(AccessType.CREATE, creationTag.getType(), param1, "param2", 1, FLOAT_VALUE);
     }
 
     public void testNotAccessiblePageScope() {
         initializeAccessManager(PageContext.PAGE_SCOPE, false);
         assertEquals(Tag.SKIP_BODY, creationTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(AccessType.CREATE, creationTag.getType(), param1, "param2", 1, FLOAT_VALUE);
     }
 
     public void testAccessibleRequestScope() {
         initializeAccessManager(PageContext.REQUEST_SCOPE, true);
         assertEquals(Tag.EVAL_BODY_INCLUDE, creationTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(AccessType.CREATE, creationTag.getType(), param1, "param2", 1, FLOAT_VALUE);
     }
 
     public void testNotAccessibleRequestScope() {
         initializeAccessManager(PageContext.REQUEST_SCOPE, false);
         assertEquals(Tag.SKIP_BODY, creationTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(AccessType.CREATE, creationTag.getType(), param1, "param2", 1, FLOAT_VALUE);
     }
 
     public void testAccessibleSessionScope() {
         initializeAccessManager(PageContext.SESSION_SCOPE, true);
         assertEquals(Tag.EVAL_BODY_INCLUDE, creationTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(AccessType.CREATE, creationTag.getType(), param1, "param2", 1, FLOAT_VALUE);
     }
 
     public void testNotAccessibleSessionScope() {
         initializeAccessManager(PageContext.SESSION_SCOPE, false);
         assertEquals(Tag.SKIP_BODY, creationTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(AccessType.CREATE, creationTag.getType(), param1, "param2", 1, FLOAT_VALUE);
     }
 
     public void testAccessibleApplicationScope() {
         initializeAccessManager(PageContext.APPLICATION_SCOPE, true);
         assertEquals(Tag.EVAL_BODY_INCLUDE, creationTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(AccessType.CREATE, creationTag.getType(), param1, "param2", 1, FLOAT_VALUE);
     }
 
     public void testNotAccessibleApplicationScope() {
         initializeAccessManager(PageContext.APPLICATION_SCOPE, false);
         assertEquals(Tag.SKIP_BODY, creationTag.doStartTag());
-        verify(accessManager);
+        verify(accessManager).isAccessible(AccessType.CREATE, creationTag.getType(), param1, "param2", 1, FLOAT_VALUE);
     }
 
     public void initializeAccessManager(int scope, boolean accessible) {
         pageContext.setAttribute("param1", param1, scope);
         pageContext.setAttribute("accessManager", accessManager, scope);
-        expect(accessManager.isAccessible(AccessType.CREATE, creationTag.getType(), param1, "param2", 1, FLOAT_VALUE))
-            .andReturn(accessible);
-        replay(accessManager);
+        when(accessManager.isAccessible(AccessType.CREATE, creationTag.getType(), param1, "param2", 1, FLOAT_VALUE))
+            .thenReturn(accessible);
     }
 }

@@ -15,8 +15,7 @@
  */
 package org.jpasecurity;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
+import static org.mockito.Mockito.mock;
 
 import java.util.Map;
 
@@ -32,8 +31,7 @@ public class MockitoPersistenceProvider implements PersistenceProvider {
     public static PersistenceProvider getMock() {
         PersistenceProvider persistenceProvider = MOCKS.get();
         if (persistenceProvider == null) {
-            persistenceProvider = createMock(PersistenceProvider.class);
-            replay(persistenceProvider);
+            persistenceProvider = mock(PersistenceProvider.class);
             MOCKS.set(persistenceProvider);
         }
         return persistenceProvider;

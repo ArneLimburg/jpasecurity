@@ -15,11 +15,9 @@
  */
 package org.jpasecurity.security;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -56,26 +54,22 @@ public class JpaEntityFilterTest {
 
     @Before
     public void initialize() throws Exception {
-        metamodel = createMock(Metamodel.class);
-        EntityType contactType = createMock(EntityType.class);
-        SingularAttribute ownerAttribute = createMock(SingularAttribute.class);
-        accessManager = createMock(AccessManager.class);
-        expect(accessManager.getContext()).andReturn(new DefaultSecurityContext()).anyTimes();
-        accessManager.delayChecks();
-        expectLastCall().anyTimes();
-        accessManager.checkNow();
-        expectLastCall().anyTimes();
-        expect(contactType.getName()).andReturn(Contact.class.getSimpleName()).anyTimes();
-        expect(contactType.getJavaType()).andReturn((Class)Contact.class).anyTimes();
-        expect(metamodel.getEntities())
-            .andReturn(new HashSet<EntityType<?>>(Arrays.<EntityType<?>>asList(contactType))).anyTimes();
-        expect(metamodel.entity(Contact.class)).andReturn(contactType).anyTimes();
-        expect(metamodel.managedType(Contact.class)).andReturn(contactType).anyTimes();
-        expect(contactType.getAttributes()).andReturn(Collections.singleton(ownerAttribute)).anyTimes();
-        expect(contactType.getAttribute("owner")).andReturn(ownerAttribute).anyTimes();
-        expect(ownerAttribute.getName()).andReturn("owner").anyTimes();
-        expect(ownerAttribute.getJavaMember()).andReturn(Contact.class.getDeclaredField("owner")).anyTimes();
-        replay(metamodel, contactType, ownerAttribute, accessManager);
+        metamodel = mock(Metamodel.class);
+        EntityType contactType = mock(EntityType.class);
+        SingularAttribute ownerAttribute = mock(SingularAttribute.class);
+        accessManager = mock(AccessManager.class);
+        when(accessManager.getContext()).thenReturn(new DefaultSecurityContext());
+        when(contactType.getName()).thenReturn(Contact.class.getSimpleName());
+        when(contactType.getJavaType()).thenReturn((Class)Contact.class);
+        when(metamodel.getEntities())
+            .thenReturn(new HashSet<EntityType<?>>(Arrays.<EntityType<?>>asList(contactType)));
+        when(metamodel.entity(Contact.class)).thenReturn(contactType);
+        when(metamodel.managedType(Contact.class)).thenReturn(contactType);
+        when(contactType.getAttributes()).thenReturn(Collections.singleton(ownerAttribute));
+        when(contactType.getAttribute("owner")).thenReturn(ownerAttribute);
+        when(ownerAttribute.getName()).thenReturn("owner");
+        when(ownerAttribute.getJavaMember()).thenReturn(Contact.class.getDeclaredField("owner"));
+
         AccessManager.Instance.register(accessManager);
 
         JpqlParser parser = new JpqlParser();
@@ -93,9 +87,9 @@ public class JpaEntityFilterTest {
     @Test
     public void access() throws Exception {
         DefaultSecurityContext securityContext = (DefaultSecurityContext)AccessManager.Instance.get().getContext();
-        PersistenceUnitUtil persistenceUnitUtil = createMock(PersistenceUnitUtil.class);
-        expect(persistenceUnitUtil.isLoaded(anyObject())).andReturn(true).anyTimes();
-        replay(persistenceUnitUtil);
+        PersistenceUnitUtil persistenceUnitUtil = mock(PersistenceUnitUtil.class);
+        when(persistenceUnitUtil.isLoaded(any())).thenReturn(true);
+
         EntityFilter filter = new EntityFilter(metamodel, persistenceUnitUtil, accessRules);
         User john = new User("John");
         Contact contact = new Contact(john, "123456789");

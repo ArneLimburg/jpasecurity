@@ -15,10 +15,9 @@
  */
 package org.jpasecurity.jpql.compiler;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -148,25 +147,24 @@ public class AclValueIteratorTest {
     }
 
     private MappedPathEvaluator createPathEvaluator() throws NoSuchFieldException {
-        Metamodel metamodel = createMock(Metamodel.class);
-        PersistenceUnitUtil persistenceUnitUtil = createMock(PersistenceUnitUtil.class);
-        EntityType userType = createMock(EntityType.class);
-        EntityType groupType = createMock(EntityType.class);
-        Attribute groupsAttribute = createMock(Attribute.class);
-        Attribute fullHierarchyAttribute = createMock(Attribute.class);
-        expect(metamodel.managedType(User.class)).andReturn(userType).anyTimes();
-        expect(metamodel.managedType(Group.class)).andReturn(groupType).anyTimes();
-        expect(persistenceUnitUtil.isLoaded(anyObject())).andReturn(true).anyTimes();
-        expect(userType.getAttributes()).andReturn(Collections.singleton(groupsAttribute)).anyTimes();
-        expect(userType.getAttribute("groups")).andReturn(groupsAttribute).anyTimes();
-        expect(groupType.getAttributes()).andReturn(Collections.singleton(fullHierarchyAttribute)).anyTimes();
-        expect(groupType.getAttribute("fullHierarchy")).andReturn(fullHierarchyAttribute).anyTimes();
-        expect(groupsAttribute.getName()).andReturn("groups").anyTimes();
-        expect(groupsAttribute.getJavaMember()).andReturn(User.class.getDeclaredField("groups")).anyTimes();
-        expect(fullHierarchyAttribute.getName()).andReturn("fullHierarchy").anyTimes();
-        expect(fullHierarchyAttribute.getJavaMember())
-            .andReturn(Group.class.getDeclaredField("fullHierarchy")).anyTimes();
-        replay(metamodel, persistenceUnitUtil, userType, groupType, groupsAttribute, fullHierarchyAttribute);
+        Metamodel metamodel = mock(Metamodel.class);
+        PersistenceUnitUtil persistenceUnitUtil = mock(PersistenceUnitUtil.class);
+        EntityType userType = mock(EntityType.class);
+        EntityType groupType = mock(EntityType.class);
+        Attribute groupsAttribute = mock(Attribute.class);
+        Attribute fullHierarchyAttribute = mock(Attribute.class);
+        when(metamodel.managedType(User.class)).thenReturn(userType);
+        when(metamodel.managedType(Group.class)).thenReturn(groupType);
+        when(persistenceUnitUtil.isLoaded(any())).thenReturn(true);
+        when(userType.getAttributes()).thenReturn(Collections.singleton(groupsAttribute));
+        when(userType.getAttribute("groups")).thenReturn(groupsAttribute);
+        when(groupType.getAttributes()).thenReturn(Collections.singleton(fullHierarchyAttribute));
+        when(groupType.getAttribute("fullHierarchy")).thenReturn(fullHierarchyAttribute);
+        when(groupsAttribute.getName()).thenReturn("groups");
+        when(groupsAttribute.getJavaMember()).thenReturn(User.class.getDeclaredField("groups"));
+        when(fullHierarchyAttribute.getName()).thenReturn("fullHierarchy");
+        when(fullHierarchyAttribute.getJavaMember())
+            .thenReturn(Group.class.getDeclaredField("fullHierarchy"));
         return new MappedPathEvaluator(metamodel, persistenceUnitUtil);
     }
 }

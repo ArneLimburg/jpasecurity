@@ -15,9 +15,8 @@
  */
 package org.jpasecurity.security.rules;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -51,34 +50,32 @@ public class AccessRulesCompilerTest {
 
     @Test
     public void rulesOnInterfaces() {
-        SecurityContext securityContext = createMock(SecurityContext.class);
-        Metamodel metamodel = createMock(Metamodel.class);
-        EntityType parentTestBeanType = createMock(EntityType.class);
-        EntityType childTestBeanType = createMock(EntityType.class);
-        EntityType methodAccessTestBeanType = createMock(EntityType.class);
-        BasicType stringType = createMock(BasicType.class);
-        SingularAttribute nameAttribute = createMock(SingularAttribute.class);
-        expect(metamodel.getManagedTypes()).andReturn(new HashSet(Arrays.asList(
-                parentTestBeanType, childTestBeanType, methodAccessTestBeanType))).anyTimes();
-        expect(metamodel.getEntities()).andReturn(new HashSet(Arrays.asList(
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Metamodel metamodel = mock(Metamodel.class);
+        EntityType parentTestBeanType = mock(EntityType.class);
+        EntityType childTestBeanType = mock(EntityType.class);
+        EntityType methodAccessTestBeanType = mock(EntityType.class);
+        BasicType stringType = mock(BasicType.class);
+        SingularAttribute nameAttribute = mock(SingularAttribute.class);
+        when(metamodel.getManagedTypes()).thenReturn(new HashSet(Arrays.asList(
                 parentTestBeanType, childTestBeanType, methodAccessTestBeanType)));
-        expect(metamodel.managedType(ParentTestBean.class)).andReturn(parentTestBeanType).anyTimes();
-        expect(metamodel.managedType(ChildTestBean.class)).andReturn(childTestBeanType).anyTimes();
-        expect(metamodel.managedType(MethodAccessTestBean.class)).andReturn(methodAccessTestBeanType).anyTimes();
-        expect(parentTestBeanType.getName()).andReturn(ParentTestBean.class.getSimpleName()).anyTimes();
-        expect(parentTestBeanType.getJavaType()).andReturn(ParentTestBean.class).anyTimes();
-        expect(parentTestBeanType.getAttribute("name")).andReturn(nameAttribute);
-        expect(childTestBeanType.getName()).andReturn(ChildTestBean.class.getSimpleName()).anyTimes();
-        expect(childTestBeanType.getJavaType()).andReturn(ChildTestBean.class).anyTimes();
-        expect(childTestBeanType.getAttribute("name")).andReturn(nameAttribute);
-        expect(methodAccessTestBeanType.getName()).andReturn(MethodAccessTestBean.class.getSimpleName()).anyTimes();
-        expect(methodAccessTestBeanType.getJavaType()).andReturn(MethodAccessTestBean.class).anyTimes();
-        expect(methodAccessTestBeanType.getAttribute("name")).andReturn(nameAttribute);
-        expect(nameAttribute.getType()).andReturn(stringType).anyTimes();
-        expect(nameAttribute.getJavaType()).andReturn(String.class).anyTimes();
-        expect(stringType.getPersistenceType()).andReturn(PersistenceType.BASIC).anyTimes();
-        replay(securityContext, metamodel);
-        replay(parentTestBeanType, childTestBeanType, methodAccessTestBeanType, nameAttribute, stringType);
+        when(metamodel.getEntities()).thenReturn(new HashSet(Arrays.asList(
+                parentTestBeanType, childTestBeanType, methodAccessTestBeanType)));
+        when(metamodel.managedType(ParentTestBean.class)).thenReturn(parentTestBeanType);
+        when(metamodel.managedType(ChildTestBean.class)).thenReturn(childTestBeanType);
+        when(metamodel.managedType(MethodAccessTestBean.class)).thenReturn(methodAccessTestBeanType);
+        when(parentTestBeanType.getName()).thenReturn(ParentTestBean.class.getSimpleName());
+        when(parentTestBeanType.getJavaType()).thenReturn(ParentTestBean.class);
+        when(parentTestBeanType.getAttribute("name")).thenReturn(nameAttribute);
+        when(childTestBeanType.getName()).thenReturn(ChildTestBean.class.getSimpleName());
+        when(childTestBeanType.getJavaType()).thenReturn(ChildTestBean.class);
+        when(childTestBeanType.getAttribute("name")).thenReturn(nameAttribute);
+        when(methodAccessTestBeanType.getName()).thenReturn(MethodAccessTestBean.class.getSimpleName());
+        when(methodAccessTestBeanType.getJavaType()).thenReturn(MethodAccessTestBean.class);
+        when(methodAccessTestBeanType.getAttribute("name")).thenReturn(nameAttribute);
+        when(nameAttribute.getType()).thenReturn(stringType);
+        when(nameAttribute.getJavaType()).thenReturn(String.class);
+        when(stringType.getPersistenceType()).thenReturn(PersistenceType.BASIC);
         AccessRulesParser parser
             = new AccessRulesParser("interface", metamodel, securityContext, new XmlAccessRulesProvider("interface"));
         assertEquals(2, parser.parseAccessRules().size());
@@ -92,15 +89,13 @@ public class AccessRulesCompilerTest {
                     + "     WHERE e.email=CURRENT_PRINCIPAL AND cs.employee=e "
                     + "       AND cs.client= cd.clientRelation.client AND cs.endDate IS NULL "
                     + "       AND (cst.name <> 'Closed' OR cst.name IS NULL ))";
-        Metamodel metamodel = createMock(Metamodel.class);
-        EntityType clientTradeImportMonitorType = createMock(EntityType.class);
-        expect(metamodel.getEntities()).andReturn(Collections.<EntityType<?>>singleton(clientTradeImportMonitorType));
-        expect(clientTradeImportMonitorType.getName()).andReturn(ClientDetails.class.getSimpleName());
-        expect(clientTradeImportMonitorType.getJavaType()).andReturn(ClientDetails.class);
+        Metamodel metamodel = mock(Metamodel.class);
+        EntityType clientTradeImportMonitorType = mock(EntityType.class);
+        when(metamodel.getEntities()).thenReturn(Collections.<EntityType<?>>singleton(clientTradeImportMonitorType));
+        when(clientTradeImportMonitorType.getName()).thenReturn(ClientDetails.class.getSimpleName());
+        when(clientTradeImportMonitorType.getJavaType()).thenReturn(ClientDetails.class);
         JpqlParser parser = new JpqlParser();
         AccessRulesCompiler compiler = new AccessRulesCompiler(metamodel);
-
-        replay(metamodel, clientTradeImportMonitorType);
 
         JpqlAccessRule accessRule = parser.parseRule(rule);
         Collection<AccessRule> compiledRules = compiler.compile(accessRule);

@@ -15,12 +15,10 @@
  */
 package org.jpasecurity.xml;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -53,7 +51,7 @@ public class AbstractXmlParserTest {
 
     @Before
     public void initialize() {
-        ContentHandler contentHandler = createNiceMock(ContentHandler.class);
+        ContentHandler contentHandler = mock(ContentHandler.class);
         parser = new TestXmlParser(new DelegatingXmlHandler(contentHandler));
     }
 
@@ -65,13 +63,9 @@ public class AbstractXmlParserTest {
     @Test
     public void parse() throws IOException, SAXException {
         ContentHandler contentHandler = parser.getHandler().getContentHandler();
-        contentHandler.startElement(eq(""), eq(""), eq("test"), (Attributes)anyObject());
-        expectLastCall();
-        contentHandler.endElement(eq(""), eq(""), eq("test"));
-        expectLastCall();
-        replay(contentHandler);
         parser.parse(getClass().getResource("test.xml"));
-        verify(contentHandler);
+        verify(contentHandler).startElement(eq(""), eq(""), eq("test"), any(Attributes.class));
+        verify(contentHandler).endElement(eq(""), eq(""), eq("test"));
     }
 
     @Test(expected = FileNotFoundException.class)

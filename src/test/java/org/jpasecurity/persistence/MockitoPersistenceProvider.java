@@ -16,6 +16,8 @@
 package org.jpasecurity.persistence;
 
 import static java.lang.Thread.currentThread;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.net.URL;
 import java.util.Collections;
@@ -35,25 +37,23 @@ import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.ProviderUtil;
 
-import org.easymock.EasyMock;
-
 /**
  * @author Arne Limburg
  */
-public class EasyMockPersistenceProvider implements PersistenceProvider {
+public class MockitoPersistenceProvider implements PersistenceProvider {
 
     public EntityManagerFactory createEntityManagerFactory(String emName, @SuppressWarnings("rawtypes") Map map) {
         if (map != null
             && map.containsKey(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY)
             && getClass().getName().equals(map.get(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY))) {
-            return new EasyMockEntityManagerFactory();
+            return new MockitoEntityManagerFactory();
         }
         try {
             List<URL> persistenceXmlLocations
                 = Collections.list(currentThread().getContextClassLoader().getResources("META-INF/persistence.xml"));
             XmlParser xmlParser = new XmlParser(persistenceXmlLocations);
             if (getClass().getName().equals(xmlParser.parsePersistenceProvider(emName))) {
-                return new EasyMockEntityManagerFactory();
+                return new MockitoEntityManagerFactory();
             } else {
                 return null;
             }
@@ -67,25 +67,24 @@ public class EasyMockPersistenceProvider implements PersistenceProvider {
         return createEntityManagerFactory(info.getPersistenceUnitName(), map);
     }
 
-    private class EasyMockEntityManagerFactory implements EntityManagerFactory {
+    private class MockitoEntityManagerFactory implements EntityManagerFactory {
 
         private boolean open = true;
         private Metamodel metamodel;
         private CriteriaBuilder criteriaBuilder;
 
-        public EasyMockEntityManagerFactory() {
-            metamodel = EasyMock.createMock(Metamodel.class);
-            criteriaBuilder = EasyMock.createMock(CriteriaBuilder.class);
+        public MockitoEntityManagerFactory() {
+            metamodel = mock(Metamodel.class);
+            criteriaBuilder = mock(CriteriaBuilder.class);
         }
 
         public EntityManager createEntityManager() {
             if (!open) {
                 throw new IllegalStateException("already closed");
             }
-            EntityManager entityManager = EasyMock.createMock(EntityManager.class);
-            EasyMock.expect(entityManager.getCriteriaBuilder()).andReturn(criteriaBuilder).anyTimes();
-            EasyMock.expect(entityManager.getDelegate()).andReturn(entityManager).anyTimes();
-            EasyMock.replay(entityManager);
+            EntityManager entityManager = mock(EntityManager.class);
+            when(entityManager.getCriteriaBuilder()).thenReturn(criteriaBuilder);
+            when(entityManager.getDelegate()).thenReturn(entityManager);
             return entityManager;
         }
 

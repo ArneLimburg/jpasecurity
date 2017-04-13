@@ -15,11 +15,8 @@
  */
 package org.jpasecurity.security.authentication;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -49,7 +46,7 @@ public class AutodetectingSecurityContextTest {
 
     @Test
     public void autodetectAuthenticationProvider() {
-        final SecurityContext mock = createMock(SecurityContext.class);
+        final SecurityContext mock = mock(SecurityContext.class);
         AutodetectingSecurityContext authenticationProvider = new AutodetectingSecurityContext() {
             protected SecurityContext autodetectSecurityContext() {
                 return mock;
@@ -57,30 +54,27 @@ public class AutodetectingSecurityContextTest {
         };
 
         Object user = new Object();
-        expect(mock.getAliasValue(AbstractRoleBasedSecurityContext.CURRENT_PRINCIPAL)).andReturn(user);
-        expect(mock.getAliasValues(AbstractRoleBasedSecurityContext.CURRENT_ROLES)).andReturn(Collections.EMPTY_SET);
-        replay(mock);
+        when(mock.getAliasValue(AbstractRoleBasedSecurityContext.CURRENT_PRINCIPAL)).thenReturn(user);
+        when(mock.getAliasValues(AbstractRoleBasedSecurityContext.CURRENT_ROLES)).thenReturn(Collections.EMPTY_SET);
 
         assertSame(user, authenticationProvider.getAliasValue(new Alias("CURRENT_PRINCIPAL")));
         assertSame(Collections.EMPTY_SET, authenticationProvider.getAliasValues(new Alias("CURRENT_ROLES")));
-
-        verify(mock);
     }
 
     @Test
     public void autodetectEjbSecurityContext() throws Exception {
-        ClassLoader mockClassLoader = createMock(ClassLoader.class);
-        expect(mockClassLoader.loadClass("org.jpasecurity.spring.authentication.SpringSecurityContext"))
-            .andThrow(new ClassNotFoundException());
-        expect(mockClassLoader.loadClass("org.jpasecurity.security.authentication.CdiSecurityContext"))
-            .andThrow(new ClassNotFoundException());
-        expect(mockClassLoader.loadClass("org.jpasecurity.jsf.authentication.JsfSecurityContext"))
-            .andThrow(new ClassNotFoundException());
-        expect(mockClassLoader.loadClass("org.jpasecurity.security.authentication.EjbSecurityContext"))
-            .andReturn((Class)EjbSecurityContext.class);
-        expect(mockClassLoader.getResources("jndi.properties")).andReturn(Collections.<URL>emptyEnumeration());
-        expect(mockClassLoader.loadClass(javaURLContextFactory.class.getName()))
-            .andReturn((Class)javaURLContextFactory.class);
+        ClassLoader mockClassLoader = mock(ClassLoader.class);
+        when(mockClassLoader.loadClass("org.jpasecurity.spring.authentication.SpringSecurityContext"))
+            .thenThrow(new ClassNotFoundException());
+        when(mockClassLoader.loadClass("org.jpasecurity.security.authentication.CdiSecurityContext"))
+            .thenThrow(new ClassNotFoundException());
+        when(mockClassLoader.loadClass("org.jpasecurity.jsf.authentication.JsfSecurityContext"))
+            .thenThrow(new ClassNotFoundException());
+        when(mockClassLoader.loadClass("org.jpasecurity.security.authentication.EjbSecurityContext"))
+            .thenReturn((Class)EjbSecurityContext.class);
+        when(mockClassLoader.getResources("jndi.properties")).thenReturn(Collections.<URL>emptyEnumeration());
+        when(mockClassLoader.loadClass(javaURLContextFactory.class.getName()))
+            .thenReturn((Class)javaURLContextFactory.class);
 
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY, javaURLContextFactory.class.getName());
         System.setProperty(Context.URL_PKG_PREFIXES, NamingContext.class.getPackage().getName());
@@ -88,12 +82,11 @@ public class AutodetectingSecurityContextTest {
         InitialContext initialContext = new InitialContext();
         initialContext.createSubcontext("java:comp");
 
-        EJBContext ejbContext = createNiceMock(EJBContext.class);
+        EJBContext ejbContext = mock(EJBContext.class);
         initialContext.bind("java:comp/EJBContext", ejbContext);
 
         AutodetectingSecurityContext securityContext = new AutodetectingSecurityContext();
 
-        replay(mockClassLoader);
         Thread.currentThread().setContextClassLoader(mockClassLoader);
         SecurityContext authenticationProvider = securityContext.autodetectSecurityContext();
         assertTrue(authenticationProvider instanceof EjbSecurityContext);
@@ -101,18 +94,17 @@ public class AutodetectingSecurityContextTest {
 
     @Test
     public void fallbackToDefaultAuthenticationProvider() throws Exception {
-        ClassLoader mockClassLoader = createMock(ClassLoader.class);
-        expect(mockClassLoader.loadClass("org.jpasecurity.spring.authentication.SpringSecurityContext"))
-            .andThrow(new ClassNotFoundException());
-        expect(mockClassLoader.loadClass("org.jpasecurity.security.authentication.CdiSecurityContext"))
-            .andThrow(new ClassNotFoundException());
-        expect(mockClassLoader.loadClass("org.jpasecurity.jsf.authentication.JsfSecurityContext"))
-            .andThrow(new ClassNotFoundException());
-        expect(mockClassLoader.loadClass("org.jpasecurity.security.authentication.EjbSecurityContext"))
-            .andThrow(new ClassNotFoundException());
+        ClassLoader mockClassLoader = mock(ClassLoader.class);
+        when(mockClassLoader.loadClass("org.jpasecurity.spring.authentication.SpringSecurityContext"))
+            .thenThrow(new ClassNotFoundException());
+        when(mockClassLoader.loadClass("org.jpasecurity.security.authentication.CdiSecurityContext"))
+            .thenThrow(new ClassNotFoundException());
+        when(mockClassLoader.loadClass("org.jpasecurity.jsf.authentication.JsfSecurityContext"))
+            .thenThrow(new ClassNotFoundException());
+        when(mockClassLoader.loadClass("org.jpasecurity.security.authentication.EjbSecurityContext"))
+            .thenThrow(new ClassNotFoundException());
         AutodetectingSecurityContext securityContext = new AutodetectingSecurityContext();
 
-        replay(mockClassLoader);
         Thread.currentThread().setContextClassLoader(mockClassLoader);
         SecurityContext context = securityContext.autodetectSecurityContext();
         assertTrue(context instanceof DefaultSecurityContext);

@@ -15,21 +15,14 @@
  */
 package org.jpasecurity.security;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.getCurrentArguments;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reportMatcher;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 
-import org.easymock.IAnswer;
-import org.easymock.IArgumentMatcher;
-import org.easymock.internal.ArgumentToString;
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
@@ -44,6 +37,8 @@ import org.jpasecurity.security.rules.AccessRulesCompiler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,68 +70,63 @@ public class EntityFilterTest {
 
     @Before
     public void initialize() throws ParseException, NoSuchMethodException {
-        Metamodel metamodel = createMock(Metamodel.class);
-        PersistenceUnitUtil persistenceUnitUtil = createMock(PersistenceUnitUtil.class);
-        accessManager = createMock(AccessManager.class);
-        SecurityContext securityContext = createMock(SecurityContext.class);
-        EntityType entityType = createMock(EntityType.class);
-        SingularAttribute idAttribute = createMock(SingularAttribute.class);
-        SingularAttribute nameAttribute = createMock(SingularAttribute.class);
-        SingularAttribute parentAttribute = createMock(SingularAttribute.class);
-        PluralAttribute childrenAttribute = createMock(PluralAttribute.class);
-        MapAttribute relatedAttribute = createMock(MapAttribute.class);
-        Type integerType = createMock(Type.class);
-        expect(metamodel.getEntities()).andReturn(Collections.<EntityType<?>>singleton(entityType)).anyTimes();
-        expect(metamodel.managedType(MethodAccessTestBean.class)).andReturn(entityType).anyTimes();
-        expect(metamodel.entity(MethodAccessTestBean.class)).andReturn(entityType).anyTimes();
-        expect(accessManager.getContext()).andReturn(securityContext).anyTimes();
-        accessManager.delayChecks();
-        expectLastCall().anyTimes();
-        accessManager.checkNow();
-        expectLastCall().anyTimes();
-        expect(securityContext.getAliases()).andReturn(Collections.singleton(CURRENT_PRINCIPAL)).anyTimes();
-        expect(securityContext.getAliasValue(CURRENT_PRINCIPAL)).andReturn(NAME).anyTimes();
-        expect(entityType.getName()).andReturn(MethodAccessTestBean.class.getSimpleName()).anyTimes();
-        expect(entityType.getJavaType()).andReturn((Class)MethodAccessTestBean.class).anyTimes();
-        expect(entityType.getAttributes()).andReturn(new HashSet(Arrays.asList(
+        Metamodel metamodel = mock(Metamodel.class);
+        PersistenceUnitUtil persistenceUnitUtil = mock(PersistenceUnitUtil.class);
+        accessManager = mock(AccessManager.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        EntityType entityType = mock(EntityType.class);
+        SingularAttribute idAttribute = mock(SingularAttribute.class);
+        SingularAttribute nameAttribute = mock(SingularAttribute.class);
+        SingularAttribute parentAttribute = mock(SingularAttribute.class);
+        PluralAttribute childrenAttribute = mock(PluralAttribute.class);
+        MapAttribute relatedAttribute = mock(MapAttribute.class);
+        Type integerType = mock(Type.class);
+        when(metamodel.getEntities()).thenReturn(Collections.<EntityType<?>>singleton(entityType));
+        when(metamodel.managedType(MethodAccessTestBean.class)).thenReturn(entityType);
+        when(metamodel.entity(MethodAccessTestBean.class)).thenReturn(entityType);
+        when(accessManager.getContext()).thenReturn(securityContext);
+        when(securityContext.getAliases()).thenReturn(Collections.singleton(CURRENT_PRINCIPAL));
+        when(securityContext.getAliasValue(CURRENT_PRINCIPAL)).thenReturn(NAME);
+        when(entityType.getName()).thenReturn(MethodAccessTestBean.class.getSimpleName());
+        when(entityType.getJavaType()).thenReturn((Class)MethodAccessTestBean.class);
+        when(entityType.getAttributes()).thenReturn(new HashSet(Arrays.asList(
                 idAttribute, nameAttribute, parentAttribute, childrenAttribute, relatedAttribute)));
-        expect(entityType.getAttribute("id")).andReturn(idAttribute).anyTimes();
-        expect(entityType.getAttribute("name")).andReturn(nameAttribute).anyTimes();
-        expect(entityType.getAttribute("parent")).andReturn(parentAttribute).anyTimes();
-        expect(entityType.getAttribute("children")).andReturn(childrenAttribute).anyTimes();
-        expect(entityType.getAttribute("related")).andReturn(relatedAttribute).anyTimes();
-        expect(idAttribute.getName()).andReturn("id").anyTimes();
-        expect(idAttribute.isCollection()).andReturn(false).anyTimes();
-        expect(idAttribute.getType()).andReturn(integerType).anyTimes();
-        expect(idAttribute.getPersistentAttributeType()).andReturn(PersistentAttributeType.BASIC).anyTimes();
-        expect(idAttribute.getJavaType()).andReturn(Integer.TYPE).anyTimes();
-        expect(idAttribute.getJavaMember()).andReturn(MethodAccessTestBean.class.getDeclaredMethod("getId"));
-        expect(nameAttribute.getName()).andReturn("name").anyTimes();
-        expect(nameAttribute.isCollection()).andReturn(false).anyTimes();
-        expect(nameAttribute.getType()).andReturn(integerType).anyTimes();
-        expect(nameAttribute.getPersistentAttributeType()).andReturn(PersistentAttributeType.BASIC).anyTimes();
-        expect(nameAttribute.getJavaType()).andReturn(String.class).anyTimes();
-        expect(nameAttribute.getJavaMember()).andReturn(MethodAccessTestBean.class.getDeclaredMethod("getName"));
-        expect(parentAttribute.getName()).andReturn("parent").anyTimes();
-        expect(parentAttribute.isCollection()).andReturn(false).anyTimes();
-        expect(parentAttribute.getType()).andReturn(entityType).anyTimes();
-        expect(parentAttribute.getPersistentAttributeType()).andReturn(PersistentAttributeType.MANY_TO_ONE).anyTimes();
-        expect(parentAttribute.getJavaType()).andReturn(MethodAccessTestBean.class).anyTimes();
-        expect(parentAttribute.getJavaMember()).andReturn(MethodAccessTestBean.class.getDeclaredMethod("getParent"));
-        expect(childrenAttribute.getName()).andReturn("children").anyTimes();
-        expect(childrenAttribute.isCollection()).andReturn(true).anyTimes();
-        expect(childrenAttribute.getElementType()).andReturn(entityType).anyTimes();
-        expect(childrenAttribute.getJavaMember())
-            .andReturn(MethodAccessTestBean.class.getDeclaredMethod("getChildren"));
-        expect(relatedAttribute.getName()).andReturn("related").anyTimes();
-        expect(relatedAttribute.isCollection()).andReturn(true).anyTimes();
-        expect(relatedAttribute.getKeyJavaType()).andReturn(MethodAccessTestBean.class).anyTimes();
-        expect(relatedAttribute.getBindableJavaType()).andReturn(MethodAccessTestBean.class).anyTimes();
-        expect(relatedAttribute.getElementType()).andReturn(entityType).anyTimes();
-        expect(relatedAttribute.getJavaMember())
-            .andReturn(MethodAccessTestBean.class.getDeclaredMethod("getRelated"));
-        replay(metamodel, persistenceUnitUtil, accessManager, securityContext, entityType, idAttribute, nameAttribute,
-                parentAttribute, childrenAttribute, relatedAttribute, integerType);
+        when(entityType.getAttribute("id")).thenReturn(idAttribute);
+        when(entityType.getAttribute("name")).thenReturn(nameAttribute);
+        when(entityType.getAttribute("parent")).thenReturn(parentAttribute);
+        when(entityType.getAttribute("children")).thenReturn(childrenAttribute);
+        when(entityType.getAttribute("related")).thenReturn(relatedAttribute);
+        when(idAttribute.getName()).thenReturn("id");
+        when(idAttribute.isCollection()).thenReturn(false);
+        when(idAttribute.getType()).thenReturn(integerType);
+        when(idAttribute.getPersistentAttributeType()).thenReturn(PersistentAttributeType.BASIC);
+        when(idAttribute.getJavaType()).thenReturn(Integer.TYPE);
+        when(idAttribute.getJavaMember()).thenReturn(MethodAccessTestBean.class.getDeclaredMethod("getId"));
+        when(nameAttribute.getName()).thenReturn("name");
+        when(nameAttribute.isCollection()).thenReturn(false);
+        when(nameAttribute.getType()).thenReturn(integerType);
+        when(nameAttribute.getPersistentAttributeType()).thenReturn(PersistentAttributeType.BASIC);
+        when(nameAttribute.getJavaType()).thenReturn(String.class);
+        when(nameAttribute.getJavaMember()).thenReturn(MethodAccessTestBean.class.getDeclaredMethod("getName"));
+        when(parentAttribute.getName()).thenReturn("parent");
+        when(parentAttribute.isCollection()).thenReturn(false);
+        when(parentAttribute.getType()).thenReturn(entityType);
+        when(parentAttribute.getPersistentAttributeType()).thenReturn(PersistentAttributeType.MANY_TO_ONE);
+        when(parentAttribute.getJavaType()).thenReturn(MethodAccessTestBean.class);
+        when(parentAttribute.getJavaMember()).thenReturn(MethodAccessTestBean.class.getDeclaredMethod("getParent"));
+        when(childrenAttribute.getName()).thenReturn("children");
+        when(childrenAttribute.isCollection()).thenReturn(true);
+        when(childrenAttribute.getElementType()).thenReturn(entityType);
+        when(childrenAttribute.getJavaMember())
+            .thenReturn(MethodAccessTestBean.class.getDeclaredMethod("getChildren"));
+        when(relatedAttribute.getName()).thenReturn("related");
+        when(relatedAttribute.isCollection()).thenReturn(true);
+        when(relatedAttribute.getKeyJavaType()).thenReturn(MethodAccessTestBean.class);
+        when(relatedAttribute.getBindableJavaType()).thenReturn(MethodAccessTestBean.class);
+        when(relatedAttribute.getElementType()).thenReturn(entityType);
+        when(relatedAttribute.getJavaMember())
+            .thenReturn(MethodAccessTestBean.class.getDeclaredMethod("getRelated"));
+
         entityFilter = new EntityFilter(metamodel, persistenceUnitUtil, initializeAccessRules(metamodel));
         AccessManager.Instance.register(accessManager);
     }
@@ -353,26 +343,11 @@ public class EntityFilterTest {
         assertFalse(entityFilter.isAccessible(AccessType.UPDATE, testBean));
     }
 
-    private Path eq(final Path expected) {
-        reportMatcher(new IArgumentMatcher() {
-            public boolean matches(Object argument) {
-                Path actual = (Path)argument;
-                return expected.getRootAlias().equals(actual.getRootAlias())
-                       && expected.getSubpath().equals(actual.getSubpath());
-            }
+    private static class TypeAnswer<T> implements Answer<Class<T>> {
 
-            public void appendTo(StringBuffer buffer) {
-                ArgumentToString.appendArgument(expected, buffer);
-            }
-        });
-        return null;
-    }
-
-    private static class TypeAnswer<T> implements IAnswer<Class<T>> {
-
-        public Class<T> answer() throws Throwable {
-            Path path = new Path(getCurrentArguments()[0].toString());
-            Set<TypeDefinition> typeDefinitions = (Set<TypeDefinition>)getCurrentArguments()[1];
+        public Class<T> answer(InvocationOnMock invocation) throws Throwable {
+            Path path = new Path(invocation.getArgument(0).toString());
+            Set<TypeDefinition> typeDefinitions = (Set<TypeDefinition>)invocation.getArgument(1);
             for (TypeDefinition typeDefinition: typeDefinitions) {
                 if (typeDefinition.getAlias().getName().equals(path.getRootAlias().getName())) {
                     if (path.getSubpath() == null

@@ -15,9 +15,8 @@
  */
 package org.jpasecurity.spring.authentication;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,10 +43,10 @@ public class SpringSecurityContextTest extends AbstractSecurityContextTest {
         for (int i = 0; i < roles.length; i++) {
             grantedAuthorities.add(new GrantedAuthorityImpl(roles[i]));
         }
-        Authentication authentication = createMock(Authentication.class);
-        expect(authentication.getPrincipal()).andReturn(principal).anyTimes();
-        expect(authentication.getAuthorities()).andReturn(grantedAuthorities).anyTimes();
-        replay(authentication);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(principal);
+        when(authentication.getAuthorities()).thenReturn(grantedAuthorities);
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

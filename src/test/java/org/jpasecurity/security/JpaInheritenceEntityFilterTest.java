@@ -15,10 +15,8 @@
  */
 package org.jpasecurity.security;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,52 +59,46 @@ public class JpaInheritenceEntityFilterTest {
 
     @Before
     public void initialize() throws Exception {
-        metamodel = createMock(Metamodel.class);
-        MappedSuperclassType abstractAclProtectedEntityType = createMock(MappedSuperclassType.class);
-        EntityType aclProtectedEntityType = createMock(EntityType.class);
-        EntityType secondAclProtectedEntityType = createMock(EntityType.class);
-        MappedSuperclassType abstractEntityType = createMock(MappedSuperclassType.class);
-        EntityType groupType = createMock(EntityType.class);
-        PersistenceUnitUtil persistenceUnitUtil = createMock(PersistenceUnitUtil.class);
-        accessManager = createMock(AccessManager.class);
+        metamodel = mock(Metamodel.class);
+        MappedSuperclassType abstractAclProtectedEntityType = mock(MappedSuperclassType.class);
+        EntityType aclProtectedEntityType = mock(EntityType.class);
+        EntityType secondAclProtectedEntityType = mock(EntityType.class);
+        MappedSuperclassType abstractEntityType = mock(MappedSuperclassType.class);
+        EntityType groupType = mock(EntityType.class);
+        PersistenceUnitUtil persistenceUnitUtil = mock(PersistenceUnitUtil.class);
+        accessManager = mock(AccessManager.class);
         DefaultSecurityContext securityContext = new DefaultSecurityContext();
         securityContext.register(new Alias("CURRENT_PRINCIPAL"), "user");
-        expect(accessManager.getContext()).andReturn(securityContext).anyTimes();
-        accessManager.delayChecks();
-        expectLastCall().anyTimes();
-        accessManager.checkNow();
-        expectLastCall().anyTimes();
-        expect(metamodel.getManagedTypes()).andReturn(new HashSet<ManagedType<?>>(Arrays.<ManagedType<?>>asList(
+        when(accessManager.getContext()).thenReturn(securityContext);
+        when(metamodel.getManagedTypes()).thenReturn(new HashSet<ManagedType<?>>(Arrays.<ManagedType<?>>asList(
                 abstractAclProtectedEntityType, aclProtectedEntityType, secondAclProtectedEntityType,
-                abstractEntityType, groupType))).anyTimes();
-        expect(metamodel.getEntities()).andReturn(new HashSet<EntityType<?>>(Arrays.<EntityType<?>>asList(
-                aclProtectedEntityType, secondAclProtectedEntityType, groupType))).anyTimes();
-        expect(metamodel.managedType(AbstractAclProtectedEntity.class))
-            .andReturn(abstractAclProtectedEntityType).anyTimes();
-        expect(metamodel.managedType(AclProtectedEntity.class)).andReturn(aclProtectedEntityType).anyTimes();
-        expect(metamodel.managedType(SecondAclProtectedEntity.class))
-            .andReturn(secondAclProtectedEntityType).anyTimes();
-        expect(metamodel.managedType(AbstractEntity.class)).andReturn(abstractEntityType).anyTimes();
-        expect(metamodel.managedType(Group.class)).andReturn(groupType).anyTimes();
-        expect(metamodel.entity(AbstractAclProtectedEntity.class))
-            .andThrow(new IllegalArgumentException("not an entity")).anyTimes();
-        expect(metamodel.entity(AclProtectedEntity.class)).andReturn(aclProtectedEntityType).anyTimes();
-        expect(metamodel.entity(SecondAclProtectedEntity.class)).andReturn(secondAclProtectedEntityType).anyTimes();
-        expect(metamodel.entity(AbstractEntity.class))
-            .andThrow(new IllegalArgumentException("not an entity")).anyTimes();
-        expect(metamodel.entity(Group.class)).andReturn(groupType).anyTimes();
-        expect(abstractAclProtectedEntityType.getJavaType()).andReturn(AbstractAclProtectedEntity.class).anyTimes();
-        expect(aclProtectedEntityType.getName()).andReturn(AclProtectedEntity.class.getSimpleName()).anyTimes();
-        expect(aclProtectedEntityType.getJavaType()).andReturn(AclProtectedEntity.class).anyTimes();
-        expect(secondAclProtectedEntityType.getName())
-            .andReturn(SecondAclProtectedEntity.class.getSimpleName()).anyTimes();
-        expect(secondAclProtectedEntityType.getJavaType()).andReturn(SecondAclProtectedEntity.class).anyTimes();
-        expect(abstractEntityType.getJavaType()).andReturn(AbstractEntity.class).anyTimes();
-        expect(groupType.getName()).andReturn(Group.class.getSimpleName()).anyTimes();
-        expect(groupType.getJavaType()).andReturn(Group.class).anyTimes();
+                abstractEntityType, groupType)));
+        when(metamodel.getEntities()).thenReturn(new HashSet<EntityType<?>>(Arrays.<EntityType<?>>asList(
+                aclProtectedEntityType, secondAclProtectedEntityType, groupType)));
+        when(metamodel.managedType(AbstractAclProtectedEntity.class))
+            .thenReturn(abstractAclProtectedEntityType);
+        when(metamodel.managedType(AclProtectedEntity.class)).thenReturn(aclProtectedEntityType);
+        when(metamodel.managedType(SecondAclProtectedEntity.class))
+            .thenReturn(secondAclProtectedEntityType);
+        when(metamodel.managedType(AbstractEntity.class)).thenReturn(abstractEntityType);
+        when(metamodel.managedType(Group.class)).thenReturn(groupType);
+        when(metamodel.entity(AbstractAclProtectedEntity.class))
+            .thenThrow(new IllegalArgumentException("not an entity"));
+        when(metamodel.entity(AclProtectedEntity.class)).thenReturn(aclProtectedEntityType);
+        when(metamodel.entity(SecondAclProtectedEntity.class)).thenReturn(secondAclProtectedEntityType);
+        when(metamodel.entity(AbstractEntity.class))
+            .thenThrow(new IllegalArgumentException("not an entity"));
+        when(metamodel.entity(Group.class)).thenReturn(groupType);
+        when(abstractAclProtectedEntityType.getJavaType()).thenReturn(AbstractAclProtectedEntity.class);
+        when(aclProtectedEntityType.getName()).thenReturn(AclProtectedEntity.class.getSimpleName());
+        when(aclProtectedEntityType.getJavaType()).thenReturn(AclProtectedEntity.class);
+        when(secondAclProtectedEntityType.getName())
+            .thenReturn(SecondAclProtectedEntity.class.getSimpleName());
+        when(secondAclProtectedEntityType.getJavaType()).thenReturn(SecondAclProtectedEntity.class);
+        when(abstractEntityType.getJavaType()).thenReturn(AbstractEntity.class);
+        when(groupType.getName()).thenReturn(Group.class.getSimpleName());
+        when(groupType.getJavaType()).thenReturn(Group.class);
 
-        replay(metamodel, accessManager, abstractAclProtectedEntityType, aclProtectedEntityType,
-                secondAclProtectedEntityType, abstractEntityType, groupType, persistenceUnitUtil);
         AccessManager.Instance.register(accessManager);
         JpqlParser parser = new JpqlParser();
         JpqlAccessRule rule

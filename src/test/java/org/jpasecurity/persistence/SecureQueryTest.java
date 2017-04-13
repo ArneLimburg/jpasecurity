@@ -15,7 +15,7 @@
  */
 package org.jpasecurity.persistence;
 
-import static org.easymock.EasyMock.createMock;
+import static org.mockito.Mockito.mock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
@@ -85,7 +85,7 @@ public class SecureQueryTest {
     public void testHandleConstructorReturnTypePPNotMatchingTypeType()
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         SecureQuery<IdDto> simpleDtoSecureQuery = new SecureQuery<IdDto>(
-            createMock(Query.class),
+            mock(Query.class),
             IdDto.class,
             Collections.<Path>emptyList(),
             FlushModeType.AUTO
@@ -96,7 +96,7 @@ public class SecureQueryTest {
 
     private <T> SecureQuery<T> createSecureQuery(Class<T> queryClassType) {
         return new SecureQuery<T>(
-            createMock(Query.class),
+            mock(Query.class),
             queryClassType,
             Collections.<Path>emptyList(),
             FlushModeType.AUTO

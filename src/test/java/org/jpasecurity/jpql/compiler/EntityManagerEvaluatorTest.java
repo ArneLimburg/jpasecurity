@@ -15,11 +15,10 @@
  */
 package org.jpasecurity.jpql.compiler;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,7 +36,6 @@ import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
-import org.easymock.IAnswer;
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.Alias;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
@@ -56,6 +54,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 public class EntityManagerEvaluatorTest {
 
@@ -74,91 +74,88 @@ public class EntityManagerEvaluatorTest {
 
     @Before
     public void initialize() throws NoSuchMethodException {
-        metamodel = createMock(Metamodel.class);
-        PersistenceUnitUtil persistenceUnitUtil = createMock(PersistenceUnitUtil.class);
+        metamodel = mock(Metamodel.class);
+        PersistenceUnitUtil persistenceUnitUtil = mock(PersistenceUnitUtil.class);
 
-        EntityType methodAccessTestBeanType = createMock(EntityType.class);
-        EntityType childTestBeanType = createMock(EntityType.class);
-        BasicType intType = createMock(BasicType.class);
-        BasicType stringType = createMock(BasicType.class);
-        SingularAttribute idAttribute = createMock(SingularAttribute.class);
-        SingularAttribute nameAttribute = createMock(SingularAttribute.class);
-        SingularAttribute parentAttribute = createMock(SingularAttribute.class);
-        PluralAttribute childrenAttribute = createMock(PluralAttribute.class);
-        PluralAttribute relatedAttribute = createMock(PluralAttribute.class);
-        expect(metamodel.getEntities()).andReturn(new HashSet<EntityType<?>>(Arrays.<EntityType<?>>asList(
-                methodAccessTestBeanType, childTestBeanType))).anyTimes();
-        expect(metamodel.entity(MethodAccessTestBean.class)).andReturn(methodAccessTestBeanType).anyTimes();
-        expect(metamodel.managedType(MethodAccessTestBean.class)).andReturn(methodAccessTestBeanType).anyTimes();
-        expect(metamodel.entity(ChildTestBean.class)).andReturn(childTestBeanType).anyTimes();
-        expect(metamodel.managedType(ChildTestBean.class)).andReturn(childTestBeanType).anyTimes();
-        expect(metamodel.managedType(ParentTestBean.class))
-            .andThrow(new IllegalArgumentException("managed type not found"));
-        expect(metamodel.embeddable(ParentTestBean.class))
-            .andThrow(new IllegalArgumentException("embeddable not found"));
-        expect(methodAccessTestBeanType.getName()).andReturn(MethodAccessTestBean.class.getSimpleName()).anyTimes();
-        expect(methodAccessTestBeanType.getJavaType()).andReturn((Class)MethodAccessTestBean.class).anyTimes();
-        expect(methodAccessTestBeanType.getAttributes()).andReturn(new HashSet(Arrays.asList(
-                idAttribute, nameAttribute, parentAttribute, childrenAttribute, relatedAttribute))).anyTimes();
-        expect(methodAccessTestBeanType.getAttribute("id")).andReturn(idAttribute).anyTimes();
-        expect(methodAccessTestBeanType.getAttribute("name")).andReturn(nameAttribute).anyTimes();
-        expect(methodAccessTestBeanType.getAttribute("parent")).andReturn(parentAttribute).anyTimes();
-        expect(methodAccessTestBeanType.getAttribute("children")).andReturn(childrenAttribute).anyTimes();
-        expect(methodAccessTestBeanType.getAttribute("related")).andReturn(relatedAttribute).anyTimes();
-        expect(childTestBeanType.getName()).andReturn(ChildTestBean.class.getSimpleName()).anyTimes();
-        expect(childTestBeanType.getJavaType()).andReturn((Class)ChildTestBean.class).anyTimes();
-        expect(idAttribute.getName()).andReturn("id").anyTimes();
-        expect(idAttribute.isCollection()).andReturn(false).anyTimes();
-        expect(idAttribute.getType()).andReturn(intType).anyTimes();
-        expect(idAttribute.getJavaMember()).andReturn(MethodAccessTestBean.class.getDeclaredMethod("getId")).anyTimes();
-        expect(nameAttribute.getName()).andReturn("name").anyTimes();
-        expect(nameAttribute.isCollection()).andReturn(false).anyTimes();
-        expect(nameAttribute.getType()).andReturn(stringType).anyTimes();
-        expect(nameAttribute.getJavaMember())
-            .andReturn(MethodAccessTestBean.class.getDeclaredMethod("getName")).anyTimes();
-        expect(parentAttribute.getName()).andReturn("parent").anyTimes();
-        expect(parentAttribute.isCollection()).andReturn(false).anyTimes();
-        expect(parentAttribute.getType()).andReturn(methodAccessTestBeanType).anyTimes();
-        expect(parentAttribute.getJavaMember())
-            .andReturn(MethodAccessTestBean.class.getDeclaredMethod("getParent")).anyTimes();
-        expect(childrenAttribute.getName()).andReturn("children").anyTimes();
-        expect(childrenAttribute.isCollection()).andReturn(true).anyTimes();
-        expect(childrenAttribute.getElementType()).andReturn(methodAccessTestBeanType).anyTimes();
-        expect(childrenAttribute.getJavaMember())
-            .andReturn(MethodAccessTestBean.class.getDeclaredMethod("getChildren")).anyTimes();
-        expect(relatedAttribute.getName()).andReturn("related").anyTimes();
-        expect(relatedAttribute.isCollection()).andReturn(true).anyTimes();
-        expect(relatedAttribute.getElementType()).andReturn(methodAccessTestBeanType).anyTimes();
-        expect(relatedAttribute.getJavaMember())
-            .andReturn(MethodAccessTestBean.class.getDeclaredMethod("getRelated")).anyTimes();
-        replay(metamodel, methodAccessTestBeanType, childTestBeanType, stringType, idAttribute, nameAttribute,
-                parentAttribute, childrenAttribute, relatedAttribute);
+        EntityType methodAccessTestBeanType = mock(EntityType.class);
+        EntityType childTestBeanType = mock(EntityType.class);
+        BasicType intType = mock(BasicType.class);
+        BasicType stringType = mock(BasicType.class);
+        SingularAttribute idAttribute = mock(SingularAttribute.class);
+        SingularAttribute nameAttribute = mock(SingularAttribute.class);
+        SingularAttribute parentAttribute = mock(SingularAttribute.class);
+        PluralAttribute childrenAttribute = mock(PluralAttribute.class);
+        PluralAttribute relatedAttribute = mock(PluralAttribute.class);
+        when(metamodel.getEntities()).thenReturn(new HashSet<EntityType<?>>(Arrays.<EntityType<?>>asList(
+                methodAccessTestBeanType, childTestBeanType)));
+        when(metamodel.entity(MethodAccessTestBean.class)).thenReturn(methodAccessTestBeanType);
+        when(metamodel.managedType(MethodAccessTestBean.class)).thenReturn(methodAccessTestBeanType);
+        when(metamodel.entity(ChildTestBean.class)).thenReturn(childTestBeanType);
+        when(metamodel.managedType(ChildTestBean.class)).thenReturn(childTestBeanType);
+        when(metamodel.managedType(ParentTestBean.class))
+            .thenThrow(new IllegalArgumentException("managed type not found"));
+        when(metamodel.embeddable(ParentTestBean.class))
+            .thenThrow(new IllegalArgumentException("embeddable not found"));
+        when(methodAccessTestBeanType.getName()).thenReturn(MethodAccessTestBean.class.getSimpleName());
+        when(methodAccessTestBeanType.getJavaType()).thenReturn((Class)MethodAccessTestBean.class);
+        when(methodAccessTestBeanType.getAttributes()).thenReturn(new HashSet(Arrays.asList(
+                idAttribute, nameAttribute, parentAttribute, childrenAttribute, relatedAttribute)));
+        when(methodAccessTestBeanType.getAttribute("id")).thenReturn(idAttribute);
+        when(methodAccessTestBeanType.getAttribute("name")).thenReturn(nameAttribute);
+        when(methodAccessTestBeanType.getAttribute("parent")).thenReturn(parentAttribute);
+        when(methodAccessTestBeanType.getAttribute("children")).thenReturn(childrenAttribute);
+        when(methodAccessTestBeanType.getAttribute("related")).thenReturn(relatedAttribute);
+        when(childTestBeanType.getName()).thenReturn(ChildTestBean.class.getSimpleName());
+        when(childTestBeanType.getJavaType()).thenReturn((Class)ChildTestBean.class);
+        when(idAttribute.getName()).thenReturn("id");
+        when(idAttribute.isCollection()).thenReturn(false);
+        when(idAttribute.getType()).thenReturn(intType);
+        when(idAttribute.getJavaMember()).thenReturn(MethodAccessTestBean.class.getDeclaredMethod("getId"));
+        when(nameAttribute.getName()).thenReturn("name");
+        when(nameAttribute.isCollection()).thenReturn(false);
+        when(nameAttribute.getType()).thenReturn(stringType);
+        when(nameAttribute.getJavaMember())
+            .thenReturn(MethodAccessTestBean.class.getDeclaredMethod("getName"));
+        when(parentAttribute.getName()).thenReturn("parent");
+        when(parentAttribute.isCollection()).thenReturn(false);
+        when(parentAttribute.getType()).thenReturn(methodAccessTestBeanType);
+        when(parentAttribute.getJavaMember())
+            .thenReturn(MethodAccessTestBean.class.getDeclaredMethod("getParent"));
+        when(childrenAttribute.getName()).thenReturn("children");
+        when(childrenAttribute.isCollection()).thenReturn(true);
+        when(childrenAttribute.getElementType()).thenReturn(methodAccessTestBeanType);
+        when(childrenAttribute.getJavaMember())
+            .thenReturn(MethodAccessTestBean.class.getDeclaredMethod("getChildren"));
+        when(relatedAttribute.getName()).thenReturn("related");
+        when(relatedAttribute.isCollection()).thenReturn(true);
+        when(relatedAttribute.getElementType()).thenReturn(methodAccessTestBeanType);
+        when(relatedAttribute.getJavaMember())
+            .thenReturn(MethodAccessTestBean.class.getDeclaredMethod("getRelated"));
+
         parser = new JpqlParser();
         compiler = new JpqlCompiler(metamodel);
-        final EntityManager entityManagerMock = createMock(EntityManager.class);
-        expect(entityManagerMock.isOpen()).andReturn(true).anyTimes();
-        expect(entityManagerMock.createQuery(
+        final EntityManager entityManagerMock = mock(EntityManager.class);
+        when(entityManagerMock.isOpen()).thenReturn(true);
+        when(entityManagerMock.createQuery(
             " SELECT innerBean FROM MethodAccessTestBean innerBean WHERE :path0 = innerBean"))
-            .andAnswer(new IAnswer<Query>() {
-                public Query answer() throws Throwable {
-                    Query mock = createMock(Query.class);
-                    expect(mock.setParameter(anyObject(String.class), anyObject())).andReturn(mock).anyTimes();
-                    expect(mock.setFlushMode(FlushModeType.COMMIT)).andReturn(mock).anyTimes();
-                    expect(mock.getResultList()).andReturn(Collections.emptyList());
-                    replay(mock);
+            .thenAnswer(new Answer<Query>() {
+                public Query answer(InvocationOnMock invocation) throws Throwable {
+                    Query mock = mock(Query.class);
+                    when(mock.setParameter(anyString(), any())).thenReturn(mock);
+                    when(mock.setFlushMode(FlushModeType.COMMIT)).thenReturn(mock);
+                    when(mock.getResultList()).thenReturn(Collections.emptyList());
                     return mock;
                 }
-            }).anyTimes();
-        replay(entityManagerMock, persistenceUnitUtil);
-        entityManagerEvaluator = new EntityManagerEvaluator(entityManagerMock, createMock(PathEvaluator.class));
+            });
+        entityManagerEvaluator = new EntityManagerEvaluator(entityManagerMock, mock(PathEvaluator.class));
         parameters = new QueryEvaluationParameters(metamodel,
                                                    persistenceUnitUtil,
                                                    aliases,
                                                    namedParameters,
                                                    positionalParameters);
 
-        accessManager = createNiceMock(AccessManager.class);
-        replay(accessManager);
+        accessManager = mock(AccessManager.class);
+
         AccessManager.Instance.register(accessManager);
     }
 

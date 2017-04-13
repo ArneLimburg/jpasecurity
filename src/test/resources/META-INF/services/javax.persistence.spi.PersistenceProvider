@@ -1,1 +1,1 @@
-org.jpasecurity.persistence.EasyMockPersistenceProvider
+org.jpasecurity.persistence.MockitoPersistenceProvider

@@ -15,10 +15,9 @@
  */
 package org.jpasecurity.jpql.compiler;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.jpasecurity.util.Maps.entry;
 import static org.jpasecurity.util.Maps.map;
 import static org.junit.Assert.assertEquals;
@@ -35,7 +34,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.easymock.IAnswer;
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
 import org.jpasecurity.jpql.TypeDefinition;
@@ -45,6 +43,8 @@ import org.jpasecurity.util.SetHashMap;
 import org.jpasecurity.util.SetMap;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 /**
  * @author Arne Limburg
@@ -564,19 +564,18 @@ public class ValueIteratorTest {
         }
 
         public PathEvaluator create() {
-            PathEvaluator pathEvaluator = createMock(PathEvaluator.class);
+            PathEvaluator pathEvaluator = mock(PathEvaluator.class);
             for (MethodAccessTestBean bean: beans) {
-                expect(pathEvaluator.evaluateAll(eq(Collections.singleton(bean)), eq("parent")))
-                    .andAnswer(new ParentAnswer(bean)).anyTimes();
-                expect(pathEvaluator.evaluateAll(eq(Collections.singleton(bean)), eq("children")))
-                    .andAnswer(new ChildrenAnswer(bean)).anyTimes();
+                when(pathEvaluator.evaluateAll(eq(Collections.singleton(bean)), eq("parent")))
+                    .thenAnswer(new ParentAnswer(bean));
+                when(pathEvaluator.evaluateAll(eq(Collections.singleton(bean)), eq("children")))
+                    .thenAnswer(new ChildrenAnswer(bean));
             }
-            replay(pathEvaluator);
             return pathEvaluator;
         }
     }
 
-    private class ParentAnswer implements IAnswer<List<Object>> {
+    private class ParentAnswer implements Answer<List<Object>> {
 
         private MethodAccessTestBean bean;
 
@@ -584,14 +583,14 @@ public class ValueIteratorTest {
             this.bean = bean;
         }
 
-        public List<Object> answer() throws Throwable {
+        public List<Object> answer(InvocationOnMock invocation) throws Throwable {
             return bean.getParent() == null
                    ? Collections.emptyList()
                    : Collections.<Object>singletonList(bean.getParent());
         }
     }
 
-    private class ChildrenAnswer implements IAnswer<List<Object>> {
+    private class ChildrenAnswer implements Answer<List<Object>> {
 
         private MethodAccessTestBean bean;
 
@@ -599,7 +598,7 @@ public class ValueIteratorTest {
             this.bean = bean;
         }
 
-        public List<Object> answer() throws Throwable {
+        public List<Object> answer(InvocationOnMock invocation) throws Throwable {
             return bean.getChildren() == null || bean.getChildren().isEmpty()
                    ? Collections.emptyList()
                    : new ArrayList<Object>(bean.getChildren());

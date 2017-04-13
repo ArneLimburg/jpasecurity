@@ -15,10 +15,8 @@
  */
 package org.jpasecurity.persistence.security;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
@@ -62,15 +60,15 @@ public class CriteriaVisitorTest {
 
     @Before
     public void initialize() {
-        metamodel = createMock(Metamodel.class);
-        EntityType testBeanType = createMock(EntityType.class);
-        expect(metamodel.getEntities()).andReturn(Collections.<EntityType<?>>singleton(testBeanType));
-        expect(testBeanType.getName()).andReturn(TestBean.class.getSimpleName());
-        expect(testBeanType.getJavaType()).andReturn(TestBean.class);
-        securityContext = createMock(SecurityContext.class);
-        accessManager = createNiceMock(AccessManager.class);
+        metamodel = mock(Metamodel.class);
+        EntityType testBeanType = mock(EntityType.class);
+        when(metamodel.getEntities()).thenReturn(Collections.<EntityType<?>>singleton(testBeanType));
+        when(testBeanType.getName()).thenReturn(TestBean.class.getSimpleName());
+        when(testBeanType.getJavaType()).thenReturn(TestBean.class);
+        securityContext = mock(SecurityContext.class);
+        accessManager = mock(AccessManager.class);
         AccessManager.Instance.register(accessManager);
-        replay(metamodel, testBeanType, securityContext, accessManager);
+
         parser = new JpqlParser();
         compiler = new AccessRulesCompiler(metamodel);
         entityManagerFactory = Persistence.createEntityManagerFactory("hibernate");
