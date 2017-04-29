@@ -26,14 +26,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.PersistenceException;
-import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.EntityType;
@@ -45,6 +44,7 @@ import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
+import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.TypeDefinition;
@@ -84,7 +84,7 @@ public class EntityFilter {
 
     protected final JpqlCompiler compiler;
     private final Metamodel metamodel;
-    private final PersistenceUnitUtil persistenceUnitUtil;
+    private final SecurePersistenceUnitUtil persistenceUnitUtil;
     private final JpqlParser parser;
     private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final QueryEvaluator queryEvaluator;
@@ -93,11 +93,11 @@ public class EntityFilter {
     private final ReplaceAliasVisitor replaceAliasVisitor = new ReplaceAliasVisitor();
 
     public EntityFilter(Metamodel metamodel,
-                        PersistenceUnitUtil util,
+                        SecurePersistenceUnitUtil util,
                         Collection<AccessRule> accessRules,
                         SubselectEvaluator... evaluators) {
         this.metamodel = notNull(Metamodel.class, metamodel);
-        this.persistenceUnitUtil = notNull(PersistenceUnitUtil.class, util);
+        this.persistenceUnitUtil = notNull(SecurePersistenceUnitUtil.class, util);
         this.parser = new JpqlParser();
         this.compiler = new JpqlCompiler(metamodel);
         this.queryEvaluator = new QueryEvaluator(compiler, util, evaluators);
@@ -109,7 +109,7 @@ public class EntityFilter {
     }
 
     public boolean isAccessible(AccessType accessType, Object entity) {
-        EntityType<?> mapping = metamodel.entity(entity.getClass());
+        EntityType<?> mapping = forModel(metamodel).filterEntity(entity.getClass());
         LOG.debug("Evaluating " + accessType + " access for entity of type " + mapping.getName());
         Alias alias = new Alias(Introspector.decapitalize(mapping.getName()));
         AccessDefinition accessDefinition = createAccessDefinition(alias, mapping.getJavaType(), accessType);

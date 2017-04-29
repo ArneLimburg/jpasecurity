@@ -28,7 +28,6 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.FlushModeType;
-import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.Query;
 import javax.persistence.metamodel.BasicType;
 import javax.persistence.metamodel.EntityType;
@@ -38,6 +37,7 @@ import javax.persistence.metamodel.SingularAttribute;
 
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.Alias;
+import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.JpqlStatement;
@@ -75,7 +75,7 @@ public class EntityManagerEvaluatorTest {
     @Before
     public void initialize() throws NoSuchMethodException {
         metamodel = mock(Metamodel.class);
-        PersistenceUnitUtil persistenceUnitUtil = mock(PersistenceUnitUtil.class);
+        SecurePersistenceUnitUtil persistenceUnitUtil = mock(SecurePersistenceUnitUtil.class);
 
         EntityType methodAccessTestBeanType = mock(EntityType.class);
         EntityType childTestBeanType = mock(EntityType.class);

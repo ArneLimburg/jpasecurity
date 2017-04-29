@@ -17,10 +17,10 @@ package org.jpasecurity.security;
 
 import java.util.Map;
 
-import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.Alias;
+import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.compiler.NotEvaluatableException;
 import org.jpasecurity.jpql.compiler.QueryEvaluationParameters;
@@ -45,7 +45,7 @@ public class QueryOptimizer {
     private final QueryPreparator queryPreparator = new QueryPreparator();
 
     public QueryOptimizer(Metamodel metamodel,
-                          PersistenceUnitUtil persistenceUnitUtil,
+                          SecurePersistenceUnitUtil persistenceUnitUtil,
                           Map<Alias, Object> aliases,
                           Map<String, Object> namedParameters,
                           Map<Integer, Object> positionalParameters,

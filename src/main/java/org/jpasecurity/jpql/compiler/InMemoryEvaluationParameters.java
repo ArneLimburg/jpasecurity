@@ -17,10 +17,10 @@ package org.jpasecurity.jpql.compiler;
 
 import java.util.Map;
 
-import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.Alias;
+import org.jpasecurity.SecurePersistenceUnitUtil;
 
 /**
  * @author Arne Limburg
@@ -28,7 +28,7 @@ import org.jpasecurity.Alias;
 public class InMemoryEvaluationParameters extends QueryEvaluationParameters {
 
     public InMemoryEvaluationParameters(Metamodel mappingInformation,
-                                        PersistenceUnitUtil util,
+                                        SecurePersistenceUnitUtil util,
                                         Map<Alias, Object> aliases,
                                         Map<String, Object> namedParameters,
                                         Map<Integer, Object> positionalParameters) {

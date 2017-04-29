@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.MappedSuperclassType;
@@ -34,6 +33,7 @@ import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
+import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.Node;
@@ -65,7 +65,7 @@ public class JpaInheritenceEntityFilterTest {
         EntityType secondAclProtectedEntityType = mock(EntityType.class);
         MappedSuperclassType abstractEntityType = mock(MappedSuperclassType.class);
         EntityType groupType = mock(EntityType.class);
-        PersistenceUnitUtil persistenceUnitUtil = mock(PersistenceUnitUtil.class);
+        SecurePersistenceUnitUtil persistenceUnitUtil = mock(SecurePersistenceUnitUtil.class);
         accessManager = mock(AccessManager.class);
         DefaultSecurityContext securityContext = new DefaultSecurityContext();
         securityContext.register(new Alias("CURRENT_PRINCIPAL"), "user");

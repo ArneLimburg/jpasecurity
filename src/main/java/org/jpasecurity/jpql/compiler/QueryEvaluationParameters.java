@@ -21,10 +21,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.Alias;
+import org.jpasecurity.SecurePersistenceUnitUtil;
 
 /**
  * @author Arne Limburg
@@ -40,7 +40,7 @@ public class QueryEvaluationParameters {
     private static final Object UNDEFINED = new Object();
 
     private final Metamodel metamodel;
-    private final PersistenceUnitUtil persistenceUnitUtil;
+    private final SecurePersistenceUnitUtil persistenceUnitUtil;
     private final Map<Alias, Object> aliases;
     private final Map<String, Object> namedParameters;
     private final Map<Integer, Object> positionalParameters;
@@ -48,7 +48,7 @@ public class QueryEvaluationParameters {
     private Object result = UNDEFINED;
 
     public QueryEvaluationParameters(Metamodel metamodel,
-                                     PersistenceUnitUtil util,
+                                     SecurePersistenceUnitUtil util,
                                      Map<Alias, Object> aliases,
                                      Map<String, Object> namedParameters,
                                      Map<Integer, Object> positionalParameters) {
@@ -56,13 +56,13 @@ public class QueryEvaluationParameters {
     }
 
     public QueryEvaluationParameters(Metamodel metamodel,
-                                     PersistenceUnitUtil persistenceUnitUtil,
+                                     SecurePersistenceUnitUtil persistenceUnitUtil,
                                      Map<Alias, Object> aliases,
                                      Map<String, Object> namedParameters,
                                      Map<Integer, Object> positionalParameters,
                                      EvaluationType evaluationType) {
         this.metamodel = notNull(Metamodel.class, metamodel);
-        this.persistenceUnitUtil = notNull(PersistenceUnitUtil.class, persistenceUnitUtil);
+        this.persistenceUnitUtil = notNull(SecurePersistenceUnitUtil.class, persistenceUnitUtil);
         this.aliases = aliases;
         this.namedParameters = namedParameters;
         this.positionalParameters = positionalParameters;
@@ -82,7 +82,7 @@ public class QueryEvaluationParameters {
         return metamodel;
     }
 
-    public PersistenceUnitUtil getPersistenceUnitUtil() {
+    public SecurePersistenceUnitUtil getPersistenceUnitUtil() {
         return persistenceUnitUtil;
     }
 

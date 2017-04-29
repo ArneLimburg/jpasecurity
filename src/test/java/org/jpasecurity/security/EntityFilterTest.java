@@ -15,18 +15,35 @@
  */
 package org.jpasecurity.security;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.metamodel.Attribute.PersistentAttributeType;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.MapAttribute;
+import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.PluralAttribute;
+import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.Type;
 
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
+import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
@@ -39,23 +56,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.PersistenceUnitUtil;
-import javax.persistence.metamodel.Attribute.PersistentAttributeType;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.MapAttribute;
-import javax.persistence.metamodel.Metamodel;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.SingularAttribute;
-import javax.persistence.metamodel.Type;
 
 /**
  * @author Arne Limburg
@@ -71,7 +71,7 @@ public class EntityFilterTest {
     @Before
     public void initialize() throws ParseException, NoSuchMethodException {
         Metamodel metamodel = mock(Metamodel.class);
-        PersistenceUnitUtil persistenceUnitUtil = mock(PersistenceUnitUtil.class);
+        SecurePersistenceUnitUtil persistenceUnitUtil = mock(SecurePersistenceUnitUtil.class);
         accessManager = mock(AccessManager.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         EntityType entityType = mock(EntityType.class);

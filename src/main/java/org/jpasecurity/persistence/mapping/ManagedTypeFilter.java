@@ -45,6 +45,9 @@ public final class ManagedTypeFilter {
     }
 
     public ManagedType<?> filter(Class<?> type) {
+        if (type == null) {
+            throw new IllegalArgumentException("type not found");
+        }
         try {
             return metamodel.managedType(type);
         } catch (IllegalArgumentException original) {
@@ -55,7 +58,26 @@ public final class ManagedTypeFilter {
                 if (type.getSuperclass() == Object.class) {
                     throw original;
                 }
-                return filter(type.getSuperclass()); // handles proxy classes
+                try {
+                    return filter(type.getSuperclass()); // handles proxy classes
+                } catch (IllegalArgumentException e2) {
+                    throw original;
+                }
+            }
+        }
+    }
+
+    public EntityType<?> filterEntity(Class<?> type) {
+        if (type == null) {
+            throw new IllegalArgumentException("type not found");
+        }
+        try {
+            return metamodel.entity(type);
+        } catch (IllegalArgumentException original) {
+            try {
+                return filterEntity(type.getSuperclass()); // handles proxy classes
+            } catch (IllegalArgumentException e) {
+                throw original;
             }
         }
     }

@@ -29,10 +29,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
-import javax.persistence.PersistenceUnitUtil;
-
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
+import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.parser.JpqlAbs;
 import org.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
@@ -116,14 +115,14 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
 
     private final JpqlCompiler compiler;
-    private final PersistenceUnitUtil util;
+    private final SecurePersistenceUnitUtil util;
     private final SubselectEvaluator[] subselectEvaluators;
 
-    public QueryEvaluator(JpqlCompiler compiler, PersistenceUnitUtil util, SubselectEvaluator... subselectEvaluators) {
+    public QueryEvaluator(JpqlCompiler compiler, SecurePersistenceUnitUtil util, SubselectEvaluator... evaluators) {
         this.compiler = notNull(JpqlCompiler.class, compiler);
-        this.util = notNull(PersistenceUnitUtil.class, util);
-        this.subselectEvaluators = subselectEvaluators;
-        for (SubselectEvaluator subselectEvaluator: subselectEvaluators) {
+        this.util = notNull(SecurePersistenceUnitUtil.class, util);
+        this.subselectEvaluators = evaluators;
+        for (SubselectEvaluator subselectEvaluator: evaluators) {
             subselectEvaluator.setQueryEvaluator(this);
         }
     }

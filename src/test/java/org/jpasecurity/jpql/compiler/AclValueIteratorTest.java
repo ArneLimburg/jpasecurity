@@ -15,12 +15,12 @@
  */
 package org.jpasecurity.jpql.compiler;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,13 +28,13 @@ import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
+import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.model.acl.Acl;
 import org.jpasecurity.model.acl.AclEntry;
@@ -44,6 +44,8 @@ import org.jpasecurity.util.SetHashMap;
 import org.jpasecurity.util.SetMap;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 /**
  * @author Stefan Hildebrandt
@@ -148,7 +150,7 @@ public class AclValueIteratorTest {
 
     private MappedPathEvaluator createPathEvaluator() throws NoSuchFieldException {
         Metamodel metamodel = mock(Metamodel.class);
-        PersistenceUnitUtil persistenceUnitUtil = mock(PersistenceUnitUtil.class);
+        SecurePersistenceUnitUtil persistenceUnitUtil = mock(SecurePersistenceUnitUtil.class);
         EntityType userType = mock(EntityType.class);
         EntityType groupType = mock(EntityType.class);
         Attribute groupsAttribute = mock(Attribute.class);
@@ -156,6 +158,12 @@ public class AclValueIteratorTest {
         when(metamodel.managedType(User.class)).thenReturn(userType);
         when(metamodel.managedType(Group.class)).thenReturn(groupType);
         when(persistenceUnitUtil.isLoaded(any())).thenReturn(true);
+        when(persistenceUnitUtil.initialize(any())).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return invocation.getArgument(0);
+            }
+        });
         when(userType.getAttributes()).thenReturn(Collections.singleton(groupsAttribute));
         when(userType.getAttribute("groups")).thenReturn(groupsAttribute);
         when(groupType.getAttributes()).thenReturn(Collections.singleton(fullHierarchyAttribute));

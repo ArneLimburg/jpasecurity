@@ -25,11 +25,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.Query;
 import javax.persistence.SynchronizationType;
 import javax.persistence.metamodel.Metamodel;
 
+import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.security.AccessRule;
 import org.jpasecurity.security.rules.AccessRulesParser;
@@ -59,34 +59,34 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
         namedQueries = new NamedQueryParser(entityManagerFactory.getMetamodel(), ormXmlLocations).parseNamedQueries();
     }
 
-    public EntityManager createEntityManager() {
+    public SecureEntityManager createEntityManager() {
         return createSecureEntityManager(super.createEntityManager(), Collections.<String, Object>emptyMap());
     }
 
-    public EntityManager createEntityManager(@SuppressWarnings("rawtypes") Map map) {
+    public SecureEntityManager createEntityManager(@SuppressWarnings("rawtypes") Map map) {
         return createSecureEntityManager(super.createEntityManager(map), map);
     }
 
-    public EntityManager createEntityManager(SynchronizationType synchronizationType, Map properties) {
+    public SecureEntityManager createEntityManager(SynchronizationType synchronizationType, Map properties) {
         return createSecureEntityManager(super.createEntityManager(synchronizationType, properties), properties);
     }
 
-    public EntityManager createEntityManager(SynchronizationType synchronizationType) {
+    public SecureEntityManager createEntityManager(SynchronizationType synchronizationType) {
         return createSecureEntityManager(super.createEntityManager(synchronizationType),
                 Collections.<String, Object>emptyMap());
     }
 
-    public PersistenceUnitUtil getPersistenceUnitUtil() {
-        return getDelegate().getPersistenceUnitUtil();
+    public SecurePersistenceUnitUtil getPersistenceUnitUtil() {
+        return new SecurePersistenceUnitUtil(super.getPersistenceUnitUtil());
     }
 
     public void addNamedQuery(String name, Query query) {
         throw new UnsupportedOperationException("delayed registering of named queries is not supported with JPA Security");
     }
 
-    protected EntityManager createSecureEntityManager(EntityManager entityManager, Map<String, Object> properties) {
+    protected SecureEntityManager createSecureEntityManager(EntityManager original, Map<String, Object> properties) {
         return new DefaultSecureEntityManager(this,
-                                              entityManager,
+                                              original,
                                               newInstance(securityContextType),
                                               getAccessRules());
     }

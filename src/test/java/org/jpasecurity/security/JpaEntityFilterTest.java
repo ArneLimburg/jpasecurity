@@ -15,18 +15,17 @@
  */
 package org.jpasecurity.security;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
-import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
@@ -34,6 +33,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
+import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.contacts.model.Contact;
 import org.jpasecurity.contacts.model.User;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
@@ -42,6 +42,8 @@ import org.jpasecurity.security.rules.AccessRulesCompiler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 /**
  * @author Arne Limburg
@@ -87,8 +89,14 @@ public class JpaEntityFilterTest {
     @Test
     public void access() throws Exception {
         DefaultSecurityContext securityContext = (DefaultSecurityContext)AccessManager.Instance.get().getContext();
-        PersistenceUnitUtil persistenceUnitUtil = mock(PersistenceUnitUtil.class);
+        SecurePersistenceUnitUtil persistenceUnitUtil = mock(SecurePersistenceUnitUtil.class);
         when(persistenceUnitUtil.isLoaded(any())).thenReturn(true);
+        when(persistenceUnitUtil.initialize(any())).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return invocation.getArgument(0);
+            }
+        });
 
         EntityFilter filter = new EntityFilter(metamodel, persistenceUnitUtil, accessRules);
         User john = new User("John");

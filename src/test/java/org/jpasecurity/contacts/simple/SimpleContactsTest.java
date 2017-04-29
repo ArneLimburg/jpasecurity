@@ -15,7 +15,9 @@
  */
 package org.jpasecurity.contacts.simple;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -26,6 +28,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 
+import org.jpasecurity.AccessManager;
+import org.jpasecurity.AccessType;
 import org.jpasecurity.contacts.ContactsTestData;
 import org.jpasecurity.contacts.model.Contact;
 import org.jpasecurity.contacts.model.User;
@@ -135,6 +139,15 @@ public class SimpleContactsTest {
         assertEquals(2, contacts.size());
         assertTrue(contacts.contains(testData.getMarysContact1()));
         assertTrue(contacts.contains(testData.getMarysContact2()));
+    }
+
+    @Test
+    public void isJohnAccessibleAsMary() {
+        TestSecurityContext.authenticate(testData.getMary(), "user");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        AccessManager accessManager = entityManager.unwrap(AccessManager.class);
+        User john = entityManager.getReference(User.class, testData.getJohn().getId());
+        assertThat(accessManager.isAccessible(AccessType.READ, john), is(false));
     }
 
     public List<User> getAllUsers() {

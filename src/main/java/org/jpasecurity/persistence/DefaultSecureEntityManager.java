@@ -16,6 +16,7 @@
 package org.jpasecurity.persistence;
 
 import static org.jpasecurity.AccessType.READ;
+import static org.jpasecurity.persistence.mapping.ManagedTypeFilter.forModel;
 
 import java.util.Collection;
 import java.util.Map;
@@ -344,6 +345,20 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     public boolean isAccessible(AccessType accessType, Object entity) {
+        if (accessType == READ) {
+            // we have to use another entity manager, because the entity will be loaded, even if it is not accessible
+            Class<?> entityType = forModel(getMetamodel()).filterEntity(entity.getClass()).getJavaType();
+            Object id = getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(entity);
+            DefaultSecureEntityManager entityManager
+                = (DefaultSecureEntityManager)getEntityManagerFactory().createEntityManager();
+            try {
+                entityManager.accessManager.delayChecks();
+                return entityManager.accessManager.isAccessible(accessType, entityManager.find(entityType, id));
+            } finally {
+                entityManager.close();
+                AccessManager.Instance.register(accessManager);
+            }
+        }
         AccessManager.Instance.register(accessManager);
         return accessManager.isAccessible(accessType, entity);
     }

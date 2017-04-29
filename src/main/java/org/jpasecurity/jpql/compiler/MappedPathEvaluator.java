@@ -27,13 +27,11 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.PersistenceException;
-import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 
-import org.jpasecurity.BeanInitializer;
-import org.jpasecurity.SecureBeanInitializer;
+import org.jpasecurity.SecurePersistenceUnitUtil;
 
 /**
  * @author Arne Limburg
@@ -41,11 +39,11 @@ import org.jpasecurity.SecureBeanInitializer;
 public class MappedPathEvaluator implements PathEvaluator {
 
     private Metamodel metamodel;
-    private BeanInitializer beanInitializer;
+    private SecurePersistenceUnitUtil persistenceUnitUtil;
 
-    public MappedPathEvaluator(Metamodel metamodel, PersistenceUnitUtil unitUtil) {
+    public MappedPathEvaluator(Metamodel metamodel, SecurePersistenceUnitUtil unitUtil) {
         this.metamodel = metamodel;
-        this.beanInitializer = new SecureBeanInitializer(unitUtil);
+        this.persistenceUnitUtil = unitUtil;
     }
 
     public Object evaluate(Object root, String path) {
@@ -111,7 +109,7 @@ public class MappedPathEvaluator implements PathEvaluator {
                 if (!field.isAccessible()) {
                     field.setAccessible(true);
                 }
-                target = beanInitializer.initialize(target);
+                target = persistenceUnitUtil.initialize(target);
                 return field.get(target);
             } else if (member instanceof Method) {
                 Method method = (Method)member;

@@ -15,12 +15,12 @@
  */
 package org.jpasecurity.jpql.compiler;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.metamodel.BasicType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
@@ -37,6 +36,7 @@ import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 import org.jpasecurity.Alias;
+import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.parser.JpqlFrom;
 import org.jpasecurity.jpql.parser.JpqlGroupBy;
@@ -78,7 +78,7 @@ public class QueryEvaluatorTest {
     @Before
     public void initialize() throws NoSuchMethodException {
         metamodel = mock(Metamodel.class);
-        PersistenceUnitUtil persistenceUnitUtil = mock(PersistenceUnitUtil.class);
+        SecurePersistenceUnitUtil persistenceUnitUtil = mock(SecurePersistenceUnitUtil.class);
 
         EntityType methodAccessTestBeanType = mock(EntityType.class);
         EntityType childTestBeanType = mock(EntityType.class);

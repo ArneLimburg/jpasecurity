@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CommonAbstractCriteria;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -49,6 +48,7 @@ import javax.persistence.metamodel.Type.PersistenceType;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
+import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.compiler.SubselectEvaluator;
 import org.jpasecurity.security.AccessRule;
@@ -67,7 +67,7 @@ public class CriteriaEntityFilter extends EntityFilter {
     private final CriteriaVisitor criteriaVisitor;
 
     public CriteriaEntityFilter(Metamodel metamodel,
-                                PersistenceUnitUtil util,
+                                SecurePersistenceUnitUtil util,
                                 CriteriaBuilder criteriaBuilder,
                                 Collection<AccessRule> accessRules,
                                 SubselectEvaluator... evaluators) {
