@@ -20,8 +20,8 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
 
-import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
+import org.jpasecurity.access.DefaultAccessManager;
 
 public class SecureEntityListener {
 
@@ -45,7 +45,7 @@ public class SecureEntityListener {
         getAccessManager().checkAccess(AccessType.DELETE, entity);
     }
 
-    private AccessManager getAccessManager() {
-        return AccessManager.Instance.get();
+    private DefaultAccessManager getAccessManager() {
+        return DefaultAccessManager.Instance.get();
     }
 }

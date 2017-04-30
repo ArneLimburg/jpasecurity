@@ -34,7 +34,7 @@ import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
-import org.jpasecurity.SecurePersistenceUnitUtil;
+import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.model.acl.Acl;
 import org.jpasecurity.model.acl.AclEntry;

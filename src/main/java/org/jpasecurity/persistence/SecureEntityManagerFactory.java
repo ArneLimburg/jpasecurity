@@ -29,8 +29,8 @@ import javax.persistence.Query;
 import javax.persistence.SynchronizationType;
 import javax.persistence.metamodel.Metamodel;
 
-import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.SecurityContext;
+import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.security.AccessRule;
 import org.jpasecurity.security.rules.AccessRulesParser;
 import org.jpasecurity.security.rules.AccessRulesProvider;

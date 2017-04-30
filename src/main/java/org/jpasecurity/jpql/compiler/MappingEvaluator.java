@@ -23,16 +23,16 @@ import java.util.Set;
 
 import javax.persistence.PersistenceException;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
-import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.Type.PersistenceType;
 
-import org.jpasecurity.AccessManager;
 import org.jpasecurity.Alias;
 import org.jpasecurity.SecurityContext;
+import org.jpasecurity.access.DefaultAccessManager;
 import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.jpql.parser.JpqlFromItem;
 import org.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
@@ -151,10 +151,10 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
         if (securityContext.getAliases().contains(alias)) {
             Object aliasValue;
             try {
-                AccessManager.Instance.get().delayChecks();
+                DefaultAccessManager.Instance.get().delayChecks();
                 aliasValue = securityContext.getAliasValue(alias);
             } finally {
-                AccessManager.Instance.get().checkNow();
+                DefaultAccessManager.Instance.get().checkNow();
             }
             return aliasValue == null? Object.class: aliasValue.getClass();
         }

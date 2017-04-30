@@ -15,9 +15,9 @@
  */
 package org.jpasecurity.persistence.security;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -32,8 +32,8 @@ import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
-import org.jpasecurity.AccessManager;
 import org.jpasecurity.SecurityContext;
+import org.jpasecurity.access.DefaultAccessManager;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.ParseException;
 import org.jpasecurity.model.TestBean;
@@ -50,7 +50,7 @@ public class CriteriaVisitorTest {
 
     private Metamodel metamodel;
     private SecurityContext securityContext;
-    private AccessManager accessManager;
+    private DefaultAccessManager accessManager;
     private JpqlParser parser;
     private AccessRulesCompiler compiler;
     private CriteriaVisitor criteriaVisitor;
@@ -66,8 +66,8 @@ public class CriteriaVisitorTest {
         when(testBeanType.getName()).thenReturn(TestBean.class.getSimpleName());
         when(testBeanType.getJavaType()).thenReturn(TestBean.class);
         securityContext = mock(SecurityContext.class);
-        accessManager = mock(AccessManager.class);
-        AccessManager.Instance.register(accessManager);
+        accessManager = mock(DefaultAccessManager.class);
+        DefaultAccessManager.Instance.register(accessManager);
 
         parser = new JpqlParser();
         compiler = new AccessRulesCompiler(metamodel);
@@ -85,7 +85,7 @@ public class CriteriaVisitorTest {
 
     @After
     public void unregisterAccessManager() {
-        AccessManager.Instance.unregister(accessManager);
+        DefaultAccessManager.Instance.unregister(accessManager);
     }
 
     @Test

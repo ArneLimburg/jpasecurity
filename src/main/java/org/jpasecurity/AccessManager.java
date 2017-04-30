@@ -15,13 +15,6 @@
  */
 package org.jpasecurity;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Implementations of this interface may be used to check whether an
  * entity is accessible given a specific access type.
@@ -47,78 +40,4 @@ public interface AccessManager {
      * @return whether the entity is accessible
      */
     boolean isAccessible(AccessType accessType, Object entity);
-
-    /**
-     * Checks whether the specified entity is accessible with the specified access type.
-     * @param accessType the access type
-     * @param entity the entity
-     * @throws SecurityException if the entity is not accessible
-     */
-    void checkAccess(AccessType accessType, Object entity);
-
-    /**
-     * Returns the {@link SecurityContext} of this <tt>AccessManager</tt>.
-     * @return the security context
-     */
-    SecurityContext getContext();
-
-    /**
-     * Delays all checks until {@link #checkNow()} is called.
-     */
-    void delayChecks();
-
-    /**
-     * Performs all checks that where delayed after {@link #delayChecks()} was called.
-     */
-    void checkNow();
-
-    /**
-     * Temporarily disables the checks of this {@link AccessManager}.
-     */
-    void disableChecks();
-
-    /**
-     * Enables the checks of this previously disabled {@link AccessManager}.
-     */
-    void enableChecks();
-
-    /**
-     * Ignores all delayed checks for the specified access type and entities.
-     * That means, that the specified entities will not be checked
-     * at the next call to {@link #checkNow()} and will not be checked later on.
-     * @param accessType the access type
-     * @param entities the entities
-     */
-    void ignoreChecks(AccessType accessType, Collection<?> entities);
-
-    abstract static class Instance {
-
-        private static final Logger LOG = LoggerFactory.getLogger(AccessManager.class);
-
-        private static Map<Thread, AccessManager> registeredAccessManagers
-            = new ConcurrentHashMap<Thread, AccessManager>();
-
-        public static AccessManager get() {
-            AccessManager accessManager = registeredAccessManagers.get(Thread.currentThread());
-            if (accessManager == null) {
-                LOG.warn("No AccessManager found in thread {}", Thread.currentThread().getName());
-                throw new SecurityException("No AccessManager available. Please ensure that the EntityManager is open");
-            }
-            return accessManager;
-        }
-
-        public static void register(AccessManager manager) {
-            if (registeredAccessManagers.get(Thread.currentThread()) == manager) {
-                return;
-            }
-            LOG.info("registering AccessManager#{}", System.identityHashCode(manager));
-            registeredAccessManagers.values().remove(manager);
-            registeredAccessManagers.put(Thread.currentThread(), manager);
-        }
-
-        public static void unregister(AccessManager manager) {
-            LOG.info("unregistering AccessManager#{}", System.identityHashCode(manager));
-            registeredAccessManagers.values().remove(manager);
-        }
-    }
 }

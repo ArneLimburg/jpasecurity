@@ -31,7 +31,7 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 
-import org.jpasecurity.SecurePersistenceUnitUtil;
+import org.jpasecurity.access.SecurePersistenceUnitUtil;
 
 /**
  * @author Arne Limburg

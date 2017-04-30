@@ -25,8 +25,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
+import org.jpasecurity.access.DefaultAccessManager;
 
 /**
  * @author Arne Limburg
@@ -125,7 +125,7 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> {
 
     void initialize(boolean checkAccess) {
         filtered = new LinkedHashMap<K, V>();
-        AccessManager accessManager = AccessManager.Instance.get();
+        DefaultAccessManager accessManager = DefaultAccessManager.Instance.get();
         accessManager.delayChecks();
         accessManager.ignoreChecks(AccessType.READ, original.keySet());
         accessManager.ignoreChecks(AccessType.READ, original.values());

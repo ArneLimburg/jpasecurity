@@ -24,7 +24,7 @@ import java.util.Set;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.Alias;
-import org.jpasecurity.SecurePersistenceUnitUtil;
+import org.jpasecurity.access.SecurePersistenceUnitUtil;
 
 /**
  * @author Arne Limburg

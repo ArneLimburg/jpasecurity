@@ -39,12 +39,12 @@ import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.Type;
 
-import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
-import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.SecurityContext;
+import org.jpasecurity.access.DefaultAccessManager;
+import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlParser;
@@ -64,7 +64,7 @@ public class EntityFilterTest {
 
     private static final Alias CURRENT_PRINCIPAL = new Alias("CURRENT_PRINCIPAL");
     private static final String NAME = "JUnit";
-    private AccessManager accessManager;
+    private DefaultAccessManager accessManager;
 
     private EntityFilter entityFilter;
 
@@ -72,7 +72,7 @@ public class EntityFilterTest {
     public void initialize() throws ParseException, NoSuchMethodException {
         Metamodel metamodel = mock(Metamodel.class);
         SecurePersistenceUnitUtil persistenceUnitUtil = mock(SecurePersistenceUnitUtil.class);
-        accessManager = mock(AccessManager.class);
+        accessManager = mock(DefaultAccessManager.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         EntityType entityType = mock(EntityType.class);
         SingularAttribute idAttribute = mock(SingularAttribute.class);
@@ -128,12 +128,12 @@ public class EntityFilterTest {
             .thenReturn(MethodAccessTestBean.class.getDeclaredMethod("getRelated"));
 
         entityFilter = new EntityFilter(metamodel, persistenceUnitUtil, initializeAccessRules(metamodel));
-        AccessManager.Instance.register(accessManager);
+        DefaultAccessManager.Instance.register(accessManager);
     }
 
     @After
     public void unregisterAccessManager() {
-        AccessManager.Instance.unregister(accessManager);
+        DefaultAccessManager.Instance.unregister(accessManager);
     }
 
     private List<AccessRule> initializeAccessRules(Metamodel metamodel) throws ParseException {

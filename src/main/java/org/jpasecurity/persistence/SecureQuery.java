@@ -29,9 +29,9 @@ import javax.persistence.Query;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
-import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Path;
+import org.jpasecurity.access.DefaultAccessManager;
 import org.jpasecurity.util.ReflectionUtils;
 
 /**
@@ -55,7 +55,7 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
 
     public T getSingleResult() {
         T result;
-        AccessManager.Instance.get().delayChecks();
+        DefaultAccessManager.Instance.get().delayChecks();
         try {
             if (constructorArgReturnType != null) {
                 Object parameters = super.getSingleResult();
@@ -69,15 +69,15 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
             } else {
                 result = getSecureResult(super.getSingleResult());
             }
-            AccessManager.Instance.get().ignoreChecks(AccessType.READ, Collections.singleton(result));
+            DefaultAccessManager.Instance.get().ignoreChecks(AccessType.READ, Collections.singleton(result));
         } finally {
-            AccessManager.Instance.get().checkNow();
+            DefaultAccessManager.Instance.get().checkNow();
         }
         return result;
     }
 
     public List<T> getResultList() {
-        AccessManager.Instance.get().delayChecks();
+        DefaultAccessManager.Instance.get().delayChecks();
         List<T> targetResult = super.getResultList();
         List<T> proxyResult = new ArrayList<T>();
         if (constructorArgReturnType != null) {
@@ -95,8 +95,8 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
                 proxyResult.add(getSecureResult(entity));
             }
         }
-        AccessManager.Instance.get().ignoreChecks(AccessType.READ, targetResult);
-        AccessManager.Instance.get().checkNow();
+        DefaultAccessManager.Instance.get().ignoreChecks(AccessType.READ, targetResult);
+        DefaultAccessManager.Instance.get().checkNow();
         return proxyResult;
     }
 
@@ -141,7 +141,7 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
                 entitiesToIgnore.add(scalarResult[i]);
             }
         }
-        AccessManager.Instance.get().ignoreChecks(AccessType.READ, entitiesToIgnore);
+        DefaultAccessManager.Instance.get().ignoreChecks(AccessType.READ, entitiesToIgnore);
         return (R)scalarResult;
     }
 

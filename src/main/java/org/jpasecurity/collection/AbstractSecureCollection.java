@@ -23,8 +23,8 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
+import org.jpasecurity.access.DefaultAccessManager;
 
 /**
  * This is the base class for secure collections.
@@ -124,7 +124,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
 
     void initialize(boolean checkAccess) {
         filtered = createFiltered();
-        AccessManager accessManager = AccessManager.Instance.get();
+        DefaultAccessManager accessManager = DefaultAccessManager.Instance.get();
         accessManager.delayChecks();
         accessManager.ignoreChecks(AccessType.READ, original);
         accessManager.checkNow();

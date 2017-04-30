@@ -31,7 +31,7 @@ import java.util.Map;
 
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
-import org.jpasecurity.SecurePersistenceUnitUtil;
+import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.parser.JpqlAbs;
 import org.jpasecurity.jpql.parser.JpqlAbstractSchemaName;

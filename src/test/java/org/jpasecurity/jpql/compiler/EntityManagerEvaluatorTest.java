@@ -35,9 +35,9 @@ import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
-import org.jpasecurity.AccessManager;
 import org.jpasecurity.Alias;
-import org.jpasecurity.SecurePersistenceUnitUtil;
+import org.jpasecurity.access.DefaultAccessManager;
+import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.JpqlStatement;
@@ -61,7 +61,7 @@ public class EntityManagerEvaluatorTest {
 
     private static final String SELECT = "SELECT bean FROM MethodAccessTestBean bean ";
 
-    private AccessManager accessManager;
+    private DefaultAccessManager accessManager;
     private Metamodel metamodel;
     private JpqlParser parser;
     private JpqlCompiler compiler;
@@ -154,9 +154,9 @@ public class EntityManagerEvaluatorTest {
                                                    namedParameters,
                                                    positionalParameters);
 
-        accessManager = mock(AccessManager.class);
+        accessManager = mock(DefaultAccessManager.class);
 
-        AccessManager.Instance.register(accessManager);
+        DefaultAccessManager.Instance.register(accessManager);
     }
 
     @After
@@ -164,7 +164,7 @@ public class EntityManagerEvaluatorTest {
         positionalParameters.clear();
         entities.clear();
         aliases.clear();
-        AccessManager.Instance.unregister(accessManager);
+        DefaultAccessManager.Instance.unregister(accessManager);
     }
 
     @Test

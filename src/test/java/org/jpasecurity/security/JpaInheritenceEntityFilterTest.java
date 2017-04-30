@@ -29,11 +29,11 @@ import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.MappedSuperclassType;
 import javax.persistence.metamodel.Metamodel;
 
-import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
-import org.jpasecurity.SecurePersistenceUnitUtil;
+import org.jpasecurity.access.DefaultAccessManager;
+import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.Node;
@@ -53,7 +53,7 @@ import org.junit.Test;
 public class JpaInheritenceEntityFilterTest {
 
     private Metamodel metamodel;
-    private AccessManager accessManager;
+    private DefaultAccessManager accessManager;
     private Collection<AccessRule> accessRules;
     private EntityFilter filter;
 
@@ -66,7 +66,7 @@ public class JpaInheritenceEntityFilterTest {
         MappedSuperclassType abstractEntityType = mock(MappedSuperclassType.class);
         EntityType groupType = mock(EntityType.class);
         SecurePersistenceUnitUtil persistenceUnitUtil = mock(SecurePersistenceUnitUtil.class);
-        accessManager = mock(AccessManager.class);
+        accessManager = mock(DefaultAccessManager.class);
         DefaultSecurityContext securityContext = new DefaultSecurityContext();
         securityContext.register(new Alias("CURRENT_PRINCIPAL"), "user");
         when(accessManager.getContext()).thenReturn(securityContext);
@@ -99,7 +99,7 @@ public class JpaInheritenceEntityFilterTest {
         when(groupType.getName()).thenReturn(Group.class.getSimpleName());
         when(groupType.getJavaType()).thenReturn(Group.class);
 
-        AccessManager.Instance.register(accessManager);
+        DefaultAccessManager.Instance.register(accessManager);
         JpqlParser parser = new JpqlParser();
         JpqlAccessRule rule
             = parser.parseRule(
@@ -113,7 +113,7 @@ public class JpaInheritenceEntityFilterTest {
 
     @After
     public void removeAccessManager() {
-        AccessManager.Instance.unregister(accessManager);
+        DefaultAccessManager.Instance.unregister(accessManager);
     }
 
     @Test

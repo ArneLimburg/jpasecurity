@@ -48,7 +48,7 @@ import javax.persistence.metamodel.Type.PersistenceType;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
-import org.jpasecurity.SecurePersistenceUnitUtil;
+import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.compiler.SubselectEvaluator;
 import org.jpasecurity.security.AccessRule;

@@ -19,6 +19,8 @@ package org.jpasecurity.security;
 import static org.jpasecurity.jpql.TypeDefinition.Filter.attributeForPath;
 import static org.jpasecurity.jpql.TypeDefinition.Filter.typeForAlias;
 import static org.jpasecurity.persistence.mapping.ManagedTypeFilter.forModel;
+import static org.jpasecurity.util.ReflectionUtils.getConstructor;
+import static org.jpasecurity.util.ReflectionUtils.throwThrowable;
 import static org.jpasecurity.util.Validate.notNull;
 
 import java.beans.Introspector;
@@ -44,8 +46,9 @@ import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
-import org.jpasecurity.SecurePersistenceUnitUtil;
 import org.jpasecurity.SecurityContext;
+import org.jpasecurity.access.DefaultAccessManager;
+import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.jpql.compiler.ConditionalPath;
@@ -78,7 +81,7 @@ import org.slf4j.LoggerFactory;
  * @author Arne Limburg
  * @author Stefan Hildebrandt
  */
-public class EntityFilter {
+public class EntityFilter implements AccessManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntityFilter.class);
 
@@ -407,7 +410,7 @@ public class EntityFilter {
     }
 
     private void expand(AccessRule accessRule, Map<String, Object> queryParameters) {
-        SecurityContext securityContext = AccessManager.Instance.get().getContext();
+        SecurityContext securityContext = DefaultAccessManager.Instance.get().getContext();
         for (Alias alias: securityContext.getAliases()) {
             Collection<JpqlIn> inNodes = accessRule.getInNodes(alias);
             if (inNodes.size() > 0) {
@@ -421,10 +424,10 @@ public class EntityFilter {
                     queryPreparator.replace(nodeToReplace, queryPreparator.createNamedParameter(alias.getName()));
                 }
                 try {
-                    AccessManager.Instance.get().delayChecks();
+                    DefaultAccessManager.Instance.get().delayChecks();
                     queryParameters.put(alias.getName(), securityContext.getAliasValue(alias));
                 } finally {
-                    AccessManager.Instance.get().checkNow();
+                    DefaultAccessManager.Instance.get().checkNow();
                 }
             }
         }
@@ -656,6 +659,17 @@ public class EntityFilter {
 
         Alias getTarget() {
             return target;
+        }
+    }
+
+    @Override
+    public boolean isAccessible(AccessType accessType, String entityName, Object... constructorArgs) {
+        try {
+            Class<?> entityType = forModel(metamodel).filter(entityName).getJavaType();
+            Object entity = getConstructor(entityType, constructorArgs).newInstance(constructorArgs);
+            return isAccessible(accessType, entity);
+        } catch (Exception e) {
+            return throwThrowable(e);
         }
     }
 }

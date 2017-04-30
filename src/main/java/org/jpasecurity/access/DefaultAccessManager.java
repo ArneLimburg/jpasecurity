@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-package org.jpasecurity.security;
+package org.jpasecurity.access;
 
 import static org.jpasecurity.util.Validate.notNull;
 
@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
@@ -37,20 +38,22 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Arne Limburg
  */
-public abstract class AbstractAccessManager implements AccessManager {
+public class DefaultAccessManager implements AccessManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractAccessManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultAccessManager.class);
 
     private Metamodel metamodel;
     private SecurityContext context;
+    private AccessManager entityFilter;
     private boolean checkInProgress;
     private int checksDisabled;
     private int checksDelayed;
     private Map<Object, AccessType> entitiesToCheck = new SimpleMap<Object, AccessType>();
 
-    public AbstractAccessManager(Metamodel metamodel, SecurityContext context) {
+    public DefaultAccessManager(Metamodel metamodel, SecurityContext context, AccessManager filter) {
         this.metamodel = notNull(Metamodel.class, metamodel);
         this.context = notNull(SecurityContext.class, context);
+        this.entityFilter = notNull("EntityFilter", filter);
     }
 
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
@@ -69,6 +72,13 @@ public abstract class AbstractAccessManager implements AccessManager {
             return false;
         }
         return isAccessible(accessType, entity);
+    }
+
+    public boolean isAccessible(AccessType accessType, Object entity) {
+        if (entity == null) {
+            return false;
+        }
+        return entityFilter.isAccessible(accessType, entity);
     }
 
     public void checkAccess(AccessType accessType, Object entity) {
@@ -162,5 +172,36 @@ public abstract class AbstractAccessManager implements AccessManager {
 
     private void endCheck() {
         checkInProgress = false;
+    }
+
+    public abstract static class Instance {
+
+        private static final Logger LOG = LoggerFactory.getLogger(AccessManager.class);
+
+        private static Map<Thread, DefaultAccessManager> registeredAccessManagers
+            = new ConcurrentHashMap<Thread, DefaultAccessManager>();
+
+        public static DefaultAccessManager get() {
+            DefaultAccessManager accessManager = registeredAccessManagers.get(Thread.currentThread());
+            if (accessManager == null) {
+                LOG.warn("No AccessManager found in thread {}", Thread.currentThread().getName());
+                throw new SecurityException("No AccessManager available. Please ensure that the EntityManager is open");
+            }
+            return accessManager;
+        }
+
+        public static void register(DefaultAccessManager manager) {
+            if (registeredAccessManagers.get(Thread.currentThread()) == manager) {
+                return;
+            }
+            LOG.info("registering AccessManager#{}", System.identityHashCode(manager));
+            registeredAccessManagers.values().remove(manager);
+            registeredAccessManagers.put(Thread.currentThread(), manager);
+        }
+
+        public static void unregister(AccessManager manager) {
+            LOG.info("unregistering AccessManager#{}", System.identityHashCode(manager));
+            registeredAccessManagers.values().remove(manager);
+        }
     }
 }

@@ -20,7 +20,7 @@ import java.util.Map;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.Alias;
-import org.jpasecurity.SecurePersistenceUnitUtil;
+import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.compiler.NotEvaluatableException;
 import org.jpasecurity.jpql.compiler.QueryEvaluationParameters;

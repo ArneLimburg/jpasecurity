@@ -30,10 +30,10 @@ import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
 
-import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.Alias;
-import org.jpasecurity.SecurePersistenceUnitUtil;
+import org.jpasecurity.access.DefaultAccessManager;
+import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.contacts.model.Contact;
 import org.jpasecurity.contacts.model.User;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
@@ -51,7 +51,7 @@ import org.mockito.stubbing.Answer;
 public class JpaEntityFilterTest {
 
     private Metamodel metamodel;
-    private AccessManager accessManager;
+    private DefaultAccessManager accessManager;
     private Collection<AccessRule> accessRules;
 
     @Before
@@ -59,7 +59,7 @@ public class JpaEntityFilterTest {
         metamodel = mock(Metamodel.class);
         EntityType contactType = mock(EntityType.class);
         SingularAttribute ownerAttribute = mock(SingularAttribute.class);
-        accessManager = mock(AccessManager.class);
+        accessManager = mock(DefaultAccessManager.class);
         when(accessManager.getContext()).thenReturn(new DefaultSecurityContext());
         when(contactType.getName()).thenReturn(Contact.class.getSimpleName());
         when(contactType.getJavaType()).thenReturn((Class)Contact.class);
@@ -72,7 +72,7 @@ public class JpaEntityFilterTest {
         when(ownerAttribute.getName()).thenReturn("owner");
         when(ownerAttribute.getJavaMember()).thenReturn(Contact.class.getDeclaredField("owner"));
 
-        AccessManager.Instance.register(accessManager);
+        DefaultAccessManager.Instance.register(accessManager);
 
         JpqlParser parser = new JpqlParser();
         JpqlAccessRule rule
@@ -83,12 +83,13 @@ public class JpaEntityFilterTest {
 
     @After
     public void removeAccessManager() {
-        AccessManager.Instance.unregister(accessManager);
+        DefaultAccessManager.Instance.unregister(accessManager);
     }
 
     @Test
     public void access() throws Exception {
-        DefaultSecurityContext securityContext = (DefaultSecurityContext)AccessManager.Instance.get().getContext();
+        DefaultSecurityContext securityContext
+            = (DefaultSecurityContext)DefaultAccessManager.Instance.get().getContext();
         SecurePersistenceUnitUtil persistenceUnitUtil = mock(SecurePersistenceUnitUtil.class);
         when(persistenceUnitUtil.isLoaded(any())).thenReturn(true);
         when(persistenceUnitUtil.initialize(any())).thenAnswer(new Answer<Object>() {

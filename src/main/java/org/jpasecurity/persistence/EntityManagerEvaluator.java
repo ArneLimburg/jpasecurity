@@ -26,11 +26,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.FlushModeType;
 import javax.persistence.Query;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.jpasecurity.AccessManager;
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
+import org.jpasecurity.access.DefaultAccessManager;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.jpql.compiler.AbstractSubselectEvaluator;
@@ -41,6 +39,8 @@ import org.jpasecurity.jpql.compiler.QueryPreparator;
 import org.jpasecurity.jpql.parser.JpqlNoDbIsAccessible;
 import org.jpasecurity.jpql.parser.JpqlPath;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class evaluates JPQL subselect-queries via a call to a specified <tt>EntityManager</tt>.
@@ -108,10 +108,10 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
             for (Map.Entry<String, Object> namedParameter: namedParameterValues.entrySet()) {
                 query.setParameter(namedParameter.getKey(), namedParameter.getValue());
             }
-            AccessManager.Instance.get().disableChecks();
+            DefaultAccessManager.Instance.get().disableChecks();
             query.setFlushMode(FlushModeType.COMMIT);
             List<?> result = query.getResultList();
-            AccessManager.Instance.get().enableChecks();
+            DefaultAccessManager.Instance.get().enableChecks();
             evaluationParameters.setResult(result);
             return result;
         } catch (RuntimeException e) {
