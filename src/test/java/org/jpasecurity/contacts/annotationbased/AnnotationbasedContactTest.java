@@ -15,6 +15,8 @@
  */
 package org.jpasecurity.contacts.annotationbased;
 
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -24,6 +26,8 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
@@ -36,6 +40,10 @@ public class AnnotationbasedContactTest {
 
     private static EntityManagerFactory entityManagerFactory;
     private EntityManager entityManager;
+    private Contact marysContact;
+    private Contact johnsContact;
+    private Contact publicContact;
+    private Contact rootContact;
 
     @BeforeClass
     public static void createEntityManagerFactory() {
@@ -53,10 +61,17 @@ public class AnnotationbasedContactTest {
         entityManager = entityManagerFactory.createEntityManager();
         TestSecurityContext.authenticate("admin", "admin");
         entityManager.getTransaction().begin();
-        entityManager.persist(new Contact("mary", "Marys contact"));
-        entityManager.persist(new Contact("john", "Johns contact"));
+        marysContact = new Contact("mary", "Marys contact");
+        johnsContact = new Contact("john", "Johns contact");
+        publicContact = new Contact("public", "public");
+        rootContact = new Contact("root", "root contact");
+        entityManager.persist(marysContact);
+        entityManager.persist(johnsContact);
+        entityManager.persist(publicContact);
+        entityManager.persist(rootContact);
         entityManager.getTransaction().commit();
         entityManager.clear();
+        TestSecurityContext.unauthenticate();
     }
 
     @After
@@ -71,18 +86,50 @@ public class AnnotationbasedContactTest {
 
     @Test
     public void findAllIsFiltered() {
-        TestSecurityContext.authenticate("admin", "admin");
         List<Contact> result = entityManager.createNamedQuery(Contact.FIND_ALL, Contact.class).getResultList();
-        assertThat(result.size(), is(2));
+        assertThat(result.size(), is(1));
+        assertThat(result, hasItem(publicContact));
+
+        TestSecurityContext.authenticate("admin", "admin");
+        result = entityManager.createNamedQuery(Contact.FIND_ALL, Contact.class).getResultList();
+        assertThat(result.size(), is(4));
+        assertThat(result, hasItems(marysContact, johnsContact, publicContact, rootContact));
 
         TestSecurityContext.authenticate("john", "user");
         result = entityManager.createNamedQuery(Contact.FIND_ALL, Contact.class).getResultList();
-        assertThat(result.size(), is(1));
-        assertThat(result.iterator().next().getOwner(), is("john"));
+        assertThat(result.size(), is(2));
+        assertThat(result, hasItems(johnsContact, publicContact));
 
         TestSecurityContext.authenticate("mary", "user");
         result = entityManager.createNamedQuery(Contact.FIND_ALL, Contact.class).getResultList();
+        assertThat(result.size(), is(2));
+        assertThat(result, hasItems(marysContact, publicContact));
+    }
+
+    @Test
+    public void findAllWithCriteria() {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Contact> query = cb.createQuery(Contact.class);
+        query.from(Contact.class);
+        List<Contact> result = entityManager.createQuery(query).getResultList();
         assertThat(result.size(), is(1));
-        assertThat(result.iterator().next().getOwner(), is("mary"));
+        assertThat(result, hasItem(publicContact));
+
+        TestSecurityContext.authenticate("admin", "admin");
+        query = cb.createQuery(Contact.class);
+        query.from(Contact.class);
+        result = entityManager.createQuery(query).getResultList();
+        assertThat(result.size(), is(4));
+        assertThat(result, hasItems(marysContact, johnsContact, publicContact, rootContact));
+
+        TestSecurityContext.authenticate("john", "user");
+        result = entityManager.createNamedQuery(Contact.FIND_ALL, Contact.class).getResultList();
+        assertThat(result.size(), is(2));
+        assertThat(result, hasItems(johnsContact, publicContact));
+
+        TestSecurityContext.authenticate("mary", "user");
+        result = entityManager.createNamedQuery(Contact.FIND_ALL, Contact.class).getResultList();
+        assertThat(result.size(), is(2));
+        assertThat(result, hasItems(marysContact, publicContact));
     }
 }

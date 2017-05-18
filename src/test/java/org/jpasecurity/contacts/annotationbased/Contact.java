@@ -36,7 +36,7 @@ import org.jpasecurity.security.PermitAny;
 @PermitAny({
     @Permit(access = { AccessType.CREATE, AccessType.READ }, where = "'admin' IN CURRENT_ROLES"),
     @Permit(access = AccessType.READ, where = "EXISTS (SELECT contact FROM Contact contact "
-            + "WHERE this = contact AND contact.owner = CURRENT_PRINCIPAL)")
+            + "WHERE this = contact AND (contact.owner = CURRENT_PRINCIPAL OR contact.owner = 'public'))")
 })
 public class Contact implements Serializable {
 

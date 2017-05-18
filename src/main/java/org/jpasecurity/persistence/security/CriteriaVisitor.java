@@ -985,7 +985,8 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlStringLiteral node, CriteriaHolder query) {
-        query.setValue(builder.literal(node.getValue()));
+        String value = node.getValue();
+        query.setValue(builder.literal(value.substring(value.indexOf('\'') + 1, value.lastIndexOf('\''))));
         return true;
     }
 

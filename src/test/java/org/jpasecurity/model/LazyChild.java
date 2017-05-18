@@ -32,7 +32,6 @@ public class LazyChild {
     private EagerParent parent;
 
     protected LazyChild() {
-        
     }
 
     public LazyChild(EagerParent eagerParent) {
