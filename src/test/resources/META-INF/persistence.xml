@@ -734,11 +734,27 @@
     </properties>
 
   </persistence-unit>
-  
+
   <persistence-unit name="task" transaction-type="RESOURCE_LOCAL">
     <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
     <mapping-file>security.orm.xml</mapping-file>
     <class>org.jpasecurity.model.Task</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties>
+      <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
+      <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
+      <property name="javax.persistence.jdbc.user" value="sa"/>
+      <property name="javax.persistence.jdbc.password" value=""/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
+      <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+    </properties>
+  </persistence-unit>
+
+  <persistence-unit name="lazy-one-to-one" transaction-type="RESOURCE_LOCAL">
+    <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+    <class>org.jpasecurity.model.EagerParent</class>
+    <class>org.jpasecurity.model.LazyChild</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
