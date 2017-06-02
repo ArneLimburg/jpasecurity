@@ -37,6 +37,7 @@ import org.jpasecurity.jpql.compiler.QueryPreparator;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlFromItem;
 import org.jpasecurity.jpql.parser.JpqlInnerJoin;
+import org.jpasecurity.jpql.parser.JpqlKeywords;
 import org.jpasecurity.jpql.parser.JpqlOuterJoin;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.JpqlPath;
@@ -141,7 +142,7 @@ public class AccessRulesParser {
         Set<Alias> declaredAliases = new HashSet<Alias>();
         whereClause.visit(aliasVisitor, declaredAliases);
         int i = 0;
-        while (declaredAliases.contains(alias)) {
+        while (declaredAliases.contains(alias) || JpqlKeywords.ALL.contains(alias.toString().toUpperCase())) {
             alias = new Alias(alias.getName() + i);
             i++;
         }

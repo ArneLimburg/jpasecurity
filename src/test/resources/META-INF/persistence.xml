@@ -436,6 +436,7 @@
 
         <class>org.jpasecurity.contacts.model.User</class>
         <class>org.jpasecurity.contacts.model.Contact</class>
+        <class>org.jpasecurity.contacts.model.Group</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
