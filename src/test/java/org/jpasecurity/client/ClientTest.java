@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 - 2016 Arne Limburg
+ * Copyright 2011 - 2017 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
  */
 package org.jpasecurity.client;
 
-import java.sql.SQLException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
+import org.jpasecurity.TestEntityManager;
 import org.jpasecurity.dto.IdAndNameDto;
 import org.jpasecurity.model.client.Client;
 import org.jpasecurity.model.client.ClientOperationsTracking;
@@ -30,19 +31,18 @@ import org.jpasecurity.model.client.ClientStatus;
 import org.jpasecurity.model.client.ClientTask;
 import org.jpasecurity.model.client.Employee;
 import org.jpasecurity.model.client.ProcessInstanceProcessTaskInstance;
-import org.jpasecurity.persistence.AbstractEntityTestCase;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /** @author Arne Limburg */
-@Ignore
-public class ClientTest extends AbstractEntityTestCase {
+public class ClientTest {
+
+    @Rule
+    public TestEntityManager entityManager = new TestEntityManager("client");
 
     private static final String EMAIL = "test@test.org";
 
@@ -56,16 +56,9 @@ public class ClientTest extends AbstractEntityTestCase {
 
     private static ClientTask clientTaskPersisted;
 
-    @BeforeClass
-    public static void createEntityManagerFactory() throws SQLException {
+    @Before
+    public void createTestData() {
         TestSecurityContext.authenticate(EMAIL);
-        createEntityManagerFactory("client");
-        dropForeignKey("jdbc:hsqldb:mem:test", "sa", "", "CLIENTOPERATIONSTRACKING", "CLIENT");
-        createTestData();
-        TestSecurityContext.authenticate(null);
-    }
-
-    public static void createTestData() {
         Client parent = new Client("parentClient");
         Client client = new Client("originalClient");
         client.setParent(parent);
@@ -89,7 +82,6 @@ public class ClientTest extends AbstractEntityTestCase {
         ProcessInstanceProcessTaskInstance processInstanceProcessTaskInstance =
             new ProcessInstanceProcessTaskInstance(clientProcessInstance, clientTask);
 
-        EntityManager entityManager = getEntityManagerFactory().createEntityManager();
         entityManager.getTransaction().begin();
         active = entityManager.merge(active);
         closed = entityManager.merge(closed);
@@ -115,6 +107,7 @@ public class ClientTest extends AbstractEntityTestCase {
 
         // Saved for the test
         clientTaskPersisted = clientTask;
+        TestSecurityContext.authenticate(null);
     }
 
     @After
@@ -125,7 +118,6 @@ public class ClientTest extends AbstractEntityTestCase {
     @Test
     public void access() {
         TestSecurityContext.authenticate(EMAIL);
-        EntityManager entityManager = getEntityManager();
         Client client = entityManager.find(Client.class, clientId);
         assertNotNull(client);
         entityManager.getTransaction().begin();
@@ -133,19 +125,18 @@ public class ClientTest extends AbstractEntityTestCase {
         entityManager.getTransaction().commit();
         entityManager.close();
 
-        assertNotNull(getEntityManager().find(Client.class, clientId));
+        assertNotNull(entityManager.find(Client.class, clientId));
     }
 
     @Test(expected = SecurityException.class)
     public void wrongEmail() {
         TestSecurityContext.authenticate("wrong@email.org");
-        assertNotNull(getEntityManager().find(Client.class, clientId));
+        assertNotNull(entityManager.find(Client.class, clientId));
     }
 
     @Test(expected = SecurityException.class)
     public void wrongStatus() {
         TestSecurityContext.authenticate(EMAIL);
-        EntityManager entityManager = getEntityManager();
         Client client = entityManager.find(Client.class, clientId);
         assertNotNull(client);
         entityManager.getTransaction().begin();
@@ -157,7 +148,6 @@ public class ClientTest extends AbstractEntityTestCase {
         entityManager.close();
 
         try {
-            entityManager = getEntityManager();
             entityManager.getTransaction().begin();
             Client foundClient = entityManager.find(Client.class, clientId);
             foundClient.setAnotherProperty("new value");
@@ -167,7 +157,6 @@ public class ClientTest extends AbstractEntityTestCase {
                 entityManager.getTransaction().rollback();
             }
             entityManager.close();
-            entityManager = getEntityManager();
             entityManager.getTransaction().begin();
             entityManager.createQuery("UPDATE Client c SET c.currentStatus = :status WHERE c.id = :id")
                 .setParameter("id", clientId)
@@ -181,7 +170,7 @@ public class ClientTest extends AbstractEntityTestCase {
     @Test
     public void query() {
         TestSecurityContext.authenticate(EMAIL);
-        List<Client> clients = getEntityManager().createQuery("SELECT cl FROM Client cl WHERE cl.id = :id",
+        List<Client> clients = entityManager.createQuery("SELECT cl FROM Client cl WHERE cl.id = :id",
             Client.class)
             .setParameter("id", clientId)
             .getResultList();
@@ -192,8 +181,8 @@ public class ClientTest extends AbstractEntityTestCase {
     @Ignore
     public void queryOperationsTracking() {
         TestSecurityContext.authenticate(EMAIL);
-        List<ClientOperationsTracking> tracking = getEntityManager().
-            createQuery("SELECT t FROM ClientOperationsTracking t WHERE t.id = :id",
+        List<ClientOperationsTracking> tracking = entityManager
+            .createQuery("SELECT t FROM ClientOperationsTracking t WHERE t.id = :id",
                 ClientOperationsTracking.class)
             .setParameter("id", operationsTrackingId)
             .getResultList();
@@ -209,7 +198,6 @@ public class ClientTest extends AbstractEntityTestCase {
     @Test
     public void testIdAndNameDtoGetSingleResult() {
         TestSecurityContext.authenticate(EMAIL);
-        EntityManager entityManager = getEntityManager();
         List<IdAndNameDto> idAndNameDtoList = entityManager
             .createNamedQuery(Client.FIND_ALL_ID_AND_NAME).getResultList();
         assertEquals(1, idAndNameDtoList.size());
@@ -224,7 +212,6 @@ public class ClientTest extends AbstractEntityTestCase {
     @Test
     public void testIdAndNameDtoGetResultList() {
         TestSecurityContext.authenticate(EMAIL);
-        EntityManager entityManager = getEntityManager();
         List<IdAndNameDto> idAndNameDtoList = entityManager
             .createNamedQuery(Client.FIND_ALL_ID_AND_NAME).getResultList();
         assertEquals(1, idAndNameDtoList.size());

@@ -17,8 +17,6 @@ package org.jpasecurity.model.client;
 
 import static org.junit.Assert.assertTrue;
 
-import java.sql.SQLException;
-
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -27,26 +25,27 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
-import org.jpasecurity.persistence.AbstractEntityTestCase;
+import org.jpasecurity.TestEntityManager;
 import org.jpasecurity.security.authentication.TestSecurityContext;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-@Ignore
-public class CriteriaBuilderTest extends AbstractEntityTestCase {
+
+public class CriteriaBuilderTest {
+
+    @Rule
+    public TestEntityManager entityManager = new TestEntityManager("client");
 
     private static final String EMAIL = "test@test.org";
 
-    @BeforeClass
-    public static void createEntityManagerFactory() throws SQLException {
+    @Before
+    public void authenticate() {
         TestSecurityContext.authenticate(EMAIL);
-        createEntityManagerFactory("client");
-        dropForeignKey("jdbc:hsqldb:mem:test", "sa", "", "CLIENTOPERATIONSTRACKING", "CLIENT");
     }
 
     @Test
     public void criteria() {
-        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<ClientEntityBrowserDto> c = cb.createQuery(ClientEntityBrowserDto.class);
         Root<Client> client = c.from(Client.class);
 
@@ -66,7 +65,7 @@ public class CriteriaBuilderTest extends AbstractEntityTestCase {
 
         c.select(selection);
         c.distinct(true);
-        TypedQuery<ClientEntityBrowserDto> query = getEntityManager().createQuery(c);
+        TypedQuery<ClientEntityBrowserDto> query = entityManager.createQuery(c);
         assertTrue(query.getResultList().isEmpty());
     }
 }

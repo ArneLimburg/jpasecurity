@@ -15,37 +15,36 @@
  */
 package org.jpasecurity.persistence;
 
-import javax.persistence.EntityManager;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 
+import org.jpasecurity.TestEntityManager;
 import org.jpasecurity.model.TestBean;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
 
 /**
  * @author Arne Limburg
  */
-public class LazyRelationshipTest extends AbstractEntityTestCase {
+public class LazyRelationshipTest {
 
     public static final String USER = "user";
+
+    @Rule
+    public TestEntityManager entityManager = new TestEntityManager("lazy-relationship");
 
     private int childId;
     private int parentId;
 
-    @BeforeClass
-    public static void createEntityManagerFactory() {
-        TestSecurityContext.authenticate(USER);
-        createEntityManagerFactory("lazy-relationship");
-    }
-
     @Before
     public void createTestData() {
         TestSecurityContext.authenticate(USER);
-        EntityManager entityManager = getEntityManager();
         entityManager.getTransaction().begin();
         TestBean testBean = new TestBean(USER);
         entityManager.persist(testBean);
@@ -53,7 +52,8 @@ public class LazyRelationshipTest extends AbstractEntityTestCase {
         child.setParent(testBean);
         entityManager.persist(child);
         entityManager.getTransaction().commit();
-        closeEntityManager();
+        entityManager.clear();
+
         TestSecurityContext.authenticate(null);
         childId = child.getId();
         parentId = testBean.getId();
@@ -67,19 +67,18 @@ public class LazyRelationshipTest extends AbstractEntityTestCase {
     @Test
     public void accessChild() {
         TestSecurityContext.authenticate(USER);
-        createEntityManager();
-        getEntityManager().find(TestBean.class, childId);
+        assertThat(entityManager.find(TestBean.class, childId), is(not(nullValue())));
     }
 
     @Test
-    public void testFlushBeforeFind() {
+    public void flushBeforeFind() {
         TestSecurityContext.authenticate(USER);
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final TestBean child = getEntityManager().find(TestBean.class, childId);
-        getEntityManager().find(TestBean.class, parentId);
-        getEntityManager().flush();
-        getEntityManager().getTransaction().rollback();
+
+        entityManager.getTransaction().begin();
+        TestBean child = entityManager.find(TestBean.class, childId);
+        entityManager.find(TestBean.class, parentId);
+        entityManager.flush();
+        entityManager.getTransaction().rollback();
         assertFalse(child.isPreUpdate());
     }
 }

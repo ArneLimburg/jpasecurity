@@ -20,41 +20,37 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.jpasecurity.TestEntityManager;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.model.SimpleEmbeddable;
-import org.jpasecurity.persistence.AbstractEntityTestCase;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
-public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
+public class CriteriaEntityFilterTest {
 
     public static final String USER = "user";
+
+    @Rule
+    public TestEntityManager entityManager = new TestEntityManager("annotation-based-field-access");
 
     private CriteriaBuilder criteriaBuilder;
     private FieldAccessAnnotationTestBean accessibleBean;
     private FieldAccessAnnotationTestBean inaccessibleBean;
 
-    @BeforeClass
-    public static void createEntityManagerFactory() {
-        createEntityManagerFactory("annotation-based-field-access");
-    }
-
     @Before
     public void setUp() {
         TestSecurityContext.authenticate("admin", "admin");
-        EntityManager entityManager = getEntityManager();
         inaccessibleBean = new FieldAccessAnnotationTestBean("");
         accessibleBean = new FieldAccessAnnotationTestBean(USER, inaccessibleBean);
         accessibleBean.setSimpleEmbeddable(new SimpleEmbeddable("embedded-name"));
@@ -69,7 +65,6 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
     @After
     public void tearDown() {
         TestSecurityContext.authenticate("admin", "admin");
-        EntityManager entityManager = getEntityManager();
         entityManager.getTransaction().begin();
         entityManager.remove(entityManager.merge(accessibleBean));
         entityManager.remove(entityManager.merge(inaccessibleBean));
@@ -80,7 +75,6 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
     @Test
     public void noSelection() {
         TestSecurityContext.authenticate(USER);
-        EntityManager entityManager = getEntityManager();
         CriteriaQuery<FieldAccessAnnotationTestBean> query
             = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);
         query.from(FieldAccessAnnotationTestBean.class);
@@ -92,7 +86,6 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
     @Test
     public void simpleSelection() {
         TestSecurityContext.authenticate(USER);
-        EntityManager entityManager = getEntityManager();
         CriteriaQuery<FieldAccessAnnotationTestBean> query
             = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
@@ -105,7 +98,6 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
     @Test
     public void simpleSelectionWithBasicPath() {
         TestSecurityContext.authenticate(USER);
-        EntityManager entityManager = getEntityManager();
         CriteriaQuery<String> query
             = criteriaBuilder.createQuery(String.class);
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
@@ -118,7 +110,6 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
     @Test
     public void simpleSelectionWithEmbeddedPath() {
         TestSecurityContext.authenticate(USER);
-        EntityManager entityManager = getEntityManager();
         CriteriaQuery<SimpleEmbeddable> query
             = criteriaBuilder.createQuery(SimpleEmbeddable.class);
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
@@ -131,7 +122,6 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
     @Test
     public void aggregateSelection() {
         TestSecurityContext.authenticate(USER);
-        EntityManager entityManager = getEntityManager();
         CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
         query.select(criteriaBuilder.count(bean));
@@ -143,7 +133,6 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
     @Test
     public void compountSelection() {
         TestSecurityContext.authenticate("admin", "admin");
-        EntityManager entityManager = getEntityManager();
         CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
         query.multiselect(bean, bean.get("parent"));
@@ -160,7 +149,6 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
     @Test
     public void compountSelectionWithBasicAndEmbeddedPath() {
         TestSecurityContext.authenticate(USER);
-        EntityManager entityManager = getEntityManager();
         CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
         query.multiselect(bean.<String>get("name"), bean.<SimpleEmbeddable>get("embeddable"));
@@ -173,7 +161,6 @@ public class CriteriaEntityFilterTest extends AbstractEntityTestCase {
     @Test
     public void condition() {
         TestSecurityContext.authenticate(USER);
-        EntityManager entityManager = getEntityManager();
         CriteriaQuery<FieldAccessAnnotationTestBean> query
             = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);

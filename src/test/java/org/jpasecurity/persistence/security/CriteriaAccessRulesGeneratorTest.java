@@ -17,40 +17,37 @@ package org.jpasecurity.persistence.security;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 
 import org.hibernate.Query;
+import org.jpasecurity.TestEntityManager;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
-import org.jpasecurity.persistence.AbstractEntityTestCase;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
  * @author Arne Limburg
  */
-public class CriteriaAccessRulesGeneratorTest extends AbstractEntityTestCase {
+public class CriteriaAccessRulesGeneratorTest {
 
     public static final String USER = "user";
+
+    @Rule
+    public TestEntityManager entityManager
+        = new TestEntityManager("annotation-based-field-access-criteria-access-rules-test");
 
     private CriteriaBuilder criteriaBuilder;
     private FieldAccessAnnotationTestBean accessibleBean;
     private FieldAccessAnnotationTestBean inaccessibleBean;
 
-    @BeforeClass
-    public static void createEntityManagerFactory() {
-        createEntityManagerFactory("annotation-based-field-access-criteria-access-rules-test");
-    }
-
     @Before
     public void setUp() {
         TestSecurityContext.authenticate("admin", "admin");
-        EntityManager entityManager = getEntityManager();
         inaccessibleBean = new FieldAccessAnnotationTestBean("");
         accessibleBean = new FieldAccessAnnotationTestBean(USER, inaccessibleBean);
         entityManager.getTransaction().begin();
@@ -64,7 +61,6 @@ public class CriteriaAccessRulesGeneratorTest extends AbstractEntityTestCase {
     @After
     public void tearDown() {
         TestSecurityContext.authenticate("admin", "admin");
-        EntityManager entityManager = getEntityManager();
         entityManager.getTransaction().begin();
         entityManager.remove(entityManager.merge(accessibleBean));
         entityManager.remove(entityManager.merge(inaccessibleBean));
@@ -167,12 +163,11 @@ public class CriteriaAccessRulesGeneratorTest extends AbstractEntityTestCase {
 
     private void check(String roleName, String expectedQuery) {
         TestSecurityContext.authenticate("admin", roleName);
-        EntityManager entityManager = getEntityManager();
-        CriteriaQuery<FieldAccessAnnotationTestBean>
-            criteriaQuery = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);
+        CriteriaQuery<FieldAccessAnnotationTestBean> criteriaQuery
+            = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);
         criteriaQuery.from(FieldAccessAnnotationTestBean.class);
         TypedQuery<FieldAccessAnnotationTestBean> entityQuery = entityManager.createQuery(criteriaQuery);
-        final String queryString = entityQuery.unwrap(Query.class).getQueryString();
+        String queryString = entityQuery.unwrap(Query.class).getQueryString();
         assertEquals(expectedQuery, queryString);
     }
 }

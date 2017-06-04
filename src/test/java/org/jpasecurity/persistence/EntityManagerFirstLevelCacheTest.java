@@ -20,24 +20,23 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
+import org.jpasecurity.TestEntityManager;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
  * @author Stefan Hildebrandt
  */
-public class EntityManagerFirstLevelCacheTest extends AbstractEntityTestCase {
+public class EntityManagerFirstLevelCacheTest {
 
     public static final String USER = "user";
 
-    @BeforeClass
-    public static void createEntityManagerFactory() {
-        createEntityManagerFactory("entity-lifecycle-test");
-    }
+    @Rule
+    public TestEntityManager entityManager = new TestEntityManager("entity-lifecycle-test");
 
     @Before
     public void createTestData() {
@@ -51,190 +50,179 @@ public class EntityManagerFirstLevelCacheTest extends AbstractEntityTestCase {
 
     @Test
     public void findUnProxiedEntityWithinSameEntityManagerCreatedAfterFlush() {
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
-        getEntityManager().persist(test);
-        getEntityManager().flush();
-        final FieldAccessAnnotationTestBean entityByFind =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
+        entityManager.persist(test);
+        entityManager.flush();
+        FieldAccessAnnotationTestBean entityByFind =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
         assertSame(test, entityByFind);
-        getEntityManager().getTransaction().rollback();
+        entityManager.getTransaction().rollback();
     }
 
     @Test
     public void findUnProxiedEntityWithinSameEntityManagerCreatedAfterCommit() {
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
-        getEntityManager().persist(test);
-        getEntityManager().getTransaction().commit();
-        final FieldAccessAnnotationTestBean entityByFind =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
+        entityManager.persist(test);
+        entityManager.getTransaction().commit();
+        FieldAccessAnnotationTestBean entityByFind =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
         assertSame(test, entityByFind);
     }
 
     @Test
     public void removeEntityCreatedWithinSameTransaction() {
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
-        getEntityManager().persist(test);
-        getEntityManager().flush();
-        getEntityManager().remove(test);
-        getEntityManager().flush();
-        final FieldAccessAnnotationTestBean shouldNotExists =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
+        entityManager.persist(test);
+        entityManager.flush();
+        entityManager.remove(test);
+        entityManager.flush();
+        FieldAccessAnnotationTestBean shouldNotExists =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
         assertNull(shouldNotExists);
-        getEntityManager().getTransaction().rollback();
+        entityManager.getTransaction().rollback();
     }
 
     @Test
     public void removeEntityCreatedWithinSameLongRunningEntityManager() {
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
-        getEntityManager().persist(test);
-        getEntityManager().getTransaction().commit();
-        getEntityManager().getTransaction().begin();
-        getEntityManager().remove(test);
-        getEntityManager().getTransaction().commit();
-        final FieldAccessAnnotationTestBean shouldNotExists =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
+        entityManager.persist(test);
+        entityManager.getTransaction().commit();
+        entityManager.getTransaction().begin();
+        entityManager.remove(test);
+        entityManager.getTransaction().commit();
+        FieldAccessAnnotationTestBean shouldNotExists =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
         assertNull(shouldNotExists);
     }
 
     @Test
     public void removeEntityCreatedAndLoadedWithinSameLongRunningEntityManagerCommitting() {
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
-        getEntityManager().persist(test);
-        getEntityManager().getTransaction().commit();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean child = new FieldAccessAnnotationTestBean("child", test);
-        getEntityManager().persist(child);
-        getEntityManager().getTransaction().commit();
-        getEntityManager().getTransaction().begin();
-        getEntityManager().createQuery("delete from FieldAccessAnnotationTestBean c where c.parent.id=:parentId")
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
+        entityManager.persist(test);
+        entityManager.getTransaction().commit();
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean child = new FieldAccessAnnotationTestBean("child", test);
+        entityManager.persist(child);
+        entityManager.getTransaction().commit();
+        entityManager.getTransaction().begin();
+        entityManager.createQuery("delete from FieldAccessAnnotationTestBean c where c.parent.id=:parentId")
             .setParameter("parentId", test.getIdentifier()).executeUpdate();
-        getEntityManager().getTransaction().commit();
-        final FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        entityManager.getTransaction().commit();
+        FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
         assertSame(test, fieldAccessAnnotationTestBean);
         assertNotNull(fieldAccessAnnotationTestBean);
-        getEntityManager().getTransaction().begin();
-        getEntityManager().remove(getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier()));
-        getEntityManager().getTransaction().commit();
-        final FieldAccessAnnotationTestBean shouldNotExists =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        entityManager.getTransaction().begin();
+        entityManager.remove(entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier()));
+        entityManager.getTransaction().commit();
+        FieldAccessAnnotationTestBean shouldNotExists =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
         assertNull(shouldNotExists);
     }
 
     @Test
     public void removeEntityCreatedAndLoadedWithinSameLongRunningEntityManagerFlushing() {
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
-        getEntityManager().persist(test);
-        getEntityManager().flush();
-        final FieldAccessAnnotationTestBean child = new FieldAccessAnnotationTestBean("child", test);
-        getEntityManager().persist(child);
-        getEntityManager().flush();
-        getEntityManager().createQuery("delete from FieldAccessAnnotationTestBean c where c.parent.id=:parentId")
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
+        entityManager.persist(test);
+        entityManager.flush();
+        FieldAccessAnnotationTestBean child = new FieldAccessAnnotationTestBean("child", test);
+        entityManager.persist(child);
+        entityManager.flush();
+        entityManager.createQuery("delete from FieldAccessAnnotationTestBean c where c.parent.id=:parentId")
             .setParameter("parentId", test.getIdentifier()).executeUpdate();
-        getEntityManager().flush();
-        final FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        entityManager.flush();
+        FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
         assertNotNull(fieldAccessAnnotationTestBean);
         assertSame(test, fieldAccessAnnotationTestBean);
-        getEntityManager().flush();
-        getEntityManager().remove(getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier()));
-        getEntityManager().flush();
-        final FieldAccessAnnotationTestBean shouldNotExists =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        entityManager.flush();
+        entityManager.remove(entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier()));
+        entityManager.flush();
+        FieldAccessAnnotationTestBean shouldNotExists =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
         assertNull(shouldNotExists);
     }
 
     @Test
     public void removeEntityLoadedAlreadyWithinCurrentEntityManagerExpectFindReturnsNullAfterRemove() {
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
-        getEntityManager().persist(test);
-        getEntityManager().getTransaction().commit();
-        closeEntityManager();
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean1 =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
-        final FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean2 =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
+        entityManager.persist(test);
+        entityManager.getTransaction().commit();
+        entityManager.clear();
+
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean1 =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean2 =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
         assertSame(fieldAccessAnnotationTestBean1, fieldAccessAnnotationTestBean2);
-        getEntityManager().remove(fieldAccessAnnotationTestBean2);
-        getEntityManager().getTransaction().commit();
-        getEntityManager().getTransaction().begin();
+        entityManager.remove(fieldAccessAnnotationTestBean2);
+        entityManager.getTransaction().commit();
+        entityManager.getTransaction().begin();
         assertNull(
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier()));
-        getEntityManager().getTransaction().commit();
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier()));
+        entityManager.getTransaction().commit();
     }
 
     @Test
-    public void
-    removeEntityWithoutExplicitFlushingLoadedAlreadyWithinCurrentEntityManagerExpectFindReturnsNullAfterRemove() {
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
-        getEntityManager().persist(test);
-        getEntityManager().getTransaction().commit();
-        closeEntityManager();
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean1 =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
-        final FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean2 =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+    public void removeEntityWithoutFlushingLoadedAlreadyWithinCurrentEntityManagerExpectFindReturnsNullAfterRemove() {
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
+        entityManager.persist(test);
+        entityManager.getTransaction().commit();
+        entityManager.clear();
+
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean1 =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean2 =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
         assertSame(fieldAccessAnnotationTestBean1, fieldAccessAnnotationTestBean2);
-        getEntityManager().remove(fieldAccessAnnotationTestBean2);
+        entityManager.remove(fieldAccessAnnotationTestBean2);
         assertNull(
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier()));
-        getEntityManager().getTransaction().commit();
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier()));
+        entityManager.getTransaction().commit();
     }
 
     @Test
     public void getReferenceWithinEntityManagerExpectIsSameWithinOneEntityManager() {
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
-        getEntityManager().persist(test);
-        getEntityManager().getTransaction().commit();
-        closeEntityManager();
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean1 =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
-        final FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean2 =
-            getEntityManager().getReference(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
+        entityManager.persist(test);
+        entityManager.getTransaction().commit();
+        entityManager.clear();
+
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean1 =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean2 =
+            entityManager.getReference(FieldAccessAnnotationTestBean.class, test.getIdentifier());
         assertSame(fieldAccessAnnotationTestBean1, fieldAccessAnnotationTestBean2);
-        getEntityManager().getTransaction().commit();
+        entityManager.getTransaction().commit();
     }
 
     @Test
     public void getReferenceWithinEntityManagerExpectNotSameAfterRemove() {
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
-        getEntityManager().persist(test);
-        getEntityManager().getTransaction().commit();
-        closeEntityManager();
-        createEntityManager();
-        getEntityManager().getTransaction().begin();
-        final FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean1 =
-            getEntityManager().find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
-        getEntityManager().remove(fieldAccessAnnotationTestBean1);
-        getEntityManager().getTransaction().commit();
-        final FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean2 =
-            getEntityManager().getReference(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean test = new FieldAccessAnnotationTestBean("test");
+        entityManager.persist(test);
+        entityManager.getTransaction().commit();
+        entityManager.clear();
+
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean1 =
+            entityManager.find(FieldAccessAnnotationTestBean.class, test.getIdentifier());
+        entityManager.remove(fieldAccessAnnotationTestBean1);
+        entityManager.getTransaction().commit();
+        FieldAccessAnnotationTestBean fieldAccessAnnotationTestBean2 =
+            entityManager.getReference(FieldAccessAnnotationTestBean.class, test.getIdentifier());
         assertNotSame(fieldAccessAnnotationTestBean1, fieldAccessAnnotationTestBean2);
     }
 }
