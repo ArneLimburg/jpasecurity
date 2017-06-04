@@ -579,7 +579,7 @@ public class ValueIteratorTest {
 
         private MethodAccessTestBean bean;
 
-        public ParentAnswer(MethodAccessTestBean bean) {
+        ParentAnswer(MethodAccessTestBean bean) {
             this.bean = bean;
         }
 
@@ -594,7 +594,7 @@ public class ValueIteratorTest {
 
         private MethodAccessTestBean bean;
 
-        public ChildrenAnswer(MethodAccessTestBean bean) {
+        ChildrenAnswer(MethodAccessTestBean bean) {
             this.bean = bean;
         }
 

@@ -204,7 +204,7 @@ public class AccessRule extends JpqlCompiledStatement {
 
         private String identifier;
 
-        public IdentificationVariableVisitor(String identifier) {
+        IdentificationVariableVisitor(String identifier) {
             if (identifier == null) {
                 throw new IllegalArgumentException("identifier may not be null");
             }
@@ -225,7 +225,7 @@ public class AccessRule extends JpqlCompiledStatement {
 
         private String identifier;
 
-        public InNodeVisitor(String identifier) {
+        InNodeVisitor(String identifier) {
             if (identifier == null) {
                 throw new IllegalArgumentException("identifier may not be null");
             }

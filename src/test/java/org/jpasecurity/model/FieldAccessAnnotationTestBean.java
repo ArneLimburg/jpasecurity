@@ -51,9 +51,9 @@ import org.jpasecurity.collection.SecureCollections;
  * @author Arne Limburg
  */
 @NamedQueries({
-  @NamedQuery(name = "findAll", query = "select bean from FieldAccessAnnotationTestBean bean"),
-  @NamedQuery(name = "findById", query = "select bean from FieldAccessAnnotationTestBean bean where bean.id = :id")
-})
+    @NamedQuery(name = "findAll", query = "select bean from FieldAccessAnnotationTestBean bean"),
+    @NamedQuery(name = "findById", query = "select bean from FieldAccessAnnotationTestBean bean where bean.id = :id")
+    })
 @NamedQuery(name = "findByName", query = "select bean from FieldAccessAnnotationTestBean bean where bean.name = :name")
 @NamedNativeQueries({
     @NamedNativeQuery(
@@ -65,7 +65,7 @@ import org.jpasecurity.collection.SecureCollections;
                 + "bean.parentBean parentBean"
                 + " from FieldAccessAnnotationTestBean bean",
         resultClass = FieldAccessAnnotationTestBean.class)
-})
+    })
 @Entity
 public class FieldAccessAnnotationTestBean {
 

@@ -185,7 +185,7 @@ public class AccessRulesParser {
         private final Alias alias;
         private final QueryPreparator queryPreparator = new QueryPreparator();
 
-        public PathVisitor(Alias alias) {
+        PathVisitor(Alias alias) {
             this.alias = alias;
         }
 

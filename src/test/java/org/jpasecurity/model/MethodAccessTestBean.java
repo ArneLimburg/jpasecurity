@@ -35,7 +35,7 @@ import javax.persistence.OneToMany;
                 query = "SELECT m FROM MethodAccessTestBean m WHERE m.id = :id"),
     @NamedQuery(name = "MethodAccessTestBean.findByName",
                 query = "SELECT m FROM MethodAccessTestBean m WHERE m.name = :name"),
-})
+    })
 @Entity
 public class MethodAccessTestBean {
 

@@ -27,7 +27,7 @@ import javax.persistence.NamedQuery;
 @NamedQueries({
     @NamedQuery(name = "ChildTestBean.findById", query = "SELECT c FROM ChildTestBean c WHERE c.id = :id"),
     @NamedQuery(name = "ChildTestBean.findByName", query = "SELECT c FROM ChildTestBean c WHERE c.name = :name"),
-})
+    })
 @Entity
 public class ChildTestBean implements TestInterface {
 

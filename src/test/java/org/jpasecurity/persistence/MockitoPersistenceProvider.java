@@ -73,7 +73,7 @@ public class MockitoPersistenceProvider implements PersistenceProvider {
         private Metamodel metamodel;
         private CriteriaBuilder criteriaBuilder;
 
-        public MockitoEntityManagerFactory() {
+        MockitoEntityManagerFactory() {
             metamodel = mock(Metamodel.class);
             criteriaBuilder = mock(CriteriaBuilder.class);
         }

@@ -49,7 +49,7 @@ public class SimpleMap<K, V> extends AbstractMap<K, V> {
         private K key;
         private V value;
 
-        public MapEntry(K key, V value) {
+        MapEntry(K key, V value) {
             this.key = key;
             this.value = value;
         }

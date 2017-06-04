@@ -143,7 +143,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         Iterator<E> iterator;
         E current = (E)UNDEFINED;
 
-        public FilteredIterator(Iterator<E> iterator) {
+        FilteredIterator(Iterator<E> iterator) {
             this.iterator = iterator;
         }
 

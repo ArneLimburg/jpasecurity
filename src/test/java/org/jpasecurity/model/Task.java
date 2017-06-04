@@ -34,7 +34,7 @@ import org.jpasecurity.security.PermitAny;
     @Permit(access = { CREATE, READ }, where = "status = org.jpasecurity.model.TaskStatus.OPEN"),
     @Permit(access = UPDATE, where = "status = org.jpasecurity.model.TaskStatus.CLOSED"),
     @Permit(access = DELETE, where = "status <> org.jpasecurity.model.TaskStatus.OPEN")
-})
+    })
 public class Task {
 
     @Id

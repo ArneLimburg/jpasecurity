@@ -30,8 +30,6 @@ import javax.persistence.PrimaryKeyJoinColumn;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.LazyToOne;
-import org.hibernate.annotations.LazyToOneOption;
 
 /**
  * @author Arne Limburg
@@ -70,8 +68,7 @@ public class Client extends AbstractEntity<Integer> {
     private String name;
 
     @PrimaryKeyJoinColumn
-    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE }, optional = false)
-    @LazyToOne(LazyToOneOption.PROXY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private ClientOperationsTracking operationsTracking;
 
     public Client() {

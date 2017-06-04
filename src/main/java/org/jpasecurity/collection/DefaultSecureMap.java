@@ -202,7 +202,7 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> {
 
         private Map.Entry<K, V> entry;
 
-        public FilteredEntry(Map.Entry<K, V> entry) {
+        FilteredEntry(Map.Entry<K, V> entry) {
             this.entry = entry;
         }
 

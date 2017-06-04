@@ -70,7 +70,7 @@ public class XmlAccessRulesProvider implements AccessRulesProvider {
 
         private String persistenceUnitName;
 
-        public RulesParser(String persistenceUnitName) {
+        RulesParser(String persistenceUnitName) {
             super(new RulesHandler());
             this.persistenceUnitName = persistenceUnitName;
         }

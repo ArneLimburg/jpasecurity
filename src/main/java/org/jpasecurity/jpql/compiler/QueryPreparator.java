@@ -484,7 +484,7 @@ public class QueryPreparator {
         private Path oldPath;
         private Path newPath;
 
-        public ReplaceParameters(Path oldPath, Path newPath) {
+        ReplaceParameters(Path oldPath, Path newPath) {
             this.oldPath = oldPath;
             this.newPath = newPath;
         }

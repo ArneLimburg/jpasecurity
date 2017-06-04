@@ -82,11 +82,11 @@ public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>
         private E to;
         boolean tailSet = false;
 
-        public SecureSubSet(E from, E to) {
+        SecureSubSet(E from, E to) {
             this(from, to, false);
         }
 
-        public SecureSubSet(E from, E to, boolean tailSet) {
+        SecureSubSet(E from, E to, boolean tailSet) {
             this.from = from;
             this.to = to;
             this.tailSet = tailSet;
@@ -189,7 +189,7 @@ public class SecureSortedSet<E> extends AbstractSecureCollection<E, SortedSet<E>
 
         private class SecureSubSetIterator extends FilteredIterator {
 
-            public SecureSubSetIterator(Iterator<E> iterator) {
+            SecureSubSetIterator(Iterator<E> iterator) {
                 super(iterator);
             }
 

@@ -50,7 +50,7 @@ public class AccessControlEntry {
     @AttributeOverrides({
         @AttributeOverride(name = "success", column = @Column(name = "audit_success")),
         @AttributeOverride(name = "failure", column = @Column(name = "audit_failure"))
-    })
+        })
     private Auditing auditing;
 
     public long getId() {
