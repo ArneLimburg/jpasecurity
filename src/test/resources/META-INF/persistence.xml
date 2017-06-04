@@ -27,7 +27,7 @@
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
-            <property name="org.jpasecurity.persistence.provider" value="org.jpasecurity.MockitoPersistenceProvider" />
+            <property name="org.jpasecurity.persistence.provider" value="org.jpasecurity.persistence.MockitoPersistenceProvider" />
         </properties>
     </persistence-unit>
 

@@ -30,7 +30,6 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.jpasecurity.MockitoPersistenceProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Node;
