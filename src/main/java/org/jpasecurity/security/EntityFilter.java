@@ -16,6 +16,9 @@
 
 package org.jpasecurity.security;
 
+import static javax.persistence.metamodel.Attribute.PersistentAttributeType.BASIC;
+import static javax.persistence.metamodel.Attribute.PersistentAttributeType.ELEMENT_COLLECTION;
+import static javax.persistence.metamodel.Attribute.PersistentAttributeType.EMBEDDED;
 import static org.jpasecurity.jpql.TypeDefinition.Filter.attributeForPath;
 import static org.jpasecurity.jpql.TypeDefinition.Filter.typeForAlias;
 import static org.jpasecurity.persistence.mapping.ManagedTypeFilter.forModel;
@@ -27,6 +30,7 @@ import java.beans.Introspector;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -51,6 +55,7 @@ import org.jpasecurity.access.DefaultAccessManager;
 import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.TypeDefinition;
+import org.jpasecurity.jpql.TypeDefinition.Filter;
 import org.jpasecurity.jpql.compiler.ConditionalPath;
 import org.jpasecurity.jpql.compiler.JpqlCompiler;
 import org.jpasecurity.jpql.compiler.NotEvaluatableException;
@@ -488,13 +493,14 @@ public class EntityFilter implements AccessManager {
         if (!selectedPath.hasParentPath()) {
             return selectedPath;
         }
+        Set<PersistentAttributeType> basicAttributeTypes = EnumSet.of(BASIC, EMBEDDED, ELEMENT_COLLECTION);
         Attribute<?, ?> attribute
-            = TypeDefinition.Filter.attributeForPath(selectedPath).withMetamodel(metamodel).filter(typeDefinitions);
-        if (attribute.getPersistentAttributeType() == PersistentAttributeType.BASIC) {
-            return selectedPath.getParentPath();
-        } else {
-            return selectedPath;
+            = Filter.attributeForPath(selectedPath).withMetamodel(metamodel).filter(typeDefinitions);
+        while (selectedPath.hasParentPath() && basicAttributeTypes.contains(attribute.getPersistentAttributeType())) {
+            selectedPath = selectedPath.getParentPath();
+            attribute = Filter.attributeForPath(selectedPath).withMetamodel(metamodel).filter(typeDefinitions);
         }
+        return selectedPath;
     }
 
     private Class<?> getSelectedType(Path entityPath, Set<TypeDefinition> typeDefinitions) {

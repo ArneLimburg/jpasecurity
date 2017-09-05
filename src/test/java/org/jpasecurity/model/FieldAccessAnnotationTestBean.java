@@ -52,7 +52,9 @@ import org.jpasecurity.collection.SecureCollections;
  */
 @NamedQueries({
     @NamedQuery(name = "findAll", query = "select bean from FieldAccessAnnotationTestBean bean"),
-    @NamedQuery(name = "findById", query = "select bean from FieldAccessAnnotationTestBean bean where bean.id = :id")
+    @NamedQuery(name = "findById", query = "select bean from FieldAccessAnnotationTestBean bean where bean.id = :id"),
+    @NamedQuery(name = "findEmbeddableById",
+        query = "select bean.embeddable from FieldAccessAnnotationTestBean bean where bean.id = :id")
     })
 @NamedQuery(name = "findByName", query = "select bean from FieldAccessAnnotationTestBean bean where bean.name = :name")
 @NamedNativeQueries({

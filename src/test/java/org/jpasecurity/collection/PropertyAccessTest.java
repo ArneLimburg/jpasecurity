@@ -15,9 +15,14 @@
  */
 package org.jpasecurity.collection;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -28,6 +33,7 @@ import org.jpasecurity.model.ChildTestBean;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.model.MethodAccessAnnotationTestBean;
 import org.jpasecurity.model.ParentTestBean;
+import org.jpasecurity.model.SimpleEmbeddable;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.jpasecurity.util.ReflectionUtils;
 import org.junit.After;
@@ -37,13 +43,45 @@ import org.junit.Test;
 /**
  * @author Arne Limburg
  */
-@Ignore
 public class PropertyAccessTest {
 
     public static final String USER1 = "user1";
     public static final String USER2 = "user2";
     private static final String ADMIN = "admin";
 
+    @Test
+    public void queryWithEmbeddedResult() {
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
+        EntityManager entityManager = factory.createEntityManager();
+        TestSecurityContext.authenticate(ADMIN, ADMIN);
+        entityManager.getTransaction().begin();
+        FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean(USER1);
+        bean.setSimpleEmbeddable(new SimpleEmbeddable(USER1));
+        bean.getChildBeans().add(new FieldAccessAnnotationTestBean(USER1, bean));
+        bean.getChildBeans().add(new FieldAccessAnnotationTestBean(USER2, bean));
+        entityManager.persist(bean);
+        FieldAccessAnnotationTestBean inaccessibleBean = new FieldAccessAnnotationTestBean(USER2);
+        inaccessibleBean.setSimpleEmbeddable(new SimpleEmbeddable(USER2));
+        entityManager.persist(inaccessibleBean);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+
+        entityManager = factory.createEntityManager();
+        TestSecurityContext.authenticate(USER1);
+        SimpleEmbeddable result = entityManager.createNamedQuery("findEmbeddableById", SimpleEmbeddable.class)
+            .setParameter("id", bean.getIdentifier())
+            .getSingleResult();
+        assertThat(result.getName(), is(USER1));
+        List<SimpleEmbeddable> emptyResult
+            = entityManager.createNamedQuery("findEmbeddableById", SimpleEmbeddable.class)
+                .setParameter("id", inaccessibleBean.getIdentifier())
+                .getResultList();
+        assertThat(emptyResult, hasSize(0));
+        entityManager.close();
+        factory.close();
+    }
+
+    @Ignore
     @Test
     public void navigateOneToMany() {
         TestSecurityContext.authenticate(ADMIN, ADMIN);
@@ -69,6 +107,7 @@ public class PropertyAccessTest {
         factory.close();
     }
 
+    @Ignore
     @Test
     public void methodBasedMapping() {
         TestSecurityContext.authenticate(ADMIN, ADMIN);
@@ -145,6 +184,7 @@ public class PropertyAccessTest {
         entityManager3.close();
     }
 
+    @Ignore
     @Test
     public void update() {
         TestSecurityContext.authenticate(USER1);
@@ -200,6 +240,7 @@ public class PropertyAccessTest {
         assertEquals(USER2, bean.getBeanName());
     }
 
+    @Ignore
     @Test
     public void fieldBasedPropertyAccessCount() {
         TestSecurityContext.authenticate(USER1);
@@ -232,6 +273,7 @@ public class PropertyAccessTest {
         entityManager.close();
     }
 
+    @Ignore
     @Test
     public void methodBasedPropertyAccessCount() {
         TestSecurityContext.authenticate(USER1);
