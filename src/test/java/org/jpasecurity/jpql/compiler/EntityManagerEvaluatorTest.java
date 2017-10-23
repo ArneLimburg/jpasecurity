@@ -179,7 +179,8 @@ public class EntityManagerEvaluatorTest {
                 + " FROM MethodAccessTestBean innerBean"
                 + " WHERE bean.parent=innerBean)");
         entityManagerEvaluator.evaluate(jpqlCompiledStatement, parameters);
-        verify(entityManager).createQuery(" SELECT innerBean FROM MethodAccessTestBean innerBean WHERE :path0 = innerBean");
+        verify(entityManager)
+            .createQuery(" SELECT innerBean FROM MethodAccessTestBean innerBean WHERE :path0 = innerBean");
     }
 
     @Test
@@ -190,7 +191,8 @@ public class EntityManagerEvaluatorTest {
                 + " FROM MethodAccessTestBean innerBean"
                 + " WHERE bean.parent = innerBean AND bean.name = innerBean.name)");
         entityManagerEvaluator.evaluate(jpqlCompiledStatement, parameters);
-        verify(entityManager).createQuery(" SELECT innerBean FROM MethodAccessTestBean innerBean WHERE :path0 = innerBean AND :path1 = innerBean.name");
+        verify(entityManager).createQuery(" SELECT innerBean FROM MethodAccessTestBean innerBean "
+                + "WHERE :path0 = innerBean AND :path1 = innerBean.name");
     }
 
     @Test
