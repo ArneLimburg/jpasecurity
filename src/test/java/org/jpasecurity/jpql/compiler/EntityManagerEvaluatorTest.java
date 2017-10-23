@@ -15,9 +15,12 @@
  */
 package org.jpasecurity.jpql.compiler;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -51,7 +54,6 @@ import org.jpasecurity.persistence.EntityManagerEvaluator;
 import org.jpasecurity.util.SetHashMap;
 import org.jpasecurity.util.SetMap;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -66,11 +68,13 @@ public class EntityManagerEvaluatorTest {
     private JpqlParser parser;
     private JpqlCompiler compiler;
     private QueryEvaluationParameters parameters;
+    private EntityManager entityManager;
     private Map<Alias, Object> aliases = new HashMap<Alias, Object>();
     private Map<String, Object> namedParameters = new HashMap<String, Object>();
     private Map<Integer, Object> positionalParameters = new HashMap<Integer, Object>();
     private SetMap<Class<?>, Object> entities = new SetHashMap<Class<?>, Object>();
     private EntityManagerEvaluator entityManagerEvaluator;
+
 
     @Before
     public void initialize() throws NoSuchMethodException {
@@ -134,10 +138,10 @@ public class EntityManagerEvaluatorTest {
 
         parser = new JpqlParser();
         compiler = new JpqlCompiler(metamodel);
-        final EntityManager entityManagerMock = mock(EntityManager.class);
-        when(entityManagerMock.isOpen()).thenReturn(true);
-        when(entityManagerMock.createQuery(
-            " SELECT innerBean FROM MethodAccessTestBean innerBean WHERE :path0 = innerBean"))
+        entityManager = mock(EntityManager.class);
+        when(entityManager.isOpen()).thenReturn(true);
+        when(entityManager.createQuery(
+            anyString()))
             .thenAnswer(new Answer<Query>() {
                 public Query answer(InvocationOnMock invocation) throws Throwable {
                     Query mock = mock(Query.class);
@@ -147,7 +151,7 @@ public class EntityManagerEvaluatorTest {
                     return mock;
                 }
             });
-        entityManagerEvaluator = new EntityManagerEvaluator(entityManagerMock, mock(PathEvaluator.class));
+        entityManagerEvaluator = new EntityManagerEvaluator(entityManager, mock(PathEvaluator.class));
         parameters = new QueryEvaluationParameters(metamodel,
                                                    persistenceUnitUtil,
                                                    aliases,
@@ -168,37 +172,47 @@ public class EntityManagerEvaluatorTest {
     }
 
     @Test
-    public void evaluateSubSelectSimpleEvaluator() throws Exception {
-        final JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
+    public void evaluateSubselectSimpleEvaluator() throws Exception {
+        JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
             SELECT
                 + "WHERE EXISTS (SELECT innerBean "
                 + " FROM MethodAccessTestBean innerBean"
                 + " WHERE bean.parent=innerBean)");
         entityManagerEvaluator.evaluate(jpqlCompiledStatement, parameters);
+        verify(entityManager).createQuery(" SELECT innerBean FROM MethodAccessTestBean innerBean WHERE :path0 = innerBean");
+    }
+
+    @Test
+    public void evaluateSubselectTwoPropertiesEvaluator() throws Exception {
+        JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
+            SELECT
+                + "WHERE EXISTS (SELECT innerBean "
+                + " FROM MethodAccessTestBean innerBean"
+                + " WHERE bean.parent = innerBean AND bean.name = innerBean.name)");
+        entityManagerEvaluator.evaluate(jpqlCompiledStatement, parameters);
+        verify(entityManager).createQuery(" SELECT innerBean FROM MethodAccessTestBean innerBean WHERE :path0 = innerBean AND :path1 = innerBean.name");
     }
 
     @Test
     public void evaluateSubselectCanEvaluateIsAccessible() throws Exception {
-        final JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
+        JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
             SELECT
                 + "WHERE EXISTS (SELECT innerBean "
                 + " FROM MethodAccessTestBean innerBean"
                 + " WHERE innerBean=bean)");
-        Assert.assertTrue(
-            entityManagerEvaluator.canEvaluate((JpqlSubselect)jpqlCompiledStatement.getStatement(),
-                parameters));
+        JpqlSubselect subselect = (JpqlSubselect)jpqlCompiledStatement.getStatement();
+        assertTrue(entityManagerEvaluator.canEvaluate(subselect, parameters));
     }
 
     @Test
     public void evaluateSubselectCanEvaluateIsAccessibleNoDbAccessHint() throws Exception {
-        final JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
+        JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
             SELECT
                 + "WHERE EXISTS " + "(SELECT /* IS_ACCESSIBLE_NODB */ innerBean "
                 + " FROM MethodAccessTestBean innerBean"
                 + " WHERE innerBean=bean)");
-        Assert.assertFalse(
-            entityManagerEvaluator.canEvaluate((JpqlSubselect)jpqlCompiledStatement.getStatement(),
-                parameters));
+        JpqlSubselect subselect = (JpqlSubselect)jpqlCompiledStatement.getStatement();
+        assertFalse(entityManagerEvaluator.canEvaluate(subselect, parameters));
     }
 
     private JpqlCompiledStatement getCompiledSubselect(String query) throws ParseException {

@@ -89,10 +89,10 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
             Path path = new Path(jpqlPath.toString());
             Alias alias = path.getRootAlias();
             if (!aliases.contains(alias)) {
-                String namedParameter = namedPathParameters.get(alias.getName());
+                String namedParameter = namedPathParameters.get(path.toString());
                 if (namedParameter == null) {
                     namedParameter = createNamedParameter(namedParameters);
-                    namedPathParameters.put(alias.getName(), namedParameter);
+                    namedPathParameters.put(path.toString(), namedParameter);
                     namedParameterValues.put(namedParameter, getPathValue(path, evaluationParameters.getAliasValues()));
                 }
                 queryPreparator.replace(jpqlPath, queryPreparator.createNamedParameter(namedParameter));
