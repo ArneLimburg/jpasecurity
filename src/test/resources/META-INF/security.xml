@@ -163,6 +163,20 @@
         </access-rule>
     </persistence-unit>
 
+    <persistence-unit name="grandparent-grandchild">
+        <access-rule>
+            GRANT CREATE READ ACCESS TO MethodAccessAnnotationTestBean bean
+        </access-rule>
+        <access-rule>
+            GRANT UPDATE ACCESS TO MethodAccessAnnotationTestBean bean
+                WHERE EXISTS (
+                    SELECT grandparent FROM MethodAccessAnnotationTestBean grandparent
+                        INNER JOIN grandparent.children parent
+                        INNER JOIN parent.children grandchild
+                    WHERE grandparent = CURRENT_GRANDPARENT AND grandchild.id = bean.id)
+        </access-rule>
+    </persistence-unit>
+
     <persistence-unit name="spring-contacts">
         <access-rule>GRANT CREATE ACCESS TO User user WHERE user.name = CURRENT_PRINCIPAL</access-rule>
 <!--         <access-rule>GRANT CREATE ACCESS TO User user WHERE user.id IN (SELECT e.acl.entity.id FROM AccessControlEntry e WHERE e.granting = TRUE AND e.permissions.mask = 4 AND e.sid.name = CURRENT_PRINCIPAL AND e.acl.entityType.className = 'org.jpasecurity.contacts.model.User')</access-rule> -->

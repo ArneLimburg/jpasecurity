@@ -15,9 +15,11 @@
  */
 package org.jpasecurity.jpql.compiler;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,7 +38,6 @@ import org.jpasecurity.jpql.parser.JpqlHaving;
 import org.jpasecurity.jpql.parser.JpqlInnerJoin;
 import org.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import org.jpasecurity.jpql.parser.JpqlOuterJoin;
-import org.jpasecurity.jpql.parser.JpqlPath;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
@@ -68,32 +69,34 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         handleWithClause(getSubselect(subselect.getStatement()));
         handleGroupByClause(getSubselect(subselect.getStatement()));
         if (isFalse(subselect.getWhereClause(), new InMemoryEvaluationParameters(parameters))) {
-            return Collections.emptySet();
+            return emptySet();
         }
+        PathEvaluator pathEvaluator
+            = new MappedPathEvaluator(parameters.getMetamodel(), parameters.getPersistenceUnitUtil());
         Set<Replacement> replacements = getReplacements(subselect.getTypeDefinitions(), subselect.getStatement());
-        SetMap<Alias, Object> variants = evaluateAliases(parameters, replacements);
-        return evaluateSubselect(subselect, parameters, variants);
+        SetMap<Alias, Object> variants = evaluateAliases(parameters, replacements, pathEvaluator);
+        return evaluateSubselect(subselect, parameters, variants, pathEvaluator);
     }
 
     public boolean canEvaluate(JpqlSubselect node, QueryEvaluationParameters parameters) {
         return true;
     }
 
-    protected Collection<?> getResult(Replacement replacement, QueryEvaluationParameters parameters)
+    protected Collection<?> getResult(
+            Replacement replacement, QueryEvaluationParameters parameters, PathEvaluator pathEvaluator)
         throws NotEvaluatableException {
-        if (replacement.getReplacement() == null) {
-            throw new NotEvaluatableException("No replacement found for alias '" + replacement.getTypeDefinition().getAlias() + "'");
+        if (replacement.getReplacementRoot() == null) {
+            Alias alias = replacement.getTypeDefinition().getAlias();
+            throw new NotEvaluatableException("No replacement found for alias '" + alias + "'");
         }
-        Object result = evaluator.evaluate(replacement.getReplacement(), parameters);
-        if (result instanceof Collection) {
-            Collection<?> resultCollection = (Collection<?>)result;
-            removeWrongTypes(replacement.getTypeDefinition().getType(), resultCollection);
-            return resultCollection;
-        } else if (result == null || !replacement.getTypeDefinition().getType().isInstance(result)) {
-            return Collections.EMPTY_SET;
-        } else {
-            return Collections.singleton(result);
+        Object root = evaluator.evaluate(replacement.getReplacementRoot(), parameters);
+        Collection<?> result
+            = root == null? emptySet(): root instanceof Collection? (Collection<?>)root: singleton(root);
+        if (replacement.getReplacementPath() != null) {
+            result = pathEvaluator.evaluateAll(result, replacement.getReplacementPath().getSubpath());
         }
+        removeWrongTypes(replacement.getTypeDefinition().getType(), result);
+        return result;
     }
 
     private boolean isFalse(JpqlWhere whereClause, QueryEvaluationParameters parameters) {
@@ -122,21 +125,17 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
             if (replacement.getTypeDefinition().isJoin()) {
                 Path joinPath = replacement.getTypeDefinition().getJoinPath();
                 Alias rootAlias = joinPath.getRootAlias();
-                Node replacementNode = replacement.getReplacement();
                 Replacement rootReplacement = getReplacement(rootAlias, replacements);
                 Set<Alias> replacedAliases = new HashSet<Alias>();
                 while (rootReplacement != null
-                       && rootReplacement.getReplacement() != null
+                       && rootReplacement.getReplacementRoot() != null
                        && !replacedAliases.contains(rootAlias)) {
                     replacedAliases.add(rootAlias);
-                    Node rootNode = rootReplacement.getReplacement().clone();
-                    for (int i = 1; i < replacementNode.jjtGetNumChildren(); i++) {
-                        rootNode.jjtAddChild(replacementNode.jjtGetChild(i), rootNode.jjtGetNumChildren());
+                    replacement.setReplacementRoot(rootReplacement.getReplacementRoot());
+                    if (rootReplacement.getReplacementPath() != null) {
+                        replacement.prependReplacementPath(rootReplacement.getReplacementPath());
                     }
-                    replacement.setReplacement(rootNode);
-                    rootAlias = new Alias(rootNode.jjtGetChild(0).toString());
                     rootReplacement = getReplacement(rootAlias, replacements);
-                    replacementNode = rootNode;
                 }
             }
         }
@@ -152,14 +151,14 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     }
 
     private SetMap<Alias, Object> evaluateAliases(QueryEvaluationParameters parameters,
-                                                  Set<Replacement> replacements) throws NotEvaluatableException {
+            Set<Replacement> replacements, PathEvaluator pathEvaluator) throws NotEvaluatableException {
         SetMap<Alias, Object> aliasValues = new SetHashMap<Alias, Object>();
         for (Map.Entry<Alias, Object> aliasEntry: parameters.getAliasValues().entrySet()) {
             aliasValues.add(aliasEntry.getKey(), aliasEntry.getValue());
         }
         Set<Alias> ignoredAliases = new HashSet<Alias>();
         for (Replacement replacement: replacements) {
-            Collection<?> result = getResult(replacement, parameters);
+            Collection<?> result = getResult(replacement, parameters, pathEvaluator);
             for (Object value: result) {
                 if (replacement.getTypeDefinition().getType().isAssignableFrom(value.getClass())) {
                     aliasValues.add(replacement.getTypeDefinition().getAlias(), value);
@@ -183,9 +182,8 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
 
     private List<Object> evaluateSubselect(JpqlCompiledStatement subselect,
                                            QueryEvaluationParameters parameters,
-                                           SetMap<Alias, Object> variants) {
-        PathEvaluator pathEvaluator
-            = new MappedPathEvaluator(parameters.getMetamodel(), parameters.getPersistenceUnitUtil());
+                                           SetMap<Alias, Object> variants,
+                                           PathEvaluator pathEvaluator) {
         List<Path> selectedPaths = subselect.getSelectedPaths();
         List<Object> resultList = new ArrayList<Object>();
         Set<TypeDefinition> types = subselect.getTypeDefinitions();
@@ -300,7 +298,8 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     protected class Replacement {
 
         private TypeDefinition type;
-        private Node replacement;
+        private Node replacementRoot;
+        private Path replacementPath;
 
         public Replacement(TypeDefinition type) {
             this.type = type;
@@ -310,20 +309,29 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
             return type;
         }
 
-        public Node getReplacement() {
-            return replacement;
+        public Node getReplacementRoot() {
+            return replacementRoot;
         }
 
-        public void setReplacement(Node replacement) {
-            if (replacement instanceof JpqlPath) {
-                this.replacement = queryPreparator.createCollectionValuedPath((JpqlPath)replacement);
-            } else {
-                this.replacement = replacement;
-            }
+        public void setReplacementRoot(Node replacementRoot) {
+            this.replacementRoot = replacementRoot;
+        }
+
+        public Path getReplacementPath() {
+            return replacementPath;
+        }
+
+        public void setReplacementPath(Path replacementPath) {
+            this.replacementPath = replacementPath;
+        }
+
+        public void prependReplacementPath(Path replacementPath) {
+            this.replacementPath = new Path(replacementPath.toString() + '.' + this.replacementPath.getSubpath());
         }
 
         public String toString() {
-            return new StringBuilder().append(type).append(" = ").append(replacement).toString();
+            return new StringBuilder().append(type).append(" = ").append(replacementPath).append(" with root ")
+                    .append(replacementRoot).toString();
         }
     }
 
@@ -336,10 +344,10 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
                 Alias alias = replacement.getTypeDefinition().getAlias();
                 if (child0.getRootAlias().equals(alias) && !child0.hasSubpath()
                         && (!child1.getRootAlias().equals(alias) || child1.hasSubpath())) {
-                    replacement.setReplacement(node.jjtGetChild(1));
+                    replacement.setReplacementRoot(node.jjtGetChild(1));
                 } else if (child1.getRootAlias().equals(alias) && !child1.hasSubpath()
                         && (!child0.getRootAlias().equals(alias) || child0.hasSubpath())) {
-                    replacement.setReplacement(node.jjtGetChild(0));
+                    replacement.setReplacementRoot(node.jjtGetChild(0));
                 }
             }
             return false;
@@ -363,7 +371,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
             }
             for (Replacement replacement: replacements) {
                 if (node.jjtGetChild(1).toString().equals(replacement.getTypeDefinition().getAlias().toString())) {
-                    replacement.setReplacement(node.jjtGetChild(0));
+                    replacement.setReplacementPath(new Path(node.jjtGetChild(0).toString()));
                 }
             }
             return false;
