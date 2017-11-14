@@ -85,16 +85,19 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     protected Collection<?> getResult(
             Replacement replacement, QueryEvaluationParameters parameters, PathEvaluator pathEvaluator)
         throws NotEvaluatableException {
-        if (replacement.getReplacementRoot() == null) {
+        if (replacement.getReplacementRoot() != null) {
+            Object result = evaluator.evaluate(replacement.getReplacementRoot(), parameters);
+            return result == null? emptySet(): result instanceof Collection? (Collection<?>)result: singleton(result);
+        }
+        if (replacement.getRootReplacement() == null) {
             Alias alias = replacement.getTypeDefinition().getAlias();
             throw new NotEvaluatableException("No replacement found for alias '" + alias + "'");
         }
-        Object root = evaluator.evaluate(replacement.getReplacementRoot(), parameters);
-        Collection<?> result
-            = root == null? emptySet(): root instanceof Collection? (Collection<?>)root: singleton(root);
-        if (replacement.getReplacementPath() != null) {
-            result = pathEvaluator.evaluateAll(result, replacement.getReplacementPath().getSubpath());
+        Collection<?> root = getResult(replacement.getRootReplacement(), parameters, pathEvaluator);
+        if (replacement.getReplacementPath() == null) {
+            return emptySet();
         }
+        Collection<?> result = pathEvaluator.evaluateAll(root, replacement.getReplacementPath().getSubpath());
         removeWrongTypes(replacement.getTypeDefinition().getType(), result);
         return result;
     }
@@ -126,17 +129,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
                 Path joinPath = replacement.getTypeDefinition().getJoinPath();
                 Alias rootAlias = joinPath.getRootAlias();
                 Replacement rootReplacement = getReplacement(rootAlias, replacements);
-                Set<Alias> replacedAliases = new HashSet<Alias>();
-                while (rootReplacement != null
-                       && rootReplacement.getReplacementRoot() != null
-                       && !replacedAliases.contains(rootAlias)) {
-                    replacedAliases.add(rootAlias);
-                    replacement.setReplacementRoot(rootReplacement.getReplacementRoot());
-                    if (rootReplacement.getReplacementPath() != null) {
-                        replacement.prependReplacementPath(rootReplacement.getReplacementPath());
-                    }
-                    rootReplacement = getReplacement(rootAlias, replacements);
-                }
+                replacement.setRootReplacement(rootReplacement);
             }
         }
     }
@@ -299,6 +292,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
 
         private TypeDefinition type;
         private Node replacementRoot;
+        private Replacement rootReplacement;
         private Path replacementPath;
 
         public Replacement(TypeDefinition type) {
@@ -317,6 +311,14 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
             this.replacementRoot = replacementRoot;
         }
 
+        public Replacement getRootReplacement() {
+            return rootReplacement;
+        }
+
+        public void setRootReplacement(Replacement rootReplacement) {
+            this.rootReplacement = rootReplacement;
+        }
+
         public Path getReplacementPath() {
             return replacementPath;
         }
@@ -325,13 +327,9 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
             this.replacementPath = replacementPath;
         }
 
-        public void prependReplacementPath(Path replacementPath) {
-            this.replacementPath = new Path(replacementPath.toString() + '.' + this.replacementPath.getSubpath());
-        }
-
         public String toString() {
             return new StringBuilder().append(type).append(" = ").append(replacementPath).append(" with root ")
-                    .append(replacementRoot).toString();
+                    .append(rootReplacement).toString();
         }
     }
 
