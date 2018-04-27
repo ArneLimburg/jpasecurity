@@ -86,7 +86,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.7.201606060606</version>
+                <version>0.8.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -158,7 +158,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.17</version>
+                <version>3.0.0</version>
                 <configuration>
                     <consoleOutput>true</consoleOutput>
                     <encoding>UTF-8</encoding>
@@ -168,7 +168,8 @@
                         org/jpasecurity/jpql/parser/Jpql*,
                         org/jpasecurity/jpql/parser/JavaCharStream.java,
                         org/jpasecurity/jpql/parser/JJTJpqlParserState.java,
-                        org/jpasecurity/jpql/parser/TokenMgrError.java,
+                        org/jpasecurity/jpql/parser/*Provider.java,
+                        org/jpasecurity/jpql/parser/TokenMgrException.java,
                         org/jpasecurity/jpql/parser/Token.java,
                         org/jpasecurity/jpql/parser/ParseException.java
                     </excludes>
@@ -191,7 +192,7 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>6.19</version>
+                        <version>8.9</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -200,29 +201,6 @@
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.3</version>
             </plugin>
-
-            <!--<plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>cobertura-maven-plugin</artifactId>
-              <version>2.5.2</version>
-              <configuration>
-                <check/>
-                <formats>
-                  <format>html</format>
-                  <format>xml</format>
-                </formats>
-                <instrumentation>
-                  <excludes>-->
-            <!-- exclude generated classes -->
-            <!--<exclude>net/sf/jpasecurity/jpql/parser/JavaCharStream.class</exclude>
-            <exclude>net/sf/jpasecurity/jpql/parser/JpqlParser.class</exclude>
-            <exclude>net/sf/jpasecurity/jpql/parser/JpqlParserTokenManager.class</exclude>
-            <exclude>net/sf/jpasecurity/jpql/parser/ParseException.class</exclude>
-            <exclude>net/sf/jpasecurity/jpql/parser/TokenMgrError.class</exclude>-->
-            <!--</excludes>
-          </instrumentation>
-        </configuration>
-      </plugin>-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jdepend-maven-plugin</artifactId>
@@ -239,17 +217,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.6</version>
+                <version>1.8</version>
                 <executions>
                     <execution>
                         <id>cycle-check</id>
                         <phase>package</phase>
                         <configuration>
                             <target description="Checking for cyclic package-dependencies">
-                                <xslt
-                                        in="target/jdepend-report.xml"
-                                        out="target/jdepend-cycle-check.txt"
-                                        style="${project.basedir}/src/main/jdepend/xsl/jdepend-cycle-check.xsl"/>
+                                <xslt in="target/jdepend-report.xml"
+                                      out="target/jdepend-cycle-check.txt"
+                                      style="${project.basedir}/src/main/jdepend/xsl/jdepend-cycle-check.xsl"/>
 
                                 <!-- Fail on cycles -->
                                 <fail message="There are cycles in the package-dependencies">
@@ -276,6 +253,7 @@
                                 <replace dir="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/"
                                          token="public Object jjtAccept(JpqlParserVisitor visitor, Object data)"
                                          value="public &lt;T&gt; boolean jjtAccept(JpqlParserVisitor&lt;T&gt; visitor, T data)"/>
+                                <delete file="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/JpqlParserDefaultVisitor.java"/>
                             </target>
                         </configuration>
                         <goals>
@@ -310,6 +288,18 @@
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.velocity</groupId>
+                        <artifactId>velocity</artifactId>
+                        <version>1.7</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>net.java.dev.javacc</groupId>
+                        <artifactId>javacc</artifactId>
+                        <version>7.0.3</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.doxia</groupId>
@@ -399,25 +389,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.5</version>
+                <version>3.0.0</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <configLocation>checkstyle/configuration.xml</configLocation>
                     <headerLocation>checkstyle/java.header</headerLocation>
                 </configuration>
             </plugin>
-            <!--<plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>cobertura-maven-plugin</artifactId>
-              <version>2.5.2</version>
-              <configuration>
-                <check/>
-                <formats>
-                  <format>html</format>
-                  <format>xml</format>
-                </formats>
-              </configuration>
-            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -503,54 +481,26 @@
             <groupId>javax.annotation</groupId>
             <artifactId>jsr250-api</artifactId>
             <version>1.0</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.21</version>
-            <scope>compile</scope>
+            <version>1.7.25</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.21</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.14</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
-            <version>2.1_3</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>3.18.1-GA</version>
-            <optional>true</optional>
+            <version>1.7.25</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.6.5</version>
+            <version>2.18.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -560,102 +510,110 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.1-api</artifactId>
-            <version>1.0.0.Final</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
-            <version>5.1.0.Final</version>
+            <version>5.1.13.Final</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>hsqldb</groupId>
+            <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>1.8.0.7</version>
+            <version>2.3.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.3.173</version>
+            <version>1.4.197</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-            <version>1.6.10</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>3.3.1</version>
+            <version>1.8.13</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-dbutils</groupId>
             <artifactId>commons-dbutils</artifactId>
-            <version>1.3</version>
+            <version>1.7</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>3.0.7.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <version>3.0.7.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
-            <version>3.0.7.RELEASE</version>
             <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-context</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-aop</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-support</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-            <version>3.0.7.RELEASE</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-acl</artifactId>
-            <version>3.0.7.RELEASE</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>1.6.2</version>
+            <version>2.10.4</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-framework-bom</artifactId>
+                <version>4.3.16.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-bom</artifactId>
+                <version>4.2.5.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <profiles>
         <profile>
             <id>hibernate</id>
@@ -671,7 +629,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.1</version>
+                        <version>3.7.0</version>
                         <configuration>
                             <testExcludes>
                                 <testExclude>org/jpasecurity/contacts/ejb/EjbContactsTest.java</testExclude>
@@ -717,7 +675,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.1</version>
+                        <version>3.7.0</version>
                         <configuration>
                             <testExcludes>
                                 <testExclude>org/jpasecurity/contacts/ejb/EjbContactsTest.java</testExclude>
@@ -730,7 +688,7 @@
                 <dependency>
                     <groupId>org.apache.openjpa</groupId>
                     <artifactId>openjpa</artifactId>
-                    <version>2.1.1</version>
+                    <version>2.4.2</version>
                     <scope>provided</scope>
                 </dependency>
             </dependencies>

@@ -16,7 +16,6 @@
 package org.jpasecurity.collection;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -39,6 +38,7 @@ import org.jpasecurity.util.ReflectionUtils;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author Arne Limburg
@@ -76,7 +76,7 @@ public class PropertyAccessTest {
             = entityManager.createNamedQuery("findEmbeddableById", SimpleEmbeddable.class)
                 .setParameter("id", inaccessibleBean.getIdentifier())
                 .getResultList();
-        assertThat(emptyResult, hasSize(0));
+        assertTrue(CollectionUtils.isEmpty(emptyResult));
         entityManager.close();
         factory.close();
     }

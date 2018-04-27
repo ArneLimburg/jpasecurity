@@ -56,7 +56,7 @@ import org.jpasecurity.util.ListMap;
 public class AccessRulesParser {
 
     private static final Alias THIS_ALIAS = new Alias("this");
-    private final JpqlParser jpqlParser = new JpqlParser();
+    private final JpqlParser jpqlParser;
     private final AliasVisitor aliasVisitor = new AliasVisitor();
     private Metamodel metamodel;
     private SecurityContext securityContext;
@@ -66,16 +66,17 @@ public class AccessRulesParser {
     public AccessRulesParser(String persistenceUnitName,
                              Metamodel metamodel,
                              SecurityContext securityContext,
-                             AccessRulesProvider accessRulesProvider) {
+                             AccessRulesProvider accessRulesProvider) throws ParseException {
         this.metamodel = notNull(Metamodel.class, metamodel);
         this.securityContext = notNull(SecurityContext.class, securityContext);
         this.accessRulesProvider = notNull(AccessRulesProvider.class, accessRulesProvider);
         compiler = new AccessRulesCompiler(metamodel);
+        jpqlParser = new JpqlParser();
     }
 
     public Collection<AccessRule> parseAccessRules() {
         try {
-            Set<AccessRule> rules = new HashSet<AccessRule>();
+            Set<AccessRule> rules = new HashSet<>();
             ListMap<Class<?>, Permit> permissions = parsePermissions();
             for (Map.Entry<Class<?>, List<Permit>> annotations: permissions.entrySet()) {
                 for (Permit permission: annotations.getValue()) {
@@ -123,7 +124,7 @@ public class AccessRulesParser {
     }
 
     private ListMap<Class<?>, Permit> parsePermissions() {
-        ListMap<Class<?>, Permit> permissions = new ListHashMap<Class<?>, Permit>();
+        ListMap<Class<?>, Permit> permissions = new ListHashMap<>();
         for (ManagedType<?> managedType: metamodel.getManagedTypes()) {
             Class<?> type = managedType.getJavaType();
             Permit permit = type.getAnnotation(Permit.class);
@@ -139,7 +140,7 @@ public class AccessRulesParser {
     }
 
     private Alias findUnusedAlias(JpqlWhere whereClause, Alias alias) {
-        Set<Alias> declaredAliases = new HashSet<Alias>();
+        Set<Alias> declaredAliases = new HashSet<>();
         whereClause.visit(aliasVisitor, declaredAliases);
         int i = 0;
         while (declaredAliases.contains(alias) || JpqlKeywords.ALL.contains(alias.toString().toUpperCase())) {
@@ -156,18 +157,22 @@ public class AccessRulesParser {
 
     private class AliasVisitor extends JpqlVisitorAdapter<Set<Alias>> {
 
+        @Override
         public boolean visit(JpqlSelectExpressions select) {
             return false;
         }
 
+        @Override
         public boolean visit(JpqlFromItem from, Set<Alias> declaredAliases) {
             return visitAlias(from, declaredAliases);
         }
 
+        @Override
         public boolean visit(JpqlInnerJoin join, Set<Alias> declaredAliases) {
             return visitAlias(join, declaredAliases);
         }
 
+        @Override
         public boolean visit(JpqlOuterJoin join, Set<Alias> declaredAliases) {
             return visitAlias(join, declaredAliases);
         }
@@ -189,8 +194,9 @@ public class AccessRulesParser {
             this.alias = alias;
         }
 
+        @Override
         public boolean visit(JpqlSubselect select, Set<Alias> declaredAliases) {
-            Set<Alias> subselectAliases = new HashSet<Alias>(declaredAliases);
+            Set<Alias> subselectAliases = new HashSet<>(declaredAliases);
             select.visit(aliasVisitor, subselectAliases);
             for (int i = 0; i < select.jjtGetNumChildren(); i++) {
                 select.jjtGetChild(i).visit(this, subselectAliases);
@@ -198,6 +204,7 @@ public class AccessRulesParser {
             return false;
         }
 
+        @Override
         public boolean visit(JpqlPath path, Set<Alias> declaredAliases) {
             Alias a = new Alias(path.jjtGetChild(0).getValue().toLowerCase());
             if (THIS_ALIAS.equals(a)) {

@@ -51,6 +51,7 @@ import org.jpasecurity.Path;
 import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.compiler.SubselectEvaluator;
+import org.jpasecurity.jpql.parser.ParseException;
 import org.jpasecurity.security.AccessRule;
 import org.jpasecurity.security.EntityFilter;
 import org.jpasecurity.security.FilterResult;
@@ -70,14 +71,14 @@ public class CriteriaEntityFilter extends EntityFilter {
                                 SecurePersistenceUnitUtil util,
                                 CriteriaBuilder criteriaBuilder,
                                 Collection<AccessRule> accessRules,
-                                SubselectEvaluator... evaluators) {
+                                SubselectEvaluator... evaluators) throws ParseException {
         super(metamodel, util, accessRules, evaluators);
         criteriaVisitor = new CriteriaVisitor(metamodel, criteriaBuilder);
     }
 
     public <R> FilterResult<CriteriaQuery<R>> filterQuery(CriteriaQuery<R> query) {
         Selection<R> selection = query.getSelection();
-        Map<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
+        Map<Path, Class<?>> selectedTypes = new HashMap<>();
         if (selection == null) {
             for (Root<?> selectedRoot: query.getRoots()) {
                 if (selectedRoot.getAlias() != null) {
@@ -123,8 +124,9 @@ public class CriteriaEntityFilter extends EntityFilter {
 
         CriteriaHolder criteriaHolder = new CriteriaHolder(query);
         getQueryPreparator().createWhere(accessDefinition.getAccessRules()).visit(criteriaVisitor, criteriaHolder);
-        return new CriteriaFilterResult<CriteriaQuery<R>>(
-                query, parameters.size() > 0? parameters: null, query.getResultType(), criteriaHolder.getParameters());
+        return new CriteriaFilterResult<>(
+                query, parameters.size() > 0 ? parameters : null, query.getResultType(), criteriaHolder.getParameters()
+        );
     }
 
     public FilterResult<CriteriaUpdate> filterQuery(CriteriaUpdate query) {
@@ -136,7 +138,7 @@ public class CriteriaEntityFilter extends EntityFilter {
     }
 
     private <Q extends CommonAbstractCriteria> FilterResult<Q> filterQuery(Q query, Root<?> root) {
-        Map<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
+        Map<Path, Class<?>> selectedTypes = new HashMap<>();
         Path path = getSelectedPath(0, root);
         selectedTypes.put(path, root.getJavaType());
         AccessDefinition accessDefinition = createAccessDefinition(
@@ -155,12 +157,12 @@ public class CriteriaEntityFilter extends EntityFilter {
 
         CriteriaHolder criteriaHolder = new CriteriaHolder(query);
         getQueryPreparator().createWhere(accessDefinition.getAccessRules()).visit(criteriaVisitor, criteriaHolder);
-        return new CriteriaFilterResult<Q>(
-                query, parameters.size() > 0? parameters: null, criteriaHolder.getParameters());
+        return new CriteriaFilterResult<>(
+                query, parameters.size() > 0 ? parameters : null, criteriaHolder.getParameters());
     }
 
     private Set<Alias> getAliases(AbstractQuery<?> query) {
-        Set<Alias> aliases = new HashSet<Alias>();
+        Set<Alias> aliases = new HashSet<>();
         for (Root<?> root: query.getRoots()) {
             if (root.getAlias() != null) {
                 aliases.add(new Alias(root.getAlias()));

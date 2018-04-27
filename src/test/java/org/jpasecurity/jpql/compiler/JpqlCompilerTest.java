@@ -52,7 +52,7 @@ public class JpqlCompilerTest {
     private JpqlCompiler compiler;
 
     @Before
-    public void initialize() throws NoSuchMethodException {
+    public void initialize() throws NoSuchMethodException, ParseException {
         metamodel = mock(Metamodel.class);
 
         EntityType methodAccessTestBeanType = mock(EntityType.class);
@@ -64,9 +64,9 @@ public class JpqlCompilerTest {
         PluralAttribute childrenAttribute = mock(PluralAttribute.class);
         PluralAttribute relatedAttribute = mock(PluralAttribute.class);
         when(metamodel.getManagedTypes())
-            .thenReturn(new HashSet<ManagedType<?>>(Arrays.<ManagedType<?>>asList(methodAccessTestBeanType)));
+            .thenReturn(new HashSet<>(Arrays.<ManagedType<?>>asList(methodAccessTestBeanType)));
         when(metamodel.getEntities())
-            .thenReturn(new HashSet<EntityType<?>>(Arrays.<EntityType<?>>asList(methodAccessTestBeanType)));
+            .thenReturn(new HashSet<>(Arrays.<EntityType<?>>asList(methodAccessTestBeanType)));
         when(metamodel.entity(MethodAccessTestBean.class)).thenReturn(methodAccessTestBeanType);
         when(metamodel.managedType(MethodAccessTestBean.class)).thenReturn(methodAccessTestBeanType);
         when(methodAccessTestBeanType.getName()).thenReturn(MethodAccessTestBean.class.getSimpleName());

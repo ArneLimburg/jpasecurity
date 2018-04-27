@@ -23,6 +23,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(Node node, T data) {
         return visit(node);
     }
@@ -30,6 +31,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlAccessRule node, T data) {
         return visit(node);
     }
@@ -37,6 +39,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlStatement node, T data) {
         return visit(node);
     }
@@ -44,6 +47,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlSelect node, T data) {
         return visit(node);
     }
@@ -51,6 +55,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlCreate node, T data) {
         return visit(node);
     }
@@ -58,6 +63,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlRead node, T data) {
         return visit(node);
     }
@@ -65,6 +71,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlUpdate node, T data) {
         return visit(node);
     }
@@ -72,6 +79,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlDelete node, T data) {
         return visit(node);
     }
@@ -79,6 +87,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlFrom node, T data) {
         return visit(node);
     }
@@ -86,6 +95,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlFromItem node, T data) {
         return visit(node);
     }
@@ -93,6 +103,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlIdentificationVariableDeclaration node, T data) {
         return visit(node);
     }
@@ -100,6 +111,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlInCollection node, T data) {
         return visit(node);
     }
@@ -107,6 +119,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlInnerJoin node, T data) {
         return visit(node);
     }
@@ -114,6 +127,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlOuterJoin node, T data) {
         return visit(node);
     }
@@ -121,6 +135,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlOuterFetchJoin node, T data) {
         return visit(node);
     }
@@ -128,6 +143,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlInnerFetchJoin node, T data) {
         return visit(node);
     }
@@ -135,6 +151,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlWith node, T data) {
         return visit(node);
     }
@@ -142,6 +159,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlPath node, T data) {
         return visit(node);
     }
@@ -149,6 +167,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlCollectionValuedPath node, T data) {
         return visit(node);
     }
@@ -156,6 +175,15 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
+    public boolean visit(JpqlTreatJoin node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean visit(JpqlSetClause node, T data) {
         return visit(node);
     }
@@ -163,6 +191,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlUpdateItem node, T data) {
         return visit(node);
     }
@@ -170,6 +199,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlUpdateValue node, T data) {
         return visit(node);
     }
@@ -177,6 +207,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlSelectClause node, T data) {
         return visit(node);
     }
@@ -184,6 +215,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlSelectExpressions node, T data) {
         return visit(node);
     }
@@ -191,6 +223,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlSelectExpression node, T data) {
         return visit(node);
     }
@@ -198,6 +231,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlConstructor node, T data) {
         return visit(node);
     }
@@ -205,6 +239,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlClassName node, T data) {
         return visit(node);
     }
@@ -212,6 +247,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlConstructorParameter node, T data) {
         return visit(node);
     }
@@ -219,6 +255,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlBrackets node, T data) {
         return visit(node);
     }
@@ -226,6 +263,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlDistinct node, T data) {
         return visit(node);
     }
@@ -233,6 +271,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlDistinctPath node, T data) {
         return visit(node);
     }
@@ -240,6 +279,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlCount node, T data) {
         return visit(node);
     }
@@ -247,6 +287,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlAverage node, T data) {
         return visit(node);
     }
@@ -254,6 +295,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlMaximum node, T data) {
         return visit(node);
     }
@@ -261,6 +303,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlMinimum node, T data) {
         return visit(node);
     }
@@ -268,6 +311,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlSum node, T data) {
         return visit(node);
     }
@@ -275,6 +319,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlWhere node, T data) {
         return visit(node);
     }
@@ -282,6 +327,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlGroupBy node, T data) {
         return visit(node);
     }
@@ -289,6 +335,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlHaving node, T data) {
         return visit(node);
     }
@@ -296,6 +343,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlSubselect node, T data) {
         return visit(node);
     }
@@ -303,6 +351,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlOr node, T data) {
         return visit(node);
     }
@@ -310,6 +359,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlAnd node, T data) {
         return visit(node);
     }
@@ -317,6 +367,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlNot node, T data) {
         return visit(node);
     }
@@ -324,6 +375,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlBetween node, T data) {
         return visit(node);
     }
@@ -331,6 +383,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlIn node, T data) {
         return visit(node);
     }
@@ -338,6 +391,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlLike node, T data) {
         return visit(node);
     }
@@ -345,6 +399,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlIsNull node, T data) {
         return visit(node);
     }
@@ -352,6 +407,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlIsEmpty node, T data) {
         return visit(node);
     }
@@ -359,6 +415,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlMemberOf node, T data) {
         return visit(node);
     }
@@ -366,6 +423,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlExists node, T data) {
         return visit(node);
     }
@@ -373,6 +431,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlAny node, T data) {
         return visit(node);
     }
@@ -380,6 +439,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlAll node, T data) {
         return visit(node);
     }
@@ -387,6 +447,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlKey node, T data) {
         return visit(node);
     }
@@ -394,6 +455,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlValue node, T data) {
         return visit(node);
     }
@@ -401,6 +463,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlEntry node, T data) {
         return visit(node);
     }
@@ -408,6 +471,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlType node, T data) {
         return visit(node);
     }
@@ -415,6 +479,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlCase node, T data) {
         return visit(node);
     }
@@ -422,6 +487,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlWhen node, T data) {
         return visit(node);
     }
@@ -429,6 +495,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlCoalesce node, T data) {
         return visit(node);
     }
@@ -436,6 +503,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlNullif node, T data) {
         return visit(node);
     }
@@ -443,6 +511,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlEquals node, T data) {
         return visit(node);
     }
@@ -450,6 +519,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlNotEquals node, T data) {
         return visit(node);
     }
@@ -457,6 +527,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlGreaterThan node, T data) {
         return visit(node);
     }
@@ -464,6 +535,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlGreaterOrEquals node, T data) {
         return visit(node);
     }
@@ -471,6 +543,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlLessThan node, T data) {
         return visit(node);
     }
@@ -478,6 +551,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlLessOrEquals node, T data) {
         return visit(node);
     }
@@ -485,6 +559,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlAdd node, T data) {
         return visit(node);
     }
@@ -492,6 +567,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlSubtract node, T data) {
         return visit(node);
     }
@@ -499,6 +575,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlMultiply node, T data) {
         return visit(node);
     }
@@ -506,6 +583,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlDivide node, T data) {
         return visit(node);
     }
@@ -513,6 +591,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlNegative node, T data) {
         return visit(node);
     }
@@ -520,6 +599,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlConcat node, T data) {
         return visit(node);
     }
@@ -527,6 +607,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlSubstring node, T data) {
         return visit(node);
     }
@@ -534,6 +615,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlTrim node, T data) {
         return visit(node);
     }
@@ -541,6 +623,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlLower node, T data) {
         return visit(node);
     }
@@ -548,6 +631,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlUpper node, T data) {
         return visit(node);
     }
@@ -555,6 +639,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlTrimLeading node, T data) {
         return visit(node);
     }
@@ -562,6 +647,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlTrimTrailing node, T data) {
         return visit(node);
     }
@@ -569,6 +655,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlTrimBoth node, T data) {
         return visit(node);
     }
@@ -576,6 +663,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlLength node, T data) {
         return visit(node);
     }
@@ -583,6 +671,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlLocate node, T data) {
         return visit(node);
     }
@@ -590,6 +679,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlAbs node, T data) {
         return visit(node);
     }
@@ -597,6 +687,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlSqrt node, T data) {
         return visit(node);
     }
@@ -604,6 +695,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlMod node, T data) {
         return visit(node);
     }
@@ -611,6 +703,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlSize node, T data) {
         return visit(node);
     }
@@ -618,6 +711,15 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
+    public boolean visit(JpqlIndex node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean visit(JpqlCurrentDate node, T data) {
         return visit(node);
     }
@@ -625,6 +727,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlCurrentTime node, T data) {
         return visit(node);
     }
@@ -632,6 +735,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlCurrentTimestamp node, T data) {
         return visit(node);
     }
@@ -639,6 +743,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlOrderBy node, T data) {
         return visit(node);
     }
@@ -646,6 +751,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlOrderByItem node, T data) {
         return visit(node);
     }
@@ -653,6 +759,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlAscending node, T data) {
         return visit(node);
     }
@@ -660,6 +767,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlDescending node, T data) {
         return visit(node);
     }
@@ -667,6 +775,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlAbstractSchemaName node, T data) {
         return visit(node);
     }
@@ -674,6 +783,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlIdentificationVariable node, T data) {
         return visit(node);
     }
@@ -681,6 +791,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlIntegerLiteral node, T data) {
         return visit(node);
     }
@@ -688,6 +799,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlDecimalLiteral node, T data) {
         return visit(node);
     }
@@ -695,6 +807,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlBooleanLiteral node, T data) {
         return visit(node);
     }
@@ -702,6 +815,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlStringLiteral node, T data) {
         return visit(node);
     }
@@ -709,6 +823,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlNamedInputParameter node, T data) {
         return visit(node);
     }
@@ -716,6 +831,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlPositionalInputParameter node, T data) {
         return visit(node);
     }
@@ -723,6 +839,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlPatternValue node, T data) {
         return visit(node);
     }
@@ -730,6 +847,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlEscapeCharacter node, T data) {
         return visit(node);
     }
@@ -737,6 +855,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean visit(JpqlTrimCharacter node, T data) {
         return visit(node);
     }
@@ -744,22 +863,35 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
+    public boolean visit(JpqlTreat node, T data) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean visit(JpqlAggregatePath node, T data) {
         return visit(node);
     }
 
+    @Override
     public boolean visit(JpqlHint node, T data) {
         return visit(node);
     }
 
+    @Override
     public boolean visit(JpqlNoDbIsAccessible node, T data) {
         return visit(node);
     }
 
+    @Override
     public boolean visit(JpqlNoCacheQueryOptimize node, T data) {
         return visit(node);
     }
 
+    @Override
     public boolean visit(JpqlNoCacheIsAccessible node, T data) {
         return visit(node);
     }
@@ -887,6 +1019,13 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * @see #visit(JpqlCollectionValuedPath, Object)
      */
     public boolean visit(JpqlCollectionValuedPath node) {
+        return true;
+    }
+
+    /**
+     * @see #visit(JpqlTreatJoin, Object)
+     */
+    public boolean visit(JpqlTreatJoin node) {
         return true;
     }
 
@@ -1297,6 +1436,13 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     }
 
     /**
+     * @see #visit(JpqlIndex, Object)
+     */
+    public boolean visit(JpqlIndex node) {
+        return true;
+    }
+
+    /**
      * @see #visit(JpqlCurrentDate, Object)
      */
     public boolean visit(JpqlCurrentDate node) {
@@ -1423,6 +1569,13 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     }
 
     /**
+     * @see #visit(JpqlTreat, Object)
+     */
+    public boolean visit(JpqlTreat node) {
+        return true;
+    }
+
+    /**
      * @see #visit(JpqlAggregatePath, Object)
      */
     public boolean visit(JpqlAggregatePath node) {
@@ -1431,8 +1584,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
 
     protected void validateChildCount(Node node, int childCount) {
         if (node.jjtGetNumChildren() != childCount) {
-            throw new IllegalStateException("node " + node.getClass().getName() + " must have " + childCount
-                                            + " children");
+            throw new IllegalStateException("node " + node.getClass().getName() + " must have " + childCount                                           + " children");
         }
     }
 

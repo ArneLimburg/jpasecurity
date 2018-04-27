@@ -66,18 +66,17 @@ public class QueryEvaluatorTest {
     private static final int HAVING_CLAUSE_INDEX = 4;
     private static final int ORDER_BY_CLAUSE_INDEX = 5;
 
-    private Metamodel metamodel;
     private JpqlParser parser;
     private JpqlCompiler compiler;
     private QueryEvaluator queryEvaluator;
     private QueryEvaluationParameters parameters;
-    private Map<Alias, Object> aliases = new HashMap<Alias, Object>();
-    private Map<String, Object> namedParameters = new HashMap<String, Object>();
-    private Map<Integer, Object> positionalParameters = new HashMap<Integer, Object>();
+    private Map<Alias, Object> aliases = new HashMap<>();
+    private Map<String, Object> namedParameters = new HashMap<>();
+    private Map<Integer, Object> positionalParameters = new HashMap<>();
 
     @Before
-    public void initialize() throws NoSuchMethodException {
-        metamodel = mock(Metamodel.class);
+    public void initialize() throws NoSuchMethodException, ParseException {
+        Metamodel metamodel = mock(Metamodel.class);
         SecurePersistenceUnitUtil persistenceUnitUtil = mock(SecurePersistenceUnitUtil.class);
 
         EntityType methodAccessTestBeanType = mock(EntityType.class);
@@ -89,7 +88,7 @@ public class QueryEvaluatorTest {
         SingularAttribute parentAttribute = mock(SingularAttribute.class);
         PluralAttribute childrenAttribute = mock(PluralAttribute.class);
         PluralAttribute relatedAttribute = mock(PluralAttribute.class);
-        when(metamodel.getEntities()).thenReturn(new HashSet<EntityType<?>>(Arrays.<EntityType<?>>asList(
+        when(metamodel.getEntities()).thenReturn(new HashSet<>(Arrays.<EntityType<?>>asList(
                 methodAccessTestBeanType, childTestBeanType)));
         when(metamodel.entity(MethodAccessTestBean.class)).thenReturn(methodAccessTestBeanType);
         when(metamodel.managedType(MethodAccessTestBean.class)).thenReturn(methodAccessTestBeanType);
