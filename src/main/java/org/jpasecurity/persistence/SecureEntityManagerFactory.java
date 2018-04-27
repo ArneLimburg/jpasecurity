@@ -21,7 +21,6 @@ import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -31,6 +30,7 @@ import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.access.SecurePersistenceUnitUtil;
+import org.jpasecurity.jpql.parser.ParseException;
 import org.jpasecurity.security.AccessRule;
 import org.jpasecurity.security.rules.AccessRulesParser;
 import org.jpasecurity.security.rules.AccessRulesProvider;
@@ -44,7 +44,7 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
     private String persistenceUnitName;
     private Class<? extends SecurityContext> securityContextType;
     private Class<? extends AccessRulesProvider> accessRulesProviderType;
-    private Map<String, String> namedQueries = new ConcurrentHashMap<String, String>();
+    private Map<String, String> namedQueries;
     private Collection<AccessRule> accessRules;
 
     public SecureEntityManagerFactory(String unitName,
@@ -59,58 +59,67 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
         namedQueries = new NamedQueryParser(entityManagerFactory.getMetamodel(), ormXmlLocations).parseNamedQueries();
     }
 
+    @Override
     public SecureEntityManager createEntityManager() {
         return createSecureEntityManager(super.createEntityManager(), Collections.<String, Object>emptyMap());
     }
 
+    @Override
     public SecureEntityManager createEntityManager(@SuppressWarnings("rawtypes") Map map) {
         return createSecureEntityManager(super.createEntityManager(map), map);
     }
 
+    @Override
     public SecureEntityManager createEntityManager(SynchronizationType synchronizationType, Map properties) {
         return createSecureEntityManager(super.createEntityManager(synchronizationType, properties), properties);
     }
 
+    @Override
     public SecureEntityManager createEntityManager(SynchronizationType synchronizationType) {
         return createSecureEntityManager(super.createEntityManager(synchronizationType),
                 Collections.<String, Object>emptyMap());
     }
 
+    @Override
     public SecurePersistenceUnitUtil getPersistenceUnitUtil() {
         return new SecurePersistenceUnitUtil(super.getPersistenceUnitUtil());
     }
 
+    @Override
     public void addNamedQuery(String name, Query query) {
         throw new UnsupportedOperationException("delayed registering of named queries is not supported with JPA Security");
     }
 
     protected SecureEntityManager createSecureEntityManager(EntityManager original, Map<String, Object> properties) {
-        return new DefaultSecureEntityManager(this,
-                                              original,
-                                              newInstance(securityContextType),
-                                              getAccessRules());
+        try {
+            return new DefaultSecureEntityManager(this,
+                    original,
+                    newInstance(securityContextType),
+                    getAccessRules());
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     String getNamedQuery(String name) {
         return namedQueries.get(name);
     }
 
-    private Collection<AccessRule> getAccessRules() {
+    private Collection<AccessRule> getAccessRules() throws ParseException {
         if (accessRules == null) {
             accessRules = parseAccessRules();
         }
         return accessRules;
     }
 
-    private synchronized Collection<AccessRule> parseAccessRules() {
+    private synchronized Collection<AccessRule> parseAccessRules() throws ParseException {
         if (accessRules != null) {
             return accessRules;
         }
-        Collection<AccessRule> accessRules = new AccessRulesParser(persistenceUnitName,
+        return new AccessRulesParser(persistenceUnitName,
                 getMetamodel(),
                 newInstance(securityContextType),
                 newInstance(accessRulesProviderType)).parseAccessRules();
-        return accessRules;
     }
 
     private <T> T newInstance(Class<T> type) {

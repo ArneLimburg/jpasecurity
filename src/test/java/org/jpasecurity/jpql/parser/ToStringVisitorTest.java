@@ -21,7 +21,6 @@ import static org.junit.Assert.fail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -147,93 +146,91 @@ public class ToStringVisitorTest {
 
     @Test
     public void parseWhereCoalesceInExpression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) IN ('Horst')");
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name, 'Horst') IN ('Horst')");
     }
 
     @Test
-    @Ignore
-    public void parseWhereCoalesceEquals1Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) = 'Horst'");
+    public void  parseWhereCoalesceEquals1Expression() throws ParseException {
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name, 'Horst') = 'Horst'");
     }
 
     @Test
-    @Ignore
     public void parseWhereCoalesceEquals2Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE 'Horst' = COALESCE(bean.name)");
+        assertJpql("SELECT bean FROM TestBean bean WHERE 'Horst' = COALESCE(bean.name, 'Horst')");
     }
 
     @Test
     public void parseWhereCoalesceBetween1Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name)"
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name, 'Horst')"
             + " BETWEEN bean.name AND bean.name");
     }
 
     @Test
     public void parseWhereCoalesceBetween2Expression() throws ParseException {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
-            + " COALESCE(bean.name) AND bean.name");
+            + " COALESCE(bean.name, 'Horst') AND bean.name");
     }
     @Test
     public void parseWhereCoalesceBetween3Expression() throws ParseException {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
-            + " bean.name AND COALESCE(bean.name)");
+            + " bean.name AND COALESCE(bean.name, 'Horst')");
     }
     @Test
     public void parseWhereCoalesceBetween4Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) BETWEEN"
-            + " COALESCE(bean.name) AND bean.name");
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name, 'Horst') BETWEEN"
+            + " COALESCE(bean.name, 'Horst') AND bean.name");
     }
     @Test
     public void parseWhereCoalesceBetween5Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) BETWEEN"
-            + " bean.name AND COALESCE(bean.name)");
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name, 'Horst') BETWEEN"
+            + " bean.name AND COALESCE(bean.name, 'Horst')");
     }
     @Test
     public void parseWhereCoalesceBetween6Expression() throws ParseException {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
-            + " COALESCE(bean.name) AND COALESCE(bean.name)");
+            + " COALESCE(bean.name, 'Horst') AND COALESCE(bean.name, 'Horst')");
     }
     @Test
     public void parseWhereCoalesceBetween7Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) BETWEEN"
-            + " COALESCE(bean.name) AND COALESCE(bean.name)");
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name, 'Horst') BETWEEN"
+            + " COALESCE(bean.name, 'Horst') AND COALESCE(bean.name, 'Horst')");
     }
 
     @Test
     public void parseWhereCoalesceNotBetween1Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) NOT BETWEEN"
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name, 'Horst') NOT BETWEEN"
             + " bean.name AND bean.name");
     }
 
     @Test
     public void parseWhereCoalesceNotBetween2Expression() throws ParseException {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT BETWEEN"
-            + " COALESCE(bean.name) AND bean.name");
+            + " COALESCE(bean.name, 'Horst') AND bean.name");
     }
     @Test
     public void parseWhereCoalesceNotBetween3Expression() throws ParseException {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT BETWEEN"
-            + " bean.name AND COALESCE(bean.name)");
+            + " bean.name AND COALESCE(bean.name, 'Horst')");
     }
     @Test
     public void parseWhereCoalesceNotBetween4Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) NOT BETWEEN"
-            + " COALESCE(bean.name) AND bean.name");
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name, 'Horst') NOT BETWEEN"
+            + " COALESCE(bean.name, 'Horst') AND bean.name");
     }
     @Test
     public void parseWhereCoalesceNotBetween5Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) NOT BETWEEN"
-            + " bean.name AND COALESCE(bean.name)");
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name, 'Horst') NOT BETWEEN"
+            + " bean.name AND COALESCE(bean.name, 'Horst')");
     }
     @Test
     public void parseWhereCoalesceNotBetween6Expression() throws ParseException {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT BETWEEN"
-            + " COALESCE(bean.name) AND COALESCE(bean.name)");
+            + " COALESCE(bean.name, 'Horst') AND COALESCE(bean.name, 'Horst')");
     }
     @Test
     public void parseWhereCoalesceNotBetween7Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) NOT BETWEEN"
-            + " COALESCE(bean.name) AND COALESCE(bean.name)");
+        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name, 'Horst') NOT BETWEEN"
+            + " COALESCE(bean.name, 'Horst') AND COALESCE(bean.name, 'Horst')");
     }
 
     @Test
@@ -278,7 +275,7 @@ public class ToStringVisitorTest {
     }
 
     @Before
-    public void initializeParser() {
+    public void initializeParser() throws ParseException {
         parser = new JpqlParser();
     }
 

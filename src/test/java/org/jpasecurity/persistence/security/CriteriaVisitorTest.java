@@ -59,7 +59,7 @@ public class CriteriaVisitorTest {
     private TestBean bean2;
 
     @Before
-    public void initialize() {
+    public void initialize() throws ParseException {
         metamodel = mock(Metamodel.class);
         EntityType testBeanType = mock(EntityType.class);
         when(metamodel.getEntities()).thenReturn(Collections.<EntityType<?>>singleton(testBeanType));

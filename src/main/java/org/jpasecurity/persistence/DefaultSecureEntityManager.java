@@ -43,6 +43,7 @@ import org.jpasecurity.jpql.compiler.MappedPathEvaluator;
 import org.jpasecurity.jpql.compiler.PathEvaluator;
 import org.jpasecurity.jpql.compiler.SimpleSubselectEvaluator;
 import org.jpasecurity.jpql.compiler.SubselectEvaluator;
+import org.jpasecurity.jpql.parser.ParseException;
 import org.jpasecurity.persistence.security.CriteriaEntityFilter;
 import org.jpasecurity.persistence.security.CriteriaFilterResult;
 import org.jpasecurity.security.AccessRule;
@@ -67,13 +68,12 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     protected DefaultSecureEntityManager(SecureEntityManagerFactory parent,
                                          EntityManager entityManager,
                                          SecurityContext securityContext,
-                                         Collection<AccessRule> accessRules) {
+                                         Collection<AccessRule> accessRules) throws ParseException {
         super(entityManager);
         entityManagerFactory = parent;
         PathEvaluator pathEvaluator = new MappedPathEvaluator(parent.getMetamodel(), parent.getPersistenceUnitUtil());
         SubselectEvaluator simpleSubselectEvaluator = new SimpleSubselectEvaluator();
-        SubselectEvaluator entityManagerEvaluator
-            = new EntityManagerEvaluator(entityManager, pathEvaluator);
+        SubselectEvaluator entityManagerEvaluator = new EntityManagerEvaluator(entityManager, pathEvaluator);
         this.entityFilter = new CriteriaEntityFilter(parent.getMetamodel(),
                                                      parent.getPersistenceUnitUtil(),
                                                      entityManager.getCriteriaBuilder(),
@@ -89,38 +89,46 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         return entityManagerFactory;
     }
 
+    @Override
     public void persist(Object entity) {
         DefaultAccessManager.Instance.register(accessManager);
         super.persist(entity);
     }
 
+    @Override
     public <T> T merge(T entity) {
         DefaultAccessManager.Instance.register(accessManager);
         return super.merge(entity);
     }
 
+    @Override
     public void remove(Object entity) {
         DefaultAccessManager.Instance.register(accessManager);
         super.remove(entity);
     }
 
+    @Override
     public void detach(Object entity) {
         DefaultAccessManager.Instance.register(accessManager);
         super.detach(entity);
     }
 
+    @Override
     public <T> T find(Class<T> type, Object id) {
         return find(type, id, null, null);
     }
 
+    @Override
     public <T> T find(Class<T> type, Object id, Map<String, Object> properties) {
         return find(type, id, null, properties);
     }
 
+    @Override
     public <T> T find(Class<T> type, Object id, LockModeType lockMode) {
         return find(type, id, lockMode, null);
     }
 
+    @Override
     public <T> T find(Class<T> type, Object id, LockModeType lockMode, Map<String, Object> properties) {
         DefaultAccessManager.Instance.register(accessManager);
         accessManager.delayChecks();
@@ -138,52 +146,62 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         return entity;
     }
 
+    @Override
     public void joinTransaction() {
         DefaultAccessManager.Instance.register(accessManager);
         super.joinTransaction();
         unregisterAccessManagerAfterTransaction();
     }
 
+    @Override
     public void refresh(Object entity) {
         DefaultAccessManager.Instance.register(accessManager);
         super.refresh(entity);
     }
 
+    @Override
     public void refresh(Object entity, LockModeType lockMode) {
         DefaultAccessManager.Instance.register(accessManager);
         super.refresh(entity, lockMode);
     }
 
+    @Override
     public void refresh(Object entity, Map<String, Object> properties) {
         DefaultAccessManager.Instance.register(accessManager);
         super.refresh(entity, properties);
     }
 
+    @Override
     public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
         DefaultAccessManager.Instance.register(accessManager);
         super.refresh(entity, lockMode, properties);
     }
 
+    @Override
     public <T> T getReference(Class<T> type, Object id) {
         DefaultAccessManager.Instance.register(accessManager);
         return super.getReference(type, id);
     }
 
+    @Override
     public void lock(Object entity, LockModeType lockMode) {
         DefaultAccessManager.Instance.register(accessManager);
         super.lock(entity, lockMode);
     }
 
+    @Override
     public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
         DefaultAccessManager.Instance.register(accessManager);
         super.lock(entity, lockMode, properties);
     }
 
+    @Override
     public boolean contains(Object entity) {
         DefaultAccessManager.Instance.register(accessManager);
         return super.contains(entity);
     }
 
+    @Override
     public Query createNamedQuery(String name) {
         String namedQuery = entityManagerFactory.getNamedQuery(name);
         if (namedQuery != null) {
@@ -193,6 +211,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         return super.createNamedQuery(name); // must be named native query
     }
 
+    @Override
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
         DefaultAccessManager.Instance.register(accessManager);
         String namedQuery = entityManagerFactory.getNamedQuery(name);
@@ -202,16 +221,19 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         return super.createNamedQuery(name, resultClass); // must be named native query
     }
 
+    @Override
     public void flush() {
         DefaultAccessManager.Instance.register(accessManager);
         super.flush();
     }
 
+    @Override
     public void clear() {
         DefaultAccessManager.Instance.register(accessManager);
         super.clear();
     }
 
+    @Override
     public void close() {
         LOG.info("Closing SecureEntityManager");
         try {
@@ -227,6 +249,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     /**
      * This implementation filters the query according to the provided security context
      */
+    @Override
     public Query createQuery(String qlString) {
         return createQuery(qlString, Object.class, Query.class);
     }
@@ -234,6 +257,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     /**
      * This implementation filters the query according to the provided security context
      */
+    @Override
     public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
         return createQuery(qlString, resultClass, TypedQuery.class);
     }
@@ -246,10 +270,10 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         } else {
             Q query;
             if (filterResult.getConstructorArgReturnType() != null) {
-                query = (Q)new SecureQuery<T>(createDelegateQuery(filterResult.getQuery(), null, Query.class),
-                                              (Class<T>)filterResult.getConstructorArgReturnType(),
-                                              filterResult.getSelectedPaths(),
-                                              super.getFlushMode());
+                query = (Q)new SecureQuery<>(createDelegateQuery(filterResult.getQuery(), null, Query.class),
+                        (Class<T>)filterResult.getConstructorArgReturnType(),
+                        filterResult.getSelectedPaths(),
+                        super.getFlushMode());
             } else {
                 query = (Q)new SecureQuery<T>(createDelegateQuery(filterResult.getQuery(), resultClass, queryClass),
                                               null,
@@ -274,6 +298,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
     }
 
+    @Override
     public Query createQuery(CriteriaUpdate criteria) {
         DefaultAccessManager.Instance.register(accessManager);
         FilterResult<CriteriaUpdate> filterResult = entityFilter.filterQuery(criteria);
@@ -284,6 +309,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
     }
 
+    @Override
     public Query createQuery(CriteriaDelete criteria) {
         DefaultAccessManager.Instance.register(accessManager);
         FilterResult<CriteriaDelete> filterResult = entityFilter.filterQuery(criteria);
@@ -294,11 +320,12 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
     }
 
+    @Override
     public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
         DefaultAccessManager.Instance.register(accessManager);
         FilterResult<CriteriaQuery<T>> filterResult = entityFilter.filterQuery(criteriaQuery);
         if (filterResult.getQuery() == null) {
-            return new EmptyResultQuery<T>(super.createQuery(criteriaQuery));
+            return new EmptyResultQuery<>(super.createQuery(criteriaQuery));
         } else {
             return createQuery(super.createQuery(filterResult.getQuery()), filterResult);
         }
@@ -319,11 +346,13 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         return secureQuery;
     }
 
+    @Override
     public EntityTransaction getTransaction() {
         DefaultAccessManager.Instance.register(accessManager);
         return super.getTransaction();
     }
 
+    @Override
     public <T> T unwrap(Class<T> cls) {
         DefaultAccessManager.Instance.register(accessManager);
         if (cls.isAssignableFrom(getClass())) {
@@ -333,16 +362,19 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         }
     }
 
+    @Override
     public LockModeType getLockMode(Object entity) {
         DefaultAccessManager.Instance.register(accessManager);
         return super.getLockMode(entity);
     }
 
+    @Override
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
         DefaultAccessManager.Instance.register(accessManager);
         return accessManager.isAccessible(accessType, entityName, parameters);
     }
 
+    @Override
     public boolean isAccessible(AccessType accessType, Object entity) {
         if (accessType != READ) {
             DefaultAccessManager.Instance.register(accessManager);

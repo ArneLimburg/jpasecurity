@@ -3,46 +3,51 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:aop="http://www.springframework.org/schema/aop"
-	   xmlns:tx="http://www.springframework.org/schema/tx"
-	   xmlns:sec="http://www.springframework.org/schema/security"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
-                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
-                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
-	
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:sec="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
     <bean id="contactsDao" class="org.jpasecurity.spring.contacts.DefaultContactsDao"/>
 
-    <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager"
-          p:providers-ref="daoAuthenticationProvider" />
+    <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
+        <constructor-arg index="0" name="providers">
+            <list>
+                <ref bean="daoAuthenticationProvider"/>
+            </list>
+        </constructor-arg>
+    </bean>
 
-    <bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider"
+    <bean id="daoAuthenticationProvider"
+          class="org.springframework.security.authentication.dao.DaoAuthenticationProvider"
           p:forcePrincipalAsString="true"
-          p:userDetailsService-ref="userDetailsService" />
+          p:userDetailsService-ref="userDetailsService"/>
 
-    <bean id="userDetailsService" class="org.springframework.security.core.userdetails.memory.InMemoryDaoImpl">
-        <property name="userProperties">
+    <bean id="userDetailsService" class="org.springframework.security.provisioning.InMemoryUserDetailsManager">
+        <constructor-arg index="0" name="users">
             <props>
                 <prop key="guest">,ROLE_GUEST</prop>
                 <prop key="admin">,ROLE_ADMIN</prop>
                 <prop key="John">,ROLE_USER</prop>
                 <prop key="Mary">,ROLE_USER</prop>
             </props>
-        </property>
+        </constructor-arg>
     </bean>
 
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
 
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
           p:persistenceUnitName="spring-contacts"
-          p:dataSource-ref="dataSource" />
-    
-    <bean id="authenticationProvider" class="org.jpasecurity.spring.authentication.SpringAuthenticationProvider" />
-    
+          p:dataSource-ref="dataSource"/>
+
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
-          p:entityManagerFactory-ref="entityManagerFactory" />
+          p:entityManagerFactory-ref="entityManagerFactory"/>
 
     <aop:config>
-        <aop:pointcut id="daoMethods" expression="execution(* org.jpasecurity.spring.contacts.DefaultContactsDao.*(..))"/>
+        <aop:pointcut id="daoMethods"
+                      expression="execution(* org.jpasecurity.spring.contacts.DefaultContactsDao.*(..))"/>
         <aop:advisor advice-ref="transactionAdvice" pointcut-ref="daoMethods"/>
     </aop:config>
 
@@ -54,22 +59,23 @@
 
     <sec:global-method-security pre-post-annotations="enabled">
         <!-- Enables custom expression handler -->
-        <sec:expression-handler ref="expressionHandler" />
+        <sec:expression-handler ref="expressionHandler"/>
     </sec:global-method-security>
 
-    <bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler"
-          p:permissionEvaluator-ref="permissionEvaluator" />
+    <bean id="expressionHandler"
+          class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler"
+          p:permissionEvaluator-ref="permissionEvaluator"/>
 
     <bean id="permissionEvaluator" class="org.springframework.security.acls.AclPermissionEvaluator">
         <constructor-arg ref="aclService"/>
     </bean>
- 
+
     <bean id="aclService" class="org.springframework.security.acls.jdbc.JdbcMutableAclService">
         <constructor-arg ref="dataSource"/>
         <constructor-arg ref="lookupStrategy"/>
         <constructor-arg ref="aclCache"/>
     </bean>
-  
+
     <bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
         <constructor-arg ref="dataSource"/>
         <constructor-arg ref="aclCache"/>
@@ -78,39 +84,47 @@
             <bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
         </constructor-arg>
     </bean>
-    
+
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"
           p:driverClassName="org.hsqldb.jdbcDriver"
           p:url="jdbc:hsqldb:mem:contacts"
           p:username="sa"
           p:password=""/>
- 
-    <!-- Declare an acl cache-->  
-   <bean id="aclCache" class="org.springframework.security.acls.domain.EhCacheBasedAclCache">
-        <constructor-arg>
+
+    <!-- Declare an acl cache-->
+    <bean id="permissionGrantingStrategy" class="org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy">
+        <constructor-arg name="auditLogger">
+            <bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="aclCache" class="org.springframework.security.acls.domain.EhCacheBasedAclCache">
+        <constructor-arg name="cache" index="0">
             <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean" p:cacheName="aclCache">
                 <property name="cacheManager">
                     <bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
                 </property>
             </bean>
         </constructor-arg>
+        <constructor-arg index="1" name="permissionGrantingStrategy" ref="permissionGrantingStrategy"/>
+        <constructor-arg index="2" name="aclAuthorizationStrategy" ref="aclAuthorizationStrategy"/>
     </bean>
- 
- <!-- Declare an acl authorization strategy-->
+
+    <!-- Declare an acl authorization strategy-->
     <bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
         <constructor-arg>
             <list>
-                <bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+                <bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
                     <constructor-arg value="ROLE_ADMIN"/>
                 </bean>
-                <bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+                <bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
                     <constructor-arg value="ROLE_ADMIN"/>
                 </bean>
-                <bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+                <bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
                     <constructor-arg value="ROLE_ADMIN"/>
                 </bean>
             </list>
         </constructor-arg>
     </bean>
-     
+
 </beans>

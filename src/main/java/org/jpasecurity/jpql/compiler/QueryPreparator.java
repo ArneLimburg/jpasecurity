@@ -69,7 +69,7 @@ public class QueryPreparator {
     /**
      * Removes the specified <tt>With</tt>-node from its parent
      * and appends the condition to the <tt>Where</tt>-node of the specified subselect.
-     * @param where the where-node
+     * @param subselect the where-node
      * @param with the with-node
      */
     public void appendToWhereClause(JpqlSubselect subselect, JpqlWith with) {
@@ -115,8 +115,8 @@ public class QueryPreparator {
 
     /**
      * Prepends the specified path to the specified pathNode.
-     * @param alias the alias
      * @param path the path
+     * @param pathNode the alias
      * @return the new path
      */
     public JpqlPath prepend(Path path, JpqlPath pathNode) {
@@ -447,6 +447,7 @@ public class QueryPreparator {
 
     private class PathReplacer extends JpqlVisitorAdapter<ReplaceParameters> {
 
+        @Override
         public boolean visit(JpqlPath path, ReplaceParameters parameters) {
             if (canReplace(path, parameters)) {
                 replace(path, parameters);
@@ -500,9 +501,10 @@ public class QueryPreparator {
 
     private class ConstructorReplacer extends JpqlVisitorAdapter<List<Node>> {
 
+        @Override
         public boolean visit(JpqlSelectExpressions node, List<Node> nodes) {
             if (node.jjtGetNumChildren() == 1) {
-                List<Node> constructorParameters = new ArrayList<Node>();
+                List<Node> constructorParameters = new ArrayList<>();
                 node.jjtGetChild(0).visit(this, constructorParameters);
                 if (!constructorParameters.isEmpty()) {
                     remove(node.jjtGetChild(0));
@@ -516,6 +518,7 @@ public class QueryPreparator {
             return false;
         }
 
+        @Override
         public boolean visit(JpqlConstructorParameter node, List<Node> parameters) {
             for (int i = 0; i < node.jjtGetNumChildren(); i++) {
                 parameters.add(node.jjtGetChild(i));

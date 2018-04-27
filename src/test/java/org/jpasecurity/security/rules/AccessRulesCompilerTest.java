@@ -49,7 +49,7 @@ import org.junit.Test;
 public class AccessRulesCompilerTest {
 
     @Test
-    public void rulesOnInterfaces() {
+    public void rulesOnInterfaces() throws ParseException {
         SecurityContext securityContext = mock(SecurityContext.class);
         Metamodel metamodel = mock(Metamodel.class);
         EntityType parentTestBeanType = mock(EntityType.class);
