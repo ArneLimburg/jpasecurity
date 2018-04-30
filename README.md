@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ArneLimburg/jpasecurity.svg?branch=master)](https://travis-ci.org/ArneLimburg/jpasecurity) [![sonarcloud](https://sonarcloud.io/api/project_badges/measure?project=org.jpasecurity%3Ajpasecurity&metric=security_rating)](https://sonarcloud.io/dashboard?id=org.jpasecurity%3Ajpasecurity) [![sonarcloud](https://sonarcloud.io/api/project_badges/measure?project=org.jpasecurity%3Ajpasecurity&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=org.jpasecurity%3Ajpasecurity) [![sonarcloud](https://sonarcloud.io/api/project_badges/measure?project=org.jpasecurity%3Ajpasecurity&metric=bugs)](https://sonarcloud.io/dashboard?id=org.jpasecurity%3Ajpasecurity) [![sonarcloud](https://sonarcloud.io/api/project_badges/measure?project=org.jpasecurity%3Ajpasecurity&metric=coverage)](https://sonarcloud.io/dashboard?id=org.jpasecurity%3Ajpasecurity)
+
 # JPA Security
 JPA Security is an Access Control Solution for the Java Persistence API (JPA). Its features include:
 
