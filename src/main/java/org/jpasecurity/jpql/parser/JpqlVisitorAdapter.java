@@ -24,7 +24,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     @Override
-    public boolean visit(Node node, T data) {
+    public boolean visit(JpqlAccessRule node, T data) {
         return visit(node);
     }
 
@@ -32,7 +32,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     @Override
-    public boolean visit(JpqlAccessRule node, T data) {
+    public boolean visit(SimpleNode node, T data) {
         return visit(node);
     }
 
@@ -120,7 +120,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     @Override
-    public boolean visit(JpqlInnerJoin node, T data) {
+    public boolean visit(JpqlJoin node, T data) {
         return visit(node);
     }
 
@@ -128,7 +128,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     @Override
-    public boolean visit(JpqlOuterJoin node, T data) {
+    public boolean visit(JpqlFetchJoin node, T data) {
         return visit(node);
     }
 
@@ -136,15 +136,7 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     @Override
-    public boolean visit(JpqlOuterFetchJoin node, T data) {
-        return visit(node);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean visit(JpqlInnerFetchJoin node, T data) {
+    public boolean visit(JpqlJoinSpec node, T data) {
         return visit(node);
     }
 
@@ -792,6 +784,14 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     @Override
+    public boolean visit(JpqlNumericLiteral node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean visit(JpqlIntegerLiteral node, T data) {
         return visit(node);
     }
@@ -800,7 +800,39 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     @Override
-    public boolean visit(JpqlDecimalLiteral node, T data) {
+    public boolean visit(JpqlLongLiteral node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean visit(JpqlBigIntegerLiteral node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean visit(JpqlFloatLiteral node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean visit(JpqlDoubleLiteral node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean visit(JpqlBigDecimalLiteral node, T data) {
         return visit(node);
     }
 
@@ -865,7 +897,15 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      */
     @Override
     public boolean visit(JpqlTreat node, T data) {
-        return false;
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean visit(JpqlLiteral node, T data) {
+        return visit(node);
     }
 
     /**
@@ -876,30 +916,42 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
         return visit(node);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean visit(JpqlHint node, T data) {
         return visit(node);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean visit(JpqlNoDbIsAccessible node, T data) {
         return visit(node);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean visit(JpqlNoCacheQueryOptimize node, T data) {
         return visit(node);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean visit(JpqlNoCacheIsAccessible node, T data) {
         return visit(node);
     }
 
     /**
-     * @see #visit(Node, Object)
+     * @see #visit(SimpleNode, Object)
      */
-    public boolean visit(Node node) {
+    public boolean visit(SimpleNode node) {
         return true;
     }
 
@@ -981,30 +1033,23 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     }
 
     /**
-     * @see #visit(JpqlInnerJoin, Object)
+     * @see #visit(JpqlJoin, Object)
      */
-    public boolean visit(JpqlInnerJoin node) {
+    public boolean visit(JpqlJoin node) {
         return true;
     }
 
     /**
-     * @see #visit(JpqlOuterJoin, Object)
+     * @see #visit(JpqlFetchJoin, Object)
      */
-    public boolean visit(JpqlOuterJoin node) {
+    public boolean visit(JpqlFetchJoin node) {
         return true;
     }
 
     /**
-     * @see #visit(JpqlOuterFetchJoin, Object)
+     * @see #visit(JpqlJoinSpec, Object)
      */
-    public boolean visit(JpqlOuterFetchJoin node) {
-        return true;
-    }
-
-    /**
-     * @see #visit(JpqlInnerFetchJoin, Object)
-     */
-    public boolean visit(JpqlInnerFetchJoin node) {
+    public boolean visit(JpqlJoinSpec node) {
         return true;
     }
 
@@ -1026,6 +1071,13 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * @see #visit(JpqlTreatJoin, Object)
      */
     public boolean visit(JpqlTreatJoin node) {
+        return true;
+    }
+
+    /**
+     * @see #visit(JpqlWith, Object)
+     */
+    public boolean visit(JpqlWith node) {
         return true;
     }
 
@@ -1506,6 +1558,13 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     }
 
     /**
+     * @see #visit(JpqlNumericLiteral, Object)
+     */
+    public boolean visit(JpqlNumericLiteral node) {
+        return true;
+    }
+
+    /**
      * @see #visit(JpqlIntegerLiteral, Object)
      */
     public boolean visit(JpqlIntegerLiteral node) {
@@ -1513,9 +1572,37 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     }
 
     /**
-     * @see #visit(JpqlDecimalLiteral, Object)
+     * @see #visit(JpqlLongLiteral, Object)
      */
-    public boolean visit(JpqlDecimalLiteral node) {
+    public boolean visit(JpqlLongLiteral node) {
+        return true;
+    }
+
+    /**
+     * @see #visit(JpqlBigIntegerLiteral, Object)
+     */
+    public boolean visit(JpqlBigIntegerLiteral node) {
+        return true;
+    }
+
+    /**
+     * @see #visit(JpqlFloatLiteral, Object)
+     */
+    public boolean visit(JpqlFloatLiteral node) {
+        return true;
+    }
+
+    /**
+     * @see #visit(JpqlDoubleLiteral, Object)
+     */
+    public boolean visit(JpqlDoubleLiteral node) {
+        return true;
+    }
+
+    /**
+     * @see #visit(JpqlBigDecimalLiteral, Object)
+     */
+    public boolean visit(JpqlBigDecimalLiteral node) {
         return true;
     }
 
@@ -1576,6 +1663,13 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
     }
 
     /**
+     * @see #visit(JpqlLiteral, Object)
+     */
+    public boolean visit(JpqlLiteral node) {
+        return true;
+    }
+
+    /**
      * @see #visit(JpqlAggregatePath, Object)
      */
     public boolean visit(JpqlAggregatePath node) {
@@ -1584,7 +1678,9 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
 
     protected void validateChildCount(Node node, int childCount) {
         if (node.jjtGetNumChildren() != childCount) {
-            throw new IllegalStateException("node " + node.getClass().getName() + " must have " + childCount                                           + " children");
+            throw new IllegalStateException(
+                    String.format("node %s must have %d children", node.getClass().getName(), childCount)
+            );
         }
     }
 
@@ -1595,15 +1691,17 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
 
     protected void validateMinChildCount(Node node, int minChildCount) {
         if (node.jjtGetNumChildren() < minChildCount) {
-            throw new IllegalStateException("node " + node.getClass().getName() + " must have at least "
-                                            + minChildCount + " children");
+            throw new IllegalStateException(
+                    String.format("node %s must have at least %d children", node.getClass().getName(), minChildCount)
+            );
         }
     }
 
     protected void validateMaxChildCount(Node node, int maxChildCount) {
         if (node.jjtGetNumChildren() > maxChildCount) {
-            throw new IllegalStateException("node " + node.getClass().getName() + " must have at most "
-                                            + maxChildCount + " children");
+            throw new IllegalStateException(
+                    String.format("node %s must have at most %d children", node.getClass().getName(), maxChildCount)
+            );
         }
     }
 }

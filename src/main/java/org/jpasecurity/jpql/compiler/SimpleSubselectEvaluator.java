@@ -33,11 +33,10 @@ import org.jpasecurity.jpql.JpqlCompiledStatement;
 import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.jpql.parser.JpqlEquals;
 import org.jpasecurity.jpql.parser.JpqlExists;
+import org.jpasecurity.jpql.parser.JpqlFetchJoin;
 import org.jpasecurity.jpql.parser.JpqlGroupBy;
 import org.jpasecurity.jpql.parser.JpqlHaving;
-import org.jpasecurity.jpql.parser.JpqlInnerJoin;
-import org.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
-import org.jpasecurity.jpql.parser.JpqlOuterJoin;
+import org.jpasecurity.jpql.parser.JpqlJoin;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
@@ -60,6 +59,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     private final GroupByClauseVisitor groupByClauseVisitor = new GroupByClauseVisitor();
     private final HavingClauseVisitor havingClauseVisitor = new HavingClauseVisitor();
 
+    @Override
     public Collection<?> evaluate(JpqlCompiledStatement subselect,
                                   QueryEvaluationParameters parameters)
         throws NotEvaluatableException {
@@ -78,6 +78,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         return evaluateSubselect(subselect, parameters, variants, pathEvaluator);
     }
 
+    @Override
     public boolean canEvaluate(JpqlSubselect node, QueryEvaluationParameters parameters) {
         return true;
     }
@@ -114,7 +115,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     }
 
     private Set<Replacement> getReplacements(Set<TypeDefinition> types, Node statement) {
-        Set<Replacement> replacements = new HashSet<Replacement>();
+        Set<Replacement> replacements = new HashSet<>();
         for (TypeDefinition type: types) {
             replacements.add(new Replacement(type));
         }
@@ -145,11 +146,11 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
 
     private SetMap<Alias, Object> evaluateAliases(QueryEvaluationParameters parameters,
             Set<Replacement> replacements, PathEvaluator pathEvaluator) throws NotEvaluatableException {
-        SetMap<Alias, Object> aliasValues = new SetHashMap<Alias, Object>();
+        SetMap<Alias, Object> aliasValues = new SetHashMap<>();
         for (Map.Entry<Alias, Object> aliasEntry: parameters.getAliasValues().entrySet()) {
             aliasValues.add(aliasEntry.getKey(), aliasEntry.getValue());
         }
-        Set<Alias> ignoredAliases = new HashSet<Alias>();
+        Set<Alias> ignoredAliases = new HashSet<>();
         for (Replacement replacement: replacements) {
             Collection<?> result = getResult(replacement, parameters, pathEvaluator);
             for (Object value: result) {
@@ -167,7 +168,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         for (Alias ignoredAlias: ignoredAliases) {
             if (!aliasValues.containsKey(ignoredAlias)) {
                 //No replacement found for alias. The result is ruled out by inner join then...
-                return new SetHashMap<Alias, Object>();
+                return new SetHashMap<>();
             }
         }
         return aliasValues;
@@ -178,10 +179,10 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
                                            SetMap<Alias, Object> variants,
                                            PathEvaluator pathEvaluator) {
         List<Path> selectedPaths = subselect.getSelectedPaths();
-        List<Object> resultList = new ArrayList<Object>();
+        List<Object> resultList = new ArrayList<>();
         Set<TypeDefinition> types = subselect.getTypeDefinitions();
         for (Iterator<Map<Alias, Object>> v = new ValueIterator(variants, types, pathEvaluator); v.hasNext();) {
-            Map<Alias, Object> aliases = new HashMap<Alias, Object>(parameters.getAliasValues());
+            Map<Alias, Object> aliases = new HashMap<>(parameters.getAliasValues());
             aliases.putAll(v.next());
             QueryEvaluationParameters subselectParameters
                 = new QueryEvaluationParameters(parameters.getMetamodel(),
@@ -240,19 +241,19 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     }
 
     private boolean containsWithClauseWithOuterJoin(JpqlSubselect node) {
-        ValueHolder<Boolean> result = new ValueHolder<Boolean>(false);
+        ValueHolder<Boolean> result = new ValueHolder<>(false);
         node.visit(outerJoinWithClauseVisitor, result);
         return result.getValue();
     }
 
     private boolean containsWithClause(Node node) {
-        ValueHolder<JpqlWith> result = new ValueHolder<JpqlWith>();
+        ValueHolder<JpqlWith> result = new ValueHolder<>();
         node.visit(withClauseVisitor, result);
         return result.getValue() != null;
     }
 
     private JpqlWith getWithClause(Node node) {
-        ValueHolder<JpqlWith> result = new ValueHolder<JpqlWith>();
+        ValueHolder<JpqlWith> result = new ValueHolder<>();
         node.visit(withClauseVisitor, result);
         return result.getValue();
     }
@@ -277,13 +278,13 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
     }
 
     private boolean containsGroupByClause(Node node) {
-        ValueHolder<JpqlGroupBy> result = new ValueHolder<JpqlGroupBy>();
+        ValueHolder<JpqlGroupBy> result = new ValueHolder<>();
         node.visit(groupByClauseVisitor, result);
         return result.getValue() != null;
     }
 
     private boolean containsHavingClause(Node node) {
-        ValueHolder<JpqlHaving> result = new ValueHolder<JpqlHaving>();
+        ValueHolder<JpqlHaving> result = new ValueHolder<>();
         node.visit(havingClauseVisitor, result);
         return result.getValue() != null;
     }
@@ -327,6 +328,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
             this.replacementPath = replacementPath;
         }
 
+        @Override
         public String toString() {
             return new StringBuilder().append(type).append(" = ").append(replacementPath).append(" with root ")
                     .append(rootReplacement).toString();
@@ -335,6 +337,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
 
     private class ReplacementVisitor extends JpqlVisitorAdapter<Set<Replacement>> {
 
+        @Override
         public boolean visit(JpqlEquals node, Set<Replacement> replacements) {
             Path child0 = new Path(node.jjtGetChild(0).toString());
             Path child1 = new Path(node.jjtGetChild(1).toString());
@@ -351,19 +354,17 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
             return false;
         }
 
+        @Override
         public boolean visit(JpqlExists node, Set<Replacement> replacements) {
             return false;
         }
 
-        public boolean visit(JpqlInnerJoin node, Set<Replacement> replacements) {
+        @Override
+        public boolean visit(JpqlJoin node, Set<Replacement> replacements) {
             return visitJoin(node, replacements);
         }
 
-        public boolean visit(JpqlOuterJoin node, Set<Replacement> replacements) {
-            return visitJoin(node, replacements);
-        }
-
-        public boolean visitJoin(Node node, Set<Replacement> replacements) {
+        boolean visitJoin(Node node, Set<Replacement> replacements) {
             if (node.jjtGetNumChildren() == 1) {
                 throw new IllegalStateException("Subselect join without alias found: " + node);
             }
@@ -376,7 +377,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         }
     }
 
-    private class WithClauseVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlWith>> {
+    private static class WithClauseVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlWith>> {
 
         @Override
         public boolean visit(JpqlWith node, ValueHolder<JpqlWith> data) {
@@ -387,14 +388,16 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
 
     private class OuterJoinWithClauseVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
 
-        public boolean visit(JpqlOuterJoin node, ValueHolder<Boolean> data) {
+        @Override
+        public boolean visit(JpqlJoin node, ValueHolder<Boolean> data) {
             if (containsWithClause(node)) {
                 data.setValue(true);
             }
             return false;
         }
 
-        public boolean visit(JpqlOuterFetchJoin node, ValueHolder<Boolean> data) {
+        @Override
+        public boolean visit(JpqlFetchJoin node, ValueHolder<Boolean> data) {
             if (containsWithClause(node)) {
                 data.setValue(true);
             }
@@ -402,7 +405,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         }
     }
 
-    private class GroupByClauseVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlGroupBy>> {
+    private static class GroupByClauseVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlGroupBy>> {
 
         @Override
         public boolean visit(JpqlGroupBy node, ValueHolder<JpqlGroupBy> data) {
@@ -411,7 +414,7 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         }
     }
 
-    private class HavingClauseVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlHaving>> {
+    private static class HavingClauseVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlHaving>> {
 
         @Override
         public boolean visit(JpqlHaving node, ValueHolder<JpqlHaving> data) {

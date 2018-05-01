@@ -37,8 +37,7 @@ import org.jpasecurity.jpql.parser.JpqlDelete;
 import org.jpasecurity.jpql.parser.JpqlFromItem;
 import org.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import org.jpasecurity.jpql.parser.JpqlIn;
-import org.jpasecurity.jpql.parser.JpqlInnerJoin;
-import org.jpasecurity.jpql.parser.JpqlOuterJoin;
+import org.jpasecurity.jpql.parser.JpqlJoin;
 import org.jpasecurity.jpql.parser.JpqlRead;
 import org.jpasecurity.jpql.parser.JpqlUpdate;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
@@ -79,13 +78,13 @@ public class AccessRule extends JpqlCompiledStatement {
     }
 
     public Collection<JpqlIdentificationVariable> getIdentificationVariableNodes(Alias alias) {
-        List<JpqlIdentificationVariable> identificationVariableNodes = new ArrayList<JpqlIdentificationVariable>();
+        List<JpqlIdentificationVariable> identificationVariableNodes = new ArrayList<>();
         visit(new IdentificationVariableVisitor(alias.getName()), identificationVariableNodes);
         return Collections.unmodifiableCollection(identificationVariableNodes);
     }
 
     public Collection<JpqlIn> getInNodes(Alias alias) {
-        List<JpqlIn> inNodes = new ArrayList<JpqlIn>();
+        List<JpqlIn> inNodes = new ArrayList<>();
         visit(new InNodeVisitor(alias.getName()), inNodes);
         return Collections.unmodifiableCollection(inNodes);
     }
@@ -111,7 +110,7 @@ public class AccessRule extends JpqlCompiledStatement {
 
     public Set<Alias> getAliases() {
         if (aliases == null) {
-            Set<Alias> declaredAliases = new HashSet<Alias>();
+            Set<Alias> declaredAliases = new HashSet<>();
             visit(new AliasVisitor(), declaredAliases);
             aliases = Collections.unmodifiableSet(declaredAliases);
         }
@@ -138,13 +137,14 @@ public class AccessRule extends JpqlCompiledStatement {
         return getAccess().contains(type);
     }
 
+    @Override
     public AccessRule clone() {
         return (AccessRule)super.clone();
     }
 
     private Set<AccessType> getAccess() {
         if (access == null) {
-            Set<AccessType> access = new HashSet<AccessType>();
+            Set<AccessType> access = new HashSet<>();
             AccessVisitor visitor = new AccessVisitor();
             visit(visitor, access);
             if (access.size() == 0) {
@@ -157,42 +157,44 @@ public class AccessRule extends JpqlCompiledStatement {
 
     private class AccessVisitor extends JpqlVisitorAdapter<Collection<AccessType>> {
 
+        @Override
         public boolean visit(JpqlCreate node, Collection<AccessType> access) {
             access.add(AccessType.CREATE);
             return true;
         }
 
+        @Override
         public boolean visit(JpqlRead node, Collection<AccessType> access) {
             access.add(AccessType.READ);
             return true;
         }
 
+        @Override
         public boolean visit(JpqlUpdate node, Collection<AccessType> access) {
             access.add(AccessType.UPDATE);
             return true;
         }
 
+        @Override
         public boolean visit(JpqlDelete node, Collection<AccessType> access) {
             access.add(AccessType.DELETE);
             return true;
         }
     }
 
-    private class AliasVisitor extends JpqlVisitorAdapter<Set<Alias>> {
+    private static class AliasVisitor extends JpqlVisitorAdapter<Set<Alias>> {
 
+        @Override
         public boolean visit(JpqlFromItem from, Set<Alias> declaredAliases) {
             return visitAlias(from, declaredAliases);
         }
 
-        public boolean visit(JpqlInnerJoin join, Set<Alias> declaredAliases) {
+        @Override
+        public boolean visit(JpqlJoin join, Set<Alias> declaredAliases) {
             return visitAlias(join, declaredAliases);
         }
 
-        public boolean visit(JpqlOuterJoin join, Set<Alias> declaredAliases) {
-            return visitAlias(join, declaredAliases);
-        }
-
-        public boolean visitAlias(Node node, Set<Alias> declaredAliases) {
+        boolean visitAlias(Node node, Set<Alias> declaredAliases) {
             if (node.jjtGetNumChildren() == 2) {
                 declaredAliases.add(new Alias(node.jjtGetChild(1).getValue().toLowerCase()));
             }
@@ -200,7 +202,7 @@ public class AccessRule extends JpqlCompiledStatement {
         }
     }
 
-    private class IdentificationVariableVisitor extends JpqlVisitorAdapter<List<JpqlIdentificationVariable>> {
+    private static class IdentificationVariableVisitor extends JpqlVisitorAdapter<List<JpqlIdentificationVariable>> {
 
         private String identifier;
 
@@ -232,6 +234,7 @@ public class AccessRule extends JpqlCompiledStatement {
             this.identifier = identifier.toLowerCase();
         }
 
+        @Override
         public boolean visit(JpqlIn node, List<JpqlIn> inRoles) {
             if (identifier.equals(node.jjtGetChild(1).toString().toLowerCase())) {
                 inRoles.add(node);
