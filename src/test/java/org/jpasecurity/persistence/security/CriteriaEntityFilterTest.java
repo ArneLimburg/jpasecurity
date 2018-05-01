@@ -27,6 +27,7 @@ import javax.persistence.criteria.Root;
 
 import org.jpasecurity.TestEntityManager;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
+import org.jpasecurity.model.FieldAccessAnnotationTestBean_;
 import org.jpasecurity.model.SimpleEmbeddable;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
@@ -101,7 +102,7 @@ public class CriteriaEntityFilterTest {
         CriteriaQuery<String> query
             = criteriaBuilder.createQuery(String.class);
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
-        query.select(bean.<String>get("name"));
+        query.select(bean.get(FieldAccessAnnotationTestBean_.name));
         List<String> beans = entityManager.createQuery(query).getResultList();
         assertEquals(1, beans.size());
         assertEquals(accessibleBean.getBeanName(), beans.iterator().next());
@@ -110,10 +111,9 @@ public class CriteriaEntityFilterTest {
     @Test
     public void simpleSelectionWithEmbeddedPath() {
         TestSecurityContext.authenticate(USER);
-        CriteriaQuery<SimpleEmbeddable> query
-            = criteriaBuilder.createQuery(SimpleEmbeddable.class);
+        CriteriaQuery<SimpleEmbeddable> query = criteriaBuilder.createQuery(SimpleEmbeddable.class);
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
-        query.select(bean.<SimpleEmbeddable>get("embeddable"));
+        query.select(bean.get(FieldAccessAnnotationTestBean_.embeddable));
         List<SimpleEmbeddable> beans = entityManager.createQuery(query).getResultList();
         assertEquals(1, beans.size());
         assertEquals(accessibleBean.getSimpleEmbeddable(), beans.iterator().next());
@@ -135,7 +135,7 @@ public class CriteriaEntityFilterTest {
         TestSecurityContext.authenticate("admin", "admin");
         CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
-        query.multiselect(bean, bean.get("parent"));
+        query.multiselect(bean, bean.get(FieldAccessAnnotationTestBean_.parent));
         List<Tuple> beans = entityManager.createQuery(query).getResultList();
         assertEquals(1, beans.size());
         assertEquals(accessibleBean, beans.iterator().next().get(0));
@@ -151,7 +151,9 @@ public class CriteriaEntityFilterTest {
         TestSecurityContext.authenticate(USER);
         CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
-        query.multiselect(bean.<String>get("name"), bean.<SimpleEmbeddable>get("embeddable"));
+        query.multiselect(
+                bean.get(FieldAccessAnnotationTestBean_.name), bean.get(FieldAccessAnnotationTestBean_.embeddable)
+        );
         List<Tuple> beans = entityManager.createQuery(query).getResultList();
         assertEquals(1, beans.size());
         assertEquals(accessibleBean.getBeanName(), beans.iterator().next().get(0));
@@ -165,11 +167,13 @@ public class CriteriaEntityFilterTest {
             = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
         query.select(bean);
-        query.where(criteriaBuilder.equal(bean.get("id"), accessibleBean.getIdentifier()));
+        query.where(criteriaBuilder.equal(bean.get(FieldAccessAnnotationTestBean_.id), accessibleBean.getIdentifier()));
         List<FieldAccessAnnotationTestBean> beans = entityManager.createQuery(query).getResultList();
         assertEquals(1, beans.size());
         assertEquals(accessibleBean, beans.iterator().next());
-        query.where(criteriaBuilder.equal(bean.get("id"), inaccessibleBean.getIdentifier()));
+        query.where(
+                criteriaBuilder.equal(bean.get(FieldAccessAnnotationTestBean_.id), inaccessibleBean.getIdentifier())
+        );
         assertTrue(entityManager.createQuery(query).getResultList().isEmpty());
     }
 }

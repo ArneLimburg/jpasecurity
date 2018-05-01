@@ -36,12 +36,12 @@ import org.jpasecurity.jpql.parser.JpqlFromItem;
 import org.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import org.jpasecurity.jpql.parser.JpqlIdentificationVariableDeclaration;
 import org.jpasecurity.jpql.parser.JpqlIn;
-import org.jpasecurity.jpql.parser.JpqlIntegerLiteral;
 import org.jpasecurity.jpql.parser.JpqlIsNull;
 import org.jpasecurity.jpql.parser.JpqlKey;
 import org.jpasecurity.jpql.parser.JpqlNamedInputParameter;
 import org.jpasecurity.jpql.parser.JpqlNot;
 import org.jpasecurity.jpql.parser.JpqlNotEquals;
+import org.jpasecurity.jpql.parser.JpqlNumericLiteral;
 import org.jpasecurity.jpql.parser.JpqlOr;
 import org.jpasecurity.jpql.parser.JpqlParserConstants;
 import org.jpasecurity.jpql.parser.JpqlParserTreeConstants;
@@ -193,10 +193,10 @@ public class QueryPreparator {
     }
 
     /**
-     * Creates a <tt>JpqlIntegerLiteral</tt> node with the specified value.
+     * Creates a <tt>JpqlNumericLiteral</tt> node with the specified value.
      */
-    public JpqlIntegerLiteral createNumber(int value) {
-        JpqlIntegerLiteral integer = new JpqlIntegerLiteral(JpqlParserTreeConstants.JJTINTEGERLITERAL);
+    public JpqlNumericLiteral createNumber(int value) {
+        JpqlNumericLiteral integer = new JpqlNumericLiteral(JpqlParserTreeConstants.JJTNUMERICLITERAL);
         integer.setValue(Integer.toString(value));
         return integer;
     }

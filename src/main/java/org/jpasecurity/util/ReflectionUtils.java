@@ -51,13 +51,11 @@ public abstract class ReflectionUtils {
                         .getDeclaredConstructor(getTypes(parameters)).newInstance(parameters);
                 } catch (NoSuchMethodException e) {
                     declaring = constructor.getDeclaringClass().getEnclosingClass()
-                        .getDeclaredConstructor(new Class[]{}).newInstance();
+                        .getDeclaredConstructor().newInstance();
                 }
                 params = new Object[params.length + 1];
                 params[0] = declaring;
-                for (int i = 0; i < parameters.length; i++) {
-                    params[i + 1] = parameters[i];
-                }
+                System.arraycopy(parameters, 0, params, 1, parameters.length);
             }
             return constructor.newInstance(params);
         } catch (InvocationTargetException e) {
@@ -71,9 +69,7 @@ public abstract class ReflectionUtils {
         try {
             method.setAccessible(true);
             return method.invoke(target, parameters);
-        } catch (IllegalAccessException e) {
-            return throwThrowable(e);
-        } catch (InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             return throwThrowable(e);
         }
     }
@@ -135,8 +131,6 @@ public abstract class ReflectionUtils {
             field.set(target, value);
         } catch (IllegalAccessException e) {
             throwThrowable(e);
-        } catch (NullPointerException e) {
-            throw e;
         }
     }
 
@@ -152,6 +146,7 @@ public abstract class ReflectionUtils {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> Constructor<T>[] getConstructors(Class<T> type) {
         return (Constructor<T>[])type.getDeclaredConstructors();
     }

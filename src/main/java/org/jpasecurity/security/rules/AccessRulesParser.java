@@ -36,9 +36,8 @@ import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jpql.compiler.QueryPreparator;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlFromItem;
-import org.jpasecurity.jpql.parser.JpqlInnerJoin;
+import org.jpasecurity.jpql.parser.JpqlJoin;
 import org.jpasecurity.jpql.parser.JpqlKeywords;
-import org.jpasecurity.jpql.parser.JpqlOuterJoin;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.JpqlPath;
 import org.jpasecurity.jpql.parser.JpqlSelectExpressions;
@@ -168,16 +167,11 @@ public class AccessRulesParser {
         }
 
         @Override
-        public boolean visit(JpqlInnerJoin join, Set<Alias> declaredAliases) {
+        public boolean visit(JpqlJoin join, Set<Alias> declaredAliases) {
             return visitAlias(join, declaredAliases);
         }
 
-        @Override
-        public boolean visit(JpqlOuterJoin join, Set<Alias> declaredAliases) {
-            return visitAlias(join, declaredAliases);
-        }
-
-        public boolean visitAlias(Node node, Set<Alias> declaredAliases) {
+        boolean visitAlias(Node node, Set<Alias> declaredAliases) {
             if (node.jjtGetNumChildren() == 2) {
                 declaredAliases.add(new Alias(node.jjtGetChild(1).getValue().toLowerCase()));
             }

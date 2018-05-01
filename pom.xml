@@ -192,7 +192,7 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>8.9</version>
+                        <version>6.19</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -251,9 +251,30 @@
                                     </fileset>
                                 </delete>
                                 <replace dir="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/"
-                                         token="public Object jjtAccept(JpqlParserVisitor visitor, Object data)"
-                                         value="public &lt;T&gt; boolean jjtAccept(JpqlParserVisitor&lt;T&gt; visitor, T data)"/>
-                                <delete file="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/JpqlParserDefaultVisitor.java"/>
+                                         excludes="**/*Visitor.java"
+                                         token="public Object jjtAccept(JpqlParserVisitor visitor, Object data) {"
+                                         value="public &lt;T&gt; boolean jjtAccept(JpqlParserVisitor&lt;T&gt; visitor, T data) {"/>
+
+                                <replace file="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/JpqlParserVisitor.java">
+                                    <replacefilter token="public interface JpqlParserVisitor" value="public interface JpqlParserVisitor&lt;T&gt;"/>
+                                    <replacefilter token="public Object visit(" value="public boolean visit("/>
+                                    <replacefilter token=", Object data" value=", T data"/>
+                                </replace>
+                                <replace file="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/JpqlParserDefaultVisitor.java">
+                                    <replacefilter token="public Object defaultVisit" value="public boolean defaultVisit"/>
+                                    <replacefilter token="node.childrenAccept(this, data);" value="node.jjtAccept(this, data);"/>
+                                    <replacefilter token="return data;" value="return true;"/>
+
+                                    <replacefilter token="public Object visit(" value="public boolean visit("/>
+                                    <replacefilter token=", Object data){" value=", T data) {"/>
+
+                                </replace>
+                                <!--
+                                <replace file="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/JpqlParserDefaultVisitor.java">
+                                    <replacefilter token="public class JpqlParserDefaultVisitor implements JpqlParserVisitor{"
+                                                   value="public class JpqlParserDefaultVisitor&lt;T&gt; implements JpqlParserVisitor&lt;T&gt; {"/>
+                                </replace>
+                                -->
                             </target>
                         </configuration>
                         <goals>
@@ -516,6 +537,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jpamodelgen</artifactId>
+            <version>5.1.13.Final</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
             <version>2.3.5</version>
@@ -635,6 +662,25 @@
                                 <testExclude>org/jpasecurity/contacts/ejb/EjbContactsTest.java</testExclude>
                             </testExcludes>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.hibernate.orm.tooling</groupId>
+                        <artifactId>hibernate-enhance-maven-plugin</artifactId>
+                        <version>5.1.13.Final</version>
+                        <executions>
+                            <execution>
+                                <configuration>
+                                    <failOnError>true</failOnError>
+                                    <enableLazyInitialization>true</enableLazyInitialization>
+                                    <enableDirtyTracking>true</enableDirtyTracking>
+                                    <enableAssociationManagement>true</enableAssociationManagement>
+                                    <enableExtendedEnhancement>false</enableExtendedEnhancement>
+                                </configuration>
+                                <goals>
+                                    <goal>enhance</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
