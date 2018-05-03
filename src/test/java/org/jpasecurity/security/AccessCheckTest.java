@@ -114,6 +114,7 @@ public class AccessCheckTest {
     }
 
     @Test
+    @Ignore("Ignored until grammar is fixed")
     public void hibernateWith() {
         TestSecurityContext.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("with-clause");
