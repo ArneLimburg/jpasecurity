@@ -304,6 +304,14 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     @Override
+    public boolean visit(JpqlObjectFunction node, T data) {
+        return visit(node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean visit(JpqlWhere node, T data) {
         return visit(node);
     }
@@ -1197,6 +1205,13 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * @see #visit(JpqlSum, Object)
      */
     public boolean visit(JpqlSum node) {
+        return true;
+    }
+
+    /**
+     * @see #visit(JpqlSum, Object)
+     */
+    public boolean visit(JpqlObjectFunction node) {
         return true;
     }
 

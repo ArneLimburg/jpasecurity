@@ -376,8 +376,9 @@ void join() #Join: {} {
     joinSpec() joinAssociationPathExpression() [LOOKAHEAD(1) <AS>] [LOOKAHEAD(1) identificationVariable()] [LOOKAHEAD(1) with()]
 }
 
-void joinSpec() #JoinSpec: {} {
-    (<LEFT> (<OUTER>)? | <INNER> )? <JOIN>
+void joinSpec() #JoinSpec: { Token t = null; } {
+    { jjtThis.setValue(""); }
+    (t=<LEFT> { jjtThis.setValue(jjtThis.getValue() + t.image); } (t=<OUTER> { jjtThis.setValue(jjtThis.getValue() + t.image); })? | t=<INNER> { jjtThis.setValue(jjtThis.getValue() + t.image); })? t=<JOIN> { jjtThis.setValue(jjtThis.getValue() + t.image); }
 }
 
 void with() #With: {} {
@@ -388,7 +389,7 @@ void joinAssociationPathExpression() #CollectionValuedPath: {} {
     // a join path is any dot-separated path expression starting with a
     // non-reserved word containing at minimum two path components
     identificationVariable() (<DOT> objectField())+
-    | LOOKAHEAD(treat()) treat() [LOOKAHEAD(1) <AS>] identificationVariable() #TreatJoin
+    | LOOKAHEAD(treatJoin()) treatJoin() [LOOKAHEAD(1) <AS>] identificationVariable() #TreatJoin
     //
     // join_collection_valued_path_expression
     // | joinCollectionValuedPathExpression
@@ -430,7 +431,7 @@ void singleValuedPathExpression() #Path: {} {
     ( identificationVariable() (<DOT> objectField())* )
     | LOOKAHEAD(qualifiedPathExpression()) ((key() | value()) (<DOT> objectField())+)
     | LOOKAHEAD(qualifiedIdentificationVariable()) qualifiedIdentificationVariable()
-    | treat()
+    | treatJoin()
 }
 
 void collectionValuedPath() #CollectionValuedPath: {} {
@@ -511,7 +512,7 @@ void selectExpression() #SelectExpression: {} {
     | LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() [[<AS>] identificationVariable()]
     | LOOKAHEAD(scalarExpression()) scalarExpression() [[<AS>] identificationVariable()]
     | identificationVariable() [[<AS>] identificationVariable()]
-    | (<OBJECT> <LEFT_PAREN> identificationVariable() <RIGHT_PAREN>) [[<AS>] identificationVariable()]
+    | LOOKAHEAD(objectFunction()) objectFunction()
     | constructorExpression() [[<AS>] identificationVariable()]
 }
 
@@ -595,6 +596,10 @@ void sum() #Sum: {} {
     <SUM> aggregatePath()
 }
 
+void objectFunction() #ObjectFunction: {} {
+    (<OBJECT> <LEFT_PAREN> identificationVariable() <RIGHT_PAREN>) [[<AS>] identificationVariable()]
+}
+
 JpqlWhere whereClause() #Where: {} {
     <WHERE> conditionalExpression() { return jjtThis; }
 }
@@ -654,14 +659,15 @@ void conditionalPrimary(): {} {
 }
 
 void simpleConditionalExpression(): {} {
-    LOOKAHEAD(existsExpression()) existsExpression() |
-    LOOKAHEAD(comparisonExpression()) comparisonExpression() | 
-    LOOKAHEAD(betweenExpression()) betweenExpression() | 
-    LOOKAHEAD(likeExpression()) likeExpression() | 
-    LOOKAHEAD(inExpression()) inExpression() | 
-    LOOKAHEAD(nullComparisonExpression()) nullComparisonExpression() | 
-    LOOKAHEAD(emptyCollectionComparisonExpression()) emptyCollectionComparisonExpression() | 
-    LOOKAHEAD(collectionMemberExpression()) collectionMemberExpression()
+    LOOKAHEAD(existsExpression()) existsExpression()
+    | LOOKAHEAD(comparisonExpression()) comparisonExpression()
+    | LOOKAHEAD(betweenExpression()) betweenExpression()
+    | LOOKAHEAD(likeExpression()) likeExpression()
+    | LOOKAHEAD(inExpression()) inExpression()
+    | LOOKAHEAD(nullComparisonExpression()) nullComparisonExpression()
+    | LOOKAHEAD(emptyCollectionComparisonExpression()) emptyCollectionComparisonExpression()
+    | LOOKAHEAD(collectionMemberExpression()) collectionMemberExpression()
+    | LOOKAHEAD(treatExpression()) treatExpression()
 }
 
 void betweenExpression(): {} {
@@ -780,6 +786,22 @@ void negativeEmptyCollectionComparisonExpression() #IsEmpty: {} {
 void collectionMemberExpression(): {} {
     LOOKAHEAD(positiveCollectionMemberExpression()) positiveCollectionMemberExpression()
     | LOOKAHEAD(negativeCollectionMemberExpression()) negativeCollectionMemberExpression() #Not
+}
+
+void treatJoin() #TreatJoin: {} {
+    treat()
+}
+
+void treatExpression() #TreatExpression: {} {
+    treat() <DOT> objectField()
+    (
+        LOOKAHEAD(betweenExpression()) betweenExpression()
+        | LOOKAHEAD(likeExpression()) likeExpression()
+        | LOOKAHEAD(inExpression()) inExpression()
+        | LOOKAHEAD(nullComparisonExpression()) nullComparisonExpression()
+        | LOOKAHEAD(emptyCollectionComparisonExpression()) emptyCollectionComparisonExpression()
+        | LOOKAHEAD(collectionMemberExpression()) collectionMemberExpression()
+    )
 }
 
 void positiveCollectionMemberExpression() #MemberOf: {} {
@@ -1290,5 +1312,3 @@ void numericLiteral() #NumericLiteral: { Token token; boolean negative = false; 
         | token = <BIG_DECIMAL_LITERAL>                                 #BigDecimalLiteral
     ) { jjtThis.setValue(negative ? "-" : "" + token.image); }
 }
-
-

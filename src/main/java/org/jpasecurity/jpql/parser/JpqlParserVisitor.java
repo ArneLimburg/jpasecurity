@@ -303,6 +303,14 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlSum node, T data);
 
     /**
+     * Called when visiting a <tt>JpqlObjectFunction</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlObjectFunction node, T data);
+
+    /**
      * Called when visiting a <tt>JpqlWhere</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor

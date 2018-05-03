@@ -247,7 +247,12 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean FROM TestBean bean WHERE UPPER(bean.name) = ('Horst')");
     }
 
-    public void assertJpql(String query) {
+    @Test
+    public void parseSimpleJoin() {
+        assertJpql("SELECT OBJECT(bean) FROM TestBean bean JOIN bean.beans");
+    }
+
+    private void assertJpql(String query) {
         StringBuilder queryBuilder = new StringBuilder();
         JpqlStatement statement = null;
         try {
@@ -263,7 +268,7 @@ public class ToStringVisitorTest {
         assertEquals("JPQL", query, result);
     }
 
-    public void assertAccessRule(String rule) throws ParseException {
+    private void assertAccessRule(String rule) throws ParseException {
         StringBuilder ruleBuilder = new StringBuilder();
         JpqlAccessRule accessRule = parser.parseRule(rule);
         accessRule.visit(toStringVisitor, ruleBuilder);
@@ -274,7 +279,7 @@ public class ToStringVisitorTest {
         assertEquals("AccessRule", rule, result);
     }
 
-    protected String stripWhiteSpaces(String query) {
+    private String stripWhiteSpaces(String query) {
         return query.replaceAll("\\s+", " ").trim();
     }
 
