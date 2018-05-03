@@ -150,6 +150,7 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
      */
     @Override
     public boolean visit(JpqlJoinSpec node, StringBuilder query) {
+        query.append(' ').append(node.getValue()).append(' ');
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             query.append(' ');
             node.jjtGetChild(i).visit(this, query);
@@ -358,6 +359,15 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(this, query);
         }
+        query.append(") ");
+        return false;
+    }
+
+    @Override
+    public boolean visit(JpqlObjectFunction node, StringBuilder query) {
+        validateChildCount(node, 1);
+        query.append(" OBJECT(");
+        node.jjtGetChild(0).visit(this, query);
         query.append(") ");
         return false;
     }
@@ -1158,6 +1168,12 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
     public boolean visit(JpqlNoCacheIsAccessible node, StringBuilder query) {
         query.append("IS_ACCESSIBLE_NOCACHE");
         return true;
+    }
+
+    @Override
+    public boolean visit(Node node, StringBuilder query) {
+        query.append(node.getValue());
+        return super.visit(node);
     }
 
     /**
