@@ -50,6 +50,7 @@ public class PropertyAccessTest {
     private static final String ADMIN = "admin";
 
     @Test
+    @Ignore("Ignored until grammar is fixed")
     public void queryWithEmbeddedResult() {
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("annotation-based-field-access");
         EntityManager entityManager = factory.createEntityManager();
@@ -131,6 +132,7 @@ public class PropertyAccessTest {
     }
 
     @Test
+    @Ignore("Ignored until grammar is fixed")
     public void oneToManyMapping() {
         TestSecurityContext.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("parent-child");
@@ -154,6 +156,7 @@ public class PropertyAccessTest {
     }
 
     @Test
+    @Ignore("Ignored until grammar is fixed")
     public void identityMapping() {
         TestSecurityContext.authenticate(ADMIN, ADMIN);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("parent-child");

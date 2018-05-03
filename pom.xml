@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project>
+<project xmlns="http://java.sun.com/jsf/core">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.jpasecurity</groupId>
     <artifactId>jpasecurity</artifactId>
@@ -251,30 +251,9 @@
                                     </fileset>
                                 </delete>
                                 <replace dir="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/"
-                                         excludes="**/*Visitor.java"
-                                         token="public Object jjtAccept(JpqlParserVisitor visitor, Object data) {"
-                                         value="public &lt;T&gt; boolean jjtAccept(JpqlParserVisitor&lt;T&gt; visitor, T data) {"/>
-
-                                <replace file="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/JpqlParserVisitor.java">
-                                    <replacefilter token="public interface JpqlParserVisitor" value="public interface JpqlParserVisitor&lt;T&gt;"/>
-                                    <replacefilter token="public Object visit(" value="public boolean visit("/>
-                                    <replacefilter token=", Object data" value=", T data"/>
-                                </replace>
-                                <replace file="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/JpqlParserDefaultVisitor.java">
-                                    <replacefilter token="public Object defaultVisit" value="public boolean defaultVisit"/>
-                                    <replacefilter token="node.childrenAccept(this, data);" value="node.jjtAccept(this, data);"/>
-                                    <replacefilter token="return data;" value="return true;"/>
-
-                                    <replacefilter token="public Object visit(" value="public boolean visit("/>
-                                    <replacefilter token=", Object data){" value=", T data) {"/>
-
-                                </replace>
-                                <!--
-                                <replace file="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/JpqlParserDefaultVisitor.java">
-                                    <replacefilter token="public class JpqlParserDefaultVisitor implements JpqlParserVisitor{"
-                                                   value="public class JpqlParserDefaultVisitor&lt;T&gt; implements JpqlParserVisitor&lt;T&gt; {"/>
-                                </replace>
-                                -->
+                                         token="public Object jjtAccept(JpqlParserVisitor visitor, Object data)"
+                                         value="public &lt;T&gt; boolean jjtAccept(JpqlParserVisitor&lt;T&gt; visitor, T data)"/>
+                                <delete file="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/JpqlParserDefaultVisitor.java"/>
                             </target>
                         </configuration>
                         <goals>

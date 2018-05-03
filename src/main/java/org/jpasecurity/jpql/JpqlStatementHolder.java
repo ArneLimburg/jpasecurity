@@ -15,19 +15,18 @@
  */
 package org.jpasecurity.jpql;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import org.jpasecurity.jpql.parser.JpqlFrom;
 import org.jpasecurity.jpql.parser.JpqlParserVisitor;
+import org.jpasecurity.jpql.parser.JpqlPath;
+import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
+import org.jpasecurity.jpql.parser.JpqlWhere;
 import org.jpasecurity.jpql.parser.Node;
 import org.jpasecurity.util.ValueHolder;
 
-import org.jpasecurity.jpql.parser.JpqlFrom;
-import org.jpasecurity.jpql.parser.JpqlPath;
-import org.jpasecurity.jpql.parser.JpqlSubselect;
-import org.jpasecurity.jpql.parser.JpqlWhere;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Arne Limburg
@@ -53,7 +52,7 @@ public class JpqlStatementHolder implements Cloneable {
     public JpqlFrom getFromClause() {
         if (fromClause == null) {
             FromVisitor visitor = new FromVisitor();
-            ValueHolder<JpqlFrom> fromClauseHolder = new ValueHolder<JpqlFrom>();
+            ValueHolder<JpqlFrom> fromClauseHolder = new ValueHolder<>();
             visit(visitor, fromClauseHolder);
             fromClause = fromClauseHolder.getValue();
         }
@@ -63,7 +62,7 @@ public class JpqlStatementHolder implements Cloneable {
     public JpqlWhere getWhereClause() {
         if (whereClause == null) {
             WhereVisitor visitor = new WhereVisitor();
-            ValueHolder<JpqlWhere> whereClauseHolder = new ValueHolder<JpqlWhere>();
+            ValueHolder<JpqlWhere> whereClauseHolder = new ValueHolder<>();
             visit(visitor, whereClauseHolder);
             whereClause = whereClauseHolder.getValue();
         }
@@ -73,7 +72,7 @@ public class JpqlStatementHolder implements Cloneable {
     public List<JpqlPath> getWhereClausePaths() {
         if (whereClausePaths == null) {
             PathVisitor visitor = new PathVisitor();
-            List<JpqlPath> whereClausePaths = new ArrayList<JpqlPath>();
+            List<JpqlPath> whereClausePaths = new ArrayList<>();
             JpqlWhere whereClause = getWhereClause();
             if (whereClause != null) {
                 whereClause.visit(visitor, whereClausePaths);
@@ -83,6 +82,7 @@ public class JpqlStatementHolder implements Cloneable {
         return whereClausePaths;
     }
 
+    @Override
     public JpqlStatementHolder clone() {
         try {
             JpqlStatementHolder statement = (JpqlStatementHolder)super.clone();
@@ -97,6 +97,7 @@ public class JpqlStatementHolder implements Cloneable {
         }
     }
 
+    @Override
     public String toString() {
         return getClass() + "[\"" + statement.toString() + "\"]";
     }
@@ -107,11 +108,13 @@ public class JpqlStatementHolder implements Cloneable {
 
     private class FromVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlFrom>> {
 
+        @Override
         public boolean visit(JpqlFrom fromClause, ValueHolder<JpqlFrom> fromClauseHolder) {
             fromClauseHolder.setValue(fromClause);
             return false;
         }
 
+        @Override
         public boolean visit(JpqlSubselect node, ValueHolder<JpqlFrom> fromClauseHolder) {
             return false;
         }
@@ -119,6 +122,7 @@ public class JpqlStatementHolder implements Cloneable {
 
     private class WhereVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlWhere>> {
 
+        @Override
         public boolean visit(JpqlWhere whereClause, ValueHolder<JpqlWhere> whereClauseHolder) {
             whereClauseHolder.setValue(whereClause);
             return false;
@@ -127,6 +131,7 @@ public class JpqlStatementHolder implements Cloneable {
 
     private class PathVisitor extends JpqlVisitorAdapter<List<JpqlPath>> {
 
+        @Override
         public boolean visit(JpqlPath path, List<JpqlPath> paths) {
             paths.add(path);
             return false;

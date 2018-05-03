@@ -638,11 +638,8 @@ public class EntityFilter implements AccessManager {
         }
     }
 
-    protected enum Evaluatable {
-        ALWAYS_TRUE, ALWAYS_FALSE, DEPENDING;
-    }
-
     private static class ReplaceAliasVisitor extends JpqlVisitorAdapter<AliasReplacement> {
+
         @Override
         public boolean visit(JpqlIdentificationVariable variable, AliasReplacement replacement) {
             if (variable.getValue().equals(replacement.getSource().getName())) {
@@ -652,7 +649,19 @@ public class EntityFilter implements AccessManager {
         }
     }
 
+    @Override
+    public boolean isAccessible(AccessType accessType, String entityName, Object... constructorArgs) {
+        try {
+            Class<?> entityType = forModel(metamodel).filter(entityName).getJavaType();
+            Object entity = getConstructor(entityType, constructorArgs).newInstance(constructorArgs);
+            return isAccessible(accessType, entity);
+        } catch (Exception e) {
+            return throwThrowable(e);
+        }
+    }
+
     static class AliasReplacement {
+
         private Alias source;
         private Alias target;
 
@@ -667,17 +676,6 @@ public class EntityFilter implements AccessManager {
 
         Alias getTarget() {
             return target;
-        }
-    }
-
-    @Override
-    public boolean isAccessible(AccessType accessType, String entityName, Object... constructorArgs) {
-        try {
-            Class<?> entityType = forModel(metamodel).filter(entityName).getJavaType();
-            Object entity = getConstructor(entityType, constructorArgs).newInstance(constructorArgs);
-            return isAccessible(accessType, entity);
-        } catch (Exception e) {
-            return throwThrowable(e);
         }
     }
 }
