@@ -22,6 +22,7 @@ import org.jpasecurity.AccessType;
  */
 public class UpdatingTag extends AbstractEntityTag {
 
+    @Override
     protected AccessType getAccessType() {
         return AccessType.UPDATE;
     }

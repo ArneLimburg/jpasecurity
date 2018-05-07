@@ -20,13 +20,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 
-import javax.persistence.FlushModeType;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
-import org.jpasecurity.Path;
 import org.jpasecurity.dto.IdAndNameDto;
 import org.jpasecurity.dto.IdDto;
 import org.junit.Test;
@@ -84,22 +81,18 @@ public class SecureQueryTest {
     @Test(expected = PersistenceException.class)
     public void testHandleConstructorReturnTypePPNotMatchingTypeType()
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        SecureQuery<IdDto> simpleDtoSecureQuery = new SecureQuery<IdDto>(
-            mock(Query.class),
-            IdDto.class,
-            Collections.<Path>emptyList(),
-            FlushModeType.AUTO
+        SecureQuery<IdDto> simpleDtoSecureQuery = new SecureQuery<>(
+                mock(Query.class),
+                IdDto.class
         );
         IdAndNameDto source = new IdAndNameDto(1, "simple");
         simpleDtoSecureQuery.handleConstructorReturnType(source);
     }
 
     private <T> SecureQuery<T> createSecureQuery(Class<T> queryClassType) {
-        return new SecureQuery<T>(
-            mock(Query.class),
-            queryClassType,
-            Collections.<Path>emptyList(),
-            FlushModeType.AUTO
+        return new SecureQuery<>(
+                mock(Query.class),
+                queryClassType
         );
     }
 }

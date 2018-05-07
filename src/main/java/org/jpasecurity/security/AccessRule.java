@@ -204,7 +204,7 @@ public class AccessRule extends JpqlCompiledStatement {
 
     private static class IdentificationVariableVisitor extends JpqlVisitorAdapter<List<JpqlIdentificationVariable>> {
 
-        private String identifier;
+        private final String identifier;
 
         IdentificationVariableVisitor(String identifier) {
             if (identifier == null) {
@@ -223,9 +223,9 @@ public class AccessRule extends JpqlCompiledStatement {
         }
     }
 
-    private class InNodeVisitor extends JpqlVisitorAdapter<List<JpqlIn>> {
+    private static class InNodeVisitor extends JpqlVisitorAdapter<List<JpqlIn>> {
 
-        private String identifier;
+        private final String identifier;
 
         InNodeVisitor(String identifier) {
             if (identifier == null) {

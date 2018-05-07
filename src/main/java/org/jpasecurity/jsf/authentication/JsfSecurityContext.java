@@ -45,14 +45,16 @@ public class JsfSecurityContext extends AbstractRoleBasedSecurityContext {
         }
     }
 
+    @Override
     protected Principal getCallerPrincipal() {
         HttpServletRequest request = getRequest();
         return request != null? request.getUserPrincipal(): null;
     }
 
+    @Override
     protected boolean isCallerInRole(String roleName) {
         HttpServletRequest request = getRequest();
-        return request != null? request.isUserInRole(roleName): false;
+        return request != null && request.isUserInRole(roleName);
     }
 
     private HttpServletRequest getRequest() {

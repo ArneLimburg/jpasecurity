@@ -19,7 +19,6 @@ import static org.jpasecurity.util.Validate.notNull;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -61,23 +60,23 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
 
     @Override
     public SecureEntityManager createEntityManager() {
-        return createSecureEntityManager(super.createEntityManager(), Collections.<String, Object>emptyMap());
+        return createSecureEntityManager(super.createEntityManager());
     }
 
     @Override
     public SecureEntityManager createEntityManager(@SuppressWarnings("rawtypes") Map map) {
-        return createSecureEntityManager(super.createEntityManager(map), map);
+        return createSecureEntityManager(super.createEntityManager(map));
     }
 
     @Override
     public SecureEntityManager createEntityManager(SynchronizationType synchronizationType, Map properties) {
-        return createSecureEntityManager(super.createEntityManager(synchronizationType, properties), properties);
+        return createSecureEntityManager(super.createEntityManager(synchronizationType, properties));
     }
 
     @Override
     public SecureEntityManager createEntityManager(SynchronizationType synchronizationType) {
-        return createSecureEntityManager(super.createEntityManager(synchronizationType),
-                Collections.<String, Object>emptyMap());
+        return createSecureEntityManager(super.createEntityManager(synchronizationType)
+        );
     }
 
     @Override
@@ -90,7 +89,7 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
         throw new UnsupportedOperationException("delayed registering of named queries is not supported with JPA Security");
     }
 
-    protected SecureEntityManager createSecureEntityManager(EntityManager original, Map<String, Object> properties) {
+    protected SecureEntityManager createSecureEntityManager(EntityManager original) {
         try {
             return new DefaultSecureEntityManager(this,
                     original,

@@ -28,6 +28,7 @@ public class DeletionTagHandler extends AbstractBeanTagHandler {
         super(config);
     }
 
+    @Override
     protected AccessType getAccessType() {
         return AccessType.DELETE;
     }

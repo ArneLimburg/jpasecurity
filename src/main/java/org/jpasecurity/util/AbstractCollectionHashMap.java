@@ -59,6 +59,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add(K key, V value) {
         getNotNull(key).add(value);
     }
@@ -66,6 +67,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addAll(K key, Collection<? extends V> values) {
         if (!values.isEmpty()) {
             getNotNull(key).addAll(values);
@@ -75,6 +77,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
     /**
      * {@inheritDoc}
      */
+    @Override
     public void putAll(Map<? extends K, ? extends C> map) {
         for (Map.Entry<? extends K, ? extends C> entry: map.entrySet()) {
             addAll(entry.getKey(), entry.getValue());
@@ -84,6 +87,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
     /**
      * {@inheritDoc}
      */
+    @Override
     public C getNotNull(K key) {
         C collection = get(key);
         if (collection == null) {
@@ -98,6 +102,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
      * and it is contained in this map or, if the specified value is no collection,
      * and there is a collection in this map, that contains the value.
      */
+    @Override
     public boolean containsValue(Object value) {
         if (super.containsValue(value)) {
             return true;
@@ -113,6 +118,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
     /**
      * {@inheritDoc}
      */
+    @Override
     public int size(K key) {
         C collection = get(key);
         if (collection == null) {

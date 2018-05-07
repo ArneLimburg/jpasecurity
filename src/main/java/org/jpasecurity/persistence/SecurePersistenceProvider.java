@@ -63,7 +63,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         }
         EntityManagerFactory nativeFactory
             = nativePersistenceProvider.createContainerEntityManagerFactory(unitInfo, properties);
-        List<String> ormXmlLocations = new ArrayList<String>(unitInfo.getMappingFileNames());
+        List<String> ormXmlLocations = new ArrayList<>(unitInfo.getMappingFileNames());
         ormXmlLocations.add(DEFAULT_ORM_XML_LOCATION);
         Class<? extends SecurityContext> securityContextType = createSecurityContextType(unitInfo, properties);
         Class<? extends AccessRulesProvider> accessRulesProviderType
@@ -99,7 +99,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         try {
             EntityManagerFactory nativeFactory
                 = nativePersistenceProvider.createEntityManagerFactory(unitName, properties);
-            List<String> ormXmlLocations = new ArrayList<String>(xmlParser.parseMappingFileNames(unitName));
+            List<String> ormXmlLocations = new ArrayList<>(xmlParser.parseMappingFileNames(unitName));
             ormXmlLocations.add(DEFAULT_ORM_XML_LOCATION);
             Class<? extends SecurityContext> securityContextType
                 = createSecurityContextType(unitName, properties, xmlParser);
@@ -116,6 +116,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         }
     }
 
+    @Override
     public void generateSchema(PersistenceUnitInfo unitInfo, Map properties) {
         if (properties == null) {
             properties = new HashMap();
@@ -129,6 +130,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         nativePersistenceProvider.generateSchema(unitInfo, properties);
     }
 
+    @Override
     public boolean generateSchema(String unitName, Map properties) {
         if (properties == null) {
             properties = new HashMap();

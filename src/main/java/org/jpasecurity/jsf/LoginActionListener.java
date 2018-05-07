@@ -34,6 +34,7 @@ public class LoginActionListener implements ActionListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoginActionListener.class);
 
+    @Override
     public void processAction(ActionEvent actionEvent) {
         FacesContext context = FacesContext.getCurrentInstance();
         UINamingContainer loginComponent
@@ -44,7 +45,7 @@ public class LoginActionListener implements ActionListener {
         try {
             loginAction.invoke(context.getELContext(), new Object[] {username.getValue(), password.getValue()});
             NavigationHandler navigationHandler = context.getApplication().getNavigationHandler();
-            String outcome = (String)context.getExternalContext().getRequestParameterMap().get("outcome");
+            String outcome = context.getExternalContext().getRequestParameterMap().get("outcome");
             if (outcome != null) {
                 navigationHandler.handleNavigation(context, null, outcome);
             }
@@ -52,7 +53,7 @@ public class LoginActionListener implements ActionListener {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Login could not be established.", e);
             } else {
-                LOG.info("Login could not be established: " + e.getMessage());
+                LOG.info("Login could not be established.", e);
             }
         }
     }

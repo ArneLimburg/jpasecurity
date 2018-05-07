@@ -141,6 +141,7 @@ public class Path {
         }
     }
 
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         if (isKeyPath()) {
@@ -156,10 +157,12 @@ public class Path {
         return builder.toString();
     }
 
+    @Override
     public int hashCode() {
         return toString().hashCode();
     }
 
+    @Override
     public boolean equals(Object object) {
         if (!(object instanceof Path)) {
             return false;

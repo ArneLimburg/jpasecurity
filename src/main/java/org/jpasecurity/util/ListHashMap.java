@@ -58,6 +58,7 @@ public class ListHashMap<K, V> extends AbstractCollectionHashMap<K, List<V>, V> 
     /**
      * {@inheritDoc}
      */
+    @Override
     public V get(K key, int index) {
         List<V> list = get(key);
         if (list == null) {
@@ -69,6 +70,7 @@ public class ListHashMap<K, V> extends AbstractCollectionHashMap<K, List<V>, V> 
     /**
      * {@inheritDoc}
      */
+    @Override
     public int indexOf(K key, V value) {
         List<V> list = get(key);
         if (list == null) {
@@ -80,7 +82,8 @@ public class ListHashMap<K, V> extends AbstractCollectionHashMap<K, List<V>, V> 
     /**
      * {@inheritDoc}
      */
+    @Override
     protected List<V> createCollection() {
-        return new ArrayList<V>();
+        return new ArrayList<>();
     }
 }

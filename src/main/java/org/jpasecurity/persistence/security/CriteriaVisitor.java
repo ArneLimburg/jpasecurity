@@ -15,28 +15,6 @@
  */
 package org.jpasecurity.persistence.security;
 
-import static org.jpasecurity.util.Validate.notNull;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.persistence.Parameter;
-import javax.persistence.criteria.AbstractQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaBuilder.Trimspec;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.Subquery;
-import javax.persistence.metamodel.Metamodel;
-
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
 import org.jpasecurity.jpql.parser.JpqlAbs;
@@ -123,8 +101,30 @@ import org.jpasecurity.jpql.parser.JpqlWith;
 import org.jpasecurity.jpql.parser.Node;
 import org.jpasecurity.persistence.mapping.ManagedTypeFilter;
 
+import javax.persistence.Parameter;
+import javax.persistence.criteria.AbstractQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaBuilder.Trimspec;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Selection;
+import javax.persistence.criteria.Subquery;
+import javax.persistence.metamodel.Metamodel;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static org.jpasecurity.util.Validate.notNull;
+
 /**
  * This visitor creates a {@link javax.persistence.criteria.CriteriaQuery} of a query tree.
+ *
  * @author Arne Limburg
  */
 public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
@@ -145,9 +145,9 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     @Override
     public boolean visit(JpqlSelect node, CriteriaHolder query) {
         node.jjtGetChild(0).visit(this, query);
-        List<Selection<?>> selections = query.<List<Selection<?>>>getCurrentValue();
+        List<Selection<?>> selections = query.getCurrentValue();
         if (selections.size() == 1) {
-            query.getCriteria().select((Selection<?>)selections.iterator().next());
+            query.getCriteria().select(selections.iterator().next());
         } else {
             query.getCriteria().multiselect(selections);
         }
@@ -196,9 +196,9 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      */
     @Override
     public boolean visit(JpqlInCollection node, CriteriaHolder query) {
-        Expression<?> expression = query.<Expression<?>>getCurrentValue();
+        Expression<?> expression = query.getCurrentValue();
         node.jjtGetChild(0).visit(this, query);
-        Collection<?> collection = query.<Collection<?>>getCurrentValue();
+        Collection<?> collection = query.getCurrentValue();
         query.setValue(expression.in(collection));
         return false;
     }
@@ -309,14 +309,14 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     @Override
     public boolean visit(JpqlConstructor node, CriteriaHolder query) {
         node.jjtGetChild(0).visit(this, query);
-        String entityName = query.<String>getCurrentValue();
+        String entityName = query.getCurrentValue();
         Class<?> entityType = ManagedTypeFilter.forModel(metamodel).filter(entityName.trim()).getJavaType();
         List<Selection<?>> constructorParameters = new ArrayList<>();
         query.setValue(constructorParameters);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(this, query);
         }
-        Selection<?>[] selection = constructorParameters.toArray(new Selection<?>[constructorParameters.size()]);
+        Selection<?>[] selection = constructorParameters.toArray(new Selection<?>[0]);
         query.setValue(builder.construct(entityType, selection));
         return false;
     }
@@ -326,7 +326,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      */
     @Override
     public boolean visit(JpqlConstructorParameter node, CriteriaHolder query) {
-        List<Selection<?>> selections = query.<List<Selection<?>>>getCurrentValue();
+        List<Selection<?>> selections = query.getCurrentValue();
         node.jjtGetChild(0).visit(this, query);
         selections.add(query.<Selection<?>>getCurrentValue());
         query.setValue(selections);
@@ -428,7 +428,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
         if (havingExpressions.size() == 1) {
             query.getCriteria().having(havingExpressions.iterator().next());
         } else {
-            query.getCriteria().having(havingExpressions.toArray(new Predicate[havingExpressions.size()]));
+            query.getCriteria().having(havingExpressions.toArray(new Predicate[0]));
         }
         return false;
     }
@@ -442,7 +442,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
             Subquery<Object> subquery = query.createSubquery();
             node.jjtGetChild(1).visit(this, query);
             node.jjtGetChild(0).visit(this, query);
-            List<Selection<?>> selections = query.<List<Selection<?>>>getCurrentValue();
+            List<Selection<?>> selections = query.getCurrentValue();
             subquery.select((Expression<Object>)selections.iterator().next());
             query.setValue(subquery);
             for (int i = 2; i < node.jjtGetNumChildren(); i++) {
@@ -493,17 +493,17 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     public boolean visit(JpqlBetween node, CriteriaHolder query) {
         assert node.jjtGetNumChildren() == 3;
         node.jjtGetChild(0).visit(this, query);
-        Expression<Comparable<Object>> e1 = query.<Expression<Comparable<Object>>>getCurrentValue();
+        Expression<Comparable<Object>> e1 = query.getCurrentValue();
         node.jjtGetChild(1).visit(this, query);
         if (query.isValueOfType(Expression.class)) {
-            Expression<Comparable<Object>> e2 = query.<Expression<Comparable<Object>>>getCurrentValue();
+            Expression<Comparable<Object>> e2 = query.getCurrentValue();
             node.jjtGetChild(2).visit(this, query);
-            Expression<Comparable<Object>> e3 = query.<Expression<Comparable<Object>>>getCurrentValue();
+            Expression<Comparable<Object>> e3 = query.getCurrentValue();
             query.setValue(builder.between(e1, e2, e3));
         } else {
-            Comparable<Object> e2 = query.<Comparable<Object>>getCurrentValue();
+            Comparable<Object> e2 = query.getCurrentValue();
             node.jjtGetChild(2).visit(this, query);
-            Comparable<Object> e3 = query.<Comparable<Object>>getCurrentValue();
+            Comparable<Object> e3 = query.getCurrentValue();
             query.setValue(builder.between(e1, e2, e3));
         }
         return false;
@@ -515,7 +515,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     @Override
     public boolean visit(JpqlIn node, CriteriaHolder query) {
         node.jjtGetChild(0).visit(this, query);
-        Expression<?> expression = query.<Expression<?>>getCurrentValue();
+        Expression<?> expression = query.getCurrentValue();
         node.jjtGetChild(1).visit(this, query);
         query.setValue(expression.in(query.<Subquery<?>>getCurrentValue()));
         return false;
@@ -539,16 +539,16 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      */
     @Override
     public boolean visit(JpqlPatternValue node, CriteriaHolder query) {
-        Expression<String> expression = query.<Expression<String>>getCurrentValue();
+        Expression<String> expression = query.getCurrentValue();
         node.jjtGetChild(0).visit(this, query);
         if (query.isValueOfType(Expression.class)) {
-            Expression<String> patternExpression = query.<Expression<String>>getCurrentValue();
+            Expression<String> patternExpression = query.getCurrentValue();
             if (node.jjtGetNumChildren() == 1) {
                 query.setValue(builder.like(expression, patternExpression));
             } else {
                 node.jjtGetChild(1).visit(this, query);
                 if (query.isValueOfType(Expression.class)) {
-                    Expression<Character> escapeExpression = query.<Expression<Character>>getCurrentValue();
+                    Expression<Character> escapeExpression = query.getCurrentValue();
                     query.setValue(builder.like(expression, patternExpression, escapeExpression));
                 } else {
                     Character escapeCharacter = query.<Character>getCurrentValue();
@@ -556,13 +556,13 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
                 }
             }
         } else {
-            String patternValue = query.<String>getCurrentValue();
+            String patternValue = query.getCurrentValue();
             if (node.jjtGetNumChildren() == 1) {
                 query.setValue(builder.like(expression, patternValue));
             } else {
                 node.jjtGetChild(1).visit(this, query);
                 if (query.isValueOfType(Expression.class)) {
-                    Expression<Character> escapeExpression = query.<Expression<Character>>getCurrentValue();
+                    Expression<Character> escapeExpression = query.getCurrentValue();
                     query.setValue(builder.like(expression, patternValue, escapeExpression));
                 } else {
                     Character escapeCharacter = query.<Character>getCurrentValue();
@@ -606,15 +606,14 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
 
     private <V, W extends Collection<V>> void buildMemberOf(JpqlMemberOf node, CriteriaHolder query) {
         if (query.isValueOfType(Expression.class)) {
-            Expression<V> memberExpression = query.<Expression<V>>getCurrentValue();
+            Expression<V> memberExpression = query.getCurrentValue();
             node.jjtGetChild(1).visit(this, query);
-            Expression<W> collectionExpression = query.<Expression<W>>getCurrentValue();
+            Expression<W> collectionExpression = query.getCurrentValue();
             query.setValue(builder.isMember(memberExpression, collectionExpression));
         } else {
             Object member = query.getValue();
             node.jjtGetChild(1).visit(this, query);
-            Expression<Collection<Object>> collectionExpression
-                = query.<Expression<Collection<Object>>>getCurrentValue();
+            Expression<Collection<Object>> collectionExpression = query.getCurrentValue();
             query.setValue(builder.isMember(member, collectionExpression));
         }
     }
@@ -813,7 +812,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
         if (node.jjtGetNumChildren() > 1) {
             node.jjtGetChild(0).visit(this, query);
             if (query.isValueOfType(Trimspec.class)) {
-                trimspec = query.<Trimspec>getCurrentValue();
+                trimspec = query.getCurrentValue();
                 if (node.jjtGetNumChildren() == 3) {
                     trimCharacter = getCharacterExpression(node.jjtGetChild(1), query);
                 }
@@ -1121,7 +1120,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
 
     private Predicate getPredicate(CriteriaHolder query) {
         if (query.isValueOfType(Predicate.class)) {
-            return query.<Predicate>getCurrentValue();
+            return query.getCurrentValue();
         } else if (query.isValueOfType(Expression.class)) {
             return builder.isTrue(query.<Expression<Boolean>>getCurrentValue());
         } else if (query.isValueOfType(Boolean.class)) {
@@ -1139,7 +1138,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
 
     private Expression<?> getExpression(CriteriaHolder query) {
         if (query.isValueOfType(Expression.class)) {
-            return query.<Expression<?>>getCurrentValue();
+            return query.getCurrentValue();
         } else if (query.getValue() != null) {
             return builder.literal(query.getValue());
         } else {
@@ -1154,7 +1153,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
 
     private Expression<String> getStringExpression(CriteriaHolder query) {
         if (query.isValueOfType(Expression.class)) {
-            return query.<Expression<String>>getCurrentValue();
+            return query.getCurrentValue();
         } else if (query.isValueOfType(String.class)) {
             return builder.literal(query.<String>getCurrentValue());
         } else {
@@ -1170,7 +1169,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
 
     private Expression<Character> getCharacterExpression(CriteriaHolder query) {
         if (query.isValueOfType(Expression.class)) {
-            return query.<Expression<Character>>getCurrentValue();
+            return query.getCurrentValue();
         } else if (query.isValueOfType(Character.class)) {
             return builder.literal(query.<Character>getCurrentValue());
         } else {
@@ -1186,7 +1185,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
 
     private Expression<Integer> getIntegerExpression(CriteriaHolder query) {
         if (query.isValueOfType(Expression.class)) {
-            return query.<Expression<Integer>>getCurrentValue();
+            return query.getCurrentValue();
         } else if (query.isValueOfType(Integer.class)) {
             return builder.literal(query.<Integer>getCurrentValue());
         } else {
@@ -1202,7 +1201,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
 
     private Expression<Number> getNumberExpression(CriteriaHolder query) {
         if (query.isValueOfType(Expression.class)) {
-            return query.<Expression<Number>>getCurrentValue();
+            return query.getCurrentValue();
         } else if (query.isValueOfType(Number.class)) {
             return builder.literal(query.<Number>getCurrentValue());
         } else {
@@ -1218,7 +1217,7 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
 
     private Expression<Comparable<Object>> getComparableExpression(CriteriaHolder query) {
         if (query.isValueOfType(Expression.class)) {
-            return query.<Expression<Comparable<Object>>>getCurrentValue();
+            return query.getCurrentValue();
         } else if (query.isValueOfType(Comparable.class)) {
             return builder.literal(query.<Comparable<Object>>getCurrentValue());
         } else {

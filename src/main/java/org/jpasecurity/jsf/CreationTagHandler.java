@@ -35,6 +35,7 @@ public class CreationTagHandler extends AbstractBeanTagHandler {
         return JsfAccessContext.getAccessManager().isAccessible(getAccessType(), bean.getName(), bean.getParameters());
     }
 
+    @Override
     protected AccessType getAccessType() {
         return AccessType.CREATE;
     }

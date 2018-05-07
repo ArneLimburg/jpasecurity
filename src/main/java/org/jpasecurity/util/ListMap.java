@@ -29,7 +29,7 @@ public interface ListMap<K, V> extends CollectionMap<K, List<V>, V> {
      * @param key the key of the list to get the value from
      * @param index the index in the list to get the value from
      * @return the value at the specified index
-     * @throws NoSuchElementException if no list is mapped to the specified key
+     * @throws java.util.NoSuchElementException if no list is mapped to the specified key
      * @throws IndexOutOfBoundsException if the index is &lt; 0 or &gt;= {@link CollectionMap#size(Object key)}
      */
     V get(K key, int index);
@@ -43,5 +43,4 @@ public interface ListMap<K, V> extends CollectionMap<K, List<V>, V> {
      *         or the list does not contain the specified value
      */
     int indexOf(K key, V value);
-
 }
