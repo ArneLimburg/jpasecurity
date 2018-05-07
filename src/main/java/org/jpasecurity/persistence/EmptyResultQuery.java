@@ -35,6 +35,7 @@ public class EmptyResultQuery<T> extends DelegatingQuery<T> {
      * As this query always returns an empty result,
      * this call always throws a {@link NoResultException}
      */
+    @Override
     public T getSingleResult() {
         throw new NoResultException();
     }
@@ -42,7 +43,8 @@ public class EmptyResultQuery<T> extends DelegatingQuery<T> {
     /**
      * As this query always returns an empty result, this call always returns an empty list.
      */
+    @Override
     public List<T> getResultList() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 }

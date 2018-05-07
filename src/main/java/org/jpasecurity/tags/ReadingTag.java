@@ -22,6 +22,7 @@ import org.jpasecurity.AccessType;
  */
 public class ReadingTag extends AbstractEntityTag {
 
+    @Override
     protected AccessType getAccessType() {
         return AccessType.READ;
     }

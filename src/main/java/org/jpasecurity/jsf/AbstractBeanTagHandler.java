@@ -33,11 +33,12 @@ public abstract class AbstractBeanTagHandler extends TagHandler {
 
     private TagAttribute beanAttribute;
 
-    public AbstractBeanTagHandler(TagConfig config) {
+    protected AbstractBeanTagHandler(TagConfig config) {
         super(config);
         beanAttribute = getAttribute("bean");
     }
 
+    @Override
     public void apply(FaceletContext context, UIComponent parent) throws IOException {
         ValueExpression expression = beanAttribute.getValueExpression(context, Object.class);
         Object bean = expression.getValue(context.getFacesContext().getELContext());

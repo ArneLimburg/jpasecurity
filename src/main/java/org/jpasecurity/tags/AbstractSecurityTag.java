@@ -30,10 +30,7 @@ import org.jpasecurity.AccessManager;
 public abstract class AbstractSecurityTag extends TagSupport {
 
     public AccessManager getAccessManager() {
-
-        AccessManager accessManager;
-
-        accessManager = resolveAccessManager(PageContext.PAGE_SCOPE);
+        AccessManager accessManager = resolveAccessManager(PageContext.PAGE_SCOPE);
         if (accessManager != null) {
             return accessManager;
         }
@@ -52,6 +49,7 @@ public abstract class AbstractSecurityTag extends TagSupport {
         throw new IllegalStateException("No access manager defined for this page");
     }
 
+    @Override
     public int doStartTag() {
         if (!isAccessible()) {
             return Tag.SKIP_BODY;

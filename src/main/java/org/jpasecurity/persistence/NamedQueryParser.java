@@ -41,7 +41,7 @@ public class NamedQueryParser {
     }
 
     public ConcurrentMap<String, String> parseNamedQueries() {
-        ConcurrentMap<String, String> namedQueries = new ConcurrentHashMap<String, String>();
+        ConcurrentMap<String, String> namedQueries = new ConcurrentHashMap<>();
         for (ManagedType<?> managedType: metamodel.getManagedTypes()) {
             namedQueries.putAll(parseNamedQueries(managedType.getJavaType()));
         }
@@ -50,7 +50,7 @@ public class NamedQueryParser {
     }
 
     private Map<String, String> parseNamedQueries(Class<?> type) {
-        Map<String, String> parsedQueries = new HashMap<String, String>();
+        Map<String, String> parsedQueries = new HashMap<>();
         NamedQuery namedQuery = type.getAnnotation(NamedQuery.class);
         if (namedQuery != null) {
             parsedQueries.put(namedQuery.name(), namedQuery.query());
@@ -66,8 +66,8 @@ public class NamedQueryParser {
 
     private Map<String, String> parseNamedQueries(Collection<String> ormXmlLocations) {
         try {
-            Map<String, String> parsedQueries = new HashMap<String, String>();
-            XmlParser parser = new XmlParser(ormXmlLocations.toArray(new String[ormXmlLocations.size()]));
+            Map<String, String> parsedQueries = new HashMap<>();
+            XmlParser parser = new XmlParser(ormXmlLocations.toArray(new String[0]));
             for (Node query: parser.parseGlobalNamedQueries()) {
                 parsedQueries.put(getNamedQueryName(query), query.getTextContent());
             }

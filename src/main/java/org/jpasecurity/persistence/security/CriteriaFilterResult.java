@@ -15,7 +15,6 @@
  */
 package org.jpasecurity.persistence.security;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +27,7 @@ import org.jpasecurity.security.FilterResult;
  */
 public class CriteriaFilterResult<Q> extends FilterResult<Q> {
 
-    private List<Parameter<?>> criteriaParameters = new ArrayList<Parameter<?>>();
+    private List<Parameter<?>> criteriaParameters;
 
     public CriteriaFilterResult(Q query, Map<String, Object> parameters, List<Parameter<?>> criteriaParameters) {
         super(query, parameters, null, null, null);

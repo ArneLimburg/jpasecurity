@@ -15,10 +15,6 @@
  */
 package org.jpasecurity.security;
 
-import java.util.Map;
-
-import javax.persistence.metamodel.Metamodel;
-
 import org.jpasecurity.Alias;
 import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
@@ -33,8 +29,12 @@ import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
 import org.jpasecurity.jpql.parser.Node;
 
+import javax.persistence.metamodel.Metamodel;
+import java.util.Map;
+
 /**
  * Optimizes a query by evaluating subtrees in memory.
+ *
  * @author Arne Limburg
  */
 public class QueryOptimizer {
@@ -69,6 +69,7 @@ public class QueryOptimizer {
 
     private class NodeOptimizer extends JpqlVisitorAdapter<QueryEvaluationParameters> {
 
+        @Override
         public boolean visit(JpqlWhere where, QueryEvaluationParameters data) {
             assert where.jjtGetNumChildren() == 1;
             try {
@@ -84,6 +85,7 @@ public class QueryOptimizer {
             }
         }
 
+        @Override
         public boolean visit(JpqlOr node, QueryEvaluationParameters data) {
             assert node.jjtGetNumChildren() == 2;
             try {
@@ -110,6 +112,7 @@ public class QueryOptimizer {
             }
         }
 
+        @Override
         public boolean visit(JpqlAnd node, QueryEvaluationParameters data) {
             assert node.jjtGetNumChildren() == 2;
             try {
@@ -133,6 +136,7 @@ public class QueryOptimizer {
             }
         }
 
+        @Override
         public boolean visit(JpqlBrackets brackets, QueryEvaluationParameters data) {
             assert brackets.jjtGetNumChildren() == 1;
             while (brackets.jjtGetChild(0) instanceof JpqlBrackets) {

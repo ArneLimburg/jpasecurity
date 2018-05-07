@@ -20,16 +20,19 @@ import javax.persistence.spi.ProviderUtil;
 
 public class EmptyProviderUtil implements ProviderUtil {
 
-    public static final ProviderUtil INSTANCE = new EmptyProviderUtil();
+    static final ProviderUtil INSTANCE = new EmptyProviderUtil();
 
+    @Override
     public LoadState isLoaded(Object entity) {
         return LoadState.UNKNOWN;
     }
 
+    @Override
     public LoadState isLoadedWithReference(Object entity, String property) {
         return LoadState.UNKNOWN;
     }
 
+    @Override
     public LoadState isLoadedWithoutReference(Object entity, String property) {
         return LoadState.UNKNOWN;
     }

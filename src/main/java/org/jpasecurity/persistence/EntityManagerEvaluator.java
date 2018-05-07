@@ -15,17 +15,6 @@
  */
 package org.jpasecurity.persistence;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.EntityManager;
-import javax.persistence.FlushModeType;
-import javax.persistence.Query;
-
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
 import org.jpasecurity.access.DefaultAccessManager;
@@ -42,8 +31,19 @@ import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.EntityManager;
+import javax.persistence.FlushModeType;
+import javax.persistence.Query;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * This class evaluates JPQL subselect-queries via a call to a specified <tt>EntityManager</tt>.
+ *
  * @author Arne Limburg
  */
 public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
@@ -67,6 +67,7 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
      * Within this method a query is performed via the entity-manager of this evaluator.
      * If this evaluator is already closed, the result of the evaluation is set to <quote>undefined</quote>.
      */
+    @Override
     public Collection<?> evaluate(JpqlCompiledStatement statement,
                                   QueryEvaluationParameters evaluationParameters) throws NotEvaluatableException {
         if (!isEntityManagerOpen()) {
@@ -82,9 +83,9 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
         LOG.trace("Evaluating subselect with query");
         statement = statement.clone();
         Set<Alias> aliases = getAliases(statement.getTypeDefinitions());
-        Set<String> namedParameters = new HashSet<String>(statement.getNamedParameters());
-        Map<String, String> namedPathParameters = new HashMap<String, String>();
-        Map<String, Object> namedParameterValues = new HashMap<String, Object>();
+        Set<String> namedParameters = new HashSet<>(statement.getNamedParameters());
+        Map<String, String> namedPathParameters = new HashMap<>();
+        Map<String, Object> namedParameterValues = new HashMap<>();
         for (JpqlPath jpqlPath: statement.getWhereClausePaths()) {
             Path path = new Path(jpqlPath.toString());
             Alias alias = path.getRootAlias();
@@ -99,7 +100,7 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
             }
         }
         String queryString = ((JpqlSubselect)statement.getStatement()).toJpqlString();
-        LOG.info("executing query " + queryString);
+        LOG.info("executing query : {}", queryString);
         try {
             Query query = entityManager.createQuery(queryString);
             for (String namedParameter: statement.getNamedParameters()) {
@@ -120,6 +121,7 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
         }
     }
 
+    @Override
     public boolean canEvaluate(JpqlSubselect node, QueryEvaluationParameters parameters) {
         return isEntityManagerOpen()
             && !isDisabledByHint(node, parameters);
@@ -143,7 +145,7 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
     }
 
     private Set<Alias> getAliases(Set<TypeDefinition> typeDefinitions) {
-        Set<Alias> aliases = new HashSet<Alias>();
+        Set<Alias> aliases = new HashSet<>();
         for (TypeDefinition typeDefinition: typeDefinitions) {
             if (typeDefinition.getAlias() != null) {
                 aliases.add(typeDefinition.getAlias());

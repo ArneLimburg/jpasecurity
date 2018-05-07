@@ -36,6 +36,7 @@ public class RolesAllowedTagHandler extends TagHandler {
         roles = getAttribute("roles");
     }
 
+    @Override
     public void apply(FaceletContext ctx, UIComponent parent) throws IOException {
         ValueExpression expression = roles.getValueExpression(ctx, String.class);
         String[] roles = ((String)expression.getValue(ctx.getFacesContext().getELContext())).split(",");

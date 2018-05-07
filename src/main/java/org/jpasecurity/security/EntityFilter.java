@@ -91,14 +91,14 @@ public class EntityFilter implements AccessManager {
     private static final Logger LOG = LoggerFactory.getLogger(EntityFilter.class);
 
     protected final JpqlCompiler compiler;
+    private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<>();
+    private final QueryPreparator queryPreparator = new QueryPreparator();
+    private final ReplaceAliasVisitor replaceAliasVisitor = new ReplaceAliasVisitor();
     private final Metamodel metamodel;
     private final SecurePersistenceUnitUtil persistenceUnitUtil;
     private final JpqlParser parser;
-    private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<>();
     private final QueryEvaluator queryEvaluator;
-    private final QueryPreparator queryPreparator = new QueryPreparator();
     private final Collection<AccessRule> accessRules;
-    private final ReplaceAliasVisitor replaceAliasVisitor = new ReplaceAliasVisitor();
 
     public EntityFilter(Metamodel metamodel,
                         SecurePersistenceUnitUtil util,
@@ -167,7 +167,7 @@ public class EntityFilter implements AccessManager {
         }
 
         Node statementNode = statement.getStatement();
-        LOG.debug("Optimizing filtered query " + statementNode);
+        LOG.debug("Optimizing filtered query {}", statementNode);
 
         optimize(accessDefinition);
         Set<String> parameterNames = compiler.getNamedParameters(accessDefinition.getAccessRules());
@@ -177,7 +177,7 @@ public class EntityFilter implements AccessManager {
             statementNode = queryPreparator.removeConstuctor(statementNode);
         }
         final String optimizedJpqlStatement = ((SimpleNode)statementNode).toJpqlString();
-        LOG.debug("Returning optimized query " + optimizedJpqlStatement);
+        LOG.debug("Returning optimized query {}", optimizedJpqlStatement);
         return new FilterResult<>(optimizedJpqlStatement,
                 parameters.size() > 0 ? parameters : null,
                 statement.getConstructorArgReturnType(),
@@ -569,6 +569,17 @@ public class EntityFilter implements AccessManager {
         return new AccessRule((JpqlAccessRule)rule.getStatement(), typeDefinition);
     }
 
+    @Override
+    public boolean isAccessible(AccessType accessType, String entityName, Object... constructorArgs) {
+        try {
+            Class<?> entityType = forModel(metamodel).filter(entityName).getJavaType();
+            Object entity = getConstructor(entityType, constructorArgs).newInstance(constructorArgs);
+            return isAccessible(accessType, entity);
+        } catch (Exception e) {
+            return throwThrowable(e);
+        }
+    }
+
     public class AccessDefinition {
 
         private Node accessRules;
@@ -646,17 +657,6 @@ public class EntityFilter implements AccessManager {
                 variable.setValue(replacement.getTarget().getName());
             }
             return false;
-        }
-    }
-
-    @Override
-    public boolean isAccessible(AccessType accessType, String entityName, Object... constructorArgs) {
-        try {
-            Class<?> entityType = forModel(metamodel).filter(entityName).getJavaType();
-            Object entity = getConstructor(entityType, constructorArgs).newInstance(constructorArgs);
-            return isAccessible(accessType, entity);
-        } catch (Exception e) {
-            return throwThrowable(e);
         }
     }
 

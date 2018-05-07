@@ -21,11 +21,6 @@ import java.util.Collection;
  * This interface may be implemented to provide details about the current security context
  * like authentication credentials and so.
  *
- * If the <tt>SecurityContext</tt> needs information about the configured
- * persistence information like entity mapping information or persistence properties,
- * it may also implement the
- * {@link org.jpasecurity.mapping.MappingInformationReceiver} interface
- * to get this information injected during runtime.
  * @author Arne Limburg
  */
 public interface SecurityContext {

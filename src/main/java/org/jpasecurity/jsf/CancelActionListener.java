@@ -33,6 +33,7 @@ public class CancelActionListener implements ActionListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(CancelActionListener.class);
 
+    @Override
     public void processAction(ActionEvent actionEvent) {
         FacesContext context = FacesContext.getCurrentInstance();
         UINamingContainer loginComponent
@@ -44,11 +45,11 @@ public class CancelActionListener implements ActionListener {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Login-cancellation could not be fulfilled.", e);
             } else {
-                LOG.info("Login-cancellation could not be fulfilled: " + e.getMessage());
+                LOG.info("Login-cancellation could not be fulfilled.", e);
             }
         }
         NavigationHandler navigationHandler = context.getApplication().getNavigationHandler();
-        String outcome = (String)context.getExternalContext().getRequestParameterMap().get("outcome");
+        String outcome = context.getExternalContext().getRequestParameterMap().get("outcome");
         if (outcome != null) {
             navigationHandler.handleNavigation(context, null, outcome);
         }

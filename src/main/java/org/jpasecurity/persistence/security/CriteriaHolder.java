@@ -15,9 +15,10 @@
  */
 package org.jpasecurity.persistence.security;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
 
 import javax.persistence.Parameter;
 import javax.persistence.criteria.AbstractQuery;
@@ -40,8 +41,8 @@ import org.jpasecurity.util.ValueHolder;
 public class CriteriaHolder extends ValueHolder<Object> {
 
     private CommonAbstractCriteria criteriaQuery;
-    private Stack<Subquery<?>> subqueries = new Stack<Subquery<?>>();
-    private List<Parameter<?>> parameters = new ArrayList<Parameter<?>>();
+    private Deque<Subquery<?>> subqueries = new ArrayDeque<>();
+    private List<Parameter<?>> parameters = new ArrayList<>();
 
     public CriteriaHolder(CommonAbstractCriteria query) {
         criteriaQuery = query;
@@ -77,15 +78,14 @@ public class CriteriaHolder extends ValueHolder<Object> {
     }
 
     public Path<?> getPath(Alias alias) {
-        List<String> pathElements = new ArrayList<String>();
+        List<String> pathElements = new ArrayList<>();
         From<?, ?> from = getFrom(alias);
         while (from instanceof Join) {
             Join<?, ?> join = (Join<?, ?>)from;
             pathElements.add(0, join.getAttribute().getName());
             from = join.getParent();
         }
-        Root<?> root = (Root<?>)from;
-        Path<?> path = root;
+        Path<?> path = from;
         for (String pathElement: pathElements) {
             path = path.get(pathElement);
         }

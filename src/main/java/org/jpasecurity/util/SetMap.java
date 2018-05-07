@@ -20,8 +20,8 @@ import java.util.Set;
 /**
  * This is an extension of the {@link CollectionMap} interface that contains
  * {@link Set}s as values.
+ *
  * @author Arne Limburg
  */
 public interface SetMap<K, V> extends CollectionMap<K, Set<V>, V> {
-
 }

@@ -28,6 +28,7 @@ public class UpdatingTagHandler extends AbstractBeanTagHandler {
         super(config);
     }
 
+    @Override
     protected AccessType getAccessType() {
         return AccessType.UPDATE;
     }
