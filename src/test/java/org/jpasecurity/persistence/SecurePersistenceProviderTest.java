@@ -109,7 +109,7 @@ public class SecurePersistenceProviderTest {
         ));
         when(persistenceUnitInfo.excludeUnlistedClasses()).thenReturn(true);
         Properties properties = new Properties();
-        properties.put("org.jpasecurity.persistence.provider", "org.hibernate.ejb.HibernatePersistence");
+        properties.put("org.jpasecurity.persistence.provider", "org.hibernate.jpa.HibernatePersistenceProvider");
         properties.put("org.jpasecurity.security.context",
                        "org.jpasecurity.security.authentication.TestSecurityContext");
         properties.put("org.jpasecurity.security.rules.provider",

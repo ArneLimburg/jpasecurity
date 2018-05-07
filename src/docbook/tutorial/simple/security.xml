@@ -20,7 +20,7 @@
   <class>org.jpasecurity.contacts.model.Contact</class>
 
   <properties>
-    <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
+    <property name="org.jpasecurity.persistence.provider" value="org.hibernate.jpa.HibernatePersistenceProvider" />
     <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.StaticAuthenticationProvider"/>
     <property name="hibernate.hbm2ddl.auto" value="create-drop" />
     <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
@@ -46,7 +46,7 @@
     </para>
     <programlisting>
       <![CDATA[
-    <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
+    <property name="org.jpasecurity.persistence.provider" value="org.hibernate.jpa.HibernatePersistenceProvider" />
     <property name="org.jpasecurity.security.authentication.provider" value="org.jpasecurity.security.authentication.StaticAuthenticationProvider"/>
       ]]>
     </programlisting>

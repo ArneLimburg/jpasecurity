@@ -19,7 +19,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,7 +27,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.hibernate.ejb.HibernatePersistence;
+import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,9 +40,9 @@ public class NamedQueryParserTest {
     private NamedQueryParser parser;
 
     @Before
-    public void createParser() throws IOException {
-        entityManagerFactory = new HibernatePersistence().createEntityManagerFactory("metamodel", null);
-        Set<String> ormXmlLocations = new HashSet<String>();
+    public void createParser() {
+        entityManagerFactory = new HibernatePersistenceProvider().createEntityManagerFactory("metamodel", null);
+        Set<String> ormXmlLocations = new HashSet<>();
         ormXmlLocations.add("META-INF/all.orm.xml");
         ormXmlLocations.add("META-INF/empty.orm.xml");
         ormXmlLocations.add("META-INF/parent.orm.xml");
@@ -80,7 +79,7 @@ public class NamedQueryParserTest {
     }
 
     @Test
-    public void parseNamedQueryInOrmXml() throws Exception {
+    public void parseNamedQueryInOrmXml() {
         parser = new NamedQueryParser(
                 entityManagerFactory.getMetamodel(), Collections.singleton("META-INF/named-query.xml"));
         Map<String, String> namedQueries = parser.parseNamedQueries();
@@ -90,7 +89,7 @@ public class NamedQueryParserTest {
     }
 
     @Test
-    public void parseNamedQueriesInOrmXml() throws Exception {
+    public void parseNamedQueriesInOrmXml() {
         parser = new NamedQueryParser(
                 entityManagerFactory.getMetamodel(), Collections.singleton("META-INF/named-queries.xml"));
         Map<String, String> namedQueries = parser.parseNamedQueries();
