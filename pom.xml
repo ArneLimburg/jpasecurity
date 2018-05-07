@@ -624,7 +624,7 @@
                 <activeByDefault>true</activeByDefault>
                 <property>
                     <name>provider</name>
-                    <value>org.hibernate.ejb.HibernatePersistence</value>
+                    <value>org.hibernate.jpa.HibernatePersistenceProvider</value>
                 </property>
             </activation>
             <build>
