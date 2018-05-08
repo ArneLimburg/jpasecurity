@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.jpasecurity</groupId>
     <artifactId>jpasecurity</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0.Beta2</version>
     <name>JPA Security</name>
     <description>JPA Security is an Access Control Solution for the Java Persistence API (JPA). With JPA Security your
         access control can be performed in the database. You may query the database for all objects of a certain type
