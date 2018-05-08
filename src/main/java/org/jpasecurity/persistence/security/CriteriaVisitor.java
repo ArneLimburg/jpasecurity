@@ -15,6 +15,28 @@
  */
 package org.jpasecurity.persistence.security;
 
+import static org.jpasecurity.util.Validate.notNull;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.persistence.Parameter;
+import javax.persistence.criteria.AbstractQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaBuilder.Trimspec;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Selection;
+import javax.persistence.criteria.Subquery;
+import javax.persistence.metamodel.Metamodel;
+
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
 import org.jpasecurity.jpql.parser.JpqlAbs;
@@ -100,27 +122,6 @@ import org.jpasecurity.jpql.parser.JpqlWhere;
 import org.jpasecurity.jpql.parser.JpqlWith;
 import org.jpasecurity.jpql.parser.Node;
 import org.jpasecurity.persistence.mapping.ManagedTypeFilter;
-
-import javax.persistence.Parameter;
-import javax.persistence.criteria.AbstractQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaBuilder.Trimspec;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.Subquery;
-import javax.persistence.metamodel.Metamodel;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import static org.jpasecurity.util.Validate.notNull;
 
 /**
  * This visitor creates a {@link javax.persistence.criteria.CriteriaQuery} of a query tree.

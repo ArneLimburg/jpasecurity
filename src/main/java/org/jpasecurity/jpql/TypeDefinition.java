@@ -15,8 +15,9 @@
  */
 package org.jpasecurity.jpql;
 
-import org.jpasecurity.Alias;
-import org.jpasecurity.Path;
+import static org.jpasecurity.persistence.mapping.ManagedTypeFilter.forModel;
+
+import java.util.Collection;
 
 import javax.persistence.PersistenceException;
 import javax.persistence.metamodel.Attribute;
@@ -25,9 +26,9 @@ import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.Type;
-import java.util.Collection;
 
-import static org.jpasecurity.persistence.mapping.ManagedTypeFilter.forModel;
+import org.jpasecurity.Alias;
+import org.jpasecurity.Path;
 
 /**
  * This class holds type-definitions of JPQL statements.

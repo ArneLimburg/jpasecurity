@@ -15,6 +15,17 @@
  */
 package org.jpasecurity.persistence;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.FlushModeType;
+import javax.persistence.Query;
+
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
 import org.jpasecurity.access.DefaultAccessManager;
@@ -30,16 +41,6 @@ import org.jpasecurity.jpql.parser.JpqlPath;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.persistence.EntityManager;
-import javax.persistence.FlushModeType;
-import javax.persistence.Query;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * This class evaluates JPQL subselect-queries via a call to a specified <tt>EntityManager</tt>.

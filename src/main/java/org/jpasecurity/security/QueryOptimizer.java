@@ -15,6 +15,10 @@
  */
 package org.jpasecurity.security;
 
+import java.util.Map;
+
+import javax.persistence.metamodel.Metamodel;
+
 import org.jpasecurity.Alias;
 import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
@@ -28,9 +32,6 @@ import org.jpasecurity.jpql.parser.JpqlOr;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
 import org.jpasecurity.jpql.parser.Node;
-
-import javax.persistence.metamodel.Metamodel;
-import java.util.Map;
 
 /**
  * Optimizes a query by evaluating subtrees in memory.

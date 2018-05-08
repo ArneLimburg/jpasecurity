@@ -15,6 +15,20 @@
  */
 package org.jpasecurity.jpql.compiler;
 
+import static org.jpasecurity.persistence.mapping.ManagedTypeFilter.forModel;
+import static org.jpasecurity.util.Validate.notNull;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Map;
+
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
 import org.jpasecurity.access.SecurePersistenceUnitUtil;
@@ -92,21 +106,6 @@ import org.jpasecurity.jpql.parser.JpqlWhen;
 import org.jpasecurity.jpql.parser.Node;
 import org.jpasecurity.jpql.parser.SimpleNode;
 import org.jpasecurity.persistence.mapping.ManagedTypeFilter;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Map;
-
-import static org.jpasecurity.persistence.mapping.ManagedTypeFilter.forModel;
-import static org.jpasecurity.util.Validate.notNull;
-
 /**
  * This implementation of the {@link JpqlVisitorAdapter} evaluates queries in memory,
  * storing the result in the specified {@link QueryEvaluationParameters}.

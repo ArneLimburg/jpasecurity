@@ -15,19 +15,19 @@
  */
 package org.jpasecurity.spring.authentication;
 
-import org.jpasecurity.SecurityContext;
-import org.jpasecurity.security.authentication.AbstractSecurityContextTest;
-import org.mockito.BDDMockito;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import static org.mockito.BDDMockito.willReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.jpasecurity.SecurityContext;
+import org.jpasecurity.security.authentication.AbstractSecurityContextTest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * @author Arne Limburg
@@ -48,7 +48,7 @@ public class SpringSecurityContextTest extends AbstractSecurityContextTest {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(principal);
 
-        BDDMockito.willReturn(grantedAuthorities).given(authentication).getAuthorities();
+        willReturn(grantedAuthorities).given(authentication).getAuthorities();
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
