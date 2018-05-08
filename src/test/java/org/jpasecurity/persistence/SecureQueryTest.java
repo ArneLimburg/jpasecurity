@@ -15,9 +15,9 @@
  */
 package org.jpasecurity.persistence;
 
-import static org.mockito.Mockito.mock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.InvocationTargetException;
 

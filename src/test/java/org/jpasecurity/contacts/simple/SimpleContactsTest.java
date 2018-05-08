@@ -152,6 +152,15 @@ public class SimpleContactsTest {
         assertThat(accessManager.isAccessible(AccessType.READ, john), is(false));
     }
 
+    @Test
+    public void isJohnAccessibleAsJohn() {
+        TestSecurityContext.authenticate(testData.getJohn(), "user");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        AccessManager accessManager = entityManager.unwrap(AccessManager.class);
+        User john = entityManager.find(User.class, testData.getJohn().getId());
+        assertThat(accessManager.isAccessible(AccessType.READ, john), is(true));
+    }
+
     public List<User> getAllUsers() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         try {
