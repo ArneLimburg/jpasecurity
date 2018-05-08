@@ -25,9 +25,12 @@ import java.util.List;
  * Changes to the wrapper are reflected to the original collection.
  * <strong>Note</strong> that
  */
-public class SecureCollections {
+public final class SecureCollections {
 
     public static <E> List<E> secureList(List<E> list) {
-        return new SecureList<E>(list);
+        return new SecureList<>(list);
+    }
+
+    private SecureCollections() {
     }
 }

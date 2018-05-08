@@ -40,8 +40,7 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> {
     /**
      * Creates a map that filters the specified (original) map
      * based on the accessibility of their elements.
-     * @param map the original map
-     * @param objectManager the object manager
+     * @param original the original map
      */
     DefaultSecureMap(Map<K, V> original) {
         this.original = original;
@@ -51,55 +50,64 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> {
      * This constructor can be used to create an already initialized secure collection.
      * @param original the original collection
      * @param filtered the (initialized) filtered collection
-     * @param objectManager the object manager
      */
     DefaultSecureMap(Map<K, V> original, Map<K, V> filtered) {
         this(original);
         this.filtered = filtered;
     }
 
+    @Override
     public void clear() {
         getFiltered().clear();
         getOriginal().clear();
     }
 
+    @Override
     public boolean containsKey(Object key) {
         return getFiltered().containsKey(key);
     }
 
+    @Override
     public boolean containsValue(Object value) {
         return getFiltered().containsValue(value);
     }
 
+    @Override
     public V get(Object key) {
         return getFiltered().get(key);
     }
 
+    @Override
     public boolean isEmpty() {
         return getFiltered().isEmpty();
     }
 
+    @Override
     public V put(K key, V value) {
         V oldFilteredValue = getFiltered().put(key, value);
         getOriginal().put(key, value);
         return oldFilteredValue;
     }
 
+    @Override
     public void putAll(Map<? extends K, ? extends V> map) {
         getFiltered().putAll(map);
         getOriginal().putAll(map);
     }
 
+    @Override
     public V remove(Object key) {
         V oldFilteredValue = getFiltered().remove(key);
         getOriginal().remove(key);
         return oldFilteredValue;
     }
 
+    @Override
     public int size() {
         return getFiltered().size();
     }
 
+    @Override
     public Set<Map.Entry<K, V>> entrySet() {
         return entrySet;
     }
@@ -124,7 +132,7 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> {
     }
 
     void initialize(boolean checkAccess) {
-        filtered = new LinkedHashMap<K, V>();
+        filtered = new LinkedHashMap<>();
         DefaultAccessManager accessManager = DefaultAccessManager.Instance.get();
         accessManager.delayChecks();
         accessManager.ignoreChecks(AccessType.READ, original.keySet());
@@ -150,10 +158,12 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> {
 
     private class SecureEntrySet extends AbstractSet<Map.Entry<K, V>> {
 
+        @Override
         public Iterator<java.util.Map.Entry<K, V>> iterator() {
             return new FilteredEntryIterator();
         }
 
+        @Override
         public boolean remove(Object object) {
             if (!(object instanceof Map.Entry)) {
                 return false;
@@ -169,6 +179,7 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> {
             return oldValue == null? entry.getValue() != null: !oldValue.equals(entry.getValue());
         }
 
+        @Override
         public int size() {
             return DefaultSecureMap.this.size();
         }
@@ -179,15 +190,18 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> {
         private Iterator<Map.Entry<K, V>> iterator = getFiltered().entrySet().iterator();
         private Map.Entry<K, V> current = null;
 
+        @Override
         public boolean hasNext() {
             return iterator.hasNext();
         }
 
+        @Override
         public Map.Entry<K, V> next() {
             current = iterator.next();
             return new FilteredEntry(current);
         }
 
+        @Override
         public void remove() {
             if (current == null) {
                 throw new IllegalStateException();
@@ -206,24 +220,29 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> {
             this.entry = entry;
         }
 
+        @Override
         public K getKey() {
             return entry.getKey();
         }
 
+        @Override
         public V getValue() {
             return entry.getValue();
         }
 
+        @Override
         public V setValue(V value) {
             V oldFilteredValue = entry.setValue(value);
             getOriginal().put(entry.getKey(), entry.getValue());
             return oldFilteredValue;
         }
 
+        @Override
         public int hashCode() {
             return getKey().hashCode() ^ getValue().hashCode();
         }
 
+        @Override
         public boolean equals(Object object) {
             if (!(object instanceof Map.Entry)) {
                 return false;

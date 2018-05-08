@@ -26,22 +26,19 @@ import java.util.List;
  */
 public class SecureList<E> extends AbstractList<E> {
 
-    private AbstractSecureCollection<E, List<E>> secureList;
+    private AbstractSecureCollection<E, List<E>> secureCollection;
 
     public SecureList(List<E> list) {
-        secureList = new DefaultSecureCollection<E, List<E>>(list);
-    }
-
-    SecureList(List<E> original, List<E> filtered) {
-        secureList = new DefaultSecureCollection<E, List<E>>(original);
+        secureCollection = new DefaultSecureCollection<>(list);
     }
 
     /**
      * Returns the element with the specified index in the filtered collection.
      * This index may differ from the index of that element in the original collection.
      */
+    @Override
     public E get(int index) {
-        return secureList.getFiltered().get(index);
+        return secureCollection.getFiltered().get(index);
     }
 
     /**
@@ -50,8 +47,9 @@ public class SecureList<E> extends AbstractList<E> {
      * The index of the replaced element may differ in the original collection,
      * though the same element is replaced.
      */
+    @Override
     public E set(int index, E element) {
-        E old = secureList.getFiltered().set(index, element);
+        E old = secureCollection.getFiltered().set(index, element);
         int originalIndex = getOriginal().indexOf(old);
         return getOriginal().set(originalIndex, element);
     }
@@ -63,13 +61,14 @@ public class SecureList<E> extends AbstractList<E> {
      * If the specified index is the same as the size of the filtered collection,
      * the element is added at the end of both collections.
      */
+    @Override
     public void add(int index, E element) {
-        if (index == secureList.getFiltered().size()) {
-            secureList.add(element);
+        if (index == secureCollection.getFiltered().size()) {
+            secureCollection.add(element);
         } else {
-            E old = secureList.getFiltered().get(index);
+            E old = secureCollection.getFiltered().get(index);
             int originalIndex = getOriginal().indexOf(old);
-            secureList.getFiltered().add(index, element);
+            secureCollection.getFiltered().add(index, element);
             getOriginal().add(originalIndex, element);
         }
     }
@@ -79,9 +78,10 @@ public class SecureList<E> extends AbstractList<E> {
      * This index may differ from the index of that element in the original collection,
      * though the same element is removed in the original collection.
      */
+    @Override
     public E remove(int index) {
-        E old = secureList.getFiltered().remove(index);
-        secureList.remove(old);
+        E old = secureCollection.getFiltered().remove(index);
+        secureCollection.remove(old);
         return old;
     }
 
@@ -93,31 +93,33 @@ public class SecureList<E> extends AbstractList<E> {
      * If the specified index is the same as the size of the filtered collection,
      * the element is added at the end of both collections.
      */
+    @Override
     public boolean addAll(int index, Collection<? extends E> collection) {
-        if (index == secureList.getFiltered().size()) {
-            return secureList.addAll(collection);
+        if (index == secureCollection.getFiltered().size()) {
+            return secureCollection.addAll(collection);
         } else {
-            E old = secureList.getFiltered().get(index);
+            E old = secureCollection.getFiltered().get(index);
             int originalIndex = getOriginal().indexOf(old);
-            boolean result = secureList.getFiltered().addAll(index, collection);
+            boolean result = secureCollection.getFiltered().addAll(index, collection);
             getOriginal().addAll(originalIndex, collection);
             return result;
         }
     }
 
+    @Override
     public int size() {
-        return secureList.size();
+        return secureCollection.size();
     }
 
     public boolean isInitialized() {
-        return secureList.isInitialized();
+        return secureCollection.isInitialized();
     }
 
     List<E> getOriginal() {
-        return secureList.getOriginal();
+        return secureCollection.getOriginal();
     }
 
     void initialize(boolean checkAccess) {
-        secureList.initialize(checkAccess);
+        secureCollection.initialize(checkAccess);
     }
 }

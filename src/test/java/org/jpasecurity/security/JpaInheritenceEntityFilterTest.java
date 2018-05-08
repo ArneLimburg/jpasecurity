@@ -52,14 +52,12 @@ import org.junit.Test;
 /** @author Arne Limburg */
 public class JpaInheritenceEntityFilterTest {
 
-    private Metamodel metamodel;
     private DefaultAccessManager accessManager;
-    private Collection<AccessRule> accessRules;
     private EntityFilter filter;
 
     @Before
     public void initialize() throws Exception {
-        metamodel = mock(Metamodel.class);
+        Metamodel metamodel = mock(Metamodel.class);
         MappedSuperclassType abstractAclProtectedEntityType = mock(MappedSuperclassType.class);
         EntityType aclProtectedEntityType = mock(EntityType.class);
         EntityType secondAclProtectedEntityType = mock(EntityType.class);
@@ -70,10 +68,10 @@ public class JpaInheritenceEntityFilterTest {
         DefaultSecurityContext securityContext = new DefaultSecurityContext();
         securityContext.register(new Alias("CURRENT_PRINCIPAL"), "user");
         when(accessManager.getContext()).thenReturn(securityContext);
-        when(metamodel.getManagedTypes()).thenReturn(new HashSet<ManagedType<?>>(Arrays.<ManagedType<?>>asList(
+        when(metamodel.getManagedTypes()).thenReturn(new HashSet<>(Arrays.<ManagedType<?>>asList(
                 abstractAclProtectedEntityType, aclProtectedEntityType, secondAclProtectedEntityType,
                 abstractEntityType, groupType)));
-        when(metamodel.getEntities()).thenReturn(new HashSet<EntityType<?>>(Arrays.<EntityType<?>>asList(
+        when(metamodel.getEntities()).thenReturn(new HashSet<>(Arrays.<EntityType<?>>asList(
                 aclProtectedEntityType, secondAclProtectedEntityType, groupType)));
         when(metamodel.managedType(AbstractAclProtectedEntity.class))
             .thenReturn(abstractAclProtectedEntityType);
@@ -107,7 +105,7 @@ public class JpaInheritenceEntityFilterTest {
                     + "WHERE (bean.accessControlList is null) OR (bean.accessControlList=CURRENT_PRINCIPAL))"
             );
         AccessRulesCompiler compiler = new AccessRulesCompiler(metamodel);
-        accessRules = compiler.compile(rule);
+        Collection<AccessRule> accessRules = compiler.compile(rule);
         filter = new EntityFilter(metamodel, persistenceUnitUtil, accessRules);
     }
 
@@ -117,8 +115,8 @@ public class JpaInheritenceEntityFilterTest {
     }
 
     @Test
-    public void checkStatementForConcreteSubtype() throws Exception {
-        final HashMap<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
+    public void checkStatementForConcreteSubtype() {
+        final HashMap<Path, Class<?>> selectedTypes = new HashMap<>();
         selectedTypes.put(new Path("i"), SecondAclProtectedEntity.class);
         final EntityFilter.AccessDefinition accessDefinition =
             filter.createAccessDefinition(selectedTypes, AccessType.READ, Collections.<Alias>emptySet());
@@ -128,8 +126,8 @@ public class JpaInheritenceEntityFilterTest {
     }
 
     @Test
-    public void checkStatementForProtectedBaseSuperType() throws Exception {
-        final HashMap<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
+    public void checkStatementForProtectedBaseSuperType() {
+        final HashMap<Path, Class<?>> selectedTypes = new HashMap<>();
         selectedTypes.put(new Path("i"), AbstractAclProtectedEntity.class);
         final EntityFilter.AccessDefinition accessDefinition =
             filter.createAccessDefinition(selectedTypes, AccessType.READ, Collections.<Alias>emptySet());
@@ -139,8 +137,8 @@ public class JpaInheritenceEntityFilterTest {
     }
 
     @Test
-    public void checkStatementForMixedConcreteTypes() throws Exception {
-        final HashMap<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
+    public void checkStatementForMixedConcreteTypes() {
+        final HashMap<Path, Class<?>> selectedTypes = new HashMap<>();
         selectedTypes.put(new Path("i"), SecondAclProtectedEntity.class);
         selectedTypes.put(new Path("b"), AclProtectedEntity.class);
         final EntityFilter.AccessDefinition accessDefinition =
@@ -153,8 +151,8 @@ public class JpaInheritenceEntityFilterTest {
 
     @Ignore("TODO: Find a better way to assert result")
     @Test
-    public void checkStatementForNotProtectedSuperType() throws Exception {
-        final HashMap<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
+    public void checkStatementForNotProtectedSuperType() {
+        final HashMap<Path, Class<?>> selectedTypes = new HashMap<>();
         selectedTypes.put(new Path("i"), AbstractEntity.class);
         final EntityFilter.AccessDefinition accessDefinition =
             filter.createAccessDefinition(selectedTypes, AccessType.READ, Collections.<Alias>emptySet());
@@ -171,8 +169,8 @@ public class JpaInheritenceEntityFilterTest {
 
     @Ignore("TODO: Find a better way to assert result")
     @Test
-    public void checkStatementForMultipleNotProtectedSuperType() throws Exception {
-        final HashMap<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
+    public void checkStatementForMultipleNotProtectedSuperType() {
+        final HashMap<Path, Class<?>> selectedTypes = new HashMap<>();
         selectedTypes.put(new Path("i"), AbstractEntity.class);
         selectedTypes.put(new Path("b"), AbstractEntity.class);
         final EntityFilter.AccessDefinition accessDefinition =

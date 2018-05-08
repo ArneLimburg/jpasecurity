@@ -163,8 +163,10 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
         AbstractQuery<?> query = criteriaHolder.getCurrentQuery();
         String entityName = node.jjtGetChild(0).toString();
         Alias alias = getAlias(node);
-        Class<?> entityType = ManagedTypeFilter.forModel(metamodel).filter(entityName.trim()).getJavaType();
-        query.from(entityType).alias(alias.getName());
+        if (alias != null) {
+            Class<?> entityType = ManagedTypeFilter.forModel(metamodel).filter(entityName.trim()).getJavaType();
+            query.from(entityType).alias(alias.getName());
+        }
         return false;
     }
 

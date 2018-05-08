@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
@@ -42,13 +41,13 @@ public class DefaultAccessManager implements AccessManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultAccessManager.class);
 
+    private final Map<Object, AccessType> entitiesToCheck = new SimpleMap<>();
     private Metamodel metamodel;
     private SecurityContext context;
     private AccessManager entityFilter;
     private boolean checkInProgress;
     private int checksDisabled;
     private int checksDelayed;
-    private Map<Object, AccessType> entitiesToCheck = new SimpleMap<Object, AccessType>();
 
     public DefaultAccessManager(Metamodel metamodel, SecurityContext context, AccessManager filter) {
         this.metamodel = notNull(Metamodel.class, metamodel);
@@ -56,24 +55,28 @@ public class DefaultAccessManager implements AccessManager {
         this.entityFilter = notNull("EntityFilter", filter);
     }
 
+    @Override
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
         EntityType<?> classMapping = ManagedTypeFilter.forModel(metamodel).filter(entityName);
-        Object entity = null;
+        final Class<?> javaType = classMapping.getJavaType();
+
+        Object entity;
         try {
-            entity = ReflectionUtils.newInstance(classMapping.getJavaType(), parameters);
+            entity = ReflectionUtils.newInstance(javaType, parameters);
         } catch (RuntimeException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Constructor of " + classMapping.getJavaType()
-                          + " threw exception, hence isAccessible returns false.", e);
+                LOG.debug("Constructor of {} threw exception, hence isAccessible returns false.",
+                        javaType, e);
             } else {
-                LOG.info("Constructor of " + classMapping.getJavaType()
-                         + " threw exception (\"" + e.getMessage() + "\"), hence isAccessible returns false.");
+                LOG.info("Constructor of {} threw exception (\"{}\"), hence isAccessible returns false.",
+                        javaType, e.getMessage(), e);
             }
             return false;
         }
         return isAccessible(accessType, entity);
     }
 
+    @Override
     public boolean isAccessible(AccessType accessType, Object entity) {
         if (entity == null) {
             return false;
@@ -129,7 +132,7 @@ public class DefaultAccessManager implements AccessManager {
     }
 
     public void ignoreChecks(AccessType accessType, Collection<?> entities) {
-        for (Object entity: entities) {
+        for (Object entity : entities) {
             AccessType type = entitiesToCheck.remove(entity);
             if (type != null && type != accessType) {
                 entitiesToCheck.put(entity, type);
@@ -178,11 +181,13 @@ public class DefaultAccessManager implements AccessManager {
 
         private static final Logger LOG = LoggerFactory.getLogger(AccessManager.class);
 
-        private static Map<Thread, DefaultAccessManager> registeredAccessManagers
-            = new ConcurrentHashMap<Thread, DefaultAccessManager>();
+        private static ThreadLocal<DefaultAccessManager> registeredAccessManagers = new InheritableThreadLocal<>();
+
+        private Instance() {
+        }
 
         public static DefaultAccessManager get() {
-            DefaultAccessManager accessManager = registeredAccessManagers.get(Thread.currentThread());
+            DefaultAccessManager accessManager = registeredAccessManagers.get();
             if (accessManager == null) {
                 LOG.warn("No AccessManager found in thread {}", Thread.currentThread().getName());
                 throw new SecurityException("No AccessManager available. Please ensure that the EntityManager is open");
@@ -191,17 +196,21 @@ public class DefaultAccessManager implements AccessManager {
         }
 
         public static void register(DefaultAccessManager manager) {
-            if (registeredAccessManagers.get(Thread.currentThread()) == manager) {
+            if (registeredAccessManagers.get() == manager) {
                 return;
             }
             LOG.info("registering AccessManager#{}", System.identityHashCode(manager));
-            registeredAccessManagers.values().remove(manager);
-            registeredAccessManagers.put(Thread.currentThread(), manager);
+            registeredAccessManagers.remove();
+            registeredAccessManagers.set(manager);
         }
 
         public static void unregister(AccessManager manager) {
             LOG.info("unregistering AccessManager#{}", System.identityHashCode(manager));
-            registeredAccessManagers.values().remove(manager);
+            if (registeredAccessManagers.get() == manager) {
+                registeredAccessManagers.remove();
+            } else {
+                throw new IllegalStateException("Another AccessManager was registered with this thread.");
+            }
         }
     }
 }
