@@ -20,6 +20,7 @@ import java.util.Set;
 
 /**
  * A set-implementation of secure collection.
+ *
  * @author Arne Limburg
  */
 public class SecureSet<E> extends AbstractSecureCollection<E, Set<E>> implements Set<E> {

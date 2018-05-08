@@ -72,12 +72,12 @@ public class JpqlStatementHolder implements Cloneable {
     public List<JpqlPath> getWhereClausePaths() {
         if (whereClausePaths == null) {
             PathVisitor visitor = new PathVisitor();
-            List<JpqlPath> whereClausePaths = new ArrayList<>();
-            JpqlWhere whereClause = getWhereClause();
-            if (whereClause != null) {
-                whereClause.visit(visitor, whereClausePaths);
+            List<JpqlPath> theWhereClausePaths = new ArrayList<>();
+            JpqlWhere theWhereClause = getWhereClause();
+            if (theWhereClause != null) {
+                theWhereClause.visit(visitor, theWhereClausePaths);
             }
-            this.whereClausePaths = Collections.unmodifiableList(whereClausePaths);
+            this.whereClausePaths = Collections.unmodifiableList(theWhereClausePaths);
         }
         return whereClausePaths;
     }
@@ -123,8 +123,8 @@ public class JpqlStatementHolder implements Cloneable {
     private class WhereVisitor extends JpqlVisitorAdapter<ValueHolder<JpqlWhere>> {
 
         @Override
-        public boolean visit(JpqlWhere whereClause, ValueHolder<JpqlWhere> whereClauseHolder) {
-            whereClauseHolder.setValue(whereClause);
+        public boolean visit(JpqlWhere theWhereClause, ValueHolder<JpqlWhere> theWhereClauseHolder) {
+            theWhereClauseHolder.setValue(theWhereClause);
             return false;
         }
     }

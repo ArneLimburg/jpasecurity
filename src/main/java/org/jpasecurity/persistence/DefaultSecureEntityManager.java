@@ -404,7 +404,12 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     private void unregisterAccessManagerAfterTransaction() {
-        getTransactionSynchronizationRegistry().registerInterposedSynchronization(new Synchronization() {
+        final TransactionSynchronizationRegistry registry = getTransactionSynchronizationRegistry();
+        if (registry == null) {
+            return;
+        }
+
+        registry.registerInterposedSynchronization(new Synchronization() {
             @Override
             public void beforeCompletion() {
                 // nothing to do

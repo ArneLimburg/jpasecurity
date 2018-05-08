@@ -48,10 +48,12 @@ public class ConditionalPath extends Path {
         return new ConditionalPath(getRootAlias(), getSubpath(), condition);
     }
 
+    @Override
     public ConditionalPath getParentPath() {
         return new ConditionalPath(super.getParentPath().toString(), condition);
     }
 
+    @Override
     public String toString() {
         return "WHEN " + condition + " THEN " + super.toString();
     }

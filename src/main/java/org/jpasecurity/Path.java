@@ -101,10 +101,10 @@ public class Path {
     }
 
     public String[] getPathComponents() {
-        String[] subpathComponents = getSubpathComponents();
-        String[] components = new String[subpathComponents.length + 1];
+        String[] theSubpathComponents = getSubpathComponents();
+        String[] components = new String[theSubpathComponents.length + 1];
         components[0] = rootAlias.toString();
-        System.arraycopy(subpathComponents, 0, components, 1, subpathComponents.length);
+        System.arraycopy(theSubpathComponents, 0, components, 1, theSubpathComponents.length);
         return components;
     }
 

@@ -249,7 +249,7 @@
                                 </delete>
                                 <replace dir="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/"
                                          token="public Object jjtAccept(JpqlParserVisitor visitor, Object data)"
-                                         value="public &lt;T&gt; boolean jjtAccept(JpqlParserVisitor&lt;T&gt; visitor, T data)"/>
+                                         value="@Override public &lt;T&gt; boolean jjtAccept(JpqlParserVisitor&lt;T&gt; visitor, T data)"/>
                                 <delete file="target/generated-sources/jjtree/org/jpasecurity/jpql/parser/JpqlParserDefaultVisitor.java"/>
                             </target>
                         </configuration>
