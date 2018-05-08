@@ -347,6 +347,9 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         if (accessType != READ) {
             DefaultAccessManager.Instance.register(accessManager);
             return accessManager.isAccessible(accessType, entity);
+        } else if (getEntityManagerFactory().getPersistenceUnitUtil().isLoaded(entity) && contains(entity)) {
+            // we already loaded the entity within this entity manager, so read access check already was positive
+            return true;
         }
         // we have to use another entity manager, because the entity will be loaded, even if it is not accessible
         Class<?> entityType = forModel(getMetamodel()).filterEntity(entity.getClass()).getJavaType();
