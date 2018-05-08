@@ -18,10 +18,10 @@ package org.jpasecurity.jpql.compiler;
 import java.util.Collection;
 
 import org.jpasecurity.jpql.JpqlCompiledStatement;
-import org.jpasecurity.jpql.parser.Node;
-import org.jpasecurity.jpql.parser.SimpleNode;
 import org.jpasecurity.jpql.parser.JpqlHint;
 import org.jpasecurity.jpql.parser.JpqlSelectClause;
+import org.jpasecurity.jpql.parser.Node;
+import org.jpasecurity.jpql.parser.SimpleNode;
 
 /**
  * @author Arne Limburg

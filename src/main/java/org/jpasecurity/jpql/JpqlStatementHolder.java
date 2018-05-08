@@ -19,15 +19,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.jpasecurity.jpql.parser.JpqlParserVisitor;
-import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
-import org.jpasecurity.jpql.parser.Node;
-import org.jpasecurity.util.ValueHolder;
-
 import org.jpasecurity.jpql.parser.JpqlFrom;
+import org.jpasecurity.jpql.parser.JpqlParserVisitor;
 import org.jpasecurity.jpql.parser.JpqlPath;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
+import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
+import org.jpasecurity.jpql.parser.Node;
+import org.jpasecurity.util.ValueHolder;
 
 /**
  * @author Arne Limburg

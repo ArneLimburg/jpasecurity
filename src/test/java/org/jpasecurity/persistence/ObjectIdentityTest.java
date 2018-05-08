@@ -31,8 +31,8 @@ import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 
 /** @author Stefan Hildebrandt */
 //TODO not working with maven profiles
