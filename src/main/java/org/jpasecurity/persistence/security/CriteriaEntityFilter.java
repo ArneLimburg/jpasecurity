@@ -58,8 +58,7 @@ import org.jpasecurity.security.FilterResult;
 import org.jpasecurity.util.Types;
 
 /**
- * This class extends {@link EntityFilter} by the ability to filter
- * @link {@link CriteriaQuery}s.
+ * This class extends {@link EntityFilter} by the ability to filter {@link CriteriaQuery criteria queries}.
  *
  * @author Arne Limburg
  */

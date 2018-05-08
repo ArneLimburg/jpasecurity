@@ -26,14 +26,14 @@ import org.jpasecurity.SecurityContext;
 
 /**
  * This class provides support for static authentication (one authentication per vm).
- * It is intended mainly for test-use, since per-vm-authentication is seldom usefull
- * in server-site applications. But this class may also be usefull in stand-alone-client applications.
+ * It is intended mainly for test-use, since per-vm-authentication is seldom useful
+ * in server-site applications. But this class may also be useful in stand-alone-client applications.
  * @author Arne Limburg
  */
 public class StaticSecurityContext implements SecurityContext {
 
     private static final Object NULL = new Object();
-    private static Map<Alias, Object> values = new ConcurrentHashMap<Alias, Object>();
+    private static Map<Alias, Object> values = new ConcurrentHashMap<>();
 
     /**
      * Sets the current authenticated principal to the specified principal, assigning the specified roles.
