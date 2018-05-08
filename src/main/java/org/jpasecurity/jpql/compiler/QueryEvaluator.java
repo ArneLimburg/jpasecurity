@@ -106,10 +106,11 @@ import org.jpasecurity.jpql.parser.JpqlWhen;
 import org.jpasecurity.jpql.parser.Node;
 import org.jpasecurity.jpql.parser.SimpleNode;
 import org.jpasecurity.persistence.mapping.ManagedTypeFilter;
+
 /**
  * This implementation of the {@link JpqlVisitorAdapter} evaluates queries in memory,
  * storing the result in the specified {@link QueryEvaluationParameters}.
- * If the evaluation cannot be performed due to missing information the result is set to <quote>undefined</quote>.
+ * If the evaluation cannot be performed due to missing information the result is set to <tt>undefined</tt>.
  * To evaluate subselect-query, pluggable implementations of {@link SubselectEvaluator} are used.
  * @author Arne Limburg
  */
@@ -853,42 +854,42 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
     @Override
     public boolean visit(JpqlIntegerLiteral node, QueryEvaluationParameters data) {
         validateChildCount(node, 0);
-        data.setResult(Integer.valueOf(node.jjtGetParent().getValue()));
+        data.setResult(Integer.valueOf(node.getValue()));
         return false;
     }
 
     @Override
     public boolean visit(JpqlLongLiteral node, QueryEvaluationParameters data) {
         validateChildCount(node, 0);
-        data.setResult(Long.valueOf(node.jjtGetParent().getValue()));
+        data.setResult(Long.valueOf(node.getValue()));
         return false;
     }
 
     @Override
     public boolean visit(JpqlBigIntegerLiteral node, QueryEvaluationParameters data) {
         validateChildCount(node, 0);
-        data.setResult(new BigInteger(node.jjtGetParent().getValue()));
+        data.setResult(new BigInteger(node.getValue()));
         return false;
     }
 
     @Override
     public boolean visit(JpqlFloatLiteral node, QueryEvaluationParameters data) {
         validateChildCount(node, 0);
-        data.setResult(Float.valueOf(node.jjtGetParent().getValue()));
+        data.setResult(Float.valueOf(node.getValue()));
         return false;
     }
 
     @Override
     public boolean visit(JpqlDoubleLiteral node, QueryEvaluationParameters data) {
         validateChildCount(node, 0);
-        data.setResult(Double.valueOf(node.jjtGetParent().getValue()));
+        data.setResult(Double.valueOf(node.getValue()));
         return false;
     }
 
     @Override
     public boolean visit(JpqlBigDecimalLiteral node, QueryEvaluationParameters data) {
         validateChildCount(node, 0);
-        data.setResult(new BigDecimal(node.jjtGetParent().getValue()));
+        data.setResult(new BigDecimal(node.getValue()));
         return false;
     }
 

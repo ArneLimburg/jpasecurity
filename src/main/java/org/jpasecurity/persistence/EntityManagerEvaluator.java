@@ -66,7 +66,7 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
 
     /**
      * Within this method a query is performed via the entity-manager of this evaluator.
-     * If this evaluator is already closed, the result of the evaluation is set to <quote>undefined</quote>.
+     * If this evaluator is already closed, the result of the evaluation is set to <tt>undefined</tt>.
      */
     @Override
     public Collection<?> evaluate(JpqlCompiledStatement statement,

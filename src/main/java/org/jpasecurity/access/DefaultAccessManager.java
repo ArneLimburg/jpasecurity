@@ -103,8 +103,9 @@ public class DefaultAccessManager implements AccessManager {
         } catch (SecurityException e) {
             abortCheck();
             throw e;
+        } finally {
+            endCheck();
         }
-        endCheck();
     }
 
     public SecurityContext getContext() {
