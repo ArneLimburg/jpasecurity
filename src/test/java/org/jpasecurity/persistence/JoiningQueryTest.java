@@ -15,6 +15,12 @@
  */
 package org.jpasecurity.persistence;
 
+import static org.junit.Assert.assertEquals;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
 import org.jpasecurity.model.ProtectedJoinedEntity;
 import org.jpasecurity.model.ProtectedJoiningEntity;
 import org.jpasecurity.model.UnprotectedJoinedEntity;
@@ -23,12 +29,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Stefan Hildebrandt
