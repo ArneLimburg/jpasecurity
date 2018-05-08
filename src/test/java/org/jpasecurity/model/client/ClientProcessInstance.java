@@ -16,8 +16,8 @@
 package org.jpasecurity.model.client;
 
 import java.util.Date;
-import javax.persistence.Entity;
 import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import org.hibernate.annotations.Fetch;

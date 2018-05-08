@@ -29,8 +29,8 @@ import javax.persistence.Query;
 import org.jpasecurity.model.MethodAccessAnnotationTestBean;
 import org.jpasecurity.model.acl.PrivilegeType;
 import org.jpasecurity.security.authentication.TestSecurityContext;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * @author Arne Limburg
