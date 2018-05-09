@@ -63,7 +63,6 @@ import org.jpasecurity.util.ValueHolder;
  */
 public class JpqlCompiler {
 
-    private final Metamodel metamodel;
     private final ConstructorArgReturnTypeVisitor returnTypeVisitor = new ConstructorArgReturnTypeVisitor();
     private final SelectVisitor selectVisitor = new SelectVisitor();
     private final AliasVisitor aliasVisitor = new AliasVisitor();
@@ -71,6 +70,7 @@ public class JpqlCompiler {
     private final PathVisitor pathVisitor = new PathVisitor();
     private final NamedParameterVisitor namedParameterVisitor = new NamedParameterVisitor();
     private final PositionalParameterVisitor positionalParameterVisitor = new PositionalParameterVisitor();
+    private final Metamodel metamodel;
 
     public JpqlCompiler(Metamodel metamodel) {
         this.metamodel = metamodel;
@@ -149,7 +149,7 @@ public class JpqlCompiler {
         return Collections.unmodifiableSet(positionalParameters);
     }
 
-    private class ConstructorArgReturnTypeVisitor extends JpqlVisitorAdapter<ValueHolder<Class<?>>> {
+    private static class ConstructorArgReturnTypeVisitor extends JpqlVisitorAdapter<ValueHolder<Class<?>>> {
 
         @Override
         public boolean visit(JpqlClassName node, ValueHolder<Class<?>> valueHolder) {
@@ -170,7 +170,7 @@ public class JpqlCompiler {
         }
     }
 
-    private class SelectVisitor extends JpqlVisitorAdapter<List<Path>> {
+    private static class SelectVisitor extends JpqlVisitorAdapter<List<Path>> {
 
         private final SelectPathVisitor selectPathVisitor = new SelectPathVisitor();
 
@@ -192,7 +192,7 @@ public class JpqlCompiler {
         }
     }
 
-    private class SelectPathVisitor extends JpqlVisitorAdapter<List<Path>> {
+    private static class SelectPathVisitor extends JpqlVisitorAdapter<List<Path>> {
 
         private final EntryVisitor entryVisitor = new EntryVisitor();
         private final QueryPreparator queryPreparator = new QueryPreparator();
@@ -439,7 +439,7 @@ public class JpqlCompiler {
         }
     }
 
-    private class NamedParameterVisitor extends JpqlVisitorAdapter<Set<String>> {
+    private static class NamedParameterVisitor extends JpqlVisitorAdapter<Set<String>> {
 
         @Override
         public boolean visit(JpqlNamedInputParameter node, Set<String> namedParameters) {
@@ -448,7 +448,7 @@ public class JpqlCompiler {
         }
     }
 
-    private class PositionalParameterVisitor extends JpqlVisitorAdapter<Set<String>> {
+    private static class PositionalParameterVisitor extends JpqlVisitorAdapter<Set<String>> {
 
         @Override
         public boolean visit(JpqlPositionalInputParameter node, Set<String> positionalParameters) {
@@ -457,48 +457,48 @@ public class JpqlCompiler {
         }
     }
 
-    private class PathVisitor extends JpqlVisitorAdapter<ValueHolder<Path>> {
-
-        public Path getPath(Node node) {
-            ValueHolder<Path> result = new ValueHolder<>();
-            node.visit(this, result);
-            return result.getValue();
-        }
+    private static class PathVisitor extends JpqlVisitorAdapter<ValueHolder<Path>> {
 
         @Override
         public boolean visit(JpqlPath node, ValueHolder<Path> result) {
             result.setValue(new Path(node.toString()));
             return false;
         }
-    }
 
-    private class CountVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
-
-        public boolean isCount(Node node) {
-            ValueHolder<Boolean> result = new ValueHolder<>(Boolean.FALSE);
+        Path getPath(Node node) {
+            ValueHolder<Path> result = new ValueHolder<>();
             node.visit(this, result);
             return result.getValue();
         }
+    }
+
+    private static class CountVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
 
         @Override
         public boolean visit(JpqlCount node, ValueHolder<Boolean> result) {
             result.setValue(Boolean.TRUE);
             return false;
         }
-    }
 
-    private class EntryVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
-
-        public boolean isEntry(JpqlPath node) {
+        boolean isCount(Node node) {
             ValueHolder<Boolean> result = new ValueHolder<>(Boolean.FALSE);
             node.visit(this, result);
             return result.getValue();
         }
+    }
+
+    private static class EntryVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
 
         @Override
         public boolean visit(JpqlEntry node, ValueHolder<Boolean> result) {
             result.setValue(Boolean.TRUE);
             return false;
+        }
+
+        boolean isEntry(JpqlPath node) {
+            ValueHolder<Boolean> result = new ValueHolder<>(Boolean.FALSE);
+            node.visit(this, result);
+            return result.getValue();
         }
     }
 }

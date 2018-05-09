@@ -122,7 +122,7 @@ public class EntityFilter implements AccessManager {
         LOG.debug("Evaluating {} access for entity of type {}", accessType, mapping.getName());
         Alias alias = new Alias(Introspector.decapitalize(mapping.getName()));
         AccessDefinition accessDefinition = createAccessDefinition(alias, mapping.getJavaType(), accessType);
-        LOG.debug("Using access definition " + accessDefinition);
+        LOG.debug("Using access definition {}", accessDefinition);
         QueryEvaluationParameters evaluationParameters
             = new QueryEvaluationParameters(metamodel,
                                             persistenceUnitUtil,
@@ -334,7 +334,7 @@ public class EntityFilter implements AccessManager {
             }
         }
 
-        LOG.debug("Using access definition " + accessDefinition);
+        LOG.debug("Using access definition {}", accessDefinition);
 
         try {
             QueryEvaluationParameters evaluationParameters

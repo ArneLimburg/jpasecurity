@@ -43,6 +43,7 @@ public class Auditing {
         return failure;
     }
 
+    @Override
     public boolean equals(Object object) {
         if (!(object instanceof Auditing)) {
             return false;
@@ -51,6 +52,7 @@ public class Auditing {
         return isSuccess() == auditing.isSuccess() && isFailure() == auditing.isFailure();
     }
 
+    @Override
     public int hashCode() {
         return Boolean.valueOf(success).hashCode() ^ Boolean.valueOf(failure).hashCode();
     }

@@ -17,6 +17,7 @@ package org.jpasecurity.jpql.parser;
 
 /**
  * This visitor creates a jpql-string of a query tree.
+ *
  * @author Arne Limburg
  */
 public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
@@ -448,11 +449,11 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
     public boolean visit(JpqlNot node, StringBuilder query) {
         assert node.jjtGetNumChildren() == 1;
         if (!(node.jjtGetChild(0) instanceof JpqlBetween
-              || node.jjtGetChild(0) instanceof JpqlLike
-              || node.jjtGetChild(0) instanceof JpqlIsNull
-              || node.jjtGetChild(0) instanceof JpqlIsEmpty
-              || node.jjtGetChild(0) instanceof JpqlIn
-              || node.jjtGetChild(0) instanceof JpqlMemberOf)) {
+                || node.jjtGetChild(0) instanceof JpqlLike
+                || node.jjtGetChild(0) instanceof JpqlIsNull
+                || node.jjtGetChild(0) instanceof JpqlIsEmpty
+                || node.jjtGetChild(0) instanceof JpqlIn
+                || node.jjtGetChild(0) instanceof JpqlMemberOf)) {
             query.append(" NOT ");
         }
         return true;
@@ -1192,5 +1193,47 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
     public boolean visit(JpqlNoDbIsAccessible node, StringBuilder query) {
         query.append("IS_ACCESSIBLE_NODB");
         return true;
+    }
+
+    @Override
+    public boolean visit(JpqlIntegerLiteral node, StringBuilder query) {
+        query.append(node.getValue());
+        return true;
+    }
+
+    @Override
+    public boolean visit(JpqlLongLiteral node, StringBuilder query) {
+        query.append(node.getValue()).append("L");
+        return true;
+    }
+
+    @Override
+    public boolean visit(JpqlBigIntegerLiteral node, StringBuilder query) {
+        query.append(node.getValue()).append("bi");
+        return true;
+    }
+
+    @Override
+    public boolean visit(JpqlFloatLiteral node, StringBuilder query) {
+        query.append(node.getValue()).append("f");
+        return true;
+    }
+
+    @Override
+    public boolean visit(JpqlDoubleLiteral node, StringBuilder query) {
+        query.append(node.getValue()).append("d");
+        return true;
+    }
+
+    @Override
+    public boolean visit(JpqlBigDecimalLiteral node, StringBuilder query) {
+        query.append(node.getValue()).append("bd");
+        return true;
+    }
+
+    @Override
+    public boolean visit(JpqlNumericLiteral node, StringBuilder query) {
+        validateChildCount(node, 1);
+        return visit(node.jjtGetChild(0));
     }
 }

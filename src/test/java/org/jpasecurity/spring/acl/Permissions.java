@@ -37,6 +37,7 @@ public class Permissions {
         return mask;
     }
 
+    @Override
     public boolean equals(Object object) {
         if (!(object instanceof Permissions)) {
             return false;
@@ -45,6 +46,7 @@ public class Permissions {
         return getMask() == permissions.getMask();
     }
 
+    @Override
     public int hashCode() {
         return mask;
     }

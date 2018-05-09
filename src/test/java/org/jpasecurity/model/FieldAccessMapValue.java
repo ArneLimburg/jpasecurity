@@ -31,8 +31,10 @@ public class FieldAccessMapValue {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+
     @ManyToOne(cascade = CascadeType.PERSIST)
     private FieldAccessMapKey key;
+
     @ManyToOne
     private FieldAccessAnnotationTestBean parent;
 
@@ -56,6 +58,7 @@ public class FieldAccessMapValue {
         return parent;
     }
 
+    @Override
     public int hashCode() {
         if (id == 0) {
             return super.hashCode();
@@ -63,6 +66,7 @@ public class FieldAccessMapValue {
         return id;
     }
 
+    @Override
     public boolean equals(Object object) {
         if (!(object instanceof FieldAccessMapValue)) {
             return false;

@@ -86,10 +86,10 @@ public class FieldAccessAnnotationTestBean {
                fetch = FetchType.LAZY,
                cascade = CascadeType.ALL,
                targetEntity = FieldAccessAnnotationTestBean.class)
-    private List<Object> children = new ArrayList<Object>();
+    private List<Object> children = new ArrayList<>();
     @OneToMany(mappedBy = "parent", cascade = CascadeType.PERSIST)
     @MapKey(name = "key")
-    private Map<FieldAccessMapKey, FieldAccessMapValue> map = new HashMap<FieldAccessMapKey, FieldAccessMapValue>();
+    private Map<FieldAccessMapKey, FieldAccessMapValue> map = new HashMap<>();
     @Transient
     private int namePropertyReadCount = 0;
     @Transient
@@ -250,10 +250,12 @@ public class FieldAccessAnnotationTestBean {
         postLoadCount++;
     }
 
+    @Override
     public int hashCode() {
         return id == 0? System.identityHashCode(this): id;
     }
 
+    @Override
     public boolean equals(Object object) {
         if (!(object instanceof FieldAccessAnnotationTestBean)) {
             return false;
