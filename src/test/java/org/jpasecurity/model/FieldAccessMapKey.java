@@ -30,6 +30,7 @@ public class FieldAccessMapKey {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+
     @Basic
     private String name;
 
@@ -48,6 +49,7 @@ public class FieldAccessMapKey {
         return name;
     }
 
+    @Override
     public int hashCode() {
         if (id == 0) {
             return super.hashCode();
@@ -55,6 +57,7 @@ public class FieldAccessMapKey {
         return id;
     }
 
+    @Override
     public boolean equals(Object object) {
         if (!(object instanceof FieldAccessMapKey)) {
             return false;

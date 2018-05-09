@@ -45,14 +45,17 @@ public class Alias {
         return new Path(this, null);
     }
 
+    @Override
     public String toString() {
         return getName();
     }
 
+    @Override
     public int hashCode() {
         return name.toLowerCase().hashCode();
     }
 
+    @Override
     public boolean equals(Object object) {
         if (!(object instanceof Alias)) {
             return false;

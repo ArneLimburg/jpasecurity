@@ -15,6 +15,7 @@
  */
 package org.jpasecurity.model.acl;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,7 +28,7 @@ import javax.persistence.OneToMany;
 public class Acl extends AbstractEntity {
 
     @OneToMany(mappedBy = "accessControlList", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<AclEntry> entries = new LinkedList<AclEntry>();
+    private List<AclEntry> entries = new ArrayList<>();
 
     public List<AclEntry> getEntries() {
         return entries;
