@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
@@ -41,13 +42,13 @@ public class DefaultAccessManager implements AccessManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultAccessManager.class);
 
-    private final Map<Object, AccessType> entitiesToCheck = new SimpleMap<>();
     private Metamodel metamodel;
     private SecurityContext context;
     private AccessManager entityFilter;
     private boolean checkInProgress;
     private int checksDisabled;
     private int checksDelayed;
+    private Map<Object, AccessType> entitiesToCheck = new SimpleMap<>();
 
     public DefaultAccessManager(Metamodel metamodel, SecurityContext context, AccessManager filter) {
         this.metamodel = notNull(Metamodel.class, metamodel);
@@ -58,7 +59,7 @@ public class DefaultAccessManager implements AccessManager {
     @Override
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
         EntityType<?> classMapping = ManagedTypeFilter.forModel(metamodel).filter(entityName);
-        final Class<?> javaType = classMapping.getJavaType();
+        Class<?> javaType = classMapping.getJavaType();
 
         Object entity;
         try {
@@ -182,13 +183,14 @@ public class DefaultAccessManager implements AccessManager {
 
         private static final Logger LOG = LoggerFactory.getLogger(AccessManager.class);
 
-        private static ThreadLocal<DefaultAccessManager> registeredAccessManagers = new InheritableThreadLocal<>();
+        private static Map<Thread, DefaultAccessManager> registeredAccessManagers
+            = new ConcurrentHashMap<>();
 
         private Instance() {
         }
 
         public static DefaultAccessManager get() {
-            DefaultAccessManager accessManager = registeredAccessManagers.get();
+            DefaultAccessManager accessManager = registeredAccessManagers.get(Thread.currentThread());
             if (accessManager == null) {
                 LOG.warn("No AccessManager found in thread {}", Thread.currentThread().getName());
                 throw new SecurityException("No AccessManager available. Please ensure that the EntityManager is open");
@@ -197,21 +199,17 @@ public class DefaultAccessManager implements AccessManager {
         }
 
         public static void register(DefaultAccessManager manager) {
-            if (registeredAccessManagers.get() == manager) {
+            if (registeredAccessManagers.get(Thread.currentThread()) == manager) {
                 return;
             }
             LOG.info("registering AccessManager#{}", System.identityHashCode(manager));
-            registeredAccessManagers.remove();
-            registeredAccessManagers.set(manager);
+            registeredAccessManagers.values().remove(manager);
+            registeredAccessManagers.put(Thread.currentThread(), manager);
         }
 
         public static void unregister(AccessManager manager) {
             LOG.info("unregistering AccessManager#{}", System.identityHashCode(manager));
-            if (registeredAccessManagers.get() == manager) {
-                registeredAccessManagers.remove();
-            } else {
-                throw new IllegalStateException("Another AccessManager was registered with this thread.");
-            }
+            registeredAccessManagers.values().remove(manager);
         }
     }
 }

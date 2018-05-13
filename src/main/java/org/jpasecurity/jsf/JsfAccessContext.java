@@ -160,11 +160,11 @@ public final class JsfAccessContext {
             this.parameters = parameters;
         }
 
-        public final String getName() {
+        public String getName() {
             return name;
         }
 
-        public final Object[] getParameters() {
+        public Object[] getParameters() {
             return parameters;
         }
     }

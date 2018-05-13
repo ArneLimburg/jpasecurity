@@ -103,7 +103,6 @@
   
         <module name="MagicNumber">
             <property name="ignoreNumbers" value="-1, 0, 1, 2, 3, 4"/>
-            <property name="ignoreHashCodeMethod" value="true"/>
         </module>
         <module name="MemberName"/>
         <module name="MethodLength"/>

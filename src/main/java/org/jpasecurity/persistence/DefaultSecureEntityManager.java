@@ -404,7 +404,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     private void unregisterAccessManagerAfterTransaction() {
-        final TransactionSynchronizationRegistry registry = getTransactionSynchronizationRegistry();
+        TransactionSynchronizationRegistry registry = getTransactionSynchronizationRegistry();
         if (registry == null) {
             return;
         }
