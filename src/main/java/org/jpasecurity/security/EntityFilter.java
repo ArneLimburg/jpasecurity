@@ -91,7 +91,7 @@ public class EntityFilter implements AccessManager {
     private static final Logger LOG = LoggerFactory.getLogger(EntityFilter.class);
 
     protected final JpqlCompiler compiler;
-    private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<>();
+    private Map<String, JpqlCompiledStatement> statementCache = new HashMap<>();
     private final QueryPreparator queryPreparator = new QueryPreparator();
     private final ReplaceAliasVisitor replaceAliasVisitor = new ReplaceAliasVisitor();
     private final Metamodel metamodel;

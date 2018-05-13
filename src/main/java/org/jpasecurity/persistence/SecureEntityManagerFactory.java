@@ -23,6 +23,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.persistence.SynchronizationType;
 import javax.persistence.metamodel.Metamodel;
@@ -96,7 +97,7 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
                     newInstance(securityContextType),
                     getAccessRules());
         } catch (ParseException e) {
-            throw new RuntimeException(e);
+            throw new PersistenceException(e);
         }
     }
 

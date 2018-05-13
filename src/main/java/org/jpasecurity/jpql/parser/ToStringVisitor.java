@@ -449,11 +449,11 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
     public boolean visit(JpqlNot node, StringBuilder query) {
         assert node.jjtGetNumChildren() == 1;
         if (!(node.jjtGetChild(0) instanceof JpqlBetween
-                || node.jjtGetChild(0) instanceof JpqlLike
-                || node.jjtGetChild(0) instanceof JpqlIsNull
-                || node.jjtGetChild(0) instanceof JpqlIsEmpty
-                || node.jjtGetChild(0) instanceof JpqlIn
-                || node.jjtGetChild(0) instanceof JpqlMemberOf)) {
+              || node.jjtGetChild(0) instanceof JpqlLike
+              || node.jjtGetChild(0) instanceof JpqlIsNull
+              || node.jjtGetChild(0) instanceof JpqlIsEmpty
+              || node.jjtGetChild(0) instanceof JpqlIn
+              || node.jjtGetChild(0) instanceof JpqlMemberOf)) {
             query.append(" NOT ");
         }
         return true;
