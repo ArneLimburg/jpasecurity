@@ -22,6 +22,7 @@ import org.jpasecurity.AccessType;
  */
 public class DeletionTag extends AbstractEntityTag {
 
+    @Override
     protected AccessType getAccessType() {
         return AccessType.DELETE;
     }

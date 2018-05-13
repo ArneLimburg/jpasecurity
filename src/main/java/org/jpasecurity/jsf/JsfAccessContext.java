@@ -131,7 +131,7 @@ public final class JsfAccessContext {
     protected static AccessManager getAccessManager() {
         ELContext elContext = FacesContext.getCurrentInstance().getELContext();
         Object accessManager = elContext.getELResolver().getValue(elContext, null, "accessManager");
-        if (accessManager == null || !(accessManager instanceof AccessManager)) {
+        if (!(accessManager instanceof AccessManager)) {
             String message = "No access manager found. Please add an object of type " + AccessManager.class.getName()
                            + " with the el-name 'accessManager' to your faces context. "
                            + "If you are using jpasecurity-jpa you can get one from "
@@ -144,7 +144,7 @@ public final class JsfAccessContext {
     protected static SecurityContext getSecurityContext() {
         ELContext elContext = FacesContext.getCurrentInstance().getELContext();
         Object securityContext = elContext.getELResolver().getValue(elContext, null, "securityContext");
-        if (securityContext == null || !(securityContext instanceof SecurityContext)) {
+        if (!(securityContext instanceof SecurityContext)) {
             securityContext = new JsfSecurityContext();
         }
         return (SecurityContext)securityContext;
@@ -152,10 +152,10 @@ public final class JsfAccessContext {
 
     public static class SecureBeanDefinition {
 
-        private String name;
-        private Object[] parameters;
+        private final String name;
+        private final Object[] parameters;
 
-        public SecureBeanDefinition(String name, Object... parameters) {
+        SecureBeanDefinition(String name, Object... parameters) {
             this.name = name;
             this.parameters = parameters;
         }

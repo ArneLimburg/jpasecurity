@@ -91,19 +91,19 @@ public class EntityFilter implements AccessManager {
     private static final Logger LOG = LoggerFactory.getLogger(EntityFilter.class);
 
     protected final JpqlCompiler compiler;
+    private Map<String, JpqlCompiledStatement> statementCache = new HashMap<>();
+    private final QueryPreparator queryPreparator = new QueryPreparator();
+    private final ReplaceAliasVisitor replaceAliasVisitor = new ReplaceAliasVisitor();
     private final Metamodel metamodel;
     private final SecurePersistenceUnitUtil persistenceUnitUtil;
     private final JpqlParser parser;
-    private final Map<String, JpqlCompiledStatement> statementCache = new HashMap<String, JpqlCompiledStatement>();
     private final QueryEvaluator queryEvaluator;
-    private final QueryPreparator queryPreparator = new QueryPreparator();
     private final Collection<AccessRule> accessRules;
-    private final ReplaceAliasVisitor replaceAliasVisitor = new ReplaceAliasVisitor();
 
     public EntityFilter(Metamodel metamodel,
                         SecurePersistenceUnitUtil util,
                         Collection<AccessRule> accessRules,
-                        SubselectEvaluator... evaluators) {
+                        SubselectEvaluator... evaluators) throws ParseException {
         this.metamodel = notNull(Metamodel.class, metamodel);
         this.persistenceUnitUtil = notNull(SecurePersistenceUnitUtil.class, util);
         this.parser = new JpqlParser();
@@ -116,12 +116,13 @@ public class EntityFilter implements AccessManager {
         return queryPreparator;
     }
 
+    @Override
     public boolean isAccessible(AccessType accessType, Object entity) {
         EntityType<?> mapping = forModel(metamodel).filterEntity(entity.getClass());
-        LOG.debug("Evaluating " + accessType + " access for entity of type " + mapping.getName());
+        LOG.debug("Evaluating {} access for entity of type {}", accessType, mapping.getName());
         Alias alias = new Alias(Introspector.decapitalize(mapping.getName()));
         AccessDefinition accessDefinition = createAccessDefinition(alias, mapping.getJavaType(), accessType);
-        LOG.debug("Using access definition " + accessDefinition);
+        LOG.debug("Using access definition {}", accessDefinition);
         QueryEvaluationParameters evaluationParameters
             = new QueryEvaluationParameters(metamodel,
                                             persistenceUnitUtil,
@@ -137,7 +138,7 @@ public class EntityFilter implements AccessManager {
 
     public FilterResult<String> filterQuery(String query, AccessType accessType) {
 
-        LOG.debug("Filtering query " + query);
+        LOG.debug("Filtering query {}", query);
 
         JpqlCompiledStatement statement = compile(query);
 
@@ -166,7 +167,7 @@ public class EntityFilter implements AccessManager {
         }
 
         Node statementNode = statement.getStatement();
-        LOG.debug("Optimizing filtered query " + statementNode);
+        LOG.debug("Optimizing filtered query {}", statementNode);
 
         optimize(accessDefinition);
         Set<String> parameterNames = compiler.getNamedParameters(accessDefinition.getAccessRules());
@@ -176,12 +177,12 @@ public class EntityFilter implements AccessManager {
             statementNode = queryPreparator.removeConstuctor(statementNode);
         }
         final String optimizedJpqlStatement = ((SimpleNode)statementNode).toJpqlString();
-        LOG.debug("Returning optimized query " + optimizedJpqlStatement);
-        return new FilterResult<String>(optimizedJpqlStatement,
-                                        parameters.size() > 0? parameters: null,
-                                        statement.getConstructorArgReturnType(),
-                                        statement.getSelectedPaths(),
-                                        statement.getTypeDefinitions());
+        LOG.debug("Returning optimized query {}", optimizedJpqlStatement);
+        return new FilterResult<>(optimizedJpqlStatement,
+                parameters.size() > 0 ? parameters : null,
+                statement.getConstructorArgReturnType(),
+                statement.getSelectedPaths(),
+                statement.getTypeDefinitions());
     }
 
     protected AccessDefinition createAccessDefinition(JpqlCompiledStatement statement, AccessType accessType) {
@@ -200,8 +201,8 @@ public class EntityFilter implements AccessManager {
         AccessDefinition accessDefinition = null;
         boolean restricted = false;
         for (Map.Entry<Path, Class<?>> selectedType: selectedTypes.entrySet()) {
-            Set<JpqlAccessRule> appliedRules = new HashSet<JpqlAccessRule>();
-            Set<Class<?>> restrictedTypes = new HashSet<Class<?>>();
+            Set<JpqlAccessRule> appliedRules = new HashSet<>();
+            Set<Class<?>> restrictedTypes = new HashSet<>();
             AccessDefinition typedAccessDefinition = null;
             for (AccessRule accessRule: accessRules) {
                 if (!appliedRules.contains(accessRule.getStatement())) {
@@ -218,20 +219,20 @@ public class EntityFilter implements AccessManager {
                     }
                 }
             }
-            Map<JpqlAccessRule, Set<AccessRule>> mayBeRules = new HashMap<JpqlAccessRule, Set<AccessRule>>();
+            Map<JpqlAccessRule, Set<AccessRule>> mayBeRules = new HashMap<>();
             for (AccessRule accessRule : accessRules) {
                 if (!appliedRules.contains(accessRule.getStatement())) {
                     if (accessRule.mayBeAssignable(selectedType.getValue(), metamodel)) {
                         Set<AccessRule> accessRulesSet = mayBeRules.get(accessRule.getStatement());
                         if (accessRulesSet == null) {
-                            accessRulesSet = new HashSet<AccessRule>();
+                            accessRulesSet = new HashSet<>();
                             mayBeRules.put((JpqlAccessRule)accessRule.getStatement(), accessRulesSet);
                         }
                         accessRulesSet.add(accessRule);
                     }
                 }
             }
-            Set<AccessRule> bestMayBeRules = new HashSet<AccessRule>();
+            Set<AccessRule> bestMayBeRules = new HashSet<>();
             for (Set<AccessRule> accessRulesByStatement : mayBeRules.values()) {
                 AccessRule bestRule = null;
                 Class<?> bestRuleSelectedType = null;
@@ -326,14 +327,14 @@ public class EntityFilter implements AccessManager {
             boolean accessRestricted = !Boolean.parseBoolean(booleanLiteral.getValue());
             if (accessRestricted) {
                 LOG.debug("No access rules defined for access type. Returning <null> query.");
-                return new FilterResult<Q>(statement.getConstructorArgReturnType());
+                return new FilterResult<>(statement.getConstructorArgReturnType());
             } else {
                 LOG.debug("No access rules defined for selected type. Returning unfiltered query");
-                return new FilterResult<Q>(query, statement.getConstructorArgReturnType());
+                return new FilterResult<>(query, statement.getConstructorArgReturnType());
             }
         }
 
-        LOG.debug("Using access definition " + accessDefinition);
+        LOG.debug("Using access definition {}", accessDefinition);
 
         try {
             QueryEvaluationParameters evaluationParameters
@@ -346,10 +347,10 @@ public class EntityFilter implements AccessManager {
             boolean result = queryEvaluator.<Boolean>evaluate(accessDefinition.getAccessRules(), evaluationParameters);
             if (result) {
                 LOG.debug("Access rules are always true for current user and roles. Returning unfiltered query");
-                return new FilterResult<Q>(query, statement.getConstructorArgReturnType());
+                return new FilterResult<>(query, statement.getConstructorArgReturnType());
             } else {
                 LOG.debug("Access rules are always false for current user and roles. Returning empty result");
-                return new FilterResult<Q>(statement.getConstructorArgReturnType());
+                return new FilterResult<>(statement.getConstructorArgReturnType());
             }
         } catch (NotEvaluatableException e) {
             //access rules need to be applied then
@@ -393,7 +394,7 @@ public class EntityFilter implements AccessManager {
                 accessRule = replace(accessRule, usedAlias, getUnusedAlias(usedAlias, ruleAliases));
             }
         }
-        Map<String, Object> queryParameters = new HashMap<String, Object>();
+        Map<String, Object> queryParameters = new HashMap<>();
         expand(accessRule, queryParameters);
         Node preparedAccessRule = queryPreparator.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
         queryPreparator.replace(preparedAccessRule, accessRule.getSelectedPath(), selectedPath);
@@ -448,7 +449,7 @@ public class EntityFilter implements AccessManager {
                                                                  queryPreparator.createNumber(1));
                 queryPreparator.replace(inNode, notEquals);
             } else {
-                List<Object> parameterValues = new ArrayList<Object>(aliasValues);
+                List<Object> parameterValues = new ArrayList<>(aliasValues);
                 String parameterName = alias + "0";
                 queryParameters.put(parameterName, parameterValues.get(0));
                 Node parameter = queryPreparator.createNamedParameter(parameterName);
@@ -468,7 +469,7 @@ public class EntityFilter implements AccessManager {
     private Map<Path, Class<?>> getSelectedEntityTypes(JpqlCompiledStatement statement) {
         Set<TypeDefinition> typeDefinitions = statement.getTypeDefinitions();
         //ToDo: change to HashMap then moving to java 8
-        Map<Path, Class<?>> selectedTypes = new LinkedHashMap<Path, Class<?>>();
+        Map<Path, Class<?>> selectedTypes = new LinkedHashMap<>();
         // first process all non-conditional paths
         for (Path selectedPath: statement.getSelectedPaths()) {
             if (!(selectedPath instanceof ConditionalPath)) {
@@ -531,7 +532,7 @@ public class EntityFilter implements AccessManager {
     }
 
     private Set<Alias> getAliases(JpqlCompiledStatement statement) {
-        Set<Alias> aliases = new HashSet<Alias>();
+        Set<Alias> aliases = new HashSet<>();
         for (TypeDefinition typeDefinition: statement.getTypeDefinitions()) {
             if (typeDefinition.getAlias() != null) {
                 aliases.add(typeDefinition.getAlias());
@@ -566,6 +567,17 @@ public class EntityFilter implements AccessManager {
         }
         rule.getStatement().visit(replaceAliasVisitor, new AliasReplacement(source, target));
         return new AccessRule((JpqlAccessRule)rule.getStatement(), typeDefinition);
+    }
+
+    @Override
+    public boolean isAccessible(AccessType accessType, String entityName, Object... constructorArgs) {
+        try {
+            Class<?> entityType = forModel(metamodel).filter(entityName).getJavaType();
+            Object entity = getConstructor(entityType, constructorArgs).newInstance(constructorArgs);
+            return isAccessible(accessType, entity);
+        } catch (Exception e) {
+            return throwThrowable(e);
+        }
     }
 
     public class AccessDefinition {
@@ -627,6 +639,7 @@ public class EntityFilter implements AccessManager {
             accessRules = queryPreparator.createAnd(node, accessRules);
         }
 
+        @Override
         public String toString() {
             return "[query=\"" + accessRules.toString() + "\",parameters=" + queryParameters.toString() + "]";
         }
@@ -636,11 +649,8 @@ public class EntityFilter implements AccessManager {
         }
     }
 
-    protected enum Evaluatable {
-        ALWAYS_TRUE, ALWAYS_FALSE, DEPENDING;
-    }
-
     private static class ReplaceAliasVisitor extends JpqlVisitorAdapter<AliasReplacement> {
+
         @Override
         public boolean visit(JpqlIdentificationVariable variable, AliasReplacement replacement) {
             if (variable.getValue().equals(replacement.getSource().getName())) {
@@ -651,6 +661,7 @@ public class EntityFilter implements AccessManager {
     }
 
     static class AliasReplacement {
+
         private Alias source;
         private Alias target;
 
@@ -665,17 +676,6 @@ public class EntityFilter implements AccessManager {
 
         Alias getTarget() {
             return target;
-        }
-    }
-
-    @Override
-    public boolean isAccessible(AccessType accessType, String entityName, Object... constructorArgs) {
-        try {
-            Class<?> entityType = forModel(metamodel).filter(entityName).getJavaType();
-            Object entity = getConstructor(entityType, constructorArgs).newInstance(constructorArgs);
-            return isAccessible(accessType, entity);
-        } catch (Exception e) {
-            return throwThrowable(e);
         }
     }
 }

@@ -48,7 +48,7 @@ public class DefaultAccessManager implements AccessManager {
     private boolean checkInProgress;
     private int checksDisabled;
     private int checksDelayed;
-    private Map<Object, AccessType> entitiesToCheck = new SimpleMap<Object, AccessType>();
+    private Map<Object, AccessType> entitiesToCheck = new SimpleMap<>();
 
     public DefaultAccessManager(Metamodel metamodel, SecurityContext context, AccessManager filter) {
         this.metamodel = notNull(Metamodel.class, metamodel);
@@ -56,24 +56,28 @@ public class DefaultAccessManager implements AccessManager {
         this.entityFilter = notNull("EntityFilter", filter);
     }
 
+    @Override
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
         EntityType<?> classMapping = ManagedTypeFilter.forModel(metamodel).filter(entityName);
-        Object entity = null;
+        Class<?> javaType = classMapping.getJavaType();
+
+        Object entity;
         try {
-            entity = ReflectionUtils.newInstance(classMapping.getJavaType(), parameters);
+            entity = ReflectionUtils.newInstance(javaType, parameters);
         } catch (RuntimeException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Constructor of " + classMapping.getJavaType()
-                          + " threw exception, hence isAccessible returns false.", e);
+                LOG.debug("Constructor of {} threw exception, hence isAccessible returns false.",
+                        javaType, e);
             } else {
-                LOG.info("Constructor of " + classMapping.getJavaType()
-                         + " threw exception (\"" + e.getMessage() + "\"), hence isAccessible returns false.");
+                LOG.info("Constructor of {} threw exception (\"{}\"), hence isAccessible returns false.",
+                        javaType, e.getMessage(), e);
             }
             return false;
         }
         return isAccessible(accessType, entity);
     }
 
+    @Override
     public boolean isAccessible(AccessType accessType, Object entity) {
         if (entity == null) {
             return false;
@@ -100,8 +104,9 @@ public class DefaultAccessManager implements AccessManager {
         } catch (SecurityException e) {
             abortCheck();
             throw e;
+        } finally {
+            endCheck();
         }
-        endCheck();
     }
 
     public SecurityContext getContext() {
@@ -129,7 +134,7 @@ public class DefaultAccessManager implements AccessManager {
     }
 
     public void ignoreChecks(AccessType accessType, Collection<?> entities) {
-        for (Object entity: entities) {
+        for (Object entity : entities) {
             AccessType type = entitiesToCheck.remove(entity);
             if (type != null && type != accessType) {
                 entitiesToCheck.put(entity, type);
@@ -179,7 +184,10 @@ public class DefaultAccessManager implements AccessManager {
         private static final Logger LOG = LoggerFactory.getLogger(AccessManager.class);
 
         private static Map<Thread, DefaultAccessManager> registeredAccessManagers
-            = new ConcurrentHashMap<Thread, DefaultAccessManager>();
+            = new ConcurrentHashMap<>();
+
+        private Instance() {
+        }
 
         public static DefaultAccessManager get() {
             DefaultAccessManager accessManager = registeredAccessManagers.get(Thread.currentThread());

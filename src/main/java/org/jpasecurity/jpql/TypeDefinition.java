@@ -33,6 +33,7 @@ import org.jpasecurity.Path;
 /**
  * This class holds type-definitions of JPQL statements.
  * Types may be defined either in the from-clause or in join-clauses.
+ *
  * @author Arne Limburg
  */
 public class TypeDefinition {
@@ -131,6 +132,7 @@ public class TypeDefinition {
         this.type = type;
     }
 
+    @Override
     public String toString() {
         StringBuilder toStringBuilder = new StringBuilder();
         if (isInnerJoin()) {
@@ -174,7 +176,7 @@ public class TypeDefinition {
         }
 
         public T filter(Collection<TypeDefinition> typeDefinitions) {
-            for (TypeDefinition typeDefinition: typeDefinitions) {
+            for (TypeDefinition typeDefinition : typeDefinitions) {
                 if (filter(typeDefinition)) {
                     return transform(typeDefinition);
                 }
@@ -191,12 +193,13 @@ public class TypeDefinition {
 
     public static class AliasTypeFilter extends Filter<AliasTypeFilter, TypeDefinition> {
 
-        private Alias alias;
+        private final Alias alias;
 
         public AliasTypeFilter(Alias alias) {
             this.alias = alias;
         }
 
+        @Override
         protected boolean filter(TypeDefinition typeDefinition) {
             return alias.equals(typeDefinition.getAlias());
         }
@@ -266,8 +269,8 @@ public class TypeDefinition {
 
     public static class ManagedTypeFilter extends Filter<ManagedTypeFilter, ManagedType<?>> {
 
-        private Path path;
-        private Filter<?, ?> filter;
+        private final Path path;
+        private final Filter<?, ?> filter;
 
         public ManagedTypeFilter(Path path) {
             this.path = path;
@@ -278,6 +281,7 @@ public class TypeDefinition {
             }
         }
 
+        @Override
         public ManagedTypeFilter withMetamodel(Metamodel model) {
             filter.withMetamodel(model);
             return super.withMetamodel(model);

@@ -79,7 +79,7 @@ public class ToJpqlStringVisitorTest {
     }
 
     @Before
-    public void initializeParser() {
+    public void initializeParser() throws ParseException {
         parser = new JpqlParser();
     }
 

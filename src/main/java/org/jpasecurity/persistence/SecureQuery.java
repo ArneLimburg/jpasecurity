@@ -23,14 +23,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.FlushModeType;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
 import org.jpasecurity.AccessType;
-import org.jpasecurity.Path;
 import org.jpasecurity.access.DefaultAccessManager;
 import org.jpasecurity.util.ReflectionUtils;
 
@@ -42,17 +40,13 @@ import org.jpasecurity.util.ReflectionUtils;
 public class SecureQuery<T> extends DelegatingQuery<T> {
 
     private Class<T> constructorArgReturnType;
-    private List<Path> selectedPaths;
 
-    public SecureQuery(Query query,
-                       Class<T> constructorReturnType,
-                       List<Path> selectedPaths,
-                       FlushModeType flushMode) {
+    SecureQuery(Query query, Class<T> constructorReturnType) {
         super(query);
         this.constructorArgReturnType = constructorReturnType;
-        this.selectedPaths = selectedPaths;
     }
 
+    @Override
     public T getSingleResult() {
         T result;
         DefaultAccessManager.Instance.get().delayChecks();
@@ -76,12 +70,13 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
         return result;
     }
 
+    @Override
     public List<T> getResultList() {
         DefaultAccessManager.Instance.get().delayChecks();
         List<T> targetResult = super.getResultList();
-        List<T> proxyResult = new ArrayList<T>();
+        List<T> proxyResult = new ArrayList<>();
         if (constructorArgReturnType != null) {
-            for (Object parameter : (List<Object>)targetResult) {
+            for (Object parameter : targetResult) {
                 try {
                     proxyResult.add(handleConstructorReturnType(parameter));
                 } catch (InvocationTargetException e) {
@@ -135,10 +130,10 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
             return result;
         }
         Object[] scalarResult = (Object[])result;
-        List<Object> entitiesToIgnore = new ArrayList<Object>();
-        for (int i = 0; i < scalarResult.length; i++) {
-            if (scalarResult[i] != null && !isSimplePropertyType(scalarResult[i].getClass())) {
-                entitiesToIgnore.add(scalarResult[i]);
+        List<Object> entitiesToIgnore = new ArrayList<>();
+        for (Object aScalarResult : scalarResult) {
+            if (aScalarResult != null && !isSimplePropertyType(aScalarResult.getClass())) {
+                entitiesToIgnore.add(aScalarResult);
             }
         }
         DefaultAccessManager.Instance.get().ignoreChecks(AccessType.READ, entitiesToIgnore);
@@ -153,30 +148,37 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
             this.tuple = tuple;
         }
 
+        @Override
         public List<TupleElement<?>> getElements() {
             return tuple.getElements();
         }
 
+        @Override
         public <X> X get(TupleElement<X> tupleElement) {
             return getSecureResult(tuple.get(tupleElement));
         }
 
+        @Override
         public Object get(String alias) {
             return getSecureResult(tuple.get(alias));
         }
 
+        @Override
         public Object get(int index) {
             return getSecureResult(tuple.get(index));
         }
 
+        @Override
         public <X> X get(String alias, Class<X> type) {
             return getSecureResult(tuple.get(alias, type));
         }
 
+        @Override
         public <X> X get(int index, Class<X> type) {
             return getSecureResult(tuple.get(index, type));
         }
 
+        @Override
         public Object[] toArray() {
             return getSecureResult(tuple.toArray());
         }

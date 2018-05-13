@@ -28,6 +28,7 @@ public class ReadingTagHandler extends AbstractBeanTagHandler {
         super(config);
     }
 
+    @Override
     protected AccessType getAccessType() {
         return AccessType.READ;
     }

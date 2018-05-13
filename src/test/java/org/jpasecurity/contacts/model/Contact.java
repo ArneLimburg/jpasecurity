@@ -71,10 +71,12 @@ public class Contact implements Serializable {
         this.text = text;
     }
 
+    @Override
     public String toString() {
         return getText();
     }
 
+    @Override
     public boolean equals(Object object) {
         if (!(object instanceof Contact)) {
             return false;
@@ -89,6 +91,7 @@ public class Contact implements Serializable {
         }
     }
 
+    @Override
     public int hashCode() {
         return getId() == null? System.identityHashCode(this): getId().hashCode();
     }

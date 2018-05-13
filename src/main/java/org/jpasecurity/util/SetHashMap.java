@@ -23,7 +23,8 @@ import java.util.Set;
  */
 public class SetHashMap<K, V> extends AbstractCollectionHashMap<K, Set<V>, V> implements SetMap<K, V> {
 
+    @Override
     protected Set<V> createCollection() {
-        return new SimpleSet<V>();
+        return new SimpleSet<>();
     }
 }

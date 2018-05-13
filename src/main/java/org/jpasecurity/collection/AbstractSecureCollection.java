@@ -33,7 +33,7 @@ import org.jpasecurity.access.DefaultAccessManager;
  */
 public abstract class AbstractSecureCollection<E, T extends Collection<E>> extends AbstractCollection<E> {
 
-    static final Object UNDEFINED = new Object();
+    private static final Object UNDEFINED = new Object();
 
     private T original;
     private T filtered;
@@ -42,7 +42,6 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
      * Creates a collection that filters the specified (original) collection
      * based on the accessibility of their elements.
      * @param collection the original collection
-     * @param objectManager the object manager
      */
     AbstractSecureCollection(T collection) {
         this.original = collection;
@@ -52,47 +51,54 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
      * This constructor can be used to create an already initialized secure collection.
      * @param original the original collection
      * @param filtered the (initialized) filtered collection
-     * @param objectManager the object manager
      */
     AbstractSecureCollection(T original, T filtered) {
         this(original);
         this.filtered = filtered;
     }
 
+    @Override
     public Iterator<E> iterator() {
         return new FilteredIterator(getFiltered().iterator());
     }
 
+    @Override
     public boolean add(E entity) {
         getFiltered().add(entity);
         return getOriginal().add(entity);
     }
 
+    @Override
     public boolean addAll(Collection<? extends E> collection) {
         getFiltered().addAll(collection);
         return getOriginal().addAll(collection);
     }
 
+    @Override
     public boolean remove(Object entity) {
         getFiltered().remove(entity);
         return getOriginal().remove(entity);
     }
 
+    @Override
     public boolean removeAll(Collection<?> collection) {
         getFiltered().removeAll(collection);
         return getOriginal().removeAll(collection);
     }
 
+    @Override
     public boolean retainAll(Collection<?> collection) {
         getFiltered().retainAll(collection);
         return getOriginal().retainAll(collection);
     }
 
+    @Override
     public void clear() {
         getFiltered().clear();
         getOriginal().clear();
     }
 
+    @Override
     public int size() {
         return getFiltered().size();
     }
@@ -147,15 +153,18 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
             this.iterator = iterator;
         }
 
+        @Override
         public boolean hasNext() {
             return iterator.hasNext();
         }
 
+        @Override
         public E next() {
             current = iterator.next();
             return current;
         }
 
+        @Override
         public void remove() {
             if (current == UNDEFINED) {
                 throw new IllegalStateException();

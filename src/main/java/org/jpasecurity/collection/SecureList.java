@@ -29,17 +29,14 @@ public class SecureList<E> extends AbstractList<E> {
     private AbstractSecureCollection<E, List<E>> secureList;
 
     public SecureList(List<E> list) {
-        secureList = new DefaultSecureCollection<E, List<E>>(list);
-    }
-
-    SecureList(List<E> original, List<E> filtered) {
-        secureList = new DefaultSecureCollection<E, List<E>>(original);
+        secureList = new DefaultSecureCollection<>(list);
     }
 
     /**
      * Returns the element with the specified index in the filtered collection.
      * This index may differ from the index of that element in the original collection.
      */
+    @Override
     public E get(int index) {
         return secureList.getFiltered().get(index);
     }
@@ -50,6 +47,7 @@ public class SecureList<E> extends AbstractList<E> {
      * The index of the replaced element may differ in the original collection,
      * though the same element is replaced.
      */
+    @Override
     public E set(int index, E element) {
         E old = secureList.getFiltered().set(index, element);
         int originalIndex = getOriginal().indexOf(old);
@@ -63,6 +61,7 @@ public class SecureList<E> extends AbstractList<E> {
      * If the specified index is the same as the size of the filtered collection,
      * the element is added at the end of both collections.
      */
+    @Override
     public void add(int index, E element) {
         if (index == secureList.getFiltered().size()) {
             secureList.add(element);
@@ -79,6 +78,7 @@ public class SecureList<E> extends AbstractList<E> {
      * This index may differ from the index of that element in the original collection,
      * though the same element is removed in the original collection.
      */
+    @Override
     public E remove(int index) {
         E old = secureList.getFiltered().remove(index);
         secureList.remove(old);
@@ -93,6 +93,7 @@ public class SecureList<E> extends AbstractList<E> {
      * If the specified index is the same as the size of the filtered collection,
      * the element is added at the end of both collections.
      */
+    @Override
     public boolean addAll(int index, Collection<? extends E> collection) {
         if (index == secureList.getFiltered().size()) {
             return secureList.addAll(collection);
@@ -105,6 +106,7 @@ public class SecureList<E> extends AbstractList<E> {
         }
     }
 
+    @Override
     public int size() {
         return secureList.size();
     }

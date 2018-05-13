@@ -39,15 +39,13 @@ import org.jpasecurity.jpql.parser.JpqlCoalesce;
 import org.jpasecurity.jpql.parser.JpqlConstructorParameter;
 import org.jpasecurity.jpql.parser.JpqlCount;
 import org.jpasecurity.jpql.parser.JpqlEntry;
+import org.jpasecurity.jpql.parser.JpqlFetchJoin;
 import org.jpasecurity.jpql.parser.JpqlFromItem;
 import org.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import org.jpasecurity.jpql.parser.JpqlInCollection;
-import org.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
-import org.jpasecurity.jpql.parser.JpqlInnerJoin;
+import org.jpasecurity.jpql.parser.JpqlJoin;
 import org.jpasecurity.jpql.parser.JpqlNamedInputParameter;
 import org.jpasecurity.jpql.parser.JpqlNullif;
-import org.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
-import org.jpasecurity.jpql.parser.JpqlOuterJoin;
 import org.jpasecurity.jpql.parser.JpqlPath;
 import org.jpasecurity.jpql.parser.JpqlPositionalInputParameter;
 import org.jpasecurity.jpql.parser.JpqlSelectExpression;
@@ -65,7 +63,6 @@ import org.jpasecurity.util.ValueHolder;
  */
 public class JpqlCompiler {
 
-    private final Metamodel metamodel;
     private final ConstructorArgReturnTypeVisitor returnTypeVisitor = new ConstructorArgReturnTypeVisitor();
     private final SelectVisitor selectVisitor = new SelectVisitor();
     private final AliasVisitor aliasVisitor = new AliasVisitor();
@@ -73,6 +70,7 @@ public class JpqlCompiler {
     private final PathVisitor pathVisitor = new PathVisitor();
     private final NamedParameterVisitor namedParameterVisitor = new NamedParameterVisitor();
     private final PositionalParameterVisitor positionalParameterVisitor = new PositionalParameterVisitor();
+    private final Metamodel metamodel;
 
     public JpqlCompiler(Metamodel metamodel) {
         this.metamodel = metamodel;
@@ -102,7 +100,7 @@ public class JpqlCompiler {
         if (node == null) {
             return null;
         }
-        ValueHolder<Class<?>> constructorArgReturnTypeHolder = new ValueHolder<Class<?>>();
+        ValueHolder<Class<?>> constructorArgReturnTypeHolder = new ValueHolder<>();
         node.visit(returnTypeVisitor, constructorArgReturnTypeHolder);
         return constructorArgReturnTypeHolder.getValue();
     }
@@ -111,7 +109,7 @@ public class JpqlCompiler {
         if (node == null) {
             return Collections.emptyList();
         }
-        List<Path> selectedPaths = new ArrayList<Path>();
+        List<Path> selectedPaths = new ArrayList<>();
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(selectVisitor, selectedPaths);
         }
@@ -122,7 +120,7 @@ public class JpqlCompiler {
         if (node == null) {
             return Collections.emptySet();
         }
-        Set<TypeDefinition> typeDefinitions = new HashSet<TypeDefinition>();
+        Set<TypeDefinition> typeDefinitions = new HashSet<>();
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(aliasVisitor, typeDefinitions);
         }
@@ -133,7 +131,7 @@ public class JpqlCompiler {
         if (node == null) {
             return Collections.emptySet();
         }
-        Set<String> namedParameters = new HashSet<String>();
+        Set<String> namedParameters = new HashSet<>();
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(namedParameterVisitor, namedParameters);
         }
@@ -144,15 +142,16 @@ public class JpqlCompiler {
         if (node == null) {
             return Collections.emptySet();
         }
-        Set<String> positionalParameters = new HashSet<String>();
+        Set<String> positionalParameters = new HashSet<>();
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(positionalParameterVisitor, positionalParameters);
         }
         return Collections.unmodifiableSet(positionalParameters);
     }
 
-    private class ConstructorArgReturnTypeVisitor extends JpqlVisitorAdapter<ValueHolder<Class<?>>> {
+    private static class ConstructorArgReturnTypeVisitor extends JpqlVisitorAdapter<ValueHolder<Class<?>>> {
 
+        @Override
         public boolean visit(JpqlClassName node, ValueHolder<Class<?>> valueHolder) {
             try {
                 valueHolder.setValue(toClass(node.toString()));
@@ -171,36 +170,41 @@ public class JpqlCompiler {
         }
     }
 
-    private class SelectVisitor extends JpqlVisitorAdapter<List<Path>> {
+    private static class SelectVisitor extends JpqlVisitorAdapter<List<Path>> {
 
         private final SelectPathVisitor selectPathVisitor = new SelectPathVisitor();
 
+        @Override
         public boolean visit(JpqlSelectExpression node, List<Path> selectedPaths) {
             node.visit(selectPathVisitor, selectedPaths);
             return false;
         }
 
+        @Override
         public boolean visit(JpqlConstructorParameter node, List<Path> selectedPaths) {
             node.visit(selectPathVisitor, selectedPaths);
             return false;
         }
 
+        @Override
         public boolean visit(JpqlSubselect node, List<Path> selectedPaths) {
             return false;
         }
     }
 
-    private class SelectPathVisitor extends JpqlVisitorAdapter<List<Path>> {
+    private static class SelectPathVisitor extends JpqlVisitorAdapter<List<Path>> {
 
         private final EntryVisitor entryVisitor = new EntryVisitor();
         private final QueryPreparator queryPreparator = new QueryPreparator();
 
+        @Override
         public boolean visit(JpqlClassName node, List<Path> selectedPaths) {
             return false;
         }
 
+        @Override
         public boolean visit(JpqlCase node, List<Path> selectedPaths) {
-            List<? extends Path> conditionalPaths = new ArrayList<ConditionalPath>();
+            List<? extends Path> conditionalPaths = new ArrayList<>();
             int start = isSimpleCase(node)? 1: 0;
             for (int i = start; i < node.jjtGetNumChildren() - 1; i++) {
                 node.jjtGetChild(i).visit(this, (List<Path>)conditionalPaths);
@@ -223,13 +227,15 @@ public class JpqlCompiler {
             return false;
         }
 
+        @Override
         public boolean visit(JpqlWhen node, List<Path> selectedPaths) {
             selectedPaths.add(extractConditionalPath(node));
             return false;
         }
 
+        @Override
         public boolean visit(JpqlCoalesce node, List<Path> selectedPaths) {
-            List<ConditionalPath> conditionalPaths = new ArrayList<ConditionalPath>();
+            List<ConditionalPath> conditionalPaths = new ArrayList<>();
             Node condition = null;
             for (int i = 0; i < node.jjtGetNumChildren(); i++) {
                 Node childNode = node.jjtGetChild(i);
@@ -253,6 +259,7 @@ public class JpqlCompiler {
             return false;
         }
 
+        @Override
         public boolean visit(JpqlNullif node, List<Path> selectedPaths) {
             Node child1 = node.jjtGetChild(0).clone();
             Node child2 = node.jjtGetChild(1).clone();
@@ -260,6 +267,7 @@ public class JpqlCompiler {
             return false;
         }
 
+        @Override
         public boolean visit(JpqlPath node, List<Path> selectedPaths) {
             if (entryVisitor.isEntry(node)) {
                 Path entryPath = new Path(node.toString());
@@ -271,6 +279,7 @@ public class JpqlCompiler {
             return false;
         }
 
+        @Override
         public boolean visit(JpqlIdentificationVariable node, List<Path> selectedPaths) {
             selectedPaths.add(new Path(node.toString()));
             return false;
@@ -305,6 +314,7 @@ public class JpqlCompiler {
 
     private class AliasVisitor extends JpqlVisitorAdapter<Set<TypeDefinition>> {
 
+        @Override
         public boolean visit(JpqlSelectExpression node, Set<TypeDefinition> typeDefinitions) {
             if (node.jjtGetNumChildren() == 1) {
                 return false;
@@ -325,10 +335,11 @@ public class JpqlCompiler {
             return false;
         }
 
+        @Override
         public boolean visit(JpqlFromItem node, Set<TypeDefinition> typeDefinitions) {
             String abstractSchemaName = node.jjtGetChild(0).toString().trim();
             Alias alias = getAlias(node);
-            Collection<Class<?>> types = new HashSet<Class<?>>();
+            Collection<Class<?>> types = new HashSet<>();
             EntityType<?> entityType = ManagedTypeFilter.forModel(metamodel).filter(abstractSchemaName);
             if (entityType != null) {
                 types.add(entityType.getJavaType());
@@ -352,24 +363,19 @@ public class JpqlCompiler {
             return false;
         }
 
+        @Override
         public boolean visit(JpqlInCollection node, Set<TypeDefinition> typeDefinitions) {
             return visitJoin(node, typeDefinitions, true, false);
         }
 
-        public boolean visit(JpqlInnerJoin node, Set<TypeDefinition> typeDefinitions) {
+        @Override
+        public boolean visit(JpqlJoin node, Set<TypeDefinition> typeDefinitions) {
             return visitJoin(node, typeDefinitions, true, false);
         }
 
-        public boolean visit(JpqlOuterJoin node, Set<TypeDefinition> typeDefinitions) {
-            return visitJoin(node, typeDefinitions, false, false);
-        }
-
-        public boolean visit(JpqlOuterFetchJoin node, Set<TypeDefinition> typeDefinitions) {
+        @Override
+        public boolean visit(JpqlFetchJoin node, Set<TypeDefinition> typeDefinitions) {
             return visitJoin(node, typeDefinitions, false, true);
-        }
-
-        public boolean visit(JpqlInnerFetchJoin node, Set<TypeDefinition> typeDefinitions) {
-            return visitJoin(node, typeDefinitions, true, true);
         }
 
         private boolean visitJoin(Node node,
@@ -404,6 +410,7 @@ public class JpqlCompiler {
             return false;
         }
 
+        @Override
         public boolean visit(JpqlSubselect node, Set<TypeDefinition> typeDefinitions) {
             return false;
         }
@@ -432,61 +439,66 @@ public class JpqlCompiler {
         }
     }
 
-    private class NamedParameterVisitor extends JpqlVisitorAdapter<Set<String>> {
+    private static class NamedParameterVisitor extends JpqlVisitorAdapter<Set<String>> {
 
+        @Override
         public boolean visit(JpqlNamedInputParameter node, Set<String> namedParameters) {
             namedParameters.add(node.jjtGetChild(0).getValue());
             return true;
         }
     }
 
-    private class PositionalParameterVisitor extends JpqlVisitorAdapter<Set<String>> {
+    private static class PositionalParameterVisitor extends JpqlVisitorAdapter<Set<String>> {
 
+        @Override
         public boolean visit(JpqlPositionalInputParameter node, Set<String> positionalParameters) {
             positionalParameters.add(node.getValue());
             return true;
         }
     }
 
-    private class PathVisitor extends JpqlVisitorAdapter<ValueHolder<Path>> {
+    private static class PathVisitor extends JpqlVisitorAdapter<ValueHolder<Path>> {
 
-        public Path getPath(Node node) {
-            ValueHolder<Path> result = new ValueHolder<Path>();
-            node.visit(this, result);
-            return result.getValue();
-        }
-
+        @Override
         public boolean visit(JpqlPath node, ValueHolder<Path> result) {
             result.setValue(new Path(node.toString()));
             return false;
         }
-    }
 
-    private class CountVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
-
-        public boolean isCount(Node node) {
-            ValueHolder<Boolean> result = new ValueHolder<Boolean>(Boolean.FALSE);
+        Path getPath(Node node) {
+            ValueHolder<Path> result = new ValueHolder<>();
             node.visit(this, result);
             return result.getValue();
         }
+    }
 
+    private static class CountVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
+
+        @Override
         public boolean visit(JpqlCount node, ValueHolder<Boolean> result) {
             result.setValue(Boolean.TRUE);
             return false;
         }
-    }
 
-    private class EntryVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
-
-        public boolean isEntry(JpqlPath node) {
-            ValueHolder<Boolean> result = new ValueHolder<Boolean>(Boolean.FALSE);
+        boolean isCount(Node node) {
+            ValueHolder<Boolean> result = new ValueHolder<>(Boolean.FALSE);
             node.visit(this, result);
             return result.getValue();
         }
+    }
 
+    private static class EntryVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
+
+        @Override
         public boolean visit(JpqlEntry node, ValueHolder<Boolean> result) {
             result.setValue(Boolean.TRUE);
             return false;
+        }
+
+        boolean isEntry(JpqlPath node) {
+            ValueHolder<Boolean> result = new ValueHolder<>(Boolean.FALSE);
+            node.visit(this, result);
+            return result.getValue();
         }
     }
 }

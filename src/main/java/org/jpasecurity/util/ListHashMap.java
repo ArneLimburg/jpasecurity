@@ -28,28 +28,45 @@ import java.util.NoSuchElementException;
 public class ListHashMap<K, V> extends AbstractCollectionHashMap<K, List<V>, V> implements ListMap<K, V> {
 
     /**
-     * {@inheritDoc}
+     * Constructs an empty <tt>ListHashMap</tt> with the default initial capacity
+     * (16) and the default load factor (0.75).
      */
     public ListHashMap() {
         super();
     }
 
     /**
-     * {@inheritDoc}
+     * Constructs an empty <tt>ListHashMap</tt> with the specified initial
+     * capacity and load factor.
+     *
+     * @param  initialCapacity the initial capacity
+     * @param  loadFactor      the load factor
+     * @throws IllegalArgumentException if the initial capacity is negative
+     *         or the load factor is nonpositive
      */
     public ListHashMap(int initialCapacity, float loadFactor) {
         super(initialCapacity, loadFactor);
     }
 
     /**
-     * {@inheritDoc}
+     * Constructs an empty <tt>ListHashMap</tt> with the specified initial
+     * capacity and load factor.
+     *
+     * @param  initialCapacity the initial capacity
+     * @throws IllegalArgumentException if the initial capacity is negative
      */
     public ListHashMap(int initialCapacity) {
         super(initialCapacity);
     }
 
     /**
-     * {@inheritDoc}
+     * Constructs a new <tt>ListHashMap</tt> with the same mappings as the
+     * specified <tt>Map</tt>.  The <tt>AbstractCollectionHashMap</tt> is created with
+     * default load factor (0.75) and an initial capacity sufficient to
+     * hold the mappings in the specified <tt>Map</tt>.
+     *
+     * @param   map the map whose mappings are to be placed in this map
+     * @throws  NullPointerException if the specified map is null
      */
     public ListHashMap(Map<? extends K, ? extends List<V>> map) {
         super(map);
@@ -58,6 +75,7 @@ public class ListHashMap<K, V> extends AbstractCollectionHashMap<K, List<V>, V> 
     /**
      * {@inheritDoc}
      */
+    @Override
     public V get(K key, int index) {
         List<V> list = get(key);
         if (list == null) {
@@ -69,6 +87,7 @@ public class ListHashMap<K, V> extends AbstractCollectionHashMap<K, List<V>, V> 
     /**
      * {@inheritDoc}
      */
+    @Override
     public int indexOf(K key, V value) {
         List<V> list = get(key);
         if (list == null) {
@@ -80,7 +99,8 @@ public class ListHashMap<K, V> extends AbstractCollectionHashMap<K, List<V>, V> 
     /**
      * {@inheritDoc}
      */
+    @Override
     protected List<V> createCollection() {
-        return new ArrayList<V>();
+        return new ArrayList<>();
     }
 }

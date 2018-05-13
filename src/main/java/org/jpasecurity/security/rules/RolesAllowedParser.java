@@ -35,13 +35,14 @@ public class RolesAllowedParser extends AbstractAnnotationParser<RolesAllowed, S
     private final RoleAllowedParser roleAllowedParser = new RoleAllowedParser();
 
     public SetMap<Set<AccessType>, String> parseAllowedRoles(Class<?> annotatedClass) {
-        SetMap<Set<AccessType>, String> rolesAllowed = new SetHashMap<Set<AccessType>, String>();
+        SetMap<Set<AccessType>, String> rolesAllowed = new SetHashMap<>();
         rolesAllowed.addAll(asSet(AccessType.ALL), rolesAllowedParser.parseAllowedRoles(annotatedClass));
         rolesAllowed.putAll(roleAllowedParser.parseAllowedRoles(annotatedClass));
         parse(annotatedClass, rolesAllowed);
         return rolesAllowed;
     }
 
+    @Override
     protected void process(RolesAllowed annotation, SetMap<Set<AccessType>, String> rolesAllowed) {
         for (RoleAllowed roleAllowed: annotation.value()) {
             rolesAllowed.add(asSet(roleAllowed.access()), roleAllowed.role());
@@ -49,7 +50,7 @@ public class RolesAllowedParser extends AbstractAnnotationParser<RolesAllowed, S
         rolesAllowed.addAll(asSet(annotation.access()), Arrays.asList(annotation.roles()));
     }
 
-    private <T> Set<T> asSet(T[] array) {
-        return new HashSet<T>(Arrays.asList(array));
+    private static <T> Set<T> asSet(T[] array) {
+        return new HashSet<>(Arrays.asList(array));
     }
 }

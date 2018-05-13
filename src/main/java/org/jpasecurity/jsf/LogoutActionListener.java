@@ -34,6 +34,7 @@ public class LogoutActionListener implements ActionListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogoutActionListener.class);
 
+    @Override
     public void processAction(ActionEvent actionEvent) {
         FacesContext context = FacesContext.getCurrentInstance();
         UINamingContainer loginComponent
@@ -46,7 +47,7 @@ public class LogoutActionListener implements ActionListener {
                 outcome = result.toString();
             } else {
                 outcome = context.getViewRoot().getViewId() + "?faces-redirect=true&includeViewParams=true";
-                String query = (String)context.getExternalContext().getRequestParameterMap().get("query");
+                String query = context.getExternalContext().getRequestParameterMap().get("query");
                 if (query != null && query.length() > 0) {
                     outcome = outcome + "&" + query;
                 }

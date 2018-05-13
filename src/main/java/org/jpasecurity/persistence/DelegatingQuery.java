@@ -35,71 +35,84 @@ public class DelegatingQuery<T> implements TypedQuery<T> {
 
     private Query delegate;
 
-    public DelegatingQuery(Query query) {
+    DelegatingQuery(Query query) {
         if (query == null) {
             throw new IllegalArgumentException("query may not be null");
         }
         delegate = query;
     }
 
+    @Override
     public TypedQuery<T> setParameter(int position, Calendar value, TemporalType temporalType) {
         delegate.setParameter(position, value, temporalType);
         return this;
     }
 
+    @Override
     public TypedQuery<T> setParameter(int position, Date value, TemporalType temporalType) {
         delegate.setParameter(position, value, temporalType);
         return this;
     }
 
+    @Override
     public TypedQuery<T> setParameter(int position, Object value) {
         delegate.setParameter(position, value);
         return this;
     }
 
+    @Override
     public TypedQuery<T> setParameter(String name, Calendar value, TemporalType temporalType) {
         delegate.setParameter(name, value, temporalType);
         return this;
     }
 
+    @Override
     public TypedQuery<T> setParameter(String name, Date value, TemporalType temporalType) {
         delegate.setParameter(name, value, temporalType);
         return this;
     }
 
+    @Override
     public TypedQuery<T> setParameter(String name, Object value) {
         delegate.setParameter(name, value);
         return this;
     }
 
+    @Override
     public TypedQuery<T> setFirstResult(int startPosition) {
         delegate.setFirstResult(startPosition);
         return this;
     }
 
+    @Override
     public TypedQuery<T> setMaxResults(int maxResult) {
         delegate.setMaxResults(maxResult);
         return this;
     }
 
+    @Override
     public TypedQuery<T> setFlushMode(FlushModeType flushMode) {
         delegate.setFlushMode(flushMode);
         return this;
     }
 
+    @Override
     public TypedQuery<T> setHint(String hintName, Object value) {
         delegate.setHint(hintName, value);
         return this;
     }
 
+    @Override
     public int executeUpdate() {
         return delegate.executeUpdate();
     }
 
+    @Override
     public List<T> getResultList() {
         return delegate.getResultList();
     }
 
+    @Override
     public T getSingleResult() {
         return (T)delegate.getSingleResult();
     }
@@ -108,82 +121,101 @@ public class DelegatingQuery<T> implements TypedQuery<T> {
         return delegate;
     }
 
+    @Override
     public int getMaxResults() {
         return delegate.getMaxResults();
     }
 
+    @Override
     public int getFirstResult() {
         return delegate.getFirstResult();
     }
 
+    @Override
     public Map<String, Object> getHints() {
         return delegate.getHints();
     }
 
+    @Override
     public <P> TypedQuery<T> setParameter(Parameter<P> param, P value) {
         delegate.setParameter(param, value);
         return this;
     }
 
+    @Override
     public TypedQuery<T> setParameter(Parameter<Calendar> param, Calendar value, TemporalType temporalType) {
         delegate.setParameter(param, value, temporalType);
         return this;
     }
 
+    @Override
     public TypedQuery<T> setParameter(Parameter<Date> param, Date value, TemporalType temporalType) {
         delegate.setParameter(param, value, temporalType);
         return this;
     }
 
+    @Override
     public Set<Parameter<?>> getParameters() {
         return delegate.getParameters();
     }
 
+    @Override
     public Parameter<?> getParameter(String name) {
         return delegate.getParameter(name);
     }
 
+    @Override
     public <P> Parameter<P> getParameter(String name, Class<P> type) {
         return delegate.getParameter(name, type);
     }
 
+    @Override
     public Parameter<?> getParameter(int position) {
         return delegate.getParameter(position);
     }
 
+    @Override
     public <P> Parameter<P> getParameter(int position, Class<P> type) {
         return delegate.getParameter(position, type);
     }
 
+    @Override
     public boolean isBound(Parameter<?> param) {
         return delegate.isBound(param);
     }
 
+    @Override
     public <P> P getParameterValue(Parameter<P> param) {
         return delegate.getParameterValue(param);
     }
 
+    @Override
     public Object getParameterValue(String name) {
         return delegate.getParameterValue(name);
     }
 
+    @Override
     public Object getParameterValue(int position) {
         return delegate.getParameterValue(position);
     }
 
+    @Override
     public FlushModeType getFlushMode() {
         return delegate.getFlushMode();
     }
 
+    @Override
     public TypedQuery<T> setLockMode(LockModeType lockMode) {
         delegate.setLockMode(lockMode);
         return this;
     }
 
+    @Override
     public LockModeType getLockMode() {
         return delegate.getLockMode();
     }
 
+    @Override
     public <P> P unwrap(Class<P> cls) {
         if (cls.isAssignableFrom(getClass())) {
             return (P)this;

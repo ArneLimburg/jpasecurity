@@ -69,15 +69,15 @@ public class EntityManagerEvaluatorTest {
     private JpqlCompiler compiler;
     private QueryEvaluationParameters parameters;
     private EntityManager entityManager;
-    private Map<Alias, Object> aliases = new HashMap<Alias, Object>();
-    private Map<String, Object> namedParameters = new HashMap<String, Object>();
-    private Map<Integer, Object> positionalParameters = new HashMap<Integer, Object>();
-    private SetMap<Class<?>, Object> entities = new SetHashMap<Class<?>, Object>();
+    private Map<Alias, Object> aliases = new HashMap<>();
+    private Map<String, Object> namedParameters = new HashMap<>();
+    private Map<Integer, Object> positionalParameters = new HashMap<>();
+    private SetMap<Class<?>, Object> entities = new SetHashMap<>();
     private EntityManagerEvaluator entityManagerEvaluator;
 
 
     @Before
-    public void initialize() throws NoSuchMethodException {
+    public void initialize() throws NoSuchMethodException, ParseException {
         metamodel = mock(Metamodel.class);
         SecurePersistenceUnitUtil persistenceUnitUtil = mock(SecurePersistenceUnitUtil.class);
 
@@ -90,7 +90,7 @@ public class EntityManagerEvaluatorTest {
         SingularAttribute parentAttribute = mock(SingularAttribute.class);
         PluralAttribute childrenAttribute = mock(PluralAttribute.class);
         PluralAttribute relatedAttribute = mock(PluralAttribute.class);
-        when(metamodel.getEntities()).thenReturn(new HashSet<EntityType<?>>(Arrays.<EntityType<?>>asList(
+        when(metamodel.getEntities()).thenReturn(new HashSet<>(Arrays.<EntityType<?>>asList(
                 methodAccessTestBeanType, childTestBeanType)));
         when(metamodel.entity(MethodAccessTestBean.class)).thenReturn(methodAccessTestBeanType);
         when(metamodel.managedType(MethodAccessTestBean.class)).thenReturn(methodAccessTestBeanType);
@@ -143,6 +143,7 @@ public class EntityManagerEvaluatorTest {
         when(entityManager.createQuery(
             anyString()))
             .thenAnswer(new Answer<Query>() {
+                @Override
                 public Query answer(InvocationOnMock invocation) throws Throwable {
                     Query mock = mock(Query.class);
                     when(mock.setParameter(anyString(), any())).thenReturn(mock);

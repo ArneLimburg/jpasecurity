@@ -36,18 +36,21 @@ public class SimpleNode implements Node {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void jjtOpen() {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void jjtClose() {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void jjtSetParent(Node n) {
         parent = (SimpleNode)n;
     }
@@ -55,6 +58,7 @@ public class SimpleNode implements Node {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Node jjtGetParent() {
         return parent;
     }
@@ -62,6 +66,7 @@ public class SimpleNode implements Node {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void jjtAddChild(Node n, int i) {
         if (children == null) {
             children = new SimpleNode[i + 1];
@@ -76,14 +81,17 @@ public class SimpleNode implements Node {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Node jjtGetChild(int i) {
         return children[i];
     }
 
+    @Override
     public void jjtSetChild(Node n, int i) {
         children[i] = (SimpleNode)n;
     }
 
+    @Override
     public void jjtRemoveChild(int i) {
         SimpleNode[] c = new SimpleNode[children.length - 1];
         System.arraycopy(children, 0, c, 0, i);
@@ -94,27 +102,34 @@ public class SimpleNode implements Node {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int jjtGetNumChildren() {
         return (children == null) ? 0 : children.length;
     }
 
-    /** Accept the visitor. **/
+    /**
+     * Accept the visitor.
+     **/
+    @Override
     public <T> boolean jjtAccept(JpqlParserVisitor<T> visitor, T data) {
         return visitor.visit(this, data);
     }
 
+    @Override
     public <T> void visit(JpqlParserVisitor<T> visitor) {
         visit(visitor, null);
     }
 
+    @Override
     public <T> void visit(JpqlParserVisitor<T> visitor, T data) {
-        if ((Boolean)jjtAccept(visitor, data) && children != null) {
-            for (int i = 0; i < children.length; i++) {
-                children[i].visit(visitor, data);
+        if (jjtAccept(visitor, data) && children != null) {
+            for (SimpleNode aChildren : children) {
+                aChildren.visit(visitor, data);
             }
         }
     }
 
+    @Override
     public String getValue() {
         return value;
     }
@@ -123,6 +138,7 @@ public class SimpleNode implements Node {
         this.value = value;
     }
 
+    @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         visit(new ToStringVisitor(), stringBuilder);
@@ -135,6 +151,7 @@ public class SimpleNode implements Node {
         return stringBuilder.toString();
     }
 
+    @Override
     public Node clone() {
         SimpleNode node;
         try {

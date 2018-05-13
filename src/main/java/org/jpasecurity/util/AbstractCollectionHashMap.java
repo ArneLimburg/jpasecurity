@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
 package org.jpasecurity.util;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
 
 /**
  * An implementation of the {@link CollectionMap} interface that inherits from {@link HashMap}.
@@ -29,28 +27,45 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
                                                                                implements CollectionMap<K, C, V> {
 
     /**
-     * {@inheritDoc}
+     * Constructs an empty <tt>AbstractCollectionHashMap</tt> with the default initial capacity
+     * (16) and the default load factor (0.75).
      */
     public AbstractCollectionHashMap() {
         super();
     }
 
     /**
-     * {@inheritDoc}
+     * Constructs an empty <tt>AbstractCollectionHashMap</tt> with the specified initial
+     * capacity and load factor.
+     *
+     * @param  initialCapacity the initial capacity
+     * @param  loadFactor      the load factor
+     * @throws IllegalArgumentException if the initial capacity is negative
+     *         or the load factor is nonpositive
      */
     public AbstractCollectionHashMap(int initialCapacity, float loadFactor) {
         super(initialCapacity, loadFactor);
     }
 
     /**
-     * {@inheritDoc}
+     * Constructs an empty <tt>AbstractCollectionHashMap</tt> with the specified initial
+     * capacity and load factor.
+     *
+     * @param  initialCapacity the initial capacity
+     * @throws IllegalArgumentException if the initial capacity is negative
      */
     public AbstractCollectionHashMap(int initialCapacity) {
         super(initialCapacity);
     }
 
     /**
-     * {@inheritDoc}
+     * Constructs a new <tt>AbstractCollectionHashMap</tt> with the same mappings as the
+     * specified <tt>Map</tt>.  The <tt>AbstractCollectionHashMap</tt> is created with
+     * default load factor (0.75) and an initial capacity sufficient to
+     * hold the mappings in the specified <tt>Map</tt>.
+     *
+     * @param   map the map whose mappings are to be placed in this map
+     * @throws  NullPointerException if the specified map is null
      */
     public AbstractCollectionHashMap(Map<? extends K, ? extends C> map) {
         super(map);
@@ -59,6 +74,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add(K key, V value) {
         getNotNull(key).add(value);
     }
@@ -66,6 +82,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addAll(K key, Collection<? extends V> values) {
         if (!values.isEmpty()) {
             getNotNull(key).addAll(values);
@@ -75,6 +92,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
     /**
      * {@inheritDoc}
      */
+    @Override
     public void putAll(Map<? extends K, ? extends C> map) {
         for (Map.Entry<? extends K, ? extends C> entry: map.entrySet()) {
             addAll(entry.getKey(), entry.getValue());
@@ -84,6 +102,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
     /**
      * {@inheritDoc}
      */
+    @Override
     public C getNotNull(K key) {
         C collection = get(key);
         if (collection == null) {
@@ -98,6 +117,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
      * and it is contained in this map or, if the specified value is no collection,
      * and there is a collection in this map, that contains the value.
      */
+    @Override
     public boolean containsValue(Object value) {
         if (super.containsValue(value)) {
             return true;
@@ -113,6 +133,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
     /**
      * {@inheritDoc}
      */
+    @Override
     public int size(K key) {
         C collection = get(key);
         if (collection == null) {

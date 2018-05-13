@@ -25,7 +25,7 @@ import org.jpasecurity.SecurityContext;
 
 public class DefaultSecurityContext implements SecurityContext {
 
-    private Map<Alias, Object> values = new HashMap<Alias, Object>();
+    private Map<Alias, Object> values = new HashMap<>();
 
     @Override
     public Collection<Alias> getAliases() {

@@ -37,6 +37,7 @@ public class AccessControlledEntityReference {
         return id;
     }
 
+    @Override
     public boolean equals(Object object) {
         if (!(object instanceof AccessControlledEntityReference)) {
             return false;
@@ -45,6 +46,7 @@ public class AccessControlledEntityReference {
         return getId() == reference.getId();
     }
 
+    @Override
     public int hashCode() {
         return Long.valueOf(getId()).hashCode();
     }

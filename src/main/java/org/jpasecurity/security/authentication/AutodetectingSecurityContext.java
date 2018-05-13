@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  *     an {@link EjbSecurityContext} is used.
  *   </li>
  *   <li>
- *     If none of the former conditions is true, a {@link DefaultAuthenticationProvider} is used.
+ *     If none of the former conditions is true, a {@link DefaultSecurityContext} is used.
  *   </li>
  * </ol>
  * @author Arne Limburg
@@ -59,8 +59,9 @@ public class AutodetectingSecurityContext implements SecurityContext {
     private static final Logger LOG = LoggerFactory.getLogger(AutodetectingSecurityContext.class);
 
     private static final List<String> SECURITY_CONTEXT_CLASS_NAMES;
+
     static {
-        List<String> authenticationProviderClassNames = new ArrayList<String>();
+        List<String> authenticationProviderClassNames = new ArrayList<>();
         authenticationProviderClassNames.add("org.jpasecurity.spring.authentication.SpringSecurityContext");
         authenticationProviderClassNames.add("org.jpasecurity.security.authentication.CdiSecurityContext");
         authenticationProviderClassNames.add("org.jpasecurity.jsf.authentication.JsfSecurityContext");
@@ -80,13 +81,11 @@ public class AutodetectingSecurityContext implements SecurityContext {
                 ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
                 Class<? extends SecurityContext> securityContextClass
                     = (Class<? extends SecurityContext>)currentClassLoader.loadClass(providerClassName);
-                LOG.info("autodetected presence of class " + providerClassName);
+                LOG.info("autodetected presence of class {}", providerClassName);
                 SecurityContext securityContext = securityContextClass.newInstance();
-                LOG.info("using " + providerClassName);
+                LOG.info("using {}", providerClassName);
                 return securityContext;
-            } catch (NoClassDefFoundError e) {
-                //ignore and try next authentication provider
-            } catch (ReflectiveOperationException e) {
+            } catch (NoClassDefFoundError | ReflectiveOperationException e) {
                 //ignore and try next authentication provider
             }
         }
@@ -94,14 +93,17 @@ public class AutodetectingSecurityContext implements SecurityContext {
         return new DefaultSecurityContext();
     }
 
+    @Override
     public Collection<Alias> getAliases() {
         return securityContext.getAliases();
     }
 
+    @Override
     public Object getAliasValue(Alias alias) {
         return securityContext.getAliasValue(alias);
     }
 
+    @Override
     public <T> Collection<T> getAliasValues(Alias alias) {
         return securityContext.getAliasValues(alias);
     }

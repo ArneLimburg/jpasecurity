@@ -34,11 +34,9 @@ import org.jpasecurity.Alias;
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.access.DefaultAccessManager;
 import org.jpasecurity.jpql.TypeDefinition;
+import org.jpasecurity.jpql.parser.JpqlFetchJoin;
 import org.jpasecurity.jpql.parser.JpqlFromItem;
-import org.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
-import org.jpasecurity.jpql.parser.JpqlInnerJoin;
-import org.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
-import org.jpasecurity.jpql.parser.JpqlOuterJoin;
+import org.jpasecurity.jpql.parser.JpqlJoin;
 import org.jpasecurity.jpql.parser.JpqlPath;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
@@ -68,6 +66,7 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
         node.visit(this, typeDefinitions);
     }
 
+    @Override
     public boolean visit(JpqlPath node, Set<TypeDefinition> typeDefinitions) {
         Alias alias = new Alias(node.jjtGetChild(0).getValue());
         Class<?> type = getType(alias, typeDefinitions);
@@ -87,8 +86,9 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
         return false;
     }
 
+    @Override
     public boolean visit(JpqlSubselect node, Set<TypeDefinition> typeDefinitions) {
-        Set<TypeDefinition> subselectDefinitions = new HashSet<TypeDefinition>(typeDefinitions);
+        Set<TypeDefinition> subselectDefinitions = new HashSet<>(typeDefinitions);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             node.jjtGetChild(i).visit(this, subselectDefinitions);
         }
@@ -97,6 +97,7 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
         return false;
     }
 
+    @Override
     public boolean visit(JpqlFromItem node, Set<TypeDefinition> typeDefinitions) {
         String typeName = node.jjtGetChild(0).toString().trim();
         Alias alias = new Alias(node.jjtGetChild(1).toString().trim());
@@ -105,19 +106,13 @@ public class MappingEvaluator extends JpqlVisitorAdapter<Set<TypeDefinition>> {
         return false;
     }
 
-    public boolean visit(JpqlInnerJoin node, Set<TypeDefinition> typeDefinitions) {
+    @Override
+    public boolean visit(JpqlJoin node, Set<TypeDefinition> typeDefinitions) {
         return visitJoin(node, typeDefinitions);
     }
 
-    public boolean visit(JpqlOuterJoin node, Set<TypeDefinition> typeDefinitions) {
-        return visitJoin(node, typeDefinitions);
-    }
-
-    public boolean visit(JpqlInnerFetchJoin node, Set<TypeDefinition> typeDefinitions) {
-        return visitJoin(node, typeDefinitions);
-    }
-
-    public boolean visit(JpqlOuterFetchJoin node, Set<TypeDefinition> typeDefinitions) {
+    @Override
+    public boolean visit(JpqlFetchJoin node, Set<TypeDefinition> typeDefinitions) {
         return visitJoin(node, typeDefinitions);
     }
 

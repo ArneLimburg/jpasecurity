@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
-
 package org.jpasecurity.jpql.parser;
 
 /**
  * This class is to be implemented by objects that want to visit a JPQL-tree.
+ *
  * @author Arne Limburg
+ * @param <T> The visitor data type.
  */
 public interface JpqlParserVisitor<T> {
 
@@ -111,12 +112,20 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlInCollection node, T data);
 
     /**
+     * Called when visiting a <tt>JpqlFetchJoin</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlFetchJoin node, T data);
+
+    /**
      * Called when visiting a <tt>JpqlInnerJoin</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlInnerJoin node, T data);
+    boolean visit(JpqlJoin node, T data);
 
     /**
      * Called when visiting a <tt>JpqlOuterJoin</tt> node.
@@ -124,23 +133,7 @@ public interface JpqlParserVisitor<T> {
      * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlOuterJoin node, T data);
-
-    /**
-     * Called when visiting a <tt>JpqlOuterFetchJoin</tt> node.
-     * @param node the current node
-     * @param data that may be needed by the visitor
-     * @return <tt>true</tt>, if the node should go on processing the children
-     */
-    boolean visit(JpqlOuterFetchJoin node, T data);
-
-    /**
-     * Called when visiting a <tt>JpqlInnerFetchJoin</tt> node.
-     * @param node the current node
-     * @param data that may be needed by the visitor
-     * @return <tt>true</tt>, if the node should go on processing the children
-     */
-    boolean visit(JpqlInnerFetchJoin node, T data);
+    boolean visit(JpqlJoinSpec node, T data);
 
     /**
      * Called when visiting a <tt>JpqlWith</tt> node.
@@ -165,6 +158,14 @@ public interface JpqlParserVisitor<T> {
      * @return <tt>true</tt>, if the node should go on processing the children
      */
     boolean visit(JpqlCollectionValuedPath node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlTreatJoin</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlTreatJoin node, T data);
 
     /**
      * Called when visiting a <tt>JpqlSetClause</tt> node.
@@ -301,6 +302,14 @@ public interface JpqlParserVisitor<T> {
      * @return <tt>true</tt>, if the node should go on processing the children
      */
     boolean visit(JpqlSum node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlObjectFunction</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlObjectFunction node, T data);
 
     /**
      * Called when visiting a <tt>JpqlWhere</tt> node.
@@ -695,6 +704,14 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlSize node, T data);
 
     /**
+     * Called when visiting a <tt>JpqlIndex</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlIndex node, T data);
+
+    /**
      * Called when visiting a <tt>JpqlCurrentDate</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor
@@ -767,6 +784,22 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlIdentificationVariable node, T data);
 
     /**
+     * Called when visiting a <tt>JpqlNumericLiteral</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlLiteral node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlNumericLiteral</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlNumericLiteral node, T data);
+
+    /**
      * Called when visiting a <tt>JpqlIntegerLiteral</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor
@@ -775,12 +808,44 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlIntegerLiteral node, T data);
 
     /**
-     * Called when visiting a <tt>JpqlDecimalLiteral</tt> node.
+     * Called when visiting a <tt>JpqlLongLiteral</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor
      * @return <tt>true</tt>, if the node should go on processing the children
      */
-    boolean visit(JpqlDecimalLiteral node, T data);
+    boolean visit(JpqlLongLiteral node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlBigIntegerLiteral</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlBigIntegerLiteral node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlFloatLiteral</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlFloatLiteral node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlFloatLiteral</tt> node.
+     * @param node the current JpqlDoubleLiteral
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlDoubleLiteral node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlBigDecimalLiteral</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlBigDecimalLiteral node, T data);
 
     /**
      * Called when visiting a <tt>JpqlBooleanLiteral</tt> node.
@@ -837,6 +902,14 @@ public interface JpqlParserVisitor<T> {
      * @return <tt>true</tt>, if the node should go on processing the children
      */
     boolean visit(JpqlTrimCharacter node, T data);
+
+    /**
+     * Called when visiting a <tt>JpqlTreat</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlTreat node, T data);
 
     /**
      * Called when visiting a <tt>JpqlAggregatePath</tt> node.
