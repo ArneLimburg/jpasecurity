@@ -45,6 +45,7 @@ import org.jpasecurity.jpql.parser.JpqlSelectExpressions;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
+import org.jpasecurity.jpql.parser.JpqlWith;
 import org.jpasecurity.jpql.parser.Node;
 import org.jpasecurity.jpql.parser.ParseException;
 import org.jpasecurity.security.AccessRule;
@@ -195,6 +196,10 @@ public class AccessRulesParser {
             for (int i = 0; i < select.jjtGetNumChildren(); i++) {
                 select.jjtGetChild(i).visit(this, subselectAliases);
             }
+            return false;
+        }
+
+        public boolean visit(JpqlWith with, Set<Alias> declaredAliases) {
             return false;
         }
 
