@@ -40,38 +40,38 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class AccessRulesParserTest {
 
-  @Mock
-  private Metamodel metamodel;
-  @Mock
-  private ManagedType<?> managedType;
-  @Mock
-  private SecurityContext securityContext;
-  @Mock
-  private AccessRulesProvider accessRulesProvider;
+    @Mock
+    private Metamodel metamodel;
+    @Mock
+    private ManagedType<?> managedType;
+    @Mock
+    private SecurityContext securityContext;
+    @Mock
+    private AccessRulesProvider accessRulesProvider;
 
-  private AccessRulesParser parser;
+    private AccessRulesParser parser;
 
-  @Before
-  public void createAccessRulesParser() {
-    when(metamodel.getManagedTypes()).thenReturn((Set)singleton(managedType));
-    parser = new AccessRulesParser("test", metamodel, securityContext, accessRulesProvider);
-  }
+    @Before
+    public void createAccessRulesParser() {
+        when(metamodel.getManagedTypes()).thenReturn((Set)singleton(managedType));
+        parser = new AccessRulesParser("test", metamodel, securityContext, accessRulesProvider);
+    }
 
-  @Test
-  public void subselectWithWithClause() {
-    when(managedType.getJavaType()).thenReturn((Class)RuleWithSubselectAndWith.class);
-    Collection<AccessRule> accessRules = parser.parseAccessRules();
-    assertThat(accessRules, hasSize(1));
-    assertThat(accessRules.iterator().next().getStatement().toString(),
-        is(" GRANT  CREATE  READ  UPDATE  DELETE ACCESS TO"
-            + " org.jpasecurity.security.rules.AccessRulesParserTest$RuleWithSubselectAndWith"
-            + " ruleWithSubselectAndWith"
-            + " WHERE  EXISTS ( SELECT b FROM RuleWithSubselectAndWith b"
-            + " LEFT OUTER JOIN b.parent p  WITH p IS NOT NULL  ) "));
-  }
+    @Test
+    public void subselectWithWithClause() {
+        when(managedType.getJavaType()).thenReturn((Class)RuleWithSubselectAndWith.class);
+        Collection<AccessRule> accessRules = parser.parseAccessRules();
+        assertThat(accessRules, hasSize(1));
+        assertThat(accessRules.iterator().next().getStatement().toString(),
+            is(" GRANT  CREATE  READ  UPDATE  DELETE ACCESS TO"
+                + " org.jpasecurity.security.rules.AccessRulesParserTest$RuleWithSubselectAndWith"
+                + " ruleWithSubselectAndWith"
+                + " WHERE  EXISTS ( SELECT b FROM RuleWithSubselectAndWith b"
+                + " LEFT OUTER JOIN b.parent p  WITH p IS NOT NULL  ) "));
+    }
 
-  @Permit(where = "EXISTS (SELECT b FROM RuleWithSubselectAndWith b LEFT JOIN b.parent p WITH p IS NOT NULL)")
-  public static class RuleWithSubselectAndWith {
+    @Permit(where = "EXISTS (SELECT b FROM RuleWithSubselectAndWith b LEFT JOIN b.parent p WITH p IS NOT NULL)")
+    public static class RuleWithSubselectAndWith {
 
-  }
+    }
 }
