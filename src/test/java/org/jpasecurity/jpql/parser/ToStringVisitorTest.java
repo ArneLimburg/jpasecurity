@@ -173,26 +173,31 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
             + " COALESCE(bean.name) AND bean.name");
     }
+
     @Test
     public void parseWhereCoalesceBetween3Expression() throws ParseException {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
             + " bean.name AND COALESCE(bean.name)");
     }
+
     @Test
     public void parseWhereCoalesceBetween4Expression() throws ParseException {
         assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) BETWEEN"
             + " COALESCE(bean.name) AND bean.name");
     }
+
     @Test
     public void parseWhereCoalesceBetween5Expression() throws ParseException {
         assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) BETWEEN"
             + " bean.name AND COALESCE(bean.name)");
     }
+
     @Test
     public void parseWhereCoalesceBetween6Expression() throws ParseException {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
             + " COALESCE(bean.name) AND COALESCE(bean.name)");
     }
+
     @Test
     public void parseWhereCoalesceBetween7Expression() throws ParseException {
         assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) BETWEEN"

@@ -36,8 +36,6 @@ import org.junit.Test;
 /**
  * @author Arne Limburg
  */
-//TODO
-@Ignore
 public class SubclassingTest {
 
     public static final String USER = "user";
@@ -82,6 +80,8 @@ public class SubclassingTest {
         entityManager.close();
     }
 
+    //TODO
+    @Ignore
     @Test
     public void accessRulesOnSubclassesWithGenericSuperclass() {
         EntityManager entityManager = factory.createEntityManager();

@@ -82,6 +82,12 @@
         </developer>
     </developers>
     <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -663,9 +669,12 @@
                 <activeByDefault>true</activeByDefault>
                 <property>
                     <name>provider</name>
-                    <value>org.hibernate.ejb.HibernatePersistence</value>
+                    <value>org.hibernate.jpa.HibernatePersistenceProvider</value>
                 </property>
             </activation>
+            <properties>
+                <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -689,6 +698,9 @@
                     <value>org.eclipse.persistence.jpa.PersistenceProvider</value>
                 </property>
             </activation>
+            <properties>
+                <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.persistence</groupId>
@@ -712,6 +724,9 @@
                     <value>org.apache.openjpa.persistence.PersistenceProviderImpl</value>
                 </property>
             </activation>
+            <properties>
+                <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
