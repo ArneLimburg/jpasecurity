@@ -158,13 +158,6 @@ TOKEN[IGNORE_CASE]: {
   | <SQRT: "SQRT">
   | <MOD: "MOD">
   | <SIZE: "SIZE">
-  | <CASE: "CASE">
-  | <WHEN: "WHEN">
-  | <THEN: "THEN">
-  | <ELSE: "ELSE">
-  | <END: "END">
-  | <COALESCE: "COALESCE">
-  | <NULLIF: "NULLIF">
 }
 
 TOKEN[IGNORE_CASE]: {
@@ -197,6 +190,13 @@ TOKEN[IGNORE_CASE]: {
   | <IN: "IN">
   | <SET: "SET">
   | <OBJECT: "OBJECT">
+  | <CASE: "CASE">
+  | <WHEN: "WHEN">
+  | <THEN: "THEN">
+  | <ELSE: "ELSE">
+  | <END: "END">
+  | <COALESCE: "COALESCE">
+  | <NULLIF: "NULLIF">
 }
 
 /* inspired by the Java 1.0.2 specification */
