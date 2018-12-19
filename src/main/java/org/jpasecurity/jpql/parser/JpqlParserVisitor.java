@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
+
 package org.jpasecurity.jpql.parser;
 
 /**
  * This class is to be implemented by objects that want to visit a JPQL-tree.
- *
  * @author Arne Limburg
- * @param <T> The visitor data type.
  */
 public interface JpqlParserVisitor<T> {
 

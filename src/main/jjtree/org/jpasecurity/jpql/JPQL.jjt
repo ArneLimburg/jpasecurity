@@ -18,7 +18,7 @@
  */
 /**
  *  An JP QL grammar parser.
- *  It is based on the parser of OpenJPA by Patrick Linskey and Marc Prud"hommeaux
+ *  It is based on the parser of OpenJPA by Patrick Linskey and Marc Prud'hommeaux
  *  @author Arne Limburg
  */
 options {
@@ -36,37 +36,38 @@ options {
     LOOKAHEAD = 1;
 
     // debugging variables
-    //DEBUG_PARSER = true;             // simple parser debug
-    //DEBUG_TOKEN_MANAGER = true;      // more verbose token manager debug
-    //DEBUG_LOOKAHEAD = true;          // more verbose lookahead debug
-    SANITY_CHECK = true;                // check for left-recursion, etc (must always be true)
+    // DEBUG_PARSER = true;            // simple parser debug
+    // DEBUG_TOKEN_MANAGER = true;     // more verbose token manager debug
+    // DEBUG_LOOKAHEAD = true;         // more verbose lookahead debug
+    SANITY_CHECK = true; // check for left-recursion, etc (must always be true)
 
     FORCE_LA_CHECK = true;
 }
 
 PARSER_BEGIN(JpqlParser)
+
 package org.jpasecurity.jpql.parser;
 
 import java.io.*;
 
 public class JpqlParser {
-
-    public JpqlParser() throws ParseException {
-        this("");
+    
+    public JpqlParser() {
+        this(new StringReader(""));
     }
-
+    
     public JpqlStatement parseQuery(String query) throws ParseException {
-        ReInit(query);
+        ReInit(new StringReader(query));
         return jpqlStatement();
     }
-
-    public JpqlAccessRule parseRule(String accessRule) throws ParseException {
-        ReInit(accessRule);
+    
+    public JpqlAccessRule parseRule(String rule) throws ParseException {
+        ReInit(new StringReader(rule));
         return jpqlAccessRule();
     }
-
+    
     public JpqlWhere parseWhereClause(String whereClause) throws ParseException {
-        ReInit(whereClause);
+        ReInit(new StringReader(whereClause));
         return whereClause();
     }
 }
@@ -74,148 +75,135 @@ PARSER_END(JpqlParser)
 
 SKIP: {
     " "
-    | "\n"
-    | "\r"
-    | "\t"
+  | "\n"
+  | "\r"
+  | "\t"
 }
 
 TOKEN[IGNORE_CASE]: {
     <COMMA: ",">
-
-    | <DOT: ".">
-
-    | <EQ: "=">
-    | <NE: "<>">
-    | <NEQ: "!=">
-    | <GT: ">">
-    | <GE: ">=">
-    | <LT: "<">
-    | <LE: "<=">
-
-    | <PLUS: "+">
-    | <MINUS: "-">
-
-    | <TIMES: "*">
-    | <DIV: "/">
-
-    | <NEW: "NEW">
-
-    | <ALL: "ALL">
-    | <ANY: "ANY">
-    | <EXISTS: "EXISTS">
-    | <SOME: "SOME">
-    | <EMPTY: "EMPTY">
-
-    | <ASC: "ASC">
-    | <DESC: "DESC">
-    | <ORDER: "ORDER">
-    | <BY: "BY">
-
-    | <IS: "IS">
-    | <MEMBER: "MEMBER">
-    | <OF: "OF">
-    | <LIKE: "LIKE">
-    | <ESCAPE: "ESCAPE">
-    | <BETWEEN: "BETWEEN">
-
-    | <NULL: "NULL">
-    | <KEY: "KEY">
-    | <VALUE: "VALUE">
-    | <TYPE: "TYPE">
-    | <ENTRY: "ENTRY">
+  | <DOT: ".">
+  | <EQ: "=">
+  | <NE: "<>">
+  | <NEQ: "!=">
+  | <GT: ">">
+  | <GE: ">=">
+  | <LT: "<">
+  | <LE: "<=">
+  | <PLUS: "+">
+  | <MINUS: "-">
+  | <TIMES: "*">
+  | <DIV: "/">
+  | <NEW: "NEW">
+  | <ALL: "ALL">
+  | <ANY: "ANY">
+  | <EXISTS: "EXISTS">
+  | <SOME: "SOME">
+  | <EMPTY: "EMPTY">
+  | <ASC: "ASC">
+  | <DESC: "DESC">
+  | <ORDER: "ORDER">
+  | <BY: "BY">
+  | <IS: "IS">
+  | <MEMBER: "MEMBER">
+  | <OF: "OF">
+  | <LIKE: "LIKE">
+  | <ESCAPE: "ESCAPE">
+  | <BETWEEN: "BETWEEN">
+  | <NULL: "NULL">
 }
 
 TOKEN[IGNORE_CASE]: { /* aggregates */
     <AVG: "AVG">
-    | <MIN: "MIN">
-    | <MAX: "MAX">
-    | <SUM: "SUM">
-    | <COUNT: "COUNT">
+  | <MIN: "MIN">
+  | <MAX: "MAX">
+  | <SUM: "SUM">
+  | <COUNT: "COUNT">
 }
 
 TOKEN[IGNORE_CASE]: { /* boolean arithmetic */
     <OR: "OR">
-    | <AND: "AND">
-    | <NOT: "NOT">
+  | <AND: "AND">
+  | <NOT: "NOT">
 }
 
 TOKEN: { /* query hints */
     <QUERY_OPTIMIZE_NOCACHE: "QUERY_OPTIMIZE_NOCACHE">
-    | <IS_ACCESSIBLE_NOCACHE: "IS_ACCESSIBLE_NOCACHE">
-    | <IS_ACCESSIBLE_NODB: "IS_ACCESSIBLE_NODB">
+  | <IS_ACCESSIBLE_NOCACHE: "IS_ACCESSIBLE_NOCACHE">
+  | <IS_ACCESSIBLE_NODB: "IS_ACCESSIBLE_NODB">
+}
+
+TOKEN[IGNORE_CASE]: {
+    <KEY: "KEY">
+  | <VALUE: "VALUE">
+  | <ENTRY: "ENTRY">
+  | <TYPE: "TYPE">
 }
 
 TOKEN[IGNORE_CASE]: { /* functions returning strings */
     <CONCAT: "CONCAT">
-    | <SUBSTRING: "SUBSTRING">
-    | <TRIM: "TRIM">
-    | <LOWER: "LOWER">
-    | <UPPER: "UPPER">
+  | <SUBSTRING: "SUBSTRING">
+  | <TRIM: "TRIM">
+  | <LOWER: "LOWER">
+  | <UPPER: "UPPER">
 }
 
 TOKEN[IGNORE_CASE]: { /* trim specification */
     <LEADING: "LEADING">
-    | <TRAILING: "TRAILING">
-    | <BOTH: "BOTH">
+  | <TRAILING: "TRAILING">
+  | <BOTH: "BOTH">
 }
 
 TOKEN[IGNORE_CASE]: { /* functions returning numerics */
     <LENGTH: "LENGTH">
-    | <LOCATE: "LOCATE">
-    | <ABS: "ABS">
-    | <SQRT: "SQRT">
-    | <MOD: "MOD">
-    | <SIZE: "SIZE">
-    | <INDEX: "INDEX">
+  | <LOCATE: "LOCATE">
+  | <ABS: "ABS">
+  | <SQRT: "SQRT">
+  | <MOD: "MOD">
+  | <SIZE: "SIZE">
+  | <INDEX: "INDEX">
 }
 
 TOKEN[IGNORE_CASE]: { /* functions returning datetime */
     <CURRENT_DATE: "CURRENT_DATE">
-    | <CURRENT_TIME: "CURRENT_TIME">
-    | <CURRENT_TIMESTAMP: "CURRENT_TIMESTAMP">
+  | <CURRENT_TIME: "CURRENT_TIME">
+  | <CURRENT_TIMESTAMP: "CURRENT_TIMESTAMP">
 }
 
 TOKEN[IGNORE_CASE]: { /* type of query */
     <SELECT: "SELECT">
-    | <DISTINCT: "DISTINCT">
-    | <FROM: "FROM">
-
-    | <UPDATE: "UPDATE">
-    | <DELETE: "DELETE">
-
-    | <WHERE: "WHERE">
-    | <GROUP: "GROUP">
-    | <HAVING: "HAVING">
-    | <TREAT: "TREAT">
-
-    | <AS: "AS">
-    | <LEFT: "LEFT">
-    | <OUTER: "OUTER">
-    | <INNER: "INNER">
-    | <JOIN: "JOIN">
-    | <FETCH: "FETCH">
-    | <IN: "IN">
-    | <SET: "SET">
-
-    | <OBJECT: "OBJECT">
-
-    | <CASE: "CASE">
-    | <WHEN: "WHEN">
-    | <ELSE: "ELSE">
-    | <THEN: "THEN">
-    | <END: "END">
-    | <NULLIF: "NULLIF">
-    | <COALESCE: "COALESCE">
-    | <CLASS: "CLASS">
-
-    | <GRANT: "GRANT">
-    | <CREATE: "CREATE">
-    | <READ: "READ">
-    | <ACCESS: "ACCESS">
-    | <TO: "TO">
-
-    | <ON: "ON">
-    | <WITH: "WITH">
+  | <DISTINCT: "DISTINCT">
+  | <FROM: "FROM">
+  | <UPDATE: "UPDATE">
+  | <DELETE: "DELETE">
+  | <GRANT: "GRANT">
+  | <CREATE: "CREATE">
+  | <READ: "READ">
+  | <ACCESS: "ACCESS">
+  | <TO: "TO">
+  | <WHERE: "WHERE">
+  | <GROUP: "GROUP">
+  | <HAVING: "HAVING">
+  | <TREAT: "TREAT">
+  | <AS: "AS">
+  | <LEFT: "LEFT">
+  | <OUTER: "OUTER">
+  | <INNER: "INNER">
+  | <JOIN: "JOIN">
+  | <FETCH: "FETCH">
+  | <WITH: "WITH">
+  | <IN: "IN">
+  | <SET: "SET">
+  | <OBJECT: "OBJECT">
+  | <CASE: "CASE">
+  | <WHEN: "WHEN">
+  | <THEN: "THEN">
+  | <ELSE: "ELSE">
+  | <END: "END">
+  | <COALESCE: "COALESCE">
+  | <NULLIF: "NULLIF">
+  | <CLASS: "CLASS">
+  | <ON: "ON">
 }
 
 /* inspired by the Java 1.0.2 specification */
@@ -274,31 +262,35 @@ TOKEN: /* literals */
     | < TIME_LITERAL: "{t \"" (["0"-"9", ":"])* "\"}" >
     | < TIMESTAMP_LITERAL: "{ts \"" (["0"-"9", "-", ":", " ", "."])* "\"}" >
 }
-
-TOKEN[IGNORE_CASE]: { /* boolean literals can be case-insensitive */
+TOKEN[IGNORE_CASE]: /* boolean literals can be case-insensitive */
+{
     < BOOLEAN_LITERAL: "TRUE" | "FALSE" >
 }
-
 /* From the Java 1.0.2 specification */
 TOKEN : /* IDENTIFIERS */
 {
-    < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
-    | < #LETTER: [
-        "\u0024",             // $
-        "\u0041"-"\u005a",     // A-Z
-        "\u005f",             // _
-        "\u0061"-"\u007a",     // a-z
-        "\u00c0"-"\u00d6",
-        "\u00d8"-"\u00f6",
-        "\u00f8"-"\u00ff",
-        "\u0100"-"\u1fff",
-        "\u3040"-"\u318f",
-        "\u3300"-"\u337f",
-        "\u3400"-"\u3d2d",
-        "\u4e00"-"\u9fff",
-        "\uf900"-"\ufaff"
-            ] >
-    | < #DIGIT: [
+  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+    |
+  < #LETTER:
+      [
+       "\u0024",             // $
+       "\u0041"-"\u005a",     // A-Z
+       "\u005f",             // _
+       "\u0061"-"\u007a",     // a-z
+       "\u00c0"-"\u00d6",
+       "\u00d8"-"\u00f6",
+       "\u00f8"-"\u00ff",
+       "\u0100"-"\u1fff",
+       "\u3040"-"\u318f",
+       "\u3300"-"\u337f",
+       "\u3400"-"\u3d2d",
+       "\u4e00"-"\u9fff",
+       "\uf900"-"\ufaff"
+      ]
+  >
+    |
+  < #DIGIT:
+      [
        "\u0030"-"\u0039",     // 0-9
        "\u0660"-"\u0669",
        "\u06f0"-"\u06f9",
@@ -314,7 +306,8 @@ TOKEN : /* IDENTIFIERS */
        "\u0e50"-"\u0e59",
        "\u0ed0"-"\u0ed9",
        "\u1040"-"\u1049"
-            ] >
+      ]
+  >
 }
 
 JpqlStatement jpqlStatement() #Statement: {} {
@@ -348,12 +341,8 @@ void deleteClause() #From: {} {
 }
 
 void fromClause() #From: {} {
-    <FROM> identificationVariableDeclaration() (
-        <COMMA> (
-            LOOKAHEAD(identificationVariableDeclaration()) identificationVariableDeclaration()
-            | LOOKAHEAD(collectionMemberDeclaration()) collectionMemberDeclaration()
-        )
-    )*
+    <FROM> identificationVariableDeclaration()
+    (<COMMA> (LOOKAHEAD(identificationVariableDeclaration()) identificationVariableDeclaration() | LOOKAHEAD(collectionMemberDeclaration()) collectionMemberDeclaration()))*
 }
 
 void toClause() #From: {} {
@@ -365,7 +354,7 @@ void identificationVariableDeclaration() #IdentificationVariableDeclaration: {} 
 }
 
 void rangeVariableDeclaration() #FromItem: {} {
-    entityName() [LOOKAHEAD(1) <AS>] [LOOKAHEAD(identificationVariable()) identificationVariable()]
+    entityName() [LOOKAHEAD(1) <AS>] [LOOKAHEAD(identificationVariable())identificationVariable()]
 }
 
 void fetchJoin() #FetchJoin: {} {
@@ -399,8 +388,7 @@ void joinAssociationPathExpression() #CollectionValuedPath: {} {
 
 void collectionMemberDeclaration() #InCollection: {} {
     // synonymous with "INNER JOIN path AS identifier" (InnerJoin)
-    <IN> <LEFT_PAREN> joinAssociationPathExpression() <RIGHT_PAREN>
-    [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
+    <IN> <LEFT_PAREN> joinAssociationPathExpression() <RIGHT_PAREN> [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
 }
 
 void qualifiedPathExpression() #Path: {} {
@@ -428,7 +416,7 @@ void entry() #Entry: {} {
 }
 
 void singleValuedPathExpression() #Path: {} {
-    ( identificationVariable() (<DOT> objectField())* )
+    (identificationVariable() (<DOT> objectField())*)
     | LOOKAHEAD(qualifiedPathExpression()) ((key() | value()) (<DOT> objectField())+)
     | LOOKAHEAD(qualifiedIdentificationVariable()) qualifiedIdentificationVariable()
     | treatJoin()
@@ -460,19 +448,19 @@ void subqueryFromClause() #From: {} {
 
 void subqueryFromItem(): {} {
     LOOKAHEAD(collectionMemberDeclaration()) collectionMemberDeclaration()
-    | LOOKAHEAD(identificationVariableDeclaration()) identificationVariableDeclaration()
+  | LOOKAHEAD(identificationVariableDeclaration()) identificationVariableDeclaration()
 }
 
 void newValue() #UpdateValue: {} {
     LOOKAHEAD(scalarExpression()) scalarExpression()
-    | LOOKAHEAD(arithmeticExpression()) arithmeticExpression()
-    | LOOKAHEAD(stringPrimary()) stringPrimary()
-    | LOOKAHEAD(datetimePrimary()) datetimePrimary()
-    | LOOKAHEAD(booleanPrimary()) booleanPrimary()
-    | LOOKAHEAD(enumPrimary()) enumPrimary()
-    | LOOKAHEAD(simpleEntityExpression()) simpleEntityExpression()
-    | LOOKAHEAD(entityTypeExpression()) entityTypeExpression()
-    | LOOKAHEAD(1) <NULL>
+  | LOOKAHEAD(arithmeticExpression()) arithmeticExpression()
+  | LOOKAHEAD(stringPrimary()) stringPrimary()
+  | LOOKAHEAD(datetimePrimary()) datetimePrimary()
+  | LOOKAHEAD(booleanPrimary()) booleanPrimary()
+  | LOOKAHEAD(enumPrimary()) enumPrimary()
+  | LOOKAHEAD(simpleEntityExpression()) simpleEntityExpression()
+  | LOOKAHEAD(entityTypeExpression()) entityTypeExpression()
+  | LOOKAHEAD(1) <NULL>
 }
 
 void simpleEntityExpression(): {} {
@@ -509,11 +497,11 @@ void selectExpressions() #SelectExpressions: {} {
 
 void selectExpression() #SelectExpression: {} {
     LOOKAHEAD(aggregateExpression()) aggregateExpression() [[<AS>] identificationVariable()]
-    | LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() [[<AS>] identificationVariable()]
-    | LOOKAHEAD(scalarExpression()) scalarExpression() [[<AS>] identificationVariable()]
-    | identificationVariable() [[<AS>] identificationVariable()]
-    | LOOKAHEAD(objectFunction()) objectFunction()
-    | constructorExpression() [[<AS>] identificationVariable()]
+        | LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() [[<AS>] identificationVariable()]
+        | LOOKAHEAD(scalarExpression()) scalarExpression() [[<AS>] identificationVariable()]
+        | identificationVariable() [[<AS>] identificationVariable()]
+        | LOOKAHEAD(objectFunction()) objectFunction()
+        | constructorExpression() [[<AS>] identificationVariable()]
 }
 
 void subselectExpressions() #SelectExpressions: {} {
@@ -537,14 +525,14 @@ void classname() #ClassName: {}
 }
 
 void constructorParameters(): {} {
-    <LEFT_PAREN> (constructorParameter()) (<COMMA> (constructorParameter()))* <RIGHT_PAREN>
+    <LEFT_PAREN> (constructorParameter()) (<COMMA> (constructorParameter()))* <RIGHT_PAREN> 
 }
 
 void constructorParameter() #ConstructorParameter: {} {
     LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression()
-    | LOOKAHEAD(scalarExpression()) scalarExpression()
-    | LOOKAHEAD(aggregateExpression()) aggregateExpression()
-    | inputParameter()
+        | LOOKAHEAD(scalarExpression()) scalarExpression()
+        | LOOKAHEAD(aggregateExpression()) aggregateExpression()
+        | inputParameter()
 }
 
 void aggregateExpression(): {} {
@@ -601,7 +589,10 @@ void objectFunction() #ObjectFunction: {} {
 }
 
 JpqlWhere whereClause() #Where: {} {
-    <WHERE> conditionalExpression() { return jjtThis; }
+    <WHERE> conditionalExpression() 
+    {
+        return jjtThis;
+    }
 }
 
 void groupByClause() #GroupBy: {} {
@@ -659,15 +650,15 @@ void conditionalPrimary(): {} {
 }
 
 void simpleConditionalExpression(): {} {
-    LOOKAHEAD(existsExpression()) existsExpression()
-    | LOOKAHEAD(comparisonExpression()) comparisonExpression()
-    | LOOKAHEAD(betweenExpression()) betweenExpression()
-    | LOOKAHEAD(likeExpression()) likeExpression()
-    | LOOKAHEAD(inExpression()) inExpression()
-    | LOOKAHEAD(nullComparisonExpression()) nullComparisonExpression()
-    | LOOKAHEAD(emptyCollectionComparisonExpression()) emptyCollectionComparisonExpression()
-    | LOOKAHEAD(collectionMemberExpression()) collectionMemberExpression()
-    | LOOKAHEAD(treatExpression()) treatExpression()
+    LOOKAHEAD(existsExpression()) existsExpression() |
+    LOOKAHEAD(comparisonExpression()) comparisonExpression() | 
+    LOOKAHEAD(betweenExpression()) betweenExpression() | 
+    LOOKAHEAD(likeExpression()) likeExpression() | 
+    LOOKAHEAD(inExpression()) inExpression() | 
+    LOOKAHEAD(nullComparisonExpression()) nullComparisonExpression() | 
+    LOOKAHEAD(emptyCollectionComparisonExpression()) emptyCollectionComparisonExpression() | 
+    LOOKAHEAD(collectionMemberExpression()) collectionMemberExpression() |
+    LOOKAHEAD(treatExpression()) treatExpression()
 }
 
 void betweenExpression(): {} {
@@ -676,20 +667,28 @@ void betweenExpression(): {} {
 }
 
 void positiveBetweenExpression() #Between: {} {
-    LOOKAHEAD(arithmeticExpression()) arithmeticExpression() <BETWEEN> arithmeticExpression() <AND> arithmeticExpression()
-    | LOOKAHEAD(stringExpression()) stringExpression() <BETWEEN> stringExpression() <AND> stringExpression()
-    | LOOKAHEAD(datetimeExpression()) datetimeExpression() <BETWEEN> datetimeExpression() <AND> datetimeExpression()
+    LOOKAHEAD(arithmeticExpression()) arithmeticExpression()
+        <BETWEEN> arithmeticExpression()
+        <AND> arithmeticExpression()
+    | LOOKAHEAD(stringExpression()) stringExpression()
+        <BETWEEN> stringExpression() <AND> stringExpression()
+    | LOOKAHEAD(datetimeExpression()) datetimeExpression()
+        <BETWEEN> datetimeExpression() <AND> datetimeExpression()
 }
 
 void negativeBetweenExpression() #Between: {} {
-    LOOKAHEAD(arithmeticExpression()) arithmeticExpression() <NOT> <BETWEEN> arithmeticExpression() <AND> arithmeticExpression()
-    | LOOKAHEAD(stringExpression()) stringExpression() <NOT> <BETWEEN> stringExpression() <AND> stringExpression()
-    | LOOKAHEAD(datetimeExpression()) datetimeExpression() <NOT> <BETWEEN> datetimeExpression() <AND> datetimeExpression()
+    LOOKAHEAD(arithmeticExpression()) arithmeticExpression()
+        <NOT> <BETWEEN> arithmeticExpression()
+        <AND> arithmeticExpression()
+    | LOOKAHEAD(stringExpression()) stringExpression()
+        <NOT> <BETWEEN> stringExpression() <AND> stringExpression()
+    | LOOKAHEAD(datetimeExpression()) datetimeExpression()
+        <NOT> <BETWEEN> datetimeExpression() <AND> datetimeExpression()
 }
 
 void inExpression(): {} {
-    LOOKAHEAD(positiveInExpression()) positiveInExpression()
-    | LOOKAHEAD(negativeInExpression()) negativeInExpression() #Not
+	LOOKAHEAD(positiveInExpression()) positiveInExpression()
+	| LOOKAHEAD(negativeInExpression()) negativeInExpression() #Not
 }
 
 void positiveInExpression() #In: {} {
@@ -737,50 +736,51 @@ void negativeInExpression() #In: {} {
 }
 
 void inItem(): {} {
-    numericLiteral()
+    (numericLiteral()
     | stringLiteral()
     | booleanLiteral()
     | inputParameter()
     | typeDiscriminator()
+    )
 }
 
 void likeExpression(): {} {
-    LOOKAHEAD(positiveLikeExpression()) positiveLikeExpression()
-    | LOOKAHEAD(negativeLikeExpression()) negativeLikeExpression() #Not
+	LOOKAHEAD(positiveLikeExpression()) positiveLikeExpression()
+	| LOOKAHEAD(negativeLikeExpression()) negativeLikeExpression() #Not
 }
 
 void positiveLikeExpression() #Like: {} {
-    stringExpression() <LIKE> patternValue()
+    stringExpression() <LIKE> patternValue() 
 }
 
 void negativeLikeExpression() #Like: {} {
-    stringExpression() <NOT> <LIKE> patternValue()
+    stringExpression() <NOT> <LIKE> patternValue() 
 }
 
 void nullComparisonExpression(): {} {
-    LOOKAHEAD(positiveNullComparisionExpression()) positiveNullComparisionExpression()
-    | LOOKAHEAD(negativeNullComparisionExpression()) negativeNullComparisionExpression() #Not
+	LOOKAHEAD(positiveNullComparisionExpression()) positiveNullComparisionExpression()
+	| LOOKAHEAD(negativeNullComparisionExpression()) negativeNullComparisionExpression() #Not
 }
 
 void positiveNullComparisionExpression() #IsNull: {} {
-    (inputParameter() | singleValuedPathExpression()) <IS> <NULL>
+    (inputParameter() | singleValuedPathExpression()) <IS> <NULL> 
 }
 
 void negativeNullComparisionExpression() #IsNull: {} {
-    (inputParameter() | singleValuedPathExpression()) <IS> <NOT> <NULL>
+    (inputParameter() | singleValuedPathExpression()) <IS> <NOT> <NULL> 
 }
 
 void emptyCollectionComparisonExpression(): {} {
-    LOOKAHEAD(positiveEmptyCollectionComparisonExpression()) positiveEmptyCollectionComparisonExpression()
-    | LOOKAHEAD(negativeEmptyCollectionComparisonExpression()) negativeEmptyCollectionComparisonExpression() #Not
+	LOOKAHEAD(positiveEmptyCollectionComparisonExpression()) positiveEmptyCollectionComparisonExpression()
+	| LOOKAHEAD(negativeEmptyCollectionComparisonExpression()) negativeEmptyCollectionComparisonExpression() #Not
 }
 
 void positiveEmptyCollectionComparisonExpression() #IsEmpty: {} {
-    collectionValuedPath() <IS> <EMPTY>
+    collectionValuedPath() <IS> <EMPTY> 
 }
 
 void negativeEmptyCollectionComparisonExpression() #IsEmpty: {} {
-    collectionValuedPath() <IS> <NOT> <EMPTY>
+    collectionValuedPath() <IS> <NOT> <EMPTY> 
 }
 
 void collectionMemberExpression(): {} {
@@ -813,33 +813,33 @@ void negativeCollectionMemberExpression() #MemberOf: {} {
 }
 
 void existsExpression(): {} {
-    positiveExistsExpression()
-    | negativeExistsExpression() #Not
+	positiveExistsExpression()
+	| negativeExistsExpression() #Not
 }
 
 void positiveExistsExpression() #Exists: {} {
-    <EXISTS> <LEFT_PAREN> subquery() <RIGHT_PAREN>
+    <EXISTS> <LEFT_PAREN> subquery() <RIGHT_PAREN> 
 }
 
 void negativeExistsExpression() #Exists: {} {
-    <NOT> <EXISTS> <LEFT_PAREN> subquery() <RIGHT_PAREN>
+    <NOT> <EXISTS> <LEFT_PAREN> subquery() <RIGHT_PAREN> 
 }
 
 void allOrAnyExpression(): {} {
-    allExpression() | anyExpression() | someExpression()
+    anyExpression() | someExpression() | allExpression()
 }
 
 void anyExpression() #Any: {} {
-    <ANY> <LEFT_PAREN> subquery() <RIGHT_PAREN>
+    <ANY> <LEFT_PAREN> subquery() <RIGHT_PAREN> 
 }
 
 void someExpression() #Any: {} {
     // SOME and ANY are synonymous
-    <SOME> <LEFT_PAREN> subquery() <RIGHT_PAREN>
+    <SOME> <LEFT_PAREN> subquery() <RIGHT_PAREN> 
 }
 
 void allExpression() #All: {} {
-    <ALL> <LEFT_PAREN> subquery() <RIGHT_PAREN>
+    <ALL> <LEFT_PAREN> subquery() <RIGHT_PAREN> 
 }
 
 void comparisonExpression(): {} {
@@ -894,7 +894,7 @@ void entityTypeComp(): {} {
         | (<NE> entityTypeExpression() #NotEquals(2))
         | (<NEQ> entityTypeExpression() #NotEquals(2)))
     )
-    | (entityTypeExpression()
+  | (entityTypeExpression()
         ((<EQ> typeDiscriminator() #Equals(2))
         | (<NE> typeDiscriminator() #NotEquals(2))
         | (<NEQ> typeDiscriminator() #NotEquals(2)))
@@ -959,7 +959,7 @@ void arithmeticFactor(): {} {
   | LOOKAHEAD(generalIdentificationVariable()) generalIdentificationVariable()
   | LOOKAHEAD(identificationVariable()) identificationVariable()
   | LOOKAHEAD(<LEFT_PAREN> arithmeticExpression()) <LEFT_PAREN> arithmeticExpression() <RIGHT_PAREN> #Brackets(1)
-  | LOOKAHEAD(2) functionsReturningNumerics()
+  | LOOKAHEAD(functionsReturningNumerics()) functionsReturningNumerics()
   | LOOKAHEAD(aggregateExpression()) aggregateExpression()
   | LOOKAHEAD(caseExpression()) caseExpression()
   | LOOKAHEAD(subqueryInBrackets()) subqueryInBrackets()
@@ -1002,12 +1002,9 @@ void stringExpression(): {} {
 }
 
 void stringPrimary(): {} {
-    stringLiteral()
-    | singleValuedPathExpression()
-    | LOOKAHEAD(2) stringExpressionInBrackets()
-    | LOOKAHEAD(<LEFT_PAREN> stringExpression()) <LEFT_PAREN> stringExpression() <RIGHT_PAREN>
-    | functionsReturningStrings()
-    | LOOKAHEAD(2) subqueryInBrackets()
+    stringLiteral() | singleValuedPathExpression() | LOOKAHEAD(2) stringExpressionInBrackets() | 
+    LOOKAHEAD(<LEFT_PAREN> stringExpression()) <LEFT_PAREN> stringExpression() <RIGHT_PAREN> | 
+    functionsReturningStrings() | LOOKAHEAD(2) subqueryInBrackets()
 }
 
 void datetimeExpression(): {} {
@@ -1065,7 +1062,8 @@ void substring() #Substring: {} {
 }
 
 void trim() #Trim: {} {
-    <TRIM> <LEFT_PAREN> [LOOKAHEAD(2)[trimSpecification()] [trimCharacter()] <FROM>] stringExpression() <RIGHT_PAREN>
+    <TRIM> <LEFT_PAREN> [LOOKAHEAD(2)[trimSpecification()] [trimCharacter()] <FROM>]
+        stringExpression() <RIGHT_PAREN>
 }
 
 void lower() #Lower: {} {
@@ -1101,7 +1099,7 @@ void simpleWhenClause() #When: {} {
 }
 
 void coalesceExpression() #Coalesce: {} {
-    <COALESCE> <LEFT_PAREN> scalarExpression() (<COMMA> scalarExpression())+ <RIGHT_PAREN>
+    <COALESCE> <LEFT_PAREN> scalarExpression() (<COMMA> scalarExpression())* <RIGHT_PAREN>
 }
 
 void nullifExpression() #Nullif: {} {
@@ -1167,13 +1165,22 @@ void entityName() #AbstractSchemaName: {} {
     identificationVariable() (<DOT> objectField())*
 }
 
-void identificationVariable() #IdentificationVariable: { Token token; } {
-    token = <IDENTIFIER> { jjtThis.setValue(token.image); }
+void identificationVariable() #IdentificationVariable: {
+    Token token;
+}
+{
+    ( token = <IDENTIFIER> ) {
+        jjtThis.setValue(token.image);
+    }
 }
 
-void objectField() #IdentificationVariable: { Token token; } {
-    // unlike the identificationVariable(), the objectField() *can* be a reserved word.
-    // E.g., Order.group.length is a perfectly valid path expression.
+void objectField() #IdentificationVariable: {
+    Token token;
+}
+{
+    // unlike the identificationVariable(), the objectField() *can* be a
+    // reserved word. E.g., Order.group.length is a perfectly
+    // valid path expression
     (
     token = <IDENTIFIER>
     | token = <NEW>
@@ -1251,11 +1258,17 @@ void objectField() #IdentificationVariable: { Token token; } {
     ) { jjtThis.setValue(token.image); }
 }
 
-void booleanLiteral() #BooleanLiteral: { Token token; } {
+void booleanLiteral() #BooleanLiteral: {
+    Token token;
+}
+{
     token = <BOOLEAN_LITERAL> { jjtThis.setValue(token.image); }
 }
 
-void stringLiteral() #StringLiteral: { Token token; } {
+void stringLiteral() #StringLiteral: {
+    Token token;
+}
+{
     token = <STRING_LITERAL> { jjtThis.setValue(token.image); }
 }
 
@@ -1263,24 +1276,34 @@ void inputParameter(): {} {
     namedInputParameter() | positionalInputParameter()
 }
 
-void namedInputParameter() #NamedInputParameter: { Token token; } {
+void namedInputParameter() #NamedInputParameter: {
+    Token token;
+}
+{
     ":" objectField()
 }
 
-void positionalInputParameter() #PositionalInputParameter: { Token token; } {
+void positionalInputParameter() #PositionalInputParameter: {
+    Token token;
+}
+{
     "?" token = <INTEGER_LITERAL> { jjtThis.setValue(token.image); }
 }
 
 void patternValue() #PatternValue: {} {
-    inputParameter()
-    | stringLiteral() [<ESCAPE> (escapeCharacter() | inputParameter())]
+    inputParameter() | stringLiteral()
+    [<ESCAPE> (escapeCharacter() | inputParameter())]
 }
 
-void escapeCharacter() #EscapeCharacter: { Token token; } {
+void escapeCharacter() #EscapeCharacter :
+{ Token token; }
+{
     token = <STRING_LITERAL> { jjtThis.setValue(token.image); }
 }
 
-void trimCharacter() #TrimCharacter: { Token token; } {
+void trimCharacter() #TrimCharacter :
+{ Token token; }
+{
     token = <STRING_LITERAL> { jjtThis.setValue(token.image); }
 }
 
