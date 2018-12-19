@@ -151,7 +151,7 @@ TOKEN[IGNORE_CASE]: { /* trim specification */
   | <BOTH: "BOTH">
 }
 
-TOKEN[IGNORE_CASE]: {
+TOKEN[IGNORE_CASE]: { /* functions returning numerics */
     <LENGTH: "LENGTH">
   | <LOCATE: "LOCATE">
   | <ABS: "ABS">
@@ -160,13 +160,13 @@ TOKEN[IGNORE_CASE]: {
   | <SIZE: "SIZE">
 }
 
-TOKEN[IGNORE_CASE]: {
+TOKEN[IGNORE_CASE]: { /* functions returning datetime */
     <CURRENT_DATE: "CURRENT_DATE">
   | <CURRENT_TIME: "CURRENT_TIME">
   | <CURRENT_TIMESTAMP: "CURRENT_TIMESTAMP">
 }
 
-TOKEN[IGNORE_CASE]: {
+TOKEN[IGNORE_CASE]: { /* type of query */
     <SELECT: "SELECT">
   | <DISTINCT: "DISTINCT">
   | <FROM: "FROM">
