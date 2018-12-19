@@ -110,7 +110,7 @@ TOKEN[IGNORE_CASE]: {
   | <NULL: "NULL">
 }
 
-TOKEN[IGNORE_CASE]: {
+TOKEN[IGNORE_CASE]: { /* aggregates */
     <AVG: "AVG">
   | <MIN: "MIN">
   | <MAX: "MAX">
@@ -118,13 +118,13 @@ TOKEN[IGNORE_CASE]: {
   | <COUNT: "COUNT">
 }
 
-TOKEN[IGNORE_CASE]: {
+TOKEN[IGNORE_CASE]: { /* boolean arithmetic */
     <OR: "OR">
   | <AND: "AND">
   | <NOT: "NOT">
 }
 
-TOKEN: {
+TOKEN: { /* query hints */
     <QUERY_OPTIMIZE_NOCACHE: "QUERY_OPTIMIZE_NOCACHE">
   | <IS_ACCESSIBLE_NOCACHE: "IS_ACCESSIBLE_NOCACHE">
   | <IS_ACCESSIBLE_NODB: "IS_ACCESSIBLE_NODB">
@@ -137,7 +137,7 @@ TOKEN[IGNORE_CASE]: {
   | <TYPE: "TYPE">
 }
 
-TOKEN[IGNORE_CASE]: {
+TOKEN[IGNORE_CASE]: { /* functions returning strings */
     <CONCAT: "CONCAT">
   | <SUBSTRING: "SUBSTRING">
   | <TRIM: "TRIM">
@@ -145,7 +145,7 @@ TOKEN[IGNORE_CASE]: {
   | <UPPER: "UPPER">
 }
 
-TOKEN[IGNORE_CASE]: {
+TOKEN[IGNORE_CASE]: { /* trim specification */
     <LEADING: "LEADING">
   | <TRAILING: "TRAILING">
   | <BOTH: "BOTH">
@@ -203,7 +203,9 @@ TOKEN[IGNORE_CASE]: {
 /* ### should we limit this to the length that is valid in java? */
 TOKEN: /* literals */
 {
-    < INTEGER_LITERAL: ((["0"-"9"])+) (["l","L"])? >
+    <LEFT_PAREN: "(">
+    | <RIGHT_PAREN: ")">
+    | < INTEGER_LITERAL: ((["0"-"9"])+) (["l","L"])? >
     | < DECIMAL_LITERAL:
         (((["0"-"9"])* "." (["0"-"9"])+) (<EXPONENT>)? (["f","F","d","D"])?
         | ((["0"-"9"])+ ".") (<EXPONENT>)? (["f","F","d","D"])?
@@ -371,7 +373,7 @@ void joinPathExpression() #CollectionValuedPath: {} {
 
 void collectionMemberDeclaration() #InCollection: {} {
     // synonymous with "INNER JOIN path AS identifier" (InnerJoin)
-    <IN> "(" joinPathExpression() ")" [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
+    <IN> <LEFT_PAREN> joinPathExpression() <RIGHT_PAREN> [LOOKAHEAD(1) <AS>] identificationVariable() [LOOKAHEAD(1) with()]
 }
 
 void qualifiedPathExpression() #Path: {} {
@@ -387,15 +389,15 @@ void generalIdentificationVariable(): {} {
 }
 
 void key() #Key: {} {
-    <KEY> "(" identificationVariable() ")"
+    <KEY> <LEFT_PAREN> identificationVariable() <RIGHT_PAREN>
 }
 
 void value() #Value: {} {
-    <VALUE> "(" identificationVariable() ")"
+    <VALUE> <LEFT_PAREN> identificationVariable() <RIGHT_PAREN>
 }
 
 void entry() #Entry: {} {
-    <ENTRY> "(" identificationVariable() ")"
+    <ENTRY> <LEFT_PAREN> identificationVariable() <RIGHT_PAREN>
 }
 
 void singleValuedPathExpression() #Path: {} {
@@ -454,7 +456,7 @@ void entityTypeExpression(): {} {
 }
 
 void typeDiscriminator() #Type: {} {
-    <TYPE> "(" (LOOKAHEAD(identificationVariable()) identificationVariable() | singleValuedPathExpression() | inputParameter()) ")"
+    <TYPE> <LEFT_PAREN> (LOOKAHEAD(identificationVariable()) identificationVariable() | singleValuedPathExpression() | inputParameter()) <RIGHT_PAREN>
 }
 
 void hintValues(): {} {
@@ -482,7 +484,7 @@ void selectExpression() #SelectExpression: {} {
         | LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() [[<AS>] identificationVariable()]
         | LOOKAHEAD(scalarExpression()) scalarExpression() [[<AS>] identificationVariable()]
         | identificationVariable() [[<AS>] identificationVariable()]
-        | (<OBJECT> "(" identificationVariable() ")") [[<AS>] identificationVariable()]
+        | (<OBJECT> <LEFT_PAREN> identificationVariable() <RIGHT_PAREN>) [[<AS>] identificationVariable()]
         | constructorExpression() [[<AS>] identificationVariable()]
 }
 
@@ -507,7 +509,7 @@ void classname() #ClassName: {}
 }
 
 void constructorParameters(): {} {
-    "(" (constructorParameter()) (<COMMA> (constructorParameter()))* ")" 
+    <LEFT_PAREN> (constructorParameter()) (<COMMA> (constructorParameter()))* <RIGHT_PAREN> 
 }
 
 void constructorParameter() #ConstructorParameter: {} {
@@ -534,12 +536,12 @@ void distinct() #Distinct: {} {
 }
 
 void aggregatePath() #AggregatePath: {} {
-    "(" (
+    <LEFT_PAREN> (
         LOOKAHEAD(arithmeticExpression()) arithmeticExpression() |
         LOOKAHEAD(distinctPath()) distinctPath() |
         LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() |
         LOOKAHEAD(identificationVariable()) identificationVariable()
-    ) ")"
+    ) <RIGHT_PAREN>
 }
 
 void distinctPath() #DistinctPath: {} {
@@ -586,7 +588,7 @@ void havingClause() #Having: {} {
 }
 
 void subqueryInBrackets() #Brackets: {} {
-    "(" subquery() ")"
+    <LEFT_PAREN> subquery() <RIGHT_PAREN>
 }
 
 void subquery() #Subselect: {} {
@@ -624,7 +626,7 @@ void conditionalFactor(): {} {
 
 void conditionalPrimary(): {} {
     LOOKAHEAD(simpleConditionalExpression())
-    simpleConditionalExpression() | "(" (conditionalExpression() #Brackets) ")"
+    simpleConditionalExpression() | <LEFT_PAREN> (conditionalExpression() #Brackets) <RIGHT_PAREN>
 }
 
 void simpleConditionalExpression(): {} {
@@ -670,17 +672,17 @@ void inExpression(): {} {
 
 void positiveInExpression() #In: {} {
     (singleValuedPathExpression() | inItem() | LOOKAHEAD(scalarExpression()) scalarExpression())
-    <IN> (("(" (inItem()
+    <IN> ((<LEFT_PAREN> (inItem()
              (<COMMA> (inItem()))* | subquery() | collectionValuedPath())
-         ")") | inputParameter() | collectionValuedPath())
+         <RIGHT_PAREN>) | inputParameter() | collectionValuedPath())
 }
 
 void negativeInExpression() #In: {} {
     (singleValuedPathExpression() | inItem() | LOOKAHEAD(scalarExpression()) scalarExpression())
     <NOT> <IN>
-        (("(" (inItem()
+        ((<LEFT_PAREN> (inItem()
             (<COMMA> (inItem()))* | subquery() | collectionValuedPath())
-        ")") | inputParameter() | collectionValuedPath())
+        <RIGHT_PAREN>) | inputParameter() | collectionValuedPath())
 }
 
 void inItem(): {} {
@@ -750,11 +752,11 @@ void existsExpression(): {} {
 }
 
 void positiveExistsExpression() #Exists: {} {
-    <EXISTS> "(" subquery() ")" 
+    <EXISTS> <LEFT_PAREN> subquery() <RIGHT_PAREN> 
 }
 
 void negativeExistsExpression() #Exists: {} {
-    <NOT> <EXISTS> "(" subquery() ")" 
+    <NOT> <EXISTS> <LEFT_PAREN> subquery() <RIGHT_PAREN> 
 }
 
 void allOrAnyExpression(): {} {
@@ -762,16 +764,16 @@ void allOrAnyExpression(): {} {
 }
 
 void anyExpression() #Any: {} {
-    <ANY> "(" subquery() ")" 
+    <ANY> <LEFT_PAREN> subquery() <RIGHT_PAREN> 
 }
 
 void someExpression() #Any: {} {
     // SOME and ANY are synonymous
-    <SOME> "(" subquery() ")" 
+    <SOME> <LEFT_PAREN> subquery() <RIGHT_PAREN> 
 }
 
 void allExpression() #All: {} {
-    <ALL> "(" subquery() ")" 
+    <ALL> <LEFT_PAREN> subquery() <RIGHT_PAREN> 
 }
 
 void comparisonExpression(): {} {
@@ -871,7 +873,7 @@ void negativeArithmeticExpressionInBrackets() #Negative: {} {
 }
 
 void simpleArithmeticExpressionInBrackets() #Brackets: {} {
-    "(" arithmeticExpression() ")"
+    <LEFT_PAREN> arithmeticExpression() <RIGHT_PAREN>
 }
 
 void arithmeticExpression(): {} {
@@ -890,7 +892,7 @@ void arithmeticFactor(): {} {
   | LOOKAHEAD(qualifiedPathExpression()) qualifiedPathExpression()
   | LOOKAHEAD(generalIdentificationVariable()) generalIdentificationVariable()
   | LOOKAHEAD(identificationVariable()) identificationVariable()
-  | LOOKAHEAD("(" arithmeticExpression()) "(" arithmeticExpression() ")" #Brackets(1)
+  | LOOKAHEAD(<LEFT_PAREN> arithmeticExpression()) <LEFT_PAREN> arithmeticExpression() <RIGHT_PAREN> #Brackets(1)
   | LOOKAHEAD(functionsReturningNumerics()) functionsReturningNumerics()
   | LOOKAHEAD(aggregateExpression()) aggregateExpression()
   | LOOKAHEAD(caseExpression()) caseExpression()
@@ -926,7 +928,7 @@ void stringValue(): {} {
 }
 
 void stringExpressionInBrackets() #Brackets: {} {
-    "(" stringExpression() ")"
+    <LEFT_PAREN> stringExpression() <RIGHT_PAREN>
 }
 
 void stringExpression(): {} {
@@ -985,24 +987,24 @@ void functionsReturningStrings(): {} {
 }
 
 void concat() #Concat: {} {
-    <CONCAT> "(" stringExpression() (<COMMA> stringExpression())+")"
+    <CONCAT> <LEFT_PAREN> stringExpression() (<COMMA> stringExpression())+<RIGHT_PAREN>
 }
 
 void substring() #Substring: {} {
-    <SUBSTRING> "(" stringExpression() <COMMA> arithmeticExpression() <COMMA> arithmeticExpression() ")"
+    <SUBSTRING> <LEFT_PAREN> stringExpression() <COMMA> arithmeticExpression() <COMMA> arithmeticExpression() <RIGHT_PAREN>
 }
 
 void trim() #Trim: {} {
-    <TRIM> "(" [LOOKAHEAD(2)[trimSpecification()] [trimCharacter()] <FROM>]
-        stringExpression() ")"
+    <TRIM> <LEFT_PAREN> [LOOKAHEAD(2)[trimSpecification()] [trimCharacter()] <FROM>]
+        stringExpression() <RIGHT_PAREN>
 }
 
 void lower() #Lower: {} {
-    <LOWER> "(" stringExpression() ")"
+    <LOWER> <LEFT_PAREN> stringExpression() <RIGHT_PAREN>
 }
 
 void upper() #Upper: {} {
-    <UPPER> "(" stringExpression() ")"
+    <UPPER> <LEFT_PAREN> stringExpression() <RIGHT_PAREN>
 }
 
 void trimSpecification(): {} {
@@ -1030,11 +1032,11 @@ void simpleWhenClause() #When: {} {
 }
 
 void coalesceExpression() #Coalesce: {} {
-    <COALESCE> "(" scalarExpression() (<COMMA> scalarExpression())* ")"
+    <COALESCE> <LEFT_PAREN> scalarExpression() (<COMMA> scalarExpression())* <RIGHT_PAREN>
 }
 
 void nullifExpression() #Nullif: {} {
-    <NULLIF> "(" scalarExpression() (<COMMA> scalarExpression())* ")"
+    <NULLIF> <LEFT_PAREN> scalarExpression() (<COMMA> scalarExpression())* <RIGHT_PAREN>
 }
 
 void functionsReturningNumerics(): {} {
@@ -1050,28 +1052,28 @@ void negativeFunctionsReturningNumerics() #Negative: {} {
 } 
 
 void length() #Length: {} {
-    <LENGTH> "(" stringExpression() ")"
+    <LENGTH> <LEFT_PAREN> stringExpression() <RIGHT_PAREN>
 }
 
 void locate() #Locate: {} {
-    <LOCATE> "(" stringExpression() <COMMA> stringExpression()
-        [<COMMA> arithmeticExpression()] ")"
+    <LOCATE> <LEFT_PAREN> stringExpression() <COMMA> stringExpression()
+        [<COMMA> arithmeticExpression()] <RIGHT_PAREN>
 }
 
 void abs() #Abs: {} {
-    <ABS> "(" arithmeticExpression() ")"
+    <ABS> <LEFT_PAREN> arithmeticExpression() <RIGHT_PAREN>
 }
 
 void sqrt() #Sqrt: {} {
-    <SQRT> "(" arithmeticExpression() ")"
+    <SQRT> <LEFT_PAREN> arithmeticExpression() <RIGHT_PAREN>
 }
 
 void mod() #Mod: {} {
-    <MOD> "(" arithmeticExpression() <COMMA> arithmeticExpression() ")"
+    <MOD> <LEFT_PAREN> arithmeticExpression() <COMMA> arithmeticExpression() <RIGHT_PAREN>
 }
 
 void size() #Size: {} {
-    <SIZE> "(" singleValuedPathExpression() ")"
+    <SIZE> <LEFT_PAREN> singleValuedPathExpression() <RIGHT_PAREN>
 }
 
 void functionsReturningDatetime(): {} {
