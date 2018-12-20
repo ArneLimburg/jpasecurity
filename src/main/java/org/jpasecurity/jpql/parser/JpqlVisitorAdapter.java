@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2018 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -150,13 +150,6 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlCollectionValuedPath node, T data) {
-        return visit(node);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean visit(JpqlTreatJoin node, T data) {
         return visit(node);
     }
 
@@ -901,13 +894,6 @@ public class JpqlVisitorAdapter<T> implements JpqlParserVisitor<T> {
      * @see #visit(JpqlCollectionValuedPath, Object)
      */
     public boolean visit(JpqlCollectionValuedPath node) {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean visit(JpqlTreatJoin node) {
         return true;
     }
 

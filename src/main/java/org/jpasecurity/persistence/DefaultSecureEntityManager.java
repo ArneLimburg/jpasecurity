@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2017 Arne Limburg
+ * Copyright 2008 - 2019 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -266,6 +266,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     private <Q extends Query> Q createDelegateQuery(String qlString, Class<?> resultClass, Class<Q> queryClass) {
+        if (getUnsecureEntityManager().getClass().getName().toLowerCase().contains("hibernate")
+                && qlString.contains("TREAT")) { // upper case check suffice, because we generate rules in upper case
+            // hack to circumvent hibernate bug with treat
+            qlString = entityFilter.trimTreat(qlString);
+        }
         DefaultAccessManager.Instance.register(accessManager);
         if (TypedQuery.class.equals(queryClass)) {
             return (Q)super.createQuery(qlString, resultClass);

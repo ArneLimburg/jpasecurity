@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2016 Arne Limburg
+ * Copyright 2008 - 2019 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.hibernate.ejb.HibernatePersistence;
+import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class NamedQueryParserTest {
 
     @Before
     public void createParser() throws IOException {
-        entityManagerFactory = new HibernatePersistence().createEntityManagerFactory("metamodel", null);
+        entityManagerFactory = new HibernatePersistenceProvider().createEntityManagerFactory("metamodel", null);
         Set<String> ormXmlLocations = new HashSet<String>();
         ormXmlLocations.add("META-INF/all.orm.xml");
         ormXmlLocations.add("META-INF/empty.orm.xml");

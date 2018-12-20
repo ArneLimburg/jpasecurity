@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2018 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1077,6 +1077,19 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
     public boolean visit(JpqlTrimCharacter node, StringBuilder query) {
         query.append(node.getValue());
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlTreat node, StringBuilder query) {
+        validateMaxChildCount(node, 2);
+        query.append("TREAT(");
+        node.jjtGetChild(0).visit(this, query);
+        query.append(" AS ");
+        node.jjtGetChild(1).visit(this, query);
+        query.append(")");
+        return false;
     }
 
     /**

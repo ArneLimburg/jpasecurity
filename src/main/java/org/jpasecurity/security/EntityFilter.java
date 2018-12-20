@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2017 Arne Limburg
+ * Copyright 2008 - 2019 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,12 +36,14 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.persistence.PersistenceException;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.MapAttribute;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
@@ -71,6 +73,7 @@ import org.jpasecurity.jpql.parser.JpqlIn;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.JpqlPath;
 import org.jpasecurity.jpql.parser.JpqlStatement;
+import org.jpasecurity.jpql.parser.JpqlTreat;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
 import org.jpasecurity.jpql.parser.Node;
@@ -184,6 +187,17 @@ public class EntityFilter implements AccessManager {
                                         statement.getTypeDefinitions());
     }
 
+    // hibernate does not handle TREAT properly, but handles it correct, when it is removed, so remove it here
+    public String trimTreat(String query) {
+        try {
+            JpqlStatement statement = parser.parseQuery(query);
+            statement.visit(new TrimTreatVisitor());
+            return statement.toString();
+        } catch (ParseException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
     protected AccessDefinition createAccessDefinition(JpqlCompiledStatement statement, AccessType accessType) {
         return createAccessDefinition(getSelectedEntityTypes(statement), accessType, getAliases(statement));
     }
@@ -212,7 +226,7 @@ public class EntityFilter implements AccessManager {
                         if (accessRule.grantsAccess(accessType)) {
                             typedAccessDefinition = appendAccessDefinition(typedAccessDefinition,
                                                                            accessRule,
-                                                                           selectedType.getKey(),
+                                                                           selectedType,
                                                                            usedAliases);
                         }
                     }
@@ -266,7 +280,7 @@ public class EntityFilter implements AccessManager {
                             }
                         }
                         AccessDefinition preparedAccessRule
-                            = prepareAccessRule(accessRule, selectedType.getKey(), usedAliases);
+                            = prepareAccessRule(accessRule, selectedType, usedAliases);
                         preparedAccessRule.mergeNode(instanceOf);
                         typedAccessDefinition = preparedAccessRule.append(typedAccessDefinition);
                     }
@@ -369,9 +383,9 @@ public class EntityFilter implements AccessManager {
 
     private AccessDefinition appendAccessDefinition(AccessDefinition accessDefinition,
                                                     AccessRule accessRule,
-                                                    Path selectedPath,
+                                                    Entry<Path, Class<?>> selectedType,
                                                     Set<Alias> usedAliases) {
-        return prepareAccessRule(accessRule, selectedPath, usedAliases).append(accessDefinition);
+        return prepareAccessRule(accessRule, selectedType, usedAliases).append(accessDefinition);
     }
 
     private Node appendNode(Node accessRules, Node accessRule) {
@@ -382,7 +396,10 @@ public class EntityFilter implements AccessManager {
         }
     }
 
-    private AccessDefinition prepareAccessRule(AccessRule accessRule, Path selectedPath, Set<Alias> usedAliases) {
+    private AccessDefinition prepareAccessRule(
+            AccessRule accessRule,
+            Entry<Path, Class<?>> selectedPath,
+            Set<Alias> usedAliases) {
         if (accessRule.getWhereClause() == null) {
             return new AccessDefinition(queryPreparator.createBoolean(true));
         }
@@ -396,7 +413,15 @@ public class EntityFilter implements AccessManager {
         Map<String, Object> queryParameters = new HashMap<String, Object>();
         expand(accessRule, queryParameters);
         Node preparedAccessRule = queryPreparator.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
-        queryPreparator.replace(preparedAccessRule, accessRule.getSelectedPath(), selectedPath);
+        ManagedType<?> accessRuleType = accessRule.getSelectedManagedType(metamodel);
+        if (accessRuleType instanceof EntityType && !accessRuleType.getJavaType().equals(selectedPath.getValue())) {
+            queryPreparator.replace(
+                    preparedAccessRule,
+                    accessRule.getSelectedPath(),
+                    new Path(selectedPath.getKey(), (EntityType<?>)accessRuleType));
+        } else {
+            queryPreparator.replace(preparedAccessRule, accessRule.getSelectedPath(), selectedPath.getKey());
+        }
         return new AccessDefinition(preparedAccessRule, queryParameters);
     }
 
@@ -665,6 +690,15 @@ public class EntityFilter implements AccessManager {
 
         Alias getTarget() {
             return target;
+        }
+    }
+
+    class TrimTreatVisitor extends JpqlVisitorAdapter<Void> {
+
+        @Override
+        public boolean visit(JpqlTreat treat) {
+            queryPreparator.replace(treat, treat.jjtGetChild(0));
+            return false;
         }
     }
 

@@ -108,6 +108,7 @@ import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.jpasecurity.jpql.parser.JpqlSubstring;
 import org.jpasecurity.jpql.parser.JpqlSubtract;
 import org.jpasecurity.jpql.parser.JpqlSum;
+import org.jpasecurity.jpql.parser.JpqlTreat;
 import org.jpasecurity.jpql.parser.JpqlTrim;
 import org.jpasecurity.jpql.parser.JpqlTrimBoth;
 import org.jpasecurity.jpql.parser.JpqlTrimCharacter;
@@ -270,10 +271,18 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
         // Oliver Zhou: Call getFrom instead of getPath, getPath doesn't work with Join
         javax.persistence.criteria.Path<?> currentPath = query.getFrom(path.getRootAlias());
 
-        if (path.getSubpath() != null) {
-            for (String attribute: path.getSubpath().split("\\.")) {
+        if (path.isTreatedPath()) {
+            Path treatedSubpath = path.getTreatedSubpath();
+            for (String attribute: treatedSubpath.getSubpathComponents()) {
                 currentPath = currentPath.get(attribute);
             }
+            Class treatingType
+                = ManagedTypeFilter.forModel(metamodel).filter(path.getTreatingEntityName()).getBindableJavaType();
+            currentPath = builder.treat(currentPath, treatingType);
+        }
+
+        for (String attribute: path.getSubpathComponents()) {
+            currentPath = currentPath.get(attribute);
         }
         query.setValue(currentPath);
         return false;
@@ -1013,6 +1022,13 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      */
     public boolean visit(JpqlTrimCharacter node, CriteriaHolder query) {
         query.setValue(builder.literal(node.getValue().charAt(1)));
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlTreat node, CriteriaHolder query) {
         return true;
     }
 

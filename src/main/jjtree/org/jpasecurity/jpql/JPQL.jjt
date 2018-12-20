@@ -29,8 +29,6 @@ options {
     MULTI = true;
     NODE_DEFAULT_VOID = true;
     JAVA_UNICODE_ESCAPE = true;
-    JAVA_TEMPLATE_TYPE = "modern";
-    UNICODE_INPUT = true;
     STATIC = false;
     NODE_USES_PARSER = true;
     LOOKAHEAD = 1;
@@ -342,7 +340,7 @@ void rangeVariableDeclaration() #FromItem: {} {
 }
 
 void join(): {} {
-    LOOKAHEAD(innerJoin()) innerJoin() | LOOKAHEAD(outerJoin()) outerJoin()
+    LOOKAHEAD(2) innerJoin() | LOOKAHEAD(3) outerJoin()
 }
 
 void innerJoin() #InnerJoin: {} {
@@ -372,8 +370,7 @@ void with() #With: {} {
 void joinPathExpression() #CollectionValuedPath: {} {
     // a join path is any dot-separated path expression starting with a
     // non-reserved word containing at minimum two path components
-    identificationVariable() (<DOT> objectField())+
-    | LOOKAHEAD(treatJoin()) treatJoin() [LOOKAHEAD(1) <AS>] identificationVariable() #TreatJoin
+    treat() | (identificationVariable() (<DOT> objectField())+)
     }
 
 void collectionMemberDeclaration() #InCollection: {} {
@@ -406,14 +403,13 @@ void entry() #Entry: {} {
 }
 
 void singleValuedPathExpression() #Path: {} {
-    (identificationVariable() (<DOT> objectField())*)
+    ((treat() | identificationVariable()) (<DOT> objectField())*)
     | LOOKAHEAD(qualifiedPathExpression()) ((key() | value()) (<DOT> objectField())+)
     | LOOKAHEAD(qualifiedIdentificationVariable()) qualifiedIdentificationVariable()
-    | treatJoin()
 }
 
 void collectionValuedPath() #CollectionValuedPath: {} {
-    identificationVariable() (<DOT> objectField())*
+    (treat() | identificationVariable()) (<DOT> objectField())*
 }
 
 void updateClause(): {} {
@@ -643,8 +639,7 @@ void simpleConditionalExpression(): {} {
     LOOKAHEAD(inExpression()) inExpression() | 
     LOOKAHEAD(nullComparisonExpression()) nullComparisonExpression() | 
     LOOKAHEAD(emptyCollectionComparisonExpression()) emptyCollectionComparisonExpression() | 
-    LOOKAHEAD(collectionMemberExpression()) collectionMemberExpression() |
-    LOOKAHEAD(treatExpression()) treatExpression()
+    LOOKAHEAD(collectionMemberExpression()) collectionMemberExpression()
 }
 
 void betweenExpression(): {} {
@@ -678,14 +673,14 @@ void inExpression(): {} {
 }
 
 void positiveInExpression() #In: {} {
-    (singleValuedPathExpression() | inItem() | LOOKAHEAD(scalarExpression()) scalarExpression())
+    (LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() | inItem() | LOOKAHEAD(scalarExpression()) scalarExpression())
     <IN> ((<LEFT_PAREN> (inItem()
              (<COMMA> (inItem()))* | subquery() | collectionValuedPath())
          <RIGHT_PAREN>) | inputParameter() | collectionValuedPath())
 }
 
 void negativeInExpression() #In: {} {
-    (singleValuedPathExpression() | inItem() | LOOKAHEAD(scalarExpression()) scalarExpression())
+    (LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() | inItem() | LOOKAHEAD(scalarExpression()) scalarExpression())
     <NOT> <IN>
         ((<LEFT_PAREN> (inItem()
             (<COMMA> (inItem()))* | subquery() | collectionValuedPath())
@@ -743,22 +738,6 @@ void negativeEmptyCollectionComparisonExpression() #IsEmpty: {} {
 void collectionMemberExpression(): {} {
     LOOKAHEAD(positiveCollectionMemberExpression()) positiveCollectionMemberExpression()
     | LOOKAHEAD(negativeCollectionMemberExpression()) negativeCollectionMemberExpression() #Not
-}
-
-void treatJoin() #TreatJoin: {} {
-    treat()
-}
-
-void treatExpression() #TreatExpression: {} {
-    treat() <DOT> objectField()
-    (
-        LOOKAHEAD(betweenExpression()) betweenExpression()
-        | LOOKAHEAD(likeExpression()) likeExpression()
-        | LOOKAHEAD(inExpression()) inExpression()
-        | LOOKAHEAD(nullComparisonExpression()) nullComparisonExpression()
-        | LOOKAHEAD(emptyCollectionComparisonExpression()) emptyCollectionComparisonExpression()
-        | LOOKAHEAD(collectionMemberExpression()) collectionMemberExpression()
-    )
 }
 
 void positiveCollectionMemberExpression() #MemberOf: {} {
@@ -1297,6 +1276,6 @@ void trimCharacter() #TrimCharacter :
 }
 
 void treat() #Treat: {} {
-    <TREAT> <LEFT_PAREN> joinAssociationPathExpression() [<AS>] identificationVariable() <RIGHT_PAREN>
+    <TREAT> <LEFT_PAREN> singleValuedPathExpression() <AS> identificationVariable() <RIGHT_PAREN>
 }
 
