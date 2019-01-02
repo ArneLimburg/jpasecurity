@@ -16,7 +16,6 @@
 package org.jpasecurity.security.rules;
 
 import static java.util.Collections.singleton;
-
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -32,6 +31,7 @@ import org.jpasecurity.SecurityContext;
 import org.jpasecurity.security.AccessRule;
 import org.jpasecurity.security.Permit;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -57,6 +57,7 @@ public class AccessRulesParserTest {
         parser = new AccessRulesParser("test", metamodel, securityContext, accessRulesProvider);
     }
 
+    @Ignore
     @Test
     public void subselectWithWithClause() {
         when(managedType.getJavaType()).thenReturn((Class)RuleWithSubselectAndWith.class);
