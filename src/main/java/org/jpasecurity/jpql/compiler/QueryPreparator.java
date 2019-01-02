@@ -50,6 +50,7 @@ import org.jpasecurity.jpql.parser.JpqlSelectClause;
 import org.jpasecurity.jpql.parser.JpqlSelectExpression;
 import org.jpasecurity.jpql.parser.JpqlSelectExpressions;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
+import org.jpasecurity.jpql.parser.JpqlTreat;
 import org.jpasecurity.jpql.parser.JpqlType;
 import org.jpasecurity.jpql.parser.JpqlValue;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
@@ -125,10 +126,22 @@ public class QueryPreparator {
         String[] pathComponents = new String[subpathComponents.length + 1];
         pathComponents[0] = alias.getName();
         System.arraycopy(subpathComponents, 0, pathComponents, 1, subpathComponents.length);
-        return prepend(pathComponents, pathNode, path.isKeyPath(), path.isValuePath());
+        return prepend(
+                pathComponents,
+                pathNode,
+                path.isKeyPath(),
+                path.isValuePath(),
+                path.getTreatedSubpath(),
+                path.getTreatingEntityName());
     }
 
-    private JpqlPath prepend(String[] pathComponents, JpqlPath path, boolean isKeyPath, boolean isValuePath) {
+    private JpqlPath prepend(
+            String[] pathComponents,
+            JpqlPath path,
+            boolean isKeyPath,
+            boolean isValuePath,
+            Path treatedSubpath,
+            String treatingEntityName) {
         if (pathComponents.length == 0) {
             return path;
         }
@@ -139,16 +152,20 @@ public class QueryPreparator {
             //Replace first identification variable with identifier
             Node oldVariable = path.jjtGetChild(pathComponents.length);
             path.jjtSetChild(createIdentificationVariable(new Alias(oldVariable.getValue())), pathComponents.length);
+            path.jjtGetChild(pathComponents.length).jjtSetParent(path);
         }
-        path.jjtAddChild(createVariable(pathComponents[0]), 0);
+        setChild(path, createVariable(pathComponents[0]), 0);
         for (int i = 1; i < pathComponents.length; i++) {
-            path.jjtAddChild(createIdentificationVariable(new Alias(pathComponents[i])), i);
+            setChild(path, createVariable(pathComponents[i]), i);
         }
         if (isKeyPath) {
             path.jjtSetChild(createKey(path.jjtGetChild(0)), 0);
         }
         if (isValuePath) {
             path.jjtSetChild(createValue(path.jjtGetChild(0)), 0);
+        }
+        if (treatedSubpath != null) {
+            replace(path.jjtGetChild(0), createTreat(treatedSubpath, treatingEntityName));
         }
         return path;
     }
@@ -171,6 +188,15 @@ public class QueryPreparator {
         child.jjtSetParent(value);
         value.jjtAddChild(child, 0);
         return value;
+    }
+
+    /**
+     * Creates a <tt>JpqlTreat</tt> node.
+     */
+    public JpqlTreat createTreat(Path treatedSubpath, String treatingEntityName) {
+        JpqlTreat treat = new JpqlTreat(JpqlParserTreeConstants.JJTTREAT);
+        appendChildren(treat, createPath(treatedSubpath), createIdentificationVariable(treatingEntityName));
+        return treat;
     }
 
     /**
@@ -315,6 +341,15 @@ public class QueryPreparator {
             identificationVariable.jjtSetParent(pathNode);
             pathNode.jjtAddChild(identificationVariable, pathNode.jjtGetNumChildren());
         }
+        if (path.isKeyPath()) {
+            pathNode.jjtSetChild(createKey(pathNode.jjtGetChild(0)), 0);
+        }
+        if (path.isValuePath()) {
+            pathNode.jjtSetChild(createValue(pathNode.jjtGetChild(0)), 0);
+        }
+        if (path.isTreatedPath()) {
+            replace(pathNode.jjtGetChild(0), createTreat(path.getTreatedSubpath(), path.getTreatingEntityName()));
+        }
         return pathNode;
     }
 
@@ -423,6 +458,11 @@ public class QueryPreparator {
                 }
             }
         }
+    }
+
+    public void setChild(Node parent, Node child, int index) {
+        parent.jjtAddChild(child, index);
+        child.jjtSetParent(parent);
     }
 
     public void replace(Node oldNode, Node newNode) {

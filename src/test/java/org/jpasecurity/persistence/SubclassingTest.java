@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2016 Arne Limburg
+ * Copyright 2008 - 2018 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,14 @@ package org.jpasecurity.persistence;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.jpasecurity.model.AbstractEntity;
 import org.jpasecurity.model.AbstractSuperclass;
@@ -36,11 +41,10 @@ import org.junit.Test;
 /**
  * @author Arne Limburg
  */
-//TODO
-@Ignore
 public class SubclassingTest {
 
-    public static final String USER = "user";
+    private static final String USER = "user";
+    private static final String USER_READ = "user_read";
 
     private EntityManagerFactory factory;
 
@@ -54,6 +58,8 @@ public class SubclassingTest {
         entityManager.getTransaction().begin();
         TestBean testBean = new TestBean();
         entityManager.persist(testBean);
+
+        TestSecurityContext.authenticate(USER);
         TestBeanSubclass testBeanSubclass = new TestBeanSubclass(USER);
         entityManager.persist(testBeanSubclass);
         testBean.setParent(testBeanSubclass);
@@ -61,6 +67,11 @@ public class SubclassingTest {
         entityManager.persist(subclass);
         superclassReferencingBean = new SuperclassReferencingBean(subclass);
         entityManager.persist(superclassReferencingBean);
+
+        TestSecurityContext.authenticate(USER_READ);
+        TestBeanSubclass readTestBeanSubclass = new TestBeanSubclass(USER_READ);
+        entityManager.persist(readTestBeanSubclass);
+
         entityManager.getTransaction().commit();
         entityManager.close();
         TestSecurityContext.authenticate(null);
@@ -78,10 +89,14 @@ public class SubclassingTest {
         assertEquals(1, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
         TestSecurityContext.authenticate(USER);
         assertEquals(2, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
+        TestSecurityContext.authenticate(USER_READ);
+        assertEquals(2, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
         entityManager.getTransaction().commit();
         entityManager.close();
     }
 
+    //TODO
+    @Ignore
     @Test
     public void accessRulesOnSubclassesWithGenericSuperclass() {
         EntityManager entityManager = factory.createEntityManager();
@@ -98,6 +113,24 @@ public class SubclassingTest {
         entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         entityManager.merge(superclass);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+    }
+
+    @Test
+    public void accessRulesOnSubclassesWithRead() {
+        EntityManager entityManager = factory.createEntityManager();
+        entityManager.getTransaction().begin();
+        TestSecurityContext.authenticate(USER_READ);
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<TestBean> query = criteriaBuilder.createQuery(TestBean.class);
+        Root<TestBean> readAccessUser = query.from(TestBean.class);
+        CriteriaQuery<TestBean> selectStatement = query.select(readAccessUser);
+        List<TestBean> resultList = entityManager.createQuery(selectStatement).getResultList();
+
+        assertEquals(1, resultList.size());
+
         entityManager.getTransaction().commit();
         entityManager.close();
     }

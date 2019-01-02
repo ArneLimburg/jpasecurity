@@ -53,21 +53,21 @@ import java.io.*;
 public class JpqlParser {
     
     public JpqlParser() {
-        this(new StringReader(""));
+        this(new StringProvider(""));
     }
     
     public JpqlStatement parseQuery(String query) throws ParseException {
-        ReInit(new StringReader(query));
+        ReInit(new StringProvider(query));
         return jpqlStatement();
     }
     
     public JpqlAccessRule parseRule(String rule) throws ParseException {
-        ReInit(new StringReader(rule));
+        ReInit(new StringProvider(rule));
         return jpqlAccessRule();
     }
     
     public JpqlWhere parseWhereClause(String whereClause) throws ParseException {
-        ReInit(new StringReader(whereClause));
+        ReInit(new StringProvider(whereClause));
         return whereClause();
     }
 }
@@ -416,14 +416,13 @@ void entry() #Entry: {} {
 }
 
 void singleValuedPathExpression() #Path: {} {
-    (identificationVariable() (<DOT> objectField())*)
+    ((treat() | identificationVariable()) (<DOT> objectField())*)
     | LOOKAHEAD(qualifiedPathExpression()) ((key() | value()) (<DOT> objectField())+)
     | LOOKAHEAD(qualifiedIdentificationVariable()) qualifiedIdentificationVariable()
-    | treatJoin()
 }
 
 void collectionValuedPath() #CollectionValuedPath: {} {
-    identificationVariable() (<DOT> objectField())*
+    (treat() | identificationVariable()) (<DOT> objectField())*
 }
 
 void updateClause(): {} {
@@ -1308,7 +1307,7 @@ void trimCharacter() #TrimCharacter :
 }
 
 void treat() #Treat: {} {
-    <TREAT> <LEFT_PAREN> joinAssociationPathExpression() [<AS>] identificationVariable() <RIGHT_PAREN>
+    <TREAT> <LEFT_PAREN> singleValuedPathExpression() <AS> identificationVariable() <RIGHT_PAREN>
 }
 
 void literal() #Literal: {} {

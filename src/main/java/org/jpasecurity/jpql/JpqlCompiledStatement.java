@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2016 Arne Limburg
+ * Copyright 2008 - 2019 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.Path;
@@ -80,14 +81,13 @@ public class JpqlCompiledStatement extends JpqlStatementHolder {
      * @return the types
      * @see #getSelectedPaths()
      */
-    public Map<Path, Class<?>> getSelectedTypes(Metamodel metamodel) {
-        Map<Path, Class<?>> selectedTypes = new HashMap<Path, Class<?>>();
+    public Map<Path, ManagedType<?>> getSelectedTypes(Metamodel metamodel) {
+        Map<Path, ManagedType<?>> selectedTypes = new HashMap<Path, ManagedType<?>>();
         for (Path selectedPath: getSelectedPaths()) {
             selectedTypes.put(selectedPath,
                     TypeDefinition.Filter.managedTypeForPath(selectedPath)
                         .withMetamodel(metamodel)
-                        .filter(getTypeDefinitions())
-                        .getJavaType());
+                        .filter(getTypeDefinitions()));
         }
         return selectedTypes;
     }

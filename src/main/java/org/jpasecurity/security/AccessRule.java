@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 - 2017 Arne Limburg
+ * Copyright 2008 - 2019 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.AccessType;
@@ -69,8 +70,12 @@ public class AccessRule extends JpqlCompiledStatement {
         return getSelectedPaths().get(0);
     }
 
-    public Class<?> getSelectedType(Metamodel metamodel) {
+    public ManagedType<?> getSelectedManagedType(Metamodel metamodel) {
         return getSelectedTypes(metamodel).values().iterator().next();
+    }
+
+    public Class<?> getSelectedType(Metamodel metamodel) {
+        return getSelectedManagedType(metamodel).getJavaType();
     }
 
     public TypeDefinition getTypeDefinition() {

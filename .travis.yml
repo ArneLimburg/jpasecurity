@@ -23,7 +23,11 @@ jobs:
     - jdk: oraclejdk8
       env:
         - CONTAINER=hibernate
-      script: mvn test -B -P $CONTAINER sonar:sonar
+      script:
+        # internal pull request
+        - 'if [ "$TRAVIS_SECURE_ENV_VARS" = "true" ]; then mvn test -B -P $CONTAINER sonar:sonar ; fi'
+        # external pull request via fork
+        - 'if [ "$TRAVIS_SECURE_ENV_VARS" = "false" ]; then mvn test -B -P $CONTAINER sonar:sonar -Dsonar.analysis.mode=preview -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=ok; fi'
     - jdk: oraclejdk8
       env:
         - CONTAINER=eclipselink

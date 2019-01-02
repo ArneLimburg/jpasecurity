@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Arne Limburg
+ * Copyright 2008 - 2019 Arne Limburg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,10 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean FROM TestBean bean INNER JOIN FETCH bean.name WHERE bean.id = :id");
         assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.parent parent WITH parent.name = 'Parent' "
                    + "WHERE bean.id = :id");
+        assertJpql("SELECT bean FROM TestBean bean "
+                   + "WHERE (( TYPE(bean)  = TestBeanSubclass "
+                   + " AND TREAT(bean AS TestBeanSubclass).owner = :CURRENT_PRINCIPAL) "
+                   + "OR  NOT  TYPE(bean)  = TestBeanSubclass )");
         assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id BETWEEN 5 AND 7)");
         assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id NOT BETWEEN 5 AND 7)");
         assertJpql("SELECT DISTINCT bean, bean.id FROM TestBean bean WHERE :id = bean.id");
@@ -128,6 +132,7 @@ public class ToStringVisitorTest {
         assertJpql("SELECT NULLIF(bean.name, 'Test') FROM TestBean bean");
         assertJpql("SELECT bean, COUNT( DISTINCT bean) AS beanCount FROM TestBean bean WHERE bean.name = 'name 1'");
         assertJpql("SELECT bean FROM TestBean bean WHERE TYPE(bean) = TestBeanSubclass");
+        assertJpql("SELECT bean FROM TestBean bean WHERE TREAT(bean.parent AS TestBeanSubclass).name = 'name 1'");
         assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.related related "
                    + "WHERE KEY(related).name = 'name 1'");
         assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.related related "
@@ -174,26 +179,31 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
             + " COALESCE(bean.name, 'Horst') AND bean.name");
     }
+
     @Test
     public void parseWhereCoalesceBetween3Expression() {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
             + " bean.name AND COALESCE(bean.name, 'Horst')");
     }
+
     @Test
     public void parseWhereCoalesceBetween4Expression() {
         assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name, 'Horst') BETWEEN"
             + " COALESCE(bean.name, 'Horst') AND bean.name");
     }
+
     @Test
     public void parseWhereCoalesceBetween5Expression() {
         assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name, 'Horst') BETWEEN"
             + " bean.name AND COALESCE(bean.name, 'Horst')");
     }
+
     @Test
     public void parseWhereCoalesceBetween6Expression() {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
             + " COALESCE(bean.name, 'Horst') AND COALESCE(bean.name, 'Horst')");
     }
+
     @Test
     public void parseWhereCoalesceBetween7Expression() {
         assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name, 'Horst') BETWEEN"

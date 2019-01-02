@@ -17,6 +17,8 @@ package org.jpasecurity;
 
 import static org.jpasecurity.util.Validate.notNull;
 
+import javax.persistence.metamodel.EntityType;
+
 /**
  * A class representing a JPQL path.
  * @author Arne Limburg
@@ -27,10 +29,14 @@ public class Path {
     private static final String KEY_FUNCTION = "KEY(";
     private static final String VALUE_FUNCTION = "VALUE(";
     private static final String ENTRY_FUNCTION = "ENTRY(";
+    private static final String TREAT_FUNCTION = "TREAT(";
+    private static final String AS_KEYWORD = " AS ";
 
     private Alias rootAlias;
     private boolean isKeyPath;
     private boolean isValuePath;
+    private Path treatedSubpath;
+    private String treatingEntityName;
     private String subpath;
     private String[] subpathComponents;
 
@@ -52,6 +58,12 @@ public class Path {
             rootAlias = new Alias(firstPathSegment.substring(VALUE_FUNCTION.length(), firstPathSegment.length() - 1));
         } else if (isEntrySegment(firstPathSegment)) {
             rootAlias = new Alias(firstPathSegment.substring(ENTRY_FUNCTION.length(), firstPathSegment.length() - 1));
+        } else if (isTreatSegment(firstPathSegment)) {
+            int asIndex = firstPathSegment.toUpperCase().lastIndexOf(AS_KEYWORD);
+            treatedSubpath = new Path(firstPathSegment.substring(TREAT_FUNCTION.length(), asIndex));
+            treatingEntityName
+                = firstPathSegment.substring(asIndex + AS_KEYWORD.length(), firstPathSegment.length() - 1).trim();
+            rootAlias = treatedSubpath.getRootAlias();
         } else {
             rootAlias = new Alias(firstPathSegment);
         }
@@ -59,6 +71,10 @@ public class Path {
 
     public Path(Path path) {
         this(path.getRootAlias(), path.getSubpath());
+    }
+
+    public Path(Path treatedPath, EntityType<?> treatingEntityType) {
+        this(TREAT_FUNCTION + treatedPath + AS_KEYWORD + treatingEntityType.getName() + ')');
     }
 
     protected Path(Alias alias, String path) {
@@ -73,6 +89,18 @@ public class Path {
 
     public boolean isValuePath() {
         return isValuePath;
+    }
+
+    public boolean isTreatedPath() {
+        return treatedSubpath != null;
+    }
+
+    public Path getTreatedSubpath() {
+        return treatedSubpath;
+    }
+
+    public String getTreatingEntityName() {
+        return treatingEntityName;
     }
 
     public boolean hasParentPath() {
@@ -148,6 +176,13 @@ public class Path {
             builder.append(KEY_FUNCTION).append(rootAlias.getName()).append(')');
         } else if (isValuePath()) {
             builder.append(VALUE_FUNCTION).append(rootAlias.getName()).append(')');
+        } else if (isTreatedPath()) {
+            builder
+                .append(TREAT_FUNCTION)
+                .append(getTreatedSubpath())
+                .append(AS_KEYWORD)
+                .append(getTreatingEntityName())
+                .append(')');
         } else {
             builder.append(rootAlias.getName());
         }
@@ -180,6 +215,10 @@ public class Path {
 
     private boolean isEntrySegment(String rootSegment) {
         return rootSegment.toUpperCase().startsWith(ENTRY_FUNCTION);
+    }
+
+    private boolean isTreatSegment(String rootSegment) {
+        return rootSegment.toUpperCase().startsWith(TREAT_FUNCTION);
     }
 
     private Class<? extends Enum> loadEnumClass(String className) {

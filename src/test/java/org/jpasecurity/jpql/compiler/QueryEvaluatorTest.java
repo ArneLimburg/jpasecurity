@@ -15,8 +15,12 @@
  */
 package org.jpasecurity.jpql.compiler;
 
+import static java.util.Collections.singletonList;
+
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -292,6 +296,19 @@ public class QueryEvaluatorTest {
         } catch (NotEvaluatableException e) {
             //expected
         }
+    }
+
+    @Test
+    public void evaluateSubselectWithWithClause() throws Exception {
+        JpqlCompiledStatement statement = compile(SELECT + "WHERE bean.name IN " + "(SELECT innerBean.name "
+            + "FROM MethodAccessTestBean innerBean JOIN innerBean.parent p WITH p.parent IS NULL "
+            + "WHERE innerBean = bean)");
+        MethodAccessTestBean parent = new MethodAccessTestBean("parent");
+        MethodAccessTestBean child = new MethodAccessTestBean("child");
+        child.setParent(parent);
+        parent.setChildren(singletonList(child));
+        aliases.put(new Alias("bean"), child);
+        assertThat(queryEvaluator.<Boolean>evaluate(statement.getWhereClause(), parameters), is(true));
     }
 
     @Test
@@ -924,7 +941,7 @@ public class QueryEvaluatorTest {
         aliases.put(new Alias("bean"), bean);
         assertTrue(evaluate(statement.getWhereClause(), parameters));
 
-        bean.setChildren(Collections.singletonList(new MethodAccessTestBean("testChild")));
+        bean.setChildren(singletonList(new MethodAccessTestBean("testChild")));
         assertFalse(evaluate(statement.getWhereClause(), parameters));
     }
 
