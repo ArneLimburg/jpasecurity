@@ -34,11 +34,13 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
+import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
 import org.jpasecurity.jpql.parser.JpqlAbs;
+import org.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
 import org.jpasecurity.jpql.parser.JpqlAdd;
 import org.jpasecurity.jpql.parser.JpqlAll;
 import org.jpasecurity.jpql.parser.JpqlAnd;
@@ -108,12 +110,12 @@ import org.jpasecurity.jpql.parser.JpqlSubselect;
 import org.jpasecurity.jpql.parser.JpqlSubstring;
 import org.jpasecurity.jpql.parser.JpqlSubtract;
 import org.jpasecurity.jpql.parser.JpqlSum;
-import org.jpasecurity.jpql.parser.JpqlTreat;
 import org.jpasecurity.jpql.parser.JpqlTrim;
 import org.jpasecurity.jpql.parser.JpqlTrimBoth;
 import org.jpasecurity.jpql.parser.JpqlTrimCharacter;
 import org.jpasecurity.jpql.parser.JpqlTrimLeading;
 import org.jpasecurity.jpql.parser.JpqlTrimTrailing;
+import org.jpasecurity.jpql.parser.JpqlType;
 import org.jpasecurity.jpql.parser.JpqlUpper;
 import org.jpasecurity.jpql.parser.JpqlVisitorAdapter;
 import org.jpasecurity.jpql.parser.JpqlWhere;
@@ -271,16 +273,16 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
         // Oliver Zhou: Call getFrom instead of getPath, getPath doesn't work with Join
         javax.persistence.criteria.Path<?> currentPath = query.getFrom(path.getRootAlias());
 
+        EntityType<?> treatingEntityType = null;
         if (path.isTreatedPath()) {
             Path treatedSubpath = path.getTreatedSubpath();
             for (String attribute: treatedSubpath.getSubpathComponents()) {
                 currentPath = currentPath.get(attribute);
             }
-            Class treatingType
-                = ManagedTypeFilter.forModel(metamodel).filter(path.getTreatingEntityName()).getBindableJavaType();
+            treatingEntityType = ManagedTypeFilter.forModel(metamodel).filter(path.getTreatingEntityName());
+            Class treatingType = treatingEntityType.getBindableJavaType();
             currentPath = builder.treat(currentPath, treatingType);
         }
-
         for (String attribute: path.getSubpathComponents()) {
             currentPath = currentPath.get(attribute);
         }
@@ -346,6 +348,14 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
         node.jjtGetChild(0).visit(this, query);
         selections.add(query.<Selection<?>>getCurrentValue());
         query.setValue(selections);
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlAbstractSchemaName node, CriteriaHolder query) {
+        query.setValue(ManagedTypeFilter.forModel(metamodel).filter(node.toString().trim()).getBindableJavaType());
         return false;
     }
 
@@ -1025,11 +1035,10 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public boolean visit(JpqlTreat node, CriteriaHolder query) {
-        return true;
+    public boolean visit(JpqlType node, CriteriaHolder query) {
+        node.jjtGetChild(0).visit(this, query);
+        query.setValue(query.<javax.persistence.criteria.Path<?>>getCurrentValue().type());
+        return false;
     }
 
     private Alias getAlias(Node node) {

@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,6 @@ import javax.persistence.PersistenceException;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.MapAttribute;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
@@ -68,6 +68,7 @@ import org.jpasecurity.jpql.compiler.SubselectEvaluator;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import org.jpasecurity.jpql.parser.JpqlBrackets;
+import org.jpasecurity.jpql.parser.JpqlExists;
 import org.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import org.jpasecurity.jpql.parser.JpqlIn;
 import org.jpasecurity.jpql.parser.JpqlParser;
@@ -187,17 +188,6 @@ public class EntityFilter implements AccessManager {
                                         statement.getTypeDefinitions());
     }
 
-    // hibernate does not handle TREAT properly, but handles it correct, when it is removed, so remove it here
-    public String trimTreat(String query) {
-        try {
-            JpqlStatement statement = parser.parseQuery(query);
-            statement.visit(new TrimTreatVisitor());
-            return statement.toString();
-        } catch (ParseException e) {
-            throw new PersistenceException(e);
-        }
-    }
-
     protected AccessDefinition createAccessDefinition(JpqlCompiledStatement statement, AccessType accessType) {
         return createAccessDefinition(getSelectedEntityTypes(statement), accessType, getAliases(statement));
     }
@@ -226,7 +216,7 @@ public class EntityFilter implements AccessManager {
                         if (accessRule.grantsAccess(accessType)) {
                             typedAccessDefinition = appendAccessDefinition(typedAccessDefinition,
                                                                            accessRule,
-                                                                           selectedType,
+                                                                           selectedType.getKey(),
                                                                            usedAliases);
                         }
                     }
@@ -245,7 +235,7 @@ public class EntityFilter implements AccessManager {
                     }
                 }
             }
-            Set<AccessRule> bestMayBeRules = new HashSet<AccessRule>();
+            Map<Class<?>, Set<AccessRule>> bestMayBeRules = new HashMap<Class<?>, Set<AccessRule>>();
             for (Set<AccessRule> accessRulesByStatement : mayBeRules.values()) {
                 AccessRule bestRule = null;
                 Class<?> bestRuleSelectedType = null;
@@ -262,27 +252,48 @@ public class EntityFilter implements AccessManager {
                         }
                     }
                 }
-                bestMayBeRules.add(bestRule);
+                Class<?> restrictedType = bestRule.getSelectedType(metamodel);
+                Set<AccessRule> restrictions = bestMayBeRules.get(restrictedType);
+                if (restrictions == null) {
+                    restrictions = new HashSet<AccessRule>();
+                    bestMayBeRules.put(restrictedType, restrictions);
+                }
+                restrictions.add(bestRule);
             }
-            for (AccessRule accessRule : bestMayBeRules) {
-                if (accessRule.mayBeAssignable(selectedType.getValue(), metamodel)) {
+            for (Entry<Class<?>, Set<AccessRule>> accessRules : bestMayBeRules.entrySet()) {
+                restricted = true;
+                restrictedTypes.add(accessRules.getKey());
+                for (Iterator<AccessRule> i = accessRules.getValue().iterator(); i.hasNext();) {
+                    if (!i.next().grantsAccess(accessType)) {
+                        i.remove();
+                    }
+                }
+                if (!accessRules.getValue().isEmpty()) {
                     restricted = true;
-                    restrictedTypes.add(accessRule.getSelectedType(metamodel));
-                    if (accessRule.grantsAccess(accessType)) {
-                        Class<?> type = accessRule.getSelectedType(metamodel);
-                        Node instanceOf = null;
-                        for (EntityType<?> entityType: forModel(metamodel).filterEntities(type)) {
-                            Node node = queryPreparator.createInstanceOf(selectedType.getKey(), entityType);
-                            if (instanceOf == null) {
-                                instanceOf = node;
+                    restrictedTypes.add(accessRules.getKey());
+                    for (EntityType<?> entityType: forModel(metamodel).filterEntities(accessRules.getKey())) {
+                        AccessDefinition preparedAccessRule = null;
+                        Alias alias
+                            = getUnusedAlias(new Alias(Introspector.decapitalize(entityType.getName())), usedAliases);
+                        for (AccessRule accessRule: accessRules.getValue()) {
+                            if (preparedAccessRule == null) {
+                                preparedAccessRule = prepareAccessRule(accessRule, alias.toPath(), usedAliases);
                             } else {
-                                instanceOf = queryPreparator.createOr(instanceOf, node);
+                                preparedAccessRule.merge(prepareAccessRule(accessRule, alias.toPath(), usedAliases));
                             }
                         }
-                        AccessDefinition preparedAccessRule
-                            = prepareAccessRule(accessRule, selectedType, usedAliases);
-                        preparedAccessRule.mergeNode(instanceOf);
-                        typedAccessDefinition = preparedAccessRule.append(typedAccessDefinition);
+                        JpqlExists exists = queryPreparator.createExists(
+                                selectedType.getKey(),
+                                alias,
+                                entityType,
+                                preparedAccessRule.getAccessRules());
+                        if (typedAccessDefinition == null) {
+                            typedAccessDefinition
+                                = new AccessDefinition(exists, preparedAccessRule.getQueryParameters());
+                        } else {
+                            typedAccessDefinition.appendNode(exists);
+                            typedAccessDefinition.group();
+                        }
                     }
                 }
             }
@@ -383,7 +394,7 @@ public class EntityFilter implements AccessManager {
 
     private AccessDefinition appendAccessDefinition(AccessDefinition accessDefinition,
                                                     AccessRule accessRule,
-                                                    Entry<Path, Class<?>> selectedType,
+                                                    Path selectedType,
                                                     Set<Alias> usedAliases) {
         return prepareAccessRule(accessRule, selectedType, usedAliases).append(accessDefinition);
     }
@@ -398,7 +409,7 @@ public class EntityFilter implements AccessManager {
 
     private AccessDefinition prepareAccessRule(
             AccessRule accessRule,
-            Entry<Path, Class<?>> selectedPath,
+            Path selectedPath,
             Set<Alias> usedAliases) {
         if (accessRule.getWhereClause() == null) {
             return new AccessDefinition(queryPreparator.createBoolean(true));
@@ -413,15 +424,7 @@ public class EntityFilter implements AccessManager {
         Map<String, Object> queryParameters = new HashMap<String, Object>();
         expand(accessRule, queryParameters);
         Node preparedAccessRule = queryPreparator.createBrackets(accessRule.getWhereClause().jjtGetChild(0));
-        ManagedType<?> accessRuleType = accessRule.getSelectedManagedType(metamodel);
-        if (accessRuleType instanceof EntityType && !accessRuleType.getJavaType().equals(selectedPath.getValue())) {
-            queryPreparator.replace(
-                    preparedAccessRule,
-                    accessRule.getSelectedPath(),
-                    new Path(selectedPath.getKey(), (EntityType<?>)accessRuleType));
-        } else {
-            queryPreparator.replace(preparedAccessRule, accessRule.getSelectedPath(), selectedPath.getKey());
-        }
+        queryPreparator.replace(preparedAccessRule, accessRule.getSelectedPath(), selectedPath);
         return new AccessDefinition(preparedAccessRule, queryParameters);
     }
 

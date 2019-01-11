@@ -15,7 +15,6 @@
  */
 package org.jpasecurity.jpql.compiler;
 
-import java.beans.Introspector;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +30,7 @@ import org.jpasecurity.jpql.parser.JpqlBrackets;
 import org.jpasecurity.jpql.parser.JpqlCollectionValuedPath;
 import org.jpasecurity.jpql.parser.JpqlConstructorParameter;
 import org.jpasecurity.jpql.parser.JpqlEquals;
+import org.jpasecurity.jpql.parser.JpqlExists;
 import org.jpasecurity.jpql.parser.JpqlFrom;
 import org.jpasecurity.jpql.parser.JpqlFromItem;
 import org.jpasecurity.jpql.parser.JpqlIdentificationVariable;
@@ -421,15 +421,23 @@ public class QueryPreparator {
                         createIdentificationVariable(classMapping.getName())));
     }
 
-    public JpqlSubselect createSubselectById(Path path, EntityType<?> classMapping) {
-        Alias alias = new Alias(Introspector.decapitalize(classMapping.getName()));
-        if (!path.hasSubpath() && path.getRootAlias().equals(alias)) {
-            alias = new Alias(alias.toString() + '0');
-        }
+    public JpqlExists createExists(
+            Path path,
+            Alias alias,
+            EntityType<?> classMapping,
+            Node accessRules) {
         JpqlSelectClause select = createSelectClause(alias.toPath());
         JpqlFrom from = createFrom(classMapping, alias);
-        JpqlWhere where = createWhere(createEquals(createPath(alias.toPath()), createPath(path)));
-        return appendChildren(new JpqlSubselect(JpqlParserTreeConstants.JJTSUBSELECT), select, from, where);
+        JpqlWhere where = createWhere(
+                createAnd(createEquals(createPath(alias.toPath()), createPath(path)), createBrackets(accessRules)));
+        JpqlSubselect subselect
+            = appendChildren(new JpqlSubselect(JpqlParserTreeConstants.JJTSUBSELECT), select, from, where);
+        return createExists(subselect);
+    }
+
+    public JpqlExists createExists(JpqlSubselect select) {
+        JpqlExists exists = new JpqlExists(JpqlParserTreeConstants.JJTEXISTS);
+        return appendChildren(exists, select);
     }
 
     public JpqlIdentificationVariable createIdentificationVariable(Alias value) {

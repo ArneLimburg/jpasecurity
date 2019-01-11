@@ -129,7 +129,7 @@ public class SubclassingTest {
         CriteriaQuery<TestBean> selectStatement = query.select(readAccessUser);
         List<TestBean> resultList = entityManager.createQuery(selectStatement).getResultList();
 
-        assertEquals(1, resultList.size());
+        assertEquals(2, resultList.size());
 
         entityManager.getTransaction().commit();
         entityManager.close();
