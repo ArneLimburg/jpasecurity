@@ -67,6 +67,10 @@ public class AccessRule extends JpqlCompiledStatement {
               Collections.<String>emptySet());
     }
 
+    public Alias getRootAlias() {
+        return getSelectedPath().getRootAlias();
+    }
+
     public Path getSelectedPath() {
         return getSelectedPaths().get(0);
     }

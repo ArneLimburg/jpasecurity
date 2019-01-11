@@ -266,11 +266,6 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     private <Q extends Query> Q createDelegateQuery(String qlString, Class<?> resultClass, Class<Q> queryClass) {
-        if (getUnsecureEntityManager().getClass().getName().toLowerCase().contains("hibernate")
-                && qlString.contains("TREAT")) { // upper case check suffice, because we generate rules in upper case
-            // hack to circumvent hibernate bug with treat
-            qlString = entityFilter.trimTreat(qlString);
-        }
         DefaultAccessManager.Instance.register(accessManager);
         if (TypedQuery.class.equals(queryClass)) {
             return (Q)super.createQuery(qlString, resultClass);
@@ -305,7 +300,13 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         if (filterResult.getQuery() == null) {
             return new EmptyResultQuery<T>(super.createQuery(criteriaQuery));
         } else {
-            return createQuery(super.createQuery(filterResult.getQuery()), filterResult);
+            TypedQuery<T> query = createQuery(super.createQuery(filterResult.getQuery()), filterResult);
+            if (filterResult.getParameters() != null) {
+                for (Map.Entry<String, Object> parameter: filterResult.getParameters().entrySet()) {
+                    query.setParameter(parameter.getKey(), parameter.getValue());
+                }
+            }
+            return query;
         }
     }
 
