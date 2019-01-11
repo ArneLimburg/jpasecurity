@@ -134,6 +134,9 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
     }
 
     private Object getPathValue(Path path, Map<Alias, Object> aliases) {
+        if (path.isEnumValue()) {
+            return path.getEnumValue();
+        }
         Alias alias = path.getRootAlias();
         Object aliasValue = aliases.get(alias);
         if (!path.hasSubpath()) {
