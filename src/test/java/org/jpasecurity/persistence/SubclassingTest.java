@@ -44,7 +44,7 @@ import org.junit.Test;
 public class SubclassingTest {
 
     private static final String USER = "user";
-    private static final String USER_READ = "user_read";
+    private static final String USER_CRITERIA = "user_criteria";
 
     private EntityManagerFactory factory;
 
@@ -68,9 +68,9 @@ public class SubclassingTest {
         superclassReferencingBean = new SuperclassReferencingBean(subclass);
         entityManager.persist(superclassReferencingBean);
 
-        TestSecurityContext.authenticate(USER_READ);
-        TestBeanSubclass readTestBeanSubclass = new TestBeanSubclass(USER_READ);
-        entityManager.persist(readTestBeanSubclass);
+        TestSecurityContext.authenticate(USER_CRITERIA);
+        TestBeanSubclass criteriaTestBeanSubclass = new TestBeanSubclass(USER_CRITERIA);
+        entityManager.persist(criteriaTestBeanSubclass);
 
         entityManager.getTransaction().commit();
         entityManager.close();
@@ -89,7 +89,7 @@ public class SubclassingTest {
         assertEquals(1, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
         TestSecurityContext.authenticate(USER);
         assertEquals(2, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
-        TestSecurityContext.authenticate(USER_READ);
+        TestSecurityContext.authenticate(USER_CRITERIA);
         assertEquals(2, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
         entityManager.getTransaction().commit();
         entityManager.close();
@@ -118,10 +118,10 @@ public class SubclassingTest {
     }
 
     @Test
-    public void accessRulesOnSubclassesWithRead() {
+    public void accessRulesOnSubclassesWithCriteria() {
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
-        TestSecurityContext.authenticate(USER_READ);
+        TestSecurityContext.authenticate(USER_CRITERIA);
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<TestBean> query = criteriaBuilder.createQuery(TestBean.class);

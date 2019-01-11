@@ -41,7 +41,6 @@ public class MethodAccessTestBean {
 
     private int identifier;
     private String beanName;
-    private boolean setNameCalled;
     private MethodAccessTestBean parentBean;
     private List<MethodAccessTestBean> childBeans = new ArrayList<MethodAccessTestBean>();
     private Map<MethodAccessTestBean, MethodAccessTestBean> map
@@ -78,12 +77,7 @@ public class MethodAccessTestBean {
     }
 
     public void setName(String name) {
-        setNameCalled = true;
         beanName = name;
-    }
-
-    public boolean wasSetNameCalled() {
-        return setNameCalled;
     }
 
     @ManyToOne
