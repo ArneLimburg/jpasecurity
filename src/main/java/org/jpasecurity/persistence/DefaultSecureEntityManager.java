@@ -385,10 +385,12 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
     }
 
     private void unregisterAccessManagerAfterTransaction() {
+        accessManager.setJtaTransactionActive();
         getTransactionSynchronizationRegistry().registerInterposedSynchronization(new Synchronization() {
             @Override
             public void beforeCompletion() {
                 // nothing to do
+                accessManager.checkNow();
             }
             @Override
             public void afterCompletion(int status) {

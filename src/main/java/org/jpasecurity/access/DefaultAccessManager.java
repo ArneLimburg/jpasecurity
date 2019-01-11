@@ -46,6 +46,7 @@ public class DefaultAccessManager implements AccessManager {
     private SecurityContext context;
     private AccessManager entityFilter;
     private boolean checkInProgress;
+    private boolean jtaTransactionActive;
     private int checksDisabled;
     private int checksDelayed;
     private Map<Object, AccessType> entitiesToCheck = new SimpleMap<Object, AccessType>();
@@ -86,7 +87,7 @@ public class DefaultAccessManager implements AccessManager {
         if (areChecksDisabled()) {
             return;
         }
-        if (shouldCheckLater()) {
+        if (shouldCheckLater(accessType)) {
             checkLater(accessType, entity);
             return;
         }
@@ -153,9 +154,11 @@ public class DefaultAccessManager implements AccessManager {
         }
     }
 
-    private boolean shouldCheckLater() {
-        return checkInProgress || areChecksDelayed();
+    private boolean shouldCheckLater(AccessType accessType) {
+        boolean postPoneJtaWriteAccess =  accessType.isWriteAccess() && jtaTransactionActive;
+        return checkInProgress || areChecksDelayed() || postPoneJtaWriteAccess;
     }
+
 
     private void checkLater(AccessType accessType, Object entity) {
         entitiesToCheck.put(entity, accessType);
@@ -172,6 +175,10 @@ public class DefaultAccessManager implements AccessManager {
 
     private void endCheck() {
         checkInProgress = false;
+    }
+
+    public void setJtaTransactionActive() {
+        jtaTransactionActive = true;
     }
 
     public abstract static class Instance {
