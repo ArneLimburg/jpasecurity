@@ -121,7 +121,7 @@ public class CriteriaEntityFilter extends EntityFilter {
         Map<String, Object> parameters = accessDefinition.getQueryParameters();
         parameters.keySet().retainAll(parameterNames);
 
-        CriteriaHolder criteriaHolder = new CriteriaHolder(query);
+        CriteriaHolder criteriaHolder = new CriteriaHolder(query, parameters);
         getQueryPreparator().createWhere(accessDefinition.getAccessRules()).visit(criteriaVisitor, criteriaHolder);
         return new CriteriaFilterResult<CriteriaQuery<R>>(
                 query, parameters.size() > 0? parameters: null, query.getResultType(), criteriaHolder.getParameters());
@@ -153,7 +153,7 @@ public class CriteriaEntityFilter extends EntityFilter {
         Map<String, Object> parameters = accessDefinition.getQueryParameters();
         parameters.keySet().retainAll(parameterNames);
 
-        CriteriaHolder criteriaHolder = new CriteriaHolder(query);
+        CriteriaHolder criteriaHolder = new CriteriaHolder(query, parameters);
         getQueryPreparator().createWhere(accessDefinition.getAccessRules()).visit(criteriaVisitor, criteriaHolder);
         return new CriteriaFilterResult<Q>(
                 query, parameters.size() > 0? parameters: null, criteriaHolder.getParameters());

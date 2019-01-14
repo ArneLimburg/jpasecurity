@@ -34,6 +34,7 @@
     <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'subSelectJoiningMoreDotting' IN (CURRENT_ROLES) AND bean.name NOT in (SELECT b.name FROM FieldAccessAnnotationTestBean b, FieldAccessAnnotationTestBean p WHERE b.parent.parent=p)</access-rule>
     <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'notEqual1' IN (CURRENT_ROLES) AND bean.name NOT in (SELECT b.name FROM FieldAccessAnnotationTestBean b WHERE b.id != 0)</access-rule>
     <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'notEqual2' IN (CURRENT_ROLES) AND bean.name NOT in (SELECT b.name FROM FieldAccessAnnotationTestBean b WHERE b.id &lt;> 0)</access-rule>
+    <access-rule>GRANT ACCESS TO FieldAccessAnnotationTestBean bean WHERE 'parameter' IN (CURRENT_ROLES) AND bean.id = CURRENT_ID</access-rule>
   </persistence-unit>
 
   <persistence-unit name="annotation-based-method-access">

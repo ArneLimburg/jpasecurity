@@ -17,6 +17,7 @@ package org.jpasecurity.persistence.security;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import javax.persistence.Parameter;
@@ -42,9 +43,11 @@ public class CriteriaHolder extends ValueHolder<Object> {
     private CommonAbstractCriteria criteriaQuery;
     private Stack<Subquery<?>> subqueries = new Stack<Subquery<?>>();
     private List<Parameter<?>> parameters = new ArrayList<Parameter<?>>();
+    private Map<String, Object> values;
 
-    public CriteriaHolder(CommonAbstractCriteria query) {
+    public CriteriaHolder(CommonAbstractCriteria query, Map<String, Object> parameterValues) {
         criteriaQuery = query;
+        values = parameterValues;
         setValue(query);
     }
 
@@ -112,6 +115,11 @@ public class CriteriaHolder extends ValueHolder<Object> {
 
     public List<Parameter<?>> getParameters() {
         return parameters;
+    }
+
+    public Class<?> getParameterType(String parameterName) {
+        Object parameterValue = values.get(parameterName);
+        return parameterValue == null? null: parameterValue.getClass();
     }
 
     private From<?, ?> getFrom(CommonAbstractCriteria query, Alias alias) {

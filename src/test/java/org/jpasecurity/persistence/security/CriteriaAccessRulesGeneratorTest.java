@@ -22,6 +22,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 
 import org.hibernate.Query;
+import org.jpasecurity.Alias;
 import org.jpasecurity.TestEntityManager;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.security.authentication.TestSecurityContext;
@@ -161,7 +162,15 @@ public class CriteriaAccessRulesGeneratorTest {
                 + " not in (select b.name from FieldAccessAnnotationTestBean as b where b.id<>0)");
     }
 
-    private void check(String roleName, String expectedQuery) {
+    @Test
+    public void integerParameterAccessRule() {
+        TestSecurityContext.register(new Alias("CURRENT_ID"), 1);
+        check(
+            "parameter",
+            "select alias0 from FieldAccessAnnotationTestBean as alias0 where alias0.id=:CURRENT_ID");
+    }
+
+    private void check(Object roleName, String expectedQuery) {
         TestSecurityContext.authenticate("admin", roleName);
         CriteriaQuery<FieldAccessAnnotationTestBean> criteriaQuery
             = criteriaBuilder.createQuery(FieldAccessAnnotationTestBean.class);
