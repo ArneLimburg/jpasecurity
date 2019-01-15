@@ -389,7 +389,6 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         getTransactionSynchronizationRegistry().registerInterposedSynchronization(new Synchronization() {
             @Override
             public void beforeCompletion() {
-                // nothing to do
                 accessManager.checkNow();
             }
             @Override
