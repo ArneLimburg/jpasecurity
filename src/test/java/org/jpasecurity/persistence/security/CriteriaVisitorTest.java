@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -98,7 +99,8 @@ public class CriteriaVisitorTest {
         from.alias("testBean");
         query.where(from.get("parent").isNull());
 
-        accessRule.getWhereClause().visit(criteriaVisitor, new CriteriaHolder(query));
+        Map<String, Object> emptyParameterMap = Collections.emptyMap();
+        accessRule.getWhereClause().visit(criteriaVisitor, new CriteriaHolder(query, emptyParameterMap));
         List<TestBean> result = entityManager.createQuery(query).getResultList();
         assertEquals(1, result.size());
         assertEquals(1, result.iterator().next().getId());
