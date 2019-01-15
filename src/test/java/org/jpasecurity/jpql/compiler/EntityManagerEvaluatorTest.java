@@ -50,6 +50,7 @@ import org.jpasecurity.jpql.parser.ParseException;
 import org.jpasecurity.model.ChildTestBean;
 import org.jpasecurity.model.MethodAccessTestBean;
 import org.jpasecurity.model.ParentTestBean;
+import org.jpasecurity.model.TaskStatus;
 import org.jpasecurity.persistence.EntityManagerEvaluator;
 import org.jpasecurity.util.SetHashMap;
 import org.jpasecurity.util.SetMap;
@@ -74,12 +75,18 @@ public class EntityManagerEvaluatorTest {
     private Map<Integer, Object> positionalParameters = new HashMap<Integer, Object>();
     private SetMap<Class<?>, Object> entities = new SetHashMap<Class<?>, Object>();
     private EntityManagerEvaluator entityManagerEvaluator;
+    private Query query;
 
 
     @Before
     public void initialize() throws NoSuchMethodException {
         metamodel = mock(Metamodel.class);
         SecurePersistenceUnitUtil persistenceUnitUtil = mock(SecurePersistenceUnitUtil.class);
+
+        query = mock(Query.class);
+        when(query.setParameter(anyString(), any())).thenReturn(query);
+        when(query.setFlushMode(FlushModeType.COMMIT)).thenReturn(query);
+        when(query.getResultList()).thenReturn(Collections.emptyList());
 
         EntityType methodAccessTestBeanType = mock(EntityType.class);
         EntityType childTestBeanType = mock(EntityType.class);
@@ -144,11 +151,7 @@ public class EntityManagerEvaluatorTest {
             anyString()))
             .thenAnswer(new Answer<Query>() {
                 public Query answer(InvocationOnMock invocation) throws Throwable {
-                    Query mock = mock(Query.class);
-                    when(mock.setParameter(anyString(), any())).thenReturn(mock);
-                    when(mock.setFlushMode(FlushModeType.COMMIT)).thenReturn(mock);
-                    when(mock.getResultList()).thenReturn(Collections.emptyList());
-                    return mock;
+                    return query;
                 }
             });
         entityManagerEvaluator = new EntityManagerEvaluator(entityManager, mock(PathEvaluator.class));
@@ -193,6 +196,19 @@ public class EntityManagerEvaluatorTest {
         entityManagerEvaluator.evaluate(jpqlCompiledStatement, parameters);
         verify(entityManager).createQuery(" SELECT innerBean FROM MethodAccessTestBean innerBean "
                 + "WHERE :path0 = innerBean AND :path1 = innerBean.name");
+    }
+
+    @Test
+    public void evaluateSubSelectWithEnumValue() throws Exception {
+        JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
+            SELECT
+                + "WHERE EXISTS (SELECT innerBean "
+                + " FROM MethodAccessTestBean innerBean"
+                + " WHERE bean.name = org.jpasecurity.model.TaskStatus.OPEN)");
+        entityManagerEvaluator.evaluate(jpqlCompiledStatement, parameters);
+        verify(entityManager).createQuery(" SELECT innerBean FROM MethodAccessTestBean innerBean "
+                + "WHERE :path0 = :path1");
+        verify(query).setParameter("path1", TaskStatus.OPEN);
     }
 
     @Test
