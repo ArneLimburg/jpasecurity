@@ -142,6 +142,7 @@ public class EntityManagerEvaluatorTest {
         when(relatedAttribute.getElementType()).thenReturn(methodAccessTestBeanType);
         when(relatedAttribute.getJavaMember())
             .thenReturn(MethodAccessTestBean.class.getDeclaredMethod("getRelated"));
+        aliases.put(new Alias("bean"), new MethodAccessTestBean());
 
         parser = new JpqlParser();
         compiler = new JpqlCompiler(metamodel);
