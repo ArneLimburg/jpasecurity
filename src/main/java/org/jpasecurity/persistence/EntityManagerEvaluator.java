@@ -93,7 +93,14 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
                 if (namedParameter == null) {
                     namedParameter = createNamedParameter(namedParameters);
                     namedPathParameters.put(path.toString(), namedParameter);
-                    namedParameterValues.put(namedParameter, getPathValue(path, evaluationParameters.getAliasValues()));
+                    Object parameterValue;
+                    try {
+                        parameterValue = getPathValue(path, evaluationParameters.getAliasValues());
+                    } catch (NotEvaluatableException e) {
+                        evaluationParameters.setResultUndefined();
+                        throw e;
+                    }
+                    namedParameterValues.put(namedParameter, parameterValue);
                 }
                 queryPreparator.replace(jpqlPath, queryPreparator.createNamedParameter(namedParameter));
             }
@@ -133,11 +140,14 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
         return entityManager != null && entityManager.isOpen();
     }
 
-    private Object getPathValue(Path path, Map<Alias, Object> aliases) {
+    private Object getPathValue(Path path, Map<Alias, Object> aliases) throws NotEvaluatableException {
         if (path.isEnumValue()) {
             return path.getEnumValue();
         }
         Alias alias = path.getRootAlias();
+        if (!aliases.containsKey(alias)) {
+            throw new NotEvaluatableException();
+        }
         Object aliasValue = aliases.get(alias);
         if (!path.hasSubpath()) {
             return aliasValue;
