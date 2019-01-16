@@ -279,7 +279,7 @@ public class EntityFilter implements AccessManager {
                             if (preparedAccessRule == null) {
                                 preparedAccessRule = prepareAccessRule(accessRule, alias.toPath(), usedAliases);
                             } else {
-                                preparedAccessRule.merge(prepareAccessRule(accessRule, alias.toPath(), usedAliases));
+                                preparedAccessRule.or(prepareAccessRule(accessRule, alias.toPath(), usedAliases));
                             }
                         }
                         JpqlExists exists = queryPreparator.createExists(
@@ -332,7 +332,7 @@ public class EntityFilter implements AccessManager {
             if (accessDefinition == null) {
                 accessDefinition = typedAccessDefinition;
             } else {
-                accessDefinition.merge(typedAccessDefinition);
+                accessDefinition.and(typedAccessDefinition);
             }
         }
         if (accessDefinition == null) {
@@ -643,16 +643,20 @@ public class EntityFilter implements AccessManager {
             accessRules = EntityFilter.this.appendNode(accessRules, node);
         }
 
-        public AccessDefinition merge(AccessDefinition accessDefinition) {
+        public AccessDefinition and(AccessDefinition accessDefinition) {
             if (accessDefinition != null) {
                 queryParameters.putAll(accessDefinition.getQueryParameters());
-                mergeNode(accessDefinition.getAccessRules());
+                accessRules = queryPreparator.createAnd(accessDefinition.getAccessRules(), accessRules);
             }
             return this;
         }
 
-        public void mergeNode(Node node) {
-            accessRules = queryPreparator.createAnd(node, accessRules);
+        public AccessDefinition or(AccessDefinition accessDefinition) {
+            if (accessDefinition != null) {
+                queryParameters.putAll(accessDefinition.getQueryParameters());
+                accessRules = queryPreparator.createOr(accessDefinition.getAccessRules(), accessRules);
+            }
+            return this;
         }
 
         public String toString() {

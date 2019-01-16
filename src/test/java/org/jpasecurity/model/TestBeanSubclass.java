@@ -19,12 +19,16 @@ import javax.persistence.Basic;
 import javax.persistence.Entity;
 
 import org.jpasecurity.security.Permit;
+import org.jpasecurity.security.PermitAny;
 
 /**
  * @author Arne Limburg
  */
 @Entity
-@Permit(where = "owner = CURRENT_PRINCIPAL")
+@PermitAny({
+    @Permit(where = "owner = CURRENT_PRINCIPAL"),
+    @Permit(where = "owner IN (CURRENT_ROLES)")
+    })
 public class TestBeanSubclass extends TestBean {
 
     @Basic

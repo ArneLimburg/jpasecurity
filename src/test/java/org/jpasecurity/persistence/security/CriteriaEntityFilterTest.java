@@ -131,7 +131,7 @@ public class CriteriaEntityFilterTest {
     }
 
     @Test
-    public void compountSelection() {
+    public void compoundSelection() {
         TestSecurityContext.authenticate("admin", "admin");
         CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
@@ -147,7 +147,7 @@ public class CriteriaEntityFilterTest {
     }
 
     @Test
-    public void compountSelectionWithBasicAndEmbeddedPath() {
+    public void compoundSelectionWithBasicAndEmbeddedPath() {
         TestSecurityContext.authenticate(USER);
         CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
         Root<FieldAccessAnnotationTestBean> bean = query.from(FieldAccessAnnotationTestBean.class);
