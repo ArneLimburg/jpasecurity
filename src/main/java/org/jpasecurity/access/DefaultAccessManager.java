@@ -57,6 +57,10 @@ public class DefaultAccessManager implements AccessManager {
         this.entityFilter = notNull("EntityFilter", filter);
     }
 
+    public boolean isAccessible(AccessType accessType, String entityName, Object parameter) {
+        return isAccessible(accessType, entityName, new Object[]{parameter});
+    }
+
     public boolean isAccessible(AccessType accessType, String entityName, Object... parameters) {
         EntityType<?> classMapping = ManagedTypeFilter.forModel(metamodel).filter(entityName);
         Object entity = null;

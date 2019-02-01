@@ -68,6 +68,7 @@ import org.jpasecurity.jpql.compiler.SubselectEvaluator;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
 import org.jpasecurity.jpql.parser.JpqlBooleanLiteral;
 import org.jpasecurity.jpql.parser.JpqlBrackets;
+import org.jpasecurity.jpql.parser.JpqlCollectionValuedPath;
 import org.jpasecurity.jpql.parser.JpqlExists;
 import org.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import org.jpasecurity.jpql.parser.JpqlIn;
@@ -451,7 +452,8 @@ public class EntityFilter implements AccessManager {
             } else {
                 for (JpqlIdentificationVariable identifier: accessRule.getIdentificationVariableNodes(alias)) {
                     Node nodeToReplace = identifier;
-                    if (nodeToReplace.jjtGetParent() instanceof JpqlPath) {
+                    if (nodeToReplace.jjtGetParent() instanceof JpqlPath
+                        || nodeToReplace.jjtGetParent() instanceof JpqlCollectionValuedPath) {
                         nodeToReplace = nodeToReplace.jjtGetParent();
                     }
                     queryPreparator.replace(nodeToReplace, queryPreparator.createNamedParameter(alias.getName()));

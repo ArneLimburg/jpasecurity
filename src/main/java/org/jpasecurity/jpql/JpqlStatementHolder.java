@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jpasecurity.jpql.parser.JpqlCollectionValuedPath;
 import org.jpasecurity.jpql.parser.JpqlFrom;
 import org.jpasecurity.jpql.parser.JpqlParserVisitor;
 import org.jpasecurity.jpql.parser.JpqlPath;
@@ -36,7 +37,7 @@ public class JpqlStatementHolder implements Cloneable {
     private Node statement;
     private JpqlFrom fromClause;
     private JpqlWhere whereClause;
-    private List<JpqlPath> whereClausePaths;
+    private List<Node> whereClausePaths;
 
     public JpqlStatementHolder(Node statement) {
         this.statement = statement;
@@ -69,10 +70,10 @@ public class JpqlStatementHolder implements Cloneable {
         return whereClause;
     }
 
-    public List<JpqlPath> getWhereClausePaths() {
+    public List<Node> getWhereClausePaths() {
         if (whereClausePaths == null) {
             PathVisitor visitor = new PathVisitor();
-            List<JpqlPath> whereClausePaths = new ArrayList<JpqlPath>();
+            List<Node> whereClausePaths = new ArrayList<Node>();
             JpqlWhere whereClause = getWhereClause();
             if (whereClause != null) {
                 whereClause.visit(visitor, whereClausePaths);
@@ -124,9 +125,14 @@ public class JpqlStatementHolder implements Cloneable {
         }
     }
 
-    private class PathVisitor extends JpqlVisitorAdapter<List<JpqlPath>> {
+    private class PathVisitor extends JpqlVisitorAdapter<List<Node>> {
 
-        public boolean visit(JpqlPath path, List<JpqlPath> paths) {
+        public boolean visit(JpqlPath path, List<Node> paths) {
+            paths.add(path);
+            return false;
+        }
+
+        public boolean visit(JpqlCollectionValuedPath path, List<Node> paths) {
             paths.add(path);
             return false;
         }

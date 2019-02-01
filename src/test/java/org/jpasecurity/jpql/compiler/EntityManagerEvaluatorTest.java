@@ -19,11 +19,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -210,6 +212,32 @@ public class EntityManagerEvaluatorTest {
         verify(entityManager).createQuery(" SELECT innerBean FROM MethodAccessTestBean innerBean "
                 + "WHERE :path0 = :path1");
         verify(query).setParameter("path1", TaskStatus.OPEN);
+    }
+
+    @Test
+    public void evaluateSubSelectWithCollectionValuedPath() throws Exception {
+        JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
+            SELECT
+                + "WHERE EXISTS (SELECT innerBean "
+                + " FROM MethodAccessTestBean innerBean"
+                + " WHERE innerBean MEMBER OF bean.children)");
+        entityManagerEvaluator.evaluate(jpqlCompiledStatement, parameters);
+        verify(entityManager).createQuery(" SELECT innerBean FROM MethodAccessTestBean innerBean "
+                + "WHERE innerBean IN (:path0) ");
+        verify(query).setParameter(eq("path0"), any(Collection.class));
+    }
+
+    @Test
+    public void evaluateSubSelectWithCollectionValuedTreatPath() throws Exception {
+        JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
+            SELECT
+                + "WHERE EXISTS (SELECT innerBean "
+                + " FROM MethodAccessTestBean innerBean"
+                + " WHERE innerBean MEMBER OF TREAT(bean AS TestBeanSubclass).children)");
+        entityManagerEvaluator.evaluate(jpqlCompiledStatement, parameters);
+        verify(entityManager).createQuery(" SELECT innerBean FROM MethodAccessTestBean innerBean "
+                + "WHERE innerBean IN (:path0) ");
+        verify(query).setParameter(eq("path0"), any(Collection.class));
     }
 
     @Test

@@ -35,9 +35,12 @@ import org.jpasecurity.Path;
 import org.jpasecurity.SecurityContext;
 import org.jpasecurity.jpql.compiler.QueryPreparator;
 import org.jpasecurity.jpql.parser.JpqlAccessRule;
+import org.jpasecurity.jpql.parser.JpqlCollectionValuedPath;
 import org.jpasecurity.jpql.parser.JpqlFromItem;
+import org.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
 import org.jpasecurity.jpql.parser.JpqlInnerJoin;
 import org.jpasecurity.jpql.parser.JpqlKeywords;
+import org.jpasecurity.jpql.parser.JpqlOuterFetchJoin;
 import org.jpasecurity.jpql.parser.JpqlOuterJoin;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.JpqlPath;
@@ -173,10 +176,16 @@ public class AccessRulesParser {
             return visitAlias(join, declaredAliases);
         }
 
+        public boolean visit(JpqlInnerFetchJoin join, Set<Alias> declaredAliases) {
+            return visitAlias(join, declaredAliases);
+        }
+
+        public boolean visit(JpqlOuterFetchJoin join, Set<Alias> declaredAliases) {
+            return visitAlias(join, declaredAliases);
+        }
+
         public boolean visitAlias(Node node, Set<Alias> declaredAliases) {
-            if (node.jjtGetNumChildren() == 2) {
-                declaredAliases.add(new Alias(node.jjtGetChild(1).getValue().toLowerCase()));
-            }
+            declaredAliases.add(new Alias(node.jjtGetChild(1).getValue().toLowerCase()));
             return false;
         }
     }
@@ -204,13 +213,21 @@ public class AccessRulesParser {
         }
 
         public boolean visit(JpqlPath path, Set<Alias> declaredAliases) {
+            return visitPath(path, declaredAliases);
+        }
+
+        public boolean visit(JpqlCollectionValuedPath path, Set<Alias> declaredAliases) {
+            return visitPath(path, declaredAliases);
+        }
+
+        private boolean visitPath(Node path, Set<Alias> declaredAliases) {
             Alias a = new Alias(path.jjtGetChild(0).getValue().toLowerCase());
             if (THIS_ALIAS.equals(a)) {
                 queryPreparator.replace(path.jjtGetChild(0), queryPreparator.createIdentificationVariable(alias));
             } else if (!declaredAliases.contains(a)
                 && (path.jjtGetNumChildren() > 1 || (!securityContext.getAliases().contains(a)))
                 && (!new Path(path.toString()).isEnumValue())) {
-                queryPreparator.prepend(alias.toPath(), path);
+                queryPreparator.prependPath(alias.toPath(), path);
             }
             return false;
         }
