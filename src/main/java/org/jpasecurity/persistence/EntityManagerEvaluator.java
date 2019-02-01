@@ -15,6 +15,8 @@
  */
 package org.jpasecurity.persistence;
 
+import static java.util.Collections.singleton;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,9 +38,11 @@ import org.jpasecurity.jpql.compiler.NotEvaluatableException;
 import org.jpasecurity.jpql.compiler.PathEvaluator;
 import org.jpasecurity.jpql.compiler.QueryEvaluationParameters;
 import org.jpasecurity.jpql.compiler.QueryPreparator;
+import org.jpasecurity.jpql.parser.JpqlCollectionValuedPath;
+import org.jpasecurity.jpql.parser.JpqlNamedInputParameter;
 import org.jpasecurity.jpql.parser.JpqlNoDbIsAccessible;
-import org.jpasecurity.jpql.parser.JpqlPath;
 import org.jpasecurity.jpql.parser.JpqlSubselect;
+import org.jpasecurity.jpql.parser.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +89,7 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
         Set<String> namedParameters = new HashSet<String>(statement.getNamedParameters());
         Map<String, String> namedPathParameters = new HashMap<String, String>();
         Map<String, Object> namedParameterValues = new HashMap<String, Object>();
-        for (JpqlPath jpqlPath: statement.getWhereClausePaths()) {
+        for (Node jpqlPath: statement.getWhereClausePaths()) {
             Path path = new Path(jpqlPath.toString());
             Alias alias = path.getRootAlias();
             if (!aliases.contains(alias)) {
@@ -95,14 +99,23 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
                     namedPathParameters.put(path.toString(), namedParameter);
                     Object parameterValue;
                     try {
-                        parameterValue = getPathValue(path, evaluationParameters.getAliasValues());
+                        if (jpqlPath instanceof JpqlCollectionValuedPath) {
+                            parameterValue = getPathValues(path, evaluationParameters.getAliasValues());
+                        } else {
+                            parameterValue = getPathValue(path, evaluationParameters.getAliasValues());
+                        }
                     } catch (NotEvaluatableException e) {
                         evaluationParameters.setResultUndefined();
                         throw e;
                     }
                     namedParameterValues.put(namedParameter, parameterValue);
                 }
-                queryPreparator.replace(jpqlPath, queryPreparator.createNamedParameter(namedParameter));
+                JpqlNamedInputParameter parameter = queryPreparator.createNamedParameter(namedParameter);
+                if (jpqlPath instanceof JpqlCollectionValuedPath) {
+                    queryPreparator.replaceCollectionValuedPath((JpqlCollectionValuedPath)jpqlPath, parameter);
+                } else {
+                    queryPreparator.replace(jpqlPath, parameter);
+                }
             }
         }
         String queryString = ((JpqlSubselect)statement.getStatement()).toJpqlString();
@@ -153,6 +166,18 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
             return aliasValue;
         }
         return pathEvaluator.evaluate(aliasValue, path.getSubpath());
+    }
+
+    private Collection<Object> getPathValues(Path path, Map<Alias, Object> aliases) throws NotEvaluatableException {
+        Alias alias = path.getRootAlias();
+        if (!aliases.containsKey(alias)) {
+            throw new NotEvaluatableException();
+        }
+        Object aliasValue = aliases.get(alias);
+        if (!path.hasSubpath()) {
+            return singleton(aliasValue);
+        }
+        return pathEvaluator.evaluateAll(singleton(aliasValue), path.getSubpath());
     }
 
     private Set<Alias> getAliases(Set<TypeDefinition> typeDefinitions) {

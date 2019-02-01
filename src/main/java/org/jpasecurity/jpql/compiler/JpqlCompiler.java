@@ -36,6 +36,7 @@ import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.jpql.parser.JpqlCase;
 import org.jpasecurity.jpql.parser.JpqlClassName;
 import org.jpasecurity.jpql.parser.JpqlCoalesce;
+import org.jpasecurity.jpql.parser.JpqlCollectionValuedPath;
 import org.jpasecurity.jpql.parser.JpqlConstructorParameter;
 import org.jpasecurity.jpql.parser.JpqlCount;
 import org.jpasecurity.jpql.parser.JpqlEntry;
@@ -261,6 +262,14 @@ public class JpqlCompiler {
         }
 
         public boolean visit(JpqlPath node, List<Path> selectedPaths) {
+            return visitPath(node, selectedPaths);
+        }
+
+        public boolean visit(JpqlCollectionValuedPath node, List<Path> selectedPaths) {
+            return visitPath(node, selectedPaths);
+        }
+
+        private boolean visitPath(Node node, List<Path> selectedPaths) {
             if (entryVisitor.isEntry(node)) {
                 Path entryPath = new Path(node.toString());
                 selectedPaths.add(new Path("KEY(" + entryPath.getRootAlias().getName() + ")"));
@@ -460,6 +469,11 @@ public class JpqlCompiler {
             result.setValue(new Path(node.toString()));
             return false;
         }
+
+        public boolean visit(JpqlCollectionValuedPath node, ValueHolder<Path> result) {
+            result.setValue(new Path(node.toString()));
+            return false;
+        }
     }
 
     private class CountVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
@@ -478,7 +492,7 @@ public class JpqlCompiler {
 
     private class EntryVisitor extends JpqlVisitorAdapter<ValueHolder<Boolean>> {
 
-        public boolean isEntry(JpqlPath node) {
+        public boolean isEntry(Node node) {
             ValueHolder<Boolean> result = new ValueHolder<Boolean>(Boolean.FALSE);
             node.visit(this, result);
             return result.getValue();
