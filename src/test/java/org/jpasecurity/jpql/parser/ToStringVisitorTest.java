@@ -256,7 +256,7 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean FROM TestBean bean WHERE UPPER(bean.name) = ('Horst')");
     }
 
-    public void assertJpql(String query) throws ParseException {
+    public void assertJpql(String query) {
         StringBuilder queryBuilder = new StringBuilder();
         JpqlStatement statement = null;
         try {
