@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 import javax.persistence.PersistenceException;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -58,6 +59,8 @@ public abstract class AbstractXmlParser<H extends DefaultHandler> {
     public void parse(InputStream xml) {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
+            // disable external entities
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             factory.setValidating(true);
             SAXParser parser = factory.newSAXParser();
             parser.parse(xml, handler);
