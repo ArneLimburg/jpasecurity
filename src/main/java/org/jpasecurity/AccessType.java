@@ -15,13 +15,17 @@
  */
 package org.jpasecurity;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author Arne Limburg
  */
 public enum AccessType {
 
     CREATE, READ, UPDATE, DELETE;
-    public static final AccessType[] ALL = {CREATE, READ, UPDATE, DELETE};
+    public static final List<AccessType> ALL = Collections.unmodifiableList(Arrays.asList(CREATE, READ, UPDATE, DELETE));
 
     public boolean isWriteAccess() {
         return !this.equals(READ);
