@@ -32,6 +32,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
 import javax.persistence.metamodel.EntityType;
@@ -161,7 +162,10 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
         String entityName = node.jjtGetChild(0).toString();
         Alias alias = getAlias(node);
         Class<?> entityType = ManagedTypeFilter.forModel(metamodel).filter(entityName.trim()).getJavaType();
-        query.from(entityType).alias(alias.getName());
+        Root<?> root = query.from(entityType);
+        if (alias != null) {
+            root.alias(alias.getName());
+        }
         return false;
     }
 

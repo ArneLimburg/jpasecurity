@@ -451,7 +451,9 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             node.jjtGetChild(0).visit(this, data);
             Object value1 = data.getResult();
             Path rightHandSide = new Path(node.jjtGetChild(1).toString());
-            if ((value1 == null || value1 instanceof Enum) && rightHandSide.isEnumValue()) {
+            if (value1 == null) {
+                data.setResult(false);
+            } else if (value1 instanceof Enum && rightHandSide.isEnumValue()) {
                 Object value2 = rightHandSide.getEnumValue();
                 data.setResult(!value2.equals(value1));
             } else {
