@@ -375,7 +375,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         try {
             return InitialContext.doLookup("java:comp/TransactionSynchronizationRegistry");
         } catch (NamingException e) {
-            throw new IllegalStateException(e);
+            return null;
         }
     }
 
@@ -386,7 +386,11 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
 
     private void unregisterAccessManagerAfterTransaction() {
         accessManager.setJtaTransactionActive();
-        getTransactionSynchronizationRegistry().registerInterposedSynchronization(new Synchronization() {
+        TransactionSynchronizationRegistry registry = getTransactionSynchronizationRegistry();
+        if (registry == null) {
+            throw new IllegalStateException("No TransactionSynchronizationRegistry available");
+        }
+        registry.registerInterposedSynchronization(new Synchronization() {
             @Override
             public void beforeCompletion() {
                 accessManager.checkNow();
