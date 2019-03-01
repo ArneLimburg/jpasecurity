@@ -30,6 +30,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.PreUpdate;
 import javax.persistence.Transient;
 
@@ -46,6 +47,7 @@ public class TestBean {
     @ManyToOne(fetch = FetchType.LAZY)
     private TestBean parent;
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @OrderColumn(name = "childIndex")
     private List<TestBean> children = new ArrayList<TestBean>();
     @ManyToMany
     private Map<TestBean, TestBean> related;

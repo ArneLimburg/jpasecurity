@@ -147,6 +147,7 @@ public class ToStringVisitorTest {
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.value = ?1");
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.key = ?1");
         assertJpql("SELECT bean FROM TestBean bean WHERE bean.entry = ?1");
+        assertJpql("SELECT child FROM TestBean bean LEFT OUTER JOIN bean.children child WHERE INDEX(child) = 0");
         assertAccessRule("GRANT CREATE READ UPDATE DELETE ACCESS TO TestBean bean WHERE bean.id = 0");
     }
 

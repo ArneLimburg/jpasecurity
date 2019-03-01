@@ -60,6 +60,7 @@ import org.jpasecurity.jpql.parser.JpqlGroupBy;
 import org.jpasecurity.jpql.parser.JpqlHaving;
 import org.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import org.jpasecurity.jpql.parser.JpqlIn;
+import org.jpasecurity.jpql.parser.JpqlIndex;
 import org.jpasecurity.jpql.parser.JpqlIntegerLiteral;
 import org.jpasecurity.jpql.parser.JpqlIsEmpty;
 import org.jpasecurity.jpql.parser.JpqlIsNull;
@@ -759,6 +760,20 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             data.setResult(((Collection<?>)data.getResult()).size());
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
+        }
+        return false;
+    }
+
+    public boolean visit(JpqlIndex node, QueryEvaluationParameters data) {
+        validateChildCount(node, 1);
+        node.jjtGetChild(0).visit(this, data);
+        try {
+            Map<?, ?> result = data.getResult();
+            if (result != null) {
+                data.setResult(result.values());
+            }
+        } catch (NotEvaluatableException e) {
+            // ignore
         }
         return false;
     }
