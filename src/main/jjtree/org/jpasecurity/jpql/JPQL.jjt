@@ -674,14 +674,14 @@ void inExpression(): {} {
 }
 
 void positiveInExpression() #In: {} {
-    (LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() | inItem() | LOOKAHEAD(scalarExpression()) scalarExpression())
+    (LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() | LOOKAHEAD(inItem()) inItem() | LOOKAHEAD(scalarExpression()) scalarExpression())
     <IN> ((<LEFT_PAREN> (inItem()
              (<COMMA> (inItem()))* | subquery() | collectionValuedPath())
          <RIGHT_PAREN>) | inputParameter() | collectionValuedPath())
 }
 
 void negativeInExpression() #In: {} {
-    (LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() | inItem() | LOOKAHEAD(scalarExpression()) scalarExpression())
+    (LOOKAHEAD(singleValuedPathExpression()) singleValuedPathExpression() | LOOKAHEAD(inItem()) inItem() | LOOKAHEAD(scalarExpression()) scalarExpression())
     <NOT> <IN>
         ((<LEFT_PAREN> (inItem()
             (<COMMA> (inItem()))* | subquery() | collectionValuedPath())

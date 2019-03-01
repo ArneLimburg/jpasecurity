@@ -17,7 +17,6 @@ package org.jpasecurity.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -27,7 +26,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
@@ -42,15 +40,17 @@ public class TestBean {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+
     @Basic
     private String name;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private TestBean parent;
+
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @OrderColumn(name = "childIndex")
-    private List<TestBean> children = new ArrayList<TestBean>();
-    @ManyToMany
-    private Map<TestBean, TestBean> related;
+    private List<TestBean> children = new ArrayList<>();
+
     @Transient
     private boolean preUpdate;
 
@@ -93,10 +93,6 @@ public class TestBean {
         this.children = children;
     }
 
-    public Map<TestBean, TestBean> getRelated() {
-        return related;
-    }
-
     @PreUpdate
     private void preUpdate() {
         preUpdate = true;
@@ -111,7 +107,7 @@ public class TestBean {
         if (this == o) {
             return true;
         }
-        if (o == null || !(o instanceof TestBean)) {
+        if (!(o instanceof TestBean)) {
             return false;
         }
 
