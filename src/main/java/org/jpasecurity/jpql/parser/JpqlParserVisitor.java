@@ -695,6 +695,14 @@ public interface JpqlParserVisitor<T> {
     boolean visit(JpqlSize node, T data);
 
     /**
+     * Called when visiting a <tt>JpqlIndex</tt> node.
+     * @param node the current node
+     * @param data that may be needed by the visitor
+     * @return <tt>true</tt>, if the node should go on processing the children
+     */
+    boolean visit(JpqlIndex node, T data);
+
+    /**
      * Called when visiting a <tt>JpqlCurrentDate</tt> node.
      * @param node the current node
      * @param data that may be needed by the visitor

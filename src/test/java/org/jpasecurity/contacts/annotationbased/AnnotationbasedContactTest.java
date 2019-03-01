@@ -34,6 +34,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class AnnotationbasedContactTest {
@@ -106,6 +107,7 @@ public class AnnotationbasedContactTest {
         assertThat(result, hasItems(marysContact, publicContact));
     }
 
+    @Ignore("See https://github.com/ArneLimburg/jpasecurity/issues/25")
     @Test
     public void findAllWithCriteria() {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
