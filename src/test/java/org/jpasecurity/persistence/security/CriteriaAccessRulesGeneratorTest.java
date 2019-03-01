@@ -28,6 +28,7 @@ import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -162,6 +163,7 @@ public class CriteriaAccessRulesGeneratorTest {
                 + " not in (select b.name from FieldAccessAnnotationTestBean as b where b.id<>0)");
     }
 
+    @Ignore("See https://github.com/ArneLimburg/jpasecurity/issues/25")
     @Test
     public void integerParameterAccessRule() {
         TestSecurityContext.register(new Alias("CURRENT_ID"), 1);
