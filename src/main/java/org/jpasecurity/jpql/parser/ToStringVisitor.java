@@ -943,6 +943,18 @@ public class ToStringVisitor extends JpqlVisitorAdapter<StringBuilder> {
     /**
      * {@inheritDoc}
      */
+    public boolean visit(JpqlIndex node, StringBuilder query) {
+        query.append(" INDEX(");
+        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+            node.jjtGetChild(i).visit(this, query);
+        }
+        query.append(") ");
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean visit(JpqlCurrentDate node, StringBuilder query) {
         query.append("CURRENT_DATE");
         return true;

@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -66,6 +67,8 @@ public class XmlParser {
     public XmlParser(Collection<URL> documentUrls)
         throws ParserConfigurationException, SAXException, IOException, URISyntaxException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        // disable external entities
+        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         documentBuilderFactory.setNamespaceAware(false);
         xpath = XPathFactory.newInstance().newXPath();
         builder = documentBuilderFactory.newDocumentBuilder();
