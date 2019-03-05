@@ -25,10 +25,32 @@
             <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
-            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
             <property name="org.jpasecurity.persistence.provider" value="org.jpasecurity.persistence.MockitoPersistenceProvider" />
         </properties>
+    </persistence-unit>
+
+    <persistence-unit name="generic-test" transaction-type="RESOURCE_LOCAL">
+
+        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
+
+        <mapping-file>security.orm.xml</mapping-file>
+
+        <class>org.jpasecurity.model.DummyEnumClass</class>
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <properties>
+            <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
+            <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
+            <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+        </properties>
+
     </persistence-unit>
 
     <persistence-unit name="subclassing-test" transaction-type="RESOURCE_LOCAL">
@@ -153,7 +175,6 @@
             <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
-            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
         </properties>
 
@@ -768,7 +789,6 @@
       <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
       <property name="javax.persistence.jdbc.user" value="sa"/>
       <property name="javax.persistence.jdbc.password" value=""/>
-      <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
       <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
     </properties>
   </persistence-unit>
@@ -784,7 +804,6 @@
       <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
       <property name="javax.persistence.jdbc.user" value="sa"/>
       <property name="javax.persistence.jdbc.password" value=""/>
-      <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
       <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
     </properties>
   </persistence-unit>
