@@ -27,12 +27,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
 import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
+import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.jpql.parser.JpqlAbs;
 import org.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
 import org.jpasecurity.jpql.parser.JpqlAdd;
@@ -766,14 +769,27 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
 
     public boolean visit(JpqlIndex node, QueryEvaluationParameters data) {
         validateChildCount(node, 1);
-        node.jjtGetChild(0).visit(this, data);
+        if (!(data instanceof InMemoryEvaluationParameters)) {
+            // we can't evaluate in memory then
+            data.setResultUndefined();
+            return false;
+        }
+        InMemoryEvaluationParameters parameters = (InMemoryEvaluationParameters)data;
+        Alias alias = new Alias(node.jjtGetChild(0).toString());
+        TypeDefinition type = parameters.getType(alias);
+        if (!type.isJoin()) {
+            // we can't evaluate in memory then
+            data.setResultUndefined();
+            return false;
+        }
         try {
-            Map<?, ?> result = data.getResult();
-            if (result != null) {
-                data.setResult(result.values());
-            }
-        } catch (NotEvaluatableException e) {
-            // ignore
+            PathEvaluator pathEvaluator = new MappedPathEvaluator(compiler.getMetamodel(), util);
+            Path joinPath = type.getJoinPath();
+            Set<Object> parent = Collections.singleton(data.getAliasValue(joinPath.getRootAlias()));
+            List<Object> list = pathEvaluator.evaluateAll(parent, joinPath.getSubpath());
+            data.setResult(list.indexOf(data.getAliasValue(alias)));
+        } catch (NotEvaluatableException e1) {
+            data.setResultUndefined();
         }
         return false;
     }
