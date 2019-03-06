@@ -154,7 +154,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     private boolean isOtherPersistenceProvider(String overriddenPersistenceProviderClassName,
             String persistenceProviderClassName) {
         return overriddenPersistenceProviderClassName == null
-                && !getClass().getName().equals(persistenceProviderClassName);
+                && persistenceProviderClassName != null && !getClass().getName().equals(persistenceProviderClassName);
     }
 
     private String getPersistenceProviderClassName(String unitName, XmlParser parser) {
