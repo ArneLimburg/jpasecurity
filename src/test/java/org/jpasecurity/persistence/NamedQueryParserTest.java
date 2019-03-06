@@ -27,8 +27,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
-import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class NamedQueryParserTest {
 
     @Before
     public void createParser() throws IOException {
-        entityManagerFactory = new HibernatePersistenceProvider().createEntityManagerFactory("metamodel", null);
+        entityManagerFactory = Persistence.createEntityManagerFactory("metamodel", null);
         Set<String> ormXmlLocations = new HashSet<String>();
         ormXmlLocations.add("META-INF/all.orm.xml");
         ormXmlLocations.add("META-INF/empty.orm.xml");

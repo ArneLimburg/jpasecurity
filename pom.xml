@@ -573,7 +573,7 @@
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
+            <artifactId>hibernate-core</artifactId>
             <version>5.1.0.Final</version>
             <scope>provided</scope>
         </dependency>
