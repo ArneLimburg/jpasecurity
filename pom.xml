@@ -731,9 +731,20 @@
                         <version>2.17</version>
                         <configuration>
                             <excludes>
+                                <exclude>org/jpasecurity/client/ClientTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/ObjectIdentityTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/QueryTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/SubclassingTest.java</exclude>
+                                <exclude>org/jpasecurity/persistence/EntityLifecycleTest.java</exclude>
+                                <exclude>org/jpasecurity/persistence/EntityManagerFirstLevelCacheTest.java</exclude>
+                                <exclude>org/jpasecurity/persistence/EnumTest.java</exclude>
+                                <exclude>org/jpasecurity/persistence/LazyOneToOneTest.java</exclude>
+                                <exclude>org/jpasecurity/persistence/security/CriteriaAccessRulesGeneratorTest.java</exclude>
+                                <exclude>org/jpasecurity/persistence/security/CriteriaEntityFilterTest.java</exclude>
+                                <exclude>org/jpasecurity/contacts/annotationbased/AnnotationbasedContactTest.java</exclude>
+                                <exclude>org/jpasecurity/contacts/simple/SimpleContactsTest.java</exclude>
+                                <exclude>org/jpasecurity/security/AccessCheckTest.java</exclude>
+                                <exclude>org/jpasecurity/security/rules/ReplacementTest.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
