@@ -70,7 +70,7 @@ public class CriteriaVisitorTest {
 
         parser = new JpqlParser();
         compiler = new AccessRulesCompiler(metamodel);
-        entityManagerFactory = Persistence.createEntityManagerFactory("hibernate");
+        entityManagerFactory = Persistence.createEntityManagerFactory("persistence-test");
         criteriaVisitor = new CriteriaVisitor(metamodel, entityManagerFactory.getCriteriaBuilder());
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();

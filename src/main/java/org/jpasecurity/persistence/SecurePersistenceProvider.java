@@ -96,6 +96,20 @@ public class SecurePersistenceProvider implements PersistenceProvider {
                 "Could not find any persistence.xml nor the " + PERSISTENCE_PROVIDER_PROPERTY + " property");
             return null;
         }
+
+        // do not instantiate if JPA security is not configured
+        String className = getClass().getCanonicalName();
+        try {
+            if (!className.equals(properties.get(PERSISTENCE_PROVIDER_PROPERTY))
+                && !className.equals(xmlParser.parsePersistenceProperty(unitName, PERSISTENCE_PROVIDER_PROPERTY))
+                && !className.equals(xmlParser.parsePersistenceProvider(unitName))) {
+                LOG.log(Level.WARNING, "No configuration for JPA Security found");
+                return null;
+            }
+        } catch (XPathExpressionException e) {
+            return null;
+        }
+
         PersistenceProvider nativePersistenceProvider
             = createNativePersistenceProvider(unitName, properties, xmlParser);
         if (nativePersistenceProvider == null) {

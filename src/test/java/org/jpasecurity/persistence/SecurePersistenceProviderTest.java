@@ -28,12 +28,15 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.SharedCacheMode;
 import javax.persistence.ValidationMode;
+import javax.persistence.spi.PersistenceProvider;
+import javax.persistence.spi.PersistenceProviderResolverHolder;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 
@@ -51,8 +54,8 @@ public class SecurePersistenceProviderTest {
 
     @Test
     public void wrongPersistenceProvider() {
-        assertNull(securePersistenceProvider.createEntityManagerFactory("hibernate", null));
-        assertNull(securePersistenceProvider.createEntityManagerFactory("hibernate", Collections.EMPTY_MAP));
+        assertNull(securePersistenceProvider.createEntityManagerFactory("persistence-test", null));
+        assertNull(securePersistenceProvider.createEntityManagerFactory("persistence-test", Collections.EMPTY_MAP));
     }
 
     @Test
@@ -60,7 +63,7 @@ public class SecurePersistenceProviderTest {
         Map<String, String> persistenceProperties = new HashMap<String, String>();
         persistenceProperties.put(SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY,
                                   SecurePersistenceProvider.class.getName());
-        assertNotNull(securePersistenceProvider.createEntityManagerFactory("hibernate", persistenceProperties));
+        assertNotNull(securePersistenceProvider.createEntityManagerFactory("persistence-test", persistenceProperties));
     }
 
     @Test
@@ -109,17 +112,29 @@ public class SecurePersistenceProviderTest {
         ));
         when(persistenceUnitInfo.excludeUnlistedClasses()).thenReturn(true);
         Properties properties = new Properties();
-        properties.put("org.jpasecurity.persistence.provider", "org.hibernate.ejb.HibernatePersistence");
+
+        List<PersistenceProvider> providerList = PersistenceProviderResolverHolder
+            .getPersistenceProviderResolver()
+            .getPersistenceProviders();
+        String providerName = null;
+        for (PersistenceProvider provider : providerList) {
+            if (provider.getClass().getCanonicalName().contains("hibernate")
+                || provider.getClass().getCanonicalName().contains("eclipse")) {
+                providerName = provider.getClass().getCanonicalName();
+                break;
+            }
+        }
+
+        properties.put("org.jpasecurity.persistence.provider", providerName);
         properties.put("org.jpasecurity.security.context",
                        "org.jpasecurity.security.authentication.TestSecurityContext");
         properties.put("org.jpasecurity.security.rules.provider",
                        "org.jpasecurity.security.rules.XmlAccessRulesProvider");
-        properties.put("hibernate.hbm2ddl.auto", "create-drop");
-        properties.put("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
-        properties.put("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
-        properties.put("hibernate.connection.url", "jdbc:hsqldb:mem:test");
-        properties.put("hibernate.connection.username", "sa");
-        properties.put("hibernate.connection.password", "");
+        properties.put("javax.persistence.jdbc.driver", "org.h2.Driver");
+        properties.put("javax.persistence.jdbc.url", "jdbc:h2:mem:test");
+        properties.put("javax.persistence.jdbc.user", "sa");
+        properties.put("javax.persistence.jdbc.password", "");
+        properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
         when(persistenceUnitInfo.getProperties()).thenReturn(properties);
         return persistenceUnitInfo;
     }
