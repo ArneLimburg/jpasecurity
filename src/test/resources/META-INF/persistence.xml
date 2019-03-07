@@ -160,8 +160,6 @@
     </persistence-unit>
     <persistence-unit name="grandparent-grandchild" transaction-type="RESOURCE_LOCAL">
 
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
-
         <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.MethodAccessAnnotationTestBean</class>
@@ -169,7 +167,8 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence" />
+            <property name="org.jpasecurity.persistence.provider" value="${provider}" />
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
             <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
             <property name="javax.persistence.jdbc.user" value="sa"/>
@@ -253,8 +252,6 @@
     </persistence-unit>
     <persistence-unit name="entity-lifecycle-test" transaction-type="RESOURCE_LOCAL">
 
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
-
         <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
@@ -271,15 +268,15 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
             <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
-            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:test" />
-            <property name="hibernate.connection.username" value="sa" />
-            <property name="hibernate.connection.password" value="" />
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
         </properties>
 
     </persistence-unit>
@@ -369,8 +366,6 @@
 
     <persistence-unit name="access-check" transaction-type="RESOURCE_LOCAL">
 
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
-
         <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
@@ -380,15 +375,15 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
             <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
-            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:test" />
-            <property name="hibernate.connection.username" value="sa" />
-            <property name="hibernate.connection.password" value="" />
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
         </properties>
 
     </persistence-unit>
@@ -467,8 +462,6 @@
 
     <persistence-unit name="simple-contacts" transaction-type="RESOURCE_LOCAL">
 
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
-
         <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.contacts.model.User</class>
@@ -478,21 +471,20 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
             <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
-            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:contacts" />
-            <property name="javax.persistence.jdbc.user" value="sa" />
-            <property name="javax.persistence.jdbc.password" value="" />
-            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
         </properties>
 
     </persistence-unit>
 
     <persistence-unit name="annotationbased-contacts" transaction-type="RESOURCE_LOCAL">
-
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>security.orm.xml</mapping-file>
 
@@ -501,13 +493,14 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
-            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
-            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:contacts" />
-            <property name="javax.persistence.jdbc.user" value="sa" />
-            <property name="javax.persistence.jdbc.password" value="" />
-            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
         </properties>
 
     </persistence-unit>
@@ -613,8 +606,6 @@
 
     <persistence-unit name="with-clause" transaction-type="RESOURCE_LOCAL">
 
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
-
         <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.MethodAccessAnnotationTestBean</class>
@@ -622,15 +613,15 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
             <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
-            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:test" />
-            <property name="hibernate.connection.username" value="sa" />
-            <property name="hibernate.connection.password" value="" />
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
         </properties>
 
     </persistence-unit>
@@ -647,7 +638,7 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.jpasecurity.persistence.EasyMockPersistenceProvider"/>
+            <property name="org.jpasecurity.persistence.provider" value="org.jpasecurity.persistence.MockitoPersistenceProvider"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
             <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
         </properties>
