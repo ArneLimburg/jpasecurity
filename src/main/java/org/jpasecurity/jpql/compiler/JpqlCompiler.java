@@ -79,6 +79,10 @@ public class JpqlCompiler {
         this.metamodel = metamodel;
     }
 
+    public Metamodel getMetamodel() {
+        return metamodel;
+    }
+
     public JpqlCompiledStatement compile(JpqlStatement statement) {
         return compile((Node)statement);
     }

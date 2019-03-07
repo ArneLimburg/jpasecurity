@@ -919,9 +919,8 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
      * {@inheritDoc}
      */
     public boolean visit(JpqlIndex node, CriteriaHolder query) {
-        node.jjtGetChild(0).visit(this, query);
-        Expression<Integer> index = query.<ListJoin<?, ?>>getCurrentValue().index();
-        query.setValue(index);
+        ListJoin<?, ?> join = (ListJoin<?, ?>)query.getFrom(new Alias(node.jjtGetChild(0).toString()));
+        query.setValue(join.index());
         return false;
     }
 
@@ -1047,12 +1046,6 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
         query.setValue(builder.literal(node.getValue().charAt(1)));
         return true;
     }
-
-    // TODO See https://github.com/ArneLimburg/jpasecurity/issues/25
-    /*public boolean visit(JpqlIdentificationVariable node, CriteriaHolder query) {
-        query.setValue(query.getFrom(new Alias(node.getValue())));
-        return false;
-    }*/
 
     public boolean visit(JpqlType node, CriteriaHolder query) {
         node.jjtGetChild(0).visit(this, query);
