@@ -15,6 +15,8 @@
  */
 package org.jpasecurity.persistence;
 
+import static org.jpasecurity.persistence.SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -82,7 +84,11 @@ public class XmlParser {
     }
 
     public String parsePersistenceProvider(String name) throws XPathExpressionException {
-        return parseValue(MessageFormat.format(PERSISTENCE_PROVIDER_XPATH, name));
+        String provider = parseValue(MessageFormat.format(PERSISTENCE_PROVIDER_XPATH, name));
+        if (provider != null) {
+            return provider;
+        }
+        return parsePersistenceProperty(name, PERSISTENCE_PROVIDER_PROPERTY);
     }
 
     public String parsePersistenceProperty(String unitName, String propertyName) throws XPathExpressionException {
