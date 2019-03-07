@@ -91,6 +91,11 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             LOG.log(Level.WARNING, "Could not initialize xml parser", e);
             return null;
         }
+        if (!xmlParser.hasDocuments() && !properties.containsKey(PERSISTENCE_PROVIDER_PROPERTY)) {
+            LOG.log(Level.WARNING,
+                "Could not find any persistence.xml nor the " + PERSISTENCE_PROVIDER_PROPERTY + " property");
+            return null;
+        }
         PersistenceProvider nativePersistenceProvider
             = createNativePersistenceProvider(unitName, properties, xmlParser);
         if (nativePersistenceProvider == null) {
@@ -323,6 +328,16 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         if (isOtherPersistenceProvider(overriddenPersistenceProviderClassName, persistenceProviderClassName)) {
             return null;
         }
+
+        try {
+            if (xmlParser.parsePersistenceUnit(unitName).isEmpty()) {
+                LOG.log(Level.WARNING, "Could not find any persistence unit called {0}", unitName);
+                return null;
+            }
+        } catch (XPathExpressionException e) {
+            return null;
+        }
+
         String nativePersistenceProviderClassName
             = getNativePersistenceProviderClassName(unitName,
                                                     overriddenPersistenceProviderClassName,

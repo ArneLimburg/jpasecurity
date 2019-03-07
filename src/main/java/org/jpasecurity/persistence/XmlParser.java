@@ -43,6 +43,8 @@ import org.xml.sax.SAXException;
 
 public class XmlParser {
 
+    private static final String PERSISTENCE_UNIT_XPATH = "/*[local-name()=''persistence'']"
+        + "/*[local-name()=''persistence-unit'' and @name=''{0}'']";
     private static final String PERSISTENCE_PROVIDER_XPATH = "/*[local-name()=''persistence'']"
         + "/*[local-name()=''persistence-unit'' and @name=''{0}'']/*[local-name()=''provider'']/text()";
     private static final String MAPPING_FILE_XPATH = "/*[local-name()=''persistence'']"
@@ -73,6 +75,10 @@ public class XmlParser {
         xpath = XPathFactory.newInstance().newXPath();
         builder = documentBuilderFactory.newDocumentBuilder();
         documents = loadDocuments(documentUrls);
+    }
+
+    public Set<Node> parsePersistenceUnit(String name) throws XPathExpressionException {
+        return parseNodeSet(MessageFormat.format(PERSISTENCE_UNIT_XPATH, name));
     }
 
     public String parsePersistenceProvider(String name) throws XPathExpressionException {
@@ -146,5 +152,9 @@ public class XmlParser {
             documents.add(document);
         }
         return documents;
+    }
+
+    public boolean hasDocuments() {
+        return !this.documents.isEmpty();
     }
 }
