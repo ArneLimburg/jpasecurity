@@ -28,11 +28,9 @@ import javax.persistence.criteria.Selection;
 import org.jpasecurity.TestEntityManager;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-@Ignore("See https://github.com/ArneLimburg/jpasecurity/issues/25")
 public class CriteriaBuilderTest {
 
     @Rule
