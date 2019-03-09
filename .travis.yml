@@ -10,7 +10,7 @@ env:
   - CONTAINER=hibernate
   - CONTAINER=eclipselink
   - CONTAINER=openjpa
-install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -P $CONTAINER
+install: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.1:go-offline -B -V -P $CONTAINER
 script: mvn clean test -B -P $CONTAINER
 cache:
     directories:
