@@ -34,7 +34,6 @@ import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
-import org.jpasecurity.SecurityContext;
 import org.jpasecurity.access.DefaultAccessManager;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.ParseException;
@@ -43,7 +42,6 @@ import org.jpasecurity.security.AccessRule;
 import org.jpasecurity.security.rules.AccessRulesCompiler;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -52,7 +50,6 @@ import org.junit.Test;
 public class CriteriaVisitorTest {
 
     private Metamodel metamodel;
-    private SecurityContext securityContext;
     private DefaultAccessManager accessManager;
     private JpqlParser parser;
     private AccessRulesCompiler compiler;
@@ -68,7 +65,6 @@ public class CriteriaVisitorTest {
         when(metamodel.getEntities()).thenReturn(Collections.<EntityType<?>>singleton(testBeanType));
         when(testBeanType.getName()).thenReturn(TestBean.class.getSimpleName());
         when(testBeanType.getJavaType()).thenReturn(TestBean.class);
-        securityContext = mock(SecurityContext.class);
         accessManager = mock(DefaultAccessManager.class);
         DefaultAccessManager.Instance.register(accessManager);
 
@@ -114,7 +110,6 @@ public class CriteriaVisitorTest {
         assertEquals(1, result.iterator().next().getId());
     }
 
-    @Ignore("See https://github.com/ArneLimburg/jpasecurity/issues/25")
     @Test
     public void appendAccessRuleWithIndex() {
         AccessRule accessRule = compile("GRANT READ ACCESS TO TestBean testBean WHERE EXISTS ( "

@@ -15,33 +15,38 @@
  */
 package org.jpasecurity.jpql.compiler;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.metamodel.Metamodel;
 
 import org.jpasecurity.Alias;
 import org.jpasecurity.access.SecurePersistenceUnitUtil;
+import org.jpasecurity.jpql.TypeDefinition;
 
 /**
  * @author Arne Limburg
  */
 public class InMemoryEvaluationParameters extends QueryEvaluationParameters {
 
+    private final Map<Alias, TypeDefinition> typeDefinitions;
+
     public InMemoryEvaluationParameters(Metamodel mappingInformation,
                                         SecurePersistenceUnitUtil util,
                                         Map<Alias, Object> aliases,
                                         Map<String, Object> namedParameters,
-                                        Map<Integer, Object> positionalParameters) {
+                                        Map<Integer, Object> positionalParameters,
+                                        Set<TypeDefinition> typeDefinitions) {
         super(mappingInformation, util, aliases, namedParameters, positionalParameters, EvaluationType.ACCESS_CHECK);
+        this.typeDefinitions = new HashMap<>();
+        for (TypeDefinition typeDefinition: typeDefinitions) {
+            this.typeDefinitions.put(typeDefinition.getAlias(), typeDefinition);
+        }
     }
 
-    public InMemoryEvaluationParameters(QueryEvaluationParameters parameters) {
-        this(parameters.getMetamodel(),
-             parameters.getPersistenceUnitUtil(),
-             parameters.getAliasValues(),
-             parameters.getNamedParameters(),
-             parameters.getPositionalParameters());
+    public TypeDefinition getType(Alias alias) {
+        return typeDefinitions.get(alias);
     }
-
 }
 

@@ -16,7 +16,6 @@
 package org.jpasecurity.jpql.compiler;
 
 import static java.util.Collections.singletonList;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -62,7 +61,6 @@ import org.jpasecurity.model.ParentTestBean;
 import org.jpasecurity.util.ValueHolder;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class QueryEvaluatorTest {
@@ -926,7 +924,6 @@ public class QueryEvaluatorTest {
         assertFalse(evaluate(statement.getWhereClause(), parameters));
     }
 
-    @Ignore("See https://github.com/ArneLimburg/jpasecurity/issues/25")
     @Test
     public void evaluateIndex() throws Exception {
         SimpleSubselectEvaluator evaluator = new SimpleSubselectEvaluator();
