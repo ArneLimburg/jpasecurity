@@ -7,6 +7,7 @@
         name="unit-test"
         transaction-type="RESOURCE_LOCAL">
         <mapping-file>META-INF/parent.orm.xml</mapping-file>
+        <mapping-file>META-INF/child.orm.xml</mapping-file>
         <mapping-file>META-INF/empty.orm.xml</mapping-file>
         <mapping-file>security.orm.xml</mapping-file>
     </persistence-unit>
@@ -17,9 +18,9 @@
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
         <non-jta-data-source>java:/DefaultDS</non-jta-data-source>
         <mapping-file>security.orm.xml</mapping-file>
-        <class>org.jpasecurity.MethodAccessTestBean</class>
-        <class>org.jpasecurity.ParentTestBean</class>
-        <class>org.jpasecurity.ChildTestBean</class>
+        <class>org.jpasecurity.model.MethodAccessTestBean</class>
+        <class>org.jpasecurity.model.ParentTestBean</class>
+        <class>org.jpasecurity.model.ChildTestBean</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
@@ -40,7 +41,9 @@
         <class>org.jpasecurity.model.TestBean</class>
         <class>org.jpasecurity.model.TestBeanSubclass</class>
         <class>org.jpasecurity.model.SuperclassReferencingBean</class>
+        <class>org.jpasecurity.model.AbstractVersionedSuperclass</class>
         <class>org.jpasecurity.model.AbstractSuperclass</class>
+        <class>org.jpasecurity.model.AbstractEntity</class>
         <class>org.jpasecurity.model.Subclass1</class>
         <class>org.jpasecurity.model.Subclass2</class>
 
@@ -429,7 +432,7 @@
     <persistence-unit name="xml-based-field-access" transaction-type="RESOURCE_LOCAL">
 
         <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
-        
+
         <mapping-file>META-INF/test.orm.xml</mapping-file>
         <mapping-file>security.orm.xml</mapping-file>
 
