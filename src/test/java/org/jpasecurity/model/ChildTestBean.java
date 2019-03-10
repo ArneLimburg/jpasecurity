@@ -16,6 +16,7 @@
 package org.jpasecurity.model;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
@@ -31,6 +32,7 @@ import javax.persistence.NamedQuery;
 @Entity
 public class ChildTestBean implements TestInterface {
 
+    @Id
     private int id;
     private String name;
 
@@ -43,6 +45,10 @@ public class ChildTestBean implements TestInterface {
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int identifier) {
+        id = identifier;
     }
 
     public String getName() {
