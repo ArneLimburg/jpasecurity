@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * @author Arne Limburg
  */
-public final class Maps {
+public final class TestMaps {
 
     public static <K, V> Map.Entry<K, V> entry(K key, V value) {
         return new MapEntry<K, V>(key, value);
@@ -35,7 +35,7 @@ public final class Maps {
         return map;
     }
 
-    private Maps() {
+    private TestMaps() {
         //Prevent instantiation
     }
 

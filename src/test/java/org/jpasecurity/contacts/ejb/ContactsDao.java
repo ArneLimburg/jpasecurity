@@ -31,7 +31,7 @@ import org.jpasecurity.contacts.model.User;
 @Stateless
 @DeclareRoles({ "admin", "user" })
 @PersistenceContext(name = "ejb-contacts", unitName = "ejb-contacts")
-public class ContactsDaoBean implements LocalContactsDao, RemoteContactsDao {
+public class ContactsDao implements LocalContactsDao, RemoteContactsDao {
 
     @PersistenceContext(name = "ejb-contacts", unitName = "ejb-contacts")
     private EntityManager entityManager;

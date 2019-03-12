@@ -30,7 +30,7 @@ import javax.persistence.NamedQuery;
     @NamedQuery(name = "ChildTestBean.findByName", query = "SELECT c FROM ChildTestBean c WHERE c.name = :name"),
     })
 @Entity
-public class ChildTestBean implements TestInterface {
+public class ChildTestBean implements EmptyInterface {
 
     @Id
     private int id;
