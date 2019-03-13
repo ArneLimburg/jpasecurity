@@ -15,8 +15,8 @@
  */
 package org.jpasecurity.jpql.compiler;
 
-import static org.jpasecurity.util.Maps.entry;
-import static org.jpasecurity.util.Maps.map;
+import static org.jpasecurity.util.TestMaps.entry;
+import static org.jpasecurity.util.TestMaps.map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
