@@ -18,6 +18,6 @@ package org.jpasecurity.model;
 /**
  * @author Arne Limburg
  */
-public interface TestInterface {
+public interface EmptyInterface {
 
 }

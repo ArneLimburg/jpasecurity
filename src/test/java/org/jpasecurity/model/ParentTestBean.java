@@ -23,7 +23,7 @@ import org.jpasecurity.collection.SecureCollections;
 /**
  * @author Stefan Hildebrandt
  */
-public class ParentTestBean implements TestInterface {
+public class ParentTestBean implements EmptyInterface {
 
     private int id;
     private String name;
