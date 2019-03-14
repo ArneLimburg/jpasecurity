@@ -254,6 +254,7 @@
         <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
         <class>org.jpasecurity.model.FieldAccessMapKey</class>
         <class>org.jpasecurity.model.FieldAccessMapValue</class>
+        <class>org.jpasecurity.model.SimpleEmbeddable</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -282,6 +283,7 @@
         <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
         <class>org.jpasecurity.model.FieldAccessMapKey</class>
         <class>org.jpasecurity.model.FieldAccessMapValue</class>
+        <class>org.jpasecurity.model.SimpleEmbeddable</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -309,6 +311,7 @@
         <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
         <class>org.jpasecurity.model.FieldAccessMapKey</class>
         <class>org.jpasecurity.model.FieldAccessMapValue</class>
+        <class>org.jpasecurity.model.SimpleEmbeddable</class>
         <class>org.jpasecurity.model.acl.Acl</class>
         <class>org.jpasecurity.model.acl.AclEntry</class>
         <class>org.jpasecurity.model.acl.Group</class>
@@ -343,6 +346,7 @@
         <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
         <class>org.jpasecurity.model.FieldAccessMapKey</class>
         <class>org.jpasecurity.model.FieldAccessMapValue</class>
+        <class>org.jpasecurity.model.SimpleEmbeddable</class>
         <class>org.jpasecurity.model.acl.Acl</class>
         <class>org.jpasecurity.model.acl.AclEntry</class>
         <class>org.jpasecurity.model.acl.Group</class>
@@ -433,6 +437,7 @@
         <class>org.jpasecurity.model.FieldAccessAnnotationTestBean</class>
         <class>org.jpasecurity.model.FieldAccessMapKey</class>
         <class>org.jpasecurity.model.FieldAccessMapValue</class>
+        <class>org.jpasecurity.model.SimpleEmbeddable</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
