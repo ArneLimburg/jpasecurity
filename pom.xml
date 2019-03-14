@@ -81,6 +81,12 @@
             <timezone>+1</timezone>
         </developer>
     </developers>
+
+    <properties>
+        <version.eclipselink>2.6.6</version.eclipselink>
+        <version.openjpa>2.4.3</version.openjpa>
+    </properties>
+
     <build>
         <testResources>
             <testResource>
@@ -691,7 +697,7 @@
                 <dependency>
                     <groupId>org.eclipse.persistence</groupId>
                     <artifactId>eclipselink</artifactId>
-                    <version>2.6.4</version>
+                    <version>${version.eclipselink}</version>
                     <scope>provided</scope>
                 </dependency>
                 <dependency>
@@ -702,6 +708,13 @@
                 </dependency>
             </dependencies>
             <build>
+                <testResources>
+                    <testResource>
+                        <directory>src/test/resources</directory>
+                        <filtering>true</filtering>
+                        <targetPath>../model-classes</targetPath>
+                    </testResource>
+                </testResources>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -725,6 +738,60 @@
                                 <exclude>org/jpasecurity/security/rules/ReplacementTest.java</exclude>
                             </excludes>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.1</version>
+                        <executions>
+                            <execution>
+                                <id>compile non tests</id>
+                                <phase>test-compile</phase>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/model-classes</outputDirectory>
+                                    <testExcludes>
+                                        <exclude>**/*Test.java</exclude>
+                                        <exclude>**/*TestCase.java</exclude>
+                                        <exclude>**/Test*.java</exclude>
+                                        <exclude>**/*TestData.java</exclude>
+                                        <exclude>**/*Dao*.java</exclude>
+                                        <exclude>**/*Database*.java</exclude>
+                                        <exclude>**/*Listener*.java</exclude>
+                                    </testExcludes>
+                                </configuration>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>de.empulse.eclipselink</groupId>
+                        <artifactId>staticweave-maven-plugin</artifactId>
+                        <version>1.0.0</version>
+                        <configuration>
+                            <source>${project.build.directory}/model-classes</source>
+                            <target>${project.build.testOutputDirectory}</target>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.eclipse.persistence</groupId>
+                                <artifactId>org.eclipse.persistence.jpa</artifactId>
+                                <version>${version.eclipselink}</version>
+                            </dependency>
+                        </dependencies>
+                        <executions>
+                            <execution>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>weave</goal>
+                                </goals>
+                                <configuration>
+                                    <persistenceXMLLocation>META-INF/persistence.xml</persistenceXMLLocation>
+                                    <logLevel>FINE</logLevel>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -764,13 +831,41 @@
                             </excludes>
                         </configuration>
                     </plugin>
+                    <plugin>
+                        <groupId>org.apache.openjpa</groupId>
+                        <artifactId>openjpa-maven-plugin</artifactId>
+                        <version>${version.openjpa}</version>
+                        <configuration>
+                            <addDefaultConstructor>true</addDefaultConstructor>
+                            <enforcePropertyRestrictions>true</enforcePropertyRestrictions>
+                            <excludes>
+                                **/*Test*$*.class,**/*Test.class,**/*TestCase.class,**/Test*.class,**/*TestData.class,**/*Dao*.class,**/*Database*.class,**/*Listener*.class,**/*Mock*.class
+                            </excludes>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.apache.openjpa</groupId>
+                                <artifactId>openjpa</artifactId>
+                                <version>2.4.3</version>
+                            </dependency>
+                        </dependencies>
+                        <executions>
+                            <execution>
+                                <id>test-enhance</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>test-enhance</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
             <dependencies>
                 <dependency>
                     <groupId>org.apache.openjpa</groupId>
                     <artifactId>openjpa</artifactId>
-                    <version>2.1.1</version>
+                    <version>${version.openjpa}</version>
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
