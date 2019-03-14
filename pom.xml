@@ -722,6 +722,7 @@
                         <version>2.17</version>
                         <configuration>
                             <excludes>
+                                <exclude>org/jpasecurity/collection/PropertyAccessTest.java</exclude>
                                 <exclude>org/jpasecurity/client/ClientTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/ObjectIdentityTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/QueryTest.java</exclude>
