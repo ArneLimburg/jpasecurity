@@ -19,6 +19,10 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -69,13 +73,15 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
 
     <persistence-unit name="subclassing-test" transaction-type="RESOURCE_LOCAL">
-
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>security.orm.xml</mapping-file>
 
@@ -94,19 +100,21 @@
             <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
             <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
-            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:test"/>
-            <property name="hibernate.connection.username" value="sa"/>
-            <property name="hibernate.connection.password" value=""/>
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
 
     <persistence-unit name="classmapping-test" transaction-type="RESOURCE_LOCAL">
-
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>security.orm.xml</mapping-file>
 
@@ -122,18 +130,20 @@
             <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
             <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
-            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:test"/>
-            <property name="hibernate.connection.username" value="sa"/>
-            <property name="hibernate.connection.password" value=""/>
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
     <persistence-unit name="objectidentity-test" transaction-type="RESOURCE_LOCAL">
-
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>security.orm.xml</mapping-file>
 
@@ -147,18 +157,20 @@
             <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
             <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
-            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:test"/>
-            <property name="hibernate.connection.username" value="sa"/>
-            <property name="hibernate.connection.password" value=""/>
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
     <persistence-unit name="annotation-based-method-access" transaction-type="RESOURCE_LOCAL">
-
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>META-INF/test.orm.xml</mapping-file>
         <mapping-file>security.orm.xml</mapping-file>
@@ -173,12 +185,16 @@
             <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
             <property name="org.jpasecurity.mapping.property.access.factory"
                       value="org.jpasecurity.mapping.JavassistPropertyAccessStrategyFactory"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
-            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:test"/>
-            <property name="hibernate.connection.username" value="sa"/>
-            <property name="hibernate.connection.password" value=""/>
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -198,13 +214,15 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
 
     <persistence-unit name="xml-based-method-access" transaction-type="RESOURCE_LOCAL">
-
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>META-INF/test.orm.xml</mapping-file>
         <mapping-file>security.orm.xml</mapping-file>
@@ -215,12 +233,16 @@
             <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
             <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
-            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:test"/>
-            <property name="hibernate.connection.username" value="sa"/>
-            <property name="hibernate.connection.password" value=""/>
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -245,6 +267,10 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -269,6 +295,10 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -299,12 +329,14 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
     <persistence-unit name="first-level-test" transaction-type="RESOURCE_LOCAL">
-
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>security.orm.xml</mapping-file>
 
@@ -322,15 +354,19 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
             <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
-            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:test"/>
-            <property name="hibernate.connection.username" value="sa"/>
-            <property name="hibernate.connection.password" value=""/>
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -353,6 +389,10 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -378,6 +418,10 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -402,6 +446,10 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -421,11 +469,15 @@
 
         <properties>
             <property name="javax.persistence.provider" value="${provider}"/>
-            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver"/>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:contacts"/>
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -450,13 +502,15 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
 
     <persistence-unit name="xml-based-field-access" transaction-type="RESOURCE_LOCAL">
-
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>META-INF/test.orm.xml</mapping-file>
         <mapping-file>security.orm.xml</mapping-file>
@@ -464,15 +518,19 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
             <property name="org.jpasecurity.security.rules.provider" value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
-            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:test"/>
-            <property name="hibernate.connection.username" value="sa"/>
-            <property name="hibernate.connection.password" value=""/>
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -497,6 +555,10 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -518,6 +580,10 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -545,8 +611,6 @@
     </persistence-unit>
     <persistence-unit name="acl-model" transaction-type="RESOURCE_LOCAL">
 
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
-
         <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.acl.Acl</class>
@@ -560,21 +624,23 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
-            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:acl"/>
-            <property name="hibernate.connection.username" value="sa"/>
-            <property name="hibernate.connection.password" value=""/>
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
     <persistence-unit name="acl-model-nocache" transaction-type="RESOURCE_LOCAL">
 
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
-
         <mapping-file>security.orm.xml</mapping-file>
 
         <class>org.jpasecurity.model.acl.Acl</class>
@@ -588,14 +654,18 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
-            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:acl"/>
-            <property name="hibernate.connection.username" value="sa"/>
-            <property name="hibernate.connection.password" value=""/>
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -618,6 +688,10 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -673,6 +747,10 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -695,13 +773,15 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
 
     <persistence-unit name="interceptor" transaction-type="RESOURCE_LOCAL">
-
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>security.orm.xml</mapping-file>
 
@@ -711,25 +791,25 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.TestSecurityContext"/>
             <property name="org.jpasecurity.security.rules.provider"
                       value="org.jpasecurity.security.rules.XmlAccessRulesProvider"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
-            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:test"/>
-            <property name="hibernate.connection.username" value="sa"/>
-            <property name="hibernate.connection.password" value=""/>
-            <property name="hibernate.format_sql" value="true"/>
-            <property name="hibernate.show_sql" value="true"/>
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
 
     <persistence-unit name="spring-contacts" transaction-type="RESOURCE_LOCAL">
-
-        <provider>org.jpasecurity.persistence.SecurePersistenceProvider</provider>
 
         <mapping-file>security.orm.xml</mapping-file>
 
@@ -747,9 +827,18 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
-            <property name="org.jpasecurity.persistence.provider" value="org.hibernate.ejb.HibernatePersistence"/>
+            <property name="org.jpasecurity.persistence.provider" value="${provider}"/>
             <property name="org.jpasecurity.security.context" value="org.jpasecurity.security.authentication.AutodetectingSecurityContext"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+            <property name="javax.persistence.provider" value="org.jpasecurity.persistence.SecurePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:test"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
 
     </persistence-unit>
@@ -766,6 +855,10 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
     </persistence-unit>
 
@@ -781,6 +874,10 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- OpenJPA < 3.0.0 does not support JPA 2.1 property above -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!-- Faster bootstrap of OpenJPA -->
+            <property name="openjpa.DynamicEnhancementAgent" value="false"/>
         </properties>
     </persistence-unit>
 </persistence>
