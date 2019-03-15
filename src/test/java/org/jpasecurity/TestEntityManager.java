@@ -60,8 +60,8 @@ public final class TestEntityManager extends ExternalResource implements EntityM
             properties.put("javax.persistence.provider", "org.jpasecurity.persistence.SecurePersistenceProvider");
             properties.put("javax.persistence.transactionType", "RESOURCE_LOCAL");
             properties.put("javax.persistence.jtaDataSource", null);
-            properties.put("javax.persistence.jdbc.driver", "org.h2.Driver");
-            properties.put("javax.persistence.jdbc.url", "jdbc:h2:mem:" + moduleName);
+            properties.put("javax.persistence.jdbc.driver", "org.hsqldb.jdbc.JDBCDriver");
+            properties.put("javax.persistence.jdbc.url", "jdbc:hsqldb:mem:" + moduleName);
             properties.put("javax.persistence.jdbc.user", "sa");
             properties.put("javax.persistence.jdbc.password", "");
             properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");

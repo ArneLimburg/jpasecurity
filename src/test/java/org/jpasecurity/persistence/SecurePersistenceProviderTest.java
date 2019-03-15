@@ -130,8 +130,8 @@ public class SecurePersistenceProviderTest {
                        "org.jpasecurity.security.authentication.TestSecurityContext");
         properties.put("org.jpasecurity.security.rules.provider",
                        "org.jpasecurity.security.rules.XmlAccessRulesProvider");
-        properties.put("javax.persistence.jdbc.driver", "org.h2.Driver");
-        properties.put("javax.persistence.jdbc.url", "jdbc:h2:mem:test");
+        properties.put("javax.persistence.jdbc.driver", "org.hsqldb.jdbc.JDBCDriver");
+        properties.put("javax.persistence.jdbc.url", "jdbc:hsqldb:mem:test");
         properties.put("javax.persistence.jdbc.user", "sa");
         properties.put("javax.persistence.jdbc.password", "");
         properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
