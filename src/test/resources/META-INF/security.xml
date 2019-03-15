@@ -47,7 +47,7 @@
   </persistence-unit>
 
   <persistence-unit name="lazy-relationship">
-	<access-rule>GRANT ACCESS TO TestBean bean WHERE bean.name = CURRENT_PRINCIPAL OR bean.parent.name = CURRENT_PRINCIPAL</access-rule>  
+	<access-rule>GRANT ACCESS TO Bean bean WHERE bean.name = CURRENT_PRINCIPAL OR bean.parent.name = CURRENT_PRINCIPAL</access-rule>
   </persistence-unit>
 
   <persistence-unit name="mixed-protection-level-test">

@@ -7,8 +7,8 @@
 
         <mapping-file>security.orm.xml</mapping-file>
 
-        <class>org.jpasecurity.model.TestBean</class>
-        <class>org.jpasecurity.model.TestBeanSubclass</class>
+        <class>org.jpasecurity.model.Bean</class>
+        <class>org.jpasecurity.model.BeanSubclass</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -85,8 +85,8 @@
 
         <mapping-file>security.orm.xml</mapping-file>
 
-        <class>org.jpasecurity.model.TestBean</class>
-        <class>org.jpasecurity.model.TestBeanSubclass</class>
+        <class>org.jpasecurity.model.Bean</class>
+        <class>org.jpasecurity.model.BeanSubclass</class>
         <class>org.jpasecurity.model.SuperclassReferencingBean</class>
         <class>org.jpasecurity.model.AbstractVersionedSuperclass</class>
         <class>org.jpasecurity.model.AbstractSuperclass</class>
@@ -380,7 +380,7 @@
 
         <mapping-file>security.orm.xml</mapping-file>
 
-        <class>org.jpasecurity.model.TestBean</class>
+        <class>org.jpasecurity.model.Bean</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

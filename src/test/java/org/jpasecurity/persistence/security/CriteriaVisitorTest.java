@@ -37,7 +37,7 @@ import javax.persistence.metamodel.Metamodel;
 import org.jpasecurity.access.DefaultAccessManager;
 import org.jpasecurity.jpql.parser.JpqlParser;
 import org.jpasecurity.jpql.parser.ParseException;
-import org.jpasecurity.model.TestBean;
+import org.jpasecurity.model.Bean;
 import org.jpasecurity.security.AccessRule;
 import org.jpasecurity.security.rules.AccessRulesCompiler;
 import org.junit.After;
@@ -55,16 +55,16 @@ public class CriteriaVisitorTest {
     private AccessRulesCompiler compiler;
     private CriteriaVisitor criteriaVisitor;
     private EntityManagerFactory entityManagerFactory;
-    private TestBean bean1;
-    private TestBean bean2;
+    private Bean bean1;
+    private Bean bean2;
 
     @Before
     public void initialize() {
         metamodel = mock(Metamodel.class);
         EntityType testBeanType = mock(EntityType.class);
         when(metamodel.getEntities()).thenReturn(Collections.<EntityType<?>>singleton(testBeanType));
-        when(testBeanType.getName()).thenReturn(TestBean.class.getSimpleName());
-        when(testBeanType.getJavaType()).thenReturn(TestBean.class);
+        when(testBeanType.getName()).thenReturn(Bean.class.getSimpleName());
+        when(testBeanType.getJavaType()).thenReturn(Bean.class);
         accessManager = mock(DefaultAccessManager.class);
         DefaultAccessManager.Instance.register(accessManager);
 
@@ -74,14 +74,14 @@ public class CriteriaVisitorTest {
         criteriaVisitor = new CriteriaVisitor(metamodel, entityManagerFactory.getCriteriaBuilder());
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
-        bean1 = new TestBean();
-        ArrayList<TestBean> children = new ArrayList<>();
-        children.add(new TestBean());
-        children.add(new TestBean());
+        bean1 = new Bean();
+        ArrayList<Bean> children = new ArrayList<>();
+        children.add(new Bean());
+        children.add(new Bean());
         children.get(0).setParent(bean1);
         children.get(1).setParent(bean1);
         bean1.setChildren(children);
-        bean2 = new TestBean();
+        bean2 = new Bean();
         entityManager.persist(bean1);
         entityManager.persist(bean2);
         entityManager.getTransaction().commit();
@@ -95,35 +95,35 @@ public class CriteriaVisitorTest {
 
     @Test
     public void appendAccessRule() {
-        AccessRule accessRule = compile("GRANT READ ACCESS TO TestBean testBean WHERE testBean.id = 1");
+        AccessRule accessRule = compile("GRANT READ ACCESS TO Bean testBean WHERE testBean.id = 1");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<TestBean> query = criteriaBuilder.createQuery(TestBean.class);
-        Root<TestBean> from = query.from(TestBean.class);
+        CriteriaQuery<Bean> query = criteriaBuilder.createQuery(Bean.class);
+        Root<Bean> from = query.from(Bean.class);
         from.alias("testBean");
         query.where(from.get("parent").isNull());
 
         Map<String, Object> emptyParameterMap = Collections.emptyMap();
         accessRule.getWhereClause().visit(criteriaVisitor, new CriteriaHolder(query, emptyParameterMap));
-        List<TestBean> result = entityManager.createQuery(query).getResultList();
+        List<Bean> result = entityManager.createQuery(query).getResultList();
         assertEquals(1, result.size());
         assertEquals(1, result.iterator().next().getId());
     }
 
     @Test
     public void appendAccessRuleWithIndex() {
-        AccessRule accessRule = compile("GRANT READ ACCESS TO TestBean testBean WHERE EXISTS ( "
-            + "SELECT child FROM TestBean t "
+        AccessRule accessRule = compile("GRANT READ ACCESS TO Bean testBean WHERE EXISTS ( "
+            + "SELECT child FROM Bean t "
             + "LEFT OUTER JOIN t.children child WHERE t = testBean AND INDEX(child) = 1)");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<TestBean> query = criteriaBuilder.createQuery(TestBean.class);
-        Root<TestBean> from = query.from(TestBean.class);
+        CriteriaQuery<Bean> query = criteriaBuilder.createQuery(Bean.class);
+        Root<Bean> from = query.from(Bean.class);
         from.alias("testBean");
 
         Map<String, Object> emptyParameterMap = Collections.emptyMap();
         accessRule.getWhereClause().visit(criteriaVisitor, new CriteriaHolder(query, emptyParameterMap));
-        List<TestBean> result = entityManager.createQuery(query).getResultList();
+        List<Bean> result = entityManager.createQuery(query).getResultList();
         assertEquals(1, result.size());
         assertEquals(1, result.iterator().next().getId());
     }
