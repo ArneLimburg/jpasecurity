@@ -312,6 +312,7 @@
         <class>org.jpasecurity.model.FieldAccessMapKey</class>
         <class>org.jpasecurity.model.FieldAccessMapValue</class>
         <class>org.jpasecurity.model.SimpleEmbeddable</class>
+        <class>org.jpasecurity.model.acl.AbstractEntity</class>
         <class>org.jpasecurity.model.acl.Acl</class>
         <class>org.jpasecurity.model.acl.AclEntry</class>
         <class>org.jpasecurity.model.acl.Group</class>
