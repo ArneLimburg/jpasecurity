@@ -725,6 +725,7 @@
                                 <exclude>org/jpasecurity/persistence/EntityManagerFirstLevelCacheTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/EnumTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/LazyOneToOneTest.java</exclude>
+                                <exclude>org/jpasecurity/persistence/LazyRelationshipTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/security/CriteriaAccessRulesGeneratorTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/security/CriteriaEntityFilterTest.java</exclude>
                                 <exclude>org/jpasecurity/contacts/annotationbased/AnnotationbasedContactTest.java</exclude>
