@@ -43,6 +43,7 @@ import javax.persistence.spi.PersistenceUnitTransactionType;
 import org.jpasecurity.model.FieldAccessAnnotationTestBean;
 import org.jpasecurity.model.FieldAccessMapKey;
 import org.jpasecurity.model.FieldAccessMapValue;
+import org.jpasecurity.model.SimpleEmbeddable;
 import org.junit.Test;
 
 /**
@@ -101,14 +102,13 @@ public class SecurePersistenceProviderTest {
         when(persistenceUnitInfo.getNewTempClassLoader()).thenReturn(null);
         when(persistenceUnitInfo.getMappingFileNames()).thenReturn(Collections.<String>emptyList());
         when(persistenceUnitInfo.getJarFileUrls()).thenReturn(Collections.<URL>emptyList());
-        when(persistenceUnitInfo.getPersistenceProviderClassName())
-            .thenReturn(SecurePersistenceProvider.class.getName());
         when(persistenceUnitInfo.getClassLoader())
             .thenReturn(Thread.currentThread().getContextClassLoader());
         when(persistenceUnitInfo.getManagedClassNames()).thenReturn(Arrays.asList(
             FieldAccessAnnotationTestBean.class.getName(),
             FieldAccessMapKey.class.getName(),
-            FieldAccessMapValue.class.getName()
+            FieldAccessMapValue.class.getName(),
+            SimpleEmbeddable.class.getName()
         ));
         when(persistenceUnitInfo.excludeUnlistedClasses()).thenReturn(true);
         Properties properties = new Properties();
@@ -119,7 +119,8 @@ public class SecurePersistenceProviderTest {
         String providerName = null;
         for (PersistenceProvider provider : providerList) {
             if (provider.getClass().getCanonicalName().contains("hibernate")
-                || provider.getClass().getCanonicalName().contains("eclipse")) {
+                || provider.getClass().getCanonicalName().contains("eclipse")
+                || provider.getClass().getCanonicalName().contains("openjpa")) {
                 providerName = provider.getClass().getCanonicalName();
                 break;
             }
@@ -130,11 +131,14 @@ public class SecurePersistenceProviderTest {
                        "org.jpasecurity.security.authentication.TestSecurityContext");
         properties.put("org.jpasecurity.security.rules.provider",
                        "org.jpasecurity.security.rules.XmlAccessRulesProvider");
+        properties.put("javax.persistence.provider", SecurePersistenceProvider.class.getName());
         properties.put("javax.persistence.jdbc.driver", "org.hsqldb.jdbc.JDBCDriver");
         properties.put("javax.persistence.jdbc.url", "jdbc:hsqldb:mem:test");
         properties.put("javax.persistence.jdbc.user", "sa");
         properties.put("javax.persistence.jdbc.password", "");
         properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+        properties.put("openjpa.jdbc.SynchronizeMappings", "buildSchema(ForeignKeys=true)");
+        properties.put("openjpa.DynamicEnhancementAgent", "false");
         when(persistenceUnitInfo.getProperties()).thenReturn(properties);
         return persistenceUnitInfo;
     }
