@@ -68,6 +68,8 @@ public final class TestEntityManager extends ExternalResource implements EntityM
             properties.put("org.jpasecurity.security.context",
                     "org.jpasecurity.security.authentication.StaticSecurityContext");
             properties.put("hibernate.show_sql", "false");
+            properties.put("openjpa.jdbc.SynchronizeMappings", "buildSchema(ForeignKeys=true)");
+            properties.put("openjpa.DynamicEnhancementAgent", "false");
 
             entityManagerFactory.put(moduleName, Persistence.createEntityManagerFactory(moduleName, properties));
         }
