@@ -9,7 +9,7 @@ jdk:
 env:
   - CONTAINER=hibernate
   - CONTAINER=eclipselink
-  #- CONTAINER=openjpa
+  - CONTAINER=openjpa
 install: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.1:go-offline -B -V -P $CONTAINER
 script: mvn clean test -B -P $CONTAINER
 cache:
@@ -34,7 +34,7 @@ jobs:
       env:
         - CONTAINER=eclipselink
       script: mvn test -B -P $CONTAINER
-    #- jdk: oraclejdk8
-    #  env:
-    #    - CONTAINER=openjpa
-    #  script: mvn test -B -P $CONTAINER
+    - jdk: oraclejdk8
+      env:
+        - CONTAINER=openjpa
+      script: mvn test -B -P $CONTAINER
