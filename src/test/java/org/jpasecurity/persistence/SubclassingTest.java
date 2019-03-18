@@ -86,11 +86,11 @@ public class SubclassingTest {
     public void accessRulesOnSubclasses() {
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
-        assertEquals(1, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
+        assertEquals(1, entityManager.createQuery("SELECT bean FROM Bean bean").getResultList().size());
         TestSecurityContext.authenticate(USER);
-        assertEquals(2, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
+        assertEquals(2, entityManager.createQuery("SELECT bean FROM Bean bean").getResultList().size());
         TestSecurityContext.authenticate(USER_CRITERIA);
-        assertEquals(2, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
+        assertEquals(2, entityManager.createQuery("SELECT bean FROM Bean bean").getResultList().size());
         entityManager.getTransaction().commit();
         entityManager.close();
     }
