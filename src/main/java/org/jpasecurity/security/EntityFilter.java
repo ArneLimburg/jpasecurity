@@ -253,13 +253,15 @@ public class EntityFilter implements AccessManager {
                         }
                     }
                 }
-                Class<?> restrictedType = bestRule.getSelectedType(metamodel);
-                Set<AccessRule> restrictions = bestMayBeRules.get(restrictedType);
-                if (restrictions == null) {
-                    restrictions = new HashSet<AccessRule>();
-                    bestMayBeRules.put(restrictedType, restrictions);
+                if (bestRule != null) {
+                    Class<?> restrictedType = bestRule.getSelectedType(metamodel);
+                    Set<AccessRule> restrictions = bestMayBeRules.get(restrictedType);
+                    if (restrictions == null) {
+                        restrictions = new HashSet<AccessRule>();
+                        bestMayBeRules.put(restrictedType, restrictions);
+                    }
+                    restrictions.add(bestRule);
                 }
-                restrictions.add(bestRule);
             }
             for (Entry<Class<?>, Set<AccessRule>> accessRules : bestMayBeRules.entrySet()) {
                 restricted = true;
