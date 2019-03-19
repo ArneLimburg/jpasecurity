@@ -77,6 +77,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
 
     @Override
     public EntityManagerFactory createEntityManagerFactory(String unitName, Map properties) {
+        LOG.info("Creating Entity Manager Factory");
         if (properties == null) {
             properties = new HashMap<String, Object>();
         } else {
