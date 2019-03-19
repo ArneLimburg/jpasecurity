@@ -185,20 +185,20 @@
                         org/jpasecurity/jpql/parser/ParseException.java
                     </excludes>
                 </configuration>
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>compile</id>-->
-                        <!--<phase>compile</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>checkstyle</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<failsOnError>true</failsOnError>-->
-                            <!--<consoleOutput>true</consoleOutput>-->
-                            <!--<includeTestSourceDirectory>true</includeTestSourceDirectory>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
+                        <configuration>
+                            <failsOnError>true</failsOnError>
+                            <consoleOutput>true</consoleOutput>
+                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
                 <dependencies>
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
