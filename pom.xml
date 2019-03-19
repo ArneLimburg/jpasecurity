@@ -838,6 +838,7 @@
                                 <exclude>org/jpasecurity/persistence/SubclassingTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/security/CriteriaAccessRulesGeneratorTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/security/CriteriaEntityFilterTest.java</exclude>
+                                <exclude>org/jpasecurity/persistence/security/CriteriaVisitorTest.java</exclude>
                                 <exclude>org/jpasecurity/security/AccessCheckTest.java</exclude>
                                 <exclude>org/jpasecurity/security/rules/ReplacementTest.java</exclude>
                             </excludes>
