@@ -124,18 +124,7 @@ public final class TestEntityManager extends ExternalResource implements EntityM
     }
 
     private void clearTables() {
-        getEntityManager().createNativeQuery("SET DATABASE REFERENTIAL INTEGRITY FALSE").executeUpdate();
-        entityManager.createNativeQuery("SET SCHEMA PUBLIC").executeUpdate();
-        List<String> tables = entityManager
-            .createNativeQuery(
-                "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.SYSTEM_TABLES "
-                         + "where TABLE_TYPE='TABLE' AND TABLE_SCHEM='PUBLIC'"
-            )
-            .getResultList();
-        for (String table : tables) {
-            entityManager.createNativeQuery("TRUNCATE TABLE " + table).executeUpdate();
-        }
-        getEntityManager().createNativeQuery("SET DATABASE REFERENTIAL INTEGRITY TRUE").executeUpdate();
+        getEntityManager().createNativeQuery("TRUNCATE SCHEMA PUBLIC AND COMMIT").executeUpdate();
     }
 
     public void clear() {
