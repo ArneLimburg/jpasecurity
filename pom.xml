@@ -724,7 +724,6 @@
                                 <exclude>org/jpasecurity/persistence/EntityLifecycleTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/EntityManagerFirstLevelCacheTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/EnumTest.java</exclude>
-                                <!-- does not work with Java 7 -->
                                 <exclude>org/jpasecurity/persistence/JpqlQueryParserTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/LazyOneToOneTest.java</exclude>
                                 <exclude>org/jpasecurity/persistence/LazyRelationshipTest.java</exclude>
