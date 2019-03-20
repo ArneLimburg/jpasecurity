@@ -21,7 +21,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
-public class DummyEnumClass {
+public class EntityWithEnum {
 
     @Id
     @GeneratedValue
@@ -30,10 +30,10 @@ public class DummyEnumClass {
     @Enumerated
     private Status status;
 
-    protected DummyEnumClass() {
+    protected EntityWithEnum() {
     }
 
-    public DummyEnumClass(Status status) {
+    public EntityWithEnum(Status status) {
         this.status = status;
     }
 
@@ -50,7 +50,7 @@ public class DummyEnumClass {
         if (object == null || object.getClass() != getClass()) {
             return false;
         }
-        DummyEnumClass enumClass = (DummyEnumClass)object;
+        EntityWithEnum enumClass = (EntityWithEnum)object;
         return id == enumClass.id;
     }
 

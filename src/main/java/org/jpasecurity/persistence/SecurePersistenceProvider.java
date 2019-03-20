@@ -77,7 +77,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
 
     @Override
     public EntityManagerFactory createEntityManagerFactory(String unitName, Map properties) {
-        LOG.info("Creating Entity Manager Factory");
+        LOG.info("Creating EntityManagerFactory");
         if (properties == null) {
             properties = new HashMap<String, Object>();
         } else {
@@ -104,7 +104,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             if (!className.equals(properties.get(PERSISTENCE_PROVIDER_PROPERTY))
                 && !className.equals(xmlParser.parsePersistenceProperty(unitName, PERSISTENCE_PROVIDER_PROPERTY))
                 && !className.equals(xmlParser.parsePersistenceProvider(unitName))) {
-                LOG.log(Level.WARNING, "No configuration for JPA Security found");
+                LOG.log(Level.CONFIG, "No configuration for JPA Security found");
                 return null;
             }
         } catch (XPathExpressionException e) {

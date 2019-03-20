@@ -24,7 +24,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.jpasecurity.model.DummyEnumClass;
+import org.jpasecurity.model.EntityWithEnum;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +38,8 @@ import org.junit.Test;
 public class QueryNullEnumTest {
 
     private EntityManager entityManager;
-    private DummyEnumClass status;
-    private DummyEnumClass nullStatus;
+    private EntityWithEnum status;
+    private EntityWithEnum nullStatus;
 
     @Before
     public void createTestData() {
@@ -47,8 +47,8 @@ public class QueryNullEnumTest {
             = Persistence.createEntityManagerFactory("generic-test");
         entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
-        status = new DummyEnumClass(DummyEnumClass.Status.OPEN);
-        nullStatus = new DummyEnumClass(null);
+        status = new EntityWithEnum(EntityWithEnum.Status.OPEN);
+        nullStatus = new EntityWithEnum(null);
         entityManager.persist(status);
         entityManager.persist(nullStatus);
         entityManager.getTransaction().commit();
@@ -66,13 +66,13 @@ public class QueryNullEnumTest {
 
     @Test
     public void count() {
-        List<DummyEnumClass> result = entityManager.createQuery("SELECT t FROM DummyEnumClass t WHERE t.status = null",
-            DummyEnumClass.class).getResultList();
+        List<EntityWithEnum> result = entityManager.createQuery("SELECT t FROM DummyEnumClass t WHERE t.status = null",
+            EntityWithEnum.class).getResultList();
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(nullStatus));
 
         result = entityManager.createQuery("SELECT t FROM DummyEnumClass t WHERE t.status <> null",
-            DummyEnumClass.class).getResultList();
+            EntityWithEnum.class).getResultList();
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(status));
     }

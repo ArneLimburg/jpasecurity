@@ -59,7 +59,7 @@
 
         <mapping-file>security.orm.xml</mapping-file>
 
-        <class>org.jpasecurity.model.DummyEnumClass</class>
+        <class>org.jpasecurity.model.EntityWithEnum</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
