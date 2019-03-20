@@ -66,12 +66,12 @@ public class QueryNullEnumTest {
 
     @Test
     public void count() {
-        List<EntityWithEnum> result = entityManager.createQuery("SELECT t FROM DummyEnumClass t WHERE t.status = null",
+        List<EntityWithEnum> result = entityManager.createQuery("SELECT t FROM EntityWithEnum t WHERE t.status = null",
             EntityWithEnum.class).getResultList();
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(nullStatus));
 
-        result = entityManager.createQuery("SELECT t FROM DummyEnumClass t WHERE t.status <> null",
+        result = entityManager.createQuery("SELECT t FROM EntityWithEnum t WHERE t.status <> null",
             EntityWithEnum.class).getResultList();
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(status));
