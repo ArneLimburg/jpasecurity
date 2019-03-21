@@ -233,7 +233,7 @@ public class EntityManagerEvaluatorTest {
             SELECT
                 + "WHERE EXISTS (SELECT innerBean "
                 + " FROM MethodAccessTestBean innerBean"
-                + " WHERE innerBean MEMBER OF TREAT(bean AS TestBeanSubclass).children)");
+                + " WHERE innerBean MEMBER OF TREAT(bean AS BeanSubclass).children)");
         entityManagerEvaluator.evaluate(jpqlCompiledStatement, parameters);
         verify(entityManager).createQuery(" SELECT innerBean FROM MethodAccessTestBean innerBean "
                 + "WHERE innerBean IN (:path0) ");

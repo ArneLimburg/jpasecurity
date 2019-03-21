@@ -22,7 +22,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 import org.jpasecurity.TestEntityManager;
-import org.jpasecurity.model.TestBean;
+import org.jpasecurity.model.Bean;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
@@ -46,9 +46,9 @@ public class LazyRelationshipTest {
     public void createTestData() {
         TestSecurityContext.authenticate(USER);
         entityManager.getTransaction().begin();
-        TestBean testBean = new TestBean(USER);
+        Bean testBean = new Bean(USER);
         entityManager.persist(testBean);
-        TestBean child = new TestBean();
+        Bean child = new Bean();
         child.setParent(testBean);
         entityManager.persist(child);
         entityManager.getTransaction().commit();
@@ -67,7 +67,7 @@ public class LazyRelationshipTest {
     @Test
     public void accessChild() {
         TestSecurityContext.authenticate(USER);
-        assertThat(entityManager.find(TestBean.class, childId), is(not(nullValue())));
+        assertThat(entityManager.find(Bean.class, childId), is(not(nullValue())));
     }
 
     @Test
@@ -75,8 +75,8 @@ public class LazyRelationshipTest {
         TestSecurityContext.authenticate(USER);
 
         entityManager.getTransaction().begin();
-        TestBean child = entityManager.find(TestBean.class, childId);
-        entityManager.find(TestBean.class, parentId);
+        Bean child = entityManager.find(Bean.class, childId);
+        entityManager.find(Bean.class, parentId);
         entityManager.flush();
         entityManager.getTransaction().rollback();
         assertFalse(child.isPreUpdate());

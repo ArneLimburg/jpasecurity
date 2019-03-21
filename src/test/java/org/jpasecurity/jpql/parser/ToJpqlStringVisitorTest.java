@@ -33,29 +33,29 @@ public class ToJpqlStringVisitorTest {
 
     @Test
     public void toStringVisitor() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean "
-            + "WHERE NOT EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)",
-            "SELECT bean FROM TestBean bean "
-                + "WHERE NOT EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)");
-        assertJpql("SELECT bean FROM TestBean bean "
-            + "WHERE NOT EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)",
-            "SELECT bean FROM TestBean bean "
+        assertJpql("SELECT bean FROM Bean bean "
+            + "WHERE NOT EXISTS ( SELECT bean FROM Bean bean WHERE bean.id = :id)",
+            "SELECT bean FROM Bean bean "
+                + "WHERE NOT EXISTS ( SELECT bean FROM Bean bean WHERE bean.id = :id)");
+        assertJpql("SELECT bean FROM Bean bean "
+            + "WHERE NOT EXISTS ( SELECT bean FROM Bean bean WHERE bean.id = :id)",
+            "SELECT bean FROM Bean bean "
                 + "WHERE NOT EXISTS ( SELECT /* QUERY_OPTIMIZE_NOCACHE */ "
-                + "bean FROM TestBean bean WHERE bean.id = :id)");
-        assertJpql("SELECT bean FROM TestBean bean "
-            + "WHERE NOT EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)",
-            "SELECT bean FROM TestBean bean "
-                + "WHERE NOT EXISTS ( SELECT /* IS_ACCESSIBLE_NODB */ bean FROM TestBean bean WHERE bean.id = :id)");
-        assertJpql("SELECT bean FROM TestBean bean "
-            + "WHERE NOT EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)",
-            "SELECT bean FROM TestBean bean "
+                + "bean FROM Bean bean WHERE bean.id = :id)");
+        assertJpql("SELECT bean FROM Bean bean "
+            + "WHERE NOT EXISTS ( SELECT bean FROM Bean bean WHERE bean.id = :id)",
+            "SELECT bean FROM Bean bean "
+                + "WHERE NOT EXISTS ( SELECT /* IS_ACCESSIBLE_NODB */ bean FROM Bean bean WHERE bean.id = :id)");
+        assertJpql("SELECT bean FROM Bean bean "
+            + "WHERE NOT EXISTS ( SELECT bean FROM Bean bean WHERE bean.id = :id)",
+            "SELECT bean FROM Bean bean "
                 + "WHERE NOT EXISTS ( SELECT /* QUERY_OPTIMIZE_NOCACHE IS_ACCESSIBLE_NODB */ "
-                + "bean FROM TestBean bean WHERE bean.id = :id)");
-        assertJpql("SELECT bean FROM TestBean bean "
-            + "WHERE NOT EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)",
-            "SELECT bean FROM TestBean bean "
+                + "bean FROM Bean bean WHERE bean.id = :id)");
+        assertJpql("SELECT bean FROM Bean bean "
+            + "WHERE NOT EXISTS ( SELECT bean FROM Bean bean WHERE bean.id = :id)",
+            "SELECT bean FROM Bean bean "
                 + "WHERE NOT EXISTS ( SELECT /* QUERY_OPTIMIZE_NOCACHE IS_ACCESSIBLE_NODB"
-                + " IS_ACCESSIBLE_NOCACHE*/ bean FROM TestBean bean WHERE bean.id = :id)");
+                + " IS_ACCESSIBLE_NOCACHE*/ bean FROM Bean bean WHERE bean.id = :id)");
     }
 
     public void assertJpql(String expected, String source) throws ParseException {

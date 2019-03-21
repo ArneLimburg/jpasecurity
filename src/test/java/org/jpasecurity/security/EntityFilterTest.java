@@ -269,20 +269,20 @@ public class EntityFilterTest {
     @Test
     public void filterConstructorQueryWithCase() {
         String plainQuery = "SELECT new org.jpasecurity.model.MethodAccessTestBean("
-                            + "CASE WHEN TYPE(child) = TestBeanSubclass THEN tb.id "
+                            + "CASE WHEN TYPE(child) = BeanSubclass THEN tb.id "
                             + "WHEN TYPE(child) = MethodAccessTestBean THEN child.id "
                             + "ELSE child.parent.id END, "
                             + "tb.name) "
                             + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child";
-        String restrictedQuery = "SELECT  CASE  WHEN  TYPE(child)  = TestBeanSubclass  THEN tb.id "
+        String restrictedQuery = "SELECT  CASE  WHEN  TYPE(child)  = BeanSubclass  THEN tb.id "
                                  + "WHEN  TYPE(child)  = MethodAccessTestBean  THEN child.id "
                                  + "ELSE child.parent.id END, "
                                  + "tb.name "
                                  + "FROM MethodAccessTestBean tb LEFT OUTER JOIN tb.children child  "
-                                 + "WHERE (( NOT ( NOT ( TYPE(child)  = TestBeanSubclass )"
+                                 + "WHERE (( NOT ( NOT ( TYPE(child)  = BeanSubclass )"
                                  + " AND  NOT ( TYPE(child)  = MethodAccessTestBean ))"
                                  + " OR (child.parent.name = :CURRENT_PRINCIPAL))"
-                                 + " AND ( NOT ( NOT ( TYPE(child)  = TestBeanSubclass )"
+                                 + " AND ( NOT ( NOT ( TYPE(child)  = BeanSubclass )"
                                  + " AND ( TYPE(child)  = MethodAccessTestBean ))"
                                  + " OR (child.name = :CURRENT_PRINCIPAL))"
                                  + " AND (tb.name = :CURRENT_PRINCIPAL))";
