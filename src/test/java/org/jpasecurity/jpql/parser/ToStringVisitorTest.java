@@ -36,225 +36,225 @@ public class ToStringVisitorTest {
 
     @Test
     public void toStringVisitor() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.id = :id");
-        assertJpql("SELECT COUNT(bean) FROM TestBean bean WHERE bean.id = :id");
-        assertJpql("SELECT COUNT( DISTINCT bean.id) FROM TestBean bean WHERE bean.id = :id");
-        assertJpql("SELECT AVG(bean) FROM TestBean bean WHERE bean.id = :id");
-        assertJpql("SELECT SUM(bean) FROM TestBean bean WHERE bean.id = :id");
-        assertJpql("SELECT bean FROM org.jpasecurity.model.TestBean bean WHERE bean.id = :id");
-        assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN bean.name name WHERE bean.id = :id");
-        assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN FETCH bean.name WHERE bean.id = :id");
-        assertJpql("SELECT bean FROM TestBean bean LEFT OUTER JOIN FETCH bean.name beanName WHERE bean.id = :id");
-        assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.name name WHERE bean.id = :id");
-        assertJpql("SELECT bean FROM TestBean bean INNER JOIN FETCH bean.name WHERE bean.id = :id");
-        assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.parent parent WITH parent.name = 'Parent' "
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.id = :id");
+        assertJpql("SELECT COUNT(bean) FROM Bean bean WHERE bean.id = :id");
+        assertJpql("SELECT COUNT( DISTINCT bean.id) FROM Bean bean WHERE bean.id = :id");
+        assertJpql("SELECT AVG(bean) FROM Bean bean WHERE bean.id = :id");
+        assertJpql("SELECT SUM(bean) FROM Bean bean WHERE bean.id = :id");
+        assertJpql("SELECT bean FROM org.jpasecurity.model.Bean bean WHERE bean.id = :id");
+        assertJpql("SELECT bean FROM Bean bean LEFT OUTER JOIN bean.name name WHERE bean.id = :id");
+        assertJpql("SELECT bean FROM Bean bean LEFT OUTER JOIN FETCH bean.name WHERE bean.id = :id");
+        assertJpql("SELECT bean FROM Bean bean LEFT OUTER JOIN FETCH bean.name beanName WHERE bean.id = :id");
+        assertJpql("SELECT bean FROM Bean bean INNER JOIN bean.name name WHERE bean.id = :id");
+        assertJpql("SELECT bean FROM Bean bean INNER JOIN FETCH bean.name WHERE bean.id = :id");
+        assertJpql("SELECT bean FROM Bean bean INNER JOIN bean.parent parent WITH parent.name = 'Parent' "
                    + "WHERE bean.id = :id");
-        assertJpql("SELECT bean FROM TestBean bean "
-                   + "WHERE (( TYPE(bean)  = TestBeanSubclass "
-                   + " AND TREAT(bean AS TestBeanSubclass).owner = :CURRENT_PRINCIPAL) "
-                   + "OR  NOT  TYPE(bean)  = TestBeanSubclass )");
-        assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id BETWEEN 5 AND 7)");
-        assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id NOT BETWEEN 5 AND 7)");
-        assertJpql("SELECT DISTINCT bean, bean.id FROM TestBean bean WHERE :id = bean.id");
-        assertJpql("SELECT bean1 FROM TestBean bean1, TestBean bean2 WHERE bean1.id < bean2.id");
-        assertJpql("SELECT bean.name FROM TestBean bean WHERE (bean.name <> 'testBean')");
-        assertJpql("SELECT bean1.name FROM TestBean bean1, TestBean bean2 WHERE (bean1.id - (bean2.id - 1)) = 5");
-        assertJpql("SELECT bean.name FROM TestBean bean WHERE bean.booleanValue = true");
-        assertJpql("SELECT bean.name FROM TestBean bean WHERE ((3 + 2) * 2) = 10.0");
-        assertJpql("SELECT bean.name FROM TestBean bean WHERE ((3 + 2) / 2) = 10.0");
-        assertJpql("SELECT bean.name FROM TestBean bean WHERE ((3 - 2) * 2) <= 10.0");
-        assertJpql("SELECT bean.name FROM TestBean bean WHERE ((3 + 2) * 2) >= 10.0");
-        assertJpql("SELECT bean.id FROM TestBean bean WHERE ABS(bean.id) = 1 HAVING bean.id > 0");
-        assertJpql("SELECT bean.id FROM TestBean bean "
+        assertJpql("SELECT bean FROM Bean bean "
+                   + "WHERE (( TYPE(bean)  = BeanSubclass "
+                   + " AND TREAT(bean AS BeanSubclass).owner = :CURRENT_PRINCIPAL) "
+                   + "OR  NOT  TYPE(bean)  = BeanSubclass )");
+        assertJpql("SELECT bean FROM Bean bean WHERE (bean.id BETWEEN 5 AND 7)");
+        assertJpql("SELECT bean FROM Bean bean WHERE (bean.id NOT BETWEEN 5 AND 7)");
+        assertJpql("SELECT DISTINCT bean, bean.id FROM Bean bean WHERE :id = bean.id");
+        assertJpql("SELECT bean1 FROM Bean bean1, Bean bean2 WHERE bean1.id < bean2.id");
+        assertJpql("SELECT bean.name FROM Bean bean WHERE (bean.name <> 'testBean')");
+        assertJpql("SELECT bean1.name FROM Bean bean1, Bean bean2 WHERE (bean1.id - (bean2.id - 1)) = 5");
+        assertJpql("SELECT bean.name FROM Bean bean WHERE bean.booleanValue = true");
+        assertJpql("SELECT bean.name FROM Bean bean WHERE ((3 + 2) * 2) = 10.0");
+        assertJpql("SELECT bean.name FROM Bean bean WHERE ((3 + 2) / 2) = 10.0");
+        assertJpql("SELECT bean.name FROM Bean bean WHERE ((3 - 2) * 2) <= 10.0");
+        assertJpql("SELECT bean.name FROM Bean bean WHERE ((3 + 2) * 2) >= 10.0");
+        assertJpql("SELECT bean.id FROM Bean bean WHERE ABS(bean.id) = 1 HAVING bean.id > 0");
+        assertJpql("SELECT bean.id FROM Bean bean "
                    + "WHERE ABS(bean.id) = 1 GROUP BY bean.id HAVING COUNT(bean.id) > 0");
         assertJpql("SELECT bean.id, bean.name, COUNT(bean.collectionProperty.id) "
-                   + "FROM TestBean bean GROUP BY bean.id, bean.name");
-        assertJpql("SELECT bean FROM TestBean bean "
+                   + "FROM Bean bean GROUP BY bean.id, bean.name");
+        assertJpql("SELECT bean FROM Bean bean "
                    + "WHERE TRIM(LEADING ' ' FROM bean.name) = TRIM(TRAILING FROM bean.name)");
-        assertJpql("SELECT bean FROM TestBean bean WHERE TRIM(bean.name) = TRIM(BOTH FROM bean.name)");
-        assertJpql("SELECT bean FROM TestBean bean "
-                   + "WHERE bean.name = ALL( SELECT bean.collectionProperty.name FROM TestBean bean)");
-        assertJpql("SELECT bean FROM TestBean bean "
-                   + "WHERE bean.name = ANY( SELECT bean.collectionProperty.name FROM TestBean bean)");
-        assertJpql("SELECT NEW org.jpasecurity.TestBean(bean.id, bean.name) FROM TestBean bean");
-        assertJpql("SELECT bean FROM TestBean bean WHERE SIZE(bean.collectionProperty) = 0");
-        assertJpql("SELECT DISTINCT bean FROM TestBean bean, TestBean bean2 INNER JOIN FETCH bean.collectionProperty");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.dateProperty = CURRENT_DATE");
-        assertJpql("SELECT DISTINCT bean FROM TestBean bean LEFT OUTER JOIN FETCH bean.beanProperty");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.id > 0");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name LIKE '%beanName%'");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name LIKE '%beanName%' ESCAPE '\\'");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT LIKE '%beanName%'");
-        assertJpql("SELECT bean FROM TestBean bean "
+        assertJpql("SELECT bean FROM Bean bean WHERE TRIM(bean.name) = TRIM(BOTH FROM bean.name)");
+        assertJpql("SELECT bean FROM Bean bean "
+                   + "WHERE bean.name = ALL( SELECT bean.collectionProperty.name FROM Bean bean)");
+        assertJpql("SELECT bean FROM Bean bean "
+                   + "WHERE bean.name = ANY( SELECT bean.collectionProperty.name FROM Bean bean)");
+        assertJpql("SELECT NEW org.jpasecurity.Bean(bean.id, bean.name) FROM Bean bean");
+        assertJpql("SELECT bean FROM Bean bean WHERE SIZE(bean.collectionProperty) = 0");
+        assertJpql("SELECT DISTINCT bean FROM Bean bean, Bean bean2 INNER JOIN FETCH bean.collectionProperty");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.dateProperty = CURRENT_DATE");
+        assertJpql("SELECT DISTINCT bean FROM Bean bean LEFT OUTER JOIN FETCH bean.beanProperty");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.id > 0");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.name LIKE '%beanName%'");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.name LIKE '%beanName%' ESCAPE '\\'");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.name NOT LIKE '%beanName%'");
+        assertJpql("SELECT bean FROM Bean bean "
                    + "WHERE (bean.collectionProperty IS NULL OR SIZE(bean.collectionProperty) = 0)");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name IS NOT NULL");
-        assertJpql("SELECT bean FROM TestBean bean WHERE NOT (bean.id = SQRT(2) )");
-        assertJpql("SELECT bean FROM TestBean bean WHERE LOWER(bean.name) = 'test'");
-        assertJpql("SELECT bean FROM TestBean bean ORDER BY bean.id ASC, bean.name DESC");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.id = MIN( DISTINCT bean.id)");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.id = MAX( DISTINCT bean.id)");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.id = MAX( DISTINCT bean.id)");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.collectionProperty IS EMPTY");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.collectionProperty IS NOT EMPTY");
-        assertJpql("SELECT bean FROM TestBean bean WHERE (bean.id = 0 AND bean.name = 'Test')");
-        assertJpql("SELECT bean FROM TestBean bean WHERE - MOD(bean.id, 2) = -1");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean MEMBER OF bean.collectionProperty");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean NOT MEMBER OF bean.collectionProperty");
-        assertJpql("SELECT bean FROM TestBean bean WHERE EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)");
-        assertJpql("SELECT bean FROM TestBean bean "
-                   + "WHERE NOT EXISTS ( SELECT bean FROM TestBean bean WHERE bean.id = :id)");
-        assertJpql("SELECT bean FROM TestBean bean "
-            + "WHERE NOT EXISTS ( SELECT /* QUERY_OPTIMIZE_NOCACHE */ bean FROM TestBean bean WHERE bean.id = :id)");
-        assertJpql("SELECT bean FROM TestBean bean "
-            + "WHERE NOT EXISTS ( SELECT /* IS_ACCESSIBLE_NODB */ bean FROM TestBean bean WHERE bean.id = :id)");
-        assertJpql("SELECT bean FROM TestBean bean "
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.name IS NOT NULL");
+        assertJpql("SELECT bean FROM Bean bean WHERE NOT (bean.id = SQRT(2) )");
+        assertJpql("SELECT bean FROM Bean bean WHERE LOWER(bean.name) = 'test'");
+        assertJpql("SELECT bean FROM Bean bean ORDER BY bean.id ASC, bean.name DESC");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.id = MIN( DISTINCT bean.id)");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.id = MAX( DISTINCT bean.id)");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.id = MAX( DISTINCT bean.id)");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.collectionProperty IS EMPTY");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.collectionProperty IS NOT EMPTY");
+        assertJpql("SELECT bean FROM Bean bean WHERE (bean.id = 0 AND bean.name = 'Test')");
+        assertJpql("SELECT bean FROM Bean bean WHERE - MOD(bean.id, 2) = -1");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean MEMBER OF bean.collectionProperty");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean NOT MEMBER OF bean.collectionProperty");
+        assertJpql("SELECT bean FROM Bean bean WHERE EXISTS ( SELECT bean FROM Bean bean WHERE bean.id = :id)");
+        assertJpql("SELECT bean FROM Bean bean "
+                   + "WHERE NOT EXISTS ( SELECT bean FROM Bean bean WHERE bean.id = :id)");
+        assertJpql("SELECT bean FROM Bean bean "
+            + "WHERE NOT EXISTS ( SELECT /* QUERY_OPTIMIZE_NOCACHE */ bean FROM Bean bean WHERE bean.id = :id)");
+        assertJpql("SELECT bean FROM Bean bean "
+            + "WHERE NOT EXISTS ( SELECT /* IS_ACCESSIBLE_NODB */ bean FROM Bean bean WHERE bean.id = :id)");
+        assertJpql("SELECT bean FROM Bean bean "
             + "WHERE NOT EXISTS ( SELECT /* QUERY_OPTIMIZE_NOCACHE IS_ACCESSIBLE_NODB IS_ACCESSIBLE_NOCACHE */"
-            + " bean FROM TestBean bean WHERE bean.id = :id)");
-        assertJpql("SELECT bean FROM TestBean bean WHERE SUBSTRING(bean.name, 2, 3) = 'est'");
-        assertJpql("SELECT bean FROM TestBean bean WHERE LOCATE(bean.name, 'est') = 2");
-        assertJpql("SELECT bean FROM TestBean bean WHERE CONCAT(bean.name, 'est') = 'Nameest'");
-        assertJpql("SELECT bean FROM TestBean bean WHERE LOCATE(bean.name, 'est', 2) = -1");
-        assertJpql("SELECT bean FROM TestBean bean WHERE LENGTH(bean.name) = 0");
-        assertJpql("SELECT bean FROM TestBean bean WHERE UPPER(bean.name) = 'NAME'");
-        assertJpql("SELECT bean FROM TestBean bean WHERE LOWER(bean.name) = 'name'");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name = ?1");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.created < CURRENT_TIMESTAMP");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.created < CURRENT_TIME");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name IN ('name 1', 'name 2')");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
+            + " bean FROM Bean bean WHERE bean.id = :id)");
+        assertJpql("SELECT bean FROM Bean bean WHERE SUBSTRING(bean.name, 2, 3) = 'est'");
+        assertJpql("SELECT bean FROM Bean bean WHERE LOCATE(bean.name, 'est') = 2");
+        assertJpql("SELECT bean FROM Bean bean WHERE CONCAT(bean.name, 'est') = 'Nameest'");
+        assertJpql("SELECT bean FROM Bean bean WHERE LOCATE(bean.name, 'est', 2) = -1");
+        assertJpql("SELECT bean FROM Bean bean WHERE LENGTH(bean.name) = 0");
+        assertJpql("SELECT bean FROM Bean bean WHERE UPPER(bean.name) = 'NAME'");
+        assertJpql("SELECT bean FROM Bean bean WHERE LOWER(bean.name) = 'name'");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.name = ?1");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.created < CURRENT_TIMESTAMP");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.created < CURRENT_TIME");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.name IN ('name 1', 'name 2')");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
         assertJpql("SELECT bean, 'name', CASE WHEN bean.name = 'name 1' THEN bean.name ELSE 'name 2' END "
-                   + "FROM TestBean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
+                   + "FROM Bean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
         assertJpql("SELECT bean, 'name', CASE bean.name WHEN 'name 1' THEN bean.name ELSE 'name 2' END "
-                   + "FROM TestBean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
+                   + "FROM Bean bean WHERE bean.name NOT IN ('name 1', 'name 2')");
         assertJpql("SELECT COALESCE(parent.name, KEY(related).name, VALUE(related).name, bean.name) "
-                   + "FROM TestBean bean LEFT OUTER JOIN bean.parent parent LEFT OUTER JOIN bean.related related");
-        assertJpql("SELECT NULLIF(bean.name, 'Test') FROM TestBean bean");
-        assertJpql("SELECT bean, COUNT( DISTINCT bean) AS beanCount FROM TestBean bean WHERE bean.name = 'name 1'");
-        assertJpql("SELECT bean FROM TestBean bean WHERE TYPE(bean) = TestBeanSubclass");
-        assertJpql("SELECT bean FROM TestBean bean WHERE TREAT(bean.parent AS TestBeanSubclass).name = 'name 1'");
-        assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.related related "
+                   + "FROM Bean bean LEFT OUTER JOIN bean.parent parent LEFT OUTER JOIN bean.related related");
+        assertJpql("SELECT NULLIF(bean.name, 'Test') FROM Bean bean");
+        assertJpql("SELECT bean, COUNT( DISTINCT bean) AS beanCount FROM Bean bean WHERE bean.name = 'name 1'");
+        assertJpql("SELECT bean FROM Bean bean WHERE TYPE(bean) = BeanSubclass");
+        assertJpql("SELECT bean FROM Bean bean WHERE TREAT(bean.parent AS BeanSubclass).name = 'name 1'");
+        assertJpql("SELECT bean FROM Bean bean INNER JOIN bean.related related "
                    + "WHERE KEY(related).name = 'name 1'");
-        assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.related related "
+        assertJpql("SELECT bean FROM Bean bean INNER JOIN bean.related related "
                    + "WHERE VALUE(related).name = 'name 1'");
-        assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.related related "
+        assertJpql("SELECT bean FROM Bean bean INNER JOIN bean.related related "
                    + "WHERE ENTRY(related) IS NOT NULL");
-        assertJpql("SELECT bean FROM TestBean bean INNER JOIN bean.related related "
+        assertJpql("SELECT bean FROM Bean bean INNER JOIN bean.related related "
                    + "WHERE ENTRY(related) IS NULL");
-        assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0");
-        assertJpql("UPDATE TestBean bean SET bean.name = 'test', bean.id = 0 WHERE bean.id = 0");
-        assertJpql("DELETE FROM TestBean bean");
-        assertJpql("DELETE FROM TestBean bean WHERE bean.id = 0");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.value = ?1");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.key = ?1");
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.entry = ?1");
-        assertJpql("SELECT child FROM TestBean bean LEFT OUTER JOIN bean.children child WHERE INDEX(child) = 0");
-        assertAccessRule("GRANT CREATE READ UPDATE DELETE ACCESS TO TestBean bean WHERE bean.id = 0");
+        assertJpql("UPDATE Bean bean SET bean.name = 'test', bean.id = 0");
+        assertJpql("UPDATE Bean bean SET bean.name = 'test', bean.id = 0 WHERE bean.id = 0");
+        assertJpql("DELETE FROM Bean bean");
+        assertJpql("DELETE FROM Bean bean WHERE bean.id = 0");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.value = ?1");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.key = ?1");
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.entry = ?1");
+        assertJpql("SELECT child FROM Bean bean LEFT OUTER JOIN bean.children child WHERE INDEX(child) = 0");
+        assertAccessRule("GRANT CREATE READ UPDATE DELETE ACCESS TO Bean bean WHERE bean.id = 0");
     }
 
     @Test
     public void parseWhereCoalesceInExpression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) IN ('Horst')");
+        assertJpql("SELECT bean FROM Bean bean WHERE COALESCE(bean.name) IN ('Horst')");
     }
 
     @Test
     @Ignore
     public void parseWhereCoalesceEquals1Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) = 'Horst'");
+        assertJpql("SELECT bean FROM Bean bean WHERE COALESCE(bean.name) = 'Horst'");
     }
 
     @Test
     @Ignore
     public void parseWhereCoalesceEquals2Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE 'Horst' = COALESCE(bean.name)");
+        assertJpql("SELECT bean FROM Bean bean WHERE 'Horst' = COALESCE(bean.name)");
     }
 
     @Test
     public void parseWhereCoalesceBetween1Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name)"
+        assertJpql("SELECT bean FROM Bean bean WHERE COALESCE(bean.name)"
             + " BETWEEN bean.name AND bean.name");
     }
 
     @Test
     public void parseWhereCoalesceBetween2Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.name BETWEEN"
             + " COALESCE(bean.name) AND bean.name");
     }
 
     @Test
     public void parseWhereCoalesceBetween3Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.name BETWEEN"
             + " bean.name AND COALESCE(bean.name)");
     }
 
     @Test
     public void parseWhereCoalesceBetween4Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) BETWEEN"
+        assertJpql("SELECT bean FROM Bean bean WHERE COALESCE(bean.name) BETWEEN"
             + " COALESCE(bean.name) AND bean.name");
     }
 
     @Test
     public void parseWhereCoalesceBetween5Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) BETWEEN"
+        assertJpql("SELECT bean FROM Bean bean WHERE COALESCE(bean.name) BETWEEN"
             + " bean.name AND COALESCE(bean.name)");
     }
 
     @Test
     public void parseWhereCoalesceBetween6Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name BETWEEN"
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.name BETWEEN"
             + " COALESCE(bean.name) AND COALESCE(bean.name)");
     }
 
     @Test
     public void parseWhereCoalesceBetween7Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) BETWEEN"
+        assertJpql("SELECT bean FROM Bean bean WHERE COALESCE(bean.name) BETWEEN"
             + " COALESCE(bean.name) AND COALESCE(bean.name)");
     }
 
     @Test
     public void parseWhereCoalesceNotBetween1Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) NOT BETWEEN"
+        assertJpql("SELECT bean FROM Bean bean WHERE COALESCE(bean.name) NOT BETWEEN"
             + " bean.name AND bean.name");
     }
 
     @Test
     public void parseWhereCoalesceNotBetween2Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT BETWEEN"
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.name NOT BETWEEN"
             + " COALESCE(bean.name) AND bean.name");
     }
     @Test
     public void parseWhereCoalesceNotBetween3Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT BETWEEN"
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.name NOT BETWEEN"
             + " bean.name AND COALESCE(bean.name)");
     }
     @Test
     public void parseWhereCoalesceNotBetween4Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) NOT BETWEEN"
+        assertJpql("SELECT bean FROM Bean bean WHERE COALESCE(bean.name) NOT BETWEEN"
             + " COALESCE(bean.name) AND bean.name");
     }
     @Test
     public void parseWhereCoalesceNotBetween5Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) NOT BETWEEN"
+        assertJpql("SELECT bean FROM Bean bean WHERE COALESCE(bean.name) NOT BETWEEN"
             + " bean.name AND COALESCE(bean.name)");
     }
     @Test
     public void parseWhereCoalesceNotBetween6Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE bean.name NOT BETWEEN"
+        assertJpql("SELECT bean FROM Bean bean WHERE bean.name NOT BETWEEN"
             + " COALESCE(bean.name) AND COALESCE(bean.name)");
     }
     @Test
     public void parseWhereCoalesceNotBetween7Expression() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE COALESCE(bean.name) NOT BETWEEN"
+        assertJpql("SELECT bean FROM Bean bean WHERE COALESCE(bean.name) NOT BETWEEN"
             + " COALESCE(bean.name) AND COALESCE(bean.name)");
     }
 
     @Test
     public void parseWhereUpperInFunctions() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE UPPER(bean.name) IN ('Horst')");
+        assertJpql("SELECT bean FROM Bean bean WHERE UPPER(bean.name) IN ('Horst')");
     }
 
     @Test
     public void parseWhereUpperEqualsFunctions() throws ParseException {
-        assertJpql("SELECT bean FROM TestBean bean WHERE UPPER(bean.name) = ('Horst')");
+        assertJpql("SELECT bean FROM Bean bean WHERE UPPER(bean.name) = ('Horst')");
     }
 
     public void assertJpql(String query) {

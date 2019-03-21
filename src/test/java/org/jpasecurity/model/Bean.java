@@ -35,7 +35,7 @@ import javax.persistence.Transient;
 /** @author Arne Limburg */
 @Entity
 @Inheritance
-public class TestBean {
+public class Bean {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -45,19 +45,19 @@ public class TestBean {
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private TestBean parent;
+    private Bean parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @OrderColumn(name = "childIndex")
-    private List<TestBean> children = new ArrayList<>();
+    private List<Bean> children = new ArrayList<>();
 
     @Transient
     private boolean preUpdate;
 
-    public TestBean() {
+    public Bean() {
     }
 
-    public TestBean(String name) {
+    public Bean(String name) {
         this.name = name;
     }
 
@@ -77,19 +77,19 @@ public class TestBean {
         this.name = name;
     }
 
-    public TestBean getParent() {
+    public Bean getParent() {
         return parent;
     }
 
-    public void setParent(TestBean parent) {
+    public void setParent(Bean parent) {
         this.parent = parent;
     }
 
-    public List<TestBean> getChildren() {
+    public List<Bean> getChildren() {
         return children;
     }
 
-    public void setChildren(List<TestBean> children) {
+    public void setChildren(List<Bean> children) {
         this.children = children;
     }
 
@@ -107,11 +107,11 @@ public class TestBean {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof TestBean)) {
+        if (!(o instanceof Bean)) {
             return false;
         }
 
-        TestBean testBean = (TestBean)o;
+        Bean testBean = (Bean)o;
         return id != null && id.equals(testBean.getId());
     }
 

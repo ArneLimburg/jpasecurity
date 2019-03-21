@@ -28,10 +28,10 @@ import javax.persistence.criteria.Root;
 
 import org.jpasecurity.model.AbstractEntity;
 import org.jpasecurity.model.AbstractSuperclass;
+import org.jpasecurity.model.Bean;
+import org.jpasecurity.model.BeanSubclass;
 import org.jpasecurity.model.Subclass1;
 import org.jpasecurity.model.SuperclassReferencingBean;
-import org.jpasecurity.model.TestBean;
-import org.jpasecurity.model.TestBeanSubclass;
 import org.jpasecurity.security.authentication.TestSecurityContext;
 import org.junit.After;
 import org.junit.Before;
@@ -56,11 +56,11 @@ public class SubclassingTest {
         factory = Persistence.createEntityManagerFactory("subclassing-test");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
-        TestBean testBean = new TestBean();
+        Bean testBean = new Bean();
         entityManager.persist(testBean);
 
         TestSecurityContext.authenticate(USER);
-        TestBeanSubclass testBeanSubclass = new TestBeanSubclass(USER);
+        BeanSubclass testBeanSubclass = new BeanSubclass(USER);
         entityManager.persist(testBeanSubclass);
         testBean.setParent(testBeanSubclass);
         AbstractEntity subclass = new Subclass1();
@@ -69,7 +69,7 @@ public class SubclassingTest {
         entityManager.persist(superclassReferencingBean);
 
         TestSecurityContext.authenticate(USER_CRITERIA);
-        TestBeanSubclass criteriaTestBeanSubclass = new TestBeanSubclass(USER_CRITERIA);
+        BeanSubclass criteriaTestBeanSubclass = new BeanSubclass(USER_CRITERIA);
         entityManager.persist(criteriaTestBeanSubclass);
 
         entityManager.getTransaction().commit();
@@ -86,11 +86,11 @@ public class SubclassingTest {
     public void accessRulesOnSubclasses() {
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
-        assertEquals(1, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
+        assertEquals(1, entityManager.createQuery("SELECT bean FROM Bean bean").getResultList().size());
         TestSecurityContext.authenticate(USER);
-        assertEquals(2, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
+        assertEquals(2, entityManager.createQuery("SELECT bean FROM Bean bean").getResultList().size());
         TestSecurityContext.authenticate(USER_CRITERIA);
-        assertEquals(2, entityManager.createQuery("SELECT bean FROM TestBean bean").getResultList().size());
+        assertEquals(2, entityManager.createQuery("SELECT bean FROM Bean bean").getResultList().size());
         entityManager.getTransaction().commit();
         entityManager.close();
     }
@@ -124,10 +124,10 @@ public class SubclassingTest {
         TestSecurityContext.authenticate(USER_CRITERIA);
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<TestBean> query = criteriaBuilder.createQuery(TestBean.class);
-        Root<TestBean> readAccessUser = query.from(TestBean.class);
-        CriteriaQuery<TestBean> selectStatement = query.select(readAccessUser);
-        List<TestBean> resultList = entityManager.createQuery(selectStatement).getResultList();
+        CriteriaQuery<Bean> query = criteriaBuilder.createQuery(Bean.class);
+        Root<Bean> readAccessUser = query.from(Bean.class);
+        CriteriaQuery<Bean> selectStatement = query.select(readAccessUser);
+        List<Bean> resultList = entityManager.createQuery(selectStatement).getResultList();
 
         assertEquals(2, resultList.size());
 

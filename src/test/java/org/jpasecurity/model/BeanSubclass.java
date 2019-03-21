@@ -29,15 +29,15 @@ import org.jpasecurity.security.PermitAny;
     @Permit(where = "owner = CURRENT_PRINCIPAL"),
     @Permit(where = "owner IN (CURRENT_ROLES)")
     })
-public class TestBeanSubclass extends TestBean {
+public class BeanSubclass extends Bean {
 
     @Basic
     private String owner;
 
-    protected TestBeanSubclass() {
+    protected BeanSubclass() {
     }
 
-    public TestBeanSubclass(String owner) {
+    public BeanSubclass(String owner) {
         this.owner = owner;
     }
 
