@@ -27,13 +27,13 @@ import org.jpasecurity.SecurityContext;
 /**
  * This class provides support for static authentication (one authentication per vm).
  * It is intended mainly for test-use, since per-vm-authentication is seldom usefull
- * in server-site applications. But this class may also be usefull in stand-alone-client applications.
+ * in server-site applications. But this class may also be useful in stand-alone-client applications.
  * @author Arne Limburg
  */
 public class StaticSecurityContext implements SecurityContext {
 
     private static final Object NULL = new Object();
-    private static Map<Alias, Object> values = new ConcurrentHashMap<Alias, Object>();
+    private static final Map<Alias, Object> VALUES = new ConcurrentHashMap<>();
 
     /**
      * Sets the current authenticated principal to the specified principal, assigning the specified roles.
@@ -55,26 +55,27 @@ public class StaticSecurityContext implements SecurityContext {
     }
 
     public static void register(Alias alias, Object value) {
-        values.put(alias, value != null? value: NULL);
+        VALUES.put(alias, value != null? value: NULL);
     }
 
     public static void unauthenticate() {
-        values.clear();
+        VALUES.clear();
     }
 
     @Override
     public Collection<Alias> getAliases() {
-        return Collections.unmodifiableCollection(values.keySet());
+        return Collections.unmodifiableCollection(VALUES.keySet());
     }
 
     @Override
     public Object getAliasValue(Alias alias) {
-        Object value = values.get(alias);
+        Object value = VALUES.get(alias);
         return value == NULL? null: value;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> Collection<T> getAliasValues(Alias alias) {
-        return (Collection<T>)values.get(alias);
+        return (Collection<T>)VALUES.get(alias);
     }
 }

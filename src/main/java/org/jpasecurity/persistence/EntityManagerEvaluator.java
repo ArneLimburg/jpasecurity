@@ -86,9 +86,9 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
         LOG.trace("Evaluating subselect with query");
         statement = statement.clone();
         Set<Alias> aliases = getAliases(statement.getTypeDefinitions());
-        Set<String> namedParameters = new HashSet<String>(statement.getNamedParameters());
-        Map<String, String> namedPathParameters = new HashMap<String, String>();
-        Map<String, Object> namedParameterValues = new HashMap<String, Object>();
+        Set<String> namedParameters = new HashSet<>(statement.getNamedParameters());
+        Map<String, String> namedPathParameters = new HashMap<>();
+        Map<String, Object> namedParameterValues = new HashMap<>();
         for (Node jpqlPath: statement.getWhereClausePaths()) {
             Path path = new Path(jpqlPath.toString());
             Alias alias = path.getRootAlias();
@@ -181,7 +181,7 @@ public class EntityManagerEvaluator extends AbstractSubselectEvaluator {
     }
 
     private Set<Alias> getAliases(Set<TypeDefinition> typeDefinitions) {
-        Set<Alias> aliases = new HashSet<Alias>();
+        Set<Alias> aliases = new HashSet<>();
         for (TypeDefinition typeDefinition: typeDefinitions) {
             if (typeDefinition.getAlias() != null) {
                 aliases.add(typeDefinition.getAlias());

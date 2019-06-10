@@ -43,6 +43,6 @@ public class EmptyResultQuery<T> extends DelegatingQuery<T> {
      * As this query always returns an empty result, this call always returns an empty list.
      */
     public List<T> getResultList() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 }

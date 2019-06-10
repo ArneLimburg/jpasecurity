@@ -48,6 +48,8 @@ public class AutodetectingSecurityContextTest {
     public void autodetectAuthenticationProvider() {
         final SecurityContext mock = mock(SecurityContext.class);
         AutodetectingSecurityContext authenticationProvider = new AutodetectingSecurityContext() {
+
+            @Override
             protected SecurityContext autodetectSecurityContext() {
                 return mock;
             }
@@ -55,10 +57,10 @@ public class AutodetectingSecurityContextTest {
 
         Object user = new Object();
         when(mock.getAliasValue(AbstractRoleBasedSecurityContext.CURRENT_PRINCIPAL)).thenReturn(user);
-        when(mock.getAliasValues(AbstractRoleBasedSecurityContext.CURRENT_ROLES)).thenReturn(Collections.EMPTY_SET);
+        when(mock.getAliasValues(AbstractRoleBasedSecurityContext.CURRENT_ROLES)).thenReturn(Collections.emptySet());
 
         assertSame(user, authenticationProvider.getAliasValue(new Alias("CURRENT_PRINCIPAL")));
-        assertSame(Collections.EMPTY_SET, authenticationProvider.getAliasValues(new Alias("CURRENT_ROLES")));
+        assertSame(Collections.emptySet(), authenticationProvider.getAliasValues(new Alias("CURRENT_ROLES")));
     }
 
     @Test

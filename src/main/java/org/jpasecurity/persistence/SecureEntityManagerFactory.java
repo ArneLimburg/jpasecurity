@@ -59,21 +59,25 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
         namedQueries = new NamedQueryParser(entityManagerFactory.getMetamodel(), ormXmlLocations).parseNamedQueries();
     }
 
+    @Override
     public SecureEntityManager createEntityManager() {
         return createSecureEntityManager(super.createEntityManager(), Collections.<String, Object>emptyMap());
     }
 
+    @Override
     public SecureEntityManager createEntityManager(@SuppressWarnings("rawtypes") Map map) {
         return createSecureEntityManager(super.createEntityManager(map), map);
     }
 
+    @Override
     public SecureEntityManager createEntityManager(SynchronizationType synchronizationType, Map properties) {
         return createSecureEntityManager(super.createEntityManager(synchronizationType, properties), properties);
     }
 
+    @Override
     public SecureEntityManager createEntityManager(SynchronizationType synchronizationType) {
         return createSecureEntityManager(super.createEntityManager(synchronizationType),
-                Collections.<String, Object>emptyMap());
+            Collections.<String, Object>emptyMap());
     }
 
     public SecurePersistenceUnitUtil getPersistenceUnitUtil() {
@@ -106,11 +110,10 @@ public class SecureEntityManagerFactory extends DelegatingEntityManagerFactory i
         if (accessRules != null) {
             return accessRules;
         }
-        Collection<AccessRule> accessRules = new AccessRulesParser(persistenceUnitName,
+        return new AccessRulesParser(persistenceUnitName,
                 getMetamodel(),
                 newInstance(securityContextType),
                 newInstance(accessRulesProviderType)).parseAccessRules();
-        return accessRules;
     }
 
     private <T> T newInstance(Class<T> type) {

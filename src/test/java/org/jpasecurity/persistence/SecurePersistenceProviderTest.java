@@ -56,7 +56,7 @@ public class SecurePersistenceProviderTest {
     @Test
     public void wrongPersistenceProvider() {
         assertNull(securePersistenceProvider.createEntityManagerFactory("persistence-test", null));
-        assertNull(securePersistenceProvider.createEntityManagerFactory("persistence-test", Collections.EMPTY_MAP));
+        assertNull(securePersistenceProvider.createEntityManagerFactory("persistence-test", Collections.emptyMap()));
     }
 
     @Test
@@ -72,20 +72,20 @@ public class SecurePersistenceProviderTest {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(new URLClassLoader(new URL[0], null));
         assertNull(securePersistenceProvider.createEntityManagerFactory("annotation-based-method-access",
-                                                                        Collections.EMPTY_MAP));
+                                                                        Collections.emptyMap()));
         Thread.currentThread().setContextClassLoader(contextClassLoader);
     }
 
     @Test
     public void persistenceUnitNotFound() {
-        assertNull(securePersistenceProvider.createEntityManagerFactory("bogus-unit", Collections.EMPTY_MAP));
+        assertNull(securePersistenceProvider.createEntityManagerFactory("bogus-unit", Collections.emptyMap()));
     }
 
     @Test
     public void createContainerEntityManagerFactory() {
         EntityManagerFactory entityManagerFactory
             = securePersistenceProvider.createContainerEntityManagerFactory(createPersistenceUnitInfo(),
-                                                                            Collections.EMPTY_MAP);
+                                                                            Collections.emptyMap());
         assertTrue(entityManagerFactory.createEntityManager() instanceof SecureEntityManager);
     }
 

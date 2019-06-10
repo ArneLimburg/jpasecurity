@@ -36,7 +36,8 @@ import org.xml.sax.helpers.DefaultHandler;
 public abstract class AbstractXmlParser<H extends DefaultHandler> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractXmlParser.class);
-    private H handler;
+
+    private final H handler;
 
     public AbstractXmlParser(H xmlHandler) {
         handler = xmlHandler;
@@ -47,12 +48,9 @@ public abstract class AbstractXmlParser<H extends DefaultHandler> {
     }
 
     public void parse(URL url) throws IOException {
-        LOG.info("parsing " + url);
-        InputStream stream = url.openStream();
-        try {
+        LOG.info("parsing {}", url);
+        try (InputStream stream = url.openStream()) {
             parse(stream);
-        } finally {
-            stream.close();
         }
     }
 
@@ -64,11 +62,7 @@ public abstract class AbstractXmlParser<H extends DefaultHandler> {
             factory.setValidating(true);
             SAXParser parser = factory.newSAXParser();
             parser.parse(xml, handler);
-        } catch (ParserConfigurationException e) {
-            throw new PersistenceException(e);
-        } catch (SAXException e) {
-            throw new PersistenceException(e);
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new PersistenceException(e);
         }
     }

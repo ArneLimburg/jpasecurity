@@ -24,57 +24,66 @@ public class DoubleKeyHashMap<A, B, V> implements Map<DoubleKey<A, B>, V> {
     private HashMap<DoubleKey<A, B>, V> store;
 
     public DoubleKeyHashMap() {
-        this.store = new HashMap<DoubleKey<A, B>, V>();
+        this.store = new HashMap<>();
     }
 
     public DoubleKeyHashMap(int initialCapacity) {
-        this.store = new HashMap<DoubleKey<A, B>, V>(initialCapacity);
+        this.store = new HashMap<>(initialCapacity);
     }
 
+    @Override
     public int size() {
         return store.size();
     }
 
+    @Override
     public boolean isEmpty() {
         return store.isEmpty();
     }
 
+    @Override
     public V get(Object key) {
         return store.get(key);
     }
 
     public V get(A keyA, B keyB) {
-        return store.get(new DoubleKey<A, B>(keyA, keyB));
+        return store.get(new DoubleKey<>(keyA, keyB));
     }
 
+    @Override
     public boolean containsKey(Object key) {
         return store.containsKey(key);
     }
 
     public boolean containsKey(A keyA, B keyB) {
-        return store.containsKey(new DoubleKey<A, B>(keyA, keyB));
+        return store.containsKey(new DoubleKey<>(keyA, keyB));
     }
 
+    @Override
     public V put(DoubleKey<A, B> key, V value) {
         return store.put(key, value);
     }
 
     public V put(A keyA, B keyB, V value) {
-        return store.put(new DoubleKey<A, B>(keyA, keyB), value);
+        return store.put(new DoubleKey<>(keyA, keyB), value);
     }
 
+    @Override
     public void putAll(Map<? extends DoubleKey<A, B>, ? extends V> m) {
         store.putAll(m);
     }
 
+    @Override
     public V remove(Object key) {
         return store.remove(key);
     }
 
+    @Override
     public void clear() {
         store.clear();
     }
 
+    @Override
     public boolean containsValue(Object value) {
         return store.containsValue(value);
     }
@@ -84,14 +93,17 @@ public class DoubleKeyHashMap<A, B, V> implements Map<DoubleKey<A, B>, V> {
         return store.clone();
     }
 
+    @Override
     public Set<DoubleKey<A, B>> keySet() {
         return store.keySet();
     }
 
+    @Override
     public Collection<V> values() {
         return store.values();
     }
 
+    @Override
     public Set<Entry<DoubleKey<A, B>, V>> entrySet() {
         return store.entrySet();
     }
