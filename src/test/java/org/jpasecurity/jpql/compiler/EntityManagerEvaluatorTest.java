@@ -79,7 +79,6 @@ public class EntityManagerEvaluatorTest {
     private EntityManagerEvaluator entityManagerEvaluator;
     private Query query;
 
-
     @Before
     public void initialize() throws NoSuchMethodException {
         metamodel = mock(Metamodel.class);
@@ -238,6 +237,28 @@ public class EntityManagerEvaluatorTest {
         verify(entityManager).createQuery(" SELECT innerBean FROM MethodAccessTestBean innerBean "
                 + "WHERE innerBean IN (:path0) ");
         verify(query).setParameter(eq("path0"), any(Collection.class));
+    }
+
+    @Test
+    public void evaluateSubSelectWithNestedSubselect() throws Exception {
+        JpqlCompiledStatement jpqlCompiledStatement = getCompiledSubselect(
+            SELECT
+                + "WHERE EXISTS (SELECT innerBean"
+                + " FROM MethodAccessTestBean innerBean"
+                + " WHERE innerBean = bean"
+                + "   AND EXISTS (SELECT parent FROM MethodAccessTestBean nestedInnerBean "
+                + "               LEFT OUTER JOIN nestedInnerBean.parent parent"
+                + "               WHERE nestedInnerBean = bean AND innerBean.parent = parent))");
+        entityManagerEvaluator.evaluate(jpqlCompiledStatement, parameters);
+        verify(entityManager).createQuery(
+                " SELECT innerBean FROM MethodAccessTestBean innerBean"
+                + " WHERE innerBean = :path0"
+                + " AND  EXISTS ("
+                + " SELECT parent FROM MethodAccessTestBean nestedInnerBean"
+                + " LEFT OUTER JOIN nestedInnerBean.parent parent "
+                + " WHERE nestedInnerBean = :path0 AND innerBean.parent = parent) ");
+
+        verify(query).setParameter(eq("path0"), any(MethodAccessTestBean.class));
     }
 
     @Test
