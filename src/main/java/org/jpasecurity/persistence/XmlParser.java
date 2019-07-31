@@ -68,6 +68,7 @@ public class XmlParser {
         this(getResources(resourceNames));
     }
 
+    @SuppressWarnings("squid:S2755")
     public XmlParser(Collection<URL> documentUrls)
         throws ParserConfigurationException, SAXException, IOException, URISyntaxException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
