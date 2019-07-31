@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- security.xml schema -->
+<xsd:schema targetNamespace="http://jpasecurity.sf.net/xml/ns/security"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:security="http://jpasecurity.sf.net/xml/ns/security"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified"
+            version="1.0">
+
+  <xsd:annotation>
+    <xsd:documentation>
+
+      Copyright 2008 Arne Limburg
+      
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing,
+      software distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions
+      and limitations under the License.
+
+    </xsd:documentation>
+  </xsd:annotation>
+
+  <xsd:annotation>
+    <xsd:documentation><![CDATA[
+
+      This is the XML Schema for the security configuration file.
+      The file must be named "META-INF/security.xml" in the 
+      archive to secure.
+      Security configuration files must indicate
+      the security schema by using the security namespace:
+
+      http://jpasecurity.sf.net/xml/ns/security
+
+      and indicate the version of the schema by
+      using the version element as shown below:
+
+      <security xmlns="http://jpasecurity.sf.net/xml/ns/security"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://jpasecurity.sf.net/xml/ns/security http://jpasecurity.sf.net/xml/ns/security/security_1_0.xsd"
+                version="1.0">
+          ...
+      </security>
+
+    ]]></xsd:documentation>
+  </xsd:annotation>
+
+  <!-- **************************************************** -->
+
+  <xsd:element name="security">
+    <xsd:complexType>
+      <xsd:sequence>
+
+        <!-- **************************************************** -->
+
+        <xsd:element name="persistence-unit" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:annotation>
+              <xsd:documentation>
+
+                Security configuration of a persistence unit.
+
+              </xsd:documentation>
+            </xsd:annotation>
+            <xsd:sequence>
+
+            <!-- **************************************************** -->
+
+              <xsd:element name="access-rule" type="xsd:string" minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                  <xsd:documentation>
+
+                    access rule using the grammar specified by the JPA Security Manual
+
+                  </xsd:documentation>
+                </xsd:annotation>
+              </xsd:element>
+              
+            </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string" />
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="schemaVersion" type="xsd:decimal" use="required" fixed="1.0"/>
+    </xsd:complexType>
+  </xsd:element>
+</xsd:schema>
