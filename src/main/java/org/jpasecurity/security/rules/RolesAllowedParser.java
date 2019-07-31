@@ -15,7 +15,8 @@
  */
 package org.jpasecurity.security.rules;
 
-import java.util.Arrays;
+import static java.util.Arrays.asList;
+
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -49,7 +50,7 @@ public class RolesAllowedParser extends AbstractAnnotationParser<RolesAllowed, S
             }
         }
         if (annotation.access().length != 0) {
-            rolesAllowed.addAll(EnumSet.of(annotation.access()[0], annotation.access()), Arrays.asList(annotation.roles()));
+            rolesAllowed.addAll(EnumSet.of(annotation.access()[0], annotation.access()), asList(annotation.roles()));
         }
     }
 }
