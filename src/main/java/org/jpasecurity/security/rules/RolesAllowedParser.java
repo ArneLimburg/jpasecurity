@@ -16,7 +16,7 @@
 package org.jpasecurity.security.rules;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Set;
 
 import org.jpasecurity.AccessType;
@@ -36,7 +36,7 @@ public class RolesAllowedParser extends AbstractAnnotationParser<RolesAllowed, S
 
     public SetMap<Set<AccessType>, String> parseAllowedRoles(Class<?> annotatedClass) {
         SetMap<Set<AccessType>, String> rolesAllowed = new SetHashMap<Set<AccessType>, String>();
-        rolesAllowed.addAll(asSet(AccessType.ALL), rolesAllowedParser.parseAllowedRoles(annotatedClass));
+        rolesAllowed.addAll(EnumSet.allOf(AccessType.class), rolesAllowedParser.parseAllowedRoles(annotatedClass));
         rolesAllowed.putAll(roleAllowedParser.parseAllowedRoles(annotatedClass));
         parse(annotatedClass, rolesAllowed);
         return rolesAllowed;
@@ -44,12 +44,12 @@ public class RolesAllowedParser extends AbstractAnnotationParser<RolesAllowed, S
 
     protected void process(RolesAllowed annotation, SetMap<Set<AccessType>, String> rolesAllowed) {
         for (RoleAllowed roleAllowed: annotation.value()) {
-            rolesAllowed.add(asSet(roleAllowed.access()), roleAllowed.role());
+            if (roleAllowed.access().length != 0) {
+                rolesAllowed.add(EnumSet.of(roleAllowed.access()[0], roleAllowed.access()), roleAllowed.role());
+            }
         }
-        rolesAllowed.addAll(asSet(annotation.access()), Arrays.asList(annotation.roles()));
-    }
-
-    private <T> Set<T> asSet(T[] array) {
-        return new HashSet<T>(Arrays.asList(array));
+        if (annotation.access().length != 0) {
+            rolesAllowed.addAll(EnumSet.of(annotation.access()[0], annotation.access()), Arrays.asList(annotation.roles()));
+        }
     }
 }
