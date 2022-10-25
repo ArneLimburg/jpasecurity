@@ -15,10 +15,12 @@
  */
 package org.jpasecurity.contacts.annotationbased;
 
+import static org.jpasecurity.contacts.annotationbased.ContactType.CUSTOMER;
 import java.io.Serializable;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,8 +37,11 @@ import org.jpasecurity.security.PermitAny;
 @NamedQuery(name = Contact.FIND_ALL, query = "SELECT contact FROM Contact contact")
 @PermitAny({
     @Permit(access = { AccessType.CREATE, AccessType.READ }, where = "'admin' IN CURRENT_ROLES"),
+    @Permit(access = AccessType.UPDATE, where = "'updater' IN CURRENT_ROLES"),
     @Permit(access = AccessType.READ, where = "EXISTS (SELECT contact FROM Contact contact "
-            + "WHERE this = contact AND (contact.owner = CURRENT_PRINCIPAL OR contact.owner = 'public'))")
+            + "WHERE this = contact "
+            + " AND (contact.owner = CURRENT_PRINCIPAL OR contact.owner = 'public'))"
+            + " AND this.type = org.jpasecurity.contacts.annotationbased.ContactType.CUSTOMER")
     })
 public class Contact implements Serializable {
 
@@ -49,12 +54,20 @@ public class Contact implements Serializable {
     @Basic
     private String text;
 
+    @Enumerated
+    private ContactType type;
+
     public Contact() {
     }
 
     public Contact(String user, String text) {
+        this(user, text, CUSTOMER);
+    }
+
+    public Contact(String user, String text, ContactType type) {
         setOwner(user);
         setText(text);
+        setType(CUSTOMER);
     }
 
     public Integer getId() {
@@ -79,6 +92,14 @@ public class Contact implements Serializable {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public ContactType getType() {
+        return type;
+    }
+
+    public void setType(ContactType type) {
+        this.type = type;
     }
 
     public String toString() {
