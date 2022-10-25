@@ -15,6 +15,8 @@
  */
 package org.jpasecurity.persistence;
 
+import static org.jpasecurity.persistence.SecurePersistenceProvider.PERSISTENCE_PROVIDER_PROPERTY;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -26,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,6 +45,8 @@ import org.xml.sax.SAXException;
 
 public class XmlParser {
 
+    private static final String PERSISTENCE_UNIT_XPATH = "/*[local-name()=''persistence'']"
+        + "/*[local-name()=''persistence-unit'' and @name=''{0}'']";
     private static final String PERSISTENCE_PROVIDER_XPATH = "/*[local-name()=''persistence'']"
         + "/*[local-name()=''persistence-unit'' and @name=''{0}'']/*[local-name()=''provider'']/text()";
     private static final String MAPPING_FILE_XPATH = "/*[local-name()=''persistence'']"
@@ -63,17 +68,28 @@ public class XmlParser {
         this(getResources(resourceNames));
     }
 
+    @SuppressWarnings("squid:S2755")
     public XmlParser(Collection<URL> documentUrls)
         throws ParserConfigurationException, SAXException, IOException, URISyntaxException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        // disable external entities
+        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         documentBuilderFactory.setNamespaceAware(false);
         xpath = XPathFactory.newInstance().newXPath();
         builder = documentBuilderFactory.newDocumentBuilder();
         documents = loadDocuments(documentUrls);
     }
 
+    public Set<Node> parsePersistenceUnit(String name) throws XPathExpressionException {
+        return parseNodeSet(MessageFormat.format(PERSISTENCE_UNIT_XPATH, name));
+    }
+
     public String parsePersistenceProvider(String name) throws XPathExpressionException {
-        return parseValue(MessageFormat.format(PERSISTENCE_PROVIDER_XPATH, name));
+        String provider = parseValue(MessageFormat.format(PERSISTENCE_PROVIDER_XPATH, name));
+        if (provider != null) {
+            return provider;
+        }
+        return parsePersistenceProperty(name, PERSISTENCE_PROVIDER_PROPERTY);
     }
 
     public String parsePersistenceProperty(String unitName, String propertyName) throws XPathExpressionException {
@@ -143,5 +159,9 @@ public class XmlParser {
             documents.add(document);
         }
         return documents;
+    }
+
+    public boolean hasDocuments() {
+        return !this.documents.isEmpty();
     }
 }

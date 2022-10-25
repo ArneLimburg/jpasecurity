@@ -30,6 +30,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.ListJoin;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Selection;
@@ -72,6 +73,7 @@ import org.jpasecurity.jpql.parser.JpqlGroupBy;
 import org.jpasecurity.jpql.parser.JpqlHaving;
 import org.jpasecurity.jpql.parser.JpqlIn;
 import org.jpasecurity.jpql.parser.JpqlInCollection;
+import org.jpasecurity.jpql.parser.JpqlIndex;
 import org.jpasecurity.jpql.parser.JpqlInnerFetchJoin;
 import org.jpasecurity.jpql.parser.JpqlInnerJoin;
 import org.jpasecurity.jpql.parser.JpqlIntegerLiteral;
@@ -910,6 +912,15 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
     public boolean visit(JpqlSize node, CriteriaHolder query) {
         node.jjtGetChild(0).visit(this, query);
         query.setValue(builder.size(query.<Expression<Collection<?>>>getCurrentValue()));
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean visit(JpqlIndex node, CriteriaHolder query) {
+        ListJoin<?, ?> join = (ListJoin<?, ?>)query.getFrom(new Alias(node.jjtGetChild(0).toString()));
+        query.setValue(join.index());
         return false;
     }
 

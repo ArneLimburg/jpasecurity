@@ -27,12 +27,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jpasecurity.Alias;
 import org.jpasecurity.Path;
 import org.jpasecurity.access.SecurePersistenceUnitUtil;
 import org.jpasecurity.jpql.JpqlCompiledStatement;
+import org.jpasecurity.jpql.TypeDefinition;
 import org.jpasecurity.jpql.parser.JpqlAbs;
 import org.jpasecurity.jpql.parser.JpqlAbstractSchemaName;
 import org.jpasecurity.jpql.parser.JpqlAdd;
@@ -60,6 +63,7 @@ import org.jpasecurity.jpql.parser.JpqlGroupBy;
 import org.jpasecurity.jpql.parser.JpqlHaving;
 import org.jpasecurity.jpql.parser.JpqlIdentificationVariable;
 import org.jpasecurity.jpql.parser.JpqlIn;
+import org.jpasecurity.jpql.parser.JpqlIndex;
 import org.jpasecurity.jpql.parser.JpqlIntegerLiteral;
 import org.jpasecurity.jpql.parser.JpqlIsEmpty;
 import org.jpasecurity.jpql.parser.JpqlIsNull;
@@ -759,6 +763,33 @@ public class QueryEvaluator extends JpqlVisitorAdapter<QueryEvaluationParameters
             data.setResult(((Collection<?>)data.getResult()).size());
         } catch (NotEvaluatableException e) {
             //result is undefined, which is ok here
+        }
+        return false;
+    }
+
+    public boolean visit(JpqlIndex node, QueryEvaluationParameters data) {
+        validateChildCount(node, 1);
+        if (!(data instanceof InMemoryEvaluationParameters)) {
+            // we can't evaluate in memory then
+            data.setResultUndefined();
+            return false;
+        }
+        InMemoryEvaluationParameters parameters = (InMemoryEvaluationParameters)data;
+        Alias alias = new Alias(node.jjtGetChild(0).toString());
+        TypeDefinition type = parameters.getType(alias);
+        if (!type.isJoin()) {
+            // we can't evaluate in memory then
+            data.setResultUndefined();
+            return false;
+        }
+        try {
+            PathEvaluator pathEvaluator = new MappedPathEvaluator(compiler.getMetamodel(), util);
+            Path joinPath = type.getJoinPath();
+            Set<Object> parent = Collections.singleton(data.getAliasValue(joinPath.getRootAlias()));
+            List<Object> list = pathEvaluator.evaluateAll(parent, joinPath.getSubpath());
+            data.setResult(list.indexOf(data.getAliasValue(alias)));
+        } catch (NotEvaluatableException e1) {
+            data.setResultUndefined();
         }
         return false;
     }

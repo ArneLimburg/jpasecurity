@@ -59,7 +59,7 @@ public class EjbContactsTest {
     private static final String ACTIVATE_DEFAULT_PRINCIPAL_TO_ROLE_MAPPING_PROPERTY
         = "embedded-glassfish-config.server.security-service.activate-default-principal-to-role-mapping";
     private static final String LOCAL_CONTACTS_DAO_JNDI_NAME
-        = "java:global/contacts/ContactsDaoBean!org.jpasecurity.contacts.ejb.LocalContactsDao";
+        = "java:global/contacts/ContactsDao!org.jpasecurity.contacts.ejb.LocalContactsDao";
     private static GlassFish glassFish;
     private static ContactsTestData testData;
     private static LocalContactsDao contactsDao;

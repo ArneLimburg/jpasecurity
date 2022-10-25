@@ -68,7 +68,13 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         }
         handleWithClause(getSubselect(subselect.getStatement()));
         handleGroupByClause(getSubselect(subselect.getStatement()));
-        if (isFalse(subselect.getWhereClause(), new InMemoryEvaluationParameters(parameters))) {
+        if (isFalse(subselect.getWhereClause(), new InMemoryEvaluationParameters(
+                parameters.getMetamodel(),
+                parameters.getPersistenceUnitUtil(),
+                parameters.getAliasValues(),
+                parameters.getNamedParameters(),
+                parameters.getPositionalParameters(),
+                subselect.getTypeDefinitions()))) {
             return emptySet();
         }
         PathEvaluator pathEvaluator
@@ -183,12 +189,13 @@ public class SimpleSubselectEvaluator extends AbstractSubselectEvaluator {
         for (Iterator<Map<Alias, Object>> v = new ValueIterator(variants, types, pathEvaluator); v.hasNext();) {
             Map<Alias, Object> aliases = new HashMap<Alias, Object>(parameters.getAliasValues());
             aliases.putAll(v.next());
-            QueryEvaluationParameters subselectParameters
-                = new QueryEvaluationParameters(parameters.getMetamodel(),
+            InMemoryEvaluationParameters subselectParameters
+                = new InMemoryEvaluationParameters(parameters.getMetamodel(),
                                                 parameters.getPersistenceUnitUtil(),
                                                 aliases,
                                                 parameters.getNamedParameters(),
-                                                parameters.getPositionalParameters());
+                                                parameters.getPositionalParameters(),
+                                                types);
             try {
                 if (evaluator.<Boolean>evaluate(subselect.getWhereClause(), subselectParameters)) {
                     Object[] result = new Object[selectedPaths.size()];

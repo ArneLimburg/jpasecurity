@@ -60,14 +60,16 @@ public final class TestEntityManager extends ExternalResource implements EntityM
             properties.put("javax.persistence.provider", "org.jpasecurity.persistence.SecurePersistenceProvider");
             properties.put("javax.persistence.transactionType", "RESOURCE_LOCAL");
             properties.put("javax.persistence.jtaDataSource", null);
-            properties.put("javax.persistence.jdbc.driver", "org.h2.Driver");
-            properties.put("javax.persistence.jdbc.url", "jdbc:h2:mem:" + moduleName);
+            properties.put("javax.persistence.jdbc.driver", "org.hsqldb.jdbc.JDBCDriver");
+            properties.put("javax.persistence.jdbc.url", "jdbc:hsqldb:mem:" + moduleName);
             properties.put("javax.persistence.jdbc.user", "sa");
             properties.put("javax.persistence.jdbc.password", "");
             properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
             properties.put("org.jpasecurity.security.context",
                     "org.jpasecurity.security.authentication.StaticSecurityContext");
             properties.put("hibernate.show_sql", "false");
+            properties.put("openjpa.jdbc.SynchronizeMappings", "buildSchema(ForeignKeys=true)");
+            properties.put("openjpa.DynamicEnhancementAgent", "false");
 
             entityManagerFactory.put(moduleName, Persistence.createEntityManagerFactory(moduleName, properties));
         }
@@ -122,22 +124,7 @@ public final class TestEntityManager extends ExternalResource implements EntityM
     }
 
     private void clearTables() {
-        getEntityManager().createNativeQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
-        List<String> schemas = entityManager.createNativeQuery("SHOW SCHEMAS").getResultList();
-        for (String schema : schemas) {
-            if (!schema.equals("INFORMATION_SCHEMA")) {
-                entityManager.createNativeQuery("SET SCHEMA " + schema).executeUpdate();
-                for (Object[] tables : (List<Object[]>)entityManager.createNativeQuery("SHOW TABLES FROM " + schema)
-                        .getResultList()) {
-                    for (Object table : tables) {
-                        if (!table.equals(schema)) {
-                            entityManager.createNativeQuery("TRUNCATE TABLE " + table).executeUpdate();
-                        }
-                    }
-                }
-            }
-        }
-        getEntityManager().createNativeQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();
+        getEntityManager().createNativeQuery("TRUNCATE SCHEMA PUBLIC AND COMMIT").executeUpdate();
     }
 
     public void clear() {

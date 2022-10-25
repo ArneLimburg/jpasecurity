@@ -6,7 +6,7 @@
     <named-query name="ParentTestBean.findById">
         <query>SELECT p FROM ParentTestBean p WHERE p.id = :id</query>
     </named-query>
-    <entity class="org.jpasecurity.ParentTestBean" access="PROPERTY">
+    <entity class="org.jpasecurity.model.ParentTestBean" access="PROPERTY">
         <named-query name="findByName">
             <query>SELECT p FROM ParentTestBean p WHERE p.name = :name</query>
         </named-query>

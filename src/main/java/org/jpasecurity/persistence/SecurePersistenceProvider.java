@@ -77,6 +77,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
 
     @Override
     public EntityManagerFactory createEntityManagerFactory(String unitName, Map properties) {
+        LOG.info("Creating EntityManagerFactory");
         if (properties == null) {
             properties = new HashMap<String, Object>();
         } else {
@@ -91,6 +92,25 @@ public class SecurePersistenceProvider implements PersistenceProvider {
             LOG.log(Level.WARNING, "Could not initialize xml parser", e);
             return null;
         }
+        if (!xmlParser.hasDocuments() && !properties.containsKey(PERSISTENCE_PROVIDER_PROPERTY)) {
+            LOG.log(Level.WARNING,
+                "Could not find any persistence.xml nor the " + PERSISTENCE_PROVIDER_PROPERTY + " property");
+            return null;
+        }
+
+        // do not instantiate if JPA security is not configured
+        String className = getClass().getCanonicalName();
+        try {
+            if (!className.equals(properties.get(PERSISTENCE_PROVIDER_PROPERTY))
+                && !className.equals(xmlParser.parsePersistenceProperty(unitName, PERSISTENCE_PROVIDER_PROPERTY))
+                && !className.equals(xmlParser.parsePersistenceProvider(unitName))) {
+                LOG.log(Level.CONFIG, "No configuration for JPA Security found");
+                return null;
+            }
+        } catch (XPathExpressionException e) {
+            return null;
+        }
+
         PersistenceProvider nativePersistenceProvider
             = createNativePersistenceProvider(unitName, properties, xmlParser);
         if (nativePersistenceProvider == null) {
@@ -154,7 +174,7 @@ public class SecurePersistenceProvider implements PersistenceProvider {
     private boolean isOtherPersistenceProvider(String overriddenPersistenceProviderClassName,
             String persistenceProviderClassName) {
         return overriddenPersistenceProviderClassName == null
-                && !getClass().getName().equals(persistenceProviderClassName);
+                && persistenceProviderClassName != null && !getClass().getName().equals(persistenceProviderClassName);
     }
 
     private String getPersistenceProviderClassName(String unitName, XmlParser parser) {
@@ -323,6 +343,16 @@ public class SecurePersistenceProvider implements PersistenceProvider {
         if (isOtherPersistenceProvider(overriddenPersistenceProviderClassName, persistenceProviderClassName)) {
             return null;
         }
+
+        try {
+            if (xmlParser.parsePersistenceUnit(unitName).isEmpty()) {
+                LOG.log(Level.WARNING, "Could not find any persistence unit called {0}", unitName);
+                return null;
+            }
+        } catch (XPathExpressionException e) {
+            return null;
+        }
+
         String nativePersistenceProviderClassName
             = getNativePersistenceProviderClassName(unitName,
                                                     overriddenPersistenceProviderClassName,

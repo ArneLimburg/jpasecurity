@@ -25,7 +25,7 @@ import org.jpasecurity.SecurityContext;
 import org.jpasecurity.security.authentication.AbstractSecurityContextTest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 
@@ -41,11 +41,11 @@ public class SpringSecurityContextTest extends AbstractSecurityContextTest {
     public void authenticate(Object principal, String... roles) {
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>(roles.length);
         for (int i = 0; i < roles.length; i++) {
-            grantedAuthorities.add(new GrantedAuthorityImpl(roles[i]));
+            grantedAuthorities.add(new SimpleGrantedAuthority(roles[i]));
         }
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(principal);
-        when(authentication.getAuthorities()).thenReturn(grantedAuthorities);
+        when((Collection)authentication.getAuthorities()).thenReturn(grantedAuthorities);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }

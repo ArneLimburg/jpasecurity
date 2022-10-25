@@ -4,7 +4,7 @@
           version="1.0">
   <persistence-unit name="interface">
     <access-rule>
-      GRANT ACCESS TO org.jpasecurity.model.TestInterface t WHERE t.name = CURRENT_PRINCIPAL 
+        GRANT ACCESS TO org.jpasecurity.model.EmptyInterface t WHERE t.name = CURRENT_PRINCIPAL
     </access-rule>
   </persistence-unit>
 
@@ -47,7 +47,7 @@
   </persistence-unit>
 
   <persistence-unit name="lazy-relationship">
-	<access-rule>GRANT ACCESS TO TestBean bean WHERE bean.name = CURRENT_PRINCIPAL OR bean.parent.name = CURRENT_PRINCIPAL</access-rule>  
+	<access-rule>GRANT ACCESS TO Bean bean WHERE bean.name = CURRENT_PRINCIPAL OR bean.parent.name = CURRENT_PRINCIPAL</access-rule>
   </persistence-unit>
 
   <persistence-unit name="mixed-protection-level-test">

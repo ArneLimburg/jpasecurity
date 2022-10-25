@@ -63,10 +63,11 @@ public class XmlParserTest {
     @Test
     public void parseMappingFiles() throws XPathExpressionException {
         Set<String> mappingFiles = parser.parseMappingFileNames("unit-test");
-        assertThat(mappingFiles.size(), is(3));
+        assertThat(mappingFiles.size(), is(4));
         assertThat(mappingFiles, hasItem("security.orm.xml"));
         assertThat(mappingFiles, hasItem("META-INF/empty.orm.xml"));
         assertThat(mappingFiles, hasItem("META-INF/parent.orm.xml"));
+        assertThat(mappingFiles, hasItem("META-INF/child.orm.xml"));
     }
 
     @Test
