@@ -49,6 +49,7 @@ public class DefaultAccessManager implements AccessManager {
     private boolean jtaTransactionActive;
     private int checksDisabled;
     private int checksDelayed;
+    private boolean checkingBeforeCompletion;
     private Map<Object, AccessType> entitiesToCheck = new SimpleMap<Object, AccessType>();
 
     public DefaultAccessManager(Metamodel metamodel, SecurityContext context, AccessManager filter) {
@@ -142,6 +143,15 @@ public class DefaultAccessManager implements AccessManager {
         }
     }
 
+    public void checkBeforeCompletion() {
+        checkingBeforeCompletion = true;
+        try {
+            checkNow();
+        } finally {
+            checkingBeforeCompletion = false;
+        }
+    }
+
     public void checkNow() {
         if (areChecksDelayed()) {
             checksDelayed--;
@@ -159,7 +169,8 @@ public class DefaultAccessManager implements AccessManager {
     }
 
     private boolean shouldCheckLater(AccessType accessType) {
-        boolean postPoneJtaWriteAccess =  accessType.isWriteAccess() && jtaTransactionActive;
+        boolean postPoneJtaWriteAccess =  accessType.isWriteAccess() && jtaTransactionActive
+            && !checkingBeforeCompletion;
         return checkInProgress || areChecksDelayed() || postPoneJtaWriteAccess;
     }
 
