@@ -16,6 +16,7 @@
 package org.jpasecurity.contacts.annotationbased;
 
 import static org.jpasecurity.contacts.annotationbased.ContactType.CUSTOMER;
+
 import java.io.Serializable;
 
 import javax.persistence.Basic;
