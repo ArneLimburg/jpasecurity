@@ -18,6 +18,7 @@ package org.jpasecurity.contacts.annotationbased;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
+import static org.jpasecurity.contacts.annotationbased.ContactType.EMPLOYEE;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
@@ -38,12 +39,14 @@ import org.junit.Test;
 
 public class AnnotationbasedContactTest {
 
+    public static final int SUM_CUSTOMER_AND_EMPLOYEE_CONTACTS = 5;
     private static EntityManagerFactory entityManagerFactory;
     private EntityManager entityManager;
     private Contact marysContact;
     private Contact johnsContact;
     private Contact publicContact;
     private Contact rootContact;
+    private Contact employeeContact;
 
     @BeforeClass
     public static void createEntityManagerFactory() {
@@ -65,10 +68,12 @@ public class AnnotationbasedContactTest {
         johnsContact = new Contact("john", "Johns contact");
         publicContact = new Contact("public", "public");
         rootContact = new Contact("root", "root contact");
+        employeeContact = new Contact("employee", "employee contact", EMPLOYEE);
         entityManager.persist(marysContact);
         entityManager.persist(johnsContact);
         entityManager.persist(publicContact);
         entityManager.persist(rootContact);
+        entityManager.persist(employeeContact);
         entityManager.getTransaction().commit();
         entityManager.clear();
         TestSecurityContext.unauthenticate();
@@ -92,8 +97,8 @@ public class AnnotationbasedContactTest {
 
         TestSecurityContext.authenticate("admin", "admin");
         result = entityManager.createNamedQuery(Contact.FIND_ALL, Contact.class).getResultList();
-        assertThat(result.size(), is(4));
-        assertThat(result, hasItems(marysContact, johnsContact, publicContact, rootContact));
+        assertThat(result.size(), is(SUM_CUSTOMER_AND_EMPLOYEE_CONTACTS));
+        assertThat(result, hasItems(marysContact, johnsContact, publicContact, rootContact, employeeContact));
 
         TestSecurityContext.authenticate("john", "user");
         result = entityManager.createNamedQuery(Contact.FIND_ALL, Contact.class).getResultList();
@@ -119,8 +124,8 @@ public class AnnotationbasedContactTest {
         query = cb.createQuery(Contact.class);
         query.from(Contact.class);
         result = entityManager.createQuery(query).getResultList();
-        assertThat(result.size(), is(4));
-        assertThat(result, hasItems(marysContact, johnsContact, publicContact, rootContact));
+        assertThat(result.size(), is(SUM_CUSTOMER_AND_EMPLOYEE_CONTACTS));
+        assertThat(result, hasItems(marysContact, johnsContact, publicContact, rootContact, employeeContact));
 
         TestSecurityContext.authenticate("john", "user");
         result = entityManager.createNamedQuery(Contact.FIND_ALL, Contact.class).getResultList();
