@@ -17,15 +17,6 @@ package org.jpasecurity.access;
 
 import static org.jpasecurity.util.Validate.notNull;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.Metamodel;
-
 import org.jpasecurity.AccessManager;
 import org.jpasecurity.AccessType;
 import org.jpasecurity.SecurityContext;
@@ -34,6 +25,15 @@ import org.jpasecurity.util.ReflectionUtils;
 import org.jpasecurity.util.SimpleMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
 
 /**
  * @author Arne Limburg
@@ -49,6 +49,7 @@ public class DefaultAccessManager implements AccessManager {
     private boolean jtaTransactionActive;
     private int checksDisabled;
     private int checksDelayed;
+    private boolean checkingNow;
     private Map<Object, AccessType> entitiesToCheck = new SimpleMap<Object, AccessType>();
 
     public DefaultAccessManager(Metamodel metamodel, SecurityContext context, AccessManager filter) {
@@ -147,19 +148,24 @@ public class DefaultAccessManager implements AccessManager {
             checksDelayed--;
         }
         if (!areChecksDelayed() && !areChecksDisabled() && !entitiesToCheck.isEmpty()) {
-            do {
-                Iterator<Entry<Object, AccessType>> iterator = entitiesToCheck.entrySet().iterator();
-                Entry<Object, AccessType> entry = iterator.next();
-                AccessType accessType = entry.getValue();
-                Object entity = entry.getKey();
-                checkAccess(accessType, entity);
-                entitiesToCheck.remove(entity);
-            } while (!entitiesToCheck.isEmpty());
+            checkingNow = true;
+            try {
+                do {
+                    Iterator<Entry<Object, AccessType>> iterator = entitiesToCheck.entrySet().iterator();
+                    Entry<Object, AccessType> entry = iterator.next();
+                    AccessType accessType = entry.getValue();
+                    Object entity = entry.getKey();
+                    checkAccess(accessType, entity);
+                    entitiesToCheck.remove(entity);
+                } while (!entitiesToCheck.isEmpty());
+            } finally {
+                checkingNow = false;
+            }
         }
     }
 
     private boolean shouldCheckLater(AccessType accessType) {
-        boolean postPoneJtaWriteAccess =  accessType.isWriteAccess() && jtaTransactionActive;
+        boolean postPoneJtaWriteAccess =  accessType.isWriteAccess() && jtaTransactionActive && !checkingNow;
         return checkInProgress || areChecksDelayed() || postPoneJtaWriteAccess;
     }
 
