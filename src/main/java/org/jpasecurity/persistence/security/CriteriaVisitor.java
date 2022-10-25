@@ -272,6 +272,10 @@ public class CriteriaVisitor extends JpqlVisitorAdapter<CriteriaHolder> {
 
     public boolean visitPath(Node node, CriteriaHolder query) {
         Path path = new Path(node.toString());
+        if (path.isEnumValue()) {
+            query.setValue(path.getEnumValue());
+            return false;
+        }
         // Oliver Zhou: Call getFrom instead of getPath, getPath doesn't work with Join
         javax.persistence.criteria.Path<?> currentPath = query.getFrom(path.getRootAlias());
 
