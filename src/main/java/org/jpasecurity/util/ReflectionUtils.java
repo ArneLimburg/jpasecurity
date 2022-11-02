@@ -188,7 +188,9 @@ public abstract class ReflectionUtils {
 
     /**
      * If this specified class represents a primitive type (int, float, etc.) then it is translated into its wrapper
-     * type (Integer, Float, etc.).  If the passed class is not a primitive then it is just returned.
+     * type (Integer, Float, etc.). If the passed class is not a primitive then it is just returned.
+     * @param primitive - the potential primitive
+     * @return the wrapper type
      */
     public static Class<?> translateFromPrimitive(Class<?> primitive) {
         if (!primitive.isPrimitive()) {

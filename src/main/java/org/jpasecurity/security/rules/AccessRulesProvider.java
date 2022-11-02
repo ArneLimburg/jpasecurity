@@ -25,7 +25,7 @@ import java.util.Collection;
 public interface AccessRulesProvider {
 
     /**
-     * Returns the access rules used for security.
+     * @return the access rules used for security.
      */
     Collection<String> getAccessRules();
 }

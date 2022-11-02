@@ -31,6 +31,11 @@ import org.slf4j.LoggerFactory;
  * For that security context the following security contexts are used in the specified order:
  * <ol>
  *   <li>
+ *     If Spring Security is available in the classpath,
+ *     a {@link org.jpasecurity.spring.authentication.SpringSecurityContext} is used
+ *     and calls are delegated to that bean.
+ *   </li>
+ *   <li>
  *     If CDI 1.1 is available in the classpath and it provides a bean of type
  *     <tt>org.jpasecurity.SecurityContext</tt>,
  *     a {@link org.jpasecurity.security.authentication.CdiSecurityContext} is used
@@ -41,15 +46,11 @@ import org.slf4j.LoggerFactory;
  *     a {@link org.jpasecurity.jsf.authentication.JsfSecurityContext} is used.
  *   </li>
  *   <li>
- *     If an <tt>javax.faces.context.FacesContext</tt> is present in the classpath,
- *     a {@link org.jpasecurity.jsf.authentication.JsfSecurityContext} is used.
- *   </li>
- *   <li>
  *     If an <tt>javax.ejb.EJBContext</tt> is accessible via JNDI lookup,
  *     an {@link EjbSecurityContext} is used.
  *   </li>
  *   <li>
- *     If none of the former conditions is true, a {@link DefaultAuthenticationProvider} is used.
+ *     If none of the former conditions is true, a {@link DefaultSecurityContext} is used.
  *   </li>
  * </ol>
  * @author Arne Limburg

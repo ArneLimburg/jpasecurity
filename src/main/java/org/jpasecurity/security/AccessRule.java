@@ -107,7 +107,9 @@ public class AccessRule extends JpqlCompiledStatement {
     }
 
     /**
-     * Returns <tt>true</tt>, if the specified type is a superclass of the selected type
+     * @param type - the type
+     * @param metamodel - the metamodel to search in
+     * @return <tt>true</tt>, if the specified type is a superclass of the selected type
      * of this access rule and so this rule may be assignable if the type of the concrete
      * entity is of the selected type or a subclass.
      */

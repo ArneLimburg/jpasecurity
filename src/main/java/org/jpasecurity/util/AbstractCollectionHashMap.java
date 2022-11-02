@@ -125,6 +125,7 @@ public abstract class AbstractCollectionHashMap<K, C extends Collection<V>, V> e
      * Creates a collection of type <tt>C</tt>.
      * Subclasses may implement this method to provide creation
      * of collections of a specific type.
+     * @return the created collection
      */
     protected abstract C createCollection();
 }

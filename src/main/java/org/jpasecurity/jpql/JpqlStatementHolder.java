@@ -50,6 +50,7 @@ public class JpqlStatementHolder implements Cloneable {
 
     /**
      * Returns the node representing this statement.
+     * @return the node representing this statement.
      */
     public Node getStatement() {
         return statement;

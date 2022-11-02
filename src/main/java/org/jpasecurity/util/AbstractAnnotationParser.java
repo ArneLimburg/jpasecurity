@@ -44,6 +44,7 @@ public abstract class AbstractAnnotationParser<A extends Annotation, D> {
 
     /**
      * Creates an annotation parser for the specified annotations.
+     * @param annotationTypes - the types to parse
      */
     protected AbstractAnnotationParser(Class<A>... annotationTypes) {
         this.annotationTypes = Arrays.asList(annotationTypes);
@@ -51,6 +52,9 @@ public abstract class AbstractAnnotationParser<A extends Annotation, D> {
 
     /**
      * Parses the specified classes for the annotation(s).
+     *
+     * @param classes - the classes to parse
+     * @param data - the data (may be specific in subclasses).
      */
     protected void parse(Class<?>[] classes, D data) {
         for (Class<?> annotatedClass: classes) {
@@ -60,6 +64,9 @@ public abstract class AbstractAnnotationParser<A extends Annotation, D> {
 
     /**
      * Parses the specified classes for the annotation(s).
+     *
+     * @param classes - the classes to parse
+     * @param data - the data (may be specific in subclasses).
      */
     protected void parse(Collection<Class<?>> classes, D data) {
         for (Class<?> annotatedClass : classes) {
@@ -69,6 +76,9 @@ public abstract class AbstractAnnotationParser<A extends Annotation, D> {
 
     /**
      * Parses the specified class for the annotation(s).
+     *
+     * @param annotatedClass - the class to parse
+     * @param data - the data (may be specific in subclasses).
      */
     protected void parse(Class<?> annotatedClass, D data) {
         if (annotatedClass == null) {
