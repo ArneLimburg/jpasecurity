@@ -16,7 +16,6 @@
 package org.jpasecurity.security.rules;
 
 import static java.util.Collections.singleton;
-
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

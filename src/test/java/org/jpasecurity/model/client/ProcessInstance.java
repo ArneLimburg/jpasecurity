@@ -16,6 +16,7 @@
 package org.jpasecurity.model.client;
 
 import java.util.Date;
+
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;

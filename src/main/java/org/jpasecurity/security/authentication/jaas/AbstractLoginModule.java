@@ -43,6 +43,11 @@ public abstract class AbstractLoginModule<P extends Principal> implements LoginM
      * This method is called by the JAAS engine on initialization.
      * If you want to intercept the initialization process, you can override
      * {@link #postConstruct(Subject, CallbackHandler, Map, Map)}.
+     * @param subject - the subject where the principals will be added
+     * @param callbackHandler - a callback handler that is able to handle {@link NameCallback}
+     *   and {@link PasswordCallback}
+     * @param sharedState - a map containing optional shared state
+     * @param options - a map containing optional options
      */
     public final void initialize(Subject subject,
                                  CallbackHandler callbackHandler,
@@ -56,6 +61,11 @@ public abstract class AbstractLoginModule<P extends Principal> implements LoginM
     /**
      * This implementation does nothing. However you can override this method
      * to get informed about the initialization of this login module.
+     * @param subject - the subject where the principals will be added
+     * @param callbackHandler - a callback handler that is able to handle {@link NameCallback}
+     *   and {@link PasswordCallback}
+     * @param sharedState - a map containing optional shared state
+     * @param options - a map containing optional options
      */
     protected void postConstruct(Subject subject,
                                  CallbackHandler callbackHandler,
@@ -75,6 +85,7 @@ public abstract class AbstractLoginModule<P extends Principal> implements LoginM
      * This method is called by the JAAS engine on login.
      * It calls {@link #authenticate(String, String)} which has to be implemented by subclasses
      * of this class.
+     * @return <tt>true</tt>, if the login was successful
      */
     public final boolean login() throws LoginException {
         try {
@@ -98,8 +109,8 @@ public abstract class AbstractLoginModule<P extends Principal> implements LoginM
      * Implementations of this method try to authenticate the user with the specified user name and password.
      * If authentication cannot be established this method either may return <tt>null</tt>
      * or throw a {@link LoginException}.
-     * @param userName
-     * @param password
+     * @param userName - the user name
+     * @param password - the password
      * @return the authenticated principal or <tt>null</tt> if authentication could not be established
      * @throws LoginException if some error occurs
      */
@@ -108,6 +119,7 @@ public abstract class AbstractLoginModule<P extends Principal> implements LoginM
     /**
      * This method is called by the JAAS engine on logout.
      * If you want to intercept the logout process you may override {@link #canLogout()}.
+     * @return <tt>true</tt>, if the logout was successful
      */
     public final boolean logout() throws LoginException {
         if (canLogout()) {
@@ -129,6 +141,7 @@ public abstract class AbstractLoginModule<P extends Principal> implements LoginM
      * This method is called by the JAAS engine to actually establish the authentication.
      * It calls {@link #getAdditionalPrincipals()} to enable subclasses to provide additional
      * principals such as roles.
+     * @return <tt>true</tt>, if the authentication could be established
      */
     public final boolean commit() throws LoginException {
         if (principal == null) {
@@ -152,6 +165,7 @@ public abstract class AbstractLoginModule<P extends Principal> implements LoginM
      * in this method.
      * <p>
      * This implementation returns an empty array.
+     * @return an empty array
      */
     protected Principal[] getAdditionalPrincipals() {
         return new Principal[0];
@@ -159,7 +173,8 @@ public abstract class AbstractLoginModule<P extends Principal> implements LoginM
 
     /**
      * This method is called by the JAAS engine to indicate that some other login module
-     * prevents authentication. This implementation calls {@link #login()}.
+     * prevents authentication. This implementation calls {@link #logout()}.
+     * @return <tt>true</tt>, if the logout was successful
      */
     public boolean abort() throws LoginException {
         if (principal == null) {

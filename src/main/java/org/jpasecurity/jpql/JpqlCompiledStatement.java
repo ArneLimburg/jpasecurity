@@ -70,6 +70,7 @@ public class JpqlCompiledStatement extends JpqlStatementHolder {
 
     /**
      * Returns the paths of the select-clause.
+     * @return the select-clause
      */
     public List<Path> getSelectedPaths() {
         return selectedPaths;
@@ -94,6 +95,7 @@ public class JpqlCompiledStatement extends JpqlStatementHolder {
 
     /**
      * Returns the type-definitions of the from-clause and join-clauses.
+     * @return the type-definitions of the from-clause and join-clauses.
      */
     public Set<TypeDefinition> getTypeDefinitions() {
         return typeDefinitions;

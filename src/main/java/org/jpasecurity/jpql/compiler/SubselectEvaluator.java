@@ -18,7 +18,6 @@ package org.jpasecurity.jpql.compiler;
 import java.util.Collection;
 
 import org.jpasecurity.jpql.JpqlCompiledStatement;
-
 import org.jpasecurity.jpql.parser.JpqlSubselect;
 
 /**
