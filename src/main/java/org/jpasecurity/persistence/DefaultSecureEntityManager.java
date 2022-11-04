@@ -375,7 +375,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         try {
             return InitialContext.doLookup("java:comp/TransactionSynchronizationRegistry");
         } catch (NamingException e) {
-            return null;
+            throw new IllegalStateException(e);
         }
     }
 
