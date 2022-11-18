@@ -127,7 +127,7 @@ public abstract class AbstractSecureCollection<E, T extends Collection<E>> exten
         DefaultAccessManager accessManager = DefaultAccessManager.Instance.get();
         accessManager.delayChecks();
         accessManager.ignoreChecks(AccessType.READ, original);
-        accessManager.checkNow();
+        accessManager.checkReadAccessNow();
         for (E entity: original) {
             if (isSimplePropertyType(entity.getClass())) {
                 filtered.add(entity);

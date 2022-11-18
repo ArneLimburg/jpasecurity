@@ -18,9 +18,10 @@ package org.jpasecurity.access;
 import static org.jpasecurity.util.Validate.notNull;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.metamodel.EntityType;
@@ -152,19 +153,36 @@ public class DefaultAccessManager implements AccessManager {
         }
     }
 
+    public void checkReadAccessNow() {
+        if (areChecksDelayed()) {
+            checksDelayed--;
+        }
+        if (!areChecksDelayed() && !areChecksDisabled() && !entitiesToCheck.isEmpty()) {
+            Set<Entry<Object, AccessType>> entities = new HashSet<>(entitiesToCheck.entrySet());
+            for (Entry<Object, AccessType> entry: entities) {
+                AccessType accessType = entry.getValue();
+
+                if (accessType.equals(AccessType.READ)) {
+                    Object entity = entry.getKey();
+                    checkAccess(accessType, entity);
+                    entitiesToCheck.remove(entity);
+                }
+            }
+        }
+    }
+
     public void checkNow() {
         if (areChecksDelayed()) {
             checksDelayed--;
         }
         if (!areChecksDelayed() && !areChecksDisabled() && !entitiesToCheck.isEmpty()) {
-            do {
-                Iterator<Entry<Object, AccessType>> iterator = entitiesToCheck.entrySet().iterator();
-                Entry<Object, AccessType> entry = iterator.next();
+            Set<Entry<Object, AccessType>> entities = new HashSet<>(entitiesToCheck.entrySet());
+            for (Entry<Object, AccessType> entry: entities) {
                 AccessType accessType = entry.getValue();
                 Object entity = entry.getKey();
                 checkAccess(accessType, entity);
                 entitiesToCheck.remove(entity);
-            } while (!entitiesToCheck.isEmpty());
+            }
         }
     }
 
