@@ -129,7 +129,7 @@ public class DefaultSecureMap<K, V> extends AbstractMap<K, V> {
         accessManager.delayChecks();
         accessManager.ignoreChecks(AccessType.READ, original.keySet());
         accessManager.ignoreChecks(AccessType.READ, original.values());
-        accessManager.checkNow();
+        accessManager.checkReadAccessNow();
         for (Map.Entry<K, V> entry: original.entrySet()) {
             K key = entry.getKey();
             V value = entry.getValue();

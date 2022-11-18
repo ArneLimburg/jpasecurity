@@ -71,7 +71,7 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
             }
             DefaultAccessManager.Instance.get().ignoreChecks(AccessType.READ, Collections.singleton(result));
         } finally {
-            DefaultAccessManager.Instance.get().checkNow();
+            DefaultAccessManager.Instance.get().checkReadAccessNow();
         }
         return result;
     }
@@ -96,7 +96,7 @@ public class SecureQuery<T> extends DelegatingQuery<T> {
             }
         }
         DefaultAccessManager.Instance.get().ignoreChecks(AccessType.READ, targetResult);
-        DefaultAccessManager.Instance.get().checkNow();
+        DefaultAccessManager.Instance.get().checkReadAccessNow();
         return proxyResult;
     }
 

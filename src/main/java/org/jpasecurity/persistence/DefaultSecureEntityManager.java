@@ -134,7 +134,7 @@ public class DefaultSecureEntityManager extends DelegatingEntityManager
         } else {
             entity = super.find(type, id);
         }
-        accessManager.checkNow();
+        accessManager.checkReadAccessNow();
         return entity;
     }
 
