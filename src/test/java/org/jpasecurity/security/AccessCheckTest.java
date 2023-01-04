@@ -54,11 +54,11 @@ public class AccessCheckTest {
 
     @Test
     public void create() {
-        TestSecurityContext.authenticate(CREATOR, CREATOR);
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("access-check");
+        EntityManager entityManager = factory.createEntityManager();
+        TestSecurityContext.authenticate(CREATOR, CREATOR);
 
         //Merge a new entity
-        EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
         FieldAccessAnnotationTestBean bean = new FieldAccessAnnotationTestBean(USER);
         FieldAccessAnnotationTestBean child = new FieldAccessAnnotationTestBean(CHILD);
