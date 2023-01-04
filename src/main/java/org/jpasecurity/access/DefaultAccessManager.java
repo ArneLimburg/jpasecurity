@@ -104,6 +104,7 @@ public class DefaultAccessManager implements AccessManager {
                         + entity.getClass().getSimpleName()
                         + " is not accessible with access type " + accessType);
             }
+            removeCheckedEntity(entity, accessType);
         } catch (SecurityException e) {
             abortCheck();
             throw e;
@@ -137,10 +138,7 @@ public class DefaultAccessManager implements AccessManager {
 
     public void ignoreChecks(AccessType accessType, Collection<?> entities) {
         for (Object entity: entities) {
-            AccessType type = entitiesToCheck.remove(entity);
-            if (type != null && type != accessType) {
-                entitiesToCheck.put(entity, type);
-            }
+            removeCheckedEntity(entity, accessType);
         }
     }
 
@@ -165,7 +163,6 @@ public class DefaultAccessManager implements AccessManager {
                 if (accessType.equals(AccessType.READ)) {
                     Object entity = entry.getKey();
                     checkAccess(accessType, entity);
-                    entitiesToCheck.remove(entity);
                 }
             }
         }
@@ -181,7 +178,6 @@ public class DefaultAccessManager implements AccessManager {
                 AccessType accessType = entry.getValue();
                 Object entity = entry.getKey();
                 checkAccess(accessType, entity);
-                entitiesToCheck.remove(entity);
             }
         }
     }
@@ -199,6 +195,13 @@ public class DefaultAccessManager implements AccessManager {
 
     private void startCheck() {
         checkInProgress = true;
+    }
+
+    private void removeCheckedEntity(Object entity, AccessType accessType) {
+        AccessType accessTypeToCheck = entitiesToCheck.get(entity);
+        if (accessType == accessTypeToCheck) {
+            entitiesToCheck.remove(entity);
+        }
     }
 
     private void abortCheck() {
